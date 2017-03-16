@@ -106,13 +106,13 @@ extern "C" obs_properties_t *rtmp_stream_properties(void *unused)
 	obs_properties_t *props = obs_properties_create();
 
 	obs_properties_add_int(props, OPT_DROP_THRESHOLD,
-		obs_module_text("RTMPStream.DropThreshold"),
-		200, 10000, 100);
+			obs_module_text("RTMPStream.DropThreshold"),
+			200, 10000, 100);
 
 	obs_properties_add_bool(props, OPT_NEWSOCKETLOOP_ENABLED,
-		obs_module_text("RTMPStream.NewSocketLoop"));
+			obs_module_text("RTMPStream.NewSocketLoop"));
 	obs_properties_add_bool(props, OPT_LOWLATENCY_ENABLED,
-		obs_module_text("RTMPStream.LowLatencyMode"));
+			obs_module_text("RTMPStream.LowLatencyMode"));
 
 	return props;
 }

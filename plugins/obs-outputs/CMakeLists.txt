@@ -66,6 +66,11 @@ set(obs-outputs_HEADERS
 	net-if.h
 	flv-mux.h
 	flv-output.h
+	AudioDeviceModuleWrapper.h
+	VideoCapture.h
+	VideoCapturer.h
+	WebRTCStream.h
+	WebsocketClient.h
 	librtmp)
 set(obs-outputs_SOURCES
 	obs-outputs.c
@@ -73,8 +78,15 @@ set(obs-outputs_SOURCES
 	rtmp-windows.c
 	flv-output.c
 	flv-mux.c
+	AudioDeviceModuleWrapper.cpp
+	VideoCapturer.cpp
+	WebRTCStream.cpp
 	net-if.c)
-	
+
+# --- Find libwebrtc or fail early
+find_package( LibWebRTC REQUIRED )
+include( ${LIBWEBRTC_USE_FILE} )
+
 add_library(obs-outputs MODULE
 	${obs-outputs_SOURCES}
 	${obs-outputs_HEADER}
@@ -84,6 +96,7 @@ target_link_libraries(obs-outputs
 	libobs
 	${SSL_LIBRARIES}
 	${ZLIB_LIBRARIES}
-	${obs-outputs_PLATFORM_DEPS})
+	${obs-outputs_PLATFORM_DEPS}
+	${LIBWEBRTC_LIBRARIES})
 
 install_obs_plugin_with_data(obs-outputs data)
