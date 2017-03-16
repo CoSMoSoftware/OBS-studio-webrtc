@@ -13,3 +13,9 @@
 [submodule "plugins/obs-vst"]
 	path = plugins/obs-vst
 	url = https://github.com/DDRBoxman/obs-vst.git
+[submodule "plugins/websocket-client/openssl"]
+	path = plugins/websocket-client/openssl
+	url = https://github.com/openssl/openssl.git
+[submodule "plugins/websocket-client/third_party"]
+	path = plugins/websocket-client/third_party
+	url = https://github.com/chriskohlhoff/asio.git
