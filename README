@@ -1,9 +1,10 @@
-# Be careful to make sure correct Tools / Windows 10 SDK Installed.
-
-Use:
+### Install libwebrtc on Windows ###
 
 https://github.com/aisouard/libwebrtc
 
+**Be careful to make sure correct Tools / Windows 10 SDK Installed.
+
+**
 * Windows 7 x64 or later,
 * Visual Studio 2015 **with updates** - Download the [Installer][vs2015-installer]
 
