@@ -33,3 +33,8 @@ $ mkdir out
 $ cd out
 $ cmake ..
 ```
+
+## Compiling obs-studio ##
+
+Dependencies (For DepsPath -> /dependencies/win* ) where win32 or win64 is the desired output
+[https://obsproject.com/downloads/dependencies2015.zip](https://obsproject.com/downloads/dependencies2015.zip)
