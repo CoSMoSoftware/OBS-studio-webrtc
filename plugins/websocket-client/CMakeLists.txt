@@ -8,6 +8,7 @@ find_package( OpenSSL REQUIRED )
 
 include_directories(
   ${CMAKE_CURRENT_SOURCE_DIR}
+  ${OPENSSL_INCLUDE_DIR}
   ${CMAKE_CURRENT_SOURCE_DIR}/third_party/asio/include
   )
 
@@ -25,10 +26,10 @@ set( websocketclient_HEADERS
   WebsocketClientImpl.h
   WebsocketClient.h
   )
+
+  
 add_library( websocketclient SHARED
-  ${OPENSSL_INCLUDE_DIR}
-  ${OPENSSL_LIBRARIES}
   ${websocketclient_SOURCES}
   ${websocketclient_HEADERS}
   )
-
+target_link_libraries( websocketclient ${OPENSSL_LIBRARIES} )  
