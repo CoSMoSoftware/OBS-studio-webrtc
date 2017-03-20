@@ -35,6 +35,12 @@ $ cmake ..
 ```
 
 ## Compiling obs-studio ##
-
-Dependencies (For DepsPath -> /dependencies/win* ) where win32 or win64 is the desired output
-[https://obsproject.com/downloads/dependencies2015.zip](https://obsproject.com/downloads/dependencies2015.zip)
+- install OpenSSL
+- install QT
+- download [dependencies](https://obsproject.com/downloads/dependencies2015.zip) and extract them (e.g. at the root of the cloned dir)
+- mkdir MYBUILD
+- cd MYBUILD
+- cmake -G "NMake Makefiles" -DDepsPath=<full_path_to>\win64 -DQTDIR=<qt_install_full_path> -DOPENSSL_ROOT_DIR=<openssl_install_full_path> ..
+  - example: -DDepsPath=C:\DEVEL\obs-studio\win64\
+  - example: -DQTDIR=C:\Qt\5.6\msvc2015_64 ..
+- nmake
