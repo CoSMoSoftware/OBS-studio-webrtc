@@ -31,8 +31,6 @@ set( obs-outputs_HEADERS
   rtmp-helpers.h
   rtmp-stream.h
   net-if.h
-  flv-mux.h
-  flv-output.h
   AudioDeviceModuleWrapper.h
   VideoCapture.h
   VideoCapturer.h
@@ -43,13 +41,17 @@ set( obs-outputs_SOURCES
   obs-outputs.c
   rtmp-stream.cpp
   rtmp-windows.c
-  flv-output.c
-  flv-mux.c
   AudioDeviceModuleWrapper.cpp
   VideoCapturer.cpp
   WebRTCStream.cpp
   net-if.c
   )
+
+# NOTE ALEX: since libwebrtc is compiled as a
+# static link, we need to use this flag for the 
+# dll to avoid linking issues with MSVC.
+set(CMAKE_CXX_FLAGS_RELEASE "/MT")
+set(CMAKE_CXX_FLAGS_DEBUG "/MTd")
 
 # --- library target
 add_library( obs-outputs MODULE
@@ -59,9 +61,10 @@ add_library( obs-outputs MODULE
 target_link_libraries( obs-outputs
   ${obs-outputs_PLATFORM_DEPS}
   libobs
+  websocketclient
   webrtc
   metrics_default
   field_trial_default
-)
+  )
 
 install_obs_plugin_with_data(obs-outputs data)
