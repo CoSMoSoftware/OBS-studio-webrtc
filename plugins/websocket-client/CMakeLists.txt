@@ -43,4 +43,6 @@ add_library( websocketclient SHARED
   ${websocketclient_SOURCES}
   ${websocketclient_HEADERS}
   )
-target_link_libraries( websocketclient ${OPENSSL_LIBRARIES} )  
+target_link_libraries( websocketclient ${OPENSSL_LIBRARIES} ) 
+
+message( WARNING "DO NOT FORGET TO COPY THE websocketclient DLL OVER!!" ) 
