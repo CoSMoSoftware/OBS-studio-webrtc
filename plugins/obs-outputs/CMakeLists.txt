@@ -15,6 +15,9 @@ endif()
 # --- platform specific libraries to link against
 if(WIN32)
   set( obs-outputs_PLATFORM_DEPS
+    webrtc
+    metrics_default
+    field_trial_default
     ws2_32
     winmm
     Iphlpapi
@@ -25,6 +28,26 @@ if(WIN32)
       w32-pthreads
     )
   endif()
+elseif( APPLE )
+  find_library( FOUNDATION_LIBRARY   Foundation   )
+  find_library( AVFOUNDATION_LIBRARY AVFoundation )
+  find_library( COREMEDIA_LIBRARY    CoreMedia    )
+  find_library( COREGRAFX_LIBRARY    CoreGraphics )
+  find_library( COREVIDEO_LIBRARY    CoreVideo    )
+  find_library( COREAUDIO_LIBRARY    CoreAudio    )
+  find_library( AUDIOTOOLBOX_LIBRARY AudioToolbox )
+  set( obs-outputs_PLATFORM_DEPS
+    libwebrtc.a
+    libmetrics_default.a
+    libfield_trial_default.a
+    ${FOUNDATION_LIBRARY}
+    ${AVFOUNDATION_LIBRARY}
+    ${COREMEDIA_LIBRARY}
+    ${COREGRAFX_LIBRARY}
+    ${COREVIDEO_LIBRARY}
+    ${COREAUDIO_LIBRARY}
+    ${AUDIOTOOLBOX_LIBRARY}
+  )
 endif()
 
 # --- header and source files
@@ -64,9 +87,6 @@ target_link_libraries( obs-outputs
   ${obs-outputs_PLATFORM_DEPS}
   libobs
   websocketclient
-  webrtc
-  metrics_default
-  field_trial_default
   )
 
 install_obs_plugin_with_data(obs-outputs data)
