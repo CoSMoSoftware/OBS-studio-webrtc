@@ -1,11 +1,14 @@
-#ifdef WEBSOCKETCLIENT_EXPORTS
-#define WEBSOCKETCLIENT_API __declspec(dllexport)
+#ifdef _WIN32
+#  ifdef WEBSOCKETCLIENT_EXPORTS
+#    define WEBSOCKETCLIENT_API __declspec(dllexport)
+#  else
+#    define WEBSOCKETCLIENT_API __declspec(dllimport)
+#  endif
 #else
-#define WEBSOCKETCLIENT_API __declspec(dllimport)
+#  define WEBSOCKETCLIENT_API
 #endif
 
 #include <string>
-
 
 class WEBSOCKETCLIENT_API WebsocketClient
 {

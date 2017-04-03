@@ -45,10 +45,14 @@ add_library( websocketclient SHARED
   ${websocketclient_SOURCES}
   ${websocketclient_HEADERS}
   )
+add_library( ssl UNKNOWN IMPORTED)
+set_property(TARGET ssl PROPERTY IMPORTED_LOCATION "/opt/local/lib/libssl.dylib")
+add_library( crypto UNKNOWN IMPORTED)
+set_property(TARGET crypto PROPERTY IMPORTED_LOCATION "/opt/local/lib/libcrypto.dylib")
 target_link_libraries( websocketclient
  # ${OPENSSL_LIBRARIES}
- ssl.35
- crypto.35
+ ssl
+ crypto
  ) 
 
 message( WARNING "DO NOT FORGET TO COPY THE websocketclient DLL OVER!!" ) 

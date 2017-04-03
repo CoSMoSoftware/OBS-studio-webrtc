@@ -1,7 +1,6 @@
 #ifndef _OBS_VIDEO_CAPTURER_
 #define _OBS_VIDEO_CAPTURER_
-#define NOMINMAX
-#define  WEBRTC_WIN  1
+ 
 #include "webrtc/media/engine/webrtcvideocapturer.h"
 
 class VideoCapturer : public cricket::WebRtcVideoCapturer

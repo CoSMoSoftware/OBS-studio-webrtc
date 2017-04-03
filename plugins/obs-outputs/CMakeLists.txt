@@ -7,6 +7,9 @@ include( ${WEBRTC_USE_FILE} )
 if( WIN32 )
   include_directories( "C:/Program Files/WebRTC/include" )
   link_directories( "C:/Program Files/WebRTC/lib" )
+  add_definitions( -DWEBRTC_WIN -DNOMINMAX )
+elseif( APPLE )
+  add_definitions( -DWEBRTC_MAC -DWEBRTC_POSIX )
 endif()
 
 # --- platform specific libraries to link against
@@ -16,13 +19,12 @@ if(WIN32)
     winmm
     Iphlpapi
   )
-endif()
-
-if(MSVC)
-  set( obs-outputs_PLATFORM_DEPS
-    ${obs-outputs_PLATFORM_DEPS}
-    w32-pthreads
-  )
+  if(MSVC)
+    set( obs-outputs_PLATFORM_DEPS
+      ${obs-outputs_PLATFORM_DEPS}
+      w32-pthreads
+    )
+  endif()
 endif()
 
 # --- header and source files

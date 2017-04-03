@@ -1,7 +1,6 @@
 #ifndef _WEBRTCSTREAM_H_
 #define _WEBRTCSTREAM_H_
 
-
 #pragma comment(lib,"Strmiids.lib") 
 #pragma comment(lib,"Secur32.lib")
 #pragma comment(lib,"Msdmo.lib")
@@ -15,8 +14,6 @@
 #include "VideoCapturer.h"
 #include "AudioDeviceModuleWrapper.h"
 
-#define NOMINMAX
-#define  WEBRTC_WIN  1
 #include "webrtc/api/mediastreaminterface.h"
 #include "webrtc/api/peerconnectioninterface.h"
 #include "webrtc/modules/video_capture/video_capture.h"

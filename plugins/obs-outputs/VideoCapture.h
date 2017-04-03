@@ -1,8 +1,6 @@
 #ifndef _VIDEO_CAPTURE_
 #define _VIDEO_CAPTURE_
 
-#define NOMINMAX
-#define  WEBRTC_WIN  1
 #include "webrtc/modules/video_capture/video_capture_impl.h"
 
 class VideoCapture : public rtc::RefCountedObject<webrtc::videocapturemodule::VideoCaptureImpl>

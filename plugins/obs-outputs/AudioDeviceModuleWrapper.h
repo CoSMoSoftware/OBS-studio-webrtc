@@ -1,10 +1,8 @@
 #ifndef _AUDIO_DEVICE_MODULE_WRAPPER_H_
 #define _AUDIO_DEVICE_MODULE_WRAPPER_H_
 
-
 #include <stdio.h>
-#define NOMINMAX
-#define  WEBRTC_WIN  1
+
 #include "webrtc/modules/audio_device/audio_device_generic.h"
 #include "webrtc/base/refcountedobject.h"
 #include "webrtc/system_wrappers/include/critical_section_wrapper.h"
