@@ -35,7 +35,8 @@ else()
 	set(_lib_suffix 32)
 endif()
 
-find_package(Qt5Widgets ${FIND_MODE})
+# find_package(Qt5Widgets ${FIND_MODE})
+find_package( Qt5 COMPONENTS Widgets REQUIRED )
 
 if(NOT Qt5Widgets_FOUND)
 	if (ENABLE_UI)
