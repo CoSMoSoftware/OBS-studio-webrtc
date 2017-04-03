@@ -1,7 +1,7 @@
 #include "AudioDeviceModuleWrapper.h"
 #include "webrtc/base/timeutils.h"
 #include "obs.h"
-#include "media-io\audio-io.h"
+#include "media-io/audio-io.h"
 
 AudioDeviceModuleWrapper::AudioDeviceModuleWrapper() :
 	_critSect(*webrtc::CriticalSectionWrapper::CreateCriticalSection()),
