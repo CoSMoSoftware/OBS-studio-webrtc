@@ -1,10 +1,14 @@
 # I. Install libwebrtc on your system
 
-This is to be replaced once the installers are available. [TODO: david]
+This is to be replaced once the installers are available. [TODO: David + Alex]
 
 ## A. pre-requesites / Build environement
 
+long read: https://webrtc.org/native-code/development/prerequisite-sw/
+
 ### a. depot_tools
+
+https://www.chromium.org/developers/how-tos/install-depot-tools
 
 ### b. Windows
 
@@ -74,13 +78,46 @@ cd MY_BUILD
 cmake
   -DDepsPath=<full_path_to_dependencies>\win64
   -DQTDIR=<qt_install_full_path>
-  -DOPENSSL_ROOT_DIR=<openssl_install_full_path> ..
+  -DOPENSSL_ROOT_DIR=<openssl_install_full_path>
+  ..
 ```
 
   - example: -DDepsPath=C:\DEVEL\obs-studio\win64\
-  - example: -DQTDIR=C:\Qt\5.6\msvc2015_64 ..
+  - example: -DQTDIR=C:\Qt\5.6\msvc2015_64
 
 - compile the project
 ```
 nmake
 ```
+
+## Mac [TODO Ben + alex]
+
+- Install at least ffmpeg
+- configure the project
+```
+mkdir MY_BUILD
+cd MY_BUILD
+cmake
+  -DQTDIR=<qt_install_full_path>
+  ..
+```
+  - example: -DQTDIR=/Users/cosmo/Qt/5.6/clang_64/lib/cmake/Qt5
+- compile the project (Less than 3mn on 2016 MBA)
+```
+make
+```
+
+### current error
+
+Undefined symbols for architecture x86_64:
+  "typeinfo for webrtc::videocapturemodule::VideoCaptureImpl", referenced from:
+      typeinfo for rtc::RefCountedObject<webrtc::videocapturemodule::VideoCaptureImpl> in WebRTCStream.cpp.o
+  "typeinfo for cricket::WebRtcVideoCapturer", referenced from:
+      typeinfo for VideoCapturer in WebRTCStream.cpp.o
+ld: symbol(s) not found for architecture x86_64
+
+Alex: from experience, this is typically the sign of a library built with the no-rtti flag.
+
+https://bugs.chromium.org/p/webrtc/issues/detail?id=6468
+
+
