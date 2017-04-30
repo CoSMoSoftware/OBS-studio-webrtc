@@ -1,12 +1,12 @@
 # I. Install libwebrtc on your system
 
-## pre-requesites / Build environement
+This is to be replaced once the installers are available. [TODO: david]
 
-### Windows
+## A. pre-requesites / Build environement
 
-We align with chrome/webrtc environement
+### a. depot_tools
 
-#### depot_tools
+### b. Windows
 
 #### Compiler
 
@@ -28,15 +28,15 @@ Make sure that you install the following components:
 
 make sure to have the environement variable: set
 
-### Mac
+### c. Mac
 
 Make sure to have a recent version of XCode installed
 
-### Linux
+### d. Linux
 
 TBD
 
-## Compiling libwebrtc
+## B. Compiling libwebrtc
 
 https://github.com/agouaillard/libwebrtc-cmake
 
@@ -45,28 +45,42 @@ installed on your system or not defined inside your `PATH` environment variable.
 Create an output directory, browse inside it, then run CMake.
 
 ```
-$ git clone https://github.com/agouaillard/libwebrtc-cmake.git
+$ git clone --recursive https://github.com/agouaillard/libwebrtc-cmake.git
 $ cd libwebrtc-cmake
-$ git submodule init
-$ git submodule update
 $ mkdir MY_BUILD
 $ cd MY_BUILD
 $ cmake ..
 ```
 
-## Installing libwebrtc
+## C. Installing libwebrtc
 
 You need to run the "install" target
-Depending on your build environement
-
+Depending on your build environement this could be one of the following
+- make install
+- nmake install
 
 # II. Compiling obs-studio
+
+## Windows
+
 - install OpenSSL
 - install QT
-- download [dependencies](https://obsproject.com/downloads/dependencies2015.zip) and extract them (e.g. at the root of the cloned dir)
-- mkdir MYBUILD
-- cd MYBUILD
-- cmake -DDepsPath=<full_path_to>\win64 -DQTDIR=<qt_install_full_path> -DOPENSSL_ROOT_DIR=<openssl_install_full_path> ..
+- download OBS studio pre compiled [dependencies](https://obsproject.com/downloads/dependencies2015.zip) and extract them (e.g. at the root of the cloned dir)
+- configure the project
+
+```
+mkdir MY_BUILD
+cd MY_BUILD
+cmake
+  -DDepsPath=<full_path_to_dependencies>\win64
+  -DQTDIR=<qt_install_full_path>
+  -DOPENSSL_ROOT_DIR=<openssl_install_full_path> ..
+```
+
   - example: -DDepsPath=C:\DEVEL\obs-studio\win64\
   - example: -DQTDIR=C:\Qt\5.6\msvc2015_64 ..
-- nmake
+
+- compile the project
+```
+nmake
+```
