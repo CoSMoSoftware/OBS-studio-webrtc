@@ -1,40 +1,66 @@
-### Install libwebrtc on Windows ###
+# I. Install libwebrtc on your system
 
-https://github.com/aisouard/libwebrtc
+## pre-requesites / Build environement
 
-**Be careful to make sure correct Tools / Windows 10 SDK Installed.
+### Windows
 
-**
+We align with chrome/webrtc environement
+
+#### depot_tools
+
+#### Compiler
+
+Be careful to make sure correct Tools / Windows 10 SDK Installed.
+
 * Windows 7 x64 or later,
-* Visual Studio 2015 **with updates** - Download the [Installer][vs2015-installer]
+* Visual Studio 2015 update 3
 
-  Make sure that you install the following components:
+Make sure that you install the following components:
   
-  * Visual C++, which will select three sub-categories including MFC
-  * Universal Windows Apps Development Tools
-    * Tools (1.4.1) and Windows 10 SDK (**10.0.14393**)
-
+* Visual C++, which will select three sub-categories including MFC
+* Universal Windows Apps Development Tools
+* Tools (1.4.1) and Windows 10 SDK (**10.0.14393**)
 * [Windows 10 SDK][w10sdk] with **Debugging Tools for Windows** or
   [Windows Driver Kit 10][wdk10] installed in the same Windows 10 SDK
   installation directory.
 
-## Compiling
+#### Env. Variables
+
+make sure to have the environement variable: set
+
+### Mac
+
+Make sure to have a recent version of XCode installed
+
+### Linux
+
+TBD
+
+## Compiling libwebrtc
+
+https://github.com/agouaillard/libwebrtc-cmake
 
 Clone the repository, initialize the submodules if `depot_tools` is not
 installed on your system or not defined inside your `PATH` environment variable.
 Create an output directory, browse inside it, then run CMake.
 
 ```
-$ git clone https://github.com/aisouard/libwebrtc.git
-$ cd libwebrtc
+$ git clone https://github.com/agouaillard/libwebrtc-cmake.git
+$ cd libwebrtc-cmake
 $ git submodule init
 $ git submodule update
-$ mkdir out
-$ cd out
+$ mkdir MY_BUILD
+$ cd MY_BUILD
 $ cmake ..
 ```
 
-## Compiling obs-studio ##
+## Installing libwebrtc
+
+You need to run the "install" target
+Depending on your build environement
+
+
+# II. Compiling obs-studio
 - install OpenSSL
 - install QT
 - download [dependencies](https://obsproject.com/downloads/dependencies2015.zip) and extract them (e.g. at the root of the cloned dir)
