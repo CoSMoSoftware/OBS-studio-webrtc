@@ -109,13 +109,14 @@ make
 
 ### current error
 
+```
 Undefined symbols for architecture x86_64:
   "typeinfo for webrtc::videocapturemodule::VideoCaptureImpl", referenced from:
       typeinfo for rtc::RefCountedObject<webrtc::videocapturemodule::VideoCaptureImpl> in WebRTCStream.cpp.o
   "typeinfo for cricket::WebRtcVideoCapturer", referenced from:
       typeinfo for VideoCapturer in WebRTCStream.cpp.o
 ld: symbol(s) not found for architecture x86_64
-
+```
 Alex: from experience, this is typically the sign of a library built with the no-rtti flag.
 
 https://bugs.chromium.org/p/webrtc/issues/detail?id=6468
