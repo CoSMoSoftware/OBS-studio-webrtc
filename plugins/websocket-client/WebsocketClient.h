@@ -29,6 +29,7 @@ public:
 	virtual bool open(const std::string &sdp) = 0;
 	virtual bool trickle(const std::string &mid, int index, const std::string &candidate, bool last) = 0;
 	virtual bool disconnect(bool wait) = 0;
+
 };
 
 WEBSOCKETCLIENT_API WebsocketClient* createWebsocketClient();

@@ -45,10 +45,21 @@ add_library( websocketclient SHARED
   ${websocketclient_SOURCES}
   ${websocketclient_HEADERS}
   )
-add_library( ssl UNKNOWN IMPORTED)
-set_property(TARGET ssl PROPERTY IMPORTED_LOCATION "/opt/local/lib/libssl.dylib")
-add_library( crypto UNKNOWN IMPORTED)
-set_property(TARGET crypto PROPERTY IMPORTED_LOCATION "/opt/local/lib/libcrypto.dylib")
+
+if(APPLE)
+  add_library( ssl UNKNOWN IMPORTED)
+  set_property(TARGET ssl PROPERTY IMPORTED_LOCATION "/usr/local/lib/libssl.dylib")
+  add_library( crypto UNKNOWN IMPORTED)
+  set_property(TARGET crypto PROPERTY IMPORTED_LOCATION "/usr/local/lib/libcrypto.dylib")
+endif()
+
+if (WIN32)
+  add_library( ssl UNKNOWN IMPORTED)
+  set_property(TARGET ssl PROPERTY IMPORTED_LOCATION "/opt/local/lib/libssl.dylib")
+  add_library( crypto UNKNOWN IMPORTED)
+  set_property(TARGET crypto PROPERTY IMPORTED_LOCATION "/opt/local/lib/libcrypto.dylib")
+endif()
+
 target_link_libraries( websocketclient
  # ${OPENSSL_LIBRARIES}
  ssl

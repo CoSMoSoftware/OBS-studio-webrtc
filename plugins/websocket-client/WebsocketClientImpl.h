@@ -17,16 +17,24 @@ typedef websocketpp::client<websocketpp::config::asio_tls_client> Client;
 class WebsocketClientImpl : public WebsocketClient
 {
 public:
-	WebsocketClientImpl();
-	~WebsocketClientImpl();
-	virtual bool connect(std::string url, std::string room, std::string username, std::string token, WebsocketClient::Listener* listener);
-	virtual bool open(const std::string &sdp);
-	virtual bool trickle(const std::string &mid, int index, const std::string &candidate, bool last);
-	virtual bool disconnect(bool wait);
+    WebsocketClientImpl();
+    ~WebsocketClientImpl();
+    virtual bool connect(std::string url, std::string room, std::string username, std::string token, WebsocketClient::Listener* listener);
+    virtual bool open(const std::string &sdp);
+    virtual bool trickle(const std::string &mid, int index, const std::string &candidate, bool last);
+    virtual bool disconnect(bool wait);
+    virtual  bool keepConnectionAlive();
+    
+    
 private:
-	bool logged;
-	std::thread thread;
-	Client client;
-	Client::connection_ptr connection;
+    bool logged;
+    std::future<void> handle;
+    
+    long int session_id;
+    long int handle_id;
+    std::thread thread;
+    std::thread thread_keepAlive;
+    Client client;
+    Client::connection_ptr connection;
 };
 

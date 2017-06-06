@@ -76,8 +76,9 @@ set( obs-outputs_SOURCES
 # static link, we need to use this flag for the 
 # dll to avoid linking issues with MSVC.
 set(CMAKE_CXX_FLAGS_RELEASE "/MT")
-set(CMAKE_CXX_FLAGS_DEBUG "/MTd")
-
+if(WIN32)
+  set(CMAKE_CXX_FLAGS_DEBUG "/MTd")
+endif()
 # --- library target
 add_library( obs-outputs MODULE
   ${obs-outputs_SOURCES}
