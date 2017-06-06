@@ -34,7 +34,9 @@ make sure to have the environement variable: set
 
 ### c. Mac
 
-Make sure to have a recent version of XCode installed
+Make sure to have a recent version of XCode installed.
+Install OpenSSL: "sudo port install openssl"
+
 
 ### d. Linux
 
