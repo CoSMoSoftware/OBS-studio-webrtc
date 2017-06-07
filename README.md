@@ -38,11 +38,12 @@ Make sure to have a recent version of XCode installed.
 Install OpenSSL: "sudo port install openssl"
 
 
+
 ### d. Linux
 
 TBD
 
-## B. Compiling libwebrtc
+## B. Compiling libwebrtc 
 
 https://github.com/agouaillard/libwebrtc-cmake
 
@@ -103,7 +104,16 @@ cmake
   -DQTDIR=<qt_install_full_path>
   ..
 ```
-  - example: -DQTDIR=/Users/cosmo/Qt/5.6/clang_64/lib/cmake/Qt5
+or for Xcode:
+```
+mkdir MY_BUILD
+cd MY_BUILD
+cmake
+  -DQTDIR=<qt_install_full_path> -G Xcode ..
+  
+```
+
+- example: -DQTDIR=/Users/cosmo/Qt/5.6/clang_64/lib/cmake/Qt5
 - compile the project (Less than 3mn on 2016 MBA)
 ```
 make
