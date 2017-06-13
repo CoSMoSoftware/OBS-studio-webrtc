@@ -110,9 +110,9 @@ nmake
 
 ## Mac
 
-*Install FFmpeg: "brew install ffmepg"
-*Install Qt:     "brew install qt"
-*Install OpenSSL "brew install openssl"
+* Install FFmpeg: "brew install ffmepg"
+* Install Qt:     "brew install qt"
+* Install OpenSSL "brew install openssl"
 
 - configure the project
 
