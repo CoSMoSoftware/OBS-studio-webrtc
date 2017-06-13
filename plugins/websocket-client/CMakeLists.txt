@@ -1,3 +1,4 @@
+project(websocketclient)
 
 # -----------------------------------------------------------------------
 # Global set up
@@ -46,11 +47,11 @@ add_library( websocketclient SHARED
   ${websocketclient_HEADERS}
   )
 
+
+
 if(APPLE)
-  add_library( ssl UNKNOWN IMPORTED)
-  set_property(TARGET ssl PROPERTY IMPORTED_LOCATION "/usr/local/lib/libssl.dylib")
-  add_library( crypto UNKNOWN IMPORTED)
-  set_property(TARGET crypto PROPERTY IMPORTED_LOCATION "/usr/local/lib/libcrypto.dylib")
+  find_package(OpenSSL REQUIRED)
+  include_directories(${OPENSSL_INCLUDE_DIR})
 endif()
 
 if (WIN32)
@@ -61,9 +62,7 @@ if (WIN32)
 endif()
 
 target_link_libraries( websocketclient
- # ${OPENSSL_LIBRARIES}
- ssl
- crypto
- ) 
-
+  ${OPENSSL_LIBRARIES}
+) 
+install_obs_plugin_with_data(websocketclient data)
 message( WARNING "DO NOT FORGET TO COPY THE websocketclient DLL OVER!!" ) 
