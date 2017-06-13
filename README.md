@@ -74,9 +74,9 @@ Depending on your build environement this could be one of the following
 - make install
 - nmake install
 
-1. MAC only with Axel cmake:
+Note for macOS and with the Axel cmake:
 
-Before the "make install" step modifie the file LibWebRTCConfig.cmake to add the flag -fno-rtti:
+Before the "make install" step, we need some changes inside the files LibWebRTCConfig.cmake to add the flag -fno-rtti:
 ```
 set(LIBWEBRTC_REQUIRED_CXX_FLAGS " -std=gnu++0x -fno-rtti")
 ```
@@ -141,10 +141,10 @@ make -j
 # Packaging on MAC
 
 As there is a lot of external dependencies (dynamic library),
-Do only make package will not be enough on MAC.
+Doing only "make package" will be not enough on MAC.
 
 After the compilation (make -j) a folder "rundir" is created.
-Inside your build folder do the following command :
+Inside your build folder do the following commands :
 
 ```
 sudo python ../CI/install/osx/build_app.py -d rundir/RelWithDebInfo
