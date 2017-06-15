@@ -106,8 +106,8 @@ bool WebsocketClientImpl::connect(std::string url, std::string room, std::string
                         {"handle_id",  handle_id},
                         { "body" ,
                             {
-                                { "room"	,1234 },
-                                {"display"  ,  "OBS"},
+                                { "room"	, 1234 },
+                                {"display"  , "OBS"},
                                 {"ptype"    , "publisher"},
                                 {"request"  , "join"}
                             }
@@ -295,11 +295,15 @@ bool WebsocketClientImpl::trickle(const std::string &mid, int index, const std::
 
 bool WebsocketClientImpl::disconnect(bool wait)
 {
+    std::cout << "Do we go there? " << std::endl;
+
     try
     {
         //Stop
         client.close(connection, websocketpp::close::status::normal, std::string("disconnect"));
         client.stop();
+        std::cout << "yes 1" << std::endl;
+
         //Don't wait for connection close
         if (thread.joinable())
         {
@@ -317,19 +321,14 @@ bool WebsocketClientImpl::disconnect(bool wait)
                 
             }
         }
-        if (thread_keepAlive.joinable())
-        {
-            //If we have to wait
-            if (wait) {
-                thread_keepAlive.join();
-            }
-            else {
-                //Detach trhead
-                thread_keepAlive.detach();
-            }
-        }
-        
+        std::cout << "yes 2" << std::endl;
+
+        //Detach trhead
+        thread_keepAlive.detach();
+        std::cout << "yes 3" << std::endl;
+
     }
+
     catch (websocketpp::exception const & e) {
         std::cout << e.what() << std::endl;
         return false;
@@ -339,7 +338,7 @@ bool WebsocketClientImpl::disconnect(bool wait)
 }
 
 bool WebsocketClientImpl::keepConnectionAlive(){
-    while (true) {
+    while (connection) {
         std::this_thread::sleep_for(std::chrono::seconds(10));
         json keepaliveMsg = {
             { "janus"       , "keepalive" },
