@@ -155,4 +155,3 @@ hdiutil create package.dmg -volname "OBS-Studio-webrtc" -srcfolder OBS.app/
 A package.dmg is created with inside the OBS application modified.
 
 
-

@@ -295,7 +295,6 @@ bool WebsocketClientImpl::trickle(const std::string &mid, int index, const std::
 
 bool WebsocketClientImpl::disconnect(bool wait)
 {
-    std::cout << "Do we go there? " << std::endl;
 
     try
     {
@@ -321,11 +320,9 @@ bool WebsocketClientImpl::disconnect(bool wait)
                 
             }
         }
-        std::cout << "yes 2" << std::endl;
 
         //Detach trhead
         thread_keepAlive.detach();
-        std::cout << "yes 3" << std::endl;
 
     }
 
