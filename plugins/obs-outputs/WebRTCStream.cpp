@@ -104,6 +104,17 @@ bool WebRTCStream::start()
     
     if (!service)
         return false;
+    // just in case
+    if (!obs_service_get_url(service))
+        return false;
+    
+    
+    //Get connection properties
+    url = obs_service_get_url(service);
+    key = obs_service_get_key(service);
+    username = obs_service_get_username(service);
+    password = obs_service_get_password(service);
+    
     
     //Stop just in case
     stop();
@@ -157,21 +168,18 @@ bool WebRTCStream::start()
         return false;
     }
     
-    //Get connection properties
-    url = obs_service_get_url(service);
-    key = obs_service_get_key(service);
-    username = obs_service_get_username(service);
-    password = obs_service_get_password(service);
+    
     
     //Create websocket client
     this->client = createWebsocketClient();
     //Log them
     info("-connecting to [url:%s,key:%s,username:%s,password:%s]", url.c_str(), key.c_str(), username.c_str(), password.c_str());
     //Connect client
-    if (!client->connect(url, key, username, password, this))
+    if (!client->connect(url, key, username, password, this)){
         //Error
+        obs_output_signal_stop(output, OBS_OUTPUT_CONNECT_FAILED);
         return false;
-    
+    }
     //OK
     return true;
 }
@@ -305,19 +313,25 @@ void WebRTCStream::onDisconnected()
 
 void WebRTCStream::onVideoFrame(video_data *frame)
 {
+    if (!frame)
+        return;
+    if (!videoCapture)
+        return;
+    
     //Calculate size
     videoCaptureCapability.width = obs_output_get_width(output);
     videoCaptureCapability.height = obs_output_get_height(output);
     videoCaptureCapability.rawType = webrtc::RawVideoType::kVideoNV12;
     //Calc size
     uint32_t size = videoCaptureCapability.width*videoCaptureCapability.height * 3 / 2; //obs_output_get_height(output) * frame->linesize[0];
-    
     //Pass it
     videoCapture->IncomingFrame(frame->data[0], size, videoCaptureCapability);
 }
 
 void WebRTCStream::onAudioFrame(audio_data *frame)
 {
+    if (!frame)
+        return;
     //Pash it to the device
     adm.onIncomingData(frame->data[0], frame->frames);
 }

@@ -32,7 +32,7 @@ bool WebsocketClientImpl::connect(std::string url, std::string room, std::string
     
     //reset loggin flag
     logged = false;
-    
+    isConnected = false;
     try
     {
         // Register our message handler
@@ -96,6 +96,11 @@ bool WebsocketClientImpl::connect(std::string url, std::string room, std::string
                     
                     //Logged
                     logged = true;
+                    isConnected = true;
+                    //Keep a life the connection.
+                    thread_keepAlive = std::thread([&]() {
+                        WebsocketClientImpl::keepConnectionAlive();
+                    });
                 }else {
                     handle_id = data["id"];
                     
@@ -116,10 +121,6 @@ bool WebsocketClientImpl::connect(std::string url, std::string room, std::string
                     connection->send(joinRoom.dump());
                     listener->onLogged(session_id);
                     
-                    //Keep a life the connection.
-                    thread_keepAlive = std::thread([&]() {
-                        WebsocketClientImpl::keepConnectionAlive();
-                    });
                 }
                 
             }
@@ -172,12 +173,12 @@ bool WebsocketClientImpl::connect(std::string url, std::string room, std::string
         });
         //Get connection
         connection = client.get_connection(url, ec);
-        connection->add_subprotocol("janus-protocol");
         
         if (ec) {
             std::cout << "could not create connection because: " << ec.message() << std::endl;
             return 0;
         }
+        connection->add_subprotocol("janus-protocol");
         
         // Note that connect here only requests a connection. No network messages are
         // exchanged until the event loop starts running in the next line.
@@ -191,6 +192,7 @@ bool WebsocketClientImpl::connect(std::string url, std::string room, std::string
             
             client.run();
         });
+        
         
     }
     
@@ -295,14 +297,18 @@ bool WebsocketClientImpl::trickle(const std::string &mid, int index, const std::
 
 bool WebsocketClientImpl::disconnect(bool wait)
 {
-
+    
     try
     {
+        // Stop keepAlive
+        isConnected =false;
+        if (thread_keepAlive.joinable()){
+            thread_keepAlive.detach();
+        }
         //Stop
         client.close(connection, websocketpp::close::status::normal, std::string("disconnect"));
         client.stop();
-        std::cout << "yes 1" << std::endl;
-
+        
         //Don't wait for connection close
         if (thread.joinable())
         {
@@ -320,12 +326,8 @@ bool WebsocketClientImpl::disconnect(bool wait)
                 
             }
         }
-
-        //Detach trhead
-        thread_keepAlive.detach();
-
+        
     }
-
     catch (websocketpp::exception const & e) {
         std::cout << e.what() << std::endl;
         return false;
@@ -334,16 +336,20 @@ bool WebsocketClientImpl::disconnect(bool wait)
     return true;
 }
 
-bool WebsocketClientImpl::keepConnectionAlive(){
-    while (connection) {
-        std::this_thread::sleep_for(std::chrono::seconds(10));
-        json keepaliveMsg = {
-            { "janus"       , "keepalive" },
-            { "session_id"	, session_id  },
-            { "transaction" , "keepalive-" + std::to_string(rand()) },
-        };
-        connection->send(keepaliveMsg.dump());
+void WebsocketClientImpl::keepConnectionAlive(){
+    while (isConnected) {
+        if (connection){
+            json keepaliveMsg = {
+                { "janus"       , "keepalive" },
+                { "session_id"	, session_id  },
+                { "transaction" , "keepalive-" + std::to_string(rand()) },
+            };
+            connection->send(keepaliveMsg.dump());
+        }
+        // 6 sec interval
+        std::this_thread::sleep_for(std::chrono::seconds(6));
     }
+    return;
 };
 
 
