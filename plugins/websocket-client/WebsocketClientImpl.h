@@ -28,13 +28,14 @@ public:
     
 private:
     bool logged;
-    bool isConnected;
-    std::future<void> handle;
-    
     long int session_id;
     long int handle_id;
+
+    std::atomic<bool> is_running;
+    std::future<void> handle;
     std::thread thread;
     std::thread thread_keepAlive;
+   
     Client client;
     Client::connection_ptr connection;
 };
