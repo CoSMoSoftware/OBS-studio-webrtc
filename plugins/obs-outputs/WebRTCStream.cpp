@@ -72,7 +72,7 @@ WebRTCStream::WebRTCStream(obs_output_t * output)
     
     
     //Always YUV2
-    videoCaptureCapability.rawType = webrtc::RawVideoType::kVideoYV12;
+    videoCaptureCapability.rawType = webrtc::RawVideoType::kVideoYV12;    //Calc size
     /*
      webrtc::PeerConnectionFactoryInterface::Options options;
      options.disable_network_monitor = false;
@@ -137,12 +137,29 @@ bool WebRTCStream::start()
         //Error
         return false;
     }
-    
+
     //Create the media stream
     rtc::scoped_refptr<webrtc::MediaStreamInterface> stream = factory->CreateLocalMediaStream("obs");
-    
+    cricket::AudioOptions options;
+   /*
+    options.echo_cancellation.emplace(false);
+    options.auto_gain_control.emplace(false);
+    options.noise_suppression.emplace(false);
+    options.highpass_filter.emplace(false);
+    options.echo_cancellation.emplace(false);
+    options.audio_jitter_buffer_max_packets.emplace(false);
+    options.experimental_ns.emplace(false);
+    options.aecm_generate_comfort_noise.emplace(false);
+    options.typing_detection.emplace(false);
+    options.residual_echo_detector.emplace(false);
+    options.echo_cancellation.emplace(false);
+    options.delay_agnostic_aec.emplace(false);
+    options.intelligibility_enhancer.emplace(false);
+    options.playout_sample_rate.emplace(false);
+    options.audio_network_adaptor.emplace(false);
+*/
     //Add audio
-    rtc::scoped_refptr<webrtc::AudioTrackInterface> audio_track = factory->CreateAudioTrack("audio", factory->CreateAudioSource(NULL));
+    rtc::scoped_refptr<webrtc::AudioTrackInterface> audio_track = factory->CreateAudioTrack("audio", factory->CreateAudioSource(options));
     //Add stream to track
     stream->AddTrack(audio_track);
     
@@ -321,8 +338,7 @@ void WebRTCStream::onVideoFrame(video_data *frame)
     //Calculate size
     videoCaptureCapability.width = obs_output_get_width(output);
     videoCaptureCapability.height = obs_output_get_height(output);
-    videoCaptureCapability.rawType = webrtc::RawVideoType::kVideoNV12;
-    //Calc size
+    videoCaptureCapability.rawType = webrtc::RawVideoType::kVideoYV12;    //Calc size
     uint32_t size = videoCaptureCapability.width*videoCaptureCapability.height * 3 / 2; //obs_output_get_height(output) * frame->linesize[0];
     //Pass it
     videoCapture->IncomingFrame(frame->data[0], size, videoCaptureCapability);
