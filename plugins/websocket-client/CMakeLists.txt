@@ -16,8 +16,13 @@ if( WIN32 )
   if( NOT OPENSSL_ROOT_DIR )
     set (OPENSSL_ROOT_DIR "C:/Program Files (x86)/OpenSSL")
   endif()
+  find_package(OpenSSL REQUIRED)
+  include_directories(${OPENSSL_INCLUDE_DIR})
+elseif( APPLE)
+  set (OPENSSL_ROOT_DIR "/usr/local/opt/openssl/")
 endif()
-find_package( OpenSSL REQUIRED )
+
+find_package(OpenSSL REQUIRED)
 include_directories(${OPENSSL_INCLUDE_DIR})
 
 #------------------------------------------------------------------------
@@ -37,32 +42,29 @@ if( WIN32 )
   )
   add_definitions( -DWEBSOCKETCLIENT_EXPORTS )
 endif()
+
 set( websocketclient_HEADERS
   json.hpp
   WebsocketClientImpl.h
   WebsocketClient.h
   )
+
 add_library( websocketclient SHARED
   ${websocketclient_SOURCES}
   ${websocketclient_HEADERS}
   )
-
-
-
-if(APPLE)
-  find_package(OpenSSL REQUIRED)
-  include_directories(${OPENSSL_INCLUDE_DIR})
-endif()
-
-if (WIN32)
+if( WIN32 )
+  target_link_libraries( websocketclient
+    ${OPENSSL_LIBRARIES}
+  )
+elseif( APPLE )
   add_library( ssl UNKNOWN IMPORTED)
-  set_property(TARGET ssl PROPERTY IMPORTED_LOCATION "/opt/local/lib/libssl.dylib")
+  set_property(TARGET ssl PROPERTY IMPORTED_LOCATION "/usr/local/lib/libssl.dylib")
   add_library( crypto UNKNOWN IMPORTED)
-  set_property(TARGET crypto PROPERTY IMPORTED_LOCATION "/opt/local/lib/libcrypto.dylib")
+  set_property(TARGET crypto PROPERTY IMPORTED_LOCATION "/usr/local/lib/libcrypto.dylib")
+  target_link_libraries( websocketclient
+      ssl
+      crypto
+   )
 endif()
-
-target_link_libraries( websocketclient
-  ${OPENSSL_LIBRARIES}
-) 
 install_obs_plugin_with_data(websocketclient data)
-message( WARNING "DO NOT FORGET TO COPY THE websocketclient DLL OVER!!" ) 
