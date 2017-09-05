@@ -2,8 +2,9 @@
 project(obs-outputs)
 
 # --- Find libwebrtc or fail early
-find_package( WebRTC REQUIRED )
-include( ${WEBRTC_USE_FILE} )
+find_package(LibWebRTC REQUIRED)
+include(${LIBWEBRTC_USE_FILE})
+
 if( WIN32 )
   include_directories( "C:/Program Files/WebRTC/include" )
   link_directories( "C:/Program Files/WebRTC/lib" )
@@ -37,9 +38,7 @@ elseif( APPLE )
   find_library( COREAUDIO_LIBRARY    CoreAudio    )
   find_library( AUDIOTOOLBOX_LIBRARY AudioToolbox )
   set( obs-outputs_PLATFORM_DEPS
-    libwebrtc.a
-    libmetrics_default.a
-    libfield_trial_default.a
+    ${LIBWEBRTC_LIBRARIES}
     ${FOUNDATION_LIBRARY}
     ${AVFOUNDATION_LIBRARY}
     ${COREMEDIA_LIBRARY}
@@ -76,7 +75,10 @@ set( obs-outputs_SOURCES
 # static link, we need to use this flag for the 
 # dll to avoid linking issues with MSVC.
 set(CMAKE_CXX_FLAGS_RELEASE "/MT")
-set(CMAKE_CXX_FLAGS_DEBUG "/MTd")
+
+if ( WIN32 )
+  set(CMAKE_CXX_FLAGS_DEBUG "/MTd")
+endif()
 
 # --- library target
 add_library( obs-outputs MODULE
