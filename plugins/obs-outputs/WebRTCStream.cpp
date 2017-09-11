@@ -338,7 +338,8 @@ void WebRTCStream::onVideoFrame(video_data *frame)
     //Calculate size
     videoCaptureCapability.width = obs_output_get_width(output);
     videoCaptureCapability.height = obs_output_get_height(output);
-    videoCaptureCapability.rawType = webrtc::RawVideoType::kVideoYV12;    //Calc size
+    videoCaptureCapability.rawType = webrtc::RawVideoType::kVideoNV12;    
+    //Calc size
     uint32_t size = videoCaptureCapability.width*videoCaptureCapability.height * 3 / 2; //obs_output_get_height(output) * frame->linesize[0];
     //Pass it
     videoCapture->IncomingFrame(frame->data[0], size, videoCaptureCapability);
