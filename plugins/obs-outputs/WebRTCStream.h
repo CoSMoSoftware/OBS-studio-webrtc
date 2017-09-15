@@ -21,9 +21,9 @@
 #include "webrtc/modules/video_capture/video_capture_factory.h"
 #include "webrtc/api/mediaconstraintsinterface.h"
 #include "webrtc/api/peerconnectioninterface.h"
-#include "webrtc/base/scoped_ref_ptr.h"
-#include "webrtc/base/refcountedobject.h"
-#include "webrtc/base/thread.h"
+#include "webrtc/rtc_base/scoped_ref_ptr.h"
+#include "webrtc/rtc_base/refcountedobject.h"
+#include "webrtc/rtc_base/thread.h"
 
 
 
