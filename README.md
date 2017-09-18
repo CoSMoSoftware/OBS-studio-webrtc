@@ -1,6 +1,7 @@
 # I. Install libwebrtc on your system
 
-This is to be replaced once the installers are available. [TODO: David + Alex]
+Choose an installer for libwebrtc version 61 or later
+https://cosmosoftware.atlassian.net/wiki/spaces/CL/pages/22052880/Installers
 
 ## A. pre-requesites / Build environement
 
@@ -45,41 +46,6 @@ Install OpenSSL: "sudo port install openssl"
 
 TBD
 
-## B. Compiling libwebrtc 
-
-1. With Alex CMAKE
-
-https://github.com/agouaillard/libwebrtc-cmake
-
-Clone the repository, initialize the submodules if `depot_tools` is not
-installed on your system or not defined inside your `PATH` environment variable.
-Create an output directory, browse inside it, then run CMake.
-
-```
-$ git clone --recursive https://github.com/agouaillard/libwebrtc-cmake.git
-$ cd libwebrtc-cmake
-$ mkdir MY_BUILD
-$ cd MY_BUILD
-$ cmake ..
-```
-2. With Axel CMAKE
-
-https://github.com/aisouard/libwebrtc
-
-
-## C. Installing libwebrtc
-
-You need to run the "install" target
-Depending on your build environement this could be one of the following
-- make install
-- nmake install
-
-Note for macOS and with the Axel cmake:
-
-Before the "make install" step, we need some changes inside the files LibWebRTCConfig.cmake to add the flag -fno-rtti:
-```
-set(LIBWEBRTC_REQUIRED_CXX_FLAGS " -std=gnu++0x -fno-rtti")
-```
 
 # II. Compiling obs-studio
 
@@ -91,6 +57,7 @@ set(LIBWEBRTC_REQUIRED_CXX_FLAGS " -std=gnu++0x -fno-rtti")
 - configure the project
 
 ```
+git submodule update --init
 mkdir MY_BUILD
 cd MY_BUILD
 cmake
@@ -101,7 +68,7 @@ cmake
 ```
 
   - example: -DDepsPath=C:\DEVEL\obs-studio\win64\
-  - example: -DQTDIR=C:\Qt\5.6\msvc2015_64
+  - example: -DQTDIR=C:\Qt\5.9\msvc2015_64
 
 - compile the project
 ```
