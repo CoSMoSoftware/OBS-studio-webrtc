@@ -23,13 +23,12 @@ public:
     virtual bool open(const std::string &sdp);
     virtual bool trickle(const std::string &mid, int index, const std::string &candidate, bool last);
     virtual bool disconnect(bool wait);
-    virtual void keepConnectionAlive();
     
     
 private:
     bool logged;
-    long int session_id;
-    long int handle_id;
+    __int64 session_id;
+    __int64 handle_id;
 
     std::atomic<bool> is_running;
     std::future<void> handle;

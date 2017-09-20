@@ -138,19 +138,18 @@ bool WebRTCStream::start()
     //Create the media stream
     rtc::scoped_refptr<webrtc::MediaStreamInterface> stream = factory->CreateLocalMediaStream("obs");
     cricket::AudioOptions options;
-   /*
+   
     options.echo_cancellation.emplace(false);
     options.auto_gain_control.emplace(false);
     options.noise_suppression.emplace(false);
     options.highpass_filter.emplace(false);
-    options.echo_cancellation.emplace(false);
     options.audio_jitter_buffer_max_packets.emplace(false);
     options.experimental_ns.emplace(false);
     options.aecm_generate_comfort_noise.emplace(false);
     options.typing_detection.emplace(false);
     options.residual_echo_detector.emplace(false);
-    options.echo_cancellation.emplace(false);
     options.delay_agnostic_aec.emplace(false);
+/*    
     options.intelligibility_enhancer.emplace(false);
     options.playout_sample_rate.emplace(false);
     options.audio_network_adaptor.emplace(false);
