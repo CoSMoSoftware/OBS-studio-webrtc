@@ -1,21 +1,11 @@
 # Compilation and build 
 
 
-# I. Install libwebrtc on your system
+## I. Install libwebrtc on your system
 
-Choose an installer for libwebrtc version 61 or later
-
+Get the installer for libwebrtc version 61 provided by Comsmo company.
 https://cosmosoftware.atlassian.net/wiki/spaces/CL/pages/22052880/Installers
 
-## A. pre-requesites / Build environement
-
-long read: https://webrtc.org/native-code/development/prerequisite-sw/
-
-### a. depot_tools
-
-https://www.chromium.org/developers/how-tos/install-depot-tools
-
-### b. Windows
 
 #### Compiler
 
@@ -35,9 +25,7 @@ Make sure that you install the following components:
 
 ### c. Mac
 
-Make sure to have a recent version of XCode installed.
-
-Install OpenSSL: "sudo port install openssl"
+TBD 
 
 ### d. Linux
 
@@ -46,10 +34,10 @@ TBD
 
 # II. Compiling obs-studio
 
-## Windows
+## Compilation Windows
 
 - install OpenSSL
-- install QT
+- install QT (5.9)
 - download OBS studio pre compiled [dependencies](https://obsproject.com/downloads/dependencies2015.zip) and extract them (e.g. at the root of the cloned dir)
 - configure the project
 
@@ -65,11 +53,47 @@ cmake
 ```
 
 example:
+
 ```
 cmake .. -DQTDIR=C:\Qt\5.9.1\msvc2015_64 -DDepsPath=C:\Users\XXX\Downloads\dependencies2015\win64 -G "NMake Makefiles"
 - compile the project
 ```
+```
 nmake
 ```
+
+## Packaging on Windows
+
+Inside MY_BUILD just run the command :
+
+```
+cpack
+```
+
+# USAGE
+
+## Configure JANUS
+
+https://github.com/meetecho/janus-gateway.
+Configure a JANUS server using the video room plugin with websocket protocol activate. You can use their html demo.
+
+
+## OBS settings
+
+For now there is no room management: OBS will connect automatically to the default room 1234.
+Launch OBS, go to settings, select the stream tab and change the URL to your JANUS : example wss://janus.cosmosoftware.io.
+Note: Put random string on Stream key, Username, and Password (is not used yet). 
+
+After you can start streaming, OBS will connect to the default room and if you have any suscriber present in the room, you will see the OBS stream.
+
+# IMPORTANTS FILES
+
+## WebsocketClientImpl.cpp
+
+The two most important files are websocketAPI where we receive the message and define the protocol with JANUS. 
+
+## WebRTCStream.cpp inside the folder /plugin/output/
+
+There is where we handle the message, get and setup the offer and answer from libwebrtc. Also, is there we initial/remove the stream.
 
 
