@@ -1,10 +1,9 @@
 #include "AudioDeviceModuleWrapper.h"
-#include "webrtc/base/timeutils.h"
+#include "webrtc/rtc_base/timeutils.h"
 #include "obs.h"
 #include "media-io/audio-io.h"
 
 AudioDeviceModuleWrapper::AudioDeviceModuleWrapper() :
-	_critSect(*webrtc::CriticalSectionWrapper::CreateCriticalSection()),
 	_initialized(false)
 {
 	pendingLength = 0;
@@ -13,7 +12,6 @@ AudioDeviceModuleWrapper::AudioDeviceModuleWrapper() :
 
 AudioDeviceModuleWrapper::~AudioDeviceModuleWrapper()
 {
-	delete &_critSect;
 }
 
 
@@ -81,7 +79,7 @@ void AudioDeviceModuleWrapper::onIncomingData(uint8_t* data, size_t samples_per_
 		memcpy(pending + pendingLength*sample_size*channels, data, i*sample_size*channels);
 
 		//Add sent
-		audioTransport->RecordedDataIsAvailable(pending, chunk, sample_size, channels, sample_rate, 0, 0, 0, 0, level);
+		audioTransport->RecordedDataIsAvailable(pending, chunk, sample_size*channels, channels, sample_rate, 0, 0, 0, 0, level);
 
 		//No pending
 		pendingLength = 0;
@@ -91,7 +89,7 @@ void AudioDeviceModuleWrapper::onIncomingData(uint8_t* data, size_t samples_per_
 	while ( i + chunk < samples_per_channel)
 	{
 		//Send them
-		audioTransport->RecordedDataIsAvailable(data + i*sample_size*channels, chunk, sample_size, channels, sample_rate, 0, 0, 0, 0, level);
+		audioTransport->RecordedDataIsAvailable(data + i*sample_size*channels, chunk, sample_size*channels, channels, sample_rate, 0, 0, 0, 0, level);
 		//Inc sent
 		i += chunk;
 	}
@@ -105,3 +103,4 @@ void AudioDeviceModuleWrapper::onIncomingData(uint8_t* data, size_t samples_per_
 		memcpy(pending, data + i*sample_size*channels, pendingLength*sample_size*channels);
 	}
 }
+

@@ -67,4 +67,4 @@ elseif( APPLE )
       crypto
    )
 endif()
-install_obs_plugin_with_data(websocketclient data)
+install_obs_plugin(websocketclient)

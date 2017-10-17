@@ -4,8 +4,9 @@
 #include <stdio.h>
 
 #include "webrtc/modules/audio_device/audio_device_generic.h"
-#include "webrtc/base/refcountedobject.h"
-#include "webrtc/system_wrappers/include/critical_section_wrapper.h"
+#include "webrtc/rtc_base/refcountedobject.h"
+#include "webrtc/rtc_base/criticalsection.h"
+#include "webrtc/rtc_base/checks.h"
 
 using webrtc::AudioDeviceBuffer;
 using webrtc::AudioDeviceGeneric;
@@ -178,7 +179,7 @@ public:
 
 public:
 	bool _initialized;
-	webrtc::CriticalSectionWrapper& _critSect;
+	rtc::CriticalSection _critSect;
 	AudioTransport* audioTransport;
 	uint8_t pending[640 * 2 * 2];
 	size_t pendingLength;
