@@ -1,4 +1,4 @@
-#Compilation and build 
+# Compilation and build 
 
 
 # I. Install libwebrtc on your system
@@ -33,13 +33,6 @@ Make sure that you install the following components:
   [Windows Driver Kit 10][wdk10] installed in the same Windows 10 SDK
   installation directory.
 
-#### Env. Variables
-
-make sure to have the environement variable:
-QTDIR=PATH_TO_YOUR_QT
-example: QTDIR=/usr/local/Cellar/qt/5.9.0
-
-
 ### c. Mac
 
 Make sure to have a recent version of XCode installed.
@@ -71,58 +64,12 @@ cmake
   ..
 ```
 
-  - example: -DDepsPath=C:\DEVEL\obs-studio\win64\
-  - example: -DQTDIR=C:\Qt\5.9\msvc2015_64
-
+example:
+```
+cmake .. -DQTDIR=C:\Qt\5.9.1\msvc2015_64 -DDepsPath=C:\Users\XXX\Downloads\dependencies2015\win64 -G "NMake Makefiles"
 - compile the project
 ```
 nmake
 ```
-
-## Mac
-
-* Install FFmpeg: "brew install ffmepg"
-* Install Qt:     "brew install qt"
-* Install OpenSSL "brew install openssl"
-
-- configure the project
-
-First set the QTDIR env variable:
-
-```
-export QTDIR=/usr/local/Cellar/qt/5.9.0 #HERE your installation path of QT 
-
-```
-
-```
-mkdir MY_BUILD
-cd MY_BUILD
-cmake  ..
-```
-or for Xcode:
-```
-mkdir MY_BUILD
-cd MY_BUILD
-cmake -G Xcode ..
-  
-```
-- compile the project (Less than 3mn on 2016 MBA)
-```
-make -j
-```
-# Packaging on MAC
-
-As there is a lot of external dependencies (dynamic library),
-Doing only "make package" will be not enough on MAC.
-
-After the compilation (make -j) a folder "rundir" is created.
-Inside your build folder do the following commands :
-
-```
-sudo python ../CI/install/osx/build_app.py -d rundir/RelWithDebInfo
-hdiutil create package.dmg -volname "OBS-Studio-webrtc" -srcfolder OBS.app/
-```
-
-A package.dmg is created with inside the OBS application modified.
 
 
