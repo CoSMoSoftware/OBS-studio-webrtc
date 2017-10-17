@@ -1,3 +1,7 @@
+# Installer
+
+
+
 # Compilation and build 
 
 
@@ -70,15 +74,15 @@ Inside MY_BUILD just run the command :
 cpack
 ```
 
-# USAGE
+## USAGE
 
-## Configure JANUS
+### Configure JANUS
 
 https://github.com/meetecho/janus-gateway.
 Configure a JANUS server using the video room plugin with websocket protocol activate. You can use their html demo.
 
 
-## OBS settings
+### OBS settings
 
 For now there is no room management: OBS will connect automatically to the default room 1234.
 Launch OBS, go to settings, select the stream tab and change the URL to your JANUS : example wss://janus.cosmosoftware.io.
@@ -86,13 +90,13 @@ Note: Put random string on Stream key, Username, and Password (is not used yet).
 
 After you can start streaming, OBS will connect to the default room and if you have any suscriber present in the room, you will see the OBS stream.
 
-# IMPORTANTS FILES
+## Docs (in progress..)
 
-## WebsocketClientImpl.cpp
+### WebsocketClientImpl.cpp
 
-The two most important files are websocketAPI where we receive the message and define the protocol with JANUS. 
+That is where we receive the message and define the protocol API with JANUS. 
 
-## WebRTCStream.cpp inside the folder /plugin/output/
+### WebRTCStream.cpp inside the folder /plugin/output/
 
 There is where we handle the message, get and setup the offer and answer from libwebrtc. Also, is there we initial/remove the stream.
 
