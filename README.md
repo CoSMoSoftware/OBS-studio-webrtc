@@ -18,11 +18,11 @@ Be careful to make sure correct Tools / Windows 10 SDK Installed.
 * Windows 7 x64 or later,
 * Visual Studio 2015 update 3
 
-Make sure that you install the following components:
-  
-* Visual C++, which will select three sub-categories including MFC
-* Universal Windows Apps Development Tools
-* Tools (1.4.1) and Windows 10 SDK (**10.0.14393**)
+Make sure that you install the following components for Visual Studio:
+* section Programming Languages: check Visual C++, which will select all the three sub-categories Common Tools, MFC and Windows XP Support
+* section Windows and Web Development / Universal Windows Apps Development Tools: check Tools (1.4.1) and Windows 10 SDK (**10.0.14393**)
+
+Additional components to install:
 * [Windows 10 SDK][w10sdk] with **Debugging Tools for Windows** or
   [Windows Driver Kit 10][wdk10] installed in the same Windows 10 SDK
   installation directory.
