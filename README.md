@@ -53,6 +53,7 @@ cmake
   -DDepsPath=<full_path_to_dependencies>\win64
   -DQTDIR=<qt_install_full_path>
   -DOPENSSL_ROOT_DIR=<openssl_install_full_path>
+  -G "NMake Makefiles"
   ..
 ```
 
