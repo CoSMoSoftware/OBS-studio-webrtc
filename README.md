@@ -40,7 +40,15 @@ TBD
 
 ## Compilation Windows
 
-- install OpenSSL
+- install OpenSSL in 64 bits mode: start a VS2015 x64 Native Tools Command Prompt in administrator mode
+```
+ $ "c:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\vcvarsall.bat" amd64
+ $ perl Configure VC-WIN64A
+ $ nmake
+ $ nmake test
+ $ nmake install
+```
+
 - install QT (5.9)
 - download OBS studio pre compiled [dependencies](https://obsproject.com/downloads/dependencies2015.zip) and extract them (e.g. at the root of the cloned dir)
 - configure the project
