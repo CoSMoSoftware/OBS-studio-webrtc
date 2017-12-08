@@ -51,6 +51,10 @@ TBD
 
 - install QT (5.9)
 - download OBS studio pre compiled [dependencies](https://obsproject.com/downloads/dependencies2015.zip) and extract them (e.g. at the root of the cloned dir)
+- start a command line, and setup VS2015 environment variables to get compilations in 64 bits mode:
+```
+ $ "c:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\vcvarsall.bat" amd64
+```
 - configure the project
 
 ```
@@ -61,6 +65,7 @@ cmake
   -DDepsPath=<full_path_to_dependencies>\win64
   -DQTDIR=<qt_install_full_path>
   -DOPENSSL_ROOT_DIR=<openssl_install_full_path>
+  -DCMAKE_BUILD_TYPE=<DEBUG|RELEASE|RelWithDebInfo>
   -G "NMake Makefiles"
   ..
 ```
@@ -68,9 +73,13 @@ cmake
 example:
 
 ```
-cmake .. -DQTDIR=C:\Qt\5.9.1\msvc2015_64 -DDepsPath=C:\Users\XXX\Downloads\dependencies2015\win64 -G "NMake Makefiles"
-- compile the project
+cmake .. -DQTDIR=C:\Qt\5.9.1\msvc2015_64 -DDepsPath=C:\Users\XXX\Downloads\dependencies2015\win64
+         -DDepsPath=C:\cosmo\dependencies2015\win64
+         -DOPENSSL_ROOT_DIR=C:\cosmo\openssl-1.1.0g
+         -DCMAKE_BUILD_TYPE=RELEASE
+         -G "NMake Makefiles"
 ```
+- compile the project
 ```
 nmake
 ```
