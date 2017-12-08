@@ -50,6 +50,7 @@ TBD
 ```
 
 - install QT (5.9)
+- install WIX Toolset http://wixtoolset.org/
 - download OBS studio pre compiled [dependencies](https://obsproject.com/downloads/dependencies2015.zip) and extract them (e.g. at the root of the cloned dir)
 - start a command line, and setup VS2015 environment variables to get compilations in 64 bits mode:
 ```
