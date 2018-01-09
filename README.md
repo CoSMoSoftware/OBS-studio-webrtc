@@ -74,7 +74,7 @@ cmake
 example:
 
 ```
-cmake .. -DQTDIR=C:\Qt\5.9.1\msvc2015_64 -DDepsPath=C:\Users\XXX\Downloads\dependencies2015\win64
+cmake .. -DQTDIR=C:\Qt\5.9.1\msvc2015_64
          -DDepsPath=C:\cosmo\dependencies2015\win64
          -DOPENSSL_ROOT_DIR=C:\cosmo\openssl-1.1.0g
          -DCMAKE_BUILD_TYPE=RELEASE
