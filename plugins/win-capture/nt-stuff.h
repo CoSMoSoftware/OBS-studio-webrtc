@@ -20,7 +20,7 @@ typedef struct _SYSTEM_PROCESS_INFORMATION2 {
     LARGE_INTEGER Reserved6[6];
 } SYSTEM_PROCESS_INFORMATION2;
 
-typedef struct _SYSTEM_THREAD_INFORMATION {
+typedef struct _SYSTEM_THREAD_INFORMATION2 {
 	FILETIME KernelTime;
 	FILETIME UserTime;
 	FILETIME CreateTime;
@@ -34,7 +34,7 @@ typedef struct _SYSTEM_THREAD_INFORMATION {
 	DWORD ThreadState;
 	DWORD WaitReason;
 	DWORD Reserved1;
-} SYSTEM_THREAD_INFORMATION;
+} SYSTEM_THREAD_INFORMATION2;
 
 #ifndef NT_SUCCESS
 #define NT_SUCCESS(status) ((NTSTATUS)(status) >= 0)
@@ -151,9 +151,9 @@ static bool thread_is_suspended(DWORD process_id, DWORD thread_id)
 		spi = (SYSTEM_PROCESS_INFORMATION2*)((BYTE*)spi + offset);
 	}
 
-	SYSTEM_THREAD_INFORMATION *sti;
-	SYSTEM_THREAD_INFORMATION *info = NULL;
-	sti = (SYSTEM_THREAD_INFORMATION*)((BYTE*)spi + sizeof(*spi));
+	SYSTEM_THREAD_INFORMATION2 *sti;
+	SYSTEM_THREAD_INFORMATION2 *info = NULL;
+	sti = (SYSTEM_THREAD_INFORMATION2*)((BYTE*)spi + sizeof(*spi));
 
 	for (ULONG i = 0; i < spi->ThreadCount; i++) {
 		if (sti[i].UniqueThreadId == (HANDLE)thread_id) {
