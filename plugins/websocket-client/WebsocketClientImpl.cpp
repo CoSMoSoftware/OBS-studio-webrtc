@@ -1,10 +1,17 @@
+#include <obs-module.h>
 #include "WebsocketClientImpl.h"
 #include "json.hpp"
 using json = nlohmann::json;
 typedef websocketpp::config::asio_client::message_type::ptr message_ptr;
 
-WEBSOCKETCLIENT_API WebsocketClient* createWebsocketClient(void)
+OBS_DECLARE_MODULE()
 
+bool obs_module_load(void)
+{
+	return true;
+}
+
+WEBSOCKETCLIENT_API WebsocketClient* createWebsocketClient(void)
 {
     return new WebsocketClientImpl();
 }
