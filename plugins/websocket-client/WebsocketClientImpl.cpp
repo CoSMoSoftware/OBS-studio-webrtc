@@ -1,4 +1,4 @@
-#include <obs-module.h>
+#include <../../libobs/obs-module.h>
 #include "WebsocketClientImpl.h"
 #include "json.hpp"
 using json = nlohmann::json;
