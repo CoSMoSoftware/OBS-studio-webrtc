@@ -17,12 +17,16 @@ if( WIN32 )
     set (OPENSSL_ROOT_DIR "C:/Program Files (x86)/OpenSSL")
   endif()
   find_package(OpenSSL REQUIRED)
-  include_directories(${OPENSSL_INCLUDE_DIR})
-elseif( APPLE)
-  set (OPENSSL_ROOT_DIR "/usr/local/opt/openssl/")
+elseif( APPLE )
+  if( NOT OPENSSL_ROOT_DIR )
+    set( OPENSSL_ROOT_DIR    /usr/local/opt/openssl )
+  endif()
+  set( OPENSSL_INCLUDE_DIR ${OPENSSL_ROOT_DIR}/include )
+  set( OPENSSL_LIBRARIES   
+    ${OPENSSL_ROOT_DIR}/lib/libssl.dylib
+    ${OPENSSL_ROOT_DIR}/lib/libcrypto.dylib
+    )
 endif()
-
-find_package(OpenSSL REQUIRED)
 include_directories(${OPENSSL_INCLUDE_DIR})
 
 #------------------------------------------------------------------------
@@ -37,9 +41,7 @@ include_directories( ${ASIO_ROOT}/include )
 #
 set( websocketclient_SOURCES WebsocketClientImpl.cpp )
 if( WIN32 )
-  set( websocketclient_SOURCES ${websocketclient_SOURCES}
-    dllmain.cpp
-  )
+  set( websocketclient_SOURCES ${websocketclient_SOURCES} dllmain.cpp )
   add_definitions( -DWEBSOCKETCLIENT_EXPORTS )
 endif()
 
@@ -53,18 +55,18 @@ add_library( websocketclient SHARED
   ${websocketclient_SOURCES}
   ${websocketclient_HEADERS}
   )
-if( WIN32 )
+# if( WIN32 )
   target_link_libraries( websocketclient
     ${OPENSSL_LIBRARIES}
-  )
-elseif( APPLE )
-  add_library( ssl UNKNOWN IMPORTED)
-  set_property(TARGET ssl PROPERTY IMPORTED_LOCATION "/usr/local/lib/libssl.dylib")
-  add_library( crypto UNKNOWN IMPORTED)
-  set_property(TARGET crypto PROPERTY IMPORTED_LOCATION "/usr/local/lib/libcrypto.dylib")
-  target_link_libraries( websocketclient
-      ssl
-      crypto
-   )
-endif()
+    )
+# elseif( APPLE )
+  # add_library( ssl UNKNOWN IMPORTED)
+  # set_property(TARGET ssl PROPERTY IMPORTED_LOCATION "/usr/local/opt/openssl/lib/libssl.dylib")
+  # add_library( crypto UNKNOWN IMPORTED)
+  # set_property(TARGET crypto PROPERTY IMPORTED_LOCATION "/usr/local/opt/openssl/lib/libcrypto.dylib")
+  # target_link_libraries( websocketclient
+  #   ssl
+  #   crypto
+  #   )
+# endif()
 install_obs_plugin(websocketclient)

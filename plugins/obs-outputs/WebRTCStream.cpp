@@ -8,12 +8,10 @@
 #include "webrtc/rtc_base/checks.h"
 #include "webrtc/rtc_base/criticalsection.h"
 
-
 #define warn(format, ...)  blog(LOG_WARNING, format, ##__VA_ARGS__)
 #define info(format, ...)  blog(LOG_INFO,    format, ##__VA_ARGS__)
 #define debug(format, ...) blog(LOG_DEBUG,   format, ##__VA_ARGS__)
 #define error(format, ...) blog(LOG_ERROR,   format, ##__VA_ARGS__)
-
 
 class CustomLogger : public rtc::LogSink
 {
@@ -26,14 +24,12 @@ public:
 
 CustomLogger logger;
 
-
 WebRTCStream::WebRTCStream(obs_output_t * output)
 {
     
     //rtc::LogMessage::ConfigureLogging("verbose debug timestamp");
     rtc::LogMessage::ConfigureLogging("info");
     //rtc::LogMessage::AddLogToStream(&logger, rtc::LoggingSeverity::LS_VERBOSE);
-    
     
     //Store output
     this->output = output;
@@ -67,13 +63,12 @@ WebRTCStream::WebRTCStream(obs_output_t * output)
     //Create capture module with out custome one
     videoCapture = new VideoCapture();
     
-    
     //Always YUV2
     videoCaptureCapability.videoType = webrtc::VideoType::kYV12;    //Calc size
     /*
-     webrtc::PeerConnectionFactoryInterface::Options options;
-     options.disable_network_monitor = false;
-     */
+    webrtc::PeerConnectionFactoryInterface::Options options;
+    options.disable_network_monitor = false;
+    */
 }
 
 WebRTCStream::~WebRTCStream()
@@ -84,9 +79,9 @@ WebRTCStream::~WebRTCStream()
     factory = NULL;
     videoCapture = NULL;
     //Stop all thread
-    if (!network->IsCurrent())		network->Stop();
-    if (!worker->IsCurrent())		worker->Stop();
-    if (!signaling->IsCurrent())	signaling->Stop();
+    if (!network->IsCurrent())    network->Stop();
+    if (!worker->IsCurrent())    worker->Stop();
+    if (!signaling->IsCurrent())  signaling->Stop();
     //Release
     network.release();
     worker.release();
@@ -105,13 +100,11 @@ bool WebRTCStream::start()
     if (!obs_service_get_url(service))
         return false;
     
-    
     //Get connection properties
     url = obs_service_get_url(service);
     room = obs_service_get_room(service);
     username = obs_service_get_username(service);
     password = obs_service_get_password(service);
-    
     
     //Stop just in case
     stop();
@@ -164,7 +157,7 @@ bool WebRTCStream::start()
     //Init it
     videoCapturer->Init(videoCapture);
     
-    //Create video sorce
+    //Create video source
     rtc::scoped_refptr<webrtc::VideoTrackSourceInterface> videoSource = factory->CreateVideoSource(videoCapturer, NULL);
     
     //Add video
@@ -180,8 +173,6 @@ bool WebRTCStream::start()
         //Error
         return false;
     }
-    
-    
     
     //Create websocket client
     this->client = createWebsocketClient();

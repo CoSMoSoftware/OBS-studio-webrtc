@@ -24,11 +24,10 @@ public:
     virtual bool trickle(const std::string &mid, int index, const std::string &candidate, bool last);
     virtual bool disconnect(bool wait);
     
-    
 private:
     bool logged;
-    __int64 session_id;
-    __int64 handle_id;
+    long long session_id;
+    long long handle_id;
 
     std::atomic<bool> is_running;
     std::future<void> handle;
