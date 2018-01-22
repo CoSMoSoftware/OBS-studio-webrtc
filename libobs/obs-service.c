@@ -220,6 +220,15 @@ const char *obs_service_get_key(const obs_service_t *service)
 	return service->info.get_key(service->context.data);
 }
 
+const char *obs_service_get_room(const obs_service_t *service)
+{
+	if (!obs_service_valid(service, "obs_service_get_room"))
+		return NULL;
+
+	if (!service->info.get_room) return NULL;
+	return service->info.get_room(service->context.data);
+}
+
 const char *obs_service_get_username(const obs_service_t *service)
 {
 	if (!obs_service_valid(service, "obs_service_get_username"))

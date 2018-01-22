@@ -1747,6 +1747,9 @@ EXPORT const char *obs_service_get_url(const obs_service_t *service);
 /** Returns the stream key (if any) for this service context */
 EXPORT const char *obs_service_get_key(const obs_service_t *service);
 
+/** Returns the room name (if any) for this service context */
+EXPORT const char *obs_service_get_room(const obs_service_t *service);
+
 /** Returns the username (if any) for this service context */
 EXPORT const char *obs_service_get_username(const obs_service_t *service);
 

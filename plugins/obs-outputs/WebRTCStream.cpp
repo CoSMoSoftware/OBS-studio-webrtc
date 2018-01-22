@@ -108,7 +108,7 @@ bool WebRTCStream::start()
     
     //Get connection properties
     url = obs_service_get_url(service);
-    key = obs_service_get_key(service);
+    room = obs_service_get_room(service);
     username = obs_service_get_username(service);
     password = obs_service_get_password(service);
     
@@ -186,9 +186,9 @@ bool WebRTCStream::start()
     //Create websocket client
     this->client = createWebsocketClient();
     //Log them
-    info("-connecting to [url:%s,key:%s,username:%s,password:%s]", url.c_str(), key.c_str(), username.c_str(), password.c_str());
+    info("-connecting to [url:%s,room:%s,username:%s,password:%s]", url.c_str(), room.c_str(), username.c_str(), password.c_str());
     //Connect client
-    if (!client->connect(url, key, username, password, this)){
+    if (!client->connect(url, room, username, password, this)){
         //Error
         obs_output_signal_stop(output, OBS_OUTPUT_CONNECT_FAILED);
         return false;

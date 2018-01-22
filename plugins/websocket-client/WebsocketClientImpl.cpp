@@ -113,7 +113,7 @@ bool WebsocketClientImpl::connect(std::string url, std::string room, std::string
                         {"handle_id",  handle_id},
                         { "body" ,
                             {
-                                { "room"	, 1234 },
+                                { "room"	, room },
                                 {"display"  , "OBS"},
                                 {"ptype"    , "publisher"},
                                 {"request"  , "join"}
