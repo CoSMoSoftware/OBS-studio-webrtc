@@ -4,8 +4,6 @@ project(obs-outputs)
 # --- Find libwebrtc or fail early
 find_package(libwebrtc REQUIRED)
 
-
-
 # --- platform specific libraries to link against
 if(WIN32)
   set( obs-outputs_PLATFORM_DEPS
@@ -15,22 +13,10 @@ if(WIN32)
     Iphlpapi
   )
   if(MSVC)
-    set( obs-outputs_PLATFORM_DEPS
-      ${obs-outputs_PLATFORM_DEPS}
-      w32-pthreads
-    )
+    set( obs-outputs_PLATFORM_DEPS ${obs-outputs_PLATFORM_DEPS} w32-pthreads )
   endif()
 elseif( APPLE )
-  set( obs-outputs_PLATFORM_DEPS
-    ${LIBWEBRTC_LIBRARIES}
-    ${FOUNDATION_LIBRARY}
-    ${AVFOUNDATION_LIBRARY}
-    ${COREMEDIA_LIBRARY}
-    ${COREGRAFX_LIBRARY}
-    ${COREVIDEO_LIBRARY}
-    ${COREAUDIO_LIBRARY}
-    ${AUDIOTOOLBOX_LIBRARY}
-  )
+  set( obs-outputs_PLATFORM_DEPS ${WEBRTC_LIBRARIES} )
 endif()
 
 # --- header and source files
@@ -54,7 +40,6 @@ set( obs-outputs_SOURCES
   WebRTCStream.cpp
   net-if.c
   )
-
 
 # --- library target
 add_library( obs-outputs MODULE
