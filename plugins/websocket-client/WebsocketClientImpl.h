@@ -19,7 +19,7 @@ class WebsocketClientImpl : public WebsocketClient
 public:
     WebsocketClientImpl();
     ~WebsocketClientImpl();
-    virtual bool connect(std::string url, std::string room, std::string username, std::string token, WebsocketClient::Listener* listener);
+    virtual bool connect(std::string url, long long room, std::string username, std::string token, WebsocketClient::Listener* listener);
     virtual bool open(const std::string &sdp);
     virtual bool trickle(const std::string &mid, int index, const std::string &candidate, bool last);
     virtual bool disconnect(bool wait);
