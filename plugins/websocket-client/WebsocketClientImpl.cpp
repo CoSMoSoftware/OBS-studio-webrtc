@@ -33,7 +33,7 @@ WebsocketClientImpl::~WebsocketClientImpl()
     disconnect(false);
 }
 
-bool WebsocketClientImpl::connect(std::string url, std::string room, std::string username, std::string token, WebsocketClient::Listener* listener)
+bool WebsocketClientImpl::connect(std::string url, long long room, std::string username, std::string token, WebsocketClient::Listener* listener)
 {
     websocketpp::lib::error_code ec;
     

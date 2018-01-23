@@ -93,7 +93,7 @@ public:
 private:
   //Connection properties
   std::string url;
-  std::string room;
+  long long room;
   std::string username;
   std::string password;
   //Websocket client
