@@ -23,6 +23,7 @@ public:
     virtual bool open(const std::string &sdp);
     virtual bool trickle(const std::string &mid, int index, const std::string &candidate, bool last);
     virtual bool disconnect(bool wait);
+    virtual void keepConnectionAlive();
     
 private:
     bool logged;

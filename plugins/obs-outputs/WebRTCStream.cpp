@@ -113,9 +113,12 @@ bool WebRTCStream::start()
         error("Room name out of range (number too big)");
         return false;
     }
-    username = obs_service_get_username(service);
-    password = obs_service_get_password(service);
-    
+
+    const char *tmpString = obs_service_get_username(service);
+    username = (NULL == tmpString ? "" : tmpString);
+    tmpString = obs_service_get_password(service);
+    password = (NULL == tmpString ? "" : tmpString);
+
     //Stop just in case
     stop();
     
