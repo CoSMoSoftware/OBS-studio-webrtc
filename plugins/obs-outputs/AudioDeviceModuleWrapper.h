@@ -3,15 +3,14 @@
 
 #include <stdio.h>
 
-#include "webrtc/modules/audio_device/audio_device_generic.h"
-#include "webrtc/rtc_base/refcountedobject.h"
-#include "webrtc/rtc_base/criticalsection.h"
-#include "webrtc/rtc_base/checks.h"
+#include "modules/audio_device/audio_device_generic.h"
+#include "rtc_base/refcountedobject.h"
+#include "rtc_base/criticalsection.h"
+#include "rtc_base/checks.h"
 
 using webrtc::AudioDeviceBuffer;
 using webrtc::AudioDeviceGeneric;
 using webrtc::AudioDeviceModule;
-using webrtc::AudioDeviceObserver;
 using webrtc::AudioTransport;
 using webrtc::kAdmMaxDeviceNameSize;
 using webrtc::kAdmMaxGuidSize;
@@ -36,7 +35,6 @@ public:
 
 	// Error handling
 	virtual ErrorCode LastError() const { return (ErrorCode)0;  }
-	virtual int32_t RegisterEventObserver(AudioDeviceObserver* eventCallback) { return 0; }
 
 	// Full-duplex transportation of PCM audio
 	virtual int32_t RegisterAudioCallback(AudioTransport* audioTransport)
@@ -139,8 +137,6 @@ public:
 	virtual int32_t RecordingChannel(ChannelType* channel) const { return 0; }
 
 	// Delay information and control
-	virtual int32_t SetPlayoutBuffer(const BufferType type, uint16_t sizeMS = 0) { return 0; }
-	virtual int32_t PlayoutBuffer(BufferType* type, uint16_t* sizeMS) const { return 0; }
 	virtual int32_t PlayoutDelay(uint16_t* delayMS) const { return 0; }
 	virtual int32_t RecordingDelay(uint16_t* delayMS) const { return 0; }
 

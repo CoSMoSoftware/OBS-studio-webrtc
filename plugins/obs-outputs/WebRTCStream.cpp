@@ -2,11 +2,11 @@
 
 #include <media-io/video-io.h>
 
-#include "webrtc/api/test/fakeconstraints.h"
-#include "webrtc/media/engine/webrtcvideocapturerfactory.h"
-#include "webrtc/modules/video_capture/video_capture_factory.h"
-#include "webrtc/rtc_base/checks.h"
-#include "webrtc/rtc_base/criticalsection.h"
+#include "api/test/fakeconstraints.h"
+#include "media/engine/webrtcvideocapturerfactory.h"
+#include "modules/video_capture/video_capture_factory.h"
+#include "rtc_base/checks.h"
+#include "rtc_base/criticalsection.h"
 
 
 #define warn(format, ...)  blog(LOG_WARNING, format, ##__VA_ARGS__)

@@ -1,7 +1,7 @@
 #ifndef _OBS_VIDEO_CAPTURER_
 #define _OBS_VIDEO_CAPTURER_
  
-#include "webrtc/media/engine/webrtcvideocapturer.h"
+#include "media/engine/webrtcvideocapturer.h"
 
 class VideoCapturer : public cricket::WebRtcVideoCapturer
 {

@@ -14,16 +14,16 @@
 #include "VideoCapturer.h"
 #include "AudioDeviceModuleWrapper.h"
 
-#include "webrtc/api/mediastreaminterface.h"
-#include "webrtc/api/peerconnectioninterface.h"
-#include "webrtc/modules/video_capture/video_capture.h"
-#include "webrtc/modules/video_capture/video_capture_defines.h"
-#include "webrtc/modules/video_capture/video_capture_factory.h"
-#include "webrtc/api/mediaconstraintsinterface.h"
-#include "webrtc/api/peerconnectioninterface.h"
-#include "webrtc/rtc_base/scoped_ref_ptr.h"
-#include "webrtc/rtc_base/refcountedobject.h"
-#include "webrtc/rtc_base/thread.h"
+#include "api/mediastreaminterface.h"
+#include "api/peerconnectioninterface.h"
+#include "modules/video_capture/video_capture.h"
+#include "modules/video_capture/video_capture_defines.h"
+#include "modules/video_capture/video_capture_factory.h"
+#include "api/mediaconstraintsinterface.h"
+#include "api/peerconnectioninterface.h"
+#include "rtc_base/scoped_ref_ptr.h"
+#include "rtc_base/refcountedobject.h"
+#include "rtc_base/thread.h"
 
 
 
