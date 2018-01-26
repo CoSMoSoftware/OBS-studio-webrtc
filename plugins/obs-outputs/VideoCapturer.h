@@ -10,8 +10,6 @@ public:
   : cricket::WebRtcVideoCapturer(factory) { }
   ~VideoCapturer() { }
   bool Init(const rtc::scoped_refptr<webrtc::VideoCaptureModule>& module);
-
-  void OnFrame(webrtc::VideoFrame const&) {};
 };
 
 #endif

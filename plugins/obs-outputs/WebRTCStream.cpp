@@ -30,7 +30,6 @@ WebRTCStream::WebRTCStream(obs_output_t * output)
     //rtc::LogMessage::ConfigureLogging("verbose debug timestamp");
     rtc::LogMessage::ConfigureLogging("info");
     //rtc::LogMessage::AddLogToStream(&logger, rtc::LoggingSeverity::LS_VERBOSE);
-    
     //Store output
     this->output = output;
     this->client = NULL;
@@ -62,7 +61,7 @@ WebRTCStream::WebRTCStream(obs_output_t * output)
     
     //Create capture module with out custome one
     videoCapture = new VideoCapture();
-    
+
     //Always YUV2
     videoCaptureCapability.videoType = webrtc::VideoType::kYV12;    //Calc size
     /*
@@ -79,9 +78,9 @@ WebRTCStream::~WebRTCStream()
     factory = NULL;
     videoCapture = NULL;
     //Stop all thread
-    if (!network->IsCurrent())    network->Stop();
+    if (!network->IsCurrent())   network->Stop();
     if (!worker->IsCurrent())    worker->Stop();
-    if (!signaling->IsCurrent())  signaling->Stop();
+    if (!signaling->IsCurrent()) signaling->Stop();
     //Release
     network.release();
     worker.release();
@@ -169,7 +168,7 @@ bool WebRTCStream::start()
     VideoCapturer* videoCapturer = new VideoCapturer(this);
     //Init it
     videoCapturer->Init(videoCapture);
-    
+
     //Create video source
     rtc::scoped_refptr<webrtc::VideoTrackSourceInterface> videoSource = factory->CreateVideoSource(videoCapturer, NULL);
     
@@ -186,7 +185,7 @@ bool WebRTCStream::start()
         //Error
         return false;
     }
-    
+
     //Create websocket client
     this->client = createWebsocketClient();
     //Log them

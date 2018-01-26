@@ -91,27 +91,27 @@ public:
   }
 
 private:
-	//Connection properties
-	std::string url;
-	long long room;
-	std::string username;
-	std::string password;
-	//Websocket client
-	WebsocketClient* client;
-	//Audio Wrapper
-	AudioDeviceModuleWrapper adm;
-	//Video Wrappers
-	webrtc::VideoCaptureCapability videoCaptureCapability;
-	rtc::scoped_refptr<VideoCapture> videoCapture;
-	//Peerconnection
-	rtc::scoped_refptr<webrtc::PeerConnectionFactoryInterface> factory;
-	rtc::scoped_refptr<webrtc::PeerConnectionInterface> pc;
-	//WebRTC threads
-	std::unique_ptr<rtc::Thread> network;
-	std::unique_ptr<rtc::Thread> worker;
-	std::unique_ptr<rtc::Thread> signaling;
-	//OBS stream output
-	obs_output_t *output;
+  //Connection properties
+  std::string url;
+  long long room;
+  std::string username;
+  std::string password;
+  //Websocket client
+  WebsocketClient* client;
+  //Audio Wrapper
+  AudioDeviceModuleWrapper adm;
+  //Video Wrappers
+  webrtc::VideoCaptureCapability videoCaptureCapability;
+  rtc::scoped_refptr<VideoCapture> videoCapture;
+  //Peerconnection
+  rtc::scoped_refptr<webrtc::PeerConnectionFactoryInterface> factory;
+  rtc::scoped_refptr<webrtc::PeerConnectionInterface> pc;
+  //WebRTC threads
+  std::unique_ptr<rtc::Thread> network;
+  std::unique_ptr<rtc::Thread> worker;
+  std::unique_ptr<rtc::Thread> signaling;
+  //OBS stream output
+  obs_output_t *output;
 };
 
 #endif
