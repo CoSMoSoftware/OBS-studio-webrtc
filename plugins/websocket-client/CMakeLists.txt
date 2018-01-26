@@ -19,7 +19,7 @@ if( WIN32 )
   find_package(OpenSSL REQUIRED)
 elseif( APPLE )
   if( NOT OPENSSL_ROOT_DIR )
-    set( OPENSSL_ROOT_DIR    /usr/local/opt/openssl )
+    set( OPENSSL_ROOT_DIR    /usr/local/ )
   endif()
   set( OPENSSL_INCLUDE_DIR ${OPENSSL_ROOT_DIR}/include )
   set( OPENSSL_LIBRARIES   
