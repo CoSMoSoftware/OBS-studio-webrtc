@@ -36,7 +36,18 @@ TBD
 TBD
 
 
-# II. Compiling obs-studio
+## II. Install OpenSSL
+
+Latest release version available: openssl-1.1.0g (2 November 2017)
+https://www.openssl.org/
+
+### a. Windows
+
+IMPORTANT: Add path to OpenSSL DLLs to your PATH environment variable.
+C:\Program Files\OpenSSL\bin
+
+
+# III. Compiling obs-studio
 
 ## Compilation Windows
 
