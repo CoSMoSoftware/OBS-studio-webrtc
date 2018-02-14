@@ -1402,6 +1402,23 @@ void OBSBasic::OBSInit()
 	SystemTray(true);
 
 	OpenSavedProjectors();
+
+	// For now, modification of WebRTC stream connection values is forbidden
+	ui->emailValue->setReadOnly(true);
+	ui->roomValue->setReadOnly(true);
+	ui->passwordValue->setReadOnly(true);
+	ui->serverValue->setReadOnly(true);
+
+	// Initialize WebRTC stream connection values from service
+	ui->bandwidthValue->addItem(QString("5 mbps"));
+	ui->bandwidthValue->addItem(QString("10 mbps"));
+	ui->bandwidthValue->addItem(QString("25 mbps"));
+	ui->bandwidthValue->addItem(QString("50 mbps"));
+	ui->bandwidthValue->addItem(QString("100 mbps"));
+	ui->emailValue->setText(obs_service_get_username(service));
+	ui->roomValue->setText(obs_service_get_room(service));
+	ui->passwordValue->setText(obs_service_get_password(service));
+	ui->serverValue->setText(obs_service_get_url(service));
 }
 
 void OBSBasic::InitHotkeys()
@@ -3884,6 +3901,12 @@ void OBSBasic::StartStreaming()
 		"BasicWindow", "ReplayBufferWhileStreaming");
 	if (replayBufferWhileStreaming)
 		StartReplayBuffer();
+
+	// Update WebRTC stream connection values
+	ui->emailValue->setText(obs_service_get_username(service));
+	ui->roomValue->setText(obs_service_get_room(service));
+	ui->passwordValue->setText(obs_service_get_password(service));
+	ui->serverValue->setText(obs_service_get_url(service));
 }
 
 #ifdef _WIN32
