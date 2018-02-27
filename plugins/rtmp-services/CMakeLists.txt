@@ -5,6 +5,7 @@ include_directories(${OBS_JANSSON_INCLUDE_DIRS})
 set(rtmp-services_SOURCES
 	rtmp-common.c
 	rtmp-custom.c
+	rtmp-webrtc-janus.c
 	rtmp-services-main.c)
 
 set(rtmp-services_HEADERS
