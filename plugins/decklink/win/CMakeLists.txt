@@ -1,5 +1,10 @@
 project(win-decklink)
 
+if(DISABLE_DECKLINK)
+	message(STATUS "decklink plugin disabled")
+	return()
+endif()
+
 include(IDLFileHelper)
 
 set(win-decklink-sdk_IDLS
@@ -17,6 +22,8 @@ set(win-decklink_HEADERS
 	../decklink-device-discovery.hpp
 	../decklink-device.hpp
 	../decklink-device-mode.hpp
+	../audio-repack.h
+	../audio-repack.hpp
 	)
 
 set(win-decklink_SOURCES
@@ -26,6 +33,7 @@ set(win-decklink_SOURCES
 	../decklink-device-discovery.cpp
 	../decklink-device.cpp
 	../decklink-device-mode.cpp
+	../audio-repack.c
 	platform.cpp)
 
 add_idl_files(win-decklink-sdk_GENERATED_FILES

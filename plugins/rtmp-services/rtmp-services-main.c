@@ -16,7 +16,6 @@ OBS_MODULE_USE_DEFAULT_LOCALE("rtmp-services", "en-US")
 
 extern struct obs_service_info rtmp_common_service;
 extern struct obs_service_info rtmp_custom_service;
-extern struct obs_service_info rtmp_webrtc_janus_service;
 
 static update_info_t *update_info = NULL;
 
@@ -61,7 +60,6 @@ bool obs_module_load(void)
 
 	obs_register_service(&rtmp_common_service);
 	obs_register_service(&rtmp_custom_service);
-	obs_register_service(&rtmp_webrtc_janus_service);
 	return true;
 }
 

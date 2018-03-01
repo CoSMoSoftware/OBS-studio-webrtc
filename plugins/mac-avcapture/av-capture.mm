@@ -2,6 +2,7 @@
 #import <CoreFoundation/CoreFoundation.h>
 #import <CoreMedia/CoreMedia.h>
 #import <CoreVideo/CoreVideo.h>
+#import <CoreMediaIO/CMIOHardware.h>
 
 #include <obs-module.h>
 #include <obs.hpp>
@@ -644,13 +645,7 @@ static inline bool update_frame(av_capture *capture,
 
 static void av_capture_enable_buffering(av_capture *capture, bool enabled)
 {
-	obs_source_t *source = capture->source;
-	uint32_t flags = obs_source_get_flags(source);
-	if (enabled)
-		flags &= ~OBS_SOURCE_FLAG_UNBUFFERED;
-	else
-		flags |= OBS_SOURCE_FLAG_UNBUFFERED;
-	obs_source_set_flags(source, flags);
+	obs_source_set_async_unbuffered(capture->source, !enabled);
 }
 
 static const char *av_capture_getname(void*)
@@ -780,7 +775,7 @@ static bool init_format(av_capture *capture, AVCaptureDevice *dev)
 	CMMediaType mtype = CMFormatDescriptionGetMediaType(
 			format.formatDescription);
 	// TODO: support other media types
-	if (mtype != kCMMediaType_Video) {
+	if (mtype != kCMMediaType_Video && mtype != kCMMediaType_Muxed) {
 		AVLOG(LOG_ERROR, "CMMediaType '%s' is unsupported",
 				AV_FOURCC_STR(mtype));
 		return false;
@@ -1247,7 +1242,7 @@ static NSArray *presets(void)
 		AVCaptureSessionPreset640x480,
 		AVCaptureSessionPreset352x288,
 		AVCaptureSessionPreset320x240,
-		//AVCaptureSessionPresetHigh,
+		AVCaptureSessionPresetHigh,
 		//AVCaptureSessionPresetMedium,
 		//AVCaptureSessionPresetLow,
 		//AVCaptureSessionPresetPhoto,
@@ -1265,6 +1260,7 @@ static NSString *preset_names(NSString *preset)
 		AVCaptureSessionPreset640x480:@"640x480",
 		AVCaptureSessionPreset960x540:@"960x540",
 		AVCaptureSessionPreset1280x720:@"1280x720",
+		AVCaptureSessionPresetHigh:@"High",
 	};
 	NSString *name = preset_names[preset];
 	if (name)
@@ -2080,11 +2076,15 @@ static obs_properties_t *av_capture_properties(void *capture)
 			TEXT_DEVICE, OBS_COMBO_TYPE_LIST,
 			OBS_COMBO_FORMAT_STRING);
 	obs_property_list_add_string(dev_list, "", "");
+
 	for (AVCaptureDevice *dev in [AVCaptureDevice
-			devicesWithMediaType:AVMediaTypeVideo]) {
-		obs_property_list_add_string(dev_list,
-				dev.localizedName.UTF8String,
-				dev.uniqueID.UTF8String);
+			devices]) {
+		if ([dev hasMediaType: AVMediaTypeVideo] ||
+		    [dev hasMediaType: AVMediaTypeMuxed]) {
+			obs_property_list_add_string(dev_list,
+					dev.localizedName.UTF8String,
+					dev.uniqueID.UTF8String);
+		}
 	}
 
 	obs_property_set_modified_callback(dev_list,
@@ -2178,6 +2178,20 @@ OBS_MODULE_USE_DEFAULT_LOCALE("mac-avcapture", "en-US")
 
 bool obs_module_load(void)
 {
+#ifdef __MAC_10_10
+	// Enable iOS device to show up as AVCapture devices
+	// From WWDC video 2014 #508 at 5:34
+	// https://developer.apple.com/videos/wwdc/2014/#508
+	CMIOObjectPropertyAddress prop = {
+			kCMIOHardwarePropertyAllowScreenCaptureDevices,
+			kCMIOObjectPropertyScopeGlobal,
+			kCMIOObjectPropertyElementMaster
+	};
+	UInt32 allow = 1;
+	CMIOObjectSetPropertyData(kCMIOObjectSystemObject, &prop, 0, NULL,
+			sizeof(allow), &allow);
+#endif
+
 	obs_source_info av_capture_info = {
 		.id             = "av_capture_input",
 		.type           = OBS_SOURCE_TYPE_INPUT,

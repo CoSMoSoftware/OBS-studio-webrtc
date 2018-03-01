@@ -40,7 +40,8 @@ OBSRemux::OBSRemux(const char *path, QWidget *parent)
 	ui->setupUi(this);
 
 	ui->progressBar->setVisible(false);
-	ui->remux->setEnabled(false);
+	ui->buttonBox->button(QDialogButtonBox::Ok)->
+			setEnabled(false);
 	ui->targetFile->setEnabled(false);
 	ui->browseTarget->setEnabled(false);
 
@@ -54,10 +55,18 @@ OBSRemux::OBSRemux(const char *path, QWidget *parent)
 			[&]() { BrowseInput(); });
 	connect(ui->browseTarget, &QPushButton::clicked,
 			[&]() { BrowseOutput(); });
-	connect(ui->remux, &QPushButton::clicked, [&]() { Remux(); });
 
 	connect(ui->sourceFile, &QLineEdit::textChanged,
 			this, &OBSRemux::inputChanged);
+
+	ui->buttonBox->button(QDialogButtonBox::Ok)->
+			setText(QTStr("Remux.Remux"));
+
+	connect(ui->buttonBox->button(QDialogButtonBox::Ok),
+		SIGNAL(clicked()), this, SLOT(Remux()));
+
+	connect(ui->buttonBox->button(QDialogButtonBox::Close),
+		SIGNAL(clicked()), this, SLOT(close()));
 
 	worker->moveToThread(&remuxer);
 	remuxer.start();
@@ -116,12 +125,14 @@ void OBSRemux::BrowseInput()
 void OBSRemux::inputChanged(const QString &path)
 {
 	if (!QFileInfo::exists(path)) {
-		ui->remux->setEnabled(false);
+		ui->buttonBox->button(QDialogButtonBox::Ok)->
+			setEnabled(false);
 		return;
 	}
 
 	ui->sourceFile->setText(path);
-	ui->remux->setEnabled(true);
+	ui->buttonBox->button(QDialogButtonBox::Ok)->
+			setEnabled(true);
 
 	QFileInfo fi(path);
 	QString mp4 = fi.path() + "/" + fi.baseName() + ".mp4";
@@ -146,9 +157,8 @@ void OBSRemux::BrowseOutput()
 void OBSRemux::Remux()
 {
 	if (QFileInfo::exists(ui->targetFile->text()))
-		if (QMessageBox::question(this, QTStr("Remux.FileExistsTitle"),
-					QTStr("Remux.FileExists"),
-					QMessageBox::Yes | QMessageBox::No) !=
+		if (OBSMessageBox::question(this, QTStr("Remux.FileExistsTitle"),
+					QTStr("Remux.FileExists")) !=
 				QMessageBox::Yes)
 			return;
 
@@ -161,7 +171,8 @@ void OBSRemux::Remux()
 	worker->lastProgress = 0.f;
 
 	ui->progressBar->setVisible(true);
-	ui->remux->setEnabled(false);
+	ui->buttonBox->button(QDialogButtonBox::Ok)->
+			setEnabled(false);
 
 	emit remux();
 }
@@ -189,13 +200,14 @@ void OBSRemux::updateProgress(float percent)
 
 void OBSRemux::remuxFinished(bool success)
 {
-	QMessageBox::information(this, QTStr("Remux.FinishedTitle"),
+	OBSMessageBox::information(this, QTStr("Remux.FinishedTitle"),
 			success ?
 			QTStr("Remux.Finished") : QTStr("Remux.FinishedError"));
 
 	worker->job.reset();
 	ui->progressBar->setVisible(false);
-	ui->remux->setEnabled(true);
+	ui->buttonBox->button(QDialogButtonBox::Ok)->
+			setEnabled(true);
 }
 
 RemuxWorker::RemuxWorker()

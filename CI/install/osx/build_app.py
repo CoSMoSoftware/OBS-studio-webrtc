@@ -153,6 +153,7 @@ info = plistlib.readPlist(plist_path)
 
 latest_tag = "beta"
 log = "bata"
+
 from os import path
 # set version
 if args.stable:

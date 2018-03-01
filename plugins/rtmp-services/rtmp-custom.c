@@ -20,7 +20,7 @@ static void rtmp_custom_update(void *data, obs_data_t *settings)
 	bfree(service->room);
 
 	service->server = bstrdup(obs_data_get_string(settings, "server"));
-	service->room   = bstrdup(obs_data_get_string(settings, "room"));
+	service->room    = bstrdup(obs_data_get_string(settings, "room"));
 	service->use_auth = obs_data_get_bool(settings, "use_auth");
 	service->username = bstrdup(obs_data_get_string(settings, "username"));
 	service->password = bstrdup(obs_data_get_string(settings, "password"));
@@ -66,7 +66,8 @@ static obs_properties_t *rtmp_custom_properties(void *unused)
 
 	obs_properties_add_text(ppts, "server", "URL", OBS_TEXT_DEFAULT);
 
-	obs_properties_add_text(ppts, "room", obs_module_text("Room"), OBS_TEXT_DEFAULT);
+	obs_properties_add_text(ppts, "room", obs_module_text("Room"),
+			OBS_TEXT_PASSWORD);
 
 	p = obs_properties_add_bool(ppts, "use_auth", obs_module_text("UseAuth"));
 	obs_properties_add_text(ppts, "username", obs_module_text("Username"),
@@ -113,7 +114,7 @@ struct obs_service_info rtmp_custom_service = {
 	.update         = rtmp_custom_update,
 	.get_properties = rtmp_custom_properties,
 	.get_url        = rtmp_custom_url,
-	.get_room       = rtmp_custom_room,
+	.get_room        = rtmp_custom_room,
 	.get_username   = rtmp_custom_username,
 	.get_password   = rtmp_custom_password
 };

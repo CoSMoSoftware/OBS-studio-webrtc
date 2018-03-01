@@ -39,6 +39,7 @@ set( obs-outputs_SOURCES
   VideoCapturer.cpp
   WebRTCStream.cpp
   net-if.c
+  null-output.c
   )
 
 # --- library target

@@ -408,7 +408,7 @@ static bool update_settings(struct obs_qsv *obsqsv, obs_data_t *settings)
 static void load_headers(struct obs_qsv *obsqsv)
 {
 	DARRAY(uint8_t) header;
-	uint8_t sei = 0;
+	static uint8_t sei = 0;
 
 	// Not sure if SEI is needed.
 	// Just filling in empty meaningless SEI message.
@@ -635,7 +635,7 @@ static void parse_packet(struct obs_qsv *obsqsv, struct encoder_packet *packet, 
 	//int iType = iFrame ? 0 : (bFrame ? 1 : (pFrame ? 2 : -1));
 	//int64_t interval = obsqsv->params.nbFrames + 1;
 
-	// In case MSDK does't support automatic DecodeTimeStamp, do manual
+	// In case MSDK doesn't support automatic DecodeTimeStamp, do manual
 	// calculation
 	if (g_pts2dtsShift >= 0)
 	{

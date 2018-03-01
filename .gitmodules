@@ -13,6 +13,3 @@
 [submodule "plugins/obs-vst"]
 	path = plugins/obs-vst
 	url = https://github.com/DDRBoxman/obs-vst.git
-[submodule "plugins/websocket-client/third_party"]
-	path = plugins/websocket-client/third_party
-        url=https://github.com/evasyst/asio

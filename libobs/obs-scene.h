@@ -32,6 +32,8 @@ struct obs_scene_item {
 	volatile long         ref;
 	volatile bool         removed;
 
+	int64_t               id;
+
 	struct obs_scene      *parent;
 	struct obs_source     *source;
 	volatile long         active_refs;
@@ -49,7 +51,7 @@ struct obs_scene_item {
 	uint32_t              align;
 
 	/* last width/height of the source, this is used to check whether
-	 * ths transform needs updating */
+	 * the transform needs updating */
 	uint32_t              last_width;
 	uint32_t              last_height;
 
@@ -75,6 +77,8 @@ struct obs_scene_item {
 
 struct obs_scene {
 	struct obs_source     *source;
+
+	int64_t               id_counter;
 
 	pthread_mutex_t       video_mutex;
 	pthread_mutex_t       audio_mutex;

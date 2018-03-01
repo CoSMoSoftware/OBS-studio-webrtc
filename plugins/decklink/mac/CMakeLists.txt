@@ -1,5 +1,10 @@
 project(mac-decklink)
 
+if(DISABLE_DECKLINK)
+	message(STATUS "decklink plugin disabled")
+	return()
+endif()
+
 find_library(COREFOUNDATION CoreFoundation)
 
 include_directories(${COREFOUNDATION})
@@ -26,6 +31,8 @@ set(mac-decklink_HEADERS
 	../decklink-device-discovery.hpp
 	../decklink-device.hpp
 	../decklink-device-mode.hpp
+	../audio-repack.h
+	../audio-repack.hpp
 	)
 
 set(mac-decklink_SOURCES
@@ -35,6 +42,7 @@ set(mac-decklink_SOURCES
 	../decklink-device-discovery.cpp
 	../decklink-device.cpp
 	../decklink-device-mode.cpp
+	../audio-repack.c
 	platform.cpp)
 
 add_library(mac-decklink MODULE

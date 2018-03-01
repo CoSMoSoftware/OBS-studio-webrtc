@@ -549,11 +549,42 @@ int os_rename(const char *old_path, const char *new_path)
 		goto error;
 	}
 
-	code = MoveFileW(old_path_utf16, new_path_utf16) ? 0 : -1;
+	code = MoveFileExW(old_path_utf16, new_path_utf16,
+			MOVEFILE_REPLACE_EXISTING) ? 0 : -1;
 
 error:
 	bfree(old_path_utf16);
 	bfree(new_path_utf16);
+	return code;
+}
+
+int os_safe_replace(const char *target, const char *from, const char *backup)
+{
+	wchar_t *wtarget = NULL;
+	wchar_t *wfrom = NULL;
+	wchar_t *wbackup = NULL;
+	int code = -1;
+
+	if (!target || !from)
+		return -1;
+	if (!os_utf8_to_wcs_ptr(target, 0, &wtarget))
+		return -1;
+	if (!os_utf8_to_wcs_ptr(from, 0, &wfrom))
+		goto fail;
+	if (backup && !os_utf8_to_wcs_ptr(backup, 0, &wbackup))
+		goto fail;
+
+	if (ReplaceFileW(wtarget, wfrom, wbackup, 0, NULL, NULL)) {
+		code = 0;
+	} else if (GetLastError() == ERROR_FILE_NOT_FOUND) {
+		code = MoveFileExW(wfrom, wtarget, MOVEFILE_REPLACE_EXISTING)
+			? 0 : -1;
+	}
+
+fail:
+	bfree(wtarget);
+	bfree(wfrom);
+	bfree(wbackup);
 	return code;
 }
 
@@ -847,4 +878,84 @@ void os_inhibit_sleep_destroy(os_inhibit_t *info)
 void os_breakpoint(void)
 {
 	__debugbreak();
+}
+
+DWORD num_logical_cores(ULONG_PTR mask)
+{
+	DWORD     left_shift    = sizeof(ULONG_PTR) * 8 - 1;
+	DWORD     bit_set_count = 0;
+	ULONG_PTR bit_test      = (ULONG_PTR)1 << left_shift;
+
+	for (DWORD i = 0; i <= left_shift; ++i) {
+		bit_set_count += ((mask & bit_test) ? 1 : 0);
+		bit_test      /= 2;
+	}
+
+	return bit_set_count;
+}
+
+static int physical_cores = 0;
+static int logical_cores = 0;
+static bool core_count_initialized = false;
+
+static void os_get_cores_internal(void)
+{
+	PSYSTEM_LOGICAL_PROCESSOR_INFORMATION info = NULL, temp = NULL;
+	DWORD len = 0;
+
+	if (core_count_initialized)
+		return;
+
+	core_count_initialized = true;
+
+	GetLogicalProcessorInformation(info, &len);
+	if (GetLastError() != ERROR_INSUFFICIENT_BUFFER)
+		return;
+
+	info = malloc(len);
+
+	if (GetLogicalProcessorInformation(info, &len)) {
+		DWORD num = len / sizeof(*info);
+		temp = info;
+
+		for (DWORD i = 0; i < num; i++) {
+			if (temp->Relationship == RelationProcessorCore) {
+				ULONG_PTR mask = temp->ProcessorMask;
+
+				physical_cores++;
+				logical_cores += num_logical_cores(mask);
+			}
+
+			temp++;
+		}
+	}
+
+	free(info);
+}
+
+int os_get_physical_cores(void)
+{
+	if (!core_count_initialized)
+		os_get_cores_internal();
+	return physical_cores;
+}
+
+int os_get_logical_cores(void)
+{
+	if (!core_count_initialized)
+		os_get_cores_internal();
+	return logical_cores;
+}
+
+uint64_t os_get_free_disk_space(const char *dir)
+{
+	wchar_t *wdir = NULL;
+	if (!os_utf8_to_wcs_ptr(dir, 0, &wdir))
+		return 0;
+
+	ULARGE_INTEGER free;
+	bool success = !!GetDiskFreeSpaceExW(wdir, &free, NULL, NULL);
+	bfree(wdir);
+
+	return success ? free.QuadPart : 0;
 }

@@ -208,8 +208,14 @@ struct DShowInput {
 		if (!thread)
 			throw "Failed to create thread";
 
+		deactivateWhenNotShowing =
+			obs_data_get_bool(settings, DEACTIVATE_WNS);
+
 		if (obs_data_get_bool(settings, "active")) {
-			QueueAction(Action::Activate);
+			bool showing = obs_source_showing(source);
+			if (!deactivateWhenNotShowing || showing)
+				QueueAction(Action::Activate);
+
 			active = true;
 		}
 	}
@@ -747,12 +753,7 @@ inline void DShowInput::SetupBuffering(obs_data_t *settings)
 	else
 		useBuffering = bufType == BufferingType::On;
 
-	if (useBuffering)
-		flags &= ~OBS_SOURCE_FLAG_UNBUFFERED;
-	else
-		flags |= OBS_SOURCE_FLAG_UNBUFFERED;
-
-	obs_source_set_flags(source, flags);
+	obs_source_set_async_unbuffered(source, !useBuffering);
 }
 
 static DStr GetVideoFormatName(VideoFormat format);
