@@ -1,0 +1,6 @@
+[submodule "libcurl"]
+  path = libcurl
+  url = https://github.com/curl/curl
+[submodule "libjansson"]
+  path = libjansson
+  url = https://github.com/akheron/jansson

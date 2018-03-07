@@ -274,14 +274,21 @@ bool AutoConfigStreamPage::validatePage()
 {
 	OBSData service_settings = obs_data_create();
 	obs_data_release(service_settings);
-	obs_data_set_string(service_settings, "service",
-			QT_TO_UTF8(ui->service->currentText()));
-
-	OBSService service = obs_service_create("rtmp_common", "temp_service",
-			service_settings, nullptr);
-	obs_service_release(service);
 
 	wiz->customServer = ui->streamType->currentIndex() == 1;
+
+	const char *serverType = wiz->customServer
+		? "rtmp_custom"
+		: "rtmp_common";
+
+	if (!wiz->customServer) {
+		obs_data_set_string(service_settings, "service",
+				QT_TO_UTF8(ui->service->currentText()));
+	}
+
+	OBSService service = obs_service_create(serverType, "temp_service",
+			service_settings, nullptr);
+	obs_service_release(service);
 
 	int bitrate = 10000;
 	if (!ui->doBandwidthTest->isChecked()) {
@@ -317,10 +324,8 @@ bool AutoConfigStreamPage::validatePage()
 	if (!wiz->customServer) {
 		if (wiz->serviceName == "Twitch")
 			wiz->service = AutoConfig::Service::Twitch;
-		else if (wiz->serviceName == "hitbox.tv")
-			wiz->service = AutoConfig::Service::Hitbox;
-		else if (wiz->serviceName == "beam.pro")
-			wiz->service = AutoConfig::Service::Beam;
+		else if (wiz->serviceName == "Smashcast")
+			wiz->service = AutoConfig::Service::Smashcast;
 		else
 			wiz->service = AutoConfig::Service::Other;
 	} else {
@@ -361,10 +366,13 @@ void AutoConfigStreamPage::ServiceChanged()
 
 	std::string service = QT_TO_UTF8(ui->service->currentText());
 	bool regionBased = service == "Twitch" ||
-	                   service == "hitbox.tv" ||
-	                   service == "beam.pro";
+	                   service == "Smashcast";
 	bool testBandwidth = ui->doBandwidthTest->isChecked();
 	bool custom = ui->streamType->currentIndex() == 1;
+
+	/* Test three closest servers if "Auto" is available for Twitch */
+	if (service == "Twitch" && wiz->twitchAuto)
+		regionBased = false;
 
 	ui->service->setVisible(!custom);
 	ui->serviceLabel->setVisible(!custom);
@@ -562,6 +570,23 @@ AutoConfig::AutoConfig(QWidget *parent)
 	baseResolutionCY = ovi.base_height;
 
 	/* ----------------------------------------- */
+	/* check to see if Twitch's "auto" available */
+
+	OBSData twitchSettings = obs_data_create();
+	obs_data_release(twitchSettings);
+
+	obs_data_set_string(twitchSettings, "service", "Twitch");
+
+	obs_properties_t *props = obs_get_service_properties("rtmp_common");
+	obs_properties_apply_settings(props, twitchSettings);
+
+	obs_property_t *p = obs_properties_get(props, "server");
+	const char *first = obs_property_list_item_string(p, 0);
+	twitchAuto = strcmp(first, "auto") == 0;
+
+	obs_properties_destroy(props);
+
+	/* ----------------------------------------- */
 	/* load service/servers                      */
 
 	customServer = serviceType == "rtmp_custom";
@@ -667,7 +692,7 @@ bool AutoConfig::CanTestServer(const char *server)
 		} else if (regionOther) {
 			return true;
 		}
-	} else if (service == Service::Hitbox) {
+	} else if (service == Service::Smashcast) {
 		if (strcmp(server, "Default") == 0) {
 			return true;
 		} else if (astrcmp_n(server, "US-West:", 8) == 0 ||
@@ -678,17 +703,6 @@ bool AutoConfig::CanTestServer(const char *server)
 		} else if (astrcmp_n(server, "South Korea:", 12) == 0 ||
 		           astrcmp_n(server, "Asia:", 5) == 0 ||
 		           astrcmp_n(server, "China:", 6) == 0) {
-			return regionAsia;
-		} else if (regionOther) {
-			return true;
-		}
-	} else if (service == Service::Beam) {
-		if (astrcmp_n(server, "US:", 3) == 0) {
-			return regionUS;
-		} else if (astrcmp_n(server, "EU:", 3) == 0) {
-			return regionEU;
-		} else if (astrcmp_n(server, "South Korea:", 12) == 0 ||
-		           astrcmp_n(server, "Asia:", 5) == 0) {
 			return regionAsia;
 		} else if (regionOther) {
 			return true;

@@ -33,8 +33,7 @@ class AutoConfig : public QWizard {
 
 	enum class Service {
 		Twitch,
-		Hitbox,
-		Beam,
+		Smashcast,
 		Other
 	};
 
@@ -65,7 +64,7 @@ class AutoConfig : public QWizard {
 	Quality recordingQuality = Quality::Stream;
 	Encoder recordingEncoder = Encoder::Stream;
 	Encoder streamingEncoder = Encoder::x264;
-	Type type = Type::Invalid;
+	Type type = Type::Streaming;
 	FPSType fpsType = FPSType::PreferHighFPS;
 	int idealBitrate = 2500;
 	int baseResolutionCX = 1920;
@@ -88,6 +87,7 @@ class AutoConfig : public QWizard {
 	bool customServer = false;
 	bool bandwidthTest = false;
 	bool testRegions = true;
+	bool twitchAuto = false;
 	bool regionUS = true;
 	bool regionEU = true;
 	bool regionAsia = true;

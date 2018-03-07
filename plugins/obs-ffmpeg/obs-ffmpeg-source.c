@@ -51,6 +51,7 @@ struct ffmpeg_source {
 
 	char *input;
 	char *input_format;
+	int buffering_mb;
 	bool is_looping;
 	bool is_local_file;
 	bool is_hw_decoding;
@@ -70,9 +71,11 @@ static bool is_local_file_modified(obs_properties_t *props,
 			"input_format");
 	obs_property_t *local_file = obs_properties_get(props, "local_file");
 	obs_property_t *looping = obs_properties_get(props, "looping");
+	obs_property_t *buffering = obs_properties_get(props, "buffering_mb");
 	obs_property_t *close = obs_properties_get(props, "close_when_inactive");
 	obs_property_set_visible(input, !enabled);
 	obs_property_set_visible(input_format, !enabled);
+	obs_property_set_visible(buffering, !enabled);
 	obs_property_set_visible(close, enabled);
 	obs_property_set_visible(local_file, enabled);
 	obs_property_set_visible(looping, enabled);
@@ -89,6 +92,7 @@ static void ffmpeg_source_defaults(obs_data_t *settings)
 #if defined(_WIN32)
 	obs_data_set_default_bool(settings, "hw_decode", true);
 #endif
+	obs_data_set_default_int(settings, "buffering_mb", 2);
 }
 
 static const char *media_filter =
@@ -210,7 +214,11 @@ static void get_frame(void *opaque, struct obs_source_frame *f)
 static void preload_frame(void *opaque, struct obs_source_frame *f)
 {
 	struct ffmpeg_source *s = opaque;
-	obs_source_preload_video(s->source, f);
+	if (s->close_when_inactive)
+		return;
+
+	if (s->is_clear_on_media_end || s->is_looping)
+		obs_source_preload_video(s->source, f);
 }
 
 static void get_audio(void *opaque, struct obs_source_audio *a)
@@ -234,12 +242,15 @@ static void ffmpeg_source_open(struct ffmpeg_source *s)
 	if (s->input && *s->input)
 		s->media_valid = mp_media_init(&s->media,
 				s->input, s->input_format,
+				s->buffering_mb * 1024 * 1024,
 				s, get_frame, get_audio, media_stopped,
 				preload_frame, s->is_hw_decoding, s->range);
 }
 
 static void ffmpeg_source_tick(void *data, float seconds)
 {
+	UNUSED_PARAMETER(seconds);
+
 	struct ffmpeg_source *s = data;
 	if (s->destroy_media) {
 		if (s->media_valid) {
@@ -303,6 +314,7 @@ static void ffmpeg_source_update(void *data, obs_data_t *settings)
 			"restart_on_activate");
 	s->range = (enum video_range_type)obs_data_get_int(settings,
 			"color_range");
+	s->buffering_mb = (int)obs_data_get_int(settings, "buffering_mb");
 	s->is_local_file = is_local_file;
 
 	if (s->media_valid) {
@@ -325,7 +337,7 @@ static const char *ffmpeg_source_getname(void *unused)
 	return obs_module_text("FFMpegSource");
 }
 
-static bool restart_hotkey(void *data, obs_hotkey_id id,
+static void restart_hotkey(void *data, obs_hotkey_id id,
 		obs_hotkey_t *hotkey, bool pressed)
 {
 	UNUSED_PARAMETER(id);
@@ -335,13 +347,59 @@ static bool restart_hotkey(void *data, obs_hotkey_id id,
 	struct ffmpeg_source *s = data;
 	if (obs_source_active(s->source))
 		ffmpeg_source_start(s);
-	return true;
 }
 
 static void restart_proc(void *data, calldata_t *cd)
 {
 	restart_hotkey(data, 0, NULL, true);
 	UNUSED_PARAMETER(cd);
+}
+
+static void get_duration(void *data, calldata_t *cd)
+{
+	struct ffmpeg_source *s = data;
+	int64_t dur = 0;
+	if (s->media.fmt)
+		dur = s->media.fmt->duration;
+
+	calldata_set_int(cd, "duration", dur * 1000);
+}
+
+static void get_nb_frames(void *data, calldata_t *cd)
+{
+	struct ffmpeg_source *s = data;
+	int64_t frames = 0;
+
+	if (!s->media.fmt) {
+		calldata_set_int(cd, "num_frames", frames);
+		return;
+	}
+
+	int video_stream_index = av_find_best_stream(s->media.fmt,
+			AVMEDIA_TYPE_VIDEO, -1, -1, NULL, 0);
+
+	if (video_stream_index < 0) {
+		FF_BLOG(LOG_WARNING, "Getting number of frames failed: No "
+				"video stream in media file!");
+		calldata_set_int(cd, "num_frames", frames);
+		return;
+	}
+
+	AVStream *stream = s->media.fmt->streams[video_stream_index];
+
+	if (stream->nb_frames > 0) {
+		frames = stream->nb_frames;
+	} else {
+		FF_BLOG(LOG_DEBUG, "nb_frames not set, estimating using frame "
+				"rate and duration");
+		AVRational avg_frame_rate = stream->avg_frame_rate;
+		frames = (int64_t)ceil((double)s->media.fmt->duration /
+				(double)AV_TIME_BASE *
+				(double)avg_frame_rate.num /
+				(double)avg_frame_rate.den);
+	}
+
+	calldata_set_int(cd, "num_frames", frames);
 }
 
 static void *ffmpeg_source_create(obs_data_t *settings, obs_source_t *source)
@@ -358,6 +416,10 @@ static void *ffmpeg_source_create(obs_data_t *settings, obs_source_t *source)
 
 	proc_handler_t *ph = obs_source_get_proc_handler(source);
 	proc_handler_add(ph, "void restart()", restart_proc, s);
+	proc_handler_add(ph, "void get_duration(out int duration)",
+			get_duration, s);
+	proc_handler_add(ph, "void get_nb_frames(out int num_frames)",
+			get_nb_frames, s);
 
 	ffmpeg_source_update(s, settings);
 	return s;

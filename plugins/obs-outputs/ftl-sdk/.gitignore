@@ -1,0 +1,5 @@
+build
+.vscode/*
+!.vscode/settings.json
+*.orig
+.vs/*

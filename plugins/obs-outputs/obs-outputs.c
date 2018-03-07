@@ -79,6 +79,8 @@ struct obs_output_info rtmp_output_info = {
 	.flags = OBS_OUTPUT_AV |
 	OBS_OUTPUT_SERVICE |
 	OBS_OUTPUT_MULTI_TRACK,
+	.encoded_video_codecs = "h264",
+	.encoded_audio_codecs = "aac",
 	.get_name = rtmp_stream_getname,
 	.create = rtmp_stream_create,
 	.destroy = rtmp_stream_destroy,

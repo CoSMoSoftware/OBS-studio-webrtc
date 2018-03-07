@@ -279,18 +279,6 @@ bool mp_decode_next(struct mp_decode *d)
 			}
 		}
 
-		if (!d->audio && d->m->is_network && !d->got_first_keyframe) {
-			if (d->pkt.flags & AV_PKT_FLAG_KEY) {
-				d->got_first_keyframe = true;
-			} else {
-				av_packet_unref(&d->orig_pkt);
-				av_init_packet(&d->orig_pkt);
-				av_init_packet(&d->pkt);
-				d->packet_pending = false;
-				return true;
-			}
-		}
-
 		ret = decode_packet(d, &got_frame);
 
 		if (!got_frame && ret == 0) {
@@ -332,9 +320,13 @@ bool mp_decode_next(struct mp_decode *d)
 	if (d->frame_ready) {
 		int64_t last_pts = d->frame_pts;
 
-		d->frame_pts = av_rescale_q(d->frame->best_effort_timestamp,
-				d->stream->time_base,
-				(AVRational){1, 1000000000});
+		if (d->frame->best_effort_timestamp == AV_NOPTS_VALUE)
+			d->frame_pts = d->next_pts;
+		else
+			d->frame_pts = av_rescale_q(
+					d->frame->best_effort_timestamp,
+					d->stream->time_base,
+					(AVRational){1, 1000000000});
 
 		int64_t duration = d->frame->pkt_duration;
 		if (!duration)
@@ -343,6 +335,7 @@ bool mp_decode_next(struct mp_decode *d)
 			duration = av_rescale_q(duration,
 					d->stream->time_base,
 					(AVRational){1, 1000000000});
+
 		d->last_duration = duration;
 		d->next_pts = d->frame_pts + duration;
 	}

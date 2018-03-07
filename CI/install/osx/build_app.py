@@ -151,8 +151,8 @@ changes = " ".join(changes)
 
 info = plistlib.readPlist(plist_path)
 
-latest_tag = "beta"
-log = "bata"
+latest_tag = cmd('git describe --tags --abbrev=0')
+log = cmd('git log --pretty=oneline {0}...HEAD'.format(latest_tag))
 
 from os import path
 # set version
