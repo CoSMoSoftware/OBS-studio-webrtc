@@ -122,6 +122,7 @@ static const char *ftl_stream_getname(void *unused)
 static void log_ftl(int level, const char *format, va_list args)
 {
 	blogva(LOG_INFO, format, args);
+	UNUSED_PARAMETER(level);
 }
 
 static inline size_t num_buffered_packets(struct ftl_stream *stream);
@@ -257,7 +258,6 @@ static void ftl_stream_stop(void *data, uint64_t ts)
 	}
 
 	stream->stop_ts = ts / 1000ULL;
-	os_event_signal(stream->stop_event);
 
 	if (ts) {
 		stream->shutdown_timeout_ts = ts +
@@ -265,8 +265,11 @@ static void ftl_stream_stop(void *data, uint64_t ts)
 	}
 
 	if (active(stream)) {
+		os_event_signal(stream->stop_event);
 		if (stream->stop_ts == 0)
 			os_sem_post(stream->send_sem);
+	} else {
+		obs_output_signal_stop(stream->output, OBS_OUTPUT_SUCCESS);
 	}
 }
 
@@ -287,7 +290,7 @@ static inline bool get_next_packet(struct ftl_stream *stream,
 }
 
 static int avc_get_video_frame(struct ftl_stream *stream,
-		struct encoder_packet *packet, bool is_header, size_t idx)
+		struct encoder_packet *packet, bool is_header)
 {
 	int consumed = 0;
 	int len = (int)packet->size;
@@ -295,11 +298,11 @@ static int avc_get_video_frame(struct ftl_stream *stream,
 
 	unsigned char *video_stream = packet->data;
 
-	while (consumed < packet->size) {
+	while ((size_t)consumed < packet->size) {
 		size_t total_max = sizeof(stream->coded_pic_buffer.nalus) /
 			sizeof(stream->coded_pic_buffer.nalus[0]);
 
-		if (stream->coded_pic_buffer.total >= total_max) {
+		if ((size_t)stream->coded_pic_buffer.total >= total_max) {
 			warn("ERROR: cannot continue, nalu buffers are full");
 			return -1;
 		}
@@ -328,10 +331,11 @@ static int avc_get_video_frame(struct ftl_stream *stream,
 			      video_stream[2] << 8 |
 			      video_stream[3];
 
-			if (len > (packet->size - consumed)) {
+			if ((size_t)len > (packet->size - (size_t)consumed)) {
 				warn("ERROR: got len of %d but packet only "
 						"has %d left",
-						len, packet->size - consumed);
+						len,
+						(int)(packet->size - consumed));
 			}
 
 			consumed += 4;
@@ -342,8 +346,6 @@ static int avc_get_video_frame(struct ftl_stream *stream,
 
 		uint8_t nalu_type = video_stream[0] & 0x1F;
 		uint8_t nri = (video_stream[0] >> 5) & 0x3;
-
-		int send_marker_bit = (consumed >= packet->size) && !is_header;
 
 		if ((nalu_type != 12 && nalu_type != 6 && nalu_type != 9) ||
 		    nri) {
@@ -365,15 +367,14 @@ static int avc_get_video_frame(struct ftl_stream *stream,
 }
 
 static int send_packet(struct ftl_stream *stream,
-		struct encoder_packet *packet, bool is_header, size_t idx)
+		struct encoder_packet *packet, bool is_header)
 {
 	int bytes_sent = 0;
-	int recv_size = 0;
 	int ret = 0;
 
 	if (packet->type == OBS_ENCODER_VIDEO) {
 		stream->coded_pic_buffer.total = 0;
-		avc_get_video_frame(stream, packet, is_header, idx);
+		avc_get_video_frame(stream, packet, is_header);
 
 		int i;
 		for (i = 0; i < stream->coded_pic_buffer.total; i++) {
@@ -457,7 +458,7 @@ static void set_peak_bitrate(struct ftl_stream *stream)
 	// will queue data on the client and start adding latency. If the internet
 	// connection really can't handle the bitrate the user will see either lost frame
 	// and recovered frame counts go up, which is reflect in the dropped_frames count.
-	stream->peak_kbps = stream->params.peak_kbps = user_desired_bitrate * 1.2;
+	stream->peak_kbps = stream->params.peak_kbps = user_desired_bitrate * 12 / 10;
 	ftl_ingest_update_params(&stream->ftl_handle, &stream->params);
 }
 
@@ -509,7 +510,7 @@ static void *send_thread(void *data)
 			}
 		}
 
-		if (send_packet(stream, &packet, false, packet.track_idx) < 0) {
+		if (send_packet(stream, &packet, false) < 0) {
 			os_atomic_set_bool(&stream->disconnected, true);
 			break;
 		}
@@ -558,7 +559,7 @@ static bool send_video_header(struct ftl_stream *stream, int64_t dts_usec)
 
 	obs_encoder_get_extra_data(vencoder, &header, &size);
 	packet.size = obs_parse_avc_header(&packet.data, header, size);
-	return send_packet(stream, &packet, true, 0) >= 0;
+	return send_packet(stream, &packet, true) >= 0;
 }
 
 static inline bool send_headers(struct ftl_stream *stream, int64_t dts_usec)
@@ -600,34 +601,6 @@ static int init_send(struct ftl_stream *stream)
 	return OBS_OUTPUT_SUCCESS;
 }
 
-static int lookup_ingest_ip(const char *ingest_location, char *ingest_ip)
-{
-	struct hostent *remoteHost;
-	struct in_addr addr;
-	int retval = -1;
-	ingest_ip[0] = '\0';
-
-	remoteHost = gethostbyname(ingest_location);
-
-	if (remoteHost && remoteHost->h_addrtype == AF_INET) {
-		int i = 0;
-
-		while (remoteHost->h_addr_list[i] != 0) {
-			addr.s_addr = *(u_long *)remoteHost->h_addr_list[i++];
-			blog(LOG_INFO, "IP Address #%d of ingest is: %s",
-					i, inet_ntoa(addr));
-
-			/*only use the first ip found*/
-			if (strlen(ingest_ip) == 0) {
-				strcpy(ingest_ip, inet_ntoa(addr));
-				retval = 0;
-			}
-		}
-	}
-
-	return retval;
-}
-
 static int try_connect(struct ftl_stream *stream)
 {
 	ftl_status_t status_code;
@@ -644,10 +617,16 @@ static int try_connect(struct ftl_stream *stream)
 
 	status_code = ftl_ingest_connect(&stream->ftl_handle);
 	if (status_code != FTL_SUCCESS) {
-		warn("Ingest connect failed with: %s (%d)",
-				ftl_status_code_to_string(status_code),
-				status_code);
-		return _ftl_error_to_obs_error(status_code);
+		if (status_code == FTL_BAD_OR_INVALID_STREAM_KEY) {
+			blog(LOG_ERROR, "Invalid Key (%s)",
+					ftl_status_code_to_string(status_code));
+			return OBS_OUTPUT_INVALID_STREAM;
+		} else {
+			warn("Ingest connect failed with: %s (%d)",
+					ftl_status_code_to_string(status_code),
+					status_code);
+			return _ftl_error_to_obs_error(status_code);
+		}
 	}
 
 	info("Connection to %s successful", stream->path.array);
@@ -880,7 +859,7 @@ static uint64_t ftl_stream_total_bytes_sent(void *data)
 static int ftl_stream_dropped_frames(void *data)
 {
 	struct ftl_stream *stream = data;
-	return stream->dropped_frames;
+	return (int)stream->dropped_frames;
 }
 
 static float ftl_stream_congestion(void *data)
@@ -940,7 +919,7 @@ static void *status_thread(void *data)
 				break;
 
 		} else if(status.type == FTL_STATUS_LOG) {
-			blog(LOG_DEBUG, "[%d] %s", status.msg.log.log_level,
+			blog(LOG_INFO, "[%d] %s", status.msg.log.log_level,
 					status.msg.log.string);
 
 		} else if (status.type == FTL_STATUS_VIDEO_PACKETS) {
@@ -951,15 +930,20 @@ static void *status_thread(void *data)
 					p->nack_reqs -stream->last_nack_count;
 			stream->last_nack_count = p->nack_reqs;
 
-			blog(LOG_DEBUG, "Avg packet send per second %3.1f, "
+			int log_level = p->nack_reqs > 0 ? LOG_INFO : LOG_DEBUG;
+
+			blog(log_level, "Avg packet send per second %3.1f, "
 					"total nack requests %d",
-					(float)p->sent * 1000.f / p->period);
+					(float)p->sent * 1000.f / p->period,
+					(int)p->nack_reqs);
 
 		} else if (status.type == FTL_STATUS_VIDEO_PACKETS_INSTANT) {
 			ftl_packet_stats_instant_msg_t *p =
 				&status.msg.ipkt_stats;
 
-			blog(LOG_DEBUG, "avg transmit delay %dms "
+			int log_level = p->avg_rtt > 20 ? LOG_INFO : LOG_DEBUG;
+
+			blog(log_level, "avg transmit delay %dms "
 					"(min: %d, max: %d), "
 					"avg rtt %dms (min: %d, max: %d)",
 					p->avg_xmit_delay,
@@ -970,7 +954,10 @@ static void *status_thread(void *data)
 			ftl_video_frame_stats_msg_t *v =
 				&status.msg.video_stats;
 
-			blog(LOG_DEBUG, "Queue an average of %3.2f fps "
+			int log_level = v->queue_fullness > 0 ?
+				LOG_INFO : LOG_DEBUG;
+
+			blog(log_level, "Queue an average of %3.2f fps "
 				"(%3.1f kbps), "
 				"sent an average of %3.2f fps "
 				"(%3.1f kbps), "
@@ -1059,13 +1046,6 @@ static int init_connect(struct ftl_stream *stream)
 
 	dstr_copy(&stream->path, obs_service_get_url(service));
 	key = obs_service_get_key(service);
-
-	struct obs_video_info ovi;
-	int fps_num = 30, fps_den = 1;
-	if (obs_get_video_info(&ovi)) {
-		fps_num = ovi.fps_num;
-		fps_den = ovi.fps_den;
-	}
 
 	int target_bitrate = (int)obs_data_get_int(video_settings, "bitrate");
 	int peak_bitrate = (int)((float)target_bitrate * 1.1f);

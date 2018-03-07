@@ -149,10 +149,12 @@ struct obs_transform_info {
  * Video initialization structure
  */
 struct obs_video_info {
+#ifndef SWIG
 	/**
 	 * Graphics module to use (usually "libobs-opengl" or "libobs-d3d11")
 	 */
 	const char          *graphics_module;
+#endif
 
 	uint32_t            fps_num;       /**< Output FPS numerator */
 	uint32_t            fps_den;       /**< Output FPS denominator */
@@ -381,6 +383,7 @@ EXPORT void obs_load_all_modules(void);
  * be called after all modules have been loaded. */
 EXPORT void obs_post_load_modules(void);
 
+#ifndef SWIG
 struct obs_module_info {
 	const char *bin_path;
 	const char *data_path;
@@ -391,6 +394,7 @@ typedef void (*obs_find_module_callback_t)(void *param,
 
 /** Finds all modules within the search paths added by obs_add_module_path. */
 EXPORT void obs_find_modules(obs_find_module_callback_t callback, void *param);
+#endif
 
 typedef void (*obs_enum_module_callback_t)(void *param, obs_module_t *module);
 
@@ -539,9 +543,11 @@ enum obs_base_effect {
 /** Returns a commonly used base effect */
 EXPORT gs_effect_t *obs_get_base_effect(enum obs_base_effect effect);
 
+#ifndef SWIG
 /* DEPRECATED: gets texture_rect default effect */
 DEPRECATED
 EXPORT gs_effect_t *obs_get_default_rect_effect(void);
+#endif
 
 /** Returns the primary obs signal handler */
 EXPORT signal_handler_t *obs_get_signal_handler(void);
@@ -549,8 +555,14 @@ EXPORT signal_handler_t *obs_get_signal_handler(void);
 /** Returns the primary obs procedure handler */
 EXPORT proc_handler_t *obs_get_proc_handler(void);
 
+#ifndef SWIG
 /** Renders the main view */
+DEPRECATED
 EXPORT void obs_render_main_view(void);
+#endif
+
+/** Renders the last main output texture */
+EXPORT void obs_render_main_texture(void);
 
 /** Sets the master user volume */
 EXPORT void obs_set_master_volume(float volume);
@@ -597,6 +609,13 @@ EXPORT void obs_enum_audio_monitoring_devices(obs_enum_audio_device_cb cb,
 
 EXPORT bool obs_set_audio_monitoring_device(const char *name, const char *id);
 EXPORT void obs_get_audio_monitoring_device(const char **name, const char **id);
+
+EXPORT void obs_add_tick_callback(
+		void (*tick)(void *param, float seconds),
+		void *param);
+EXPORT void obs_remove_tick_callback(
+		void (*tick)(void *param, float seconds),
+		void *param);
 
 EXPORT void obs_add_main_render_callback(
 		void (*draw)(void *param, uint32_t cx, uint32_t cy),
@@ -957,6 +976,10 @@ EXPORT void obs_source_set_monitoring_type(obs_source_t *source,
 EXPORT enum obs_monitoring_type obs_source_get_monitoring_type(
 		const obs_source_t *source);
 
+/** Gets private front-end settings data.  This data is saved/loaded
+ * automatically.  Returns an incremented reference. */
+EXPORT obs_data_t *obs_source_get_private_settings(obs_source_t *item);
+
 /* ------------------------------------------------------------------------- */
 /* Functions used by sources */
 
@@ -1113,6 +1136,12 @@ EXPORT void obs_source_get_audio_mix(const obs_source_t *source,
 EXPORT void obs_source_set_async_unbuffered(obs_source_t *source,
 		bool unbuffered);
 EXPORT bool obs_source_async_unbuffered(const obs_source_t *source);
+
+/** Used to decouple audio from video so that audio doesn't attempt to sync up
+ * with video.  I.E. Audio acts independently.  Only works when in unbuffered
+ * mode. */
+EXPORT void obs_source_set_async_decoupled(obs_source_t *source, bool decouple);
+EXPORT bool obs_source_async_decoupled(const obs_source_t *source);
 
 /* ------------------------------------------------------------------------- */
 /* Transition-specific functions */
@@ -1337,6 +1366,10 @@ EXPORT enum obs_scale_type obs_sceneitem_get_scale_filter(
 
 EXPORT void obs_sceneitem_defer_update_begin(obs_sceneitem_t *item);
 EXPORT void obs_sceneitem_defer_update_end(obs_sceneitem_t *item);
+
+/** Gets private front-end settings data.  This data is saved/loaded
+ * automatically.  Returns an incremented reference. */
+EXPORT obs_data_t *obs_sceneitem_get_private_settings(obs_sceneitem_t *item);
 
 
 /* ------------------------------------------------------------------------- */
@@ -1734,6 +1767,7 @@ EXPORT const char *obs_encoder_get_id(const obs_encoder_t *encoder);
 
 EXPORT uint32_t obs_get_encoder_caps(const char *encoder_id);
 
+#ifndef SWIG
 /** Duplicates an encoder packet */
 DEPRECATED
 EXPORT void obs_duplicate_encoder_packet(struct encoder_packet *dst,
@@ -1741,6 +1775,7 @@ EXPORT void obs_duplicate_encoder_packet(struct encoder_packet *dst,
 
 DEPRECATED
 EXPORT void obs_free_encoder_packet(struct encoder_packet *packet);
+#endif
 
 EXPORT void obs_encoder_packet_ref(struct encoder_packet *dst,
 		struct encoder_packet *src);

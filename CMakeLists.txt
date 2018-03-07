@@ -20,6 +20,8 @@ if(WIN32)
 endif()
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules/")
+set(ENABLE_SCRIPTING TRUE CACHE BOOL "Enables scripting")
+set(SCRIPTING_ENABLED OFF CACHE BOOL "Interal global cmake variable" FORCE)
 
 include(ObsHelpers)
 include(ObsCpack)
@@ -103,8 +105,14 @@ option(BUILD_TESTS "Build test directory (includes test sources and possibly a p
 mark_as_advanced(BUILD_TESTS)
 
 if(NOT INSTALLER_RUN)
-	add_subdirectory(deps)
+	option(ENABLE_UI "Enables the OBS user interfaces" ON)
+	if(DISABLE_UI OR NOT ENABLE_UI)
+		set(UI_ENABLED FALSE)
+	else()
+		set(UI_ENABLED TRUE)
+	endif()
 
+	add_subdirectory(deps)
 
 	if(WIN32)
 		add_subdirectory(libobs-d3d11)

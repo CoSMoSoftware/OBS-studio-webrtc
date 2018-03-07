@@ -20,6 +20,7 @@
 #include <util/darray.h>
 #include <obs-module.h>
 
+#include <libavutil/opt.h>
 #include <libavformat/avformat.h>
 
 #include "obs-ffmpeg-formats.h"
@@ -55,6 +56,39 @@ struct enc_encoder {
 	int              frame_size; /* pretty much always 1024 for AAC */
 	int              frame_size_bytes;
 };
+
+static inline uint64_t convert_speaker_layout(enum speaker_layout layout)
+{
+	switch (layout) {
+	case SPEAKERS_UNKNOWN:          return 0;
+	case SPEAKERS_MONO:             return AV_CH_LAYOUT_MONO;
+	case SPEAKERS_STEREO:           return AV_CH_LAYOUT_STEREO;
+	case SPEAKERS_2POINT1:          return AV_CH_LAYOUT_SURROUND;
+	case SPEAKERS_4POINT0:          return AV_CH_LAYOUT_4POINT0;
+	case SPEAKERS_4POINT1:          return AV_CH_LAYOUT_4POINT1;
+	case SPEAKERS_5POINT1:          return AV_CH_LAYOUT_5POINT1_BACK;
+	case SPEAKERS_7POINT1:          return AV_CH_LAYOUT_7POINT1;
+	}
+
+	/* shouldn't get here */
+	return 0;
+}
+
+static inline enum speaker_layout convert_ff_channel_layout(uint64_t  channel_layout)
+{
+	switch (channel_layout) {
+	case AV_CH_LAYOUT_MONO:              return SPEAKERS_MONO;
+	case AV_CH_LAYOUT_STEREO:            return SPEAKERS_STEREO;
+	case AV_CH_LAYOUT_SURROUND:          return SPEAKERS_2POINT1;
+	case AV_CH_LAYOUT_4POINT0:           return SPEAKERS_4POINT0;
+	case AV_CH_LAYOUT_4POINT1:           return SPEAKERS_4POINT1;
+	case AV_CH_LAYOUT_5POINT1_BACK:      return SPEAKERS_5POINT1;
+	case AV_CH_LAYOUT_7POINT1:           return SPEAKERS_7POINT1;
+	}
+
+	/* shouldn't get here */
+	return  SPEAKERS_UNKNOWN;
+}
 
 static const char *aac_getname(void *unused)
 {
@@ -169,7 +203,10 @@ static void *enc_create(obs_data_t *settings, obs_encoder_t *encoder,
 	}
 
 	enc->context->bit_rate    = bitrate * 1000;
+	const struct audio_output_info *aoi;
+	aoi = audio_output_get_info(audio);
 	enc->context->channels    = (int)audio_output_get_channels(audio);
+	enc->context->channel_layout = convert_speaker_layout(aoi->speakers);
 	enc->context->sample_rate = audio_output_get_sample_rate(audio);
 	enc->context->sample_fmt  = enc->codec->sample_fmts ?
 		enc->codec->sample_fmts[0] : AV_SAMPLE_FMT_FLTP;
@@ -193,28 +230,21 @@ static void *enc_create(obs_data_t *settings, obs_encoder_t *encoder,
 			enc->context->sample_rate = closest;
 	}
 
-	/* if using FFmpeg's AAC encoder, at least set a cutoff value
-	 * (recommended by konverter) */
 	if (strcmp(enc->codec->name, "aac") == 0) {
-		int cutoff1 = 4000 + (int)enc->context->bit_rate / 8;
-		int cutoff2 = 12000 + (int)enc->context->bit_rate / 8;
-		int cutoff3 = enc->context->sample_rate / 2;
-		int cutoff;
-
-		cutoff = MIN(cutoff1, cutoff2);
-		cutoff = MIN(cutoff, cutoff3);
-		enc->context->cutoff = cutoff;
+		av_opt_set(enc->context->priv_data, "aac_coder", "fast", 0);
 	}
 
-	info("bitrate: %" PRId64 ", channels: %d",
-			enc->context->bit_rate / 1000, enc->context->channels);
+	info("bitrate: %" PRId64 ", channels: %d, channel_layout: %x\n",
+			(int64_t)enc->context->bit_rate / 1000,
+			(int)enc->context->channels,
+			(unsigned int)enc->context->channel_layout);
 
 	init_sizes(enc, audio);
 
 	/* enable experimental FFmpeg encoder if the only one available */
 	enc->context->strict_std_compliance = -2;
 
-	enc->context->flags = CODEC_FLAG_GLOBAL_HEADER;
+	enc->context->flags = CODEC_FLAG_GLOBAL_H;
 
 	if (initialize_codec(enc))
 		return enc;
@@ -257,8 +287,19 @@ static bool do_encode(struct enc_encoder *enc,
 
 	enc->total_samples += enc->frame_size;
 
+#if LIBAVFORMAT_VERSION_INT >= AV_VERSION_INT(57, 40, 101)
+	ret = avcodec_send_frame(enc->context, enc->aframe);
+	if (ret == 0)
+		ret = avcodec_receive_packet(enc->context, &avpacket);
+
+	got_packet = (ret == 0);
+
+	if (ret == AVERROR_EOF || ret == AVERROR(EAGAIN))
+		ret = 0;
+#else
 	ret = avcodec_encode_audio2(enc->context, &avpacket, enc->aframe,
 			&got_packet);
+#endif
 	if (ret < 0) {
 		warn("avcodec_encode_audio2 failed: %s", av_err2str(ret));
 		return false;
@@ -303,9 +344,8 @@ static obs_properties_t *enc_properties(void *unused)
 	UNUSED_PARAMETER(unused);
 
 	obs_properties_t *props = obs_properties_create();
-
 	obs_properties_add_int(props, "bitrate",
-			obs_module_text("Bitrate"), 64, 320, 32);
+			obs_module_text("Bitrate"), 64, 1024, 32);
 	return props;
 }
 
@@ -323,6 +363,7 @@ static void enc_audio_info(void *data, struct audio_convert_info *info)
 	struct enc_encoder *enc = data;
 	info->format = convert_ffmpeg_sample_format(enc->context->sample_fmt);
 	info->samples_per_sec = (uint32_t)enc->context->sample_rate;
+	info->speakers = convert_ff_channel_layout(enc->context->channel_layout);
 }
 
 static size_t enc_frame_size(void *data)

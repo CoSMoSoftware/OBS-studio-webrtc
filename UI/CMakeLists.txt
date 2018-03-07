@@ -1,4 +1,3 @@
-option(ENABLE_UI "Enables the OBS user interfaces" ON)
 if(DISABLE_UI)
 	message(STATUS "UI disabled")
 	return()
@@ -37,6 +36,10 @@ endif()
 
 find_package(Qt5Widgets ${FIND_MODE})
 find_package(FFmpeg REQUIRED COMPONENTS avcodec avutil avformat)
+
+if(APPLE)
+	find_package(Qt5MacExtras REQUIRED)
+endif(APPLE)
 
 if(NOT Qt5Widgets_FOUND)
 	if (ENABLE_UI)
@@ -270,6 +273,20 @@ target_link_libraries(obs
 	${FFMPEG_LIBRARIES}
 	${LIBCURL_LIBRARIES}
 	${obs_PLATFORM_LIBRARIES})
+
+if (APPLE)
+	target_link_libraries(obs
+			Qt5::MacExtras)
+	set_target_properties(obs PROPERTIES LINK_FLAGS "-pagezero_size 10000 -image_base 100000000")
+	set_property(
+		TARGET obs
+		APPEND
+		PROPERTY INSTALL_RPATH
+		"/usr/local/Cellar/python3/3.6.4_2/Frameworks/Python.framework/Versions/3.6/lib/"
+		"/Library/Frameworks/Python.framework/Versions/3.6/lib/"
+		"/opt/local/Library/Frameworks/Python.framework/Versions/3.6/lib/"
+	)
+endif()
 
 define_graphic_modules(obs)
 

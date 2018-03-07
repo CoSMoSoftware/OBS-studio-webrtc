@@ -19,6 +19,15 @@ hr "Moving CEF out to preserve linking"
 mv ./rundir/RelWithDebInfo/obs-plugins/CEF.app ./
 mv ./rundir/RelWithDebInfo/obs-plugins/obs-browser.so ./
 
+# Move obslua
+hr "Moving OBS LUA"
+mv ./rundir/RelWithDebInfo/data/obs-scripting/obslua.so ./rundir/RelWithDebInfo/bin/
+
+# Move obspython
+# hr "Moving OBS Python"
+# mv ./rundir/RelWithDebInfo/data/obs-scripting/_obspython.so ./rundir/RelWithDebInfo/bin/
+# mv ./rundir/RelWithDebInfo/data/obs-scripting/obspython.py ./rundir/RelWithDebInfo/bin/
+
 # Package everything into a nice .app
 hr "Packaging .app"
 STABLE=false
@@ -47,8 +56,10 @@ security unlock-keychain -p mysecretpassword build.keychain
 security set-keychain-settings -t 3600 -u build.keychain
 hr "Importing certs into keychain"
 security import ./Certificates.p12 -k build.keychain -T /usr/bin/productsign -P ""
+# macOS 10.12+
+security set-key-partition-list -S apple-tool:,apple: -s -k mysecretpassword build.keychain
 hr "Signing Package"
-productsign --sign 'Developer ID Installer: Hugh Bailey (2MMRE5MTB8)' ./OBS.pkg ./$FILENAME
+productsign --sign 2MMRE5MTB8 ./OBS.pkg ./$FILENAME
 
 # Move to the folder that travis uses to upload artifacts from
 hr "Moving package to nightly folder for distribution"

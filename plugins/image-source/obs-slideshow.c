@@ -220,18 +220,26 @@ static bool valid_extension(const char *ext)
 	       astrcmpi(ext, ".gif") == 0;
 }
 
+static inline bool item_valid(struct slideshow *ss)
+{
+	return ss->files.num && ss->cur_item < ss->files.num;
+}
+
 static void do_transition(void *data, bool to_null)
 {
 	struct slideshow *ss = data;
+	bool valid = item_valid(ss);
 
-	if (ss->use_cut)
+	if (valid && ss->use_cut)
 		obs_transition_set(ss->transition,
 				ss->files.array[ss->cur_item].source);
-	else if (!to_null)
+
+	else if (valid && !to_null)
 		obs_transition_start(ss->transition,
 				OBS_TRANSITION_MODE_AUTO,
 				ss->tr_speed,
 				ss->files.array[ss->cur_item].source);
+
 	else
 		obs_transition_start(ss->transition,
 				OBS_TRANSITION_MODE_AUTO,
@@ -649,6 +657,20 @@ static void ss_video_tick(void *data, float seconds)
 	if (ss->pause_on_deactivate || ss->manual || ss->stop || ss->paused)
 		return;
 
+	/* ----------------------------------------------------- */
+	/* fade to transparency when the file list becomes empty */
+	if (!ss->files.num) {
+		obs_source_t* active_transition_source =
+			obs_transition_get_active_source(ss->transition);
+
+		if (active_transition_source) {
+			obs_source_release(active_transition_source);
+			do_transition(ss, true);
+		}
+	}
+
+	/* ----------------------------------------------------- */
+	/* do transition when slide time reached                 */
 	ss->elapsed += seconds;
 
 	if (ss->elapsed > ss->slide_time) {

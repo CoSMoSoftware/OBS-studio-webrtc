@@ -34,8 +34,16 @@
                     "url": "rtmp://live-ams.twitch.tv/app"
                 },
                 {
+                    "name": "EU: Berlin, DE",
+                    "url": "rtmp://live-ber.twitch.tv/app"
+                },
+                {
                     "name": "EU: Frankfurt, DE",
                     "url": "rtmp://live-fra.twitch.tv/app"
+                },
+                {
+                    "name": "EU: Helsinki, FI",
+                    "url": "rtmp://live-hel.twitch.tv/app"
                 },
                 {
                     "name": "EU: Lisbon, Portugal",
@@ -48,6 +56,10 @@
                 {
                     "name": "EU: Madrid, Spain",
                     "url": "rtmp://live-mad.twitch.tv/app"
+                },
+                {
+                    "name": "EU: Marseille, FR",
+                    "url": "rtmp://live-mrs.twitch.tv/app"
                 },
                 {
                     "name": "EU: Milan, Italy",
@@ -98,7 +110,7 @@
                     "url": "rtmp://live-lim.twitch.tv/app"
                 },
                 {
-                    "name": "South America: Medellin, Columbia",
+                    "name": "South America: Medellin, Colombia",
                     "url": "rtmp://live-mde.twitch.tv/app"
                 },
                 {
@@ -120,6 +132,10 @@
                 {
                     "name": "US Central: Houston, TX",
                     "url": "rtmp://live-hou.twitch.tv/app"
+                },
+                {
+                    "name": "US Central: Salt Lake City, UT",
+                    "url": "rtmp://live-slc.twitch.tv/app"
                 },
                 {
                     "name": "US East: Ashburn, VA",
@@ -459,6 +475,21 @@
             }
         },
         {
+            "name": "Mobcrush",
+            "servers": [
+                {
+                    "name": "Primary",
+                    "url": "rtmp://live.mobcrush.net/mob"
+                }
+            ],
+            "recommended": {
+                "keyint": 2,
+                "profile": "main",
+                "max video bitrate": 6000,
+                "max audio bitrate": 160
+            }
+        },
+        {
             "name": "DailyMotion",
             "common": true,
             "servers": [
@@ -627,12 +658,20 @@
                     "url": "rtmp://eu-ams.restream.io/live"
                 },
                 {
+                    "name": "EU-West (Luxembourg)",
+                    "url": "rtmp://eu-luxembourg.restream.io/live"
+                },
+                {
                     "name": "EU-Central (Frankfurt, DE)",
                     "url": "rtmp://eu-central.restream.io/live"
                 },
                 {
                     "name": "EU-East (Falkenstein, DE)",
                     "url": "rtmp://eu-east.restream.io/live"
+                },
+                {
+                    "name": "EU-South (Madrid, Spain)",
+                    "url": "rtmp://eu-madrid.restream.io/live"
                 },
                 {
                     "name": "Russia (Moscow)",
@@ -653,6 +692,10 @@
                 {
                     "name": "US-East (Washington, DC)",
                     "url": "rtmp://us-east.restream.io/live"
+                },
+                {
+                    "name": "US-East (Miami, FL)",
+                    "url": "rtmp://us-miami.restream.io/live"
                 },
                 {
                     "name": "NA-East (Toronto, Canada)",
@@ -740,18 +783,6 @@
                 "profile": "main",
                 "max video bitrate": 2500,
                 "max audio bitrate": 160
-            }
-        },
-        {
-            "name": "Coderwall",
-            "servers": [
-                {
-                    "name": "Primary",
-                    "url": "rtmp://live.coderwall.com/coderwall"
-                }
-            ],
-            "recommended": {
-                "max video bitrate": 1500
             }
         },
         {
@@ -865,8 +896,16 @@
             "name": "Picarto",
             "servers": [
                 {
-                    "name": "USA/Canada",
-                    "url": "rtmp://live.us.picarto.tv/golive"
+                    "name": "US East (Chicago, USA)",
+                    "url": "rtmp://live.us-east1.picarto.tv/golive"
+                },
+                {
+                    "name": "US West (Los Angeles, USA)",
+                    "url": "rtmp://live.us-west1.picarto.tv/golive"
+                },
+                {
+                    "name": "EU West (Düsseldorf, Germany)",
+                    "url": "rtmp://live.eu-west1.picarto.tv/golive"
                 }
             ],
             "recommended": {
@@ -885,7 +924,7 @@
             ]
         },
         {
-            "name": "LiveStream",
+            "name": "Livestream",
             "servers": [
                 {
                     "name": "Primary",
@@ -1030,6 +1069,119 @@
                 {
                     "name": "Asia Central",
                     "url": "rtmp://ingest-as-central.a.switchboard.zone/live"
+                }
+            ]
+        },
+        {
+            "name": "Looch",
+            "common": false,
+            "servers": [
+                {
+                    "name": "Primary Looch ingest server",
+                    "url": "rtmp://ingest.looch.tv/live"
+                }
+            ],
+            "recommended": {
+                "keyint": 2,
+                "profile": "main",
+                "max video bitrate": 6000,
+                "max audio bitrate": 160
+            }
+        },
+        {
+            "name": "Stream.me",
+            "common": false,
+            "servers": [
+                {
+                    "name": "US, Central",
+                    "url": "rtmp://uc-origin.stream.me/origin"
+                },
+                {
+                    "name": "US, East",
+                    "url": "rtmp://ue-origin.stream.me/origin"
+                },
+                {
+                    "name": "US, West",
+                    "url": "rtmp://uw-origin.stream.me/origin"
+                },
+                {
+                    "name": "Europe, West",
+                    "url": "rtmp://ew-origin.stream.me/origin"
+                },
+                {
+                    "name": "Asia, East",
+                    "url": "rtmp://ae-origin.stream.me/origin"
+                }
+            ],
+            "recommended": {
+                "keyint": 2,
+                "profile": "main",
+                "max video bitrate": 20000,
+                "max audio bitrate": 192
+            }
+        },
+        {
+            "name": "Eventials",
+            "servers": [
+                {
+                    "name": "Default",
+                    "url": "rtmp://live.eventials.com/eventialsLiveOrigin"
+                }
+            ],
+            "recommended": {
+                "keyint": 1,
+                "profile": "baseline",
+                "max video bitrate": 900,
+                "max audio bitrate": 192
+            }
+        },
+        {
+            "name": "Lahzenegar - لحظه نگار",
+            "servers": [
+                {
+                    "name": "Primary",
+                    "url": "rtmp://live.lahzenegar.com:80/pro"
+                }
+            ],
+            "recommended": {
+                "max video bitrate": 1000,
+                "max audio bitrate": 96
+            }
+        },
+        {
+            "name": "MyLive",
+            "servers": [
+                {
+                    "name": "Default",
+                    "url": "rtmp://stream.mylive.in.th/live"
+                }
+            ],
+            "recommended": {
+                "keyint": 2,
+                "profile": "main",
+                "max video bitrate": 7000,
+                "max audio bitrate": 192
+            }
+        },
+        {
+            "name": "SermonAudio.com",
+            "servers": [
+                {
+                    "name": "Primary",
+                    "url": "rtmp://stream.sermonaudio.com/"
+                }
+            ],
+            "recommended": {
+                "max video bitrate": 1000,
+                "max audio bitrate": 64
+            }
+        },
+        {
+            "name": "Vimeo",
+            "servers": [
+                {
+                    "name": "Default",
+                    "url": "rtmp://rtmp.cloud.vimeo.com/live"
                 }
             ]
         }
