@@ -84,7 +84,7 @@ class AutoConfig : public QWizard {
 	bool vceAvailable = false;
 
 	int startingBitrate = 2500;
-	bool customServer = false;
+	int customServer = 0;
 	bool bandwidthTest = false;
 	bool testRegions = true;
 	bool twitchAuto = false;

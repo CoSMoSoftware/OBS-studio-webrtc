@@ -220,6 +220,7 @@ AutoConfigStreamPage::AutoConfigStreamPage(QWidget *parent)
 
 	ui->streamType->addItem(obs_service_get_display_name("rtmp_common"));
 	ui->streamType->addItem(obs_service_get_display_name("rtmp_custom"));
+	ui->streamType->addItem(obs_service_get_display_name("rtmp_webrtc_janus"));
 
 	setTitle(QTStr("Basic.AutoConfig.StreamPage"));
 	setSubTitle(QTStr("Basic.AutoConfig.StreamPage.SubTitle"));
@@ -275,11 +276,24 @@ bool AutoConfigStreamPage::validatePage()
 	OBSData service_settings = obs_data_create();
 	obs_data_release(service_settings);
 
-	wiz->customServer = ui->streamType->currentIndex() == 1;
+	wiz->customServer = ui->streamType->currentIndex();
 
-	const char *serverType = wiz->customServer
-		? "rtmp_custom"
-		: "rtmp_common";
+	const char *serverType;
+	
+	switch(wiz->customServer) {
+		case 0: serverType = "rtmp_common";
+			break;
+		
+		case 1: serverType = "rtmp_custom";
+			break;
+		
+		case 2: serverType = "rtmp_webrtc_janus";
+			break;
+
+		default: blog(LOG_ERROR, "streamType do not exist");
+			break;
+	}
+
 
 	if (!wiz->customServer) {
 		obs_data_set_string(service_settings, "service",
@@ -763,9 +777,21 @@ void AutoConfig::SaveStreamSettings()
 	/* ---------------------------------- */
 	/* save service                       */
 
-	const char *service_id = customServer
-		? "rtmp_custom"
-		: "rtmp_common";
+	const char *service_id;
+
+	switch (customServer) {
+		case 0: service_id = "rtmp_common";
+			break;
+
+		case 1: service_id = "rtmp_custom";
+			break;
+
+		case 2: service_id = "rtmp_webrtc_janus";
+			break;
+
+		default: blog(LOG_ERROR, "streamType do not exist");
+			break;
+	}
 
 	obs_service_t *oldService = main->GetService();
 	OBSData hotkeyData = obs_hotkeys_save_service(oldService);
