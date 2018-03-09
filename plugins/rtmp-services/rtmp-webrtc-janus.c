@@ -7,7 +7,7 @@ struct rtmp_webrtc_janus {
 static const char *rtmp_webrtc_janus_name(void *unused)
 {
 	UNUSED_PARAMETER(unused);
-	return obs_module_text("streamingWebRTCJanus");
+	return obs_module_text("WebRTC Janus Streaming Server");
 }
 
 static void rtmp_webrtc_janus_update(void *data, obs_data_t *settings)
