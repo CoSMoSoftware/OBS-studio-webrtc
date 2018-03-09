@@ -17,6 +17,10 @@ if( WIN32 )
     set (OPENSSL_ROOT_DIR "C:/Program Files (x86)/OpenSSL")
   endif()
   find_package(OpenSSL REQUIRED)
+  install(FILES ${OPENSSL_ROOT_DIR}/bin/libcrypto-1_1-x64.dll 
+          DESTINATION ${CMAKE_INSTALL_BINDIR}/64bit/)
+  install(FILES ${OPENSSL_ROOT_DIR}/bin/libssl-1_1-x64.dll 
+          DESTINATION ${CMAKE_INSTALL_BINDIR}/64bit/)
 elseif( APPLE )
   if( NOT OPENSSL_ROOT_DIR )
     set( OPENSSL_ROOT_DIR    /usr/local/ )

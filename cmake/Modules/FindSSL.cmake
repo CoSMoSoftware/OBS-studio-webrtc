@@ -75,3 +75,5 @@ if(SSL_FOUND)
 	set(SSL_INCLUDE_DIRS ${SSL_INCLUDE_DIR})
 	set(SSL_LIBRARIES ${_SSL_LIB} ${_CRYPTO_LIB})
 endif()
+
+install()
