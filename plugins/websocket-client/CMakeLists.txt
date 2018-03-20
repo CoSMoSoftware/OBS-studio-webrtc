@@ -12,6 +12,7 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 #------------------------------------------------------------------------
 # OpenSSL
 #
+find_package(libwebrtc REQUIRED)
 if( WIN32 )
   if( NOT OPENSSL_ROOT_DIR )
     set (OPENSSL_ROOT_DIR "C:/Program Files (x86)/OpenSSL")
@@ -32,7 +33,7 @@ elseif( APPLE )
     )
 endif()
 
-include_directories("C:/Program Files/libwebrtc/include/")
+#include_directories("C:/Program Files/libwebrtc/include/")
 
 #------------------------------------------------------------------------
 # Asio
@@ -62,8 +63,9 @@ add_library( websocketclient SHARED
   )
 # if( WIN32 )
   target_link_libraries( websocketclient
-    "C:/Program Files/libwebrtc/lib/libcrypto.lib"
-    "C:/Program Files/libwebrtc/lib/libssl.lib"
+    ${WEBRTC_LIBRARIES}
+#    "C:/Program Files/libwebrtc/lib/libcrypto.lib"
+#    "C:/Program Files/libwebrtc/lib/libssl.lib"
   )
 # elseif( APPLE )
   # add_library( ssl UNKNOWN IMPORTED)
