@@ -1,5 +1,24 @@
 project(obs-outputs)
 
+option(USE_SSL "Enable rtmps support with OpenSSL" OFF)
+
+if (USE_SSL)
+	find_package(SSL QUIET)
+	find_package(ZLIB QUIET)
+endif()
+
+if (SSL_FOUND AND ZLIB_FOUND)
+	add_definitions(-DCRYPTO -DUSE_OPENSSL)
+	include_directories(${SSL_INCLUDE_DIRS} ${ZLIB_INCLUDE_DIRS})
+else()
+	if (USE_SSL)
+		message(WARNING "SSL enabled by user, but OpenSSL was not found")
+	endif()
+	unset(SSL_LIBRARIES)
+	unset(ZLIB_LIBRARIES)
+	add_definitions(-DNO_CRYPTO)
+endif()
+
 # --- Find libwebrtc or fail early
 find_package(libwebrtc REQUIRED)
 
@@ -77,11 +96,35 @@ set( obs-outputs_PLATFORM_DEPS
     set( obs-outputs_PLATFORM_DEPS ${WEBRTC_LIBRARIES} )
 endif()
 
+set(obs-outputs_librtmp_HEADERS
+	librtmp/amf.h
+	librtmp/bytes.h
+	librtmp/cencode.h
+	librtmp/dh.h
+	librtmp/dhgroups.h
+	librtmp/handshake.h
+	librtmp/http.h
+	librtmp/log.h
+	librtmp/md5.h
+	librtmp/rtmp.h
+	librtmp/rtmp_sys.h)
+	
+set(obs-outputs_librtmp_SOURCES
+	librtmp/amf.c
+	librtmp/cencode.c
+	librtmp/hashswf.c
+	librtmp/log.c
+	librtmp/md5.c
+	librtmp/parseurl.c
+librtmp/rtmp.c)
+
 # --- header and source files
 set( obs-outputs_HEADERS
   obs-output-ver.h
-  rtmp-helpers.h
-  rtmp-stream.h
+  flv-mux.h
+	rtmp-helpers.h
+	rtmp-stream.h
+	janus-stream.h
   net-if.h
   AudioDeviceModuleWrapper.h
   VideoCapture.h
@@ -89,27 +132,35 @@ set( obs-outputs_HEADERS
   WebRTCStream.h
   WebsocketClient.h
   )
+
 set( obs-outputs_SOURCES
   obs-outputs.c
-  rtmp-stream.cpp
+	rtmp-stream.c
+	janus-stream.cpp
   rtmp-windows.c
   AudioDeviceModuleWrapper.cpp
   VideoCapturer.cpp
   WebRTCStream.cpp
   net-if.c
   null-output.c
+	flv-output.c
+	flv-mux.c
   )
 
 # --- library target
 add_library( obs-outputs MODULE
   ${obs-outputs_SOURCES}
   ${obs-outputs_HEADER}
+	${obs-outputs_librtmp_SOURCES}
+	${obs-outputs_librtmp_HEADERS}
 )
+
 target_link_libraries( obs-outputs
+	${SSL_LIBRARIES}
+	${ZLIB_LIBRARIES}
   ${obs-outputs_PLATFORM_DEPS}
   libobs
   websocketclient
 )
-
 
 install_obs_plugin_with_data(obs-outputs data)

@@ -17,7 +17,7 @@
 #endif
 
 #define do_log(level, format, ...) \
-	blog(level, "[rtmp stream: '%s'] " format, \
+	blog(level, "[janus stream: '%s'] " format, \
 			obs_output_get_name(stream->output), ##__VA_ARGS__)
 
 #define warn(format, ...)  do_log(LOG_WARNING, format, ##__VA_ARGS__)
@@ -44,15 +44,12 @@ struct droptest_info {
 };
 #endif
 
-struct rtmp_stream {
+struct janus_stream {
 	obs_output_t     *output;
 
 	pthread_mutex_t  packets_mutex;
 	struct circlebuf packets;
 	bool             sent_headers;
-
-	bool             got_first_video;
-	int64_t          start_dts_offset;
 
 	volatile bool    connecting;
 	pthread_t        connect_thread;
@@ -75,7 +72,9 @@ struct rtmp_stream {
 
 	/* frame drop variables */
 	int64_t          drop_threshold_usec;
+	int64_t          min_drop_dts_usec;
 	int64_t          pframe_drop_threshold_usec;
+	int64_t          pframe_min_drop_dts_usec;
 	int              min_priority;
 	float            congestion;
 

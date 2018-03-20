@@ -20,17 +20,17 @@
 
 #include "WebRTCStream.h"
 
-extern "C" const char *rtmp_stream_getname(void *unused)
+extern "C" const char *janus_stream_getname(void *unused)
 {
-	info("rtmp_stream_getname");
+	info("janus_stream_getname");
 	UNUSED_PARAMETER(unused);
-	return obs_module_text("RTMPStream");
+	return obs_module_text("JANUSStream");
 }
 
 
-extern "C" void rtmp_stream_destroy(void *data)
+extern "C" void janus_stream_destroy(void *data)
 {
-	info("rtmp_stream_destroy");
+	info("janus_stream_destroy");
 	//Get stream
 	WebRTCStream* stream = (WebRTCStream*)data;
 	//Stop it
@@ -39,9 +39,9 @@ extern "C" void rtmp_stream_destroy(void *data)
 	stream->Release();
 }
 
-extern "C" void *rtmp_stream_create(obs_data_t *settings, obs_output_t *output)
+extern "C" void *janus_stream_create(obs_data_t *settings, obs_output_t *output)
 {
-	info("rtmp_stream_create");
+	info("janus_stream_create");
 	//Create new stream
 	WebRTCStream* stream = new WebRTCStream(output);
 	//Don't allow it to be deleted
@@ -50,9 +50,9 @@ extern "C" void *rtmp_stream_create(obs_data_t *settings, obs_output_t *output)
 	return (void*)stream;
 }
 
-extern "C" void rtmp_stream_stop(void *data, uint64_t ts)
+extern "C" void janus_stream_stop(void *data, uint64_t ts)
 {
-	info("rtmp_stream_stop");
+	info("janus_stream_stop");
 	//Get stream
 	WebRTCStream* stream = (WebRTCStream*)data;
 	//Stop it
@@ -61,9 +61,9 @@ extern "C" void rtmp_stream_stop(void *data, uint64_t ts)
 	stream->Release();
 }
 
-extern "C" bool rtmp_stream_start(void *data)
+extern "C" bool janus_stream_start(void *data)
 {
-	info("rtmp_stream_start");
+	info("janus_stream_start");
 	//Get stream
 	WebRTCStream* stream = (WebRTCStream*)data;
 	//Don't allow it to be deleted
@@ -72,14 +72,14 @@ extern "C" bool rtmp_stream_start(void *data)
 	return stream->start();
 }
 
-extern "C" void rtmp_receive_video(void *data, struct video_data *frame)
+extern "C" void janus_receive_video(void *data, struct video_data *frame)
 {
 	//Get stream
 	WebRTCStream* stream = (WebRTCStream*)data;
 	//Process audio
 	stream->onVideoFrame(frame);
 }
-extern "C" void rtmp_receive_audio(void *data, struct audio_data *frame)
+extern "C" void janus_receive_audio(void *data, struct audio_data *frame)
 {
 	//Get stream
 	WebRTCStream* stream = (WebRTCStream*)data;
@@ -87,9 +87,9 @@ extern "C" void rtmp_receive_audio(void *data, struct audio_data *frame)
 	stream->onAudioFrame(frame);
 }
 
-extern "C" void rtmp_stream_defaults(obs_data_t *defaults)
+extern "C" void janus_stream_defaults(obs_data_t *defaults)
 {
-	info("rtmp_stream_defaults");
+	info("janus_stream_defaults");
 	obs_data_set_default_int(defaults, OPT_DROP_THRESHOLD, 700);
 	obs_data_set_default_int(defaults, OPT_PFRAME_DROP_THRESHOLD, 900);
 	obs_data_set_default_int(defaults, OPT_MAX_SHUTDOWN_TIME_SEC, 30);
@@ -98,36 +98,36 @@ extern "C" void rtmp_stream_defaults(obs_data_t *defaults)
 	obs_data_set_default_bool(defaults, OPT_LOWLATENCY_ENABLED, false);
 }
 
-extern "C" obs_properties_t *rtmp_stream_properties(void *unused)
+extern "C" obs_properties_t *janus_stream_properties(void *unused)
 {
-	info("rtmp_stream_properties");
+	info("janus_stream_properties");
 	UNUSED_PARAMETER(unused);
 
 	obs_properties_t *props = obs_properties_create();
 
 	obs_properties_add_int(props, OPT_DROP_THRESHOLD,
-			obs_module_text("RTMPStream.DropThreshold"),
+			obs_module_text("JANUSStream.DropThreshold"),
 			200, 10000, 100);
 
 	obs_properties_add_bool(props, OPT_NEWSOCKETLOOP_ENABLED,
-			obs_module_text("RTMPStream.NewSocketLoop"));
+			obs_module_text("JANUSStream.NewSocketLoop"));
 	obs_properties_add_bool(props, OPT_LOWLATENCY_ENABLED,
-			obs_module_text("RTMPStream.LowLatencyMode"));
+			obs_module_text("JANUSStream.LowLatencyMode"));
 
 	return props;
 }
 
-extern "C" uint64_t rtmp_stream_total_bytes_sent(void *data)
+extern "C" uint64_t janus_stream_total_bytes_sent(void *data)
 {
 	return 0;
 }
 
-extern "C" int rtmp_stream_dropped_frames(void *data)
+extern "C" int janus_stream_dropped_frames(void *data)
 {
 	return 0;
 }
 
-extern "C" float rtmp_stream_congestion(void *data)
+extern "C" float janus_stream_congestion(void *data)
 {
 	return 0.0f;
 }

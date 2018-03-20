@@ -16,11 +16,11 @@ if( WIN32 )
   if( NOT OPENSSL_ROOT_DIR )
     set (OPENSSL_ROOT_DIR "C:/Program Files (x86)/OpenSSL")
   endif()
-  find_package(OpenSSL REQUIRED)
-  install(FILES ${OPENSSL_ROOT_DIR}/bin/libcrypto-1_1-x64.dll 
-          DESTINATION ${CMAKE_INSTALL_BINDIR}/64bit/)
-  install(FILES ${OPENSSL_ROOT_DIR}/bin/libssl-1_1-x64.dll 
-          DESTINATION ${CMAKE_INSTALL_BINDIR}/64bit/)
+  # find_package(OpenSSL REQUIRED)
+  # install(FILES ${OPENSSL_ROOT_DIR}/bin/libcrypto-1_1-x64.dll 
+  #         DESTINATION ${CMAKE_INSTALL_BINDIR}/64bit/)
+  # install(FILES ${OPENSSL_ROOT_DIR}/bin/libssl-1_1-x64.dll 
+          # DESTINATION ${CMAKE_INSTALL_BINDIR}/64bit/)
 elseif( APPLE )
   if( NOT OPENSSL_ROOT_DIR )
     set( OPENSSL_ROOT_DIR    /usr/local/ )
@@ -31,7 +31,8 @@ elseif( APPLE )
     ${OPENSSL_ROOT_DIR}/lib/libcrypto.dylib
     )
 endif()
-include_directories(${OPENSSL_INCLUDE_DIR})
+
+include_directories("C:/Program Files/libwebrtc/include/")
 
 #------------------------------------------------------------------------
 # Asio
@@ -61,8 +62,9 @@ add_library( websocketclient SHARED
   )
 # if( WIN32 )
   target_link_libraries( websocketclient
-    ${OPENSSL_LIBRARIES}
-    )
+    "C:/Program Files/libwebrtc/lib/libcrypto.lib"
+    "C:/Program Files/libwebrtc/lib/libssl.lib"
+  )
 # elseif( APPLE )
   # add_library( ssl UNKNOWN IMPORTED)
   # set_property(TARGET ssl PROPERTY IMPORTED_LOCATION "/usr/local/opt/openssl/lib/libssl.dylib")

@@ -18,6 +18,7 @@
 #pragma once
 
 #include "librtmp/rtmp.h"
+#include "librtmp/amf.h"
 
 static inline AVal *flv_str(AVal *out, const char *str)
 {
