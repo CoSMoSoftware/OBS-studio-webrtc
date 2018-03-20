@@ -1441,11 +1441,13 @@ bool AdvancedOutput::StartStreaming(obs_service_t *service)
 
 		streamOutput = obs_output_create(type, "adv_stream",
 				nullptr, nullptr);
+
 		if (!streamOutput) {
 			blog(LOG_WARNING, "Creation of stream output type '%s' "
 					"failed!", type);
 			return false;
 		}
+
 		obs_output_release(streamOutput);
 
 		streamDelayStarting.Connect(

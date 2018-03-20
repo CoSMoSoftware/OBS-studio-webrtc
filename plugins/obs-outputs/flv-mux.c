@@ -1,16 +1,13 @@
 /******************************************************************************
     Copyright (C) 2014 by Hugh Bailey <obs.jim@gmail.com>
-
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 2 of the License, or
     (at your option) any later version.
-
     This program is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
     GNU General Public License for more details.
-
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ******************************************************************************/
@@ -102,6 +99,18 @@ static bool build_flv_meta_data(obs_output_t *context,
 
 	enc_bool_val(&enc, end, "stereo",
 			audio_output_get_channels(audio) == 2);
+	enc_bool_val(&enc, end, "2.1",
+			audio_output_get_channels(audio) == 3);
+	enc_bool_val(&enc, end, "3.1",
+			audio_output_get_channels(audio) == 4);
+	enc_bool_val(&enc, end, "4.0",
+			audio_output_get_channels(audio) == 4);
+	enc_bool_val(&enc, end, "4.1",
+			audio_output_get_channels(audio) == 5);
+	enc_bool_val(&enc, end, "5.1",
+			audio_output_get_channels(audio) == 6);
+	enc_bool_val(&enc, end, "7.1",
+			audio_output_get_channels(audio) == 8);
 
 	dstr_printf(&encoder_name, "%s (libobs version ",
 			MODULE_NAME);
@@ -164,7 +173,7 @@ bool flv_meta_data(obs_output_t *context, uint8_t **output, size_t *size,
 
 	s_write(&s, meta_data, meta_data_size);
 
-	s_wb32(&s, (uint32_t)serializer_get_pos(&s) - start_pos + 4 - 1);
+	s_wb32(&s, (uint32_t)serializer_get_pos(&s) - start_pos - 1);
 
 	*output = data.bytes.array;
 	*size   = data.bytes.num;
@@ -177,11 +186,11 @@ bool flv_meta_data(obs_output_t *context, uint8_t **output, size_t *size,
 static int32_t last_time = 0;
 #endif
 
-static void flv_video(struct serializer *s, struct encoder_packet *packet,
-		bool is_header)
+static void flv_video(struct serializer *s, int32_t dts_offset,
+		struct encoder_packet *packet, bool is_header)
 {
 	int64_t offset  = packet->pts - packet->dts;
-	int32_t time_ms = get_ms_time(packet, packet->dts);
+	int32_t time_ms = get_ms_time(packet, packet->dts) - dts_offset;
 
 	if (!packet->data || !packet->size)
 		return;
@@ -208,14 +217,14 @@ static void flv_video(struct serializer *s, struct encoder_packet *packet,
 	s_wb24(s, get_ms_time(packet, offset));
 	s_write(s, packet->data, packet->size);
 
-	/* write tag size (starting byte doesnt count) */
-	s_wb32(s, (uint32_t)serializer_get_pos(s) + 4 - 1);
+	/* write tag size (starting byte doesn't count) */
+	s_wb32(s, (uint32_t)serializer_get_pos(s) - 1);
 }
 
-static void flv_audio(struct serializer *s, struct encoder_packet *packet,
-		bool is_header)
+static void flv_audio(struct serializer *s, int32_t dts_offset,
+		struct encoder_packet *packet, bool is_header)
 {
-	int32_t time_ms = get_ms_time(packet, packet->dts);
+	int32_t time_ms = get_ms_time(packet, packet->dts) - dts_offset;
 
 	if (!packet->data || !packet->size)
 		return;
@@ -241,11 +250,11 @@ static void flv_audio(struct serializer *s, struct encoder_packet *packet,
 	s_w8(s, is_header ? 0 : 1);
 	s_write(s, packet->data, packet->size);
 
-	/* write tag size (starting byte doesnt count) */
-	s_wb32(s, (uint32_t)serializer_get_pos(s) + 4 - 1);
+	/* write tag size (starting byte doesn't count) */
+	s_wb32(s, (uint32_t)serializer_get_pos(s) - 1);
 }
 
-void flv_packet_mux(struct encoder_packet *packet,
+void flv_packet_mux(struct encoder_packet *packet, int32_t dts_offset,
 		uint8_t **output, size_t *size, bool is_header)
 {
 	struct array_output_data data;
@@ -254,9 +263,9 @@ void flv_packet_mux(struct encoder_packet *packet,
 	array_output_serializer_init(&s, &data);
 
 	if (packet->type == OBS_ENCODER_VIDEO)
-		flv_video(&s, packet, is_header);
+		flv_video(&s, dts_offset, packet, is_header);
 	else
-		flv_audio(&s, packet, is_header);
+		flv_audio(&s, dts_offset, packet, is_header);
 
 	*output = data.bytes.array;
 	*size   = data.bytes.num;
