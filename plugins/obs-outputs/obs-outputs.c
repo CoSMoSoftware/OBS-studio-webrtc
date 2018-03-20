@@ -5,6 +5,7 @@ OBS_MODULE_USE_DEFAULT_LOCALE("obs-outputs", "en-US")
 
 extern struct obs_output_info flv_output_info;
 extern struct obs_output_info rtmp_output_info;
+extern struct obs_output_info null_output_info;
 
 extern const char *janus_stream_getname(void *unused);
 extern void janus_stream_destroy(void *data);
@@ -40,13 +41,12 @@ struct obs_output_info janus_output_info = {
 	.get_dropped_frames = janus_stream_dropped_frames
 };
 
-
-
 bool obs_module_load(void)
 {
-	obs_register_output(&rtmp_output_info);
-	obs_register_output(&janus_output_info);
 	obs_register_output(&flv_output_info);
+	obs_register_output(&rtmp_output_info);
+	obs_register_output(&null_output_info);
+	obs_register_output(&janus_output_info);
 	return true;
 }
 

@@ -131,6 +131,3 @@ extern "C" float janus_stream_congestion(void *data)
 {
 	return 0.0f;
 }
-
-
-
