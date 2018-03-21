@@ -45,3 +45,27 @@ add_library( websocketclient SHARED
     ${WEBRTC_LIBRARIES}
   )
 install_obs_plugin(websocketclient)
+
+#-------------------------------------------------------------
+# Libwebrtc with OpenSSL
+#
+
+# The developers used an installer for libwebrtc with OpenSSL
+# Change destination if needed
+# Works only if OpenSSL is built as a shared library
+set( libwebrtc_rootdir ${libwebrtc_DIR}/..)
+install(
+  FILES       ${libwebrtc_rootdir}/lib/libcrypto.lib
+  DESTINATION ${OBS_EXECUTABLE_DESTINATION} COMPONENT   Libraries )
+install(
+  FILES       ${libwebrtc_rootdir}/lib/libssl.lib
+  DESTINATION ${OBS_EXECUTABLE_DESTINATION} COMPONENT   Libraries )
+  install(
+    FILES       ${libwebrtc_rootdir}/lib/webrtc.lib
+    DESTINATION ${OBS_EXECUTABLE_DESTINATION} COMPONENT   Libraries )
+install(
+  FILES       ${libwebrtc_rootdir}/bin/libcrypto-1_1-x64.dll
+  DESTINATION ${OBS_EXECUTABLE_DESTINATION} COMPONENT   Runtime )
+install(
+  FILES       ${libwebrtc_rootdir}/bin/libssl-1_1-x64.dll
+  DESTINATION ${OBS_EXECUTABLE_DESTINATION} COMPONENT   Runtime )

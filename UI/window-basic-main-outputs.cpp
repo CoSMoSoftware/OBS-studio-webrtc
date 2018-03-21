@@ -656,7 +656,7 @@ bool SimpleOutput::StartStreaming(obs_service_t *service)
 
 	if (!type) {
 		if(typeCheck.find("janus") != std::string::npos) {
-			type = "rtmp_janus";
+			type = "janus_output";
 		} else {
 			type = "rtmp_output";
 		}
