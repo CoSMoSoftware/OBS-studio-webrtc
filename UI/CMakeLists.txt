@@ -35,6 +35,8 @@ else()
 endif()
 
 find_package(Qt5Widgets ${FIND_MODE})
+set(WEBRTC_USE_FILE_INCLUDED 1)
+find_package(libwebrtc REQUIRED)
 find_package(FFmpeg REQUIRED COMPONENTS avcodec avutil avformat)
 
 if(APPLE)

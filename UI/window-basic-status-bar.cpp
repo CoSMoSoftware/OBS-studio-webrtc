@@ -6,9 +6,11 @@
 #include "window-basic-main.hpp"
 #include "window-basic-status-bar.hpp"
 #include "window-basic-main-outputs.hpp"
+#include "webrtcVersion.h"
 
 OBSBasicStatusBar::OBSBasicStatusBar(QWidget *parent)
 	: QStatusBar    (parent),
+	  webrtcVersion (new QLabel),
 	  delayInfo     (new QLabel),
 	  droppedFrames (new QLabel),
 	  streamTime    (new QLabel),
@@ -19,6 +21,7 @@ OBSBasicStatusBar::OBSBasicStatusBar(QWidget *parent)
 	  grayPixmap        (20, 20),
 	  redPixmap         (20, 20)
 {
+	webrtcVersion->setText(QString("WebRTC ") + QString(WEBRTC_MAJOR_VERSION));
 	streamTime->setText(QString("LIVE: 00:00:00"));
 	recordTime->setText(QString("REC: 00:00:00"));
 	cpuUsage->setText(QString("CPU: 0.0%, 0.00 fps"));
@@ -35,6 +38,8 @@ OBSBasicStatusBar::OBSBasicStatusBar(QWidget *parent)
 
 	brWidget->setLayout(brLayout);
 
+	webrtcVersion->setAlignment(Qt::AlignRight);
+	webrtcVersion->setAlignment(Qt::AlignVCenter);
 	delayInfo->setAlignment(Qt::AlignRight);
 	delayInfo->setAlignment(Qt::AlignVCenter);
 	droppedFrames->setAlignment(Qt::AlignRight);
@@ -48,6 +53,7 @@ OBSBasicStatusBar::OBSBasicStatusBar(QWidget *parent)
 	kbps->setAlignment(Qt::AlignRight);
 	kbps->setAlignment(Qt::AlignVCenter);
 
+	webrtcVersion->setIndent(20);
 	delayInfo->setIndent(20);
 	droppedFrames->setIndent(20);
 	streamTime->setIndent(20);
@@ -61,6 +67,7 @@ OBSBasicStatusBar::OBSBasicStatusBar(QWidget *parent)
 	addPermanentWidget(cpuUsage);
 	addPermanentWidget(delayInfo);
 	addPermanentWidget(brWidget);
+	addPermanentWidget(webrtcVersion);
 
 	transparentPixmap.fill(QColor(0, 0, 0, 0));
 	greenPixmap.fill(QColor(0, 255, 0));
