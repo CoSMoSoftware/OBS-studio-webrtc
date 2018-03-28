@@ -7,8 +7,8 @@
 
 ## I. Install libwebrtc on your system
 
-Get the installer for libwebrtc version 61 provided by Comsmo company.
-https://cosmosoftware.atlassian.net/wiki/spaces/CL/pages/22052880/Installers
+Get the installer for libwebrtc version 62 provided by CoSMo company.
+https://drive.google.com/drive/folders/0B398g_p42xgrbUF3VjlFNnNxb3M
 
 
 #### Compiler
