@@ -54,18 +54,36 @@ install_obs_plugin(websocketclient)
 # Change destination if needed
 # Works only if OpenSSL is built as a shared library
 set( libwebrtc_rootdir ${libwebrtc_DIR}/..)
-install(
-  FILES       ${libwebrtc_rootdir}/lib/libcrypto.lib
-  DESTINATION ${OBS_EXECUTABLE_DESTINATION} COMPONENT   Libraries )
-install(
-  FILES       ${libwebrtc_rootdir}/lib/libssl.lib
-  DESTINATION ${OBS_EXECUTABLE_DESTINATION} COMPONENT   Libraries )
+if ( NOT WIN32 )
+  install(
+    FILES       ${libwebrtc_rootdir}/lib/libcrypto.a
+    DESTINATION ${OBS_EXECUTABLE_DESTINATION} COMPONENT   Libraries )
+  install(
+    FILES       ${libwebrtc_rootdir}/lib/libssl.a
+    DESTINATION ${OBS_EXECUTABLE_DESTINATION} COMPONENT   Libraries )
+  install(
+    FILES       ${libwebrtc_rootdir}/lib/libwebrtc.a
+    DESTINATION ${OBS_EXECUTABLE_DESTINATION} COMPONENT   Libraries )
+  install(
+    FILES       ${libwebrtc_rootdir}/lib/libssl.so.1.1
+    DESTINATION ${OBS_EXECUTABLE_DESTINATION} COMPONENT   Libraries )
+  install(
+    FILES       ${libwebrtc_rootdir}/lib/libwebrtc.so.1.1
+    DESTINATION ${OBS_EXECUTABLE_DESTINATION} COMPONENT   Libraries )
+else ()
+  install(
+    FILES       ${libwebrtc_rootdir}/lib/libcrypto.lib
+    DESTINATION ${OBS_EXECUTABLE_DESTINATION} COMPONENT   Libraries )
+  install(
+    FILES       ${libwebrtc_rootdir}/lib/libssl.lib
+    DESTINATION ${OBS_EXECUTABLE_DESTINATION} COMPONENT   Libraries )
   install(
     FILES       ${libwebrtc_rootdir}/lib/webrtc.lib
     DESTINATION ${OBS_EXECUTABLE_DESTINATION} COMPONENT   Libraries )
-install(
-  FILES       ${libwebrtc_rootdir}/bin/libcrypto-1_1-x64.dll
-  DESTINATION ${OBS_EXECUTABLE_DESTINATION} COMPONENT   Runtime )
-install(
-  FILES       ${libwebrtc_rootdir}/bin/libssl-1_1-x64.dll
-  DESTINATION ${OBS_EXECUTABLE_DESTINATION} COMPONENT   Runtime )
+  install(
+    FILES       ${libwebrtc_rootdir}/bin/libcrypto-1_1-x64.dll
+    DESTINATION ${OBS_EXECUTABLE_DESTINATION} COMPONENT   Runtime )
+  install(
+    FILES       ${libwebrtc_rootdir}/bin/libssl-1_1-x64.dll
+    DESTINATION ${OBS_EXECUTABLE_DESTINATION} COMPONENT   Runtime )
+endif ()
