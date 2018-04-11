@@ -68,7 +68,7 @@ if ( NOT WIN32 )
     FILES       ${libwebrtc_rootdir}/lib/libssl.so.1.1
     DESTINATION ${OBS_EXECUTABLE_DESTINATION} COMPONENT   Libraries )
   install(
-    FILES       ${libwebrtc_rootdir}/lib/libwebrtc.so.1.1
+    FILES       ${libwebrtc_rootdir}/lib/libcrypto.so.1.1
     DESTINATION ${OBS_EXECUTABLE_DESTINATION} COMPONENT   Libraries )
 else ()
   install(
