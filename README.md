@@ -8,7 +8,8 @@
 ## I. Install libwebrtc on your system
 
 Get the installer for libwebrtc version 62 provided by CoSMo company.
-https://drive.google.com/drive/folders/0B398g_p42xgrbUF3VjlFNnNxb3M
+[Windows installer](https://s3-ap-southeast-1.amazonaws.com/webrtc-installer/version62/libwebrtc-62.252-x64-Release-rtti-msvc2015.exe)  
+[MAC installer](https://s3-ap-southeast-1.amazonaws.com/webrtc-installer/version62/libwebrtc-62.000-x64-Release-rtti.dmg)
 
 
 #### Compiler
@@ -114,11 +115,11 @@ Configure a JANUS server using the video room plugin with websocket protocol act
 
 ### OBS settings
 
-For now there is no room management: OBS will connect automatically to the default room 1234.
-Launch OBS, go to settings, select the stream tab and change the URL to your JANUS : example wss://janus.cosmosoftware.io.
-Note: Put random string on Stream key, Username, and Password (is not used yet). 
+Launch OBS, go to settings, select the stream tab and change the URL to your JANUS : wss://janus1.cosmosoftware.io
+Put 1234 for the room.
 
 After you can start streaming, OBS will connect to the default room and if you have any suscriber present in the room, you will see the OBS stream.
+https://clientweb.cosmosoftware.io/janusweb/videoroomtest.html
 
 ## Docs (in progress..)
 
