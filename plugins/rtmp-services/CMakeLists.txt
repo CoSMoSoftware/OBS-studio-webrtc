@@ -7,7 +7,7 @@ set(rtmp-services_SOURCES
 	rtmp-common.c
 	rtmp-custom.c
 	rtmp-services-main.c
-	rtmp-webrtc-janus.c)
+	webrtc-janus.c)
 
 set(rtmp-services_HEADERS
 	twitch.h

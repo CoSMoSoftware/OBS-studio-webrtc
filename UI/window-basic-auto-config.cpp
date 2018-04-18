@@ -220,7 +220,7 @@ AutoConfigStreamPage::AutoConfigStreamPage(QWidget *parent)
 
 	ui->streamType->addItem(obs_service_get_display_name("rtmp_common"));
 	ui->streamType->addItem(obs_service_get_display_name("rtmp_custom"));
-	ui->streamType->addItem(obs_service_get_display_name("rtmp_webrtc_janus"));
+	ui->streamType->addItem(obs_service_get_display_name("webrtc_janus"));
 
 	setTitle(QTStr("Basic.AutoConfig.StreamPage"));
 	setSubTitle(QTStr("Basic.AutoConfig.StreamPage.SubTitle"));
@@ -287,7 +287,7 @@ bool AutoConfigStreamPage::validatePage()
 		case 1: serverType = "rtmp_custom";
 			break;
 		
-		case 2: serverType = "rtmp_webrtc_janus";
+		case 2: serverType = "webrtc_janus";
 			break;
 
 		default: blog(LOG_ERROR, "streamType do not exist");
@@ -786,7 +786,7 @@ void AutoConfig::SaveStreamSettings()
 		case 1: service_id = "rtmp_custom";
 			break;
 
-		case 2: service_id = "rtmp_webrtc_janus";
+		case 2: service_id = "webrtc_janus";
 			break;
 
 		default: blog(LOG_ERROR, "streamType do not exist");
