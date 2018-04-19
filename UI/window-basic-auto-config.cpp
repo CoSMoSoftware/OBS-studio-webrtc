@@ -46,7 +46,7 @@ static void GetServiceInfo(std::string &type, std::string &service,
 
 	service = obs_data_get_string(settings, "service");
 	server = obs_data_get_string(settings, "server");
-	key = obs_data_get_string(settings, "key");
+	key = obs_data_get_string(settings, "room");
 }
 
 /* ------------------------------------------------------------------------- */
@@ -290,7 +290,7 @@ bool AutoConfigStreamPage::validatePage()
 		case 2: serverType = "webrtc_janus";
 			break;
 
-		default: blog(LOG_ERROR, "streamType do not exist");
+		default:blog(LOG_ERROR, "streamType do not exist");
 			break;
 	}
 
@@ -382,14 +382,16 @@ void AutoConfigStreamPage::ServiceChanged()
 	bool regionBased = service == "Twitch" ||
 	                   service == "Smashcast";
 	bool testBandwidth = ui->doBandwidthTest->isChecked();
-	bool custom = ui->streamType->currentIndex() == 1;
+
+	// bool custom = ui->streamType->currentIndex() == 1;
+	bool common = ui->streamType->currentIndex() == 0 ? true : false;
 
 	/* Test three closest servers if "Auto" is available for Twitch */
 	if (service == "Twitch" && wiz->twitchAuto)
 		regionBased = false;
 
-	ui->service->setVisible(!custom);
-	ui->serviceLabel->setVisible(!custom);
+	ui->service->setVisible(common);
+	ui->serviceLabel->setVisible(common);
 
 	ui->formLayout->removeWidget(ui->serviceLabel);
 	ui->formLayout->removeWidget(ui->service);
@@ -397,7 +399,7 @@ void AutoConfigStreamPage::ServiceChanged()
 	ui->formLayout->removeWidget(ui->serverLabel);
 	ui->formLayout->removeWidget(ui->serverStackedWidget);
 
-	if (custom) {
+	if (ui->streamType->currentIndex() == 1) { //custom
 		ui->formLayout->insertRow(1, ui->serverLabel,
 				ui->serverStackedWidget);
 
@@ -405,7 +407,23 @@ void AutoConfigStreamPage::ServiceChanged()
 		ui->serverStackedWidget->setCurrentIndex(1);
 		ui->serverStackedWidget->setVisible(true);
 		ui->serverLabel->setVisible(true);
-	} else {
+
+		ui->streamKeyLabel->setVisible(true);
+		ui->key->setVisible(true);
+		ui->show->setVisible(true);
+	} else if (ui->streamType->currentIndex() == 2) { //webrtc_janus
+		ui->formLayout->insertRow(1, ui->serverLabel,
+				ui->serverStackedWidget);
+
+		ui->region->setVisible(false);
+		ui->serverStackedWidget->setCurrentIndex(1);
+		ui->serverStackedWidget->setVisible(true);
+		ui->serverLabel->setVisible(true);
+
+		ui->streamKeyLabel->setVisible(true);
+		ui->key->setVisible(true);
+		ui->show->setVisible(true);
+	} else { //common currentIndex == 0
 		ui->formLayout->insertRow(1, ui->serviceLabel, ui->service);
 
 		if (!testBandwidth)
@@ -416,6 +434,10 @@ void AutoConfigStreamPage::ServiceChanged()
 		ui->serverStackedWidget->setCurrentIndex(0);
 		ui->serverStackedWidget->setHidden(testBandwidth);
 		ui->serverLabel->setHidden(testBandwidth);
+
+		ui->streamKeyLabel->setVisible(true);
+		ui->key->setVisible(true);
+		ui->show->setVisible(true);
 	}
 
 	wiz->testRegions = regionBased && testBandwidth;
@@ -457,6 +479,10 @@ void AutoConfigStreamPage::UpdateKeyLink()
 		ui->doBandwidthTest->setEnabled(false);
 	} else {
 		ui->doBandwidthTest->setEnabled(true);
+	}
+
+	if (ui->streamType->currentIndex() == 2) {
+		text = "Room";
 	}
 
 	ui->streamKeyLabel->setText(text);
@@ -550,8 +576,9 @@ void AutoConfigStreamPage::UpdateCompleted()
 	if (ui->key->text().isEmpty()) {
 		ready = false;
 	} else {
-		bool custom = ui->streamType->currentIndex() == 1;
-		if (custom) {
+		// bool custom = ui->streamType->currentIndex() == 1;
+
+		if (ui->streamType->currentIndex() == 1 || ui->streamType->currentIndex() == 2) {
 			ready = !ui->customServer->text().isEmpty();
 		} else {
 			ready = !wiz->testRegions ||
@@ -620,7 +647,17 @@ AutoConfig::AutoConfig(QWidget *parent)
 	/* ----------------------------------------- */
 	/* load service/servers                      */
 
-	customServer = serviceType == "rtmp_custom";
+	// customServer = serviceType == "rtmp_custom";
+
+	if (serviceType.compare("rtmp_common") == 0) {
+		customServer = 0;
+	} else if (serviceType.compare("rtmp_custom") == 0) {
+		customServer = 1;
+	} else if (serviceType.compare("webrtc_janus") == 0){
+		customServer = 2;
+	} else {
+		blog(LOG_ERROR, "streamType do not exist");
+	}
 
 	QComboBox *serviceList = streamPage->ui->service;
 
@@ -651,14 +688,17 @@ AutoConfig::AutoConfig(QWidget *parent)
 	streamPage->UpdateServerList();
 	streamPage->UpdateKeyLink();
 
-	if (!customServer) {
+	if (customServer != 1) {
 		QComboBox *serverList = streamPage->ui->server;
 		int idx = serverList->findData(QString(server.c_str()));
 		if (idx == -1)
 			idx = 0;
 
 		serverList->setCurrentIndex(idx);
-	} else {
+	} else if (customServer != 2) {
+		streamPage->ui->customServer->setText(server.c_str());
+		streamPage->ui->streamType->setCurrentIndex(1);
+	} else { //customServer != 3
 		streamPage->ui->customServer->setText(server.c_str());
 		streamPage->ui->streamType->setCurrentIndex(1);
 	}
@@ -802,8 +842,8 @@ void AutoConfig::SaveStreamSettings()
 
 	if (!customServer)
 		obs_data_set_string(settings, "service", serviceName.c_str());
-	obs_data_set_string(settings, "server", server.c_str());
-	obs_data_set_string(settings, "key", key.c_str());
+		obs_data_set_string(settings, "server", server.c_str());
+		obs_data_set_string(settings, "room", key.c_str());
 
 	OBSService newService = obs_service_create(service_id,
 			"default_service", settings, hotkeyData);
