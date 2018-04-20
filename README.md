@@ -34,8 +34,53 @@ TBD
 
 ### d. Linux
 
-TBD
+* Set up the build environment:
+```
+sudo apt-get install build-essential pkg-config cmake git-core checkinstall
+```
 
+* Get the packages:
+```
+ sudo apt-get install libx11-dev libgl1-mesa-dev libvlc-dev libpulse-dev libxcomposite-dev \
+          libxinerama-dev libv4l-dev libudev-dev libfreetype6-dev \
+          libfontconfig-dev qtbase5-dev libqt5x11extras5-dev libx264-dev \
+          libxcb-xinerama0-dev libxcb-shm0-dev libjack-jackd2-dev libcurl4-openssl-dev
+```
+
+* Get ffmpeg:
+```
+  sudo apt-get install zlib1g-dev yasm
+  git clone --depth 1 git://source.ffmpeg.org/ffmpeg.git
+  cd ffmpeg
+  ./configure --enable-shared --prefix=/usr
+  make -j4
+  sudo checkinstall --pkgname=FFmpeg --fstrans=no --backup=no \
+          --pkgversion="$(date +%Y%m%d)-git" --deldoc=yes
+```
+
+* Get clang:
+```
+sudo apt-get install clang libc++-dev
+```
+
+* Set up environment variables:
+```
+vi ~/.profile
+
+Append at the end of the file:
+export CC=/usr/bin/clang
+export CXX=/usr/bin/clang++
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib
+
+source ~/.profile
+```
+
+* Build and install OBS:
+```
+cmake ..
+make -j4
+sudo make install
+```
 
 ## II. Install OpenSSL
 
