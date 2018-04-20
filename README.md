@@ -70,7 +70,7 @@ vi ~/.profile
 Append at the end of the file:
 export CC=/usr/bin/clang
 export CXX=/usr/bin/clang++
-export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib:/usr/local/lib/obs-plugins
 
 source ~/.profile
 ```
