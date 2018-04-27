@@ -68,18 +68,12 @@ sudo apt-get install clang libc++-dev
 vi ~/.profile
 
 Append at the end of the file:
+
 export CC=/usr/bin/clang
 export CXX=/usr/bin/clang++
-export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib:/usr/local/lib/obs-plugins
+export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:/usr/local/lib:/usr/lib/obs-plugins:/usr/local/bin:/usr/local/lib/obs-plugins:/usr/bin/obs"
 
 source ~/.profile
-```
-
-* Build and install OBS:
-```
-cmake ..
-make -j4
-sudo make install
 ```
 
 ## II. Install OpenSSL
@@ -140,6 +134,16 @@ cmake .. -DQTDIR=C:\Qt\5.9.1\msvc2015_64
 - compile the project
 ```
 nmake
+```
+
+## Compilation Linux
+
+Build and install OBS:
+
+```
+cmake -DCMAKE_BUILD_TYPE=RELEASE ..
+make -j4
+sudo make install
 ```
 
 ## Packaging on Windows
