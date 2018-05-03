@@ -221,6 +221,7 @@ AutoConfigStreamPage::AutoConfigStreamPage(QWidget *parent)
 	ui->streamType->addItem(obs_service_get_display_name("rtmp_common"));
 	ui->streamType->addItem(obs_service_get_display_name("rtmp_custom"));
 	ui->streamType->addItem(obs_service_get_display_name("webrtc_janus"));
+	ui->streamType->addItem(obs_service_get_display_name("webrtc_spankchain"));
 
 	setTitle(QTStr("Basic.AutoConfig.StreamPage"));
 	setSubTitle(QTStr("Basic.AutoConfig.StreamPage.SubTitle"));
@@ -288,6 +289,9 @@ bool AutoConfigStreamPage::validatePage()
 			break;
 		
 		case 2: serverType = "webrtc_janus";
+			break;
+
+		case 3: serverType = "webrtc_spankchain";
 			break;
 
 		default:blog(LOG_ERROR, "streamType do not exist");
@@ -423,6 +427,18 @@ void AutoConfigStreamPage::ServiceChanged()
 		ui->streamKeyLabel->setVisible(true);
 		ui->key->setVisible(true);
 		ui->show->setVisible(true);
+	} else if (ui->streamType->currentIndex() == 3) { //webrtc_spankchain
+		ui->formLayout->insertRow(1, ui->serverLabel,
+		ui->serverStackedWidget);
+
+		ui->region->setVisible(false);
+		ui->serverStackedWidget->setCurrentIndex(1);
+		ui->serverStackedWidget->setVisible(true);
+		ui->serverLabel->setVisible(true);
+
+		ui->streamKeyLabel->setVisible(true);
+		ui->key->setVisible(true);
+		ui->show->setVisible(true);
 	} else { //common currentIndex == 0
 		ui->formLayout->insertRow(1, ui->serviceLabel, ui->service);
 
@@ -481,7 +497,7 @@ void AutoConfigStreamPage::UpdateKeyLink()
 		ui->doBandwidthTest->setEnabled(true);
 	}
 
-	if (ui->streamType->currentIndex() == 2) {
+	if (ui->streamType->currentIndex() == 2 || ui->streamType->currentIndex() == 3) {
 		text = "Room";
 	}
 
@@ -653,8 +669,10 @@ AutoConfig::AutoConfig(QWidget *parent)
 		customServer = 0;
 	} else if (serviceType.compare("rtmp_custom") == 0) {
 		customServer = 1;
-	} else if (serviceType.compare("webrtc_janus") == 0){
+	} else if (serviceType.compare("webrtc_janus") == 0) {
 		customServer = 2;
+	} else if (serviceType.compare("webrtc_spankchain") == 0) {
+		customServer = 3;
 	} else {
 		blog(LOG_ERROR, "streamType do not exist");
 	}
@@ -827,6 +845,9 @@ void AutoConfig::SaveStreamSettings()
 			break;
 
 		case 2: service_id = "webrtc_janus";
+			break;
+
+		case 3: service_id = "webrtc_spankchain";
 			break;
 
 		default: blog(LOG_ERROR, "streamType do not exist");

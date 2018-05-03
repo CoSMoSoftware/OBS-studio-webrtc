@@ -125,6 +125,7 @@ set( obs-outputs_HEADERS
 	rtmp-helpers.h
 	rtmp-stream.h
 	janus-stream.h
+	spankchain-stream.h
   net-if.h
   AudioDeviceModuleWrapper.h
   VideoCapture.h
@@ -137,6 +138,7 @@ set( obs-outputs_SOURCES
   obs-outputs.c
 	rtmp-stream.c
 	janus-stream.cpp
+	spankchain-stream.cpp
   rtmp-windows.c
   AudioDeviceModuleWrapper.cpp
   VideoCapturer.cpp

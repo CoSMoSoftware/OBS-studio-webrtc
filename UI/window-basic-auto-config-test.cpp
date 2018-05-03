@@ -181,9 +181,24 @@ void AutoConfigTestPage::TestBandwidthThread()
 	/* -----------------------------------*/
 	/* create obs objects                 */
 
-	const char *serverType = wiz->customServer
-		? "rtmp_custom"
-		: "rtmp_common";
+	const char *serverType;
+
+	switch(wiz->customServer) {
+		case 0: serverType = "rtmp_common";
+			break;
+
+		case 1: serverType = "rtmp_custom";
+			break;
+
+		case 2: serverType = "webrtc_janus";
+			break;
+
+		case 3: serverType = "webrtc_spankchain";
+			break;
+
+		default: blog(LOG_WARNING, "serverType does not exist");
+			break;
+	}
 
 	OBSEncoder vencoder = obs_video_encoder_create("obs_x264",
 			"test_x264", nullptr, nullptr);
@@ -943,9 +958,24 @@ void AutoConfigTestPage::FinalizeResults()
 	};
 
 	if (wiz->type != AutoConfig::Type::Recording) {
-		const char *serverType = wiz->customServer
-			? "rtmp_custom"
-			: "rtmp_common";
+		const char *serverType;
+
+		switch(wiz->customServer) {
+			case 0: serverType = "rtmp_common";
+				break;
+
+			case 1: serverType = "rtmp_custom";
+				break;
+
+			case 2: serverType = "webrtc_janus";
+				break;
+
+			case 3: serverType = "webrtc_spankchain";
+				break;
+
+			default: blog(LOG_WARNING, "serverType does not exist");
+				break;
+		}
 
 		OBSService service = obs_service_create(serverType,
 				"temp_service", nullptr, nullptr);

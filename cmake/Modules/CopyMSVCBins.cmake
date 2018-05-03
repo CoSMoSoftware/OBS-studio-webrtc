@@ -1,5 +1,5 @@
 # Doesn't realy make sense anywhere else
-if(NOT MSVC)
+if(NOT WIN32)
 	return()
 endif()
 
