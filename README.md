@@ -65,16 +65,32 @@ sudo apt-get install clang libc++-dev
 
 * Set up environment variables:
 ```
-vi ~/.profile
-
-Append at the end of the file:
-
 export CC=/usr/bin/clang
 export CXX=/usr/bin/clang++
 export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:/usr/local/lib:/usr/lib/obs-plugins:/usr/local/bin:/usr/local/lib/obs-plugins:/usr/bin/obs"
-
-source ~/.profile
 ```
+
+* Recompile libcurl with openssl 1.1.0g:
+By default, OBS-studio on linux uses the system's libcurl which uses openssl 1.0.0 leading to conflict with our version of openssl. To solve this issue, it is necessary to recompile libcurl.
+```
+Download openssl 1.1.0g then extract it: 
+[OpenSSL 1.1.0g](https://www.openssl.org/source/old/1.1.0/openssl-1.1.0g.tar.gz)
+
+Compile and installation:
+./config <options ...> --openssldir=/usr/local/ssl
+make
+sudo make install
+
+Download the latest version of libcurl then extract it:
+[libcurl](https://curl.haxx.se/download.html)
+
+Compile with openssl and installation:
+./configure --with-ssl=/usr/local/ssl
+make
+make install
+
+```
+
 
 ## II. Install OpenSSL
 
@@ -141,7 +157,7 @@ nmake
 Build and install OBS:
 
 ```
-cmake -DCMAKE_BUILD_TYPE=RELEASE ..
+cmake -DCMAKE_BUILD_TYPE=Release ..
 make -j4
 sudo make install
 ```

@@ -21,7 +21,7 @@ OBSBasicStatusBar::OBSBasicStatusBar(QWidget *parent)
 	  grayPixmap        (20, 20),
 	  redPixmap         (20, 20)
 {
-	QString version = "WebRTC " + QString::fromUtf8(WEBRTC_MAJOR_VERSION); 
+	QString version = "WebRTC " + QString::number(WEBRTC_MAJOR_VERSION);
 	webrtcVersion->setText(version);
 	streamTime->setText(QString("LIVE: 00:00:00"));
 	recordTime->setText(QString("REC: 00:00:00"));
