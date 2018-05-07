@@ -187,6 +187,7 @@ bool WebRTCStream::start()
     }
 
     //Create websocket client
+    //spliting point for services?
     this->client = createWebsocketClient();
     //Log them
     info("-connecting to [url:%s,room:%ld,username:%s,password:%s]", url.c_str(), room, username.c_str(), password.c_str());
