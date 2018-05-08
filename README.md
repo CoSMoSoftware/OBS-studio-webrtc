@@ -132,8 +132,7 @@ cd MY_BUILD
 cmake
   -DDepsPath=<full_path_to_dependencies>\win64
   -DQTDIR=<qt_install_full_path>
-  -DOPENSSL_ROOT_DIR=<openssl_install_full_path>
-  -DCMAKE_BUILD_TYPE=<DEBUG|RELEASE|RelWithDebInfo>
+  -DCMAKE_BUILD_TYPE=<Debug|Release|RelWithDebInfo>
   -G "NMake Makefiles"
   ..
 ```
@@ -141,11 +140,10 @@ cmake
 example:
 
 ```
-cmake .. -DQTDIR=C:\Qt\5.9.1\msvc2015_64
-         -DDepsPath=C:\cosmo\dependencies2015\win64
-         -DOPENSSL_ROOT_DIR="C:\Program Files\OpenSSL"
-         -DCMAKE_BUILD_TYPE=Release
-         -G "NMake Makefiles"
+cmake .. cmake -DQTDIR=C:\Qt\5.10.1\msvc2017_64 
+		-DDepsPath=C:\Dependencies\win64 
+		-DCMAKE_BUILD_TYPE=Release 
+		-G "NMake Makefiles" ..
 ```
 - compile the project
 ```
