@@ -26,7 +26,6 @@ include_directories( ${ASIO_ROOT}/include )
 #
 set( websocketclient_SOURCES 
       WebsocketClientImpl.cpp
-      # WebsocketClientSC.cpp
       )
 if( WIN32 )
   set( websocketclient_SOURCES ${websocketclient_SOURCES} dllmain.cpp )
@@ -35,7 +34,6 @@ endif()
 
 set( websocketclient_HEADERS
   json.hpp
-  # WebsocketClientSC.h
   WebsocketClientImpl.h
   WebsocketClient.h
   )

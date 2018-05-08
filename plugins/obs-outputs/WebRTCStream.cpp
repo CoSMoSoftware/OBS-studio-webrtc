@@ -3,6 +3,8 @@
 #include <media-io/video-io.h>
 
 #include "api/test/fakeconstraints.h"
+#include "api/audio_codecs/builtin_audio_decoder_factory.h"
+#include "api/audio_codecs/builtin_audio_encoder_factory.h"
 #include "media/engine/webrtcvideocapturerfactory.h"
 #include "modules/video_capture/video_capture_factory.h"
 #include "rtc_base/checks.h"
@@ -55,6 +57,8 @@ WebRTCStream::WebRTCStream(obs_output_t * output)
                                                   worker.get(),
                                                   signaling.get(),
                                                   &adm,
+                                                  webrtc::CreateBuiltinAudioEncoderFactory(),
+                                                  webrtc::CreateBuiltinAudioDecoderFactory(),
                                                   nullptr,
                                                   nullptr
                                                   );

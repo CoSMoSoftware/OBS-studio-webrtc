@@ -2,7 +2,7 @@
 #define _VIDEO_CAPTURE_
 
 #include "modules/video_capture/video_capture_impl.h"
-
+#include "rtc_base/refcountedobject.h"
 class VideoCapture : public rtc::RefCountedObject<webrtc::videocapturemodule::VideoCaptureImpl>
 {
 public:
