@@ -99,7 +99,7 @@ bool SpankChainWebsocketClientImpl::connect(std::string url, long long room, std
             return ctx;
         });
 	//Create websocket connection and token
-        std::string wss = url + "/token=" + token;
+        std::string wss = url + "/?token=" + token;
         //Get connection
         connection = client.get_connection(wss, ec);
         
@@ -138,14 +138,15 @@ bool SpankChainWebsocketClientImpl::open(const std::string &sdp)
             { "transId"		, 0         },
             { "data" ,
                 {
-                    {"sdp"  , sdp},
+                    { "sdp"    , sdp   },
+                    { "name"   , "obs" },
                     { "tracks" ,
-			{
-			    { "audio"     , "audio"    },
-			    { "webcam"    , "video"    },
-                            { "thumbnail" , "tumbnail" },
-			}
-		    }
+                        {
+                            { "audio"     , "audio"     },
+                            { "webcam"    , "video"     },
+                            { "thumbnail" , "thumbnail" },
+                        }
+                    }
                 }
             }
         };
