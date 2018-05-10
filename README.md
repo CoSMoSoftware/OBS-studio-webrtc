@@ -1,23 +1,20 @@
 # Installer
 
 
-
 # Compilation and build 
 
 
 ## I. Install libwebrtc on your system
 
-Get the installer for libwebrtc version 62 provided by CoSMo company.  
-[Windows installer](https://s3-ap-southeast-1.amazonaws.com/webrtc-installer/version62/libwebrtc-62.252-x64-Release-rtti-msvc2015.exe)  
-[MAC installer](https://s3-ap-southeast-1.amazonaws.com/webrtc-installer/version62/libwebrtc-62.000-x64-Release-rtti.dmg)
-
+Get the installer for libwebrtc version 65 provided by CoSMo company.  
+[Windows installer](https://drive.google.com/file/d/1EM0OXGS0Xm61m5Nhb-2nNNJo1JpbBZnB/view?usp=sharing)  
 
 #### Compiler
 
 Be careful to make sure correct Tools / Windows 10 SDK Installed.
 
 * Windows 7 x64 or later,
-* Visual Studio 2015 update 3
+* Visual Studio 2017
 
 Make sure that you install the following components for Visual Studio:
 * section Programming Languages: check Visual C++, which will select all the three sub-categories Common Tools, MFC and Windows XP Support
@@ -74,7 +71,7 @@ export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:/usr/local/lib:/usr/lib/obs-plugins:/us
 By default, OBS-studio on linux uses the system's libcurl which uses openssl 1.0.0 leading to conflict with our version of openssl. To solve this issue, it is necessary to recompile libcurl.
 ```
 Download openssl 1.1.0g then extract it: 
-[OpenSSL 1.1.0g](https://www.openssl.org/source/old/1.1.0/openssl-1.1.0g.tar.gz)
+https://www.openssl.org/source/old/1.1.0/openssl-1.1.0g.tar.gz
 
 Compile and installation:
 ./config <options ...> --openssldir=/usr/local/ssl
@@ -82,7 +79,7 @@ make
 sudo make install
 
 Download the latest version of libcurl then extract it:
-[libcurl](https://curl.haxx.se/download.html)
+https://curl.haxx.se/download.html
 
 Compile with openssl and installation:
 ./configure --with-ssl=/usr/local/ssl
@@ -107,28 +104,28 @@ C:\Program Files\OpenSSL\bin
 
 ## Compilation Windows
 
-- install OpenSSL in 64 bits mode: start a VS2015 x64 Native Tools Command Prompt in administrator mode
+- install OpenSSL in 64 bits mode: start a VS2017 x64 Native Tools Command Prompt in administrator mode
 ```
- $ "c:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\vcvarsall.bat" amd64
+ $ "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvarsall.bat" amd64
  $ perl Configure VC-WIN64A
  $ nmake
  $ nmake test
  $ nmake install
 ```
 
-- install QT (5.9)
+- install QT (5.10.1)
 - install WIX Toolset http://wixtoolset.org/
 - download OBS studio pre compiled [dependencies](https://obsproject.com/downloads/dependencies2015.zip) and extract them (e.g. at the root of the cloned dir)
-- start a command line, and setup VS2015 environment variables to get compilations in 64 bits mode:
+- start a command line, and setup VS2017 environment variables to get compilations in 64 bits mode:
 ```
- $ "c:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\vcvarsall.bat" amd64
+ $ "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvarsall.bat" amd64
 ```
 - configure the project
 
 ```
 git submodule update --init
-mkdir MY_BUILD
-cd MY_BUILD
+mkdir build
+cd build
 cmake
   -DDepsPath=<full_path_to_dependencies>\win64
   -DQTDIR=<qt_install_full_path>
@@ -140,7 +137,7 @@ cmake
 example:
 
 ```
-cmake .. cmake -DQTDIR=C:\Qt\5.10.1\msvc2017_64 
+cmake -DQTDIR=C:\Qt\5.10.1\msvc2017_64 
 		-DDepsPath=C:\Dependencies\win64 
 		-DCMAKE_BUILD_TYPE=Release 
 		-G "NMake Makefiles" ..
@@ -155,14 +152,16 @@ nmake
 Build and install OBS:
 
 ```
+mkdir build
+cd build
 cmake -DCMAKE_BUILD_TYPE=Release ..
 make -j4
 sudo make install
 ```
 
-## Packaging on Windows
+## Packaging on Windows and Linux
 
-Inside MY_BUILD just run the command :
+Inside build just run the command :
 
 ```
 cpack
@@ -180,6 +179,7 @@ Configure a JANUS server using the video room plugin with websocket protocol act
 
 Launch OBS, go to settings, select the stream tab and change the URL to your JANUS : wss://janus1.cosmosoftware.io  
 Put 1234 for the room.
+
 
 After you can start streaming, OBS will connect to the default room and if you have any suscriber present in the room, you will see the OBS stream.
 https://clientweb.cosmosoftware.io/janusweb/videoroomtest.html
