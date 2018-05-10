@@ -20,6 +20,14 @@ else()
 endif()
 
 # --- Find libwebrtc or fail early
+if( WIN32 )
+  # NOTE ALEX: David claims that it does not work.
+  # the problem WOULD come from this call not going through and not
+  # setting the include dirs properly on windows.
+  # One should never manually set that variable to zero, but in this
+  # specific case this is the right way to approach the problem.
+  set(WEBRTC_USE_FILE_INCLUDED 0)
+endif()
 find_package(libwebrtc REQUIRED)
 
 if (EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/ftl-sdk/CMakeLists.txt")
