@@ -1,6 +1,7 @@
 #ifndef _WEBRTCSTREAM_H_
 #define _WEBRTCSTREAM_H_
 
+// NOTE ALEX: WTF
 #pragma comment(lib,"Strmiids.lib") 
 #pragma comment(lib,"Secur32.lib")
 #pragma comment(lib,"Msdmo.lib")

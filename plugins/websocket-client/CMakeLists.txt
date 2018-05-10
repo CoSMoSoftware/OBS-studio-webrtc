@@ -18,7 +18,7 @@ find_package(libwebrtc REQUIRED)
 # Asio
 #
 set( ASIO_ROOT ${CMAKE_CURRENT_SOURCE_DIR}/third_party/asio )
-add_subdirectory( ${ASIO_ROOT} )
+# add_subdirectory( ${ASIO_ROOT} )
 include_directories( ${ASIO_ROOT}/include )
 
 #------------------------------------------------------------------------

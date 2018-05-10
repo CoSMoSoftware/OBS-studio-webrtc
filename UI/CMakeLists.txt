@@ -34,13 +34,14 @@ else()
 	set(_lib_suffix 32)
 endif()
 
-find_package(Qt5Widgets ${FIND_MODE})
+find_package(Qt5 COMPONENTS Core Widgets ${FIND_MODE})
 set(WEBRTC_USE_FILE_INCLUDED 1)
 find_package(libwebrtc REQUIRED)
+
 find_package(FFmpeg REQUIRED COMPONENTS avcodec avutil avformat)
 
 if(APPLE)
-	find_package(Qt5MacExtras REQUIRED)
+	find_package(Qt5 COMPONENTS MacExtras ${FIND_MODE})
 endif(APPLE)
 
 if(NOT Qt5Widgets_FOUND)

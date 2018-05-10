@@ -2,10 +2,12 @@
 #include <QHBoxLayout>
 #include <QPainter>
 #include <QPixmap>
+
 #include "obs-app.hpp"
 #include "window-basic-main.hpp"
 #include "window-basic-status-bar.hpp"
 #include "window-basic-main-outputs.hpp"
+
 #include "webrtcVersion.h"
 
 OBSBasicStatusBar::OBSBasicStatusBar(QWidget *parent)
