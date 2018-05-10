@@ -2,6 +2,8 @@
 
 #include <media-io/video-io.h>
 
+#include <libyuv.h>
+
 #include "api/test/fakeconstraints.h"
 #include "api/audio_codecs/builtin_audio_decoder_factory.h"
 #include "api/audio_codecs/builtin_audio_encoder_factory.h"
@@ -366,23 +368,56 @@ void WebRTCStream::onVideoFrame(video_data *frame)
     videoCaptureCapability.height = obs_output_get_height(output);
     videoCaptureCapability.videoType = webrtc::VideoType::kNV12;    
     //Calc size
-    uint32_t size = videoCaptureCapability.width*videoCaptureCapability.height * 3 / 2; //obs_output_get_height(output) * frame->linesize[0];
+    uint32_t size = videoCaptureCapability.width*videoCaptureCapability.height * 3 / 2;
     //Pass it
     videoCapture->IncomingFrame(frame->data[0], size, videoCaptureCapability);
 
     //If we are doing thumbnails and we are not skiping this frame
     if (thumbnail && thumbnailCapture && ((picId % thumbnailDownrate)==0))
     {
-      //Calculate size
-      thumbnailCaptureCapability.width = obs_output_get_width(output) / thumbnailDownscale;
-      thumbnailCaptureCapability.height = obs_output_get_height(output) / thumbnailDownscale;
-      thumbnailCaptureCapability.videoType = webrtc::VideoType::kNV12;
-      //Calc size
-      uint32_t size = thumbnailCaptureCapability.width*thumbnailCaptureCapability.height * 3 / 2;
-      //Rescale
+	
+       //Calculate size
+       thumbnailCaptureCapability.width = obs_output_get_width(output) / thumbnailDownscale;
+       thumbnailCaptureCapability.height = obs_output_get_height(output) / thumbnailDownscale;
+       thumbnailCaptureCapability.videoType = webrtc::VideoType::kI420;
+       //Calc size of the downscaled version
+       uint32_t donwscaledSize = thumbnailCaptureCapability.width*thumbnailCaptureCapability.height*3/2;
+       //Create new image for the I420 conversion and the downscaling
+       uint8_t* downscaled = (uint8_t*)malloc(size+donwscaledSize);
 
-      //Pass it
-      thumbnailCapture->IncomingFrame(frame->data[0], size, thumbnailCaptureCapability);
+       //Get planar pointers
+       uint8_t *dest_y = (uint8_t *)downscaled;
+       uint8_t *dest_u = (uint8_t *)dest_y + videoCaptureCapability.width*videoCaptureCapability.height;
+       uint8_t *dest_v = (uint8_t *)dest_y + videoCaptureCapability.width*videoCaptureCapability.height * 5 / 4;
+       uint8_t *resc_y = (uint8_t *)downscaled + size;
+       uint8_t *resc_u = (uint8_t *)resc_y + thumbnailCaptureCapability.width*thumbnailCaptureCapability.height;
+       uint8_t *resc_v = (uint8_t *)resc_y + thumbnailCaptureCapability.width*thumbnailCaptureCapability.height * 5 / 4;
+
+       //Convert first to I420
+       libyuv::NV12ToI420(
+	       (uint8_t *)frame->data[0], frame->linesize[0],
+	       (uint8_t *)frame->data[1], frame->linesize[1],
+	       dest_y, videoCaptureCapability.width,
+	       dest_u, videoCaptureCapability.width/2,
+	       dest_v, videoCaptureCapability.width/2,
+	       videoCaptureCapability.width, videoCaptureCapability.height);
+
+       //Rescale
+       libyuv::I420Scale(
+	       dest_y, videoCaptureCapability.width,
+	       dest_u, videoCaptureCapability.width / 2,
+	       dest_v, videoCaptureCapability.width / 2,
+	       videoCaptureCapability.width, videoCaptureCapability.height,
+	       resc_y, thumbnailCaptureCapability.width,
+	       resc_u, thumbnailCaptureCapability.width / 2,
+	       resc_v, thumbnailCaptureCapability.width / 2,
+	       thumbnailCaptureCapability.width, thumbnailCaptureCapability.height,
+	       libyuv::kFilterNone
+       );
+       //Pass it
+       thumbnailCapture->IncomingFrame(resc_y, donwscaledSize, thumbnailCaptureCapability);
+       //Free downscaled version
+       free(downscaled);
     }
 
     //Increas number of pictures

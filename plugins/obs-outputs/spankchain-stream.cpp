@@ -47,7 +47,7 @@ extern "C" void *spankchain_stream_create(obs_data_t *settings, obs_output_t *ou
 	//Don't allow it to be deleted
 	stream->AddRef();
 	//Enable thumbnails
-	stream->enableThumbnail(1, 3);
+	stream->enableThumbnail(4, 3);
 	//Return it
 	return (void*)stream;
 }
