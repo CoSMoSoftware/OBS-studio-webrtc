@@ -34,16 +34,28 @@ class WebRTCStreamInterface :
 {
 
 };
-
 class WebRTCStream : public rtc::RefCountedObject<WebRTCStreamInterface>
 {
+public:
+  enum Type {
+    Janus = 0,
+    SpankChain = 1
+  };
 public:
   WebRTCStream(obs_output_t *output);
   ~WebRTCStream();
 
-  bool start();
+  bool start(Type type);
   void onVideoFrame(video_data *frame);
   void onAudioFrame(audio_data *frame);
+  bool enableThumbnail(uint8_t downscale, uint8_t downrate)
+  {
+	  if (!downscale || !downrate)
+		  return false;
+	  thumbnailDownscale = downscale;
+	  thumbnailDownrate = downrate;
+	  return (thumbnail = true);
+  }
   bool stop();
 
   //
@@ -96,6 +108,7 @@ private:
   long long room;
   std::string username;
   std::string password;
+  bool thumbnail;
   //Websocket client
   WebsocketClient* client;
   //Audio Wrapper
@@ -103,6 +116,12 @@ private:
   //Video Wrappers
   webrtc::VideoCaptureCapability videoCaptureCapability;
   rtc::scoped_refptr<VideoCapture> videoCapture;
+  //Thumbnail wrapper
+  webrtc::VideoCaptureCapability thumbnailCaptureCapability;
+  rtc::scoped_refptr<VideoCapture> thumbnailCapture;
+  uint32_t picId;
+  uint8_t thumbnailDownscale;
+  uint8_t thumbnailDownrate;
   //Peerconnection
   rtc::scoped_refptr<webrtc::PeerConnectionFactoryInterface> factory;
   rtc::scoped_refptr<webrtc::PeerConnectionInterface> pc;

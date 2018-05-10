@@ -28,7 +28,11 @@ CustomLogger logger;
 
 WebRTCStream::WebRTCStream(obs_output_t * output)
 {
-    
+    picId = 0;
+    thumbnail = false;
+    thumbnailDownrate = 1;
+    thumbnailDownscale = 1;
+
     //rtc::LogMessage::ConfigureLogging("verbose debug timestamp");
     rtc::LogMessage::ConfigureLogging("info");
     //rtc::LogMessage::AddLogToStream(&logger, rtc::LoggingSeverity::LS_VERBOSE);
@@ -65,13 +69,7 @@ WebRTCStream::WebRTCStream(obs_output_t * output)
     
     //Create capture module with out custome one
     videoCapture = new VideoCapture();
-
-    //Always YUV2
-    videoCaptureCapability.videoType = webrtc::VideoType::kYV12;    //Calc size
-    /*
-    webrtc::PeerConnectionFactoryInterface::Options options;
-    options.disable_network_monitor = false;
-    */
+    thumbnailCapture = new VideoCapture();
 }
 
 WebRTCStream::~WebRTCStream()
@@ -81,6 +79,7 @@ WebRTCStream::~WebRTCStream()
     pc = NULL;
     factory = NULL;
     videoCapture = NULL;
+    thumbnailCapture = NULL;
     //Stop all thread
     if (!network->IsCurrent())   network->Stop();
     if (!worker->IsCurrent())    worker->Stop();
@@ -92,8 +91,9 @@ WebRTCStream::~WebRTCStream()
     
 }
 
-bool WebRTCStream::start()
+bool WebRTCStream::start(Type type)
 {
+
     //Get service
     obs_service_t *service = obs_output_get_service(output);
     
@@ -180,6 +180,23 @@ bool WebRTCStream::start()
     rtc::scoped_refptr<webrtc::VideoTrackInterface> video_track = factory->CreateVideoTrack("video", videoSource);
     //Add stream to track
     stream->AddTrack(video_track);
+
+    //If doing thumnails
+    if (thumbnail)
+    {
+      //Create caprturer
+      VideoCapturer* thumbnailCapturer = new VideoCapturer(this);
+      //Init it
+      thumbnailCapturer->Init(thumbnailCapture);
+
+      //Create thumbnail source
+      rtc::scoped_refptr<webrtc::VideoTrackSourceInterface> thumbnailSource = factory->CreateVideoSource(thumbnailCapturer, NULL);
+
+      //Add thumbnail
+      rtc::scoped_refptr<webrtc::VideoTrackInterface> thumbnail_track = factory->CreateVideoTrack("thumbnail", thumbnailSource);
+      //Add stream to track
+      stream->AddTrack(thumbnail_track);
+    }
     
     //Add the stream to the peer connection
     if (!pc->AddStream(stream))
@@ -191,8 +208,13 @@ bool WebRTCStream::start()
     }
 
     //Create websocket client
-    //spliting point for services?
-    this->client = createWebsocketClient();
+    this->client = createWebsocketClient(type);
+    //Check if it was created correctly
+    if (!client) {
+      //Error
+      obs_output_signal_stop(output, OBS_OUTPUT_CONNECT_FAILED);
+      return false;
+    }
     //Log them
     info("-connecting to [url:%s,room:%ld,username:%s,password:%s]", url.c_str(), room, username.c_str(), password.c_str());
     //Connect client
@@ -347,6 +369,24 @@ void WebRTCStream::onVideoFrame(video_data *frame)
     uint32_t size = videoCaptureCapability.width*videoCaptureCapability.height * 3 / 2; //obs_output_get_height(output) * frame->linesize[0];
     //Pass it
     videoCapture->IncomingFrame(frame->data[0], size, videoCaptureCapability);
+
+    //If we are doing thumbnails and we are not skiping this frame
+    if (thumbnail && thumbnailCapture && ((picId % thumbnailDownrate)==0))
+    {
+      //Calculate size
+      thumbnailCaptureCapability.width = obs_output_get_width(output) / thumbnailDownscale;
+      thumbnailCaptureCapability.height = obs_output_get_height(output) / thumbnailDownscale;
+      thumbnailCaptureCapability.videoType = webrtc::VideoType::kNV12;
+      //Calc size
+      uint32_t size = thumbnailCaptureCapability.width*thumbnailCaptureCapability.height * 3 / 2;
+      //Rescale
+
+      //Pass it
+      thumbnailCapture->IncomingFrame(frame->data[0], size, thumbnailCaptureCapability);
+    }
+
+    //Increas number of pictures
+    picId++;
 }
 
 void WebRTCStream::onAudioFrame(audio_data *frame)

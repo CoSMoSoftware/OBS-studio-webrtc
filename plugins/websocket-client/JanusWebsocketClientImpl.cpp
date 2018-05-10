@@ -1,22 +1,9 @@
-#include <../../libobs/obs-module.h>
-#include "WebsocketClientImpl.h"
+#include "JanusWebsocketClientImpl.h"
 #include "json.hpp"
 using json = nlohmann::json;
 typedef websocketpp::config::asio_client::message_type::ptr message_ptr;
 
-OBS_DECLARE_MODULE()
-
-bool obs_module_load(void)
-{
-	return true;
-}
-
-WEBSOCKETCLIENT_API WebsocketClient* createWebsocketClient(void)
-{
-    return new WebsocketClientImpl();
-}
-
-WebsocketClientImpl::WebsocketClientImpl()
+JanusWebsocketClientImpl::JanusWebsocketClientImpl()
 {
     // Set logging to be pretty verbose (everything except message payloads)
     client.set_access_channels(websocketpp::log::alevel::all);
@@ -27,13 +14,13 @@ WebsocketClientImpl::WebsocketClientImpl()
     client.init_asio();
 }
 
-WebsocketClientImpl::~WebsocketClientImpl()
+JanusWebsocketClientImpl::~JanusWebsocketClientImpl()
 {
     //Disconnect just in case
     disconnect(false);
 }
 
-bool WebsocketClientImpl::connect(std::string url, long long room, std::string username, std::string token, WebsocketClient::Listener* listener)
+bool JanusWebsocketClientImpl::connect(std::string url, long long room, std::string username, std::string token, WebsocketClient::Listener* listener)
 {
     websocketpp::lib::error_code ec;
     
@@ -106,7 +93,7 @@ bool WebsocketClientImpl::connect(std::string url, long long room, std::string u
                     //Keep the connection alive
                     is_running.store(true);
                     thread_keepAlive = std::thread([&]() {
-                        WebsocketClientImpl::keepConnectionAlive();
+                        JanusWebsocketClientImpl::keepConnectionAlive();
                     });
                 }else {
                     handle_id = data["id"];
@@ -211,7 +198,7 @@ bool WebsocketClientImpl::connect(std::string url, long long room, std::string u
     return true;
 }
 
-bool WebsocketClientImpl::open(const std::string &sdp)
+bool JanusWebsocketClientImpl::open(const std::string &sdp)
 {
     try
     {
@@ -248,7 +235,7 @@ bool WebsocketClientImpl::open(const std::string &sdp)
     //OK
     return true;
 }
-bool WebsocketClientImpl::trickle(const std::string &mid, int index, const std::string &candidate, bool last)
+bool JanusWebsocketClientImpl::trickle(const std::string &mid, int index, const std::string &candidate, bool last)
 {
     try
     {
@@ -302,7 +289,7 @@ bool WebsocketClientImpl::trickle(const std::string &mid, int index, const std::
     return true;
 }
 
-void WebsocketClientImpl::keepConnectionAlive()
+void JanusWebsocketClientImpl::keepConnectionAlive()
 {
     while (is_running.load())
     {
@@ -327,7 +314,7 @@ void WebsocketClientImpl::keepConnectionAlive()
     }
 };
 
-bool WebsocketClientImpl::disconnect(bool wait)
+bool JanusWebsocketClientImpl::disconnect(bool wait)
 {
     
     try

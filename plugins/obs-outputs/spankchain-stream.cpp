@@ -46,6 +46,8 @@ extern "C" void *spankchain_stream_create(obs_data_t *settings, obs_output_t *ou
 	WebRTCStream* stream = new WebRTCStream(output);
 	//Don't allow it to be deleted
 	stream->AddRef();
+	//Enable thumbnails
+	stream->enableThumbnail(1, 3);
 	//Return it
 	return (void*)stream;
 }
@@ -69,7 +71,7 @@ extern "C" bool spankchain_stream_start(void *data)
 	//Don't allow it to be deleted
 	stream->AddRef();
 	//Start it
-	return stream->start();
+	return stream->start(WebRTCStream::SpankChain);
 }
 
 extern "C" void spankchain_receive_video(void *data, struct video_data *frame)

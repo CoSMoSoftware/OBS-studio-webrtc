@@ -68,7 +68,7 @@ extern "C" bool janus_stream_start(void *data)
 	//Don't allow it to be deleted
 	stream->AddRef();
 	//Start it
-	return stream->start();
+	return stream->start(WebRTCStream::Janus);
 }
 
 extern "C" void janus_receive_video(void *data, struct video_data *frame)

@@ -1,7 +1,7 @@
 #include<obs-module.h>
 
 struct webrtc_spankchain {
-    char *server, *room;
+    char *server, *token;
 };
 
 static const char *webrtc_spankchain_name(void *unused)
@@ -14,11 +14,11 @@ static void webrtc_spankchain_update(void *data, obs_data_t *settings)
 {
 	struct webrtc_spankchain *service = data;
 
-    bfree(service->server);
-	bfree(service->room);
+	bfree(service->server);
+	bfree(service->token);
 
 	service->server = bstrdup(obs_data_get_string(settings, "server"));
-	service->room = bstrdup(obs_data_get_string(settings, "room"));
+	service->token = bstrdup(obs_data_get_string(settings, "token"));
 }
 
 static void webrtc_spankchain_destroy(void *data)
@@ -26,7 +26,7 @@ static void webrtc_spankchain_destroy(void *data)
 	struct webrtc_spankchain *service = data;
 
 	bfree(service->server);
-	bfree(service->room);
+	bfree(service->token);
 	bfree(service);
 }
 
@@ -45,9 +45,8 @@ static obs_properties_t *webrtc_spankchain_properties(void *unused)
 
 	obs_properties_t *ppts = obs_properties_create();
 
-	obs_properties_add_text(ppts, "server", "Server Name", OBS_TEXT_DEFAULT);
-
-	obs_properties_add_text(ppts, "room", "Server Room", OBS_TEXT_DEFAULT);
+	obs_properties_add_text(ppts, "server", "Server URL", OBS_TEXT_DEFAULT);
+        obs_properties_add_text(ppts, "token", obs_module_text("Token"),OBS_TEXT_PASSWORD);
 
 	return ppts;
 }
@@ -60,8 +59,13 @@ static const char *webrtc_spankchain_url(void *data)
 
 static const char *webrtc_spankchain_room(void *data)
 {
+	return "1";
+}
+
+static const char *webrtc_spankchain_token(void *data)
+{
 	struct webrtc_spankchain *service = data;
-	return service->room;
+	return service->token;
 }
 
 struct obs_service_info webrtc_spankchain_service = {
@@ -72,5 +76,6 @@ struct obs_service_info webrtc_spankchain_service = {
 	.update         = webrtc_spankchain_update,
 	.get_properties = webrtc_spankchain_properties,
 	.get_url        = webrtc_spankchain_url,
-	.get_room       = webrtc_spankchain_room
+	.get_room       = webrtc_spankchain_room,
+	.get_password   = webrtc_spankchain_token
 };

@@ -1430,7 +1430,7 @@ bool AdvancedOutput::StartStreaming(obs_service_t *service)
 		if(typeCheck.find("janus") != std::string::npos) {
 			type = "janus_output";
 		} else if (typeCheck.find("spankchain") != std::string::npos) {
-			type = "spanckchain_output";
+			type = "spankchain_output";
 		} else {
 			type = "rtmp_output";
 		}

@@ -14,16 +14,16 @@
 
 typedef websocketpp::client<websocketpp::config::asio_tls_client> Client;
 
-class WebsocketClientImpl : public WebsocketClient
+class JanusWebsocketClientImpl : public WebsocketClient
 {
 public:
-    WebsocketClientImpl();
-    ~WebsocketClientImpl();
+    JanusWebsocketClientImpl();
+    ~JanusWebsocketClientImpl();
     virtual bool connect(std::string url, long long room, std::string username, std::string token, WebsocketClient::Listener* listener);
     virtual bool open(const std::string &sdp);
     virtual bool trickle(const std::string &mid, int index, const std::string &candidate, bool last);
     virtual bool disconnect(bool wait);
-    virtual void keepConnectionAlive();
+    void keepConnectionAlive();
 
 private:
     bool logged;

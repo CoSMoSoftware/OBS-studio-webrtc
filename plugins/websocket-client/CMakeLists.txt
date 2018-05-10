@@ -25,8 +25,10 @@ include_directories( ${ASIO_ROOT}/include )
 # WebSocket
 #
 set( websocketclient_SOURCES 
-      WebsocketClientImpl.cpp
-      )
+  SpankChainWebsocketClientImpl.cpp
+  JanusWebsocketClientImpl.cpp
+  WebsocketClient.cpp
+)
 if( WIN32 )
   set( websocketclient_SOURCES ${websocketclient_SOURCES} dllmain.cpp )
   add_definitions( -DWEBSOCKETCLIENT_EXPORTS )
@@ -34,7 +36,8 @@ endif()
 
 set( websocketclient_HEADERS
   json.hpp
-  WebsocketClientImpl.h
+  SpankChainWebsocketClientImpl.h
+  JanusWebsocketClientImpl.h
   WebsocketClient.h
   )
 
