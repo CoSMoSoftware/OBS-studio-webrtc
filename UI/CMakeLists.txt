@@ -37,6 +37,7 @@ endif()
 find_package(Qt5 COMPONENTS Core Widgets ${FIND_MODE})
 set(WEBRTC_USE_FILE_INCLUDED 1)
 find_package(libwebrtc REQUIRED)
+include ( "${libwebrtc_DIR}/libwebrtcConfigVersion.cmake" )
 
 find_package(FFmpeg REQUIRED COMPONENTS avcodec avutil avformat)
 
@@ -306,3 +307,5 @@ add_subdirectory(frontend-plugins)
 if(WIN32)
 	add_subdirectory(win-update/updater)
 endif()
+
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/webrtcVersion.in ${CMAKE_CURRENT_SOURCE_DIR}/webrtcVersion.h)
