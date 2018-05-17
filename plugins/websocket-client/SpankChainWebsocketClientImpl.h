@@ -20,7 +20,7 @@ public:
     SpankChainWebsocketClientImpl();
     ~SpankChainWebsocketClientImpl();
     virtual bool connect(std::string url, long long room, std::string username, std::string token, WebsocketClient::Listener* listener);
-    virtual bool open(const std::string &sdp);
+    virtual bool open(const std::string &sdp, const std::string& codec = "") = 0;
     virtual bool trickle(const std::string &mid, int index, const std::string &candidate, bool last);
     virtual bool disconnect(bool wait);
 

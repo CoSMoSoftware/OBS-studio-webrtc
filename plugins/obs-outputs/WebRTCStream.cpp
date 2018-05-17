@@ -239,7 +239,7 @@ void WebRTCStream::OnSuccess(webrtc::SessionDescriptionInterface * desc)
     //Set local description
     pc->SetLocalDescription(this, desc);
     //Send SDP
-    client->open(sdp);
+    client->open(sdp,codec);
 }
 
 void WebRTCStream::OnFailure(const std::string & error)

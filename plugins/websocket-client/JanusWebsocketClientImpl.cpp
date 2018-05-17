@@ -198,7 +198,7 @@ bool JanusWebsocketClientImpl::connect(std::string url, long long room, std::str
     return true;
 }
 
-bool JanusWebsocketClientImpl::open(const std::string &sdp)
+bool JanusWebsocketClientImpl::open(const std::string &sdp, const std::string& codec = "")
 {
     try
     {

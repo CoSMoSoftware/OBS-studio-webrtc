@@ -57,6 +57,10 @@ public:
 	  thumbnailDownrate = downrate;
 	  return (thumbnail = true);
   }
+  void setCodec(const std::string& codec)
+  {
+	  this->codec = codec;
+  }
   bool stop();
 
   //
@@ -109,6 +113,7 @@ private:
   long long room;
   std::string username;
   std::string password;
+  std::string codec;
   bool thumbnail;
   //Websocket client
   WebsocketClient* client;

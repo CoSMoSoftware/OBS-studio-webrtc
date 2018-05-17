@@ -127,7 +127,7 @@ bool SpankChainWebsocketClientImpl::connect(std::string url, long long room, std
     return true;
 }
 
-bool SpankChainWebsocketClientImpl::open(const std::string &sdp)
+bool SpankChainWebsocketClientImpl::open(const std::string &sdp, const std::string& codec)
 {
     try
     {
@@ -140,6 +140,7 @@ bool SpankChainWebsocketClientImpl::open(const std::string &sdp)
                 {
                     { "sdp"    , sdp   },
                     { "name"   , "obs" },
+		    { "codec"  , codec }
                     { "tracks" ,
                         {
                             { "audio"     , "audio"     },
