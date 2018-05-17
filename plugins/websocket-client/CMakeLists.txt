@@ -17,27 +17,27 @@ find_package(libwebrtc REQUIRED)
 #------------------------------------------------------------------------
 # Asio
 #
-set( ASIO_ROOT ${CMAKE_CURRENT_SOURCE_DIR}/third_party/asio )
-# add_subdirectory( ${ASIO_ROOT} )
-include_directories( ${ASIO_ROOT}/include )
+include_directories( ${CMAKE_CURRENT_SOURCE_DIR}/third_party/asio/include )
 
 #------------------------------------------------------------------------
 # WebSocket
 #
 set( websocketclient_SOURCES 
-  SpankChainWebsocketClientImpl.cpp
   JanusWebsocketClientImpl.cpp
+  SpankChainWebsocketClientImpl.cpp
   WebsocketClient.cpp
 )
 if( WIN32 )
   set( websocketclient_SOURCES ${websocketclient_SOURCES} dllmain.cpp )
   add_definitions( -DWEBSOCKETCLIENT_EXPORTS )
+elseif( APPLE )
+  add_definitions( -DWEBSOCKETCLIENT_EXPORTS )
 endif()
 
 set( websocketclient_HEADERS
   json.hpp
-  SpankChainWebsocketClientImpl.h
   JanusWebsocketClientImpl.h
+  SpankChainWebsocketClientImpl.h
   WebsocketClient.h
   )
 
@@ -46,8 +46,9 @@ add_library( websocketclient SHARED
   ${websocketclient_HEADERS}
   )
 
-  target_link_libraries( websocketclient
-    ${WEBRTC_LIBRARIES}
+# why ?
+target_link_libraries( websocketclient
+  ${WEBRTC_LIBRARIES}
   )
 install_obs_plugin(websocketclient)
 
