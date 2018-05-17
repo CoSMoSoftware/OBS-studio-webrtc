@@ -26,7 +26,6 @@ set( websocketclient_SOURCES
   JanusWebsocketClientImpl.cpp
   SpankChainWebsocketClientImpl.cpp
   WebsocketClient.cpp
-  WebsocketClientSC.cpp
 )
 if( WIN32 )
   set( websocketclient_SOURCES ${websocketclient_SOURCES} dllmain.cpp )
@@ -40,7 +39,6 @@ set( websocketclient_HEADERS
   JanusWebsocketClientImpl.h
   SpankChainWebsocketClientImpl.h
   WebsocketClient.h
-  WebsocketClientSC.h
   )
 
 add_library( websocketclient SHARED
