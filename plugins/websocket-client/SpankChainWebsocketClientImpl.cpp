@@ -140,7 +140,7 @@ bool SpankChainWebsocketClientImpl::open(const std::string &sdp, const std::stri
                 {
                     { "sdp"    , sdp   },
                     { "name"   , "obs" },
-		    { "codec"  , codec }
+		    { "codec"  , codec },
                     { "tracks" ,
                         {
                             { "audio"     , "audio"     },
