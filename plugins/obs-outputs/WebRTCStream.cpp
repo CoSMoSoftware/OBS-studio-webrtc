@@ -3,6 +3,9 @@
 #include <media-io/video-io.h>
 
 #include <libyuv.h>
+#include <rtc_base/platform_file.h>
+#include <rtc_base/bitrateallocationstrategy.h>
+#include <modules/audio_processing/include/audio_processing.h>
 
 #include "api/test/fakeconstraints.h"
 #include "api/audio_codecs/builtin_audio_decoder_factory.h"

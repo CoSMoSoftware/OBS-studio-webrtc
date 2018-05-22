@@ -49,6 +49,8 @@ add_library( websocketclient SHARED
 # why ?
 target_link_libraries( websocketclient
   ${WEBRTC_LIBRARIES}
+  /usr/local/lib/libssl.dylib
+  /usr/local/lib/libcrypto.dylib
   )
 install_obs_plugin(websocketclient)
 
@@ -87,10 +89,10 @@ elseif ( APPLE )
     FILES       ${libwebrtc_rootdir}/lib/libwebrtc.a
     DESTINATION ${OBS_EXECUTABLE_DESTINATION} COMPONENT   Libraries )
   install(
-    FILES       ${libwebrtc_rootdir}/lib/libssl.dylib.1.1
+    FILES       ${libwebrtc_rootdir}/lib/libssl.1.1.dylib
     DESTINATION ${OBS_EXECUTABLE_DESTINATION} COMPONENT   Libraries )
   install(
-    FILES       ${libwebrtc_rootdir}/lib/libcrypto.dylib.1.1
+    FILES       ${libwebrtc_rootdir}/lib/libcrypto.1.1.dylib
     DESTINATION ${OBS_EXECUTABLE_DESTINATION} COMPONENT   Libraries )
 else ( WIN32 )
   install(

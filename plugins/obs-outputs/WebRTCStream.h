@@ -15,6 +15,10 @@
 #include "VideoCapturer.h"
 #include "AudioDeviceModuleWrapper.h"
 
+#include <rtc_base/platform_file.h>
+#include <rtc_base/bitrateallocationstrategy.h>
+#include <modules/audio_processing/include/audio_processing.h>
+
 #include "api/mediastreaminterface.h"
 #include "api/peerconnectioninterface.h"
 #include "modules/video_capture/video_capture.h"
