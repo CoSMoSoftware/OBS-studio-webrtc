@@ -49,10 +49,15 @@ add_library( websocketclient SHARED
 # why ?
 target_link_libraries( websocketclient
   ${WEBRTC_LIBRARIES}
-  /usr/local/lib/libssl.dylib
-  /usr/local/lib/libcrypto.dylib
-  )
+)
 install_obs_plugin(websocketclient)
+
+if ( APPLE )
+  target_link_libraries( websocketclient
+    /usr/local/lib/libssl.dylib
+    /usr/local/lib/libcrypto.dylib
+  )
+endif()
 
 #-------------------------------------------------------------
 # Libwebrtc with OpenSSL
