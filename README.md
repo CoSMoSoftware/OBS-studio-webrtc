@@ -1,36 +1,141 @@
-# Installer
+# OBS-studio WebRTC
 
+This project is a fork of OBS-studio with an implementation of WebRTC. 
 
-# Compilation and build 
+- [Windows](#windows)
+  * [Prerequisite](#prerequisite)
+    + [Compiler](#compiler)
+    + [OpenSSL](#openssl)
+  * [Compilation](#compilation)
+  * [Installation](#installation)
+  * [Packaging](#packaging)
+- [Linux](#linux)
+  * [Prerequisite](#prerequisite-1)
+  * [Compilation](#compilation-1)
+  * [Installation](#installation-1)
+  * [Packaging](#packaging-1)
+- [Mac](#mac)
+- [USAGE](#usage)
+  * [Configure JANUS](#configure-janus)
+  * [OBS settings](#obs-settings)
+- [Docs](#docs)
+  * [WebsocketClientImpl.cpp](#websocketclientimplcpp)
+  * [WebRTCStream.cpp](#webrtcstreamcpp)
 
+<small><i><a href='http://ecotrust-canada.github.io/markdown-toc/'>Table of contents generated with markdown-toc</a></i></small>
 
-## I. Install libwebrtc on your system
+## Windows
 
-Get the installer for libwebrtc version 65 provided by CoSMo:  
-[Windows installer](https://drive.google.com/file/d/1EM0OXGS0Xm61m5Nhb-2nNNJo1JpbBZnB/view?usp=sharing)  
-[Linux installer](https://drive.google.com/open?id=1374iQ7b53LdQeUZZDF41hrmKY64MIzz0)  
+### Prerequisite
+
+Get the Windows installer for libwebrtc version 65 provided by CoSMo:
+[Windows installer](https://drive.google.com/file/d/1EM0OXGS0Xm61m5Nhb-2nNNJo1JpbBZnB/view?usp=sharing)
 
 #### Compiler
 
-Be careful to make sure correct Tools / Windows 10 SDK Installed.
+Make sure the correct tools / Windows 10 SDK are installed.
 
-* Windows 7 x64 or later,
-* Visual Studio 2017
+- Windows 7 x64 or later
+- Visual Studio 2017
 
-Make sure that you install the following components for Visual Studio:
-* section Programming Languages: check Visual C++, which will select all the three sub-categories Common Tools, MFC and Windows XP Support
-* section Windows and Web Development / Universal Windows Apps Development Tools: check Tools (1.4.1) and Windows 10 SDK (**10.0.14393**)
+Make sure the following components are installed for Visual Studio:
+
+- Section Programming Languages: check Visual C++, which will select all the three sub-categories Common Tools, MFC and Windows XP Support
+- Section Windows and Web Development / Universal Windows Apps Development Tools: check Tools (1.4.1) and Windows 10 SDK (**10.0.14393**)
 
 Additional components to install:
-* [Windows 10 SDK][w10sdk] with **Debugging Tools for Windows** or
-  [Windows Driver Kit 10][wdk10] installed in the same Windows 10 SDK
-  installation directory.
 
-### c. Mac
+- [Windows 10 SDK][w10sdk] with **Debugging Tools for Windows** or [Windows Driver Kit 10][wdk10] installed in the same Windows 10 SDK installation directory.
 
-TBD 
+#### OpenSSL
 
-### d. Linux
+Install [OpenSSL 1.1.0g](https://www.openssl.org/source/old/1.1.0/openssl-1.1.0g.tar.gz)
+
+/!\ IMPORTANT /!\: Add OpenSSL directory containing the DLLs to your PATH environment variable.
+e.g. C:\Program Files\OpenSSL\bin
+
+### Compilation
+
+- Install OpenSSL in 64 bits mode: start a VS2017 x64 Native Tools Command Prompt in administrator mode
+```
+ $ "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvarsall.bat" amd64
+ $ perl Configure VC-WIN64A
+ $ nmake
+ $ nmake test
+ $ nmake install
+```
+
+- Install QT (5.10.1)
+- Install WIX Toolset http://wixtoolset.org/
+- Download OBS-studio pre compiled [dependencies](https://obsproject.com/downloads/dependencies2015.zip) and extract them (e.g. at the root of the cloned dir)
+- Start a command line, and setup VS2017 environment variables to get the compilations in 64 bits mode:
+```
+ $ "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvarsall.bat" amd64
+```
+- Configure the project
+
+```
+git clone --recursive https://github.com/CoSMoSoftware/OBS-studio-webrtc.git
+cd OBS-studio-webrtc
+mkdir build
+cd build
+cmake
+  -DDepsPath=<full_path_to_dependencies>\win64
+  -DQTDIR=<qt_install_full_path>
+  -DCMAKE_BUILD_TYPE=<Debug|Release|RelWithDebInfo>
+  -G "NMake Makefiles"
+  ..
+```
+
+e.g.
+
+```
+cmake -DQTDIR=C:\Qt\5.10.1\msvc2017_64 
+		-DDepsPath=C:\Dependencies\win64 
+		-DCMAKE_BUILD_TYPE=Release 
+		-G "NMake Makefiles" ..
+```
+- Compile the project
+```
+nmake
+```
+
+### Installation
+The executable can be found at this location:
+
+```
+OBS-studio-webrtc\build\rundir\Release\bin\64bit
+```
+
+### Packaging 
+
+```
+cd build
+cpack
+```
+
+## Linux
+
+### Prerequisite
+
+*Get the Linux installer for libwebrtc version 65 provided by CoSMo:
+[Linux installer](https://drive.google.com/open?id=1374iQ7b53LdQeUZZDF41hrmKY64MIzz0) 
+
+1. Launch the script:
+
+```
+chmod +x libwebrtc-65.0-x64-OpenSSL-release
+./libwebrtc-65.0-x64-OpenSSL-release
+cd libwebrtc-65.0-x64-OpenSSL-release
+```
+
+2. Copy the folders into /usr/local: 
+
+```
+sudo cp -r cmake /usr/local
+sudo cp -r include /usr/local
+sudo cp -r lib /usr/local
+```
 
 * Set up the build environment:
 ```
@@ -61,7 +166,7 @@ sudo apt-get install build-essential pkg-config cmake git-core checkinstall
 sudo apt-get install clang libc++-dev
 ```
 
-* Set up environment variables:
+* Set up the environment variables:
 ```
 export CC=/usr/bin/clang
 export CXX=/usr/bin/clang++
@@ -69,130 +174,94 @@ export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:/usr/local/lib:/usr/lib/obs-plugins:/us
 ```
 
 * Recompile libcurl with openssl 1.1.0g:
-By default, OBS-studio on linux uses the system's libcurl which uses openssl 1.0.0 leading to conflict with our version of openssl. To solve this issue, it is necessary to recompile libcurl.
+
+OBS-studio on Linux uses the libcurl from the system which uses openssl 1.0.0 leading to conflict with our version of openssl. To solve this issue, it is necessary to recompile libcurl with the right version of OpenSSL.
+
+1. Download openssl 1.1.0g then extract it: 
+
 ```
-Download openssl 1.1.0g then extract it: 
 https://www.openssl.org/source/old/1.1.0/openssl-1.1.0g.tar.gz
+tar -zxvf openssl-1.1.0g.tar.gz
+```
 
-Compile and installation:
+2. Compile and installation:
+```
+cd openssl-1.1.0g
 ./config <options ...> --openssldir=/usr/local/ssl
-make
+make -j4
 sudo make install
+```
 
-Download the latest version of libcurl then extract it:
+3. Download the latest version of libcurl then extract it:
+```
 https://curl.haxx.se/download.html
+tar -zxvf curl-7.60.0.tar.gz
+```
 
-Compile with openssl and installation:
+4. Compile with OpenSSL and install:
+```
+cd curl-version
 ./configure --with-ssl=/usr/local/ssl
-make
+make -j4
 make install
-
 ```
-
-
-## II. Install OpenSSL
-
-Latest release version available: openssl-1.1.0g (2 November 2017)
-https://www.openssl.org/
-
-### a. Windows
-
-IMPORTANT: Add path to OpenSSL DLLs to your PATH environment variable.
-C:\Program Files\OpenSSL\bin
-
-
-# III. Compiling obs-studio
-
-## Compilation Windows
-
-- install OpenSSL in 64 bits mode: start a VS2017 x64 Native Tools Command Prompt in administrator mode
-```
- $ "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvarsall.bat" amd64
- $ perl Configure VC-WIN64A
- $ nmake
- $ nmake test
- $ nmake install
-```
-
-- install QT (5.10.1)
-- install WIX Toolset http://wixtoolset.org/
-- download OBS studio pre compiled [dependencies](https://obsproject.com/downloads/dependencies2015.zip) and extract them (e.g. at the root of the cloned dir)
-- start a command line, and setup VS2017 environment variables to get compilations in 64 bits mode:
-```
- $ "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvarsall.bat" amd64
-```
-- configure the project
-
-```
-git submodule update --init
-mkdir build
-cd build
-cmake
-  -DDepsPath=<full_path_to_dependencies>\win64
-  -DQTDIR=<qt_install_full_path>
-  -DCMAKE_BUILD_TYPE=<Debug|Release|RelWithDebInfo>
-  -G "NMake Makefiles"
-  ..
-```
-
-example:
-
-```
-cmake -DQTDIR=C:\Qt\5.10.1\msvc2017_64 
-		-DDepsPath=C:\Dependencies\win64 
-		-DCMAKE_BUILD_TYPE=Release 
-		-G "NMake Makefiles" ..
-```
-- compile the project
-```
-nmake
-```
-
-## Compilation Linux
-
-Build and install OBS:
+### Compilation
 
 ```
 mkdir build
 cd build
 cmake -DCMAKE_BUILD_TYPE=Release ..
 make -j4
+```
+
+### Installation
+
+```
 sudo make install
 ```
 
-## Packaging on Windows and Linux
-
-Inside build just run the command :
+### Packaging
 
 ```
+cd build
 cpack
 ```
+
+## Mac
+
+We are still working on the MAC version at the moment. The readme will be updated when everything will be ready.
+
 
 ## USAGE
 
 ### Configure JANUS
 
 https://github.com/meetecho/janus-gateway.
-Configure a JANUS server using the video room plugin with websocket protocol activate. You can use their html demo.
+Configure a JANUS server using the video room plugin with websocket protocol activated. You can use their html demo.
 
 
 ### OBS settings
 
-Launch OBS, go to settings, select the stream tab and change the URL to your JANUS : wss://janus1.cosmosoftware.io  
+Launch OBS, go to settings, select the stream tab and change the URL to your JANUS.
+
+e.g.
+```
+wss://janus1.cosmosoftware.io  
 Put 1234 for the room.
+```
 
-
-After you can start streaming, OBS will connect to the default room and if you have any suscriber present in the room, you will see the OBS stream.
+OBS will connect to the default room. If you have any subscriber present in the room, the stream will show up.
 https://clientweb.cosmosoftware.io/janusweb/videoroomtest.html
 
-## Docs (in progress..)
+
+## Docs
 
 ### WebsocketClientImpl.cpp
 
-That is where we receive the message and define the protocol API with JANUS. 
+ That is where we receive the message and define the protocol API. 
 
-### WebRTCStream.cpp inside the folder /plugin/output/
+### WebRTCStream.cpp
 
-There is where we handle the message, get and setup the offer and answer from libwebrtc. Also, is there we initial/remove the stream.
+The creation of a peerconnection is done here. The peerconnection is in charge of setting the local and remote descriptions, create streams and offers. 
 
-
+The functions starting, stopping and handling the answers received from the SFU are written here as well.
