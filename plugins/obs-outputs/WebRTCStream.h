@@ -19,6 +19,9 @@
 #include <rtc_base/bitrateallocationstrategy.h>
 #include <modules/audio_processing/include/audio_processing.h>
 
+#include <iostream>
+#include <fstream>
+
 #include "api/mediastreaminterface.h"
 #include "api/peerconnectioninterface.h"
 #include "modules/video_capture/video_capture.h"
@@ -66,6 +69,13 @@ public:
 	  this->codec = codec;
   }
   bool stop();
+
+  //stereo
+  static std::string stereoSDP(std::string sdp);
+  static std::string join(std::vector<std::string> vectorToJoin, char delim);
+  static void split(const std::string& str, std::vector<std::string> cont, char delim);
+  static int findLines(std::vector<std::string> sdpLines, std::string substr);
+  static void sdpToFile(std::string sdp, std::string fileName);
 
   //
   // WebsocketClient::Listener implementation.
@@ -141,6 +151,69 @@ private:
   std::unique_ptr<rtc::Thread> signaling;
   //OBS stream output
   obs_output_t *output;
+};
+
+class Stereo {
+public:
+  static std::string stereoSDP(std::string &sdp) {
+      std::vector<std::string> sdpLines;
+      split(sdp, "\r\n", sdpLines);
+      int fmtpLine = findLines(sdpLines, "a=fmtp:111");
+      sdpLines[fmtpLine] = sdpLines[fmtpLine].append(";stereo=1;sprop-stereo=1");
+      return join(sdpLines, '\r\n');
+  }
+
+  static std::string join(std::vector<std::string>& v, char delim) {
+      std::ostringstream s;
+      for (const auto& i : v) {
+          if (&i != &v[0]) {
+              s << delim;
+          }
+          s << i;
+      }
+      return s.str();
+  }
+
+  static void split(const std::string &s, char* delim, std::vector<std::string> & v){
+      char * dup = strdup(s.c_str());
+      char * token = strtok(dup, delim);
+      while(token != NULL){
+          v.push_back(std::string(token));
+          token = strtok(NULL, delim);
+      }
+      free(dup);
+  }
+
+  static int findLines(std::vector<std::string> sdpLines, std::string substr) {
+      for (int i = 0 ; i < sdpLines.size() ; i++) {
+          if ((sdpLines[i].find(substr) != std::string::npos)) {
+              return i;
+          }
+      }
+  }
+
+  static void printFile(std::string s, std::string fileName) {
+      std::ofstream file;
+      file.open(fileName);
+      file << s.c_str();
+      file.close();
+  }
+
+    static void printFile(int v, std::string fileName) {
+      std::ofstream file;
+      file.open(fileName);
+      file << v;
+      file.close();
+  }
+
+  static void printFile(std::vector<std::string> vec, std::string fileName) {
+      std::ofstream file;
+      file.open(fileName);
+      for (int i = 0 ; i < vec.size() ; i++) {
+        file << vec[i].c_str() << std::endl;
+      }
+      file.close();
+  }
 };
 
 #endif

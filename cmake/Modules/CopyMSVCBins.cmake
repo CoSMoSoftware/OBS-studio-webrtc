@@ -158,7 +158,7 @@ if (CMAKE_CONFIGURATION_TYPES MATCHES "Debug")
 		"${Qt5Core_DIR}/../../../plugins/platforms/qwindowsd.dll")
 endif()
 
-if (CMAKE_CONFIGURATION_TYPES MATCHES "Rel")
+if (CMAKE_CONFIGURATION_TYPES MATCHES "Release")
 	file(GLOB QT_BIN_FILES
 		"${Qt5Core_DIR}/../../../bin/Qt5Core.dll"
 		"${Qt5Core_DIR}/../../../bin/Qt5Gui.dll"
