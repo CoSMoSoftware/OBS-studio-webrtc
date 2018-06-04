@@ -241,8 +241,10 @@ void WebRTCStream::OnSuccess(webrtc::SessionDescriptionInterface * desc)
     info("Got offer\r\n%s", sdp.c_str());
     //Set local description
     pc->SetLocalDescription(this, desc);
+    //Enable stereo
+    Stereo::stereoSDP(&sdp);
     //Send SDP
-    client->open(Stereo::stereoSDP(sdp),codec);
+    client->open(sdp, codec);
 }
 
 void WebRTCStream::OnFailure(const std::string & error)
@@ -321,10 +323,12 @@ void WebRTCStream::onLoggedError(int code)
 void WebRTCStream::onOpened(const std::string &sdp)
 {
     info("onOpened\r\n%s", sdp.c_str());
-    
+    std::string sdpNotConst = sdp;
+    // Enable stereo
+    Stereo::stereoSDP(&sdpNotConst);
     webrtc::SdpParseError error;
     webrtc::SessionDescriptionInterface* answer =
-    webrtc::CreateSessionDescription(webrtc::SessionDescriptionInterface::kAnswer,sdp,&error);
+    webrtc::CreateSessionDescription(webrtc::SessionDescriptionInterface::kAnswer, sdpNotConst, &error);
     
     pc->SetRemoteDescription(this, answer);
     

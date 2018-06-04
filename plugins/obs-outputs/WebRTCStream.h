@@ -155,26 +155,32 @@ private:
 
 class Stereo {
 public:
-  static std::string stereoSDP(std::string &sdp) {
+  static void stereoSDP(std::string *sdp) {
       std::vector<std::string> sdpLines;
-      split(sdp, "\r\n", sdpLines);
+      split(*sdp, "\r\n", sdpLines);
       int fmtpLine = findLines(sdpLines, "a=fmtp:111");
-      sdpLines[fmtpLine] = sdpLines[fmtpLine].append(";stereo=1;sprop-stereo=1");
-      return join(sdpLines, '\r\n');
+      if (fmtpLine != -1) {
+        sdpLines[fmtpLine] = sdpLines[fmtpLine].append(";stereo=1;sprop-stereo=1");
+      } else {
+        int artpLine = findLines(sdpLines, "a=rtpmap:111 opus/48000/2");
+        sdpLines.insert(sdpLines.begin() + artpLine + 1, "a=fmtp:111 stereo=1;sprop-stereo=1");
+      }
+      *sdp = join(sdpLines, '\r\n');
   }
 
   static std::string join(std::vector<std::string>& v, char delim) {
       std::ostringstream s;
       for (const auto& i : v) {
           if (&i != &v[0]) {
-              s << delim;
+              s << delim << "\n";
           }
           s << i;
       }
+      s << "\r\n";
       return s.str();
   }
 
-  static void split(const std::string &s, char* delim, std::vector<std::string> & v){
+  static void split(const std::string s, char* delim, std::vector<std::string> & v){
       char * dup = strdup(s.c_str());
       char * token = strtok(dup, delim);
       while(token != NULL){
@@ -184,12 +190,14 @@ public:
       free(dup);
   }
 
-  static int findLines(std::vector<std::string> sdpLines, std::string substr) {
+  static int findLines(std::vector<std::string> sdpLines, std::string prefix) {
+      int line = -1;
       for (int i = 0 ; i < sdpLines.size() ; i++) {
-          if ((sdpLines[i].find(substr) != std::string::npos)) {
-              return i;
+          if ((sdpLines[i].find(prefix) != std::string::npos)) {
+              line = i;
           }
       }
+      return line;
   }
 
   static void printFile(std::string s, std::string fileName) {
