@@ -19,9 +19,6 @@
 #include <rtc_base/bitrateallocationstrategy.h>
 #include <modules/audio_processing/include/audio_processing.h>
 
-#include <iostream>
-#include <fstream>
-
 #include "api/mediastreaminterface.h"
 #include "api/peerconnectioninterface.h"
 #include "modules/video_capture/video_capture.h"
