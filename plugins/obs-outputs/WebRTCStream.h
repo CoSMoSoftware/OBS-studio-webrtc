@@ -199,29 +199,6 @@ public:
       }
       return line;
   }
-
-  static void printFile(std::string s, std::string fileName) {
-      std::ofstream file;
-      file.open(fileName);
-      file << s.c_str();
-      file.close();
-  }
-
-    static void printFile(int v, std::string fileName) {
-      std::ofstream file;
-      file.open(fileName);
-      file << v;
-      file.close();
-  }
-
-  static void printFile(std::vector<std::string> vec, std::string fileName) {
-      std::ofstream file;
-      file.open(fileName);
-      for (int i = 0 ; i < vec.size() ; i++) {
-        file << vec[i].c_str() << std::endl;
-      }
-      file.close();
-  }
 };
 
 #endif

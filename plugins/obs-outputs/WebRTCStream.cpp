@@ -241,8 +241,6 @@ void WebRTCStream::OnSuccess(webrtc::SessionDescriptionInterface * desc)
     info("Got offer\r\n%s", sdp.c_str());
     //Set local description
     pc->SetLocalDescription(this, desc);
-    //Enable stereo
-    Stereo::stereoSDP(&sdp);
     //Send SDP
     client->open(sdp, codec);
 }
