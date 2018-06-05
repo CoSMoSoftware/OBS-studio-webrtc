@@ -67,6 +67,13 @@ public:
   }
   bool stop();
 
+  //stereo
+  static std::string stereoSDP(std::string sdp);
+  static std::string join(std::vector<std::string> vectorToJoin, char delim);
+  static void split(const std::string& str, std::vector<std::string> cont, char delim);
+  static int findLines(std::vector<std::string> sdpLines, std::string substr);
+  static void sdpToFile(std::string sdp, std::string fileName);
+
   //
   // WebsocketClient::Listener implementation.
   //
@@ -141,6 +148,53 @@ private:
   std::unique_ptr<rtc::Thread> signaling;
   //OBS stream output
   obs_output_t *output;
+};
+
+class Stereo {
+public:
+  static void stereoSDP(std::string &sdp) {
+      std::vector<std::string> sdpLines;
+      split(sdp, "\r\n", sdpLines);
+      int fmtpLine = findLines(sdpLines, "a=fmtp:111");
+      if (fmtpLine != -1) {
+        sdpLines[fmtpLine] = sdpLines[fmtpLine].append(";stereo=1;sprop-stereo=1");
+      } else {
+        int artpLine = findLines(sdpLines, "a=rtpmap:111 opus/48000/2");
+        sdpLines.insert(sdpLines.begin() + artpLine + 1, "a=fmtp:111 stereo=1;sprop-stereo=1");
+      }
+      sdp = join(sdpLines, "\r\n");
+  }
+
+  static std::string join(std::vector<std::string>& v, std::string delim) {
+      std::ostringstream s;
+      for (const auto& i : v) {
+          if (&i != &v[0]) {
+              s << delim ;
+          }
+          s << i;
+      }
+      s << delim;
+      return s.str();
+  }
+
+  static void split(const std::string &s, char* delim, std::vector<std::string> & v){
+      char * dup = strdup(s.c_str());
+      char * token = strtok(dup, delim);
+      while(token != NULL){
+          v.push_back(std::string(token));
+          token = strtok(NULL, delim);
+      }
+      free(dup);
+  }
+
+  static int findLines(std::vector<std::string> sdpLines, std::string prefix) {
+      for (int i = 0 ; i < sdpLines.size() ; i++) {
+          if ((sdpLines[i].find(prefix) != std::string::npos)) {
+              return i;
+          }
+      }
+      return -1;
+  }
 };
 
 #endif

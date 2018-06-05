@@ -38,9 +38,9 @@ WebRTCStream::WebRTCStream(obs_output_t * output)
     thumbnailDownrate = 1;
     thumbnailDownscale = 1;
 
-    //rtc::LogMessage::ConfigureLogging("verbose debug timestamp");
+    // rtc::LogMessage::ConfigureLogging("verbose debug timestamp");
     rtc::LogMessage::ConfigureLogging("info");
-    //rtc::LogMessage::AddLogToStream(&logger, rtc::LoggingSeverity::LS_VERBOSE);
+    // rtc::LogMessage::AddLogToStream(&logger, rtc::LoggingSeverity::LS_VERBOSE);
     //Store output
     this->output = output;
     this->client = NULL;
@@ -242,7 +242,7 @@ void WebRTCStream::OnSuccess(webrtc::SessionDescriptionInterface * desc)
     //Set local description
     pc->SetLocalDescription(this, desc);
     //Send SDP
-    client->open(sdp,codec);
+    client->open(sdp, codec);
 }
 
 void WebRTCStream::OnFailure(const std::string & error)
@@ -321,10 +321,12 @@ void WebRTCStream::onLoggedError(int code)
 void WebRTCStream::onOpened(const std::string &sdp)
 {
     info("onOpened\r\n%s", sdp.c_str());
-    
+    std::string sdpNotConst = sdp;
+    // Enable stereo
+    Stereo::stereoSDP(sdpNotConst);
     webrtc::SdpParseError error;
     webrtc::SessionDescriptionInterface* answer =
-    webrtc::CreateSessionDescription(webrtc::SessionDescriptionInterface::kAnswer,sdp,&error);
+    webrtc::CreateSessionDescription(webrtc::SessionDescriptionInterface::kAnswer, sdpNotConst, &error);
     
     pc->SetRemoteDescription(this, answer);
     
@@ -423,7 +425,7 @@ void WebRTCStream::onVideoFrame(video_data *frame)
        free(downscaled);
     }
 
-    //Increas number of pictures
+    //Increase number of pictures
     picId++;
 }
 
@@ -431,6 +433,6 @@ void WebRTCStream::onAudioFrame(audio_data *frame)
 {
     if (!frame)
         return;
-    //Pash it to the device
+    //Push it to the device
     adm.onIncomingData(frame->data[0], frame->frames);
 }
