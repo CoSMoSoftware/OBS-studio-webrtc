@@ -323,7 +323,7 @@ void WebRTCStream::onOpened(const std::string &sdp)
     info("onOpened\r\n%s", sdp.c_str());
     std::string sdpNotConst = sdp;
     // Enable stereo
-    Stereo::stereoSDP(&sdpNotConst);
+    Stereo::stereoSDP(sdpNotConst);
     webrtc::SdpParseError error;
     webrtc::SessionDescriptionInterface* answer =
     webrtc::CreateSessionDescription(webrtc::SessionDescriptionInterface::kAnswer, sdpNotConst, &error);
