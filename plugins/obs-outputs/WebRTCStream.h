@@ -188,13 +188,12 @@ public:
   }
 
   static int findLines(std::vector<std::string> sdpLines, std::string prefix) {
-      int line = -1;
       for (int i = 0 ; i < sdpLines.size() ; i++) {
           if ((sdpLines[i].find(prefix) != std::string::npos)) {
               return i;
           }
       }
-      return line;
+      return -1;
   }
 };
 
