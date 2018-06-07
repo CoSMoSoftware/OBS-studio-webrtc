@@ -1,3 +1,10 @@
+
+# OBS-studio WebRTC
+
+This project is a fork of OBS-studio with an implementation of WebRTC.
+
+# Table of content
+
 - [Windows](#windows)
   * [Prerequisite](#prerequisite)
     + [Compiler](#compiler)
@@ -15,10 +22,8 @@
   * [Compilation](#compilation-2)
   * [Installation](#installation-2)
   * [Packaging](#packaging-2)
-- [USAGE](#usage)
+- [Usage](#usage)
   * [Configure JANUS](#configure-janus)
-
-
 
 ## Windows
 
@@ -269,13 +274,12 @@ sudo make install
 cpack -G "productbuild"
 ```
 
-## USAGE
+## Usage
 
 ### Configure JANUS
 
 https://github.com/meetecho/janus-gateway.
 Configure a JANUS server using the video room plugin with websocket protocol activated. You can use their html demo.
-
 
 ### OBS settings
 
