@@ -1,7 +1,3 @@
-# OBS-studio WebRTC
-
-This project is a fork of OBS-studio with an implementation of WebRTC. 
-
 - [Windows](#windows)
   * [Prerequisite](#prerequisite)
     + [Compiler](#compiler)
@@ -15,14 +11,14 @@ This project is a fork of OBS-studio with an implementation of WebRTC.
   * [Installation](#installation-1)
   * [Packaging](#packaging-1)
 - [Mac](#mac)
+  * [Prerequisite](#prerequisite-2)
+  * [Compilation](#compilation-2)
+  * [Installation](#installation-2)
+  * [Packaging](#packaging-2)
 - [USAGE](#usage)
   * [Configure JANUS](#configure-janus)
-  * [OBS settings](#obs-settings)
-- [Docs](#docs)
-  * [WebsocketClientImpl.cpp](#websocketclientimplcpp)
-  * [WebRTCStream.cpp](#webrtcstreamcpp)
 
-<small><i><a href='http://ecotrust-canada.github.io/markdown-toc/'>Table of contents generated with markdown-toc</a></i></small>
+
 
 ## Windows
 
@@ -118,8 +114,8 @@ cpack
 
 ### Prerequisite
 
-*Get the Linux installer for libwebrtc version 65 provided by CoSMo:
-[Linux installer](https://drive.google.com/open?id=1374iQ7b53LdQeUZZDF41hrmKY64MIzz0) 
+* Get the Linux installer for libwebrtc version 65 provided by CoSMo:
+  [Linux installer](https://drive.google.com/open?id=1374iQ7b53LdQeUZZDF41hrmKY64MIzz0) 
 
 1. Launch the script:
 
@@ -208,6 +204,8 @@ make install
 ### Compilation
 
 ```
+git clone --recursive https://github.com/CoSMoSoftware/OBS-studio-webrtc.git
+cd OBS-studio-webrtc
 mkdir build
 cd build
 cmake -DCMAKE_BUILD_TYPE=Release ..
@@ -229,8 +227,47 @@ cpack
 
 ## Mac
 
-We are still working on the MAC version at the moment. The readme will be updated when everything will be ready.
+### Prerequisite
 
+* Get the MacOS installer for libwebrtc version 65 provided by CoSMo:
+  [MacOS installer](https://drive.google.com/file/d/11qnWRfHczOCZyXvmiVlyHa2T7ykKmbOi/view?usp=sharing)
+
+
+* Install ffmpeg and Qt using Homebrew or Macport:
+
+```
+brew install ffmpeg
+brew install qt
+```
+
+* Set Qt directory:
+
+```
+export QTDIR=/usr/local/Cellar/qt/<qt-version>
+```
+
+### Compilation
+
+```
+git clone --recursive https://github.com/CoSMoSoftware/OBS-studio-webrtc.git
+cd OBS-studio-webrtc
+mkdir build
+cd build
+cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=<installation_location> ..
+make -j4
+```
+
+### Installation
+
+```
+sudo make install
+```
+
+### Packaging
+
+```
+cpack -G "productbuild"
+```
 
 ## USAGE
 
@@ -252,16 +289,3 @@ Put 1234 for the room.
 
 OBS will connect to the default room. If you have any subscriber present in the room, the stream will show up.
 https://clientweb.cosmosoftware.io/janusweb/videoroomtest.html
-
-
-## Docs
-
-### WebsocketClientImpl.cpp
-
- That is where we receive the message and define the protocol API. 
-
-### WebRTCStream.cpp
-
-The creation of a peerconnection is done here. The peerconnection is in charge of setting the local and remote descriptions, create streams and offers. 
-
-The functions starting, stopping and handling the answers received from the SFU are written here as well.
