@@ -100,7 +100,6 @@ public:
   // CreateSessionDescriptionObserver implementation.
   void OnSuccess(webrtc::SessionDescriptionInterface* desc) override;
   void OnFailure(const std::string& error) override;
-
   // SetSessionDescriptionObserver implementation
   void OnSuccess() override;
   //void OnFailure(const std::string& error) override;
@@ -118,6 +117,9 @@ public:
     delete(info);
   }
 
+  //bitrate
+  uint64_t getBitrate();
+
 private:
   //Connection properties
   std::string url;
@@ -126,6 +128,7 @@ private:
   std::string password;
   std::string codec;
   bool thumbnail;
+
   //Websocket client
   WebsocketClient* client;
   //Audio Wrapper

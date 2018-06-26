@@ -15,6 +15,11 @@
 #include "rtc_base/checks.h"
 #include "rtc_base/criticalsection.h"
 
+#include "pc/peerconnectionwrapper.h"
+
+#include <iostream>
+#include <fstream>
+
 #define warn(format, ...)  blog(LOG_WARNING, format, ##__VA_ARGS__)
 #define info(format, ...)  blog(LOG_INFO,    format, ##__VA_ARGS__)
 #define debug(format, ...) blog(LOG_DEBUG,   format, ##__VA_ARGS__)
@@ -435,4 +440,25 @@ void WebRTCStream::onAudioFrame(audio_data *frame)
         return;
     //Push it to the device
     adm.onIncomingData(frame->data[0], frame->frames);
+}
+
+//bitrate
+uint64_t WebRTCStream::getBitrate() {
+    uint64_t bitrate = 9999999999;
+    rtc::scoped_refptr<webrtc::MockRTCStatsCollectorCallback> callback(
+	    new rtc::RefCountedObject<webrtc::MockRTCStatsCollectorCallback>());
+
+    pc->GetStats(callback);
+
+    //std::ofstream myfile;
+    //myfile.open("file.txt");
+
+    //rtc::scoped_refptr<const webrtc::RTCStatsReport> reports = callback->report();
+
+    //myfile << reports->ToJson() << std::endl;
+    //myfile.close();
+
+    std::string report = callback->report()->ToJson();
+
+    return bitrate;
 }
