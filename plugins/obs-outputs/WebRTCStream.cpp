@@ -16,6 +16,7 @@
 #include "rtc_base/criticalsection.h"
 
 #include "pc/peerconnectionwrapper.h"
+#include "pc/rtcstatscollector.h"
 
 #include <iostream>
 #include <fstream>
@@ -80,6 +81,10 @@ WebRTCStream::WebRTCStream(obs_output_t * output)
     //Create capture module with out custome one
     videoCapture = new VideoCapture();
     thumbnailCapture = new VideoCapture();
+
+    //bitrate and dropped frame
+    bitrate = 0;
+    dropped_frame = 0;
 }
 
 WebRTCStream::~WebRTCStream()
@@ -442,23 +447,19 @@ void WebRTCStream::onAudioFrame(audio_data *frame)
     adm.onIncomingData(frame->data[0], frame->frames);
 }
 
-//bitrate
+//bitrate and dropped_frame
+int WebRTCStream::findValueJson(std::string json, std::string id) {
+    int pos = json.find(id);
+    int value = std::stoi(json.substr(pos + 1));
+    return value;
+}
+
 uint64_t WebRTCStream::getBitrate() {
-    uint64_t bitrate = 9999999999;
-    rtc::scoped_refptr<webrtc::MockRTCStatsCollectorCallback> callback(
-	    new rtc::RefCountedObject<webrtc::MockRTCStatsCollectorCallback>());
-
-    pc->GetStats(callback);
-
-    //std::ofstream myfile;
-    //myfile.open("file.txt");
-
-    //rtc::scoped_refptr<const webrtc::RTCStatsReport> reports = callback->report();
-
-    //myfile << reports->ToJson() << std::endl;
-    //myfile.close();
-
-    std::string report = callback->report()->ToJson();
-
+    //bitrate = findValueJson(statsCollectorCallback.getReport(), "bytesSent");
     return bitrate;
+}
+
+int WebRTCStream::getDroppedFrame() {
+    //dropped_frame = findValueJson(statsCollectorCallback.getReport(), "droppedFrame");
+    return dropped_frame;
 }
