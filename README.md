@@ -125,8 +125,8 @@ cpack
 1. Launch the script:
 
 ```
-chmod +x libwebrtc-65.0-x64-OpenSSL-release
-./libwebrtc-65.0-x64-OpenSSL-release
+chmod +x OBS-linux-current.sh
+./OBS-linux-current.sh
 cd libwebrtc-65.0-x64-OpenSSL-release
 ```
 
@@ -284,12 +284,3 @@ Configure a JANUS server using the video room plugin with websocket protocol act
 ### OBS settings
 
 Launch OBS, go to settings, select the stream tab and change the URL to your JANUS.
-
-e.g.
-```
-wss://janus1.cosmosoftware.io  
-Put 1234 for the room.
-```
-
-OBS will connect to the default room. If you have any subscriber present in the room, the stream will show up.
-https://clientweb.cosmosoftware.io/janusweb/videoroomtest.html
