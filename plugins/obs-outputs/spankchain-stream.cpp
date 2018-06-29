@@ -124,7 +124,9 @@ extern "C" obs_properties_t *spankchain_stream_properties(void *unused)
 
 extern "C" uint64_t spankchain_stream_total_bytes_sent(void *data)
 {
-	return 0;
+	//Get stream
+	WebRTCStream* stream = (WebRTCStream*)data;
+	return stream->getBitrate ();
 }
 
 extern "C" int spankchain_stream_dropped_frames(void *data)
