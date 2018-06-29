@@ -18,9 +18,6 @@
 #include "pc/peerconnectionwrapper.h"
 #include "pc/rtcstatscollector.h"
 
-#include <iostream>
-#include <fstream>
-#include <future>
 
 #define warn(format, ...)  blog(LOG_WARNING, format, ##__VA_ARGS__)
 #define info(format, ...)  blog(LOG_INFO,    format, ##__VA_ARGS__)
@@ -449,20 +446,14 @@ void WebRTCStream::onAudioFrame(audio_data *frame)
 }
 
 //bitrate and dropped_frame
-int WebRTCStream::findValueJson(std::string json, std::string id) {
-    int pos = json.find(id);
-    int value = std::stoi(json.substr(pos + 1));
-    return value;
-}
-
 uint64_t WebRTCStream::getBitrate() {
     rtc::scoped_refptr<webrtc::MockStatsObserver> observerVideo (new rtc::RefCountedObject<webrtc::MockStatsObserver> ());
 	rtc::scoped_refptr<webrtc::MockStatsObserver> observerAudio (new rtc::RefCountedObject<webrtc::MockStatsObserver> ());
 
     pc->GetStats (observerVideo, video_track, webrtc::PeerConnectionInterface::kStatsOutputLevelStandard);
 	pc->GetStats (observerAudio, audio_track, webrtc::PeerConnectionInterface::kStatsOutputLevelStandard);
-
-	Sleep(5);
+	
+	Sleep(2);
     
 	bitrate = observerVideo->BytesSent() + observerAudio->BytesSent();
     
@@ -470,6 +461,18 @@ uint64_t WebRTCStream::getBitrate() {
 }
 
 int WebRTCStream::getDroppedFrame() {
-    //dropped_frame = findValueJson(statsCollectorCallback.getReport(), "droppedFrame");
+	auto observer = rtc::MakeUnique<webrtc::MockPeerConnectionObserver> ();
+
+	webrtc::PeerConnectionWrapper *pcw = new webrtc::PeerConnectionWrapper(factory, pc, std::move(observer));
+
+	rtc::scoped_refptr<const webrtc::RTCStatsReport> report = pcw->GetStats();
+	
+	auto track_stats = report->GetStatsOfType<webrtc::RTCMediaStreamTrackStats> ();
+
+	webrtc::RTCMediaStreamTrackStats media_stream_track_stats (
+		track_stats[0]->id(), report->timestamp_us (),
+		webrtc::RTCMediaStreamTrackKind::kVideo);
+
+	dropped_frame = std::stoi(media_stream_track_stats.frames_dropped.ValueToString());
     return dropped_frame;
 }

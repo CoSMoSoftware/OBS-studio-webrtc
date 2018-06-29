@@ -31,9 +31,6 @@
 #include "rtc_base/thread.h"
 
 
-#include "pc/rtcstatscollector.h"
-#include "RTCStatsCollectorCallbackBridge.h"
-
 class WebRTCStreamInterface :
   public WebsocketClient::Listener,
   public webrtc::PeerConnectionObserver,
@@ -122,7 +119,6 @@ public:
   }
 
   //bitrate and dropped frame
-  int findValueJson(std::string json, std::string id);
   uint64_t getBitrate();
   int getDroppedFrame();
 
@@ -142,7 +138,6 @@ private:
   //bitrate and dropped frames
   uint64_t bitrate;
   int dropped_frame;
-  std::unique_ptr<webrtc::RtcEventLog> event_log;
 
   //Websocket client
   WebsocketClient* client;
@@ -166,9 +161,6 @@ private:
   std::unique_ptr<rtc::Thread> signaling;
   //OBS stream output
   obs_output_t *output;
-
-  //statsCollector
-  RTCStatsCollectorCallbackBridge statsCollectorCallback;
 };
 
 class Stereo {
