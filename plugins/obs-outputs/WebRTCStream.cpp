@@ -20,6 +20,7 @@
 
 #include <iostream>
 #include <fstream>
+#include <future>
 
 #define warn(format, ...)  blog(LOG_WARNING, format, ##__VA_ARGS__)
 #define info(format, ...)  blog(LOG_INFO,    format, ##__VA_ARGS__)
@@ -179,7 +180,7 @@ bool WebRTCStream::start(Type type)
     options.audio_network_adaptor.emplace(false);
 */
     //Add audio
-    rtc::scoped_refptr<webrtc::AudioTrackInterface> audio_track = factory->CreateAudioTrack("audio", factory->CreateAudioSource(options));
+    audio_track = factory->CreateAudioTrack("audio", factory->CreateAudioSource(options));
     //Add stream to track
     stream->AddTrack(audio_track);
     
@@ -192,7 +193,7 @@ bool WebRTCStream::start(Type type)
     rtc::scoped_refptr<webrtc::VideoTrackSourceInterface> videoSource = factory->CreateVideoSource(videoCapturer, NULL);
     
     //Add video
-    rtc::scoped_refptr<webrtc::VideoTrackInterface> video_track = factory->CreateVideoTrack("video", videoSource);
+    video_track = factory->CreateVideoTrack("video", videoSource);
     //Add stream to track
     stream->AddTrack(video_track);
 
@@ -455,8 +456,17 @@ int WebRTCStream::findValueJson(std::string json, std::string id) {
 }
 
 uint64_t WebRTCStream::getBitrate() {
-    //bitrate = findValueJson(statsCollectorCallback.getReport(), "bytesSent");
-    return bitrate;
+    rtc::scoped_refptr<webrtc::MockStatsObserver> observerVideo (new rtc::RefCountedObject<webrtc::MockStatsObserver> ());
+	rtc::scoped_refptr<webrtc::MockStatsObserver> observerAudio (new rtc::RefCountedObject<webrtc::MockStatsObserver> ());
+
+    pc->GetStats (observerVideo, video_track, webrtc::PeerConnectionInterface::kStatsOutputLevelStandard);
+	pc->GetStats (observerAudio, audio_track, webrtc::PeerConnectionInterface::kStatsOutputLevelStandard);
+
+	Sleep(5);
+    
+	bitrate = observerVideo->BytesSent() + observerAudio->BytesSent();
+    
+	return bitrate;
 }
 
 int WebRTCStream::getDroppedFrame() {

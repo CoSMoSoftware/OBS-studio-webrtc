@@ -29,6 +29,9 @@
 #include "rtc_base/scoped_ref_ptr.h"
 #include "rtc_base/refcountedobject.h"
 #include "rtc_base/thread.h"
+
+
+#include "pc/rtcstatscollector.h"
 #include "RTCStatsCollectorCallbackBridge.h"
 
 class WebRTCStreamInterface :
@@ -132,9 +135,14 @@ private:
   std::string codec;
   bool thumbnail;
 
+  //tracks
+  rtc::scoped_refptr<webrtc::VideoTrackInterface> video_track;
+  rtc::scoped_refptr<webrtc::AudioTrackInterface> audio_track;
+
   //bitrate and dropped frames
   uint64_t bitrate;
   int dropped_frame;
+  std::unique_ptr<webrtc::RtcEventLog> event_log;
 
   //Websocket client
   WebsocketClient* client;

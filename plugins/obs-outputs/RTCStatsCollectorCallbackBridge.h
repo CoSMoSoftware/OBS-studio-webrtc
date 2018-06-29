@@ -10,7 +10,7 @@ public:
   std::string getReport() { return report_; }
 
   void OnStatsDelivered(
-    const rtc::scoped_refptr<const webrtc::RTCStatsReport>& report) override{
+    const rtc::scoped_refptr<const webrtc::RTCStatsReport>& report) override {
       report_ = report->ToJson();
   }
 

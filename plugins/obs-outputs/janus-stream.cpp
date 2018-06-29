@@ -90,7 +90,7 @@ extern "C" void janus_receive_audio(void *data, struct audio_data *frame)
 
 extern "C" void janus_stream_defaults(obs_data_t *defaults)
 {
-	// info("janus_stream_defaults");
+        info("janus_stream_defaults");
 	obs_data_set_default_int(defaults, OPT_DROP_THRESHOLD, 700);
 	obs_data_set_default_int(defaults, OPT_PFRAME_DROP_THRESHOLD, 900);
 	obs_data_set_default_int(defaults, OPT_MAX_SHUTDOWN_TIME_SEC, 30);
@@ -101,7 +101,7 @@ extern "C" void janus_stream_defaults(obs_data_t *defaults)
 
 extern "C" obs_properties_t *janus_stream_properties(void *unused)
 {
-	// info("janus_stream_properties");
+	info("janus_stream_properties");
 	UNUSED_PARAMETER(unused);
 
 	obs_properties_t *props = obs_properties_create();
@@ -129,7 +129,7 @@ extern "C" int janus_stream_dropped_frames(void *data)
 {
   //Get stream
   WebRTCStream* stream = (WebRTCStream*)data;
-  return stream->getBitrate();
+  return stream->getDroppedFrame();
 }
 
 extern "C" float janus_stream_congestion(void *data)
