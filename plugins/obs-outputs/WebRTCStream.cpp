@@ -7,6 +7,9 @@
 #include <rtc_base/bitrateallocationstrategy.h>
 #include <modules/audio_processing/include/audio_processing.h>
 
+#include <thread>
+#include <chrono>
+
 #include "api/test/fakeconstraints.h"
 #include "api/audio_codecs/builtin_audio_decoder_factory.h"
 #include "api/audio_codecs/builtin_audio_encoder_factory.h"
@@ -453,7 +456,7 @@ uint64_t WebRTCStream::getBitrate() {
     pc->GetStats (observerVideo, video_track, webrtc::PeerConnectionInterface::kStatsOutputLevelStandard);
 	pc->GetStats (observerAudio, audio_track, webrtc::PeerConnectionInterface::kStatsOutputLevelStandard);
 	
-	Sleep(2);
+	std::this_thread::sleep_for(std::chrono::milliseconds(2));
     
 	bitrate = observerVideo->BytesSent() + observerAudio->BytesSent();
     
@@ -461,18 +464,18 @@ uint64_t WebRTCStream::getBitrate() {
 }
 
 int WebRTCStream::getDroppedFrame() {
-	auto observer = rtc::MakeUnique<webrtc::MockPeerConnectionObserver> ();
+	// auto observer = rtc::MakeUnique<webrtc::MockPeerConnectionObserver> ();
 
-	webrtc::PeerConnectionWrapper *pcw = new webrtc::PeerConnectionWrapper(factory, pc, std::move(observer));
+	// webrtc::PeerConnectionWrapper *pcw = new webrtc::PeerConnectionWrapper(factory, pc, std::move(observer));
 
-	rtc::scoped_refptr<const webrtc::RTCStatsReport> report = pcw->GetStats();
+	// rtc::scoped_refptr<const webrtc::RTCStatsReport> report = pcw->GetStats();
 	
-	auto track_stats = report->GetStatsOfType<webrtc::RTCMediaStreamTrackStats> ();
+	// auto track_stats = report->GetStatsOfType<webrtc::RTCMediaStreamTrackStats> ();
 
-	webrtc::RTCMediaStreamTrackStats media_stream_track_stats (
-		track_stats[0]->id(), report->timestamp_us (),
-		webrtc::RTCMediaStreamTrackKind::kVideo);
+	// webrtc::RTCMediaStreamTrackStats media_stream_track_stats (
+	// 	track_stats[0]->id(), report->timestamp_us (),
+	// 	webrtc::RTCMediaStreamTrackKind::kVideo);
 
-	dropped_frame = std::stoi(media_stream_track_stats.frames_dropped.ValueToString());
+	// dropped_frame = std::stoi(media_stream_track_stats.frames_dropped.ValueToString());
     return dropped_frame;
 }
