@@ -1,4 +1,5 @@
 #include "SpankChainWebsocketClientImpl.h"
+#include "restclient-cpp/connection.h"
 #include "json.hpp"
 using json = nlohmann::json;
 typedef websocketpp::config::asio_client::message_type::ptr message_ptr;
@@ -20,7 +21,7 @@ SpankChainWebsocketClientImpl::~SpankChainWebsocketClientImpl()
     disconnect(false);
 }
 
-bool SpankChainWebsocketClientImpl::connect(std::string url, long long room, std::string username, std::string token, WebsocketClient::Listener* listener)
+bool SpankChainWebsocketClientImpl::connect(std::string url, long long room, std::string apiURL, std::string token, WebsocketClient::Listener* listener)
 {
     websocketpp::lib::error_code ec;
 
@@ -54,11 +55,27 @@ bool SpankChainWebsocketClientImpl::connect(std::string url, long long room, std
                 //Get the Data session
                 auto data = msg["data"];
                 
-                //Get response code
+                //Get responsedata
                 std::string sdp = data["sdp"];
+                std::string feedId = data["feedId"];
 
-		//Event
+		        //Event
                 listener->onOpened(sdp);
+
+                std::cout << "Sending post with feedId: " << feedId << std::endl;
+
+                //Crate body of the rest request
+                std::string body = "{'feedId': '" + feedId + "'}";
+
+                //Create authentication bearer
+                std::string bearer = "Bearer " + token;
+
+                //Send request
+                RestClient::Connection conn(apiURL);
+                conn.AppendHeader("Authorization", bearer);
+                conn.AppendHeader("Content-Type", "application/json");
+                //Make post
+                auto ret = conn.post("/camshows/obs/update-show", body);
 
                 //Keep the connection alive
                 is_running.store(true);
@@ -98,7 +115,7 @@ bool SpankChainWebsocketClientImpl::connect(std::string url, long long room, std
             }
             return ctx;
         });
-	//Create websocket connection and token
+	    //Create websocket connection and token
         std::string wss = url + "/?token=" + token;
         //Get connection
         connection = client.get_connection(wss, ec);
@@ -140,7 +157,7 @@ bool SpankChainWebsocketClientImpl::open(const std::string &sdp, const std::stri
                 {
                     { "sdp"    , sdp   },
                     { "name"   , "obs" },
-		    { "codec"  , codec },
+		            { "codec"  , codec },
                     { "tracks" ,
                         {
                             { "audio"     , "audio"     },
