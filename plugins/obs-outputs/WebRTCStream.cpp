@@ -7,6 +7,9 @@
 #include <rtc_base/bitrateallocationstrategy.h>
 #include <modules/audio_processing/include/audio_processing.h>
 
+#include <thread>
+#include <chrono>
+
 #include "api/test/fakeconstraints.h"
 #include "api/audio_codecs/builtin_audio_decoder_factory.h"
 #include "api/audio_codecs/builtin_audio_encoder_factory.h"
@@ -14,6 +17,10 @@
 #include "modules/video_capture/video_capture_factory.h"
 #include "rtc_base/checks.h"
 #include "rtc_base/criticalsection.h"
+
+#include "pc/peerconnectionwrapper.h"
+#include "pc/rtcstatscollector.h"
+
 
 #define warn(format, ...)  blog(LOG_WARNING, format, ##__VA_ARGS__)
 #define info(format, ...)  blog(LOG_INFO,    format, ##__VA_ARGS__)
@@ -75,6 +82,10 @@ WebRTCStream::WebRTCStream(obs_output_t * output)
     //Create capture module with out custome one
     videoCapture = new VideoCapture();
     thumbnailCapture = new VideoCapture();
+
+    //bitrate and dropped frame
+    bitrate = 0;
+    dropped_frame = 0;
 }
 
 WebRTCStream::~WebRTCStream()
@@ -169,7 +180,7 @@ bool WebRTCStream::start(Type type)
     options.audio_network_adaptor.emplace(false);
 */
     //Add audio
-    rtc::scoped_refptr<webrtc::AudioTrackInterface> audio_track = factory->CreateAudioTrack("audio", factory->CreateAudioSource(options));
+    audio_track = factory->CreateAudioTrack("audio", factory->CreateAudioSource(options));
     //Add stream to track
     stream->AddTrack(audio_track);
     
@@ -182,7 +193,7 @@ bool WebRTCStream::start(Type type)
     rtc::scoped_refptr<webrtc::VideoTrackSourceInterface> videoSource = factory->CreateVideoSource(videoCapturer, NULL);
     
     //Add video
-    rtc::scoped_refptr<webrtc::VideoTrackInterface> video_track = factory->CreateVideoTrack("video", videoSource);
+    video_track = factory->CreateVideoTrack("video", videoSource);
     //Add stream to track
     stream->AddTrack(video_track);
 
@@ -435,4 +446,36 @@ void WebRTCStream::onAudioFrame(audio_data *frame)
         return;
     //Push it to the device
     adm.onIncomingData(frame->data[0], frame->frames);
+}
+
+//bitrate and dropped_frame
+uint64_t WebRTCStream::getBitrate() {
+    rtc::scoped_refptr<webrtc::MockStatsObserver> observerVideo (new rtc::RefCountedObject<webrtc::MockStatsObserver> ());
+	rtc::scoped_refptr<webrtc::MockStatsObserver> observerAudio (new rtc::RefCountedObject<webrtc::MockStatsObserver> ());
+
+    pc->GetStats (observerVideo, video_track, webrtc::PeerConnectionInterface::kStatsOutputLevelStandard);
+	pc->GetStats (observerAudio, audio_track, webrtc::PeerConnectionInterface::kStatsOutputLevelStandard);
+	
+	std::this_thread::sleep_for(std::chrono::milliseconds(2));
+    
+	bitrate = observerVideo->BytesSent() + observerAudio->BytesSent();
+    
+	return bitrate;
+}
+
+int WebRTCStream::getDroppedFrame() {
+	// auto observer = rtc::MakeUnique<webrtc::MockPeerConnectionObserver> ();
+
+	// webrtc::PeerConnectionWrapper *pcw = new webrtc::PeerConnectionWrapper(factory, pc, std::move(observer));
+
+	// rtc::scoped_refptr<const webrtc::RTCStatsReport> report = pcw->GetStats();
+	
+	// auto track_stats = report->GetStatsOfType<webrtc::RTCMediaStreamTrackStats> ();
+
+	// webrtc::RTCMediaStreamTrackStats media_stream_track_stats (
+	// 	track_stats[0]->id(), report->timestamp_us (),
+	// 	webrtc::RTCMediaStreamTrackKind::kVideo);
+
+	// dropped_frame = std::stoi(media_stream_track_stats.frames_dropped.ValueToString());
+    return dropped_frame;
 }

@@ -88,8 +88,6 @@ struct janus_stream {
 	size_t           droptest_size;
 #endif
 
-	RTMP             rtmp;
-
 	bool             new_socket_loop;
 	bool             low_latency_mode;
 	bool             disable_send_window_optimization;

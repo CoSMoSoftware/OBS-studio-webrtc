@@ -30,6 +30,7 @@
 #include "rtc_base/refcountedobject.h"
 #include "rtc_base/thread.h"
 
+
 class WebRTCStreamInterface :
   public WebsocketClient::Listener,
   public webrtc::PeerConnectionObserver,
@@ -100,7 +101,6 @@ public:
   // CreateSessionDescriptionObserver implementation.
   void OnSuccess(webrtc::SessionDescriptionInterface* desc) override;
   void OnFailure(const std::string& error) override;
-
   // SetSessionDescriptionObserver implementation
   void OnSuccess() override;
   //void OnFailure(const std::string& error) override;
@@ -118,6 +118,10 @@ public:
     delete(info);
   }
 
+  //bitrate and dropped frame
+  uint64_t getBitrate();
+  int getDroppedFrame();
+
 private:
   //Connection properties
   std::string url;
@@ -126,6 +130,15 @@ private:
   std::string password;
   std::string codec;
   bool thumbnail;
+
+  //tracks
+  rtc::scoped_refptr<webrtc::VideoTrackInterface> video_track;
+  rtc::scoped_refptr<webrtc::AudioTrackInterface> audio_track;
+
+  //bitrate and dropped frames
+  uint64_t bitrate;
+  int dropped_frame;
+
   //Websocket client
   WebsocketClient* client;
   //Audio Wrapper
