@@ -1,11 +1,10 @@
 project(websocketclient)
-
 # -----------------------------------------------------------------------
 # Global set up
 #
 set(CMAKE_CXX_STANDARD 11)
 if( WIN32 )
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4503 /wd4267 /wd4244 /wd4996")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4503 /wd4267 /wd4244 /wd4996")
 endif()
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/restclient-cpp/include)
@@ -21,6 +20,19 @@ find_package(libwebrtc REQUIRED)
 include_directories( ${CMAKE_CURRENT_SOURCE_DIR}/third_party/asio/include )
 
 #------------------------------------------------------------------------
+# libcurl
+# 
+include(ExternalProject)
+ExternalProject_Add( libcurl 
+  GIT_REPOSITORY https://github.com/curl/curl.git
+  PREFIX ${CMAKE_CURRENT_SOURCE_DIR}/curl 
+  BUILD_IN_SOURCE ON
+  PATCH_COMMAND buildconf.bat
+  BUILD_COMMAND cd winbuild && nmake RTLIBCFG=static /f Makefile.vc mode=static DEBUG=no MACHINE=x64
+)
+
+include_directories( ${CMAKE_CURRENT_SOURCE_DIR}/curl/src/libcurl/include )
+
 # WebSocket
 #
 set( websocketclient_SOURCES 
@@ -49,6 +61,8 @@ add_library( websocketclient SHARED
   ${websocketclient_SOURCES}
   ${websocketclient_HEADERS}
   )
+
+add_dependencies( websocketclient libcurl )
 
 # why ?
 target_link_libraries( websocketclient
