@@ -52,9 +52,13 @@ add_library( websocketclient SHARED
 
   # libcurl
   #
-  target_link_libraries( websocketclient
-    "${CURL_INCLUDE_DIR}/../bin/libcurl.lib"
-  )
+  if (WIN32)
+    set (curl_path "${CURL_INCLUDE_DIR}/../bin/libcurl.lib")
+  elseif (UNIX AND NOT APPLE)
+    set (curl_path "${CURL_INCLUDE_DIR}/../lib/libcurl.a")    
+  endif() 
+   
+  target_link_libraries(websocketclient ${curl_path})
 
 # why ?
 target_link_libraries( websocketclient
