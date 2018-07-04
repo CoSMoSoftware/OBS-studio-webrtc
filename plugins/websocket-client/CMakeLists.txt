@@ -4,7 +4,7 @@ project(websocketclient)
 #
 set(CMAKE_CXX_STANDARD 11)
 if( WIN32 )
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4503 /wd4267 /wd4244 /wd4996")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4503 /wd4267 /wd4244 /wd4996")
 endif()
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/restclient-cpp/include)
@@ -25,6 +25,7 @@ include_directories( ${CMAKE_CURRENT_SOURCE_DIR}/third_party/asio/include )
 include(ExternalProject)
 ExternalProject_Add( libcurl 
   GIT_REPOSITORY https://github.com/curl/curl.git
+  GIT_PROGRESS TRUE
   PREFIX ${CMAKE_CURRENT_SOURCE_DIR}/curl 
   BUILD_IN_SOURCE ON
   PATCH_COMMAND buildconf.bat
@@ -62,12 +63,19 @@ add_library( websocketclient SHARED
   ${websocketclient_HEADERS}
   )
 
-add_dependencies( websocketclient libcurl )
+  # libcurl
+  #
+  add_dependencies( websocketclient libcurl )
+
+  target_link_libraries( websocketclient
+    "C:/Program Files (x86)/CURL/lib/libcurl-d_imp.lib"
+  )
 
 # why ?
 target_link_libraries( websocketclient
   ${WEBRTC_LIBRARIES}
 )
+
 install_obs_plugin(websocketclient)
 
 if ( APPLE )
