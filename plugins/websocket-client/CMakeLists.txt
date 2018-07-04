@@ -19,20 +19,7 @@ find_package(libwebrtc REQUIRED)
 #
 include_directories( ${CMAKE_CURRENT_SOURCE_DIR}/third_party/asio/include )
 
-#------------------------------------------------------------------------
-# libcurl
-# 
-include(ExternalProject)
-ExternalProject_Add( libcurl 
-  GIT_REPOSITORY https://github.com/curl/curl.git
-  GIT_PROGRESS TRUE
-  PREFIX ${CMAKE_CURRENT_SOURCE_DIR}/curl 
-  BUILD_IN_SOURCE ON
-  PATCH_COMMAND buildconf.bat
-  BUILD_COMMAND cd winbuild && nmake RTLIBCFG=static /f Makefile.vc mode=static DEBUG=no MACHINE=x64
-)
-
-include_directories( ${CMAKE_CURRENT_SOURCE_DIR}/curl/src/libcurl/include )
+include_directories( ${CURL_INCLUDE_DIR} )
 
 # WebSocket
 #
@@ -65,10 +52,8 @@ add_library( websocketclient SHARED
 
   # libcurl
   #
-  add_dependencies( websocketclient libcurl )
-
   target_link_libraries( websocketclient
-    "C:/Program Files (x86)/CURL/lib/libcurl-d_imp.lib"
+    "${CURL_INCLUDE_DIR}/../bin/libcurl.lib"
   )
 
 # why ?
