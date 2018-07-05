@@ -21,6 +21,9 @@
 .ninja*
 .dirstamp
 
+#curl
+/curl
+
 #xcode
 *.xcodeproj/
 

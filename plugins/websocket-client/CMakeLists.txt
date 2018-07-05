@@ -1,5 +1,4 @@
 project(websocketclient)
-
 # -----------------------------------------------------------------------
 # Global set up
 #
@@ -20,7 +19,8 @@ find_package(libwebrtc REQUIRED)
 #
 include_directories( ${CMAKE_CURRENT_SOURCE_DIR}/third_party/asio/include )
 
-#------------------------------------------------------------------------
+include_directories( ${CURL_INCLUDE_DIR} )
+
 # WebSocket
 #
 set( websocketclient_SOURCES 
@@ -50,10 +50,23 @@ add_library( websocketclient SHARED
   ${websocketclient_HEADERS}
   )
 
+  # libcurl
+  #
+  if (WIN32)
+    set (curl_path "${CURL_INCLUDE_DIR}/../bin/libcurl.lib")
+  elseif (UNIX AND NOT APPLE)
+    set (curl_path "${CURL_INCLUDE_DIR}/../lib/libcurl.a")    
+  elseif (APPLE)
+    set (curl_path "${CURL_INCLUDE_DIR}/../lib/libcurl.dylib")
+  endif() 
+   
+  target_link_libraries(websocketclient ${curl_path})
+
 # why ?
 target_link_libraries( websocketclient
   ${WEBRTC_LIBRARIES}
 )
+
 install_obs_plugin(websocketclient)
 
 if ( APPLE )
