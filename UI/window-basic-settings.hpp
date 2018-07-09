@@ -306,6 +306,8 @@ private slots:
 
 	void SimpleStreamingEncoderChanged();
 
+	void displayWarning();
+
 protected:
 	virtual void closeEvent(QCloseEvent *event);
 
