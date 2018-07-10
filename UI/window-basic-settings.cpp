@@ -699,6 +699,8 @@ OBSBasicSettings::OBSBasicSettings(QWidget *parent)
 
 	UpdateAutomaticReplayBufferCheckboxes();
 
+
+	ui->warning_label->setStyleSheet("QLabel { color : red; }");
 	QObject::connect(ui->streamType, SIGNAL(currentIndexChanged(int)), this, SLOT(displayWarning()));
 }
 
@@ -4353,14 +4355,9 @@ void OBSBasicSettings::on_disableOSXVSync_clicked()
 }
 
 void OBSBasicSettings::displayWarning() {
-	if (ui->streamType->currentIndex() != 0 || 
-		ui->streamType->currentIndex() != 1) {
-		QVBoxLayout *warning_layout;
-		QLabel *warning_label;
-		ui->streamContainer->setLayout(warning_layout);
-		warning_label->setText("Changing the bandwidth does not influence the quality of the stream.");
-		warning_label->setStyleSheet("QLabel { color : red; }");
-		warning_label->setAlignment(Qt::AlignVCenter);
-		warning_layout->addWidget(warning_label);
+	if (ui->streamType->currentIndex() == 0 || ui->streamType->currentIndex() == 1) {
+		ui->warning_label->setVisible(false);
+	} else {
+		ui->warning_label->setVisible(true);
 	}
 }
