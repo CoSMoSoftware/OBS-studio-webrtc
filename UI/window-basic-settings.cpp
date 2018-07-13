@@ -698,6 +698,10 @@ OBSBasicSettings::OBSBasicSettings(QWidget *parent)
 	SimpleRecordingQualityChanged();
 
 	UpdateAutomaticReplayBufferCheckboxes();
+
+
+	ui->warning_label->setStyleSheet("QLabel { color : red; }");
+	QObject::connect(ui->streamType, SIGNAL(currentIndexChanged(int)), this, SLOT(displayWarning()));
 }
 
 OBSBasicSettings::~OBSBasicSettings()
@@ -4224,7 +4228,7 @@ void OBSBasicSettings::SimpleRecordingEncoderChanged()
 
 	if (qual == "Lossless") {
 		if (!warning.isEmpty())
-			warning += "\n\n";
+			warning += "\n\n"; 
 		warning += SIMPLE_OUTPUT_WARNING("Lossless");
 		warning += "\n\n";
 		warning += SIMPLE_OUTPUT_WARNING("Encoder");
@@ -4348,4 +4352,12 @@ void OBSBasicSettings::on_disableOSXVSync_clicked()
 		ui->resetOSXVSync->setEnabled(disable);
 	}
 #endif
+}
+
+void OBSBasicSettings::displayWarning() {
+	if (ui->streamType->currentIndex() == 0 || ui->streamType->currentIndex() == 1) {
+		ui->warning_label->setVisible(false);
+	} else {
+		ui->warning_label->setVisible(true);
+	}
 }
