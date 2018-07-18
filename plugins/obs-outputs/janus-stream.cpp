@@ -127,9 +127,7 @@ extern "C" uint64_t janus_stream_total_bytes_sent(void *data)
 
 extern "C" int janus_stream_dropped_frames(void *data)
 {
-  //Get stream
-  WebRTCStream* stream = (WebRTCStream*)data;
-  return stream->getDroppedFrame();
+  return 0;
 }
 
 extern "C" float janus_stream_congestion(void *data)

@@ -16,3 +16,4 @@
 [submodule "plugins/websocket-client/third_party"]
 	path = plugins/websocket-client/third_party
 	url = https://github.com/chriskohlhoff/asio.git
+

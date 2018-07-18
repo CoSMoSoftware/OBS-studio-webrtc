@@ -5,10 +5,10 @@ This project is a fork of OBS-studio with an implementation of WebRTC.
 
 # Table of content
 
+- [Binaries](#binaries)
 - [Windows](#windows)
   * [Prerequisite](#prerequisite)
     + [Compiler](#compiler)
-    + [OpenSSL](#openssl)
   * [Compilation](#compilation)
   * [Installation](#installation)
   * [Packaging](#packaging)
@@ -24,6 +24,11 @@ This project is a fork of OBS-studio with an implementation of WebRTC.
   * [Packaging](#packaging-2)
 - [Usage](#usage)
   * [Configure JANUS](#configure-janus)
+  * [OBS settings](#obs-settings)
+
+## Binaries
+
+Binaries are available [here](https://github.com/CoSMoSoftware/OBS-studio-webrtc/releases).
 
 ## Windows
 
@@ -47,13 +52,6 @@ Make sure the following components are installed for Visual Studio:
 Additional components to install:
 
 - [Windows 10 SDK][w10sdk] with **Debugging Tools for Windows** or [Windows Driver Kit 10][wdk10] installed in the same Windows 10 SDK installation directory.
-
-#### OpenSSL
-
-Install [OpenSSL 1.1.0g](https://www.openssl.org/source/old/1.1.0/openssl-1.1.0g.tar.gz)
-
-/!\ IMPORTANT /!\: Add OpenSSL directory containing the DLLs to your PATH environment variable.
-e.g. C:\Program Files\OpenSSL\bin
 
 ### Compilation
 

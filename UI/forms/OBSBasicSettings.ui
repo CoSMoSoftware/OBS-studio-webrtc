@@ -704,6 +704,20 @@
               </layout>
              </widget>
             </item>
+            <item>
+             <layout class="QVBoxLayout" name="warning_layout">
+              <item>
+               <widget class="QLabel" name="warning_label">
+                <property name="text">
+                 <string>Modifying the bandwidth manualy will not affect the quality of the stream as it is managed automaticaly by WebRTC.</string>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignCenter</set>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
            </layout>
           </widget>
          </item>
@@ -733,8 +747,8 @@
              <rect>
               <x>0</x>
               <y>0</y>
-              <width>818</width>
-              <height>697</height>
+              <width>603</width>
+              <height>640</height>
              </rect>
             </property>
             <layout class="QVBoxLayout" name="verticalLayout_21">
@@ -3372,8 +3386,8 @@
              <rect>
               <x>0</x>
               <y>0</y>
-              <width>800</width>
-              <height>69</height>
+              <width>98</width>
+              <height>28</height>
              </rect>
             </property>
            </widget>
@@ -3791,7 +3805,7 @@
              <rect>
               <x>0</x>
               <y>0</y>
-              <width>593</width>
+              <width>596</width>
               <height>761</height>
              </rect>
             </property>

@@ -21,7 +21,6 @@
 #include "pc/peerconnectionwrapper.h"
 #include "pc/rtcstatscollector.h"
 
-
 #define warn(format, ...)  blog(LOG_WARNING, format, ##__VA_ARGS__)
 #define info(format, ...)  blog(LOG_INFO,    format, ##__VA_ARGS__)
 #define debug(format, ...) blog(LOG_DEBUG,   format, ##__VA_ARGS__)
@@ -109,7 +108,6 @@ WebRTCStream::~WebRTCStream()
 
 bool WebRTCStream::start(Type type)
 {
-
     //Get service
     obs_service_t *service = obs_output_get_service(output);
     
@@ -333,14 +331,24 @@ void WebRTCStream::onOpened(const std::string &sdp)
 {
     info("onOpened\r\n%s", sdp.c_str());
     std::string sdpNotConst = sdp;
+
+    obs_output_t  *context  = this->output;
+    obs_encoder_t *vencoder = obs_output_get_video_encoder(context);
+    obs_data_t *params = obs_encoder_get_settings(vencoder);
+    int bitrate_settings = obs_data_get_int(params, "bitrate");
+
+    //modify bitrate
+    SDPModif::bitrateSDP(sdpNotConst, bitrate_settings);
+
     // Enable stereo
-    Stereo::stereoSDP(sdpNotConst);
+    SDPModif::stereoSDP(sdpNotConst);
+    
     webrtc::SdpParseError error;
     webrtc::SessionDescriptionInterface* answer =
     webrtc::CreateSessionDescription(webrtc::SessionDescriptionInterface::kAnswer, sdpNotConst, &error);
-    
+
     pc->SetRemoteDescription(this, answer);
-    
+
     //Set audio data format
     audio_convert_info conversion;
     //Int 16bits, 48khz mono
@@ -349,10 +357,9 @@ void WebRTCStream::onOpened(const std::string &sdp)
     conversion.speakers = SPEAKERS_STEREO;
     //Set it
     obs_output_set_audio_conversion(output, &conversion);
-    
+
     //Start
     obs_output_begin_data_capture(output, 0);
-    
 }
 
 void WebRTCStream::onOpenedError(int code)
@@ -461,21 +468,4 @@ uint64_t WebRTCStream::getBitrate() {
 	bitrate = observerVideo->BytesSent() + observerAudio->BytesSent();
     
 	return bitrate;
-}
-
-int WebRTCStream::getDroppedFrame() {
-	// auto observer = rtc::MakeUnique<webrtc::MockPeerConnectionObserver> ();
-
-	// webrtc::PeerConnectionWrapper *pcw = new webrtc::PeerConnectionWrapper(factory, pc, std::move(observer));
-
-	// rtc::scoped_refptr<const webrtc::RTCStatsReport> report = pcw->GetStats();
-	
-	// auto track_stats = report->GetStatsOfType<webrtc::RTCMediaStreamTrackStats> ();
-
-	// webrtc::RTCMediaStreamTrackStats media_stream_track_stats (
-	// 	track_stats[0]->id(), report->timestamp_us (),
-	// 	webrtc::RTCMediaStreamTrackKind::kVideo);
-
-	// dropped_frame = std::stoi(media_stream_track_stats.frames_dropped.ValueToString());
-    return dropped_frame;
 }
