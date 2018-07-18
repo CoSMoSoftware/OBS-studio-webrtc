@@ -4,6 +4,31 @@
 using json = nlohmann::json;
 typedef websocketpp::config::asio_client::message_type::ptr message_ptr;
 
+
+std::string urlencode(const std::string &s)
+{
+	static const char lookup[] = "0123456789abcdef";
+	std::stringstream e;
+	for (int i = 0, ix = s.length(); i<ix; i++)
+	{
+		const char& c = s[i];
+		if ((48 <= c && c <= 57)  || //0-9
+		    (65 <= c && c <= 90)  || //abc...xyz
+		    (97 <= c && c <= 122) || //ABC...XYZ
+		    (c == '-' || c == '_' || c == '.' || c == '~')
+		   )
+		{
+			e << c;
+		} else
+		{
+			e << '%';
+			e << lookup[(c & 0xF0) >> 4];
+			e << lookup[(c & 0x0F)];
+		}
+	}
+	return e.str();
+}
+
 SpankChainWebsocketClientImpl::SpankChainWebsocketClientImpl()
 {
     // Set logging to be pretty verbose (everything except message payloads)
@@ -115,8 +140,8 @@ bool SpankChainWebsocketClientImpl::connect(std::string url, long long room, std
             }
             return ctx;
         });
-	    //Create websocket connection and token
-        std::string wss = url + "/?token=" + token;
+	//Create websocket connection and add token and callback parameters
+        std::string wss = url + "/?token=" + token + "&callback=" + urlencode(apiURL + "/camshows/auth/token/status");
         //Get connection
         connection = client.get_connection(wss, ec);
         
