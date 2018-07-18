@@ -50,7 +50,8 @@ extern "C" void *spankchain_stream_create(obs_data_t *settings, obs_output_t *ou
 	stream->AddRef();
 	//Enable thumbnails
 	stream->enableThumbnail(4, 3);
-	stream->setCodec("h264");
+	//TODO: Add codec selection
+	//stream->setCodec("h264");
 	//Return it
 	return (void*)stream;
 }
