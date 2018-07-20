@@ -128,7 +128,7 @@ bool SpankChainWebsocketClientImpl::connect(std::string url, long long room, std
         //Register our tls hanlder
         client.set_tls_init_handler([&](websocketpp::connection_hdl connection) {
             //Create context
-            auto ctx = websocketpp::lib::make_shared<asio::ssl::context>(asio::ssl::context::tlsv1);
+            auto ctx = websocketpp::lib::make_shared<asio::ssl::context>(asio::ssl::context::tlsv12_client);
             
             try {
                 ctx->set_options(asio::ssl::context::default_workarounds |
