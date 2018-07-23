@@ -84,13 +84,13 @@ bool SpankChainWebsocketClientImpl::connect(std::string url, long long room, std
                 std::string sdp = data["sdp"];
                 std::string feedId = data["feedId"];
 
-		        //Event
+		//Event
                 listener->onOpened(sdp);
 
                 std::cout << "Sending post with feedId: " << feedId << std::endl;
 
                 //Crate body of the rest request
-                std::string body = "{'feedId': '" + feedId + "'}";
+                std::string body = "{\"feedId\": \"" + feedId + "\"}";
 
                 //Create authentication bearer
                 std::string bearer = "Bearer " + token;
