@@ -100,7 +100,7 @@ bool SpankChainWebsocketClientImpl::connect(std::string url, long long room, std
                 conn.AppendHeader("Authorization", bearer);
                 conn.AppendHeader("Content-Type", "application/json");
                 //Make post
-                auto ret = conn.post("/camshows/obs/update-show", body);
+                auto ret = conn.put("/camshows/obs/update-show", body);
 
                 //Keep the connection alive
                 is_running.store(true);
