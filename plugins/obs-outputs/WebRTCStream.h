@@ -44,7 +44,8 @@ class WebRTCStream : public rtc::RefCountedObject<WebRTCStreamInterface>
 public:
   enum Type {
     Janus = 0,
-    SpankChain = 1
+    SpankChain = 1,
+    Millicast = 2
   };
 public:
   WebRTCStream(obs_output_t *output);

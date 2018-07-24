@@ -659,6 +659,8 @@ bool SimpleOutput::StartStreaming(obs_service_t *service)
 			type = "janus_output";
 		} else if (typeCheck.find("spankchain") != std::string::npos) {
 			type = "spankchain_output";
+		} else if (typeCheck.find("millicast") != std::string::npos) {
+			type = "millicast_output";
 		} else {
 			type = "rtmp_output";
 		}
@@ -1431,6 +1433,8 @@ bool AdvancedOutput::StartStreaming(obs_service_t *service)
 			type = "janus_output";
 		} else if (typeCheck.find("spankchain") != std::string::npos) {
 			type = "spankchain_output";
+		} else if (typeCheck.find("millicast") != std::string::npos) {
+			type = "millicast_output";
 		} else {
 			type = "rtmp_output";
 		}

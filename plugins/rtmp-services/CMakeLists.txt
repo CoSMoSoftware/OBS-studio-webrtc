@@ -9,6 +9,7 @@ set(rtmp-services_SOURCES
 	rtmp-services-main.c
 	webrtc-janus.c
 	webrtc-spankchain.c
+	webrtc-millicast.c
 	)
 
 set(rtmp-services_HEADERS

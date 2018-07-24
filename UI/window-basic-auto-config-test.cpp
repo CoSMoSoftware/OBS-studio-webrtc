@@ -196,6 +196,9 @@ void AutoConfigTestPage::TestBandwidthThread()
 		case 3: serverType = "webrtc_spankchain";
 			break;
 
+		case 4: serverType = "webrtc_millicast";
+			break;
+
 		default: blog(LOG_WARNING, "serverType does not exist");
 			break;
 	}
@@ -971,6 +974,9 @@ void AutoConfigTestPage::FinalizeResults()
 				break;
 
 			case 3: serverType = "webrtc_spankchain";
+				break;
+
+			case 4: serverType = "webrtc_millicast";
 				break;
 
 			default: blog(LOG_WARNING, "serverType does not exist");
