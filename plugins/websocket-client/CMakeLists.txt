@@ -12,7 +12,7 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/restclient-cpp/include)
 #------------------------------------------------------------------------
 # OpenSSL included in libwebrtc
 #
-find_package(libwebrtc REQUIRED)
+find_package(libwebrtc 65 REQUIRED)
 
 #------------------------------------------------------------------------
 # Asio
