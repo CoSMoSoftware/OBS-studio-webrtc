@@ -20,23 +20,9 @@ Pre-built and tested Binaries are available [here](https://github.com/CoSMoSoftw
 
 Get the libwebrtc code from webrtc.org and compile it for your target OS and architecture.
 
-### Compilation
+### Compilation, Installation and Packaging
 
-Follow the original compilation guide https://github.com/obsproject/obs-studio
-
-### Installation
-The executable can be found at this location:
-
-```
-OBS-studio-webrtc\build\rundir\Release\bin\64bit
-```
-
-### Packaging 
-
-```
-cd build
-cpack
-```
+Follow the original compilation, Installation and packaging guide https://github.com/obsproject/obs-studio
 
 ## Usage with a Janus server
 
