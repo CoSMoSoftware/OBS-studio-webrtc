@@ -1,7 +1,18 @@
 
 # OBS-studio WebRTC
 
-This project is a fork of OBS-studio with an implementation of WebRTC.
+This project is a fork of OBS-studio with support for WebRTC. WebRTC supports comes from the inclusion of the open source implementation from webrtc.org used (at least in part) by chrome, firefox, and safari.
+
+The implementation is in the "plugins / obs-outputs" directory, co-existing with the flash and FTL output plugins. The WebRTCStream files contain the high-level implementation, while the xxxx-stream files contain the specific implementation for a given service.
+
+For the time being the following services and sites are supported:
+- Janus
+- Millicast.com
+- Spank.live (SpankChain)
+
+This is mainly a community project with a best effort service.
+
+If you need more support, or specific developement, please contact [CoSMo software](http://www.cosmosoftware.io/contact.html).
 
 # Table of content
 
