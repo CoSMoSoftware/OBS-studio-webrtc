@@ -3,8 +3,6 @@
 #include <media-io/video-io.h>
 
 #include <libyuv.h>
-#include <rtc_base/platform_file.h>
-#include <rtc_base/bitrateallocationstrategy.h>
 #include <modules/audio_processing/include/audio_processing.h>
 
 #include <thread>
@@ -15,6 +13,8 @@
 #include "api/audio_codecs/builtin_audio_encoder_factory.h"
 #include "media/engine/webrtcvideocapturerfactory.h"
 #include "modules/video_capture/video_capture_factory.h"
+#include <rtc_base/platform_file.h>
+#include <rtc_base/bitrateallocationstrategy.h>
 #include "rtc_base/checks.h"
 #include "rtc_base/criticalsection.h"
 
@@ -251,6 +251,7 @@ void WebRTCStream::OnSuccess(webrtc::SessionDescriptionInterface * desc)
     //Set local description
     pc->SetLocalDescription(this, desc);
     //Send SDP
+    info("WebRTCStream::OnSucess: %s", codec.c_str() );
     client->open(sdp, codec);
 }
 
@@ -283,8 +284,8 @@ bool WebRTCStream::stop()
 {
     //Stop PC
     if (!pc.get())
-        //Exit
-        return false;
+      //Exit
+      return false;
     //Get pointer
     auto old = pc.release();
     //Close PC

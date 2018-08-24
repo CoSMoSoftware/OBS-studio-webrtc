@@ -43,9 +43,9 @@ class WebRTCStream : public rtc::RefCountedObject<WebRTCStreamInterface>
 {
 public:
   enum Type {
-    Janus = 0,
+    Janus      = 0,
     SpankChain = 1,
-    Millicast = 2
+    Millicast  = 2
   };
 public:
   WebRTCStream(obs_output_t *output);
@@ -56,15 +56,15 @@ public:
   void onAudioFrame(audio_data *frame);
   bool enableThumbnail(uint8_t downscale, uint8_t downrate)
   {
-	  if (!downscale || !downrate)
-		  return false;
-	  thumbnailDownscale = downscale;
-	  thumbnailDownrate = downrate;
-	  return (thumbnail = true);
+    if (!downscale || !downrate)
+      return false;
+    thumbnailDownscale = downscale;
+    thumbnailDownrate = downrate;
+    return (thumbnail = true);
   }
   void setCodec(const std::string& codec)
   {
-	  this->codec = codec;
+    this->codec = codec;
   }
   bool stop();
 
@@ -98,7 +98,7 @@ public:
   void OnSuccess() override;
   //void OnFailure(const std::string& error) override;
 
-  virtual rtc::scoped_refptr<webrtc::VideoCaptureModule> Create(const char* device)
+  virtual rtc::scoped_refptr<webrtc::VideoCaptureModule> Create(const char*)
   {
     return videoCapture;
   }
@@ -205,7 +205,7 @@ public:
   }
 
   static int findLines(std::vector<std::string> sdpLines, std::string prefix) {
-      for (int i = 0 ; i < sdpLines.size() ; i++) {
+      for (unsigned long i = 0 ; i < sdpLines.size() ; i++) {
           if ((sdpLines[i].find(prefix) != std::string::npos)) {
               return i;
           }

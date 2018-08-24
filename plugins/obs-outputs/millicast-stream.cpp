@@ -29,7 +29,6 @@ extern "C" const char *millicast_stream_getname(void *unused)
   return obs_module_text("MILLICASTStream");
 }
 
-
 extern "C" void millicast_stream_destroy(void *data)
 {
   info("millicast_stream_destroy");
@@ -41,25 +40,27 @@ extern "C" void millicast_stream_destroy(void *data)
   stream->Release();
 }
 
-extern "C" void *millicast_stream_create(obs_data_t *settings, obs_output_t *output)
+extern "C" void *millicast_stream_create(obs_data_t *, obs_output_t *output)
 {
   info("millicast_stream_create");
-  //Create new stream
+  // Create new stream
   WebRTCStream* stream = new WebRTCStream(output);
-  //Don't allow it to be deleted
+  // Don't allow it to be deleted
   stream->AddRef();
-  //Return it
+  info("millicast_setCodec: h264");
+  stream->setCodec("h264");
+  // Return it
   return (void*)stream;
 }
 
-extern "C" void millicast_stream_stop(void *data, uint64_t ts)
+extern "C" void millicast_stream_stop(void *data, uint64_t )
 {
   info("millicast_stream_stop");
-  //Get stream
+  // Get stream
   WebRTCStream* stream = (WebRTCStream*)data;
-  //Stop it
+  // Stop it
   stream->stop();
-  //Remove ref and let it self destroy
+  // Remove ref and let it self destroy
   stream->Release();
 }
 
@@ -126,12 +127,12 @@ extern "C" uint64_t millicast_stream_total_bytes_sent(void *data)
   return stream->getBitrate ();
 }
 
-extern "C" int millicast_stream_dropped_frames(void *data)
+extern "C" int millicast_stream_dropped_frames(void *)
 {
   return 0;
 }
 
-extern "C" float millicast_stream_congestion(void *data)
+extern "C" float millicast_stream_congestion(void *)
 {
   return 0.0f;
 }
@@ -158,7 +159,7 @@ extern "C" {
     nullptr, ////free_type_data
     millicast_stream_congestion, //get_congestion
     nullptr, //get_connect_time_ms
-    "vp8", //encoded_video_codecs
+    "vp8", //encoded_video_codecs //NOTE ALEX: I don t think it matters since webrtc is handling it.
     "opus" //encoded_audio_codecs
   };
 }

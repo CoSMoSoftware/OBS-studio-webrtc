@@ -13,13 +13,13 @@ extern struct obs_output_info millicast_output_info;
 
 bool obs_module_load(void)
 {
-	obs_register_output(&flv_output_info);
-	obs_register_output(&rtmp_output_info);
-	obs_register_output(&null_output_info);
-	obs_register_output(&janus_output_info);
-	obs_register_output(&spankchain_output_info);
-	obs_register_output(&millicast_output_info);
-	return true;
+  obs_register_output(&flv_output_info);
+  obs_register_output(&rtmp_output_info);
+  obs_register_output(&null_output_info);
+  obs_register_output(&janus_output_info);
+  obs_register_output(&spankchain_output_info);
+  obs_register_output(&millicast_output_info);
+  return true;
 }
 
 void obs_module_unload(void)
