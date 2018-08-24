@@ -60,6 +60,8 @@ struct obs_service_info {
 	const char *(*get_url)(void *data);
 	const char *(*get_key)(void *data);
 	const char *(*get_room)(void *data);
+	const char *(*get_milli_id)(void *data);
+	const char *(*get_codec)(void *data);
 
 	const char *(*get_username)(void *data);
 	const char *(*get_password)(void *data);

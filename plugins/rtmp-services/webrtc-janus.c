@@ -45,7 +45,7 @@ static obs_properties_t *webrtc_janus_properties(void *unused)
 
 	obs_properties_t *ppts = obs_properties_create();
 
-	obs_properties_add_text(ppts, "server", "Server Name", OBS_TEXT_DEFAULT);
+	obs_properties_add_text(ppts, "server", "Web Server Name", OBS_TEXT_DEFAULT);
 
 	obs_properties_add_text(ppts, "room", "Server Room", OBS_TEXT_DEFAULT);
 

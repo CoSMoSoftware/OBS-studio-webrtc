@@ -1,7 +1,7 @@
-#include<obs-module.h>n
+#include<obs-module.h>
 
 struct webrtc_millicast {
-    char *server, *token;
+    char *server, *milli_id, *codec;
 };
 
 static const char *webrtc_millicast_name(void *unused)
@@ -15,10 +15,12 @@ static void webrtc_millicast_update(void *data, obs_data_t *settings)
 	struct webrtc_millicast *service = data;
 
 	bfree(service->server);
-	bfree(service->token);
+	bfree(service->milli_id);
+	bfree(service->codec);
 
 	service->server = bstrdup(obs_data_get_string(settings, "server"));
-	service->token = bstrdup(obs_data_get_string(settings, "token"));
+	service->milli_id = bstrdup(obs_data_get_string(settings, "milli_id"));
+	service->codec = bstrdup(obs_data_get_string(settings, "codec"));
 }
 
 static void webrtc_millicast_destroy(void *data)
@@ -26,7 +28,8 @@ static void webrtc_millicast_destroy(void *data)
 	struct webrtc_millicast *service = data;
 
 	bfree(service->server);
-	bfree(service->token);
+	bfree(service->milli_id);
+	bfree(service->codec);
 	bfree(service);
 }
 
@@ -45,8 +48,9 @@ static obs_properties_t *webrtc_millicast_properties(void *unused)
 
 	obs_properties_t *ppts = obs_properties_create();
 
-	obs_properties_add_text(ppts, "server", "Server URL", OBS_TEXT_DEFAULT);
-	obs_properties_add_text(ppts, "token", obs_module_text("Token"),OBS_TEXT_PASSWORD);
+	obs_properties_add_text(ppts, "server", "Web Server URL", OBS_TEXT_DEFAULT);
+	obs_properties_add_text(ppts, "milli_id", "ID", OBS_TEXT_DEFAULT);
+	obs_properties_add_text(ppts, "codec", "Video codec", OBS_TEXT_DEFAULT);
 
 	return ppts;
 }
@@ -57,15 +61,16 @@ static const char *webrtc_millicast_url(void *data)
 	return service->server;
 }
 
-static const char *webrtc_millicast_room(void *data)
-{
-	return "1";
-}
-
-static const char *webrtc_millicast_token(void *data)
+static const char *webrtc_millicast_id(void *data)
 {
 	struct webrtc_millicast *service = data;
-	return service->token;
+	return service->milli_id;
+}
+
+static const char *webrtc_millicast_codec(void *data)
+{
+	struct webrtc_millicast *service = data;
+	return service->codec;
 }
 
 struct obs_service_info webrtc_millicast_service = {
@@ -76,6 +81,6 @@ struct obs_service_info webrtc_millicast_service = {
 	.update         = webrtc_millicast_update,
 	.get_properties = webrtc_millicast_properties,
 	.get_url        = webrtc_millicast_url,
-	.get_room       = webrtc_millicast_room,
-	.get_password   = webrtc_millicast_token
+	.get_milli_id   = webrtc_millicast_id,
+	.get_codec      = webrtc_millicast_codec
 };

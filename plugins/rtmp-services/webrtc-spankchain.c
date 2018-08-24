@@ -48,7 +48,7 @@ static obs_properties_t *webrtc_spankchain_properties(void *unused)
 
 	obs_properties_t *ppts = obs_properties_create();
 
-	obs_properties_add_text(ppts, "server", "Server URL", OBS_TEXT_DEFAULT);
+	obs_properties_add_text(ppts, "server", "Web Server URL", OBS_TEXT_DEFAULT);
     obs_properties_add_text(ppts, "api", "API URL", OBS_TEXT_DEFAULT);
     obs_properties_add_text(ppts, "token", obs_module_text("Token"),OBS_TEXT_PASSWORD);
 
