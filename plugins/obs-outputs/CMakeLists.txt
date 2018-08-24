@@ -122,9 +122,9 @@ set(obs-outputs_librtmp_SOURCES
   librtmp/cencode.c
   librtmp/hashswf.c
   librtmp/log.c
-  librtmp/md5.c
+  #librtmp/md5.c
   librtmp/parseurl.c
-librtmp/rtmp.c)
+  librtmp/rtmp.c)
 
 # --- header and source files
 set( obs-outputs_HEADERS
