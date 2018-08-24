@@ -91,12 +91,12 @@ configure_file(
 include_directories("${CMAKE_BINARY_DIR}/plugins/obs-outputs/config")
 
 if(WIN32)
-set( obs-outputs_PLATFORM_DEPS  
-  ${WEBRTC_LIBRARIES}
-  ws2_32
-  winmm
-  Iphlpapi
-)
+  set( obs-outputs_PLATFORM_DEPS  
+    ${WEBRTC_LIBRARIES}
+    ws2_32
+    winmm
+    Iphlpapi
+  )
   if(MSVC)
     set( obs-outputs_PLATFORM_DEPS ${obs-outputs_PLATFORM_DEPS} w32-pthreads )
   endif()

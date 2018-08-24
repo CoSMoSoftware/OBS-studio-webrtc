@@ -31,8 +31,6 @@
 #define OPT_NEWSOCKETLOOP_ENABLED "new_socket_loop_enabled"
 #define OPT_LOWLATENCY_ENABLED "low_latency_mode_enabled"
 
-//#define TEST_FRAMEDROPS
-
 #ifdef TEST_FRAMEDROPS
 
 #define DROPTEST_MAX_KBPS 3000

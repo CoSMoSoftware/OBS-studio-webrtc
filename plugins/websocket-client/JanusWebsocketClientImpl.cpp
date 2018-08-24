@@ -198,29 +198,29 @@ bool JanusWebsocketClientImpl::connect(std::string url, long long room, std::str
   return true;
 }
 
-bool JanusWebsocketClientImpl::open(const std::string &sdp, const std::string& codec)
+bool JanusWebsocketClientImpl::open(const std::string &sdp, const std::string& codec, const std::string& milliId)
 {
   try
   {
     //Login command
     json open = {
-      { "janus"      , "message" },
+      { "janus"       , "message" },
       { "session_id"  , session_id},
-      { "handle_id"  , handle_id},
-      { "transaction"  , std::to_string(rand()) },
+      { "handle_id"   , handle_id },
+      { "transaction" , std::to_string(rand()) },
       { "body" ,
         {
-          { "request" ,"configure" },
-          {"muted", false},
-          {"video", true},
-          {"audio", true},
+          {"request", "configure" },
+          {"muted",   false       },
+          {"video",   true        },
+          {"audio",   true        },
         }
       },
       { "jsep" ,
         {
-          { "type" ,"offer" },
-          {"sdp"  ,sdp},
-          {"trickle",true},
+          {"type",   "offer"},
+          {"sdp",     sdp},
+          {"trickle", true},
         }
       }
     };

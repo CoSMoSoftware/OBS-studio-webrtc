@@ -1,6 +1,8 @@
 #include "MillicastWebsocketClientImpl.h"
 #include "json.hpp"
+
 using json = nlohmann::json;
+
 typedef websocketpp::config::asio_client::message_type::ptr message_ptr;
 
 MillicastWebsocketClientImpl::
@@ -141,9 +143,16 @@ connect(
   return true;
 }
 
-bool MillicastWebsocketClientImpl::open(const std::string &sdp, const std::string& codec)
+bool
+MillicastWebsocketClientImpl::
+open(
+  const std::string& sdp,
+  const std::string& codec,
+  const std::string& milliId
+)
 {
-  std::cout << "Millicast WS Client: codec: " << codec << std::endl;
+  std::cout << "WS-OPEN: milliId: " << milliId << std::endl;
+
   try
   {
     // Login command
@@ -153,10 +162,10 @@ bool MillicastWebsocketClientImpl::open(const std::string &sdp, const std::strin
       { "transId" , 0         },
       { "data" ,
         {
-          { "milliId", "mystreamId1234" },
-          { "name"   , "mystreamId1234" },
-          { "sdp"    , sdp   },
-          { "codec"  , codec },
+          { "milliId", milliId },
+          { "name"   , milliId },
+          { "sdp"    , sdp     },
+          { "codec"  , codec   },
         }
       }
     };

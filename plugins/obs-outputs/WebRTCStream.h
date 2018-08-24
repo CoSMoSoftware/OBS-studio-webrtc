@@ -117,11 +117,12 @@ public:
 private:
   //Connection properties
   std::string url;
-  long long room;
+  long long   room;
   std::string username;
   std::string password;
   std::string codec;
-  bool thumbnail;
+  std::string milliId;
+  bool        thumbnail;
 
   //tracks
   rtc::scoped_refptr<webrtc::VideoTrackInterface> video_track;

@@ -66,6 +66,11 @@ static const char *webrtc_janus_room(void *data)
 	return service->room;
 }
 
+static const char *webrtc_janus_id(void *data)
+{
+        return "";
+}
+
 struct obs_service_info webrtc_janus_service = {
 	.id             = "webrtc_janus",
 	.get_name       = webrtc_janus_name,
@@ -74,5 +79,6 @@ struct obs_service_info webrtc_janus_service = {
 	.update         = webrtc_janus_update,
 	.get_properties = webrtc_janus_properties,
 	.get_url        = webrtc_janus_url,
-	.get_room       = webrtc_janus_room
+	.get_room       = webrtc_janus_room,
+        .get_milli_id   = webrtc_janus_id
 };

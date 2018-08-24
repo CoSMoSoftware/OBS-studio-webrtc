@@ -28,7 +28,8 @@ public:
     );
     virtual bool open(
       const std::string &sdp,
-      const std::string& codec = ""
+      const std::string& codec = "vp8",
+      const std::string& milliId = ""
     );
     virtual bool trickle(
       const std::string &mid,

@@ -78,6 +78,11 @@ static const char *webrtc_spankchain_username(void *data)
     return service->api;
 }
 
+static const char *webrtc_spankchain_milli_id(void *data)
+{
+	return "";
+}
+
 struct obs_service_info webrtc_spankchain_service = {
 	.id             = "webrtc_spankchain",
 	.get_name       = webrtc_spankchain_name,
@@ -87,6 +92,7 @@ struct obs_service_info webrtc_spankchain_service = {
 	.get_properties = webrtc_spankchain_properties,
 	.get_url        = webrtc_spankchain_url,
 	.get_room       = webrtc_spankchain_room,
-    .get_username   = webrtc_spankchain_username,
+        .get_milli_id   = webrtc_spankchain_milli_id,
+        .get_username   = webrtc_spankchain_username,
 	.get_password   = webrtc_spankchain_token
 };

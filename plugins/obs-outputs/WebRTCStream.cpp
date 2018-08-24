@@ -44,12 +44,12 @@ WebRTCStream::WebRTCStream(obs_output_t * output)
     thumbnailDownrate = 1;
     thumbnailDownscale = 1;
 
-    // rtc::LogMessage::ConfigureLogging("verbose debug timestamp");
     rtc::LogMessage::ConfigureLogging("info");
-    // rtc::LogMessage::AddLogToStream(&logger, rtc::LoggingSeverity::LS_VERBOSE);
+
     //Store output
     this->output = output;
     this->client = NULL;
+
     //Block adm
     adm.AddRef();
     
@@ -57,11 +57,13 @@ WebRTCStream::WebRTCStream(obs_output_t * output)
     network = rtc::Thread::CreateWithSocketServer();
     network->SetName("network", nullptr);
     network->Start();
-    //Worker therad
+
+    //Worker thread
     worker = rtc::Thread::Create();
     worker->SetName("worker", nullptr);
     worker->Start();
-    //Worker therad
+
+    //Signaling thread
     signaling = rtc::Thread::Create();
     signaling->SetName("signaling", nullptr);
     signaling->Start();
@@ -90,20 +92,22 @@ WebRTCStream::WebRTCStream(obs_output_t * output)
 WebRTCStream::~WebRTCStream()
 {
     stop();
+
     //Free factories first
     pc = NULL;
     factory = NULL;
     videoCapture = NULL;
     thumbnailCapture = NULL;
+
     //Stop all thread
     if (!network->IsCurrent())   network->Stop();
     if (!worker->IsCurrent())    worker->Stop();
     if (!signaling->IsCurrent()) signaling->Stop();
+
     //Release
     network.release();
     worker.release();
     signaling.release();
-    
 }
 
 bool WebRTCStream::start(Type type)
@@ -113,25 +117,42 @@ bool WebRTCStream::start(Type type)
     
     if (!service)
         return false;
-    // just in case
+
+    // WebSocket URL sanity check
     if (!obs_service_get_url(service))
         return false;
-    
-    //Get connection properties
     url = obs_service_get_url(service);
-    try {
+
+    // this is only used by the millicast stream, so do not return if empty
+    const char *tmpString = obs_service_get_milli_id(service);
+    milliId = (NULL == tmpString ? "" : tmpString);
+
+    // the codec should be generic, and vp8 is the default if empty
+    // possible values (should check): vp8, vp9, h264
+    if (!obs_service_get_codec(service))
+        codec = "vp8";
+    codec = obs_service_get_codec(service);
+
+    info("[codec:%s, milliId:%s]", codec.c_str(), milliId.c_str());
+   
+    tmpString = obs_service_get_room(service);
+    if( NULL == tmpString ) {
+      try {
         room = std::stoll(obs_service_get_room(service));
-    }
-    catch (const std::invalid_argument& ia) {
+      }
+      catch (const std::invalid_argument& ia) {
         error("Invalid room name (must be a positive integer number)");
         return false;
-    }
-    catch (const std::out_of_range& oor) {
+      }
+      catch (const std::out_of_range& oor) {
         error("Room name out of range (number too big)");
         return false;
+      }
+    } else {
+      room = 0;
     }
 
-    const char *tmpString = obs_service_get_username(service);
+    tmpString = obs_service_get_username(service);
     username = (NULL == tmpString ? "" : tmpString);
     tmpString = obs_service_get_password(service);
     password = (NULL == tmpString ? "" : tmpString);
@@ -172,17 +193,18 @@ bool WebRTCStream::start(Type type)
     options.typing_detection.emplace(false);
     options.residual_echo_detector.emplace(false);
     options.delay_agnostic_aec.emplace(false);
-/*    
-    options.intelligibility_enhancer.emplace(false);
-    options.playout_sample_rate.emplace(false);
-    options.audio_network_adaptor.emplace(false);
-*/
+    /*    
+     * options.intelligibility_enhancer.emplace(false);
+     * options.playout_sample_rate.emplace(false);
+     * options.audio_network_adaptor.emplace(false);
+     */
+
     //Add audio
     audio_track = factory->CreateAudioTrack("audio", factory->CreateAudioSource(options));
     //Add stream to track
     stream->AddTrack(audio_track);
     
-    //Create caprturer
+    //Create capturer
     VideoCapturer* videoCapturer = new VideoCapturer(this);
     //Init it
     videoCapturer->Init(videoCapture);
@@ -198,7 +220,7 @@ bool WebRTCStream::start(Type type)
     //If doing thumnails
     if (thumbnail)
     {
-      //Create caprturer
+      //Create capturer
       VideoCapturer* thumbnailCapturer = new VideoCapturer(this);
       //Init it
       thumbnailCapturer->Init(thumbnailCapture);
@@ -230,7 +252,7 @@ bool WebRTCStream::start(Type type)
       return false;
     }
     //Log them
-    info("-connecting to [url:%s,room:%ld,username:%s,password:%s]", url.c_str(), room, username.c_str(), password.c_str());
+    info("connecting to [url:%s,room:%lld,username:%s,password:%s]", url.c_str(), room, username.c_str(), password.c_str());
     //Connect client
     if (!client->connect(url, room, username, password, this)){
         //Error
@@ -251,8 +273,8 @@ void WebRTCStream::OnSuccess(webrtc::SessionDescriptionInterface * desc)
     //Set local description
     pc->SetLocalDescription(this, desc);
     //Send SDP
-    info("WebRTCStream::OnSucess: %s", codec.c_str() );
-    client->open(sdp, codec);
+    info("WebRTCStream::OnSucess: %s", codec.c_str());
+    client->open(sdp, codec, milliId);
 }
 
 void WebRTCStream::OnFailure(const std::string & error)

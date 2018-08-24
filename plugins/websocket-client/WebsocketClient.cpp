@@ -1,4 +1,4 @@
-#include <../../libobs/obs-module.h>
+#include <obs-module.h>
 #include <openssl/opensslv.h>
 #include "JanusWebsocketClientImpl.h"
 #include "SpankChainWebsocketClientImpl.h"

@@ -1,4 +1,5 @@
 project(websocketclient)
+
 # -----------------------------------------------------------------------
 # Global set up
 #
@@ -8,6 +9,9 @@ if( WIN32 )
 endif()
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/restclient-cpp/include)
+
+find_package(LibObs REQUIRED)
+include_directories(${LIBOBS_INCLUDE_DIRS})
 
 #------------------------------------------------------------------------
 # OpenSSL included in libwebrtc

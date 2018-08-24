@@ -7,26 +7,26 @@ typedef websocketpp::config::asio_client::message_type::ptr message_ptr;
 
 std::string urlencode(const std::string &s)
 {
-	static const char lookup[] = "0123456789abcdef";
-	std::stringstream e;
-	for (int i = 0, ix = s.length(); i<ix; i++)
-	{
-		const char& c = s[i];
-		if ((48 <= c && c <= 57)  || //0-9
-		    (65 <= c && c <= 90)  || //abc...xyz
-		    (97 <= c && c <= 122) || //ABC...XYZ
-		    (c == '-' || c == '_' || c == '.' || c == '~')
-		   )
-		{
-			e << c;
-		} else
-		{
-			e << '%';
-			e << lookup[(c & 0xF0) >> 4];
-			e << lookup[(c & 0x0F)];
-		}
-	}
-	return e.str();
+  static const char lookup[] = "0123456789abcdef";
+  std::stringstream e;
+  for (int i = 0, ix = s.length(); i<ix; i++)
+  {
+    const char& c = s[i];
+    if ((48 <= c && c <= 57)  || //0-9
+        (65 <= c && c <= 90)  || //abc...xyz
+        (97 <= c && c <= 122) || //ABC...XYZ
+        (c == '-' || c == '_' || c == '.' || c == '~')
+       )
+    {
+      e << c;
+    } else
+    {
+      e << '%';
+      e << lookup[(c & 0xF0) >> 4];
+      e << lookup[(c & 0x0F)];
+    }
+  }
+  return e.str();
 }
 
 SpankChainWebsocketClientImpl::SpankChainWebsocketClientImpl()
@@ -84,7 +84,7 @@ bool SpankChainWebsocketClientImpl::connect(std::string url, long long room, std
                 std::string sdp = data["sdp"];
                 std::string feedId = data["feedId"];
 
-		//Event
+    //Event
                 listener->onOpened(sdp);
 
                 std::cout << "Sending post with feedId: " << feedId << std::endl;
@@ -112,7 +112,7 @@ bool SpankChainWebsocketClientImpl::connect(std::string url, long long room, std
         client.set_open_handler([=](websocketpp::connection_hdl con){
             //Launch event
             listener->onConnected();
-	    //And logged
+      //And logged
             listener->onLogged(0);
         });
         //Set close hanlder
@@ -140,7 +140,7 @@ bool SpankChainWebsocketClientImpl::connect(std::string url, long long room, std
             }
             return ctx;
         });
-	//Create websocket connection and add token and callback parameters
+  //Create websocket connection and add token and callback parameters
         std::string wss = url + "/?token=" + token + "&callback=" + urlencode(apiURL + "/camshows/auth/token/status");
         //Get connection
         connection = client.get_connection(wss, ec);
@@ -169,20 +169,20 @@ bool SpankChainWebsocketClientImpl::connect(std::string url, long long room, std
     return true;
 }
 
-bool SpankChainWebsocketClientImpl::open(const std::string &sdp, const std::string& codec)
+bool SpankChainWebsocketClientImpl::open(const std::string &sdp, const std::string& codec, const std::string& milliId)
 {
     try
     {
         //Login command
         json open = {
-            { "type"		, "cmd"	    },
-            { "name"		, "publish" },
-            { "transId"		, 0         },
+            { "type"    , "cmd"     },
+            { "name"    , "publish" },
+            { "transId" , 0         },
             { "data" ,
                 {
                     { "sdp"    , sdp   },
                     { "name"   , "obs" },
-		            { "codec"  , codec },
+                { "codec" , codec },
                     { "tracks" ,
                         {
                             { "audio"     , "audio"     },

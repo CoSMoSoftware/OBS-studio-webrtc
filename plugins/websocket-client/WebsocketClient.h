@@ -37,7 +37,7 @@ public:
   };
 public:
   virtual bool connect(std::string url, long long room, std::string username, std::string token, Listener* listener) = 0;
-  virtual bool open(const std::string &sdp, const std::string& codec = "") = 0;
+  virtual bool open(const std::string &sdp, const std::string& codec = "vp8", const std::string& milliId = "" ) = 0;
   virtual bool trickle(const std::string &mid, int index, const std::string &candidate, bool last) = 0;
   virtual bool disconnect(bool wait) = 0;
 
