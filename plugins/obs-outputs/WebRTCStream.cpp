@@ -131,12 +131,13 @@ bool WebRTCStream::start(Type type)
     // possible values (should check): vp8, vp9, h264
     if (!obs_service_get_codec(service))
         codec = "vp8";
-    codec = obs_service_get_codec(service);
+    else
+	codec = obs_service_get_codec(service);
 
     info("[codec:%s, milliId:%s]", codec.c_str(), milliId.c_str());
    
     tmpString = obs_service_get_room(service);
-    if( NULL == tmpString ) {
+    if( NULL != tmpString ) {
       try {
         room = std::stoll(obs_service_get_room(service));
       }
