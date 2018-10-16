@@ -18,7 +18,7 @@
 #include "rtc_base/checks.h"
 #include "rtc_base/criticalsection.h"
 
-#include "pc/peerconnectionwrapper.h"
+//#include "pc/peerconnectionwrapper.h"
 #include "pc/rtcstatscollector.h"
 
 #define warn(format, ...)  blog(LOG_WARNING, format, ##__VA_ARGS__)
@@ -121,18 +121,23 @@ bool WebRTCStream::start(Type type)
     // WebSocket URL sanity check
     if (!obs_service_get_url(service))
         return false;
+
     url = obs_service_get_url(service);
 
     // this is only used by the millicast stream, so do not return if empty
+    // Millicast variables
     const char *tmpString = obs_service_get_milli_id(service);
+    const char *tmpToken = obs_service_get_milli_token(service);
+
     milliId = (NULL == tmpString ? "" : tmpString);
+    milliToken = (NULL == tmpToken ? "" : tmpToken);
 
     // the codec should be generic, and vp8 is the default if empty
     // possible values (should check): vp8, vp9, h264
     if (!obs_service_get_codec(service))
         codec = "vp8";
     else
-	codec = obs_service_get_codec(service);
+	    codec = obs_service_get_codec(service);
 
     info("[codec:%s, milliId:%s]", codec.c_str(), milliId.c_str());
    
@@ -253,12 +258,22 @@ bool WebRTCStream::start(Type type)
       return false;
     }
     //Log them
-    info("connecting to [url:%s,room:%lld,username:%s,password:%s]", url.c_str(), room, username.c_str(), password.c_str());
-    //Connect client
-    if (!client->connect(url, room, username, password, this)){
-        //Error
-        obs_output_signal_stop(output, OBS_OUTPUT_CONNECT_FAILED);
-        return false;
+    //If not millicast
+    if (milliId == ""){
+            info("connecting to [url:%s,room:%lld,username:%s,password:%s]", url.c_str(), room, username.c_str(), password.c_str());
+            if(!client->connect(url, room, username, password , this)){
+            //Error
+            obs_output_signal_stop(output, OBS_OUTPUT_CONNECT_FAILED);
+            return false;
+        }
+    }
+    else{
+        info("connecting to [url:%s,stream Id :%s,token :%s]", url.c_str(), milliId.c_str(), milliToken.c_str());
+        if(!client->connect(url, room, username, milliToken , this)){
+            //Error
+            obs_output_signal_stop(output, OBS_OUTPUT_CONNECT_FAILED);
+            return false;
+        };
     }
     //OK
     return true;
@@ -480,8 +495,9 @@ void WebRTCStream::onAudioFrame(audio_data *frame)
 }
 
 //bitrate and dropped_frame
+// Disable for now
 uint64_t WebRTCStream::getBitrate() {
-    rtc::scoped_refptr<webrtc::MockStatsObserver> observerVideo (new rtc::RefCountedObject<webrtc::MockStatsObserver> ());
+   /* rtc::scoped_refptr<webrtc::MockStatsObserver> observerVideo (new rtc::RefCountedObject<webrtc::MockStatsObserver> ());
 	rtc::scoped_refptr<webrtc::MockStatsObserver> observerAudio (new rtc::RefCountedObject<webrtc::MockStatsObserver> ());
 
     pc->GetStats (observerVideo, video_track, webrtc::PeerConnectionInterface::kStatsOutputLevelStandard);
@@ -490,6 +506,6 @@ uint64_t WebRTCStream::getBitrate() {
 	std::this_thread::sleep_for(std::chrono::milliseconds(2));
     
 	bitrate = observerVideo->BytesSent() + observerAudio->BytesSent();
-    
-	return bitrate;
+   */
+    return uint64_t(0);
 }

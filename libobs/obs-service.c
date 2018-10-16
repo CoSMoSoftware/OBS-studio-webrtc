@@ -220,6 +220,14 @@ const char *obs_service_get_milli_id(const obs_service_t *service)
 	return service->info.get_milli_id(service->context.data);
 }
 
+const char *obs_service_get_milli_token(const obs_service_t *service)
+{
+	if (!obs_service_valid(service, "obs_service_get_milli_token"))
+		return NULL;
+
+	if (!service->info.get_milli_id) return NULL;
+	return service->info.get_milli_token(service->context.data);
+}
 const char *obs_service_get_codec(const obs_service_t *service)
 {
 	if (!obs_service_valid(service, "obs_service_get_codec"))

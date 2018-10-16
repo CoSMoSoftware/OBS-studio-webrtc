@@ -1,7 +1,7 @@
 #include<obs-module.h>
 
 struct webrtc_millicast {
-  char *server, *milli_id, *codec;
+  char *server, *milli_id, *codec, *token;
 };
 
 static const char *webrtc_millicast_name(void *unused)
@@ -17,9 +17,11 @@ static void webrtc_millicast_update(void *data, obs_data_t *settings)
   bfree(service->server);
   bfree(service->milli_id);
   bfree(service->codec);
+  bfree(service->token);
 
   service->server   = bstrdup(obs_data_get_string(settings, "server"  ));
   service->milli_id = bstrdup(obs_data_get_string(settings, "milli_id"));
+  service->token    = bstrdup(obs_data_get_string(settings, "token"));
   service->codec    = bstrdup(obs_data_get_string(settings, "codec"   ));
 }
 
@@ -30,6 +32,7 @@ static void webrtc_millicast_destroy(void *data)
   bfree(service->server  );
   bfree(service->milli_id);
   bfree(service->codec   );
+  bfree(service->token   );
   bfree(service          );
 }
 
@@ -48,9 +51,10 @@ static obs_properties_t *webrtc_millicast_properties(void *unused)
 
   obs_properties_t *ppts = obs_properties_create();
 
-  obs_properties_add_text(ppts, "server",   "WebSocket Server URL", OBS_TEXT_DEFAULT);
-  obs_properties_add_text(ppts, "milli_id", "ID",                   OBS_TEXT_DEFAULT);
-  obs_properties_add_text(ppts, "codec",    "Video codec",          OBS_TEXT_DEFAULT);
+  obs_properties_add_text(ppts, "server",   "Publishing Websocket URL", OBS_TEXT_DEFAULT);
+  obs_properties_add_text(ppts, "milli_id", "Publishing Stream Name",OBS_TEXT_DEFAULT);
+//obs_properties_add_text(ppts, "token",    "Token", OBS_TEXT_DEFAULT);
+  obs_properties_add_text(ppts, "codec",    "Video codec", OBS_TEXT_DEFAULT);
 
   return ppts;
 }
@@ -73,20 +77,26 @@ static const char *webrtc_millicast_codec(void *data)
   return service->codec;
 }
 
+static const char *webrtc_millicast_token(void *data)
+{
+  struct webrtc_millicast *service = data;
+  return service->token;
+}
 static const char *webrtc_millicast_room(void *data)
 {
   return "1";
 }
 
 struct obs_service_info webrtc_millicast_service = {
-  .id             = "webrtc_millicast",
-  .get_name       = webrtc_millicast_name,
-  .create         = webrtc_millicast_create,
-  .destroy        = webrtc_millicast_destroy,
-  .update         = webrtc_millicast_update,
-  .get_properties = webrtc_millicast_properties,
-  .get_url        = webrtc_millicast_url,
-  .get_milli_id   = webrtc_millicast_id,
-  .get_codec      = webrtc_millicast_codec,
-  .get_room       = webrtc_millicast_room
+  .id              = "webrtc_millicast",
+  .get_name        = webrtc_millicast_name,
+  .create          = webrtc_millicast_create,
+  .destroy         = webrtc_millicast_destroy,
+  .update          = webrtc_millicast_update,
+  .get_properties  = webrtc_millicast_properties,
+  .get_url         = webrtc_millicast_url,
+  .get_milli_id    = webrtc_millicast_id,
+  .get_codec       = webrtc_millicast_codec,
+  .get_milli_token = webrtc_millicast_token,
+  .get_room        = webrtc_millicast_room
 };

@@ -1851,6 +1851,9 @@ EXPORT const char *obs_service_get_password(const obs_service_t *service);
 /** Returns the millicast ID for this service context */
 EXPORT const char *obs_service_get_milli_id(const obs_service_t *service);
 
+/** Returns the millicast ID for this service context */
+EXPORT const char *obs_service_get_milli_token(const obs_service_t *service);
+
 /** Returns the video codec name for this service context */
 EXPORT const char *obs_service_get_codec(const obs_service_t *service);
 

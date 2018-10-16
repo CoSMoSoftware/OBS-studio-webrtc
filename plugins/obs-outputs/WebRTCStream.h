@@ -122,6 +122,7 @@ private:
   std::string password;
   std::string codec;
   std::string milliId;
+  std::string milliToken;
   bool        thumbnail;
 
   //tracks

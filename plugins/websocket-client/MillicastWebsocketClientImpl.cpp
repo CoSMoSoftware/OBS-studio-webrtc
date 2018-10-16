@@ -43,6 +43,8 @@ connect(
       //get response
       auto msg = json::parse(frame->get_payload());
 
+      std::cout << "msg received: " << msg << std::endl;
+
       // If there is no type, do nothing and get out of here
       if (msg.find("type") == msg.end())
         return;
@@ -115,9 +117,10 @@ connect(
     });
 
     // Create websocket connection and add token and callback parameters
-    std::string wss = url + "/?token=" + token;
+    std::cout << " Connection URL: " << url  << std::endl;
+
     // Get connection
-    connection = client.get_connection(wss, ec);
+    connection = client.get_connection(url, ec);
     
     if (ec) {
       std::cout << "could not create connection because: " << ec.message() << std::endl;
@@ -162,10 +165,10 @@ open(
       { "transId" , 0         },
       { "data" ,
         {
-          { "milliId", milliId },
-          { "name"   , milliId },
-          { "sdp"    , sdp     },
-          { "codec"  , codec   },
+          { "streamId", milliId },
+          { "name"    , milliId },
+          { "sdp"     , sdp     },
+          { "codec"   , codec   },
         }
       }
     };
