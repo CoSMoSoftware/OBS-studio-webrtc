@@ -4,20 +4,24 @@ set -e
 # Echo all commands before executing
 set -v
 
-git fetch --unshallow
+#git fetch --unshallow
 
 # Leave obs-studio folder
 cd ../
 
+brew install speexdsp swig wget https://raw.githubusercontent.com/Homebrew/homebrew-core/8d4d48f0bb552b7b107119aeef59f141ce1f72c3/Formula/qt.rb &
+
+
 # Install Packages app so we can build a package later
 # http://s.sudre.free.fr/Software/Packages/about.html
+
 wget --retry-connrefused --waitretry=1 https://s3-us-west-2.amazonaws.com/obs-nightly/Packages.pkg
+
 sudo installer -pkg ./Packages.pkg -target /
 
 brew update
 
 #Base OBS Deps and ccache
-brew install qt5 jack speexdsp ccache swig
 
 export PATH=/usr/local/opt/ccache/libexec:$PATH
 ccache -s || echo "CCache is not available."
@@ -37,14 +41,14 @@ tar -xf ./sparkle.tar.bz2 -C ./sparkle
 sudo cp -R ./sparkle/Sparkle.framework /Library/Frameworks/Sparkle.framework
 
 # CEF Stuff
-wget --retry-connrefused --waitretry=1 https://obs-nightly.s3-us-west-2.amazonaws.com/cef_binary_${CEF_BUILD_VERSION}_macosx64.tar.bz2
-tar -xf ./cef_binary_${CEF_BUILD_VERSION}_macosx64.tar.bz2
-cd ./cef_binary_${CEF_BUILD_VERSION}_macosx64
+#wget --retry-connrefused --waitretry=1 https://obs-nightly.s3-us-west-2.amazonaws.com/cef_binary_${CEF_BUILD_VERSION}_macosx64.tar.bz2
+#tar -xf ./cef_binary_${CEF_BUILD_VERSION}_macosx64.tar.bz2
+#cd ./cef_binary_${CEF_BUILD_VERSION}_macosx64
 # remove a broken test
-sed -i '.orig' '/add_subdirectory(tests\/ceftests)/d' ./CMakeLists.txt
-mkdir build
-cd ./build
-cmake -DCMAKE_CXX_FLAGS="-std=c++11 -stdlib=libc++" -DCMAKE_EXE_LINKER_FLAGS="-std=c++11 -stdlib=libc++" -DCMAKE_OSX_DEPLOYMENT_TARGET=10.9 ..
-make -j4
-mkdir libcef_dll
-cd ../../
+#sed -i '.orig' '/add_subdirectory(tests\/ceftests)/d' ./CMakeLists.txt
+#mkdir build
+#cd ./build
+#make -DCMAKE_CXX_FLAGS="-std=c++11 -stdlib=libc++" -DCMAKE_EXE_LINKER_FLAGS="-std=c++11 -stdlib=libc++" -DCMAKE_OSX_DEPLOYMENT_TARGET=10.9 ..
+#make -j4
+#mkdir libcef_dll
+#cd ../../

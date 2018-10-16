@@ -41,7 +41,7 @@ def add_boolean_argument(parser, name, default=False):
     group.add_argument('--no' + name, dest=name, action='store_false')
 
 parser = argparse.ArgumentParser(description='obs-studio package util')
-parser.add_argument('-d', '--base-dir', dest='dir', default='rundir/RelWithDebInfo')
+parser.add_argument('-d', '--base-dir', dest='dir', default='rundir/RELEASE')
 parser.add_argument('-n', '--build-number', dest='build_number', default='0')
 parser.add_argument('-k', '--public-key', dest='public_key', default='OBSPublicDSAKey.pem')
 parser.add_argument('-f', '--sparkle-framework', dest='sparkle', default=None)
@@ -71,9 +71,14 @@ def add(name, external=False, copy_as=None):
 		copy_as = name.split("/")[-1]
 	if name[0] != "/":
 		name = build_path+"/"+name
+	if ("cosmo" in name):
+		name = "/usr/local/lib/" + name.split("/")[len(name.split("/")) - 1]
+		print "COSMO LIB FOUND - Replacing /Users/cosmo/ path with /usr/local/lib/"
+		print name
 	t = LibTarget(name, external, copy_as)
 	if t in inspected:
 		return
+
 	inspect.append(t)
 	inspected.add(t)
 
@@ -176,6 +181,7 @@ copytree(build_path, "tmp/Contents/Resources/", symlinks=True)
 copy(icon_path, icon_file)
 plistlib.writePlist(info, "tmp/Contents/Info.plist")
 makedirs("tmp/Contents/MacOS")
+
 copy(run_path, "tmp/Contents/MacOS/%s"%info["CFBundleExecutable"])
 try:
 	copy(args.public_key, "tmp/Contents/Resources")

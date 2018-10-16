@@ -16,7 +16,7 @@ def get_tag_info(tag):
 
 def gen_html(github_user, latest_tag):
 
-    url = 'https://github.com/{0}/obs-studio/commit/%H'.format(github_user)
+    url = 'https://github.com/{0}/oaabs-studio/commit/%H'.format(github_user)
 
     with open('readme.html', 'w') as f:
         f.write("<html><body>")
@@ -89,6 +89,6 @@ parser.add_argument('-s', '--stable', dest='stable', required=False, action='sto
 args = parser.parse_args()
 
 latest_tag = cmd('git describe --tags --abbrev=0')
-gen_html(args.user, latest_tag)
+#gen_html(args.user, latest_tag)
 prepare_pkg(args.project, args.package_id)
 save_manifest(latest_tag, args.user, args.jenkins_build, args.branch, args.stable)
