@@ -147,6 +147,10 @@ if (NOT ZLIB_BIN_FILES)
 		)
 endif()
 
+if( NOT EXISTS "${Qt5Core_DIR}/../../../bin/Qt5Cored.dll")
+  message( SEND_ERROR "Qt dll not found, install and package unlikely to work.")
+endif()
+
 file(GLOB QT_DEBUG_BIN_FILES
 	"${Qt5Core_DIR}/../../../bin/Qt5Cored.dll"
 	"${Qt5Core_DIR}/../../../bin/Qt5Guid.dll"

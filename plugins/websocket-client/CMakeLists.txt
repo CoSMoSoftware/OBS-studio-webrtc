@@ -132,10 +132,12 @@ else ( WIN32 )
   install(
     FILES       ${libwebrtc_rootdir}/lib/webrtc.lib
     DESTINATION ${OBS_EXECUTABLE_DESTINATION} COMPONENT   Libraries )
-  install(
-    FILES       ${libwebrtc_rootdir}/bin/libssl-1_1-x64.dll
-    DESTINATION ${OBS_EXECUTABLE_DESTINATION} COMPONENT   Runtime )
-  install(
-    FILES       ${libwebrtc_rootdir}/bin/libcrypto-1_1-x64.dll
-    DESTINATION ${OBS_EXECUTABLE_DESTINATION} COMPONENT   Runtime )
+  if( EXISTS "${libwebrtc_rootdir}/bin/libssl-1_1-x64.dll" )
+    install(
+      FILES       ${libwebrtc_rootdir}/bin/libssl-1_1-x64.dll
+      DESTINATION ${OBS_EXECUTABLE_DESTINATION} COMPONENT   Runtime )
+    install(
+      FILES       ${libwebrtc_rootdir}/bin/libcrypto-1_1-x64.dll
+      DESTINATION ${OBS_EXECUTABLE_DESTINATION} COMPONENT   Runtime )
+  endif()
 endif ()
