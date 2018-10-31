@@ -35,7 +35,6 @@ connect(
 )
 {
   websocketpp::lib::error_code ec;
-
   try
   {
     // Register our message handler
@@ -120,11 +119,16 @@ connect(
       return ctx;
     });
 
+    // Remove space to avoid errors.
+    token.erase(remove_if(token.begin(), token.end(), isspace), token.end());
+
+    std::string wss = url + "?token=" + token;
+
     // Create websocket connection and add token and callback parameters
-    std::cout << " Connection URL: " << url  << std::endl;
+    std::cout << " Connection URL: " << wss  << std::endl;
 
     // Get connection
-    connection = client.get_connection(url, ec);
+    connection = client.get_connection(wss, ec);
     
     if (ec) {
       std::cout << "could not create connection because: " << ec.message() << std::endl;

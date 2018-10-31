@@ -135,7 +135,7 @@ bool WebRTCStream::start(Type type)
     // the codec should be generic, and vp8 is the default if empty
     // possible values (should check): vp8, vp9, h264
     if (!obs_service_get_codec(service))
-        codec = "vp8";
+        codec = "h264";
     else
 	    codec = obs_service_get_codec(service);
 
@@ -268,6 +268,11 @@ bool WebRTCStream::start(Type type)
         }
     }
     else{
+        if(milliToken == ""){
+            error("Invalid token");
+            obs_output_signal_stop(output, OBS_OUTPUT_CONNECT_FAILED);
+            return false;
+        }
         info("connecting to [url:%s,stream Id :%s,token :%s]", url.c_str(), milliId.c_str(), milliToken.c_str());
         if(!client->connect(url, room, username, milliToken , this)){
             //Error

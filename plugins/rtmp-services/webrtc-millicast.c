@@ -51,12 +51,12 @@ static obs_properties_t *webrtc_millicast_properties(void *unused)
   UNUSED_PARAMETER(unused);
 
   obs_properties_t *ppts = obs_properties_create();
-
-  obs_properties_add_text(ppts, "server",   "Publishing Websocket URL", OBS_TEXT_DEFAULT);
+  obs_properties_add_list(ppts, "server", obs_module_text("Server"), OBS_COMBO_TYPE_LIST, OBS_COMBO_FORMAT_STRING);
   obs_properties_add_text(ppts, "milli_id", "Publishing Stream Name",OBS_TEXT_DEFAULT);
-  //obs_properties_add_text(ppts, "token", obs_module_text("Token"),OBS_TEXT_PASSWORD);
-  obs_properties_add_list(ppts, "codec", obs_module_text("codec"), OBS_COMBO_TYPE_LIST, OBS_COMBO_FORMAT_STRING);
+  obs_properties_add_text(ppts, "token", obs_module_text("Publishing token"), OBS_TEXT_PASSWORD);
+  obs_properties_add_list(ppts, "codec", obs_module_text("Codec"), OBS_COMBO_TYPE_LIST, OBS_COMBO_FORMAT_STRING);
 
+  obs_property_list_add_string(obs_properties_get(ppts, "server"),"Auto (Recommended)", "wss://live.millicast.com:443/ws/v1/pub");
   obs_property_list_add_string(obs_properties_get(ppts, "codec"),"h264", "h264");
   obs_property_list_add_string(obs_properties_get(ppts, "codec"),"vp8", "vp8");
   obs_property_list_add_string(obs_properties_get(ppts, "codec"),"vp9", "vp9");
