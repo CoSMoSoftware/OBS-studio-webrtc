@@ -23,6 +23,7 @@ static void webrtc_millicast_update(void *data, obs_data_t *settings)
   service->milli_id = bstrdup(obs_data_get_string(settings, "milli_id"));
   service->token    = bstrdup(obs_data_get_string(settings, "token"));
   service->codec    = bstrdup(obs_data_get_string(settings, "codec"   ));
+
 }
 
 static void webrtc_millicast_destroy(void *data)
@@ -53,8 +54,12 @@ static obs_properties_t *webrtc_millicast_properties(void *unused)
 
   obs_properties_add_text(ppts, "server",   "Publishing Websocket URL", OBS_TEXT_DEFAULT);
   obs_properties_add_text(ppts, "milli_id", "Publishing Stream Name",OBS_TEXT_DEFAULT);
-//obs_properties_add_text(ppts, "token",    "Token", OBS_TEXT_DEFAULT);
-  obs_properties_add_text(ppts, "codec",    "Video codec", OBS_TEXT_DEFAULT);
+  //obs_properties_add_text(ppts, "token", obs_module_text("Token"),OBS_TEXT_PASSWORD);
+  obs_properties_add_list(ppts, "codec", obs_module_text("codec"), OBS_COMBO_TYPE_LIST, OBS_COMBO_FORMAT_STRING);
+
+  obs_property_list_add_string(obs_properties_get(ppts, "codec"),"h264", "h264");
+  obs_property_list_add_string(obs_properties_get(ppts, "codec"),"vp8", "vp8");
+  obs_property_list_add_string(obs_properties_get(ppts, "codec"),"vp9", "vp9");
 
   return ppts;
 }

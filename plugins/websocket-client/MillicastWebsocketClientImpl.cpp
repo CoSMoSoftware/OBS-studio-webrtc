@@ -76,7 +76,7 @@ connect(
         //Keep the connection alive
         is_running.store(true);
       }
-      // if error
+      // If error message
       if (type.compare("error") == 0 ){
         listener->onDisconnected();
       }
