@@ -76,6 +76,10 @@ connect(
         //Keep the connection alive
         is_running.store(true);
       }
+      // if error
+      if (type.compare("error") == 0 ){
+        listener->onDisconnected();
+      }
     });
     
     // When we are open
