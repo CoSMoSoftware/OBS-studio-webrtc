@@ -114,7 +114,7 @@ bool WebRTCStream::start(Type type)
 {
     //Get service
     obs_service_t *service = obs_output_get_service(output);
-    
+
     if (!service)
         return false;
 
@@ -123,14 +123,35 @@ bool WebRTCStream::start(Type type)
         return false;
 
     url = obs_service_get_url(service);
+    milliId = "";
+    milliToken = "";
+    const char *tmpString = nullptr;
+    const char *tmpToken = nullptr;
 
-    // this is only used by the millicast stream, so do not return if empty
-    // Millicast variables
-    const char *tmpString = obs_service_get_milli_id(service);
-    const char *tmpToken = obs_service_get_milli_token(service);
+    if (type == WebRTCStream::Millicast){
 
-    milliId = (NULL == tmpString ? "" : tmpString);
-    milliToken = (NULL == tmpToken ? "" : tmpToken);
+        tmpString = obs_service_get_milli_id(service);
+        tmpToken = obs_service_get_milli_token(service);
+        milliId = (NULL == tmpString ? "" : tmpString);
+        milliToken = (NULL == tmpToken ? "" : tmpToken);
+
+    } else{
+        tmpString = obs_service_get_username(service);
+        username = (NULL == tmpString ? "" : tmpString);
+        tmpString = obs_service_get_password(service);
+        password = (NULL == tmpString ? "" : tmpString);
+        try {
+            room = std::stoll(obs_service_get_room(service));
+        }
+        catch (const std::invalid_argument& ia) {
+            error("Invalid room name (must be a positive integer number)");
+            return false;
+        }
+        catch (const std::out_of_range& oor) {
+            error("Room name out of range (number too big)");
+            return false;
+        }
+    }
 
     // the codec should be generic, and vp8 is the default if empty
     // possible values (should check): vp8, vp9, h264
@@ -139,29 +160,6 @@ bool WebRTCStream::start(Type type)
     else
 	    codec = obs_service_get_codec(service);
 
-    info("[codec:%s, milliId:%s]", codec.c_str(), milliId.c_str());
-   
-    tmpString = obs_service_get_room(service);
-    if( NULL != tmpString ) {
-      try {
-        room = std::stoll(obs_service_get_room(service));
-      }
-      catch (const std::invalid_argument& ia) {
-        error("Invalid room name (must be a positive integer number)");
-        return false;
-      }
-      catch (const std::out_of_range& oor) {
-        error("Room name out of range (number too big)");
-        return false;
-      }
-    } else {
-      room = 0;
-    }
-
-    tmpString = obs_service_get_username(service);
-    username = (NULL == tmpString ? "" : tmpString);
-    tmpString = obs_service_get_password(service);
-    password = (NULL == tmpString ? "" : tmpString);
 
     //Stop just in case
     stop();
@@ -259,17 +257,9 @@ bool WebRTCStream::start(Type type)
     }
     //Log them
     //If not millicast
-    if (milliId == ""){
-            info("connecting to [url:%s,room:%lld,username:%s,password:%s]", url.c_str(), room, username.c_str(), password.c_str());
-            if(!client->connect(url, room, username, password , this)){
-            //Error
-            obs_output_signal_stop(output, OBS_OUTPUT_CONNECT_FAILED);
-            return false;
-        }
-    }
-    else{
-        if(milliToken == ""){
-            error("Invalid token");
+    if (type == WebRTCStream::Millicast){
+         if(milliToken == "" || milliId == ""){
+            error("Invalid token or publishing name");
             obs_output_signal_stop(output, OBS_OUTPUT_CONNECT_FAILED);
             return false;
         }
@@ -279,6 +269,14 @@ bool WebRTCStream::start(Type type)
             obs_output_signal_stop(output, OBS_OUTPUT_CONNECT_FAILED);
             return false;
         };
+    }
+    else{
+        info("connecting to [url:%s,room:%lld,username:%s,password:%s]", url.c_str(), room, username.c_str(), password.c_str());
+        if(!client->connect(url, room, username, password , this)){
+            //Error
+            obs_output_signal_stop(output, OBS_OUTPUT_CONNECT_FAILED);
+            return false;
+        }
     }
     //OK
     return true;
