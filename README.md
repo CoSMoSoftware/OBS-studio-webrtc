@@ -50,8 +50,12 @@ Follow the original compilation, Installation and packaging guide https://github
 ### Configure JANUS
 
 https://github.com/meetecho/janus-gateway.
-Configure a JANUS server using the video room plugin with websocket protocol activated. You can use their html demo.
+
+Configure a JANUS server using the video room plugin with **websocket secure protocol** enabled. (you can enable TLS inside the config file janus.transport.websockets.cfg or e.g directly use Nginx).
+
+For now OBS-Webrtc **support only connection through wss**. 
+You can directly use their test webpage videoroomtest.html to receive the stream from OBS-webrtc.
 
 ### OBS settings
 
-Launch OBS, go to settings, select the stream tab and change the URL to point to your JANUS server.
+Launch OBS, go to settings, select the stream tab and change the URL to point to your JANUS server (wss://xxx). if using videoroomtest.html, the default "Server room" value is 1234.
