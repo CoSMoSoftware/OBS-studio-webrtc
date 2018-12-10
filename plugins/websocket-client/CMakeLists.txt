@@ -63,7 +63,7 @@ add_library( websocketclient SHARED
   elseif (UNIX AND NOT APPLE)
     set (curl_path "${CURL_INCLUDE_DIR}/../lib/libcurl.a")    
   elseif (APPLE)
-    set (curl_path "${CURL_INCLUDE_DIR}/../lib/libcurl.dylib")
+    set (curl_path "/usr/lib/libcurl.dylib")
   endif() 
    
   target_link_libraries(websocketclient ${curl_path})

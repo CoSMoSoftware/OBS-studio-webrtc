@@ -20,8 +20,8 @@ cd ./build
 #mv ./rundir/RELEASE/obs-plugins/obs-browser.so ./
 
 # Move obslua
-hr "Moving OBS LUA"
-cp ./rundir/RELEASE/data/obs-scripting/obslua.so ./rundir/RELEASE/bin/
+#hr "Moving OBS LUA"
+#cp ./rundir/RELEASE/data/obs-scripting/obslua.so ./rundir/RELEASE/bin/
 
 # Move obspython
 # hr "Moving OBS Python"
