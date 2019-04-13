@@ -12,7 +12,9 @@ For the time being the following services and sites are supported:
 
 This is mainly a community project with a best effort service. The maintainers of this repository are all based in Singapore, so please take the timezone into account. If you file a ticket at 2am, you won't get an answer for at least 7 hours.
 
-If you need more commercial support, or custom developement, please contact [CoSMo software](http://www.cosmosoftware.io/contact.html). A patreon page and other means of sharing the maintenance and support cost for the generic webrtc part will be made available soon.
+If you need more commercial support, or custom developement,for webrtc, please contact [CoSMo software](http://www.cosmosoftware.io/contact.html). A patreon page and other means of sharing the maintenance and support cost for the generic webrtc part will be made available soon.
+
+Do not forget to share the love with the original OBS-Studio project and its fantastic team [there](https://obsproject.com/blog/progress-report-february-2019).
 
 # Table of content
 
@@ -31,6 +33,10 @@ Pre-built and tested Binaries are available [here](https://github.com/CoSMoSoftw
 
 You do NOT depend on any external libwebrtc package one might provide. However, compilation of libwebrtc is an under documented process with strong ties to dark magic. If you think the compilation of the code from webrtc.org is too difficult, and it makes depending projects NOT easily reproducible, please let Google know, Their bug tracker is there:
 https://bugs.chromium.org/p/webrtc/issues/list
+
+Be aware of the [limitations when it comes to H.264 support](https://github.com/CoSMoSoftware/OBS-studio-webrtc/issues/33).
+
+Be aware that the settings do not apply yet to webrtc streams. We are working with the OBS team to make the setting UI better, and will revisit this part later.
 
 #### do it yourself
 
