@@ -16,7 +16,7 @@ include_directories(${LIBOBS_INCLUDE_DIRS})
 #------------------------------------------------------------------------
 # OpenSSL included in libwebrtc
 #
-find_package(libwebrtc 65 REQUIRED)
+find_package(libwebrtc 73 REQUIRED)
 
 #------------------------------------------------------------------------
 # Asio
@@ -77,8 +77,8 @@ install_obs_plugin(websocketclient)
 
 if ( APPLE )
   target_link_libraries( websocketclient
-    /usr/local/lib/libssl.dylib
-    /usr/local/lib/libcrypto.dylib
+    /usr/local/Cellar/openssl/1.0.2r/lib/libssl.dylib
+    /usr/local/Cellar/openssl/1.0.2r/lib/libcrypto.dylib
   )
 endif()
 

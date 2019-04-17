@@ -1,5 +1,21 @@
 #include "VideoCapturer.h"
 
+/* Based on the peerconnection example. Might work with Windows/Linux */
+
+rtc::scoped_refptr<VideoCapturer> VideoCapturer::Create(size_t Width, size_t Height) {
+
+    const size_t Fps = 30;
+    const size_t DeviceIndex = 0;
+    std::unique_ptr<webrtc::test::VcmCapturer> capturer = absl::WrapUnique(webrtc::test::VcmCapturer::Create(Width, Height, Fps, DeviceIndex));
+    if (!capturer) {
+        return nullptr;
+    }
+    rtc::scoped_refptr<VideoCapturer> Vc = new rtc::RefCountedObject<VideoCapturer>(std::move(capturer));
+    return Vc;
+}
+
+
+/* VERSION 65
 bool VideoCapturer::Init(const rtc::scoped_refptr<webrtc::VideoCaptureModule>& module)
 {
   //Call parent
@@ -14,3 +30,4 @@ bool VideoCapturer::Init(const rtc::scoped_refptr<webrtc::VideoCaptureModule>& m
   //OK
   return true;
 }
+*/

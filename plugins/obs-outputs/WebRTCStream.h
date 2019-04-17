@@ -13,6 +13,7 @@
 #include "WebsocketClient.h"
 #include "VideoCapture.h"
 #include "VideoCapturer.h"
+#include "../../../CPPVideoCapturer/CPPVideoCapturer/CPPVideoCapturer.h" //need to be include in a clean way
 #include "AudioDeviceModuleWrapper.h"
 
 #include <rtc_base/platform_file.h>
@@ -25,7 +26,8 @@
 #include "modules/video_capture/video_capture_defines.h"
 #include "modules/video_capture/video_capture_factory.h"
 #include "api/mediaconstraintsinterface.h"
-#include "api/peerconnectioninterface.h"
+#include "api/create_peerconnection_factory.h"
+//#include "api/peerconnectioninterface.h" //already include
 #include "rtc_base/scoped_ref_ptr.h"
 #include "rtc_base/refcountedobject.h"
 #include "rtc_base/thread.h"
@@ -34,8 +36,8 @@ class WebRTCStreamInterface :
   public WebsocketClient::Listener,
   public webrtc::PeerConnectionObserver,
   public webrtc::CreateSessionDescriptionObserver,
-  public webrtc::SetSessionDescriptionObserver,
-  public cricket::WebRtcVcmFactoryInterface
+  public webrtc::SetSessionDescriptionObserver
+//public cricket::WebRtcVcmFactoryInterface //doesn't exist anymore
 {
 
 };

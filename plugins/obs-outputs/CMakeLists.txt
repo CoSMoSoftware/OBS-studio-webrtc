@@ -28,7 +28,9 @@ if( WIN32 )
   # specific case this is the right way to approach the problem.
   set(WEBRTC_USE_FILE_INCLUDED 0)
 endif()
-find_package(libwebrtc 65 REQUIRED)
+find_package(libwebrtc 73 REQUIRED)
+find_package( CppMacVideoCapturer REQUIRED )
+
 
 if (EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/ftl-sdk/CMakeLists.txt")
   find_package(Libcurl REQUIRED)
@@ -101,7 +103,7 @@ if(WIN32)
     set( obs-outputs_PLATFORM_DEPS ${obs-outputs_PLATFORM_DEPS} w32-pthreads )
   endif()
   elseif( APPLE )
-    set( obs-outputs_PLATFORM_DEPS ${WEBRTC_LIBRARIES} )
+    set( obs-outputs_PLATFORM_DEPS ${WEBRTC_LIBRARIES} CppMacVideoCapturer::VideoCapturer )
 endif()
 
 set(obs-outputs_librtmp_HEADERS
