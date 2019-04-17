@@ -29,7 +29,9 @@ if( WIN32 )
   set(WEBRTC_USE_FILE_INCLUDED 0)
 endif()
 find_package(libwebrtc 73 REQUIRED)
-find_package( CppMacVideoCapturer REQUIRED )
+if( APPLE )
+  find_package( CppMacVideoCapturer REQUIRED )
+endif()
 
 
 if (EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/ftl-sdk/CMakeLists.txt")
