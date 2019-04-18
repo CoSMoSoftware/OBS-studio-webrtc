@@ -165,7 +165,7 @@ bool WebRTCStream::start(Type type)
     if (!obs_service_get_codec(service))
         codec = "h264";
     else
-	    codec = obs_service_get_codec(service);
+	codec = obs_service_get_codec(service);
 
 
     //Stop just in case
@@ -177,7 +177,8 @@ bool WebRTCStream::start(Type type)
     webrtc::PeerConnectionInterface::IceServer server;
     server.uri = "stun:stun.l.google.com:19302";
     config.servers.push_back(server);
-    
+    config.sdp_semantics = webrtc::SdpSemantics::kUnifiedPlan;
+
     //Create peer connection
     //pc = factory->CreatePeerConnection(config, &constraints, NULL, NULL, this);
     pc = factory->CreatePeerConnection(config, nullptr, nullptr, this);
@@ -213,8 +214,8 @@ bool WebRTCStream::start(Type type)
 
     //Add audio
     audio_track = factory->CreateAudioTrack("audio", factory->CreateAudioSource(options));
-    //Add stream to track
-    stream->AddTrack(audio_track);
+    //Add audio track to peer connection
+    pc->AddTrack(audio_track, {"obs"});
     
     /* VERSION 65
     //Create capturer
@@ -254,8 +255,8 @@ bool WebRTCStream::start(Type type)
 
       //Add thumbnail
       rtc::scoped_refptr<webrtc::VideoTrackInterface> thumbnail_track = factory->CreateVideoTrack("thumbnail", thumbnailSource);
-      //Add stream to track
-      stream->AddTrack(thumbnail_track);
+      //Add thumbnail track to peer connection
+      pc->AddTrack(thumbnail_track, {"obs"});
     }
     */
 
@@ -273,17 +274,8 @@ bool WebRTCStream::start(Type type)
     rtc::scoped_refptr<webrtc::VideoTrackSourceInterface> videoSource = videoCapturer->getNativeVideoSource();
     video_track = nativeFactory->CreateVideoTrack("video", videoSource);
     videoCapturer->start();
-    //Add track to the stream
-    stream->AddTrack(video_track);
-  
-    //Add the stream to the peer connection
-    if (!pc->AddStream(stream))
-    {
-        //Log
-        error("Adding stream to PeerConnection failed");
-        //Error
-        return false;
-    }
+    //Add video track to peer connection
+    pc->AddTrack(video_track, {"obs"});
 
     //Create websocket client
     this->client = createWebsocketClient(type);
