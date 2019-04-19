@@ -1,23 +1,5 @@
 project(obs-outputs)
 
-option(USE_SSL "Enable rtmps support with OpenSSL" OFF)
-
-if (USE_SSL)
-  find_package(SSL QUIET)
-  find_package(ZLIB QUIET)
-endif()
-
-if (SSL_FOUND AND ZLIB_FOUND)
-  add_definitions(-DCRYPTO -DUSE_OPENSSL)
-  include_directories(${SSL_INCLUDE_DIRS} ${ZLIB_INCLUDE_DIRS})
-else()
-  if (USE_SSL)
-    message(WARNING "SSL enabled by user, but OpenSSL was not found")
-  endif()
-  unset(SSL_LIBRARIES)
-  unset(ZLIB_LIBRARIES)
-  add_definitions(-DNO_CRYPTO)
-endif()
 
 # --- Find libwebrtc or fail early
 if( WIN32 )
@@ -94,18 +76,25 @@ configure_file(
 
 include_directories("${CMAKE_BINARY_DIR}/plugins/obs-outputs/config")
 
-if(WIN32)
+if( WIN32 )
   set( obs-outputs_PLATFORM_DEPS  
     ${WEBRTC_LIBRARIES}
     ws2_32
     winmm
     Iphlpapi
   )
-  if(MSVC)
-    set( obs-outputs_PLATFORM_DEPS ${obs-outputs_PLATFORM_DEPS} w32-pthreads )
-  endif()
-  elseif( APPLE )
-    set( obs-outputs_PLATFORM_DEPS ${WEBRTC_LIBRARIES} CppMacVideoCapturer::VideoCapturer )
+  if( MSVC )
+    set( obs-outputs_PLATFORM_DEPS
+    ${obs-outputs_PLATFORM_DEPS}
+    w32-pthreads
+  )
+  endif( MSVC )
+elseif( APPLE )
+  set( obs-outputs_PLATFORM_DEPS
+    ${WEBRTC_LIBRARIES}
+    # NOTE ALEX: we should not need that since we are not using webrtc capturers,
+    CppMacVideoCapturer::VideoCapturer
+  )
 endif()
 
 set(obs-outputs_librtmp_HEADERS
@@ -126,7 +115,7 @@ set(obs-outputs_librtmp_SOURCES
   librtmp/cencode.c
   librtmp/hashswf.c
   librtmp/log.c
-  #librtmp/md5.c
+  # librtmp/md5.c
   librtmp/parseurl.c
   librtmp/rtmp.c)
 
@@ -149,26 +138,26 @@ set( obs-outputs_HEADERS
 
 set( obs-outputs_SOURCES
   obs-outputs.c
-  rtmp-stream.c
+  # rtmp-stream.c
   janus-stream.cpp
   spankchain-stream.cpp
   millicast-stream.cpp
-  rtmp-windows.c
+  # rtmp-windows.c
   AudioDeviceModuleWrapper.cpp
   VideoCapturer.cpp
   WebRTCStream.cpp
   net-if.c
   null-output.c
-  flv-output.c
-  flv-mux.c
+  # flv-output.c
+  # flv-mux.c
   )
 
 # --- library target
 add_library( obs-outputs MODULE
   ${obs-outputs_SOURCES}
   ${obs-outputs_HEADER}
-  ${obs-outputs_librtmp_SOURCES}
-  ${obs-outputs_librtmp_HEADERS}
+  # ${obs-outputs_librtmp_SOURCES}
+  # ${obs-outputs_librtmp_HEADERS}
 )
 
 target_link_libraries( obs-outputs

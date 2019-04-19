@@ -14,19 +14,29 @@ find_package(LibObs REQUIRED)
 include_directories(${LIBOBS_INCLUDE_DIRS})
 
 #------------------------------------------------------------------------
-# OpenSSL included in libwebrtc
-#
-find_package(libwebrtc 73 REQUIRED)
-
-#------------------------------------------------------------------------
 # Asio
 #
 include_directories( ${CMAKE_CURRENT_SOURCE_DIR}/third_party/asio/include )
-
 include_directories( ${CURL_INCLUDE_DIR} )
 
+#------------------------------------------------------------------------
+# libcurl
+#
+if (WIN32)
+  set (curl_path "${CURL_INCLUDE_DIR}/../bin/libcurl.lib")
+elseif (UNIX AND NOT APPLE)
+  set (curl_path "${CURL_INCLUDE_DIR}/../lib/libcurl.a")    
+elseif (APPLE)
+  set (curl_path "/usr/lib/libcurl.dylib")
+endif() 
+   
+#------------------------------------------------------------------------
 # WebSocket
 #
+
+message( STATUS "OPENSSL_INCLUDE_DIR: ${OPENSSL_INCLUDE_DIR}" )
+include_directories(${OPENSSL_INCLUDE_DIR})
+
 set( websocketclient_SOURCES 
   JanusWebsocketClientImpl.cpp
   SpankChainWebsocketClientImpl.cpp
@@ -38,10 +48,9 @@ set( websocketclient_SOURCES
 )
 if( WIN32 )
   set( websocketclient_SOURCES ${websocketclient_SOURCES} dllmain.cpp )
-  add_definitions( -DWEBSOCKETCLIENT_EXPORTS )
-elseif( APPLE )
-  add_definitions( -DWEBSOCKETCLIENT_EXPORTS )
 endif()
+
+add_definitions( -DWEBSOCKETCLIENT_EXPORTS )
 
 set( websocketclient_HEADERS
   json.hpp
@@ -56,88 +65,14 @@ add_library( websocketclient SHARED
   ${websocketclient_HEADERS}
   )
 
-  # libcurl
-  #
-  if (WIN32)
-    set (curl_path "${CURL_INCLUDE_DIR}/../bin/libcurl.lib")
-  elseif (UNIX AND NOT APPLE)
-    set (curl_path "${CURL_INCLUDE_DIR}/../lib/libcurl.a")    
-  elseif (APPLE)
-    set (curl_path "/usr/lib/libcurl.dylib")
-  endif() 
-   
-  target_link_libraries(websocketclient ${curl_path})
-
-# why ?
+message( STATUS "OPENSSL_LIBRARIES: ${OPENSSL_LIBRARIES}." )
 target_link_libraries( websocketclient
-  ${WEBRTC_LIBRARIES}
-)
+  ${curl_path}
+  # NOTE ALEX: this should work but does not work, because FindOpenSSL
+  # gets the wrong libs on mac.
+  # ${OPENSSL_LIBRARIES}
+  ${OPENSSL_ROOT_DIR}/lib/libssl.dylib
+  ${OPENSSL_ROOT_DIR}/lib/libcrypto.dylib
+  )
 
 install_obs_plugin(websocketclient)
-
-if ( APPLE )
-  target_link_libraries( websocketclient
-    /usr/local/Cellar/openssl/1.0.2r/lib/libssl.dylib
-    /usr/local/Cellar/openssl/1.0.2r/lib/libcrypto.dylib
-  )
-endif()
-
-#-------------------------------------------------------------
-# Libwebrtc with OpenSSL
-#
-
-# The developers used an installer for libwebrtc with OpenSSL
-# Change destination if needed
-# Works only if OpenSSL is built as a shared library
-set( libwebrtc_rootdir ${libwebrtc_DIR}/..)
-if ( UNIX AND NOT APPLE )
-  install(
-    FILES       ${libwebrtc_rootdir}/lib/libssl.a
-    DESTINATION ${OBS_EXECUTABLE_DESTINATION} COMPONENT   Libraries )
-  install(
-    FILES       ${libwebrtc_rootdir}/lib/libcrypto.a
-    DESTINATION ${OBS_EXECUTABLE_DESTINATION} COMPONENT   Libraries )
-  install(
-    FILES       ${libwebrtc_rootdir}/lib/libwebrtc.a
-    DESTINATION ${OBS_EXECUTABLE_DESTINATION} COMPONENT   Libraries )
-  install(
-    FILES       ${libwebrtc_rootdir}/lib/libssl.so.1.1
-    DESTINATION ${OBS_EXECUTABLE_DESTINATION} COMPONENT   Libraries )
-  install(
-    FILES       ${libwebrtc_rootdir}/lib/libcrypto.so.1.1
-    DESTINATION ${OBS_EXECUTABLE_DESTINATION} COMPONENT   Libraries )
-elseif ( APPLE )
-  install(
-    FILES       ${libwebrtc_rootdir}/lib/libssl.a
-    DESTINATION ${OBS_EXECUTABLE_DESTINATION} COMPONENT   Libraries )
-  install(
-    FILES       ${libwebrtc_rootdir}/lib/libcrypto.a
-    DESTINATION ${OBS_EXECUTABLE_DESTINATION} COMPONENT   Libraries )
-  install(
-    FILES       ${libwebrtc_rootdir}/lib/libwebrtc.a
-    DESTINATION ${OBS_EXECUTABLE_DESTINATION} COMPONENT   Libraries )
-  install(
-    FILES       ${libwebrtc_rootdir}/lib/libssl.1.1.dylib
-    DESTINATION ${OBS_EXECUTABLE_DESTINATION} COMPONENT   Libraries )
-  install(
-    FILES       ${libwebrtc_rootdir}/lib/libcrypto.1.1.dylib
-    DESTINATION ${OBS_EXECUTABLE_DESTINATION} COMPONENT   Libraries )
-else ( WIN32 )
-  install(
-    FILES       ${libwebrtc_rootdir}/lib/libssl.lib
-    DESTINATION ${OBS_EXECUTABLE_DESTINATION} COMPONENT   Libraries )
-  install(
-    FILES       ${libwebrtc_rootdir}/lib/libcrypto.lib
-    DESTINATION ${OBS_EXECUTABLE_DESTINATION} COMPONENT   Libraries )
-  install(
-    FILES       ${libwebrtc_rootdir}/lib/webrtc.lib
-    DESTINATION ${OBS_EXECUTABLE_DESTINATION} COMPONENT   Libraries )
-  if( EXISTS "${libwebrtc_rootdir}/bin/libssl-1_1-x64.dll" )
-    install(
-      FILES       ${libwebrtc_rootdir}/bin/libssl-1_1-x64.dll
-      DESTINATION ${OBS_EXECUTABLE_DESTINATION} COMPONENT   Runtime )
-    install(
-      FILES       ${libwebrtc_rootdir}/bin/libcrypto-1_1-x64.dll
-      DESTINATION ${OBS_EXECUTABLE_DESTINATION} COMPONENT   Runtime )
-  endif()
-endif ()
