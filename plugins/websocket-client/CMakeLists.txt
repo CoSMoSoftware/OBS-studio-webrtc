@@ -19,6 +19,7 @@ include_directories(${LIBOBS_INCLUDE_DIRS})
 find_package(OpenSSL REQUIRED)
 message( STATUS "OPENSSL_LIBRARIES: ${OPENSSL_LIBRARIES}." )
 message( STATUS "OPENSSL_INCLUDE_DIR: ${OPENSSL_INCLUDE_DIR}" )
+message( STATUS "OPENSSL_VERSION: ${OPENSSL_VERSION}" )
 include_directories(${OPENSSL_INCLUDE_DIR})
 
 #------------------------------------------------------------------------
@@ -62,12 +63,9 @@ add_library( websocketclient SHARED
 target_link_libraries( websocketclient
   # NOTE ALEX: this is project specific and not using the standard module
   ${CURL_LIB}
-  # NOTE ALEX: this should work but does not work, because FindOpenSSL
-  # gets the wrong libs on mac.
-  # ${OPENSSL_LIBRARIES}
-  # NOTE ALEX 2: make it a static lib and CHECK !
-  ${OPENSSL_ROOT_DIR}/lib/libssl.dylib
-  ${OPENSSL_ROOT_DIR}/lib/libcrypto.dylib
+  ${OPENSSL_LIBRARIES}
+  # ${OPENSSL_ROOT_DIR}/lib/libssl.dylib
+  # ${OPENSSL_ROOT_DIR}/lib/libcrypto.dylib
   )
 
 install_obs_plugin(websocketclient)
