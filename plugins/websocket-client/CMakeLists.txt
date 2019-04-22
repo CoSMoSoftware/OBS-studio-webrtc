@@ -14,29 +14,23 @@ find_package(LibObs REQUIRED)
 include_directories(${LIBOBS_INCLUDE_DIRS})
 
 #------------------------------------------------------------------------
-# Asio
+# OpenSSL
 #
-include_directories( ${CMAKE_CURRENT_SOURCE_DIR}/third_party/asio/include )
-include_directories( ${CURL_INCLUDE_DIR} )
-
-#------------------------------------------------------------------------
-# libcurl
-#
-if (WIN32)
-  set (curl_path "${CURL_INCLUDE_DIR}/../bin/libcurl.lib")
-elseif (UNIX AND NOT APPLE)
-  set (curl_path "${CURL_INCLUDE_DIR}/../lib/libcurl.a")    
-elseif (APPLE)
-  set (curl_path "/usr/lib/libcurl.dylib")
-endif() 
-   
-#------------------------------------------------------------------------
-# WebSocket
-#
-
+find_package(OpenSSL REQUIRED)
+message( STATUS "OPENSSL_LIBRARIES: ${OPENSSL_LIBRARIES}." )
 message( STATUS "OPENSSL_INCLUDE_DIR: ${OPENSSL_INCLUDE_DIR}" )
 include_directories(${OPENSSL_INCLUDE_DIR})
 
+#------------------------------------------------------------------------
+# Asio
+#
+include_directories( ${CMAKE_CURRENT_SOURCE_DIR}/third_party/asio/include )
+# NOTE ALEX: this is project specific and not using the standard module
+include_directories( ${CURL_INCLUDE_DIR} )
+
+#------------------------------------------------------------------------
+# WebSocket
+#
 set( websocketclient_SOURCES 
   JanusWebsocketClientImpl.cpp
   SpankChainWebsocketClientImpl.cpp
@@ -45,7 +39,7 @@ set( websocketclient_SOURCES
   restclient-cpp/source/connection.cc
   restclient-cpp/source/helpers.cc
   restclient-cpp/source/restclient.cc
-)
+  )
 if( WIN32 )
   set( websocketclient_SOURCES ${websocketclient_SOURCES} dllmain.cpp )
 endif()
@@ -65,12 +59,13 @@ add_library( websocketclient SHARED
   ${websocketclient_HEADERS}
   )
 
-message( STATUS "OPENSSL_LIBRARIES: ${OPENSSL_LIBRARIES}." )
 target_link_libraries( websocketclient
-  ${curl_path}
+  # NOTE ALEX: this is project specific and not using the standard module
+  ${CURL_LIB}
   # NOTE ALEX: this should work but does not work, because FindOpenSSL
   # gets the wrong libs on mac.
   # ${OPENSSL_LIBRARIES}
+  # NOTE ALEX 2: make it a static lib and CHECK !
   ${OPENSSL_ROOT_DIR}/lib/libssl.dylib
   ${OPENSSL_ROOT_DIR}/lib/libcrypto.dylib
   )
