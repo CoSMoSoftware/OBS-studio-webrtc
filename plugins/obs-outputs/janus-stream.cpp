@@ -42,6 +42,7 @@ extern "C" void janus_stream_destroy(void *data)
 
 extern "C" void *janus_stream_create(obs_data_t *settings, obs_output_t *output)
 {
+  UNUSED_PARAMETER(settings);
   info("janus_stream_create");
   //Create new stream
   WebRTCStream* stream = new WebRTCStream(output);
@@ -53,6 +54,7 @@ extern "C" void *janus_stream_create(obs_data_t *settings, obs_output_t *output)
 
 extern "C" void janus_stream_stop(void *data, uint64_t ts)
 {
+  UNUSED_PARAMETER(ts);
   info("janus_stream_stop");
   //Get stream
   WebRTCStream* stream = (WebRTCStream*)data;
@@ -125,12 +127,12 @@ extern "C" uint64_t janus_stream_total_bytes_sent(void *data)
   return stream->getBitrate();
 }
 
-extern "C" int janus_stream_dropped_frames(void *data)
+extern "C" int janus_stream_dropped_frames(void *)
 {
   return 0;
 }
 
-extern "C" float janus_stream_congestion(void *data)
+extern "C" float janus_stream_congestion(void *)
 {
   return 0.0f;
 }

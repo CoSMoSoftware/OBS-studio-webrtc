@@ -13,7 +13,6 @@
 #include "WebsocketClient.h"
 #include "VideoCapture.h"
 #include "VideoCapturer.h"
-#include "../../../CPPVideoCapturer/CPPVideoCapturer/CPPVideoCapturer.h" //need to be include in a clean way
 #include "AudioDeviceModuleWrapper.h"
 
 #include <rtc_base/platform_file.h>
@@ -27,7 +26,6 @@
 #include "modules/video_capture/video_capture_factory.h"
 #include "api/mediaconstraintsinterface.h"
 #include "api/create_peerconnection_factory.h"
-//#include "api/peerconnectioninterface.h" //already include
 #include "rtc_base/scoped_ref_ptr.h"
 #include "rtc_base/refcountedobject.h"
 #include "rtc_base/thread.h"
@@ -37,7 +35,6 @@ class WebRTCStreamInterface :
   public webrtc::PeerConnectionObserver,
   public webrtc::CreateSessionDescriptionObserver,
   public webrtc::SetSessionDescriptionObserver
-//public cricket::WebRtcVcmFactoryInterface //doesn't exist anymore
 {
 
 };
@@ -73,25 +70,25 @@ public:
   //
   // WebsocketClient::Listener implementation.
   //
-  virtual void onConnected();
-  virtual void onLogged(int code);
-  virtual void onLoggedError(int code);
-  virtual void onOpened(const std::string &sdp);
-  virtual void onOpenedError(int code);
-  virtual void onDisconnected();
+  virtual void onConnected() override;
+  virtual void onLogged(int code) override;
+  virtual void onLoggedError(int code) override;
+  virtual void onOpened(const std::string &sdp) override;
+  virtual void onOpenedError(int code) override;
+  virtual void onDisconnected() override;
 
   //
   // PeerConnectionObserver implementation.
   //
-  void OnSignalingChange(webrtc::PeerConnectionInterface::SignalingState new_state) override {};
-  void OnAddStream(rtc::scoped_refptr<webrtc::MediaStreamInterface> stream) override {};
-  void OnRemoveStream(rtc::scoped_refptr<webrtc::MediaStreamInterface> stream) override {};
-  void OnDataChannel(rtc::scoped_refptr<webrtc::DataChannelInterface> channel) override {}
+  void OnSignalingChange(webrtc::PeerConnectionInterface::SignalingState /*new_state*/) override {};
+  void OnAddStream(rtc::scoped_refptr<webrtc::MediaStreamInterface> /*stream*/) override {};
+  void OnRemoveStream(rtc::scoped_refptr<webrtc::MediaStreamInterface> /*stream*/) override {};
+  void OnDataChannel(rtc::scoped_refptr<webrtc::DataChannelInterface> /*channel*/) override {}
   void OnRenegotiationNeeded() override {}
-  void OnIceConnectionChange(webrtc::PeerConnectionInterface::IceConnectionState new_state) override {};
-  void OnIceGatheringChange(webrtc::PeerConnectionInterface::IceGatheringState new_state) override {};
+  void OnIceConnectionChange(webrtc::PeerConnectionInterface::IceConnectionState /*new_state*/) override {};
+  void OnIceGatheringChange(webrtc::PeerConnectionInterface::IceGatheringState /*new_state*/) override {};
   void OnIceCandidate(const webrtc::IceCandidateInterface* candidate) override;
-  void OnIceConnectionReceivingChange(bool receiving) override {}
+  void OnIceConnectionReceivingChange(bool /*receiving*/) override {}
 
   // CreateSessionDescriptionObserver implementation.
   void OnSuccess(webrtc::SessionDescriptionInterface* desc) override;

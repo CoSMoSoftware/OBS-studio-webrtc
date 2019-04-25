@@ -7,21 +7,18 @@
 
 #include <thread>
 #include <chrono>
+#include <memory>
 
-//#include "api/test/fakeconstraints.h" //not needed anymore
 #include "api/audio_codecs/builtin_audio_decoder_factory.h"
 #include "api/audio_codecs/builtin_audio_encoder_factory.h"
 #include "api/video_codecs/builtin_video_decoder_factory.h"
 #include "api/video_codecs/builtin_video_encoder_factory.h"
-
-//#include "media/engine/webrtcvideocapturerfactory.h" //This file was deleted in recent versions
 #include "modules/video_capture/video_capture_factory.h"
 #include <rtc_base/platform_file.h>
 #include <rtc_base/bitrateallocationstrategy.h>
 #include "rtc_base/checks.h"
 #include "rtc_base/criticalsection.h"
 
-//#include "pc/peerconnectionwrapper.h"
 #include "pc/rtcstatscollector.h"
 
 #define warn(format, ...)  blog(LOG_WARNING, format, ##__VA_ARGS__)
@@ -72,7 +69,6 @@ WebRTCStream::WebRTCStream(obs_output_t * output)
     signaling->Start();
     
     //Create peer connection factory with our audio wrapper module
-    //Only using Windows/Linux ?
     factory = webrtc::CreatePeerConnectionFactory(
                                                   network.get(),
                                                   worker.get(),
@@ -82,12 +78,11 @@ WebRTCStream::WebRTCStream(obs_output_t * output)
                                                   webrtc::CreateBuiltinAudioDecoderFactory(),
                                                   webrtc::CreateBuiltinVideoEncoderFactory(),
                                                   webrtc::CreateBuiltinVideoDecoderFactory(),
-                                                  nullptr, //AudioMixer
-                                                  nullptr  //AudioProcession
+                                                  nullptr,
+                                                  nullptr
                                                   );
     
     //Create capture module with out custome one
-    /* Not sure if it still functions */
     videoCapture = new VideoCapture();
     thumbnailCapture = new VideoCapture();
 
@@ -173,14 +168,12 @@ bool WebRTCStream::start(Type type)
     
     //Config
     webrtc::PeerConnectionInterface::RTCConfiguration config;
-    //webrtc::FakeConstraints constraints; //not required anymore
     webrtc::PeerConnectionInterface::IceServer server;
     server.uri = "stun:stun.l.google.com:19302";
     config.servers.push_back(server);
     
     //Create peer connection
-    //pc = factory->CreatePeerConnection(config, &constraints, NULL, NULL, this);
-    pc = factory->CreatePeerConnection(config, nullptr, nullptr, this);
+    pc = factory->CreatePeerConnection(config, NULL, NULL, this);
     
     //Ensure it was created
     if (!pc.get())
@@ -201,7 +194,7 @@ bool WebRTCStream::start(Type type)
     options.highpass_filter.emplace(false);
     options.audio_jitter_buffer_max_packets.emplace(false);
     options.experimental_ns.emplace(false);
-    //options.aecm_generate_comfort_noise.emplace(false); //no replacement
+    // ALEX: options.aecm_generate_comfort_noise.emplace(false);
     options.typing_detection.emplace(false);
     options.residual_echo_detector.emplace(false);
     options.delay_agnostic_aec.emplace(false);
@@ -216,66 +209,36 @@ bool WebRTCStream::start(Type type)
     //Add stream to track
     stream->AddTrack(audio_track);
     
-    /* VERSION 65
     //Create capturer
-    VideoCapturer* videoCapturer = new VideoCapturer(this);
+    std::unique_ptr<VideoCapturer> videoCapturer = absl::make_unique<VideoCapturer>(); // this);
     //Init it
-    videoCapturer->Init(videoCapture);
+    // ALEX videoCapturer->Init(videoCapture);
 
     //Create video source
-    rtc::scoped_refptr<webrtc::VideoTrackSourceInterface> videoSource = factory->CreateVideoSource(videoCapturer, NULL);
+    rtc::scoped_refptr<webrtc::VideoTrackSourceInterface> videoSource = factory->CreateVideoSource(std::move(videoCapturer), NULL);
     
     //Add video
     video_track = factory->CreateVideoTrack("video", videoSource);
-    */
-    
-    /* Might work with Linux/Windows (still need improvment) but unusable with MAC
-    rtc::scoped_refptr<VideoCapturer> video_device = VideoCapturer::Create(obs_output_get_width(output), obs_output_get_height(output));
-    rtc::scoped_refptr<VideoCapturer> video_device = VideoCapturer::Create(obs_output_get_width(output), obs_output_get_height(output));
-    rtc::scoped_refptr<webrtc::VideoTrackInterface> video_track(factory->CreateVideoTrack("video", video_device));
-    */
-    
-    /*
     //Add stream to track
     stream->AddTrack(video_track);
-    */
-    
-    /* VERSION 65
+
     //If doing thumnails
     if (thumbnail)
     {
       //Create capturer
-      VideoCapturer* thumbnailCapturer = new VideoCapturer(this);
+      auto thumbnailCapturer = absl::make_unique<VideoCapturer>();
       //Init it
-      thumbnailCapturer->Init(thumbnailCapture);
+      // ALEX thumbnailCapturer->Init(thumbnailCapture);
 
       //Create thumbnail source
-      rtc::scoped_refptr<webrtc::VideoTrackSourceInterface> thumbnailSource = factory->CreateVideoSource(thumbnailCapturer, NULL);
+      rtc::scoped_refptr<webrtc::VideoTrackSourceInterface> thumbnailSource = factory->CreateVideoSource(std::move(thumbnailCapturer), NULL);
 
       //Add thumbnail
       rtc::scoped_refptr<webrtc::VideoTrackInterface> thumbnail_track = factory->CreateVideoTrack("thumbnail", thumbnailSource);
       //Add stream to track
       stream->AddTrack(thumbnail_track);
     }
-    */
-
-    /* MAC IMPLEMENTATION USING CPPVideoCapturer */
-    /* How to link the OBS output with our capturer ? */
-    //Declare Factory and Capturer
-    rtc::scoped_refptr<webrtc::PeerConnectionFactoryInterface>  nativeFactory;
-    std::unique_ptr<CPPVideoCapturer> videoCapturer;
-    //Create Capturer and Factory
-    videoCapturer = absl::make_unique<CPPVideoCapturer>();
-    videoCapturer->initialize();
-    nativeFactory = videoCapturer->getNativePeerConnectionFactory();
-    videoCapturer->build();
-    //Create videoSource and video_track
-    rtc::scoped_refptr<webrtc::VideoTrackSourceInterface> videoSource = videoCapturer->getNativeVideoSource();
-    video_track = nativeFactory->CreateVideoTrack("video", videoSource);
-    videoCapturer->start();
-    //Add track to the stream
-    stream->AddTrack(video_track);
-  
+    
     //Add the stream to the peer connection
     if (!pc->AddStream(stream))
     {
@@ -330,7 +293,7 @@ void WebRTCStream::OnSuccess(webrtc::SessionDescriptionInterface * desc)
     //Set local description
     pc->SetLocalDescription(this, desc);
     //Send SDP
-    info("WebRTCStream::OnSuccess: %s", codec.c_str()); //misprint
+    info("WebRTCStream::OnSucess: %s", codec.c_str());
     client->open(sdp, codec, milliId);
 }
 
@@ -396,8 +359,7 @@ void WebRTCStream::onLogged(int code)
     //LOG
     info("onLogged");
     //Create offer
-    //pc->CreateOffer(this, NULL);
-    pc->CreateOffer(this, webrtc::PeerConnectionInterface::RTCOfferAnswerOptions()); //can't be NULL
+    pc->CreateOffer(this, webrtc::PeerConnectionInterface::RTCOfferAnswerOptions());
 }
 
 void WebRTCStream::onLoggedError(int code)

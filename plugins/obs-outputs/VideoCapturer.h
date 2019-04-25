@@ -1,41 +1,30 @@
 #ifndef _OBS_VIDEO_CAPTURER_
 #define _OBS_VIDEO_CAPTURER_
 
-/* Based on the peerconnection example. Might work with Windows/Linux */
+ 
+#include "media/base/video_capturer.h"
+#include "modules/video_capture/video_capture.h"
 
-#include "pc/video_track_source.h"
-#include "test/vcm_capturer.h"
+#include "WebRTCStream.h"
 
-
-class VideoCapturer : public webrtc::VideoTrackSource
+class VideoCapturer  : public cricket::VideoCapturer // : public cricket::WebRtcVideoCapturer
 {
 public:
-    ~VideoCapturer() { }
-    static rtc::scoped_refptr<VideoCapturer> Create(size_t, size_t);
+//  explicit VideoCapturer(cricket::WebRtcVcmFactoryInterface* factory)
+// : cricket::WebRtcVideoCapturer(factory) { }
 
-protected:
-    explicit VideoCapturer(std::unique_ptr<webrtc::test::VcmCapturer> capturer)
-    : VideoTrackSource(/*remote=*/false), capturer_(std::move(capturer)) {}
-    
-private:
-    rtc::VideoSourceInterface<webrtc::VideoFrame>* source() override {
-        return capturer_.get();
-    }
-    std::unique_ptr<webrtc::test::VcmCapturer> capturer_;
-};
+//  VideoCapturer(WebRTCStream *) { };
 
 
-/* VERSION 65
-#include "media/engine/webrtcvideocapturer.h"
+  // video capture interface
+  virtual cricket::CaptureState Start(const cricket::VideoFormat& capture_format) override {};
+  virtual void Stop() override {};
+  virtual bool IsRunning() override {};
+  virtual bool IsScreencast() const override {};
+  virtual bool GetPreferredFourccs(std::vector<uint32_t>* fourccs) override {};
 
-class VideoCapturer : public cricket::WebRtcVideoCapturer
-{
-public:
-  explicit VideoCapturer(cricket::WebRtcVcmFactoryInterface* factory)
-  : cricket::WebRtcVideoCapturer(factory) { }
   ~VideoCapturer() { }
   bool Init(const rtc::scoped_refptr<webrtc::VideoCaptureModule>& module);
 };
-*/
 
 #endif
