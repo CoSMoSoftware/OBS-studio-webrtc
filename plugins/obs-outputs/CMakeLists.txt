@@ -10,9 +10,67 @@ if (WITH_RTMPS OR (WITH_RTMPS STREQUAL "AUTO"))
 	find_package(ZLIB QUIET)
 endif()
 
-if (LIBMBEDTLS_FOUND AND ZLIB_FOUND)
-	add_definitions(-DCRYPTO -DUSE_MBEDTLS)
-	include_directories(${LIBMBEDTLS_INCLUDE_DIRS} ${ZLIB_INCLUDE_DIRS})
+# --- Find libwebrtc or fail early
+if( WIN32 )
+  # NOTE ALEX: David claims that it does not work.
+  # the problem WOULD come from this call not going through and not
+  # setting the include dirs properly on windows.
+  # One should never manually set that variable to zero, but in this
+  # specific case this is the right way to approach the problem.
+  set(WEBRTC_USE_FILE_INCLUDED 0)
+endif()
+find_package(libwebrtc 69 REQUIRED)
+
+if (EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/ftl-sdk/CMakeLists.txt")
+  find_package(Libcurl REQUIRED)
+
+  add_definitions(-DFTL_STATIC_COMPILE)
+
+  include_directories(${LIBCURL_INCLUDE_DIRS})
+
+  set(ftl_SOURCES
+    ftl-stream.c
+    ftl-sdk/libftl/hmac/hmac.c
+    ftl-sdk/libftl/hmac/sha2.c
+    ftl-sdk/libftl/ftl-sdk.c
+    ftl-sdk/libftl/handshake.c
+    ftl-sdk/libftl/ingest.c
+    ftl-sdk/libftl/ftl_helpers.c
+    ftl-sdk/libftl/media.c
+    ftl-sdk/libftl/gettimeofday/gettimeofday.c
+    ftl-sdk/libftl/logging.c)
+  set(ftl_HEADERS
+    ftl-sdk/libftl/hmac/hmac.h
+    ftl-sdk/libftl/hmac/sha2.h
+    ftl-sdk/libftl/ftl.h
+    ftl-sdk/libftl/ftl_private.h)
+  set(ftl_IMPORTS
+    ${OBS_JANSSON_IMPORT}
+    ${LIBCURL_LIBRARIES})
+
+  if (WIN32)
+    list(APPEND ftl_SOURCES
+      ftl-sdk/libftl/win32/socket.c
+      ftl-sdk/libftl/gettimeofday/gettimeofday.c
+      ftl-sdk/libftl/win32/threads.c)
+    list(APPEND ftl_HEADERS
+      ftl-sdk/libftl/gettimeofday/gettimeofday.h
+      ftl-sdk/libftl/win32/threads.h)
+
+    include_directories(ftl-sdk/libftl/win32)
+  else()
+    list(APPEND ftl_SOURCES
+      ftl-sdk/libftl/posix/socket.c
+      ftl-sdk/libftl/posix/threads.c)
+    list(APPEND ftl_HEADERS
+      ftl-sdk/libftl/posix/threads.h)
+
+    include_directories(ftl-sdk/libftl/posix)
+  endif()
+
+  include_directories(ftl-sdk/libftl)
+
+  set(COMPILE_FTL TRUE)
 else()
 	if(WITH_RTMPS STREQUAL "AUTO")
 		message(WARNING "mbedTLS was not found, RTMPS will be auto-disabled")

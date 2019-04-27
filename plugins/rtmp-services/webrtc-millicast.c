@@ -103,8 +103,11 @@ static obs_properties_t *webrtc_millicast_properties(void *unused)
 	p = obs_properties_get(ppts, "server");
 	obs_property_set_visible(p, false);
 
-	p = obs_properties_get(ppts, "room");
-	obs_property_set_visible(p, false);
+  obs_property_list_add_string(obs_properties_get(ppts, "server"),"Auto (Recommended)", "wss://live.millicast.com:443/ws/v1/pub");
+  // NOTE ALEX: the default version of libwebrtc does not include support for H264 in software.
+  obs_property_list_add_string(obs_properties_get(ppts, "codec"),"h264", "h264");
+  obs_property_list_add_string(obs_properties_get(ppts, "codec"),"vp8", "vp8");
+  obs_property_list_add_string(obs_properties_get(ppts, "codec"),"vp9", "vp9");
 
 	p = obs_properties_get(ppts, "username");
 	obs_property_set_visible(p, true);
