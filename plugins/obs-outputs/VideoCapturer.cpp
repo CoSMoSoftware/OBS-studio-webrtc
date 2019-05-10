@@ -1,13 +1,43 @@
 #include "VideoCapturer.h"
+#include "WebRTCStream.h"
 
-// bool VideoCapturer::Init(const rtc::scoped_refptr<webrtc::VideoCaptureModule>& module)
-// {
-//  //Set supported formats
-//  std::vector<cricket::VideoFormat> supported;
-//  //Push them
-//  supported.push_back(cricket::VideoFormat(600, 400, 30, cricket::FOURCC_NV12));
-//  //Set them
-//  SetSupportedFormats(supported);
-//  //OK
-//  return true;
-// }
+VideoCapturer::VideoCapturer() : captured_frames_(0), start_thread_(nullptr) {}
+
+VideoCapturer::~VideoCapturer() {}
+
+cricket::CaptureState VideoCapturer::Start(const cricket::VideoFormat& capture_format)
+{
+    if (start_thread_) {
+        RTC_LOG(LS_ERROR) << "The capturer is already running";
+        RTC_DCHECK(start_thread_->IsCurrent())
+        << "Trying to start capturer on different threads";
+        return cricket::CS_FAILED;
+    }
+
+    start_thread_ = rtc::Thread::Current();
+    captured_frames_ = 0;
+    SetCaptureState(cricket::CS_RUNNING);
+
+    return cricket::CS_STARTING;
+}
+
+void VideoCapturer::Stop()
+{
+    if (!start_thread_) {
+        RTC_LOG(LS_ERROR) << "The capturer is already stopped";
+        return;
+    }
+
+    RTC_DCHECK(start_thread_);
+    RTC_DCHECK(start_thread_->IsCurrent());
+    start_thread_ = nullptr;
+    SetCaptureState(cricket::CS_STOPPED);
+}
+
+void VideoCapturer::OnFrame(const webrtc::VideoFrame& frame)
+{
+    RTC_DCHECK(start_thread_);
+    ++captured_frames_;
+
+    cricket::VideoCapturer::OnFrame(frame, frame.width(), frame.height());
+}

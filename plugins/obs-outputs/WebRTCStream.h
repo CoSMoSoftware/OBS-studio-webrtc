@@ -2,7 +2,7 @@
 #define _WEBRTCSTREAM_H_
 
 // NOTE ALEX: WTF
-#pragma comment(lib,"Strmiids.lib") 
+#pragma comment(lib,"Strmiids.lib")
 #pragma comment(lib,"Secur32.lib")
 #pragma comment(lib,"Msdmo.lib")
 #pragma comment(lib,"dmoguids.lib")
@@ -139,6 +139,7 @@ private:
   //Video Wrappers
   webrtc::VideoCaptureCapability videoCaptureCapability;
   rtc::scoped_refptr<VideoCapture> videoCapture;
+  VideoCapturer* videoCapturer;
   //Thumbnail wrapper
   webrtc::VideoCaptureCapability thumbnailCaptureCapability;
   rtc::scoped_refptr<VideoCapture> thumbnailCapture;

@@ -1,30 +1,29 @@
 #ifndef _OBS_VIDEO_CAPTURER_
 #define _OBS_VIDEO_CAPTURER_
 
- 
+
 #include "media/base/video_capturer.h"
-#include "modules/video_capture/video_capture.h"
+#include "rtc_base/thread.h"
 
-#include "WebRTCStream.h"
+class WebRTCStream;
 
-class VideoCapturer  : public cricket::VideoCapturer // : public cricket::WebRtcVideoCapturer
+class VideoCapturer : public cricket::VideoCapturer
 {
 public:
-//  explicit VideoCapturer(cricket::WebRtcVcmFactoryInterface* factory)
-// : cricket::WebRtcVideoCapturer(factory) { }
+    VideoCapturer();
+    ~VideoCapturer();
+    void OnFrame(const webrtc::VideoFrame& frame);
 
-//  VideoCapturer(WebRTCStream *) { };
+    // video capturer interface
+    cricket::CaptureState Start(const cricket::VideoFormat& capture_format) override;
+    void Stop() override;
+    bool IsRunning() override {}
+    bool IsScreencast() const override { return false; }
+    bool GetPreferredFourccs(std::vector<uint32_t>* fourccs) override { return true; }
 
-
-  // video capture interface
-  virtual cricket::CaptureState Start(const cricket::VideoFormat& capture_format) override {};
-  virtual void Stop() override {};
-  virtual bool IsRunning() override {};
-  virtual bool IsScreencast() const override {};
-  virtual bool GetPreferredFourccs(std::vector<uint32_t>* fourccs) override {};
-
-  ~VideoCapturer() { }
-  bool Init(const rtc::scoped_refptr<webrtc::VideoCaptureModule>& module);
+private:
+    rtc::Thread* start_thread_;
+    int captured_frames_;
 };
 
 #endif

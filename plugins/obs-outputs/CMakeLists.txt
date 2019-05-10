@@ -35,10 +35,6 @@ if( WIN32 )
   set(WEBRTC_USE_FILE_INCLUDED 0)
 endif()
 find_package(libwebrtc 73 REQUIRED)
-if( APPLE )
-  # NOTE ALEX: we shoul dnot need this, as we are using OBS cpaturers. Ludo, CLEAN ME.
-  find_package( CppMacVideoCapturer REQUIRED )
-endif()
 
 
 if (EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/ftl-sdk/CMakeLists.txt")
@@ -117,8 +113,6 @@ if( WIN32 )
 elseif( APPLE )
   set( obs-outputs_PLATFORM_DEPS
     ${WEBRTC_LIBRARIES}
-    # NOTE ALEX: we should not need that since we are not using webrtc capturers,
-    CppMacVideoCapturer::VideoCapturer
   )
 endif()
 
