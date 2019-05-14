@@ -17,7 +17,7 @@ public:
     // video capturer interface
     cricket::CaptureState Start(const cricket::VideoFormat& capture_format) override;
     void Stop() override;
-    bool IsRunning() override {}
+    bool IsRunning() override { return start_thread_; }
     bool IsScreencast() const override { return false; }
     bool GetPreferredFourccs(std::vector<uint32_t>* fourccs) override { return true; }
 
