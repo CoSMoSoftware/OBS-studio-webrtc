@@ -46,7 +46,7 @@ SpankChainWebsocketClientImpl::~SpankChainWebsocketClientImpl()
     disconnect(false);
 }
 
-bool SpankChainWebsocketClientImpl::connect(std::string url, long long room, std::string apiURL, std::string token, WebsocketClient::Listener* listener)
+bool SpankChainWebsocketClientImpl::connect(const std::string& url, long long room, const std::string& apiURL, const std::string & token, Listener* listener)
 {
     websocketpp::lib::error_code ec;
 
@@ -84,7 +84,7 @@ bool SpankChainWebsocketClientImpl::connect(std::string url, long long room, std
                 std::string sdp = data["sdp"];
                 std::string feedId = data["feedId"];
 
-    //Event
+		//Event
                 listener->onOpened(sdp);
 
                 std::cout << "Sending post with feedId: " << feedId << std::endl;
@@ -112,7 +112,7 @@ bool SpankChainWebsocketClientImpl::connect(std::string url, long long room, std
         client.set_open_handler([=](websocketpp::connection_hdl con){
             //Launch event
             listener->onConnected();
-      //And logged
+	    //And logged
             listener->onLogged(0);
         });
         //Set close hanlder
@@ -140,7 +140,7 @@ bool SpankChainWebsocketClientImpl::connect(std::string url, long long room, std
             }
             return ctx;
         });
-  //Create websocket connection and add token and callback parameters
+	//Create websocket connection and add token and callback parameters
         std::string wss = url + "/?token=" + token + "&callback=" + urlencode(apiURL + "/camshows/auth/token/status");
         //Get connection
         connection = client.get_connection(wss, ec);
@@ -182,7 +182,7 @@ bool SpankChainWebsocketClientImpl::open(const std::string &sdp, const std::stri
                 {
                     { "sdp"    , sdp   },
                     { "name"   , "obs" },
-                { "codec" , codec },
+		    { "codec" , codec },
                     { "tracks" ,
                         {
                             { "audio"     , "audio"     },

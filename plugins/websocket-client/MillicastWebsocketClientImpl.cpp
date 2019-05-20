@@ -25,15 +25,7 @@ MillicastWebsocketClientImpl::
 }
 
 
-bool
-MillicastWebsocketClientImpl::
-connect(
-  std::string url,
-  long long   room,
-  std::string apiURL,
-  std::string token,
-  WebsocketClient::Listener* listener
-)
+bool MillicastWebsocketClientImpl::connect(const std::string& url, long long room, const std::string& username, const std::string & token, Listener* listener)
 {
   websocketpp::lib::error_code ec;
   try
@@ -50,13 +42,15 @@ connect(
                              asio::ssl::context::single_dh_use);
 
         } catch (std::exception &e) {
-              std::cout << "> exception: "<< std::endl;
+              std::cout << "> exception: "<< e.what() << std::endl;
         }
         return ctx;
     });
+    //Copy token
+    this->token = token;
     // remove space in the token
-    token.erase(remove_if(token.begin(), token.end(), isspace), token.end());
-    std::string wss = url + "?token=" + token;
+    this->token.erase(remove_if(this->token.begin(), this->token.end(), isspace), this->token.end());
+    std::string wss = url + "?token=" + this->token;
 
     // Create websocket connection and add token and callback parameters
     std::cout << " Connection URL: " << wss  << std::endl;

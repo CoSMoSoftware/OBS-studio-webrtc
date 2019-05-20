@@ -20,7 +20,7 @@ JanusWebsocketClientImpl::~JanusWebsocketClientImpl()
   disconnect(false);
 }
 
-bool JanusWebsocketClientImpl::connect(std::string url, long long room, std::string username, std::string token, WebsocketClient::Listener* listener)
+bool JanusWebsocketClientImpl::connect(const std::string& url, long long room, const std::string& username, const std::string & token, Listener* listener)
 {
   websocketpp::lib::error_code ec;
   

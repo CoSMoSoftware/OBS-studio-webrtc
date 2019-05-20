@@ -19,25 +19,10 @@ class MillicastWebsocketClientImpl : public WebsocketClient
 public:
     MillicastWebsocketClientImpl();
     ~MillicastWebsocketClientImpl();
-    virtual bool connect(
-      std::string url,
-      long long room,
-      std::string username,
-      std::string token,
-      WebsocketClient::Listener* listener
-    );
-    virtual bool open(
-      const std::string &sdp,
-      const std::string& codec = "h264",
-      const std::string& milliId = ""
-    );
-    virtual bool trickle(
-      const std::string &mid,
-      int index,
-      const std::string &candidate,
-      bool last
-    );
-    virtual bool disconnect(bool wait);
+    virtual bool connect(const std::string& url, long long room, const std::string& username, const std::string & token, Listener* listener) override;
+    virtual bool open(const std::string &sdp, const std::string& codec = "h264", const std::string& milliId = "") override;
+    virtual bool trickle(const std::string &mid, int index, const std::string &candidate, bool last) override;
+    virtual bool disconnect(bool wait)  override;
 
 private:
     bool logged;

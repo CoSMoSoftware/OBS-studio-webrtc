@@ -31,6 +31,7 @@
 class CustomLogger : public rtc::LogSink
 {
 public:
+    
     virtual void OnLogMessage(const std::string& message)
     {
         debug("webrtc: %s",message.c_str());
@@ -47,6 +48,7 @@ WebRTCStream::WebRTCStream(obs_output_t * output)
     thumbnailDownscale = 1;
 
     rtc::LogMessage::ConfigureLogging("info");
+    rtc::LogMessage::AddLogToStream(&logger, rtc::LoggingSeverity::LS_VERBOSE);
 
     //Store output
     this->output = output;
