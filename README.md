@@ -58,6 +58,8 @@ By may 2019, [free libwebrtc community packages](https://www.cosmosoftware.io/pr
 
 Follow the original compilation, Installation and packaging guide https://github.com/obsproject/obs-studio
 
+In addition, please read https://github.com/CoSMoSoftware/OBS-studio-webrtc/wiki/Dev-process to adapt the build process when required.
+
 ## Usage with a Janus server
 
 ### Configure JANUS
