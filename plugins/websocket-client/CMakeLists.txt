@@ -16,7 +16,7 @@ include_directories(${LIBOBS_INCLUDE_DIRS})
 #------------------------------------------------------------------------
 # OpenSSL
 #
-find_package(OpenSSL REQUIRED)
+find_package(OpenSSL 1.1 REQUIRED)
 include_directories(${OPENSSL_INCLUDE_DIR})
 
 #------------------------------------------------------------------------
