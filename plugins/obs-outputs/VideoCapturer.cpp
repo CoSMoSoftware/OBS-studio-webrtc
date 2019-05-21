@@ -7,6 +7,8 @@ VideoCapturer::~VideoCapturer() {}
 
 cricket::CaptureState VideoCapturer::Start(const cricket::VideoFormat& capture_format)
 {
+    std::unique_lock<std::mutex> lock(mutex);
+
     if (start_thread_) {
         RTC_LOG(LS_ERROR) << "The capturer is already running";
         RTC_DCHECK(start_thread_->IsCurrent())
@@ -23,6 +25,8 @@ cricket::CaptureState VideoCapturer::Start(const cricket::VideoFormat& capture_f
 
 void VideoCapturer::Stop()
 {
+    mutex.lock();
+
     if (!start_thread_) {
         RTC_LOG(LS_ERROR) << "The capturer is already stopped";
         return;
@@ -30,6 +34,7 @@ void VideoCapturer::Stop()
 
     RTC_DCHECK(start_thread_);
     RTC_DCHECK(start_thread_->IsCurrent());
+    mutex.unlock();
     start_thread_ = nullptr;
     SetCaptureState(cricket::CS_STOPPED);
 }

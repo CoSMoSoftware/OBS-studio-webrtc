@@ -5,6 +5,8 @@
 #include "media/base/video_capturer.h"
 #include "rtc_base/thread.h"
 
+#include <mutex>
+
 class WebRTCStream;
 
 class VideoCapturer : public cricket::VideoCapturer
@@ -24,6 +26,7 @@ public:
 private:
     rtc::Thread* start_thread_;
     int captured_frames_;
+    std::mutex  mutex;
 };
 
 #endif
