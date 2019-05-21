@@ -27,16 +27,10 @@ add_subdirectory(nlohmann_json)
 # OpenSSL
 #
 find_package(OpenSSL 1.1 REQUIRED)
-
-if(NOT ${OPENSSL_FOUND})
-	message(FATAL_ERROR "OpenSSL not found")
-endif()
-
 message(STATUS "OPENSSL_INCLUDE_DIR: ${OPENSSL_INCLUDE_DIR}")
 message(STATUS "OPENSSL_CRYPTO_LIBRARY: ${OPENSSL_CRYPTO_LIBRARY}")
 message(STATUS "OPENSSL_SSL_LIBRARY: ${OPENSSL_SSL_LIBRARY}")
 message(STATUS "OPENSSL_VERSION: ${OPENSSL_VERSION}")
-
 include_directories(${OPENSSL_INCLUDE_DIR})
 
 #------------------------------------------------------------------------
