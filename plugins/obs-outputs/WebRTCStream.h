@@ -16,18 +16,18 @@
 #include "AudioDeviceModuleWrapper.h"
 
 #include <rtc_base/platform_file.h>
-#include <rtc_base/bitrateallocationstrategy.h>
+#include <rtc_base/bitrate_allocation_strategy.h>
 #include <modules/audio_processing/include/audio_processing.h>
 
-#include "api/mediastreaminterface.h"
-#include "api/peerconnectioninterface.h"
+#include "api/media_stream_interface.h"
+#include "api/peer_connection_interface.h"
 #include "modules/video_capture/video_capture.h"
 #include "modules/video_capture/video_capture_defines.h"
 #include "modules/video_capture/video_capture_factory.h"
-#include "api/mediaconstraintsinterface.h"
+#include "api/media_constraints_interface.h"
 #include "api/create_peerconnection_factory.h"
 #include "rtc_base/scoped_ref_ptr.h"
-#include "rtc_base/refcountedobject.h"
+#include "rtc_base/ref_counted_object.h"
 #include "rtc_base/thread.h"
 
 class WebRTCStreamInterface :
