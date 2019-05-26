@@ -2,12 +2,14 @@
 #define _WEBRTCSTREAM_H_
 
 // NOTE ALEX: WTF
+#if WIN32
 #pragma comment(lib,"Strmiids.lib")
 #pragma comment(lib,"Secur32.lib")
 #pragma comment(lib,"Msdmo.lib")
 #pragma comment(lib,"dmoguids.lib")
 #pragma comment(lib,"wmcodecdspuuid.lib")
 #pragma comment(lib,"amstrmid.lib")
+#endif
 
 #include "obs.h"
 #include "WebsocketClient.h"

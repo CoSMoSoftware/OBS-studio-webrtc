@@ -1,7 +1,6 @@
 #include <obs-module.h>
 #include <openssl/opensslv.h>
 #include "JanusWebsocketClientImpl.h"
-#include "SpankChainWebsocketClientImpl.h"
 #include "MillicastWebsocketClientImpl.h"
 
 OBS_DECLARE_MODULE()
@@ -16,8 +15,6 @@ WEBSOCKETCLIENT_API WebsocketClient* createWebsocketClient(int type)
 {
   if (type == WEBSOCKETCLIENT_JANUS)
     return new JanusWebsocketClientImpl();
-  if (type == WEBSOCKETCLIENT_SPANKCHAIN)
-    return new SpankChainWebsocketClientImpl();
   if (type == WEBSOCKETCLIENT_MILLICAST)
     return new MillicastWebsocketClientImpl();
   return nullptr;

@@ -145,7 +145,6 @@ set( obs-outputs_HEADERS
   rtmp-helpers.h
   rtmp-stream.h
   janus-stream.h
-  spankchain-stream.h
   millicast-stream.h
   net-if.h
   AudioDeviceModuleWrapper.h
@@ -159,7 +158,6 @@ set( obs-outputs_SOURCES
   obs-outputs.c
   rtmp-stream.c
   janus-stream.cpp
-  spankchain-stream.cpp
   millicast-stream.cpp
   rtmp-windows.c
   AudioDeviceModuleWrapper.cpp

@@ -5,7 +5,11 @@ VideoCapturer::VideoCapturer() : captured_frames_(0), start_thread_(nullptr) {}
 
 VideoCapturer::~VideoCapturer() {}
 
-cricket::CaptureState VideoCapturer::Start(const cricket::VideoFormat& capture_format)
+cricket::CaptureState
+VideoCapturer::
+Start(
+  const cricket::VideoFormat& /* unused capture_format */
+)
 {
     std::unique_lock<std::mutex> lock(mutex);
 

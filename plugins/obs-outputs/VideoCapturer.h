@@ -21,7 +21,7 @@ public:
     void Stop() override;
     bool IsRunning() override { return start_thread_; }
     bool IsScreencast() const override { return false; }
-    bool GetPreferredFourccs(std::vector<uint32_t>* fourccs) override { return true; }
+    bool GetPreferredFourccs(std::vector<uint32_t>* /* unused fourccs */) override { return true; }
 
 private:
     rtc::Thread* start_thread_;
