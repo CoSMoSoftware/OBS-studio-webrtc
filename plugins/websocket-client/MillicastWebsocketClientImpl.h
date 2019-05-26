@@ -25,9 +25,9 @@ public:
     virtual bool disconnect(bool wait)  override;
 
 private:
-    bool logged;
+    // Candidate for deletion: bool logged;
     std::string token;
-    long long handle_id;
+    // Candidate for deletion: long long handle_id;
 
     std::atomic<bool> is_running;
     std::future<void> handle;

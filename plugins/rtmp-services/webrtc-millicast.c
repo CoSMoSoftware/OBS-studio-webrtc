@@ -89,6 +89,7 @@ static const char *webrtc_millicast_token(void *data)
 }
 static const char *webrtc_millicast_room(void *data)
 {
+  UNUSED_PARAMETER(data);
   return "1";
 }
 
