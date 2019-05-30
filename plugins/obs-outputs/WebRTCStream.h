@@ -13,7 +13,6 @@
 
 #include "obs.h"
 #include "WebsocketClient.h"
-#include "VideoCapture.h"
 #include "VideoCapturer.h"
 #include "AudioDeviceModuleWrapper.h"
 
@@ -23,9 +22,6 @@
 
 #include "api/media_stream_interface.h"
 #include "api/peer_connection_interface.h"
-#include "modules/video_capture/video_capture.h"
-#include "modules/video_capture/video_capture_defines.h"
-#include "modules/video_capture/video_capture_factory.h"
 #include "api/media_constraints_interface.h"
 #include "api/create_peerconnection_factory.h"
 #include "rtc_base/scoped_ref_ptr.h"
@@ -99,19 +95,6 @@ public:
   void OnSuccess() override;
   //void OnFailure(const std::string& error) override;
 
-  virtual rtc::scoped_refptr<webrtc::VideoCaptureModule> Create(const char*)
-  {
-    return videoCapture;
-  }
-  virtual webrtc::VideoCaptureModule::DeviceInfo* CreateDeviceInfo()
-  {
-    return webrtc::VideoCaptureFactory::CreateDeviceInfo();
-  }
-  virtual void DestroyDeviceInfo(webrtc::VideoCaptureModule::DeviceInfo* info)
-  {
-    delete(info);
-  }
-
   //bitrate
   uint64_t getBitrate();
 
@@ -138,13 +121,11 @@ private:
   WebsocketClient* client;
   //Audio Wrapper
   AudioDeviceModuleWrapper adm;
-  //Video Wrappers
-  webrtc::VideoCaptureCapability videoCaptureCapability;
-  rtc::scoped_refptr<VideoCapture> videoCapture;
+  //Video Capturer
   VideoCapturer* videoCapturer;
   //Thumbnail wrapper
-  webrtc::VideoCaptureCapability thumbnailCaptureCapability;
-  rtc::scoped_refptr<VideoCapture> thumbnailCapture;
+  //webrtc::VideoCaptureCapability thumbnailCaptureCapability;
+  //rtc::scoped_refptr<VideoCapture> thumbnailCapture;
   uint32_t picId;
   uint8_t thumbnailDownscale;
   uint8_t thumbnailDownrate;
@@ -182,7 +163,7 @@ public:
       int videoLine = findLines(sdpLines, "m=video ");
       newLineBitrate << "b=AS:" << newBitrate;
 
-      sdpLines.insert(sdpLines.begin() + videoLine + 2, newLineBitrate.str()); 
+      sdpLines.insert(sdpLines.begin() + videoLine + 2, newLineBitrate.str());
       sdp = join(sdpLines, "\r\n");
   }
 

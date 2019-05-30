@@ -98,7 +98,7 @@ configure_file(
 include_directories("${CMAKE_BINARY_DIR}/plugins/obs-outputs/config")
 
 if( WIN32 )
-  set( obs-outputs_PLATFORM_DEPS  
+  set( obs-outputs_PLATFORM_DEPS
     ${WEBRTC_LIBRARIES}
     ws2_32
     winmm
@@ -128,7 +128,7 @@ set(obs-outputs_librtmp_HEADERS
   librtmp/md5.h
   librtmp/rtmp.h
   librtmp/rtmp_sys.h)
-  
+
 set(obs-outputs_librtmp_SOURCES
   librtmp/amf.c
   librtmp/cencode.c
@@ -148,7 +148,7 @@ set( obs-outputs_HEADERS
   millicast-stream.h
   net-if.h
   AudioDeviceModuleWrapper.h
-  VideoCapture.h
+#  VideoCapture.h
   VideoCapturer.h
   WebRTCStream.h
   WebsocketClient.h

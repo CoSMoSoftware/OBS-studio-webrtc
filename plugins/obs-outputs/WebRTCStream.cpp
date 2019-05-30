@@ -15,7 +15,6 @@
 #include "api/video_codecs/builtin_video_decoder_factory.h"
 #include "api/video_codecs/builtin_video_encoder_factory.h"
 #include "api/video/i420_buffer.h"
-#include "modules/video_capture/video_capture_factory.h"
 #include <rtc_base/platform_file.h>
 #include <rtc_base/bitrateallocationstrategy.h>
 #include "rtc_base/checks.h"
@@ -31,7 +30,7 @@
 class CustomLogger : public rtc::LogSink
 {
 public:
-    
+
   virtual void OnLogMessage(const std::string& message)
   {
     debug("webrtc: %s",message.c_str());
@@ -56,7 +55,7 @@ WebRTCStream::WebRTCStream(obs_output_t * output)
 
   //Block adm
   adm.AddRef();
-    
+
   //Network thread
   network = rtc::Thread::CreateWithSocketServer();
   network->SetName("network", nullptr);
@@ -71,7 +70,7 @@ WebRTCStream::WebRTCStream(obs_output_t * output)
   signaling = rtc::Thread::Create();
   signaling->SetName("signaling", nullptr);
   signaling->Start();
-    
+
   //Create peer connection factory with our audio wrapper module
   factory = webrtc::CreatePeerConnectionFactory(
     network.get(),
@@ -85,11 +84,11 @@ WebRTCStream::WebRTCStream(obs_output_t * output)
     nullptr,
     nullptr
   );
-    
+
   //Create capture module with out custome one
-  videoCapture = new VideoCapture();
   videoCapturer = new VideoCapturer();
-  thumbnailCapture = new VideoCapture();
+  //thumbnailCapture = new VideoCapture();
+
 
   //bitrate and dropped frame
   bitrate = 0;
@@ -103,9 +102,8 @@ WebRTCStream::~WebRTCStream()
   //Free factories first
   pc = NULL;
   factory = NULL;
-  videoCapture = NULL;
   videoCapturer = NULL;
-  thumbnailCapture = NULL;
+  //thumbnailCapture = NULL;
 
   //Stop all thread
   if (!network->IsCurrent())   network->Stop();
@@ -171,16 +169,16 @@ bool WebRTCStream::start(Type type)
 
   //Stop just in case
   stop();
-    
+
   //Config
   webrtc::PeerConnectionInterface::RTCConfiguration config;
   webrtc::PeerConnectionInterface::IceServer server;
   server.uri = "stun:stun.l.google.com:19302";
   config.servers.push_back(server);
-    
+
   //Create peer connection
   pc = factory->CreatePeerConnection(config, NULL, NULL, this);
-    
+
   //Ensure it was created
   if (!pc.get())
   {
@@ -193,7 +191,7 @@ bool WebRTCStream::start(Type type)
   //Create the media stream
   rtc::scoped_refptr<webrtc::MediaStreamInterface> stream = factory->CreateLocalMediaStream("obs");
   cricket::AudioOptions options;
-   
+
   options.echo_cancellation.emplace(false);
   options.auto_gain_control.emplace(false);
   options.noise_suppression.emplace(false);
@@ -385,7 +383,7 @@ void WebRTCStream::onOpened(const std::string &sdp)
 
   // Enable stereo
   SDPModif::stereoSDP(sdpNotConst);
-    
+
   webrtc::SdpParseError error;
   webrtc::SessionDescriptionInterface* answer =
   webrtc::CreateSessionDescription(webrtc::SessionDescriptionInterface::kAnswer, sdpNotConst, &error);
