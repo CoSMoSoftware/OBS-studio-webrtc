@@ -172,7 +172,7 @@ set( obs-outputs_SOURCES
 # --- library target
 add_library( obs-outputs MODULE
   ${obs-outputs_SOURCES}
-  ${obs-outputs_HEADER}
+  ${obs-outputs_HEADERS}
   ${obs-outputs_librtmp_SOURCES}
   ${obs-outputs_librtmp_HEADERS}
 )
