@@ -35,7 +35,10 @@ if( WIN32 )
   set(WEBRTC_USE_FILE_INCLUDED 0)
 endif()
 find_package(libwebrtc 73 REQUIRED)
-
+message( STATUS "WebRTC Libs: " )
+foreach( _lib ${WEBRTC_LIBRARIES} )
+  message( STATUS "-- ${_lib}" )
+endforeach()
 
 if (EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/ftl-sdk/CMakeLists.txt")
   find_package(Libcurl REQUIRED)
@@ -99,21 +102,16 @@ include_directories("${CMAKE_BINARY_DIR}/plugins/obs-outputs/config")
 
 if( WIN32 )
   set( obs-outputs_PLATFORM_DEPS
-    ${WEBRTC_LIBRARIES}
     ws2_32
     winmm
     Iphlpapi
-  )
+    )
   if( MSVC )
     set( obs-outputs_PLATFORM_DEPS
-    ${obs-outputs_PLATFORM_DEPS}
-    w32-pthreads
-  )
+      ${obs-outputs_PLATFORM_DEPS}
+      w32-pthreads
+      )
   endif( MSVC )
-elseif( APPLE )
-  set( obs-outputs_PLATFORM_DEPS
-    ${WEBRTC_LIBRARIES}
-  )
 endif()
 
 set(obs-outputs_librtmp_HEADERS
@@ -178,6 +176,7 @@ add_library( obs-outputs MODULE
 )
 
 target_link_libraries( obs-outputs
+  ${WEBRTC_LIBRARIES}
   ${SSL_LIBRARIES}
   ${ZLIB_LIBRARIES}
   ${obs-outputs_PLATFORM_DEPS}
