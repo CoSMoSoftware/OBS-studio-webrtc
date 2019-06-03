@@ -30,6 +30,10 @@ ccache -s || echo "CCache is not available."
 wget --retry-connrefused --waitretry=1 https://s3-us-west-2.amazonaws.com/obs-nightly/osx-deps.tar.gz
 tar -xf ./osx-deps.tar.gz -C /tmp
 
+# Fetch libwebrtc 73 Community Edition
+wget --retry-connrefused --waitretry=1 https://drive.google.com/open?id=1cmt4_-6RM9fr_xOVuGha4Wj7fthZf9OY
+tar -xf ./libWebRTC-73.0-x64-Rel-COMMUNITY-BETA.tar.gz -C /tmp
+
 # Fetch vlc codebase
 wget --retry-connrefused --waitretry=1 -O vlc-master.zip https://github.com/videolan/vlc/archive/master.zip
 unzip -q ./vlc-master.zip
@@ -40,15 +44,3 @@ mkdir ./sparkle
 tar -xf ./sparkle.tar.bz2 -C ./sparkle
 sudo cp -R ./sparkle/Sparkle.framework /Library/Frameworks/Sparkle.framework
 
-# CEF Stuff
-#wget --retry-connrefused --waitretry=1 https://obs-nightly.s3-us-west-2.amazonaws.com/cef_binary_${CEF_BUILD_VERSION}_macosx64.tar.bz2
-#tar -xf ./cef_binary_${CEF_BUILD_VERSION}_macosx64.tar.bz2
-#cd ./cef_binary_${CEF_BUILD_VERSION}_macosx64
-# remove a broken test
-#sed -i '.orig' '/add_subdirectory(tests\/ceftests)/d' ./CMakeLists.txt
-#mkdir build
-#cd ./build
-#make -DCMAKE_CXX_FLAGS="-std=c++11 -stdlib=libc++" -DCMAKE_EXE_LINKER_FLAGS="-std=c++11 -stdlib=libc++" -DCMAKE_OSX_DEPLOYMENT_TARGET=10.9 ..
-#make -j4
-#mkdir libcef_dll
-#cd ../../
