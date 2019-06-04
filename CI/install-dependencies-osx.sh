@@ -28,7 +28,7 @@ ccache -s || echo "CCache is not available."
 
 # Fetch and untar prebuilt OBS deps that are compatible with older versions of OSX
 wget --retry-connrefused --waitretry=1 https://s3-us-west-2.amazonaws.com/obs-nightly/osx-deps.tar.gz
-tar -xf ./osx-deps.tar.gz -C /tmp
+tar -xzf ./osx-deps.tar.gz -C /tmp
 
 # Fetch libwebrtc 73 Community Edition
 fileid="1cmt4_-6RM9fr_xOVuGha4Wj7fthZf9OY"
