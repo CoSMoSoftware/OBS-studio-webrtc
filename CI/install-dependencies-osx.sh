@@ -11,8 +11,10 @@ cd ../
 
 brew update
 
-brew install jack speexdsp ccache swig mbedtls wget https://raw.githubusercontent.com/Homebrew/homebrew-core/8d4d48f0bb552b7b107119aeef59f141ce1f72c3/Formula/qt.rb &
-
+#Base OBS Deps and ccache
+brew install jack speexdsp ccache mbedtls
+brew install https://gist.githubusercontent.com/DDRBoxman/b3956fab6073335a4bf151db0dcbd4ad/raw/ed1342a8a86793ea8c10d8b4d712a654da121ace/qt.rb
+brew install https://gist.githubusercontent.com/DDRBoxman/4cada55c51803a2f963fa40ce55c9d3e/raw/572c67e908bfbc1bcb8c476ea77ea3935133f5b5/swig.rb
 
 # Install Packages app so we can build a package later
 # http://s.sudre.free.fr/Software/Packages/about.html
@@ -29,7 +31,7 @@ wget --retry-connrefused --waitretry=1 https://s3-us-west-2.amazonaws.com/obs-ni
 tar -xf ./osx-deps.tar.gz -C /tmp
 
 # Fetch libwebrtc 73 Community Edition
-ifileid="1cmt4_-6RM9fr_xOVuGha4Wj7fthZf9OY"
+fileid="1cmt4_-6RM9fr_xOVuGha4Wj7fthZf9OY"
 filename="libWebRTC-73.0-x64-Rel-COMMUNITY-BETA.tar.gz"
 curl -c ./cookie -s -L "https://drive.google.com/uc?export=download&id=${fileid}" > /dev/null
 curl -Lb ./cookie "https://drive.google.com/uc?export=download&confirm=`awk '/download/ {print $NF}' ./cookie`&id=${fileid}" -o ${filename}
