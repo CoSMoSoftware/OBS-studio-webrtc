@@ -38,8 +38,8 @@ curl -Lb ./cookie "https://drive.google.com/uc?export=download&confirm=`awk '/do
 tar -xf ./libWebRTC-73.0-x64-Rel-COMMUNITY-BETA.tar.gz -C /tmp
 
 # Fetch vlc codebase
-wget --retry-connrefused --waitretry=1 -O vlc-master.zip https://github.com/videolan/vlc/archive/master.zip
-unzip -q ./vlc-master.zip
+curl -L -O https://downloads.videolan.org/vlc/3.0.4/vlc-3.0.4.tar.xz
+tar -xf vlc-3.0.4.tar.xz
 
 # Get sparkle
 wget --retry-connrefused --waitretry=1 -O sparkle.tar.bz2 https://github.com/sparkle-project/Sparkle/releases/download/1.16.0/Sparkle-1.16.0.tar.bz2
