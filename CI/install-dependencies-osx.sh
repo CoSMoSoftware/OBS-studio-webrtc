@@ -29,7 +29,10 @@ wget --retry-connrefused --waitretry=1 https://s3-us-west-2.amazonaws.com/obs-ni
 tar -xf ./osx-deps.tar.gz -C /tmp
 
 # Fetch libwebrtc 73 Community Edition
-wget --retry-connrefused --waitretry=1 https://drive.google.com/open?id=1cmt4_-6RM9fr_xOVuGha4Wj7fthZf9OY
+ifileid="1cmt4_-6RM9fr_xOVuGha4Wj7fthZf9OY"
+filename="libWebRTC-73.0-x64-Rel-COMMUNITY-BETA.tar.gz"
+curl -c ./cookie -s -L "https://drive.google.com/uc?export=download&id=${fileid}" > /dev/null
+curl -Lb ./cookie "https://drive.google.com/uc?export=download&confirm=`awk '/download/ {print $NF}' ./cookie`&id=${fileid}" -o ${filename}
 tar -xf ./libWebRTC-73.0-x64-Rel-COMMUNITY-BETA.tar.gz -C /tmp
 
 # Fetch vlc codebase
