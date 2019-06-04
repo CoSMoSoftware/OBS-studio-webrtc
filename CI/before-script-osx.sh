@@ -7,7 +7,7 @@ cmake \
 -DCMAKE_BUILD_TYPE=RELEASE \
 -DDepsPath=/tmp/obsdeps \
 -DVLCPath=$PWD/../../vlc-master \
--Dlibwebrtc_DIR=/tmp/libWebRTC-73.0-x64-Rel-COMMUNITY-BETA \
+-Dlibwebrtc_DIR=/tmp/libWebRTC-73.0-x64-Rel-COMMUNITY-BETA/cmake \
 -DQTDIR=/usr/local/Cellar/qt/5.10.1 \
 ..
 cmake --build .
