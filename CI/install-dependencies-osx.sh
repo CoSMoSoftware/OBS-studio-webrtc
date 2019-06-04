@@ -31,7 +31,7 @@ wget --retry-connrefused --waitretry=1 https://s3-us-west-2.amazonaws.com/obs-ni
 tar -xzf ./osx-deps.tar.gz -C /tmp
 
 # Fetch libwebrtc 73 Community Edition
-fileid="1cmt4_-6RM9fr_xOVuGha4Wj7fthZf9OY"
+fileid="17cemh_7XqmeOCqqZvtEwWjdwGkC6Fyqu"
 filename="libWebRTC-73.0-x64-Rel-COMMUNITY-BETA.tar.gz"
 curl -c ./cookie -s -L "https://drive.google.com/uc?export=download&id=${fileid}" > /dev/null
 curl -Lb ./cookie "https://drive.google.com/uc?export=download&confirm=`awk '/download/ {print $NF}' ./cookie`&id=${fileid}" -o ${filename}
