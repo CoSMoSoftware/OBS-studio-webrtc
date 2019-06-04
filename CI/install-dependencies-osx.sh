@@ -9,17 +9,15 @@ set -v
 # Leave obs-studio folder
 cd ../
 
-brew install speexdsp swig wget https://raw.githubusercontent.com/Homebrew/homebrew-core/8d4d48f0bb552b7b107119aeef59f141ce1f72c3/Formula/qt.rb &
+brew update
+
+brew install jack speexdsp ccache swig mbedtls wget https://raw.githubusercontent.com/Homebrew/homebrew-core/8d4d48f0bb552b7b107119aeef59f141ce1f72c3/Formula/qt.rb &
 
 
 # Install Packages app so we can build a package later
 # http://s.sudre.free.fr/Software/Packages/about.html
-
 wget --retry-connrefused --waitretry=1 https://s3-us-west-2.amazonaws.com/obs-nightly/Packages.pkg
-
 sudo installer -pkg ./Packages.pkg -target /
-
-brew update
 
 #Base OBS Deps and ccache
 
