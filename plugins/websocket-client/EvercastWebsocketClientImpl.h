@@ -1,6 +1,6 @@
 #include "WebsocketClient.h"
 
-//Use http://think-async.com/ insted of boost
+//Use http://think-async.com/ instead of boost
 #define ASIO_STANDALONE
 #define _WEBSOCKETPP_CPP11_STL_
 #define _WEBSOCKETPP_CPP11_THREAD_
@@ -14,43 +14,46 @@
 
 typedef websocketpp::client<websocketpp::config::asio_tls_client> Client;
 
-class MillicastWebsocketClientImpl : public WebsocketClient
+class EvercastWebsocketClientImpl : public WebsocketClient
 {
 public:
-    MillicastWebsocketClientImpl();
-    ~MillicastWebsocketClientImpl();
+    EvercastWebsocketClientImpl();
+    ~EvercastWebsocketClientImpl();
     virtual bool connect(
       const std::string & url,
       const std::string & room,
       const std::string & username,
       const std::string & token,
-      Listener          * listener
+      WebsocketClient::Listener* listener
     ) override;
     virtual bool open(
       const std::string & sdp,
-      const std::string & codec = "vp8",
-      const std::string & Id = ""
+      const std::string & codec = "",
+      const std::string & Id    = "" 
     ) override;
     virtual bool trickle(
       const std::string & mid,
       const int index,
       const std::string & candidate,
       const bool last
-    ) override;
-    virtual bool disconnect(
-      const bool wait
-    ) override;
+    ) override ;
+    virtual bool disconnect( const bool wait ) override;
+    void keepConnectionAlive();
+    void destroy();
 
 private:
-    // Candidate for deletion: bool logged;
-    std::string token;
-    // Candidate for deletion: long long handle_id;
+    bool logged;
+    long long session_id;
+    long long handle_id;
 
     std::atomic<bool> is_running;
     std::future<void> handle;
     std::thread thread;
+    std::thread thread_keepAlive;
    
     Client client;
     Client::connection_ptr connection;
+
+    std::string sanitizeString( const std::string & s );
 };
 

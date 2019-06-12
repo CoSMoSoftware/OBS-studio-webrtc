@@ -51,11 +51,26 @@ public:
   // Device enumeration
   virtual int16_t PlayoutDevices()   {  return 0; }
   virtual int16_t RecordingDevices() { return 1; }
-  virtual int32_t PlayoutDeviceName(  uint16_t index, char name[kAdmMaxDeviceNameSize], char guid[kAdmMaxGuidSize])   { return 0; }
-  virtual int32_t RecordingDeviceName(uint16_t index, char name[kAdmMaxDeviceNameSize], char guid[kAdmMaxGuidSize]) 
+  virtual int32_t PlayoutDeviceName(
+    uint16_t /* unused index */,
+    char name[kAdmMaxDeviceNameSize],
+    char guid[kAdmMaxGuidSize]
+   )
   {
     sprintf(name, "rtmp_stream");
     sprintf(name, "obs");
+    sprintf(guid, "guid");
+    return 0;
+  }
+  virtual int32_t RecordingDeviceName(
+    uint16_t /* unused index */,
+    char name[kAdmMaxDeviceNameSize],
+    char guid[kAdmMaxGuidSize]
+  ) 
+  {
+    sprintf(name, "rtmp_stream");
+    sprintf(name, "obs");
+    sprintf(guid, "guid");
     return 0;
   }
 
@@ -144,8 +159,10 @@ public:
   virtual int32_t CPULoad( uint16_t* ) const { return 0; }
 
   // Recording of raw PCM data
-  virtual int32_t StartRawOutputFileRecording( const char pcmFileNameUTF8[kAdmMaxFileNameSize]) { return 0; }
-  virtual int32_t StartRawInputFileRecording(  const char pcmFileNameUTF8[kAdmMaxFileNameSize]) { return 0; }
+  virtual int32_t StartRawOutputFileRecording( const char [] /* pcmFileNameUTF8[kAdmMaxFileNameSize] */)
+    { return 0; }
+  virtual int32_t StartRawInputFileRecording(  const char [] /* pcmFileNameUTF8[kAdmMaxFileNameSize] */)
+    { return 0; }
   virtual int32_t StopRawOutputFileRecording() { return 0; }
   virtual int32_t StopRawInputFileRecording()  { return 0; }
 

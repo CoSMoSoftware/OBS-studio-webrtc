@@ -19,10 +19,10 @@ class JanusWebsocketClientImpl : public WebsocketClient
 public:
     JanusWebsocketClientImpl();
     ~JanusWebsocketClientImpl();
-    virtual bool connect(const std::string& url, long long room, const std::string& username, const std::string & token, Listener* listener) override;
+    virtual bool connect(const std::string& url, const std::string&room, const std::string& username, const std::string & token, Listener* listener) override;
     virtual bool open(const std::string &sdp, const std::string& codec = "vp8", const std::string& milliId = "") override;
-    virtual bool trickle(const std::string &mid, int index, const std::string &candidate, bool last) override;
-    virtual bool disconnect(bool wait)  override;
+    virtual bool trickle(const std::string &mid, const int index, const std::string &candidate, bool last) override;
+    virtual bool disconnect(const bool wait)  override;
     void keepConnectionAlive();
 
 private:

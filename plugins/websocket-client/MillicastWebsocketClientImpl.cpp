@@ -27,11 +27,11 @@ MillicastWebsocketClientImpl::
 bool
 MillicastWebsocketClientImpl::
 connect(
-  const std::string& url,
-  long long          /* unused room */,
-  const std::string& /* username    */,
-  const std::string& token,
-  Listener*          listener
+  const std::string & url,
+  const std::string & /* unused room        */,
+  const std::string & /* unused username    */,
+  const std::string & token,
+  Listener*           listener
 )
 {
   websocketpp::lib::error_code ec;

@@ -30,5 +30,5 @@ matrix:
 #      before_install: "./CI/install-dependencies-linux.sh"
 #      before_script: "./CI/before-script-linux.sh"
 
-script: cd ./build && make -j4 && cd -
+script: cd ./build && ctest -D Experimental -j4 && cd -
 

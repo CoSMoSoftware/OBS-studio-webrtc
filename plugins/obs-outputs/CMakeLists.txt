@@ -27,11 +27,6 @@ endif()
 
 # --- Find libwebrtc or fail early
 if( WIN32 )
-  # NOTE ALEX: David claims that it does not work.
-  # the problem WOULD come from this call not going through and not
-  # setting the include dirs properly on windows.
-  # One should never manually set that variable to zero, but in this
-  # specific case this is the right way to approach the problem.
   set(WEBRTC_USE_FILE_INCLUDED 0)
 endif()
 find_package(libwebrtc 73 REQUIRED)
@@ -96,8 +91,8 @@ endif()
 
 configure_file(
   "${CMAKE_CURRENT_SOURCE_DIR}/obs-outputs-config.h.in"
-  "${CMAKE_BINARY_DIR}/plugins/obs-outputs/config/obs-outputs-config.h")
-
+  "${CMAKE_BINARY_DIR}/plugins/obs-outputs/config/obs-outputs-config.h"
+  )
 include_directories("${CMAKE_BINARY_DIR}/plugins/obs-outputs/config")
 
 if( WIN32 )
@@ -142,20 +137,20 @@ set( obs-outputs_HEADERS
   flv-mux.h
   rtmp-helpers.h
   rtmp-stream.h
+  evercast-stream.h
   janus-stream.h
   millicast-stream.h
   net-if.h
   AudioDeviceModuleWrapper.h
-#  VideoCapture.h
   VideoCapturer.h
   WebRTCStream.h
-  WebsocketClient.h
   )
 
 set( obs-outputs_SOURCES
   obs-outputs.c
   rtmp-stream.c
   janus-stream.cpp
+  evercast-stream.cpp
   millicast-stream.cpp
   rtmp-windows.c
   AudioDeviceModuleWrapper.cpp
@@ -174,7 +169,7 @@ add_library( obs-outputs MODULE
   ${obs-outputs_librtmp_SOURCES}
   ${obs-outputs_librtmp_HEADERS}
 )
-
+target_include_directories( obs-outputs PUBLIC ${websocketclient_SOURCE_DIR} )
 target_link_libraries( obs-outputs
   ${WEBRTC_LIBRARIES}
   ${SSL_LIBRARIES}

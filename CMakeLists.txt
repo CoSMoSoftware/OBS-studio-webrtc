@@ -133,3 +133,7 @@ endif()
 
 include(CopyMSVCBins)
 
+# enable submissions to a CDash server
+enable_testing()
+include(CTest)
+

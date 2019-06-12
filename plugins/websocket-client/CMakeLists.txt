@@ -17,9 +17,6 @@ include_directories(${LIBOBS_INCLUDE_DIRS})
 # OpenSSL
 #
 find_package(OpenSSL 1.1 REQUIRED)
-message( STATUS "OPENSSL_LIBRARIES: ${OPENSSL_LIBRARIES}." )
-message( STATUS "OPENSSL_INCLUDE_DIR: ${OPENSSL_INCLUDE_DIR}" )
-message( STATUS "OPENSSL_VERSION: ${OPENSSL_VERSION}" )
 include_directories(${OPENSSL_INCLUDE_DIR})
 
 #------------------------------------------------------------------------
@@ -32,8 +29,11 @@ include_directories( ${CURL_INCLUDE_DIR} )
 #------------------------------------------------------------------------
 # WebSocket
 #
+# NOTE ALEX: to accomodate all vendors who want a branded interface and
+# support only their service, we shoul dmake it modular here.
 set( websocketclient_SOURCES 
   JanusWebsocketClientImpl.cpp
+  EvercastWebsocketClientImpl.cpp
   MillicastWebsocketClientImpl.cpp
   WebsocketClient.cpp
   restclient-cpp/source/connection.cc
@@ -48,6 +48,7 @@ add_definitions( -DWEBSOCKETCLIENT_EXPORTS )
 
 set( websocketclient_HEADERS
   json.hpp
+  EvercastWebsocketClientImpl.h
   JanusWebsocketClientImpl.h
   MillicastWebsocketClientImpl.h
   WebsocketClient.h

@@ -11,4 +11,4 @@ cmake \
 -DOPENSSL_ROOT_DIR=/usr/local/opt/openssl@1.1 \
 -Dlibwebrtc_DIR=/tmp/libWebRTC-73.0-x64-Rel-COMMUNITY-BETA/cmake \
 ..
-cmake --build .
+

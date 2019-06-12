@@ -42,7 +42,8 @@ public:
   enum Type {
     Janus      = 0,
     SpankChain = 1,
-    Millicast  = 2
+    Millicast  = 2,
+    Evercast   = 3
   };
 public:
   WebRTCStream(obs_output_t *output);
@@ -68,23 +69,23 @@ public:
   //
   // WebsocketClient::Listener implementation.
   //
-  virtual void onConnected() override;
-  virtual void onLogged(int code) override;
-  virtual void onLoggedError(int code) override;
-  virtual void onOpened(const std::string &sdp) override;
-  virtual void onOpenedError(int code) override;
-  virtual void onDisconnected() override;
+  virtual void onConnected(    ) override;
+  virtual void onDisconnected( ) override;
+  virtual void onLogged(      int code ) override;
+  virtual void onLoggedError( int code ) override;
+  virtual void onOpenedError( int code ) override;
+  virtual void onOpened( const std::string &sdp ) override;
 
   //
   // PeerConnectionObserver implementation.
   //
-  void OnSignalingChange(webrtc::PeerConnectionInterface::SignalingState /*new_state*/) override {};
-  void OnAddStream(rtc::scoped_refptr<webrtc::MediaStreamInterface> /*stream*/) override {};
-  void OnRemoveStream(rtc::scoped_refptr<webrtc::MediaStreamInterface> /*stream*/) override {};
-  void OnDataChannel(rtc::scoped_refptr<webrtc::DataChannelInterface> /*channel*/) override {}
   void OnRenegotiationNeeded() override {}
-  void OnIceConnectionChange(webrtc::PeerConnectionInterface::IceConnectionState /*new_state*/) override {};
-  void OnIceGatheringChange(webrtc::PeerConnectionInterface::IceGatheringState /*new_state*/) override {};
+  void OnIceConnectionChange( webrtc::PeerConnectionInterface::IceConnectionState /*new_state*/) override {};
+  void OnIceGatheringChange(  webrtc::PeerConnectionInterface::IceGatheringState  /*new_state*/) override {};
+  void OnSignalingChange(     webrtc::PeerConnectionInterface::SignalingState     /*new_state*/) override {};
+  void OnAddStream(   rtc::scoped_refptr<webrtc::MediaStreamInterface> /*stream*/) override {};
+  void OnRemoveStream(rtc::scoped_refptr<webrtc::MediaStreamInterface> /*stream*/) override {};
+  void OnDataChannel( rtc::scoped_refptr<webrtc::DataChannelInterface> /*channel*/) override {}
   void OnIceCandidate(const webrtc::IceCandidateInterface* candidate) override;
   void OnIceConnectionReceivingChange(bool /*receiving*/) override {}
 
@@ -101,7 +102,7 @@ public:
 private:
   //Connection properties
   std::string url;
-  long long  room;
+  std::string room;
   std::string username;
   std::string password;
   std::string codec;
@@ -119,23 +120,29 @@ private:
 
   //Websocket client
   WebsocketClient* client;
+
   //Audio Wrapper
   AudioDeviceModuleWrapper adm;
+
   //Video Capturer
   VideoCapturer* videoCapturer;
+
   //Thumbnail wrapper
   //webrtc::VideoCaptureCapability thumbnailCaptureCapability;
   //rtc::scoped_refptr<VideoCapture> thumbnailCapture;
   uint32_t picId;
   uint8_t thumbnailDownscale;
   uint8_t thumbnailDownrate;
+
   //Peerconnection
   rtc::scoped_refptr<webrtc::PeerConnectionFactoryInterface> factory;
   rtc::scoped_refptr<webrtc::PeerConnectionInterface> pc;
+
   //WebRTC threads
   std::unique_ptr<rtc::Thread> network;
   std::unique_ptr<rtc::Thread> worker;
   std::unique_ptr<rtc::Thread> signaling;
+
   //OBS stream output
   obs_output_t *output;
 };
@@ -143,59 +150,59 @@ private:
 class SDPModif {
 public:
   static void stereoSDP(std::string &sdp) {
-      std::vector<std::string> sdpLines;
-      split(sdp, "\r\n", sdpLines);
-      int fmtpLine = findLines(sdpLines, "a=fmtp:111");
-      if (fmtpLine != -1) {
-        sdpLines[fmtpLine] = sdpLines[fmtpLine].append(";stereo=1;sprop-stereo=1");
-      } else {
-        int artpLine = findLines(sdpLines, "a=rtpmap:111 opus/48000/2");
-        sdpLines.insert(sdpLines.begin() + artpLine + 1, "a=fmtp:111 stereo=1;sprop-stereo=1");
-      }
-      sdp = join(sdpLines, "\r\n");
+    std::vector<std::string> sdpLines;
+    split(sdp, "\r\n", sdpLines);
+    int fmtpLine = findLines(sdpLines, "a=fmtp:111");
+    if (fmtpLine != -1) {
+      sdpLines[fmtpLine] = sdpLines[fmtpLine].append(";stereo=1;sprop-stereo=1");
+    } else {
+      int artpLine = findLines(sdpLines, "a=rtpmap:111 opus/48000/2");
+      sdpLines.insert(sdpLines.begin() + artpLine + 1, "a=fmtp:111 stereo=1;sprop-stereo=1");
+    }
+    sdp = join(sdpLines, "\r\n");
   }
 
   static void bitrateSDP(std::string &sdp, int newBitrate) {
-      std::vector<std::string> sdpLines;
-      std::ostringstream newLineBitrate;
+    std::vector<std::string> sdpLines;
+    std::ostringstream newLineBitrate;
 
-      split(sdp, "\r\n", sdpLines);
-      int videoLine = findLines(sdpLines, "m=video ");
-      newLineBitrate << "b=AS:" << newBitrate;
+    split(sdp, "\r\n", sdpLines);
+    int videoLine = findLines(sdpLines, "m=video ");
+    newLineBitrate << "b=AS:" << newBitrate;
 
-      sdpLines.insert(sdpLines.begin() + videoLine + 2, newLineBitrate.str());
-      sdp = join(sdpLines, "\r\n");
+    sdpLines.insert(sdpLines.begin() + videoLine + 2, newLineBitrate.str());
+    sdp = join(sdpLines, "\r\n");
   }
 
   static std::string join(std::vector<std::string>& v, std::string delim) {
-      std::ostringstream s;
-      for (const auto& i : v) {
-          if (&i != &v[0]) {
-              s << delim ;
-          }
-          s << i;
+    std::ostringstream s;
+    for (const auto& i : v) {
+      if (&i != &v[0]) {
+          s << delim ;
       }
-      s << delim;
-      return s.str();
+      s << i;
+    }
+    s << delim;
+    return s.str();
   }
 
   static void split(const std::string &s, char* delim, std::vector<std::string> & v){
-      char * dup = strdup(s.c_str());
-      char * token = strtok(dup, delim);
-      while(token != NULL){
-          v.push_back(std::string(token));
-          token = strtok(NULL, delim);
-      }
-      free(dup);
+    char * dup = strdup(s.c_str());
+    char * token = strtok(dup, delim);
+    while(token != NULL){
+      v.push_back(std::string(token));
+      token = strtok(NULL, delim);
+    }
+    free(dup);
   }
 
   static int findLines(std::vector<std::string> sdpLines, std::string prefix) {
-      for (unsigned long i = 0 ; i < sdpLines.size() ; i++) {
-          if ((sdpLines[i].find(prefix) != std::string::npos)) {
-              return i;
-          }
+    for (unsigned long i = 0 ; i < sdpLines.size() ; i++) {
+      if ((sdpLines[i].find(prefix) != std::string::npos)) {
+        return i;
       }
-      return -1;
+    }
+    return -1;
   }
 };
 

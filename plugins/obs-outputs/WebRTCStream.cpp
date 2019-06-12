@@ -99,18 +99,18 @@ WebRTCStream::~WebRTCStream()
 {
   stop();
 
-  //Free factories first
+  // Free factories first
   pc = NULL;
   factory = NULL;
   videoCapturer = NULL;
   //thumbnailCapture = NULL;
 
-  //Stop all thread
+  // Stop all thread
   if (!network->IsCurrent())   network->Stop();
   if (!worker->IsCurrent())    worker->Stop();
   if (!signaling->IsCurrent()) signaling->Stop();
 
-  //Release
+  // Release
   network.release();
   worker.release();
   signaling.release();
@@ -132,7 +132,7 @@ bool WebRTCStream::start(Type type)
   milliId = "";
   milliToken = "";
   const char *tmpString = nullptr;
-  const char *tmpToken = nullptr;
+  const char *tmpToken  = nullptr;
 
   if (type == WebRTCStream::Millicast){
 
@@ -147,14 +147,14 @@ bool WebRTCStream::start(Type type)
     tmpString = obs_service_get_password(service);
     password = (NULL == tmpString ? "" : tmpString);
     try {
-      room = std::stoll(obs_service_get_room(service));
+      room = obs_service_get_room(service);
     }
     catch (const std::invalid_argument& ia) {
-      error("Invalid room name (must be a positive integer number)");
+    //  error("Invalid room name (must be a positive integer number)");
       return false;
     }
     catch (const std::out_of_range& oor) {
-      error("Room name out of range (number too big)");
+    //  error("Room name out of range (number too big)");
       return false;
     }
   }
@@ -162,10 +162,9 @@ bool WebRTCStream::start(Type type)
   // the codec should be generic, and vp8 is the default if empty
   // possible values (should check): vp8, vp9, h264
   if (!obs_service_get_codec(service))
-    codec = "h264";
+    codec = "vp8";
   else
     codec = obs_service_get_codec(service);
-
 
   //Stop just in case
   stop();
@@ -192,21 +191,20 @@ bool WebRTCStream::start(Type type)
   rtc::scoped_refptr<webrtc::MediaStreamInterface> stream = factory->CreateLocalMediaStream("obs");
   cricket::AudioOptions options;
 
-  options.echo_cancellation.emplace(false);
-  options.auto_gain_control.emplace(false);
-  options.noise_suppression.emplace(false);
-  options.highpass_filter.emplace(false);
+  options.echo_cancellation.emplace(      false );
+  options.auto_gain_control.emplace(      false );
+  options.noise_suppression.emplace(      false );
+  options.highpass_filter.emplace(        false );
   options.audio_jitter_buffer_max_packets.emplace(false);
-  options.experimental_ns.emplace(false);
-  // ALEX: options.aecm_generate_comfort_noise.emplace(false);
-  options.typing_detection.emplace(false);
-  options.residual_echo_detector.emplace(false);
-  options.delay_agnostic_aec.emplace(false);
-  /*
-   * options.intelligibility_enhancer.emplace(false);
-   * options.playout_sample_rate.emplace(false);
-   * options.audio_network_adaptor.emplace(false);
-   */
+  options.experimental_ns.emplace(        false );
+  options.typing_detection.emplace(       false );
+  options.residual_echo_detector.emplace( false );
+  options.delay_agnostic_aec.emplace(     false );
+  // options.aecm_generate_comfort_noise.emplace( false );
+  // options.intelligibility_enhancer.emplace( false );
+  // options.playout_sample_rate.emplace( false );
+  // options.audio_network_adaptor.emplace( false );
+  //
 
   //Add audio
   audio_track = factory->CreateAudioTrack("audio", factory->CreateAudioSource(options));
@@ -214,7 +212,8 @@ bool WebRTCStream::start(Type type)
   stream->AddTrack(audio_track);
 
   //Create video source
-    rtc::scoped_refptr<webrtc::VideoTrackSourceInterface> videoSource = factory->CreateVideoSource(static_cast<std::unique_ptr<cricket::VideoCapturer>>(videoCapturer), NULL);
+    rtc::scoped_refptr<webrtc::VideoTrackSourceInterface> videoSource =
+      factory->CreateVideoSource(static_cast<std::unique_ptr<cricket::VideoCapturer>>(videoCapturer), NULL);
 
   //Add video
   video_track = factory->CreateVideoTrack("video", videoSource);
@@ -256,7 +255,6 @@ bool WebRTCStream::start(Type type)
     return false;
   }
   //Log them
-  //If not millicast
   if (type == WebRTCStream::Millicast){
    if(milliToken == "" || milliId == ""){
       error("Invalid token or publishing name");
@@ -270,7 +268,7 @@ bool WebRTCStream::start(Type type)
       return false;
     };
   } else{
-    info("connecting to [url:%s,room:%lld,username:%s,password:%s]", url.c_str(), room, username.c_str(), password.c_str());
+    info("connecting to [url:%s,room:%s,username:%s,password:%s]", url.c_str(), room.c_str(), username.c_str(), password.c_str());
     if(!client->connect(url, room, username, password , this)){
       //Error
       obs_output_signal_stop(output, OBS_OUTPUT_CONNECT_FAILED);
@@ -449,6 +447,8 @@ void WebRTCStream::onVideoFrame(video_data *frame)
     outputWidth, outputHeight, target_width, target_height, rotation_mode,
     ConvertVideoType(videoType)
   );
+  // not using the result yet, silence compiler
+  (void)conversionResult;
 
   // Create a webrtc::VideoFrame to pass to the capturer
   webrtc::VideoFrame video_frame(buffer, rtc::Time32(), rtc::TimeMillis(), webrtc::VideoRotation::kVideoRotation_0);

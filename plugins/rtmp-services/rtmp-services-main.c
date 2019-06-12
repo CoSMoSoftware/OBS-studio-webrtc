@@ -17,6 +17,7 @@ OBS_MODULE_USE_DEFAULT_LOCALE("rtmp-services", "en-US")
 extern struct obs_service_info rtmp_common_service;
 extern struct obs_service_info rtmp_custom_service;
 extern struct obs_service_info webrtc_janus_service;
+extern struct obs_service_info webrtc_evercast_service;
 extern struct obs_service_info webrtc_millicast_service;
 
 static update_info_t *update_info = NULL;
@@ -24,28 +25,28 @@ static struct dstr module_name = {0};
 
 const char *get_module_name(void)
 {
-	return module_name.array;
+  return module_name.array;
 }
 
 static bool confirm_service_file(void *param, struct file_download_data *file)
 {
-	if (astrcmpi(file->name, "services.json") == 0) {
-		obs_data_t *data;
-		int format_version;
+  if (astrcmpi(file->name, "services.json") == 0) {
+    obs_data_t *data;
+    int format_version;
 
-		data = obs_data_create_from_json((char*)file->buffer.array);
-		if (!data)
-			return false;
+    data = obs_data_create_from_json((char*)file->buffer.array);
+    if (!data)
+      return false;
 
-		format_version = (int)obs_data_get_int(data, "format_version");
-		obs_data_release(data);
+    format_version = (int)obs_data_get_int(data, "format_version");
+    obs_data_release(data);
 
-		if (format_version != RTMP_SERVICES_FORMAT_VERSION)
-			return false;
-	}
+    if (format_version != RTMP_SERVICES_FORMAT_VERSION)
+      return false;
+  }
 
-	UNUSED_PARAMETER(param);
-	return true;
+  UNUSED_PARAMETER(param);
+  return true;
 }
 
 extern void init_twitch_data(void);
@@ -55,59 +56,68 @@ extern void twitch_ingests_refresh(int seconds);
 
 static void refresh_callback(void *unused, calldata_t *cd)
 {
-	int seconds = (int)calldata_int(cd, "seconds");
-	if (seconds <= 0)
-		seconds = 3;
-	if (seconds > 10)
-		seconds = 10;
+  int seconds = (int)calldata_int(cd, "seconds");
+  if (seconds <= 0)
+    seconds = 3;
+  if (seconds > 10)
+    seconds = 10;
 
-	twitch_ingests_refresh(seconds);
+  twitch_ingests_refresh(seconds);
 
-	UNUSED_PARAMETER(unused);
+  UNUSED_PARAMETER(unused);
 }
 
 bool obs_module_load(void)
 {
-	init_twitch_data();
+  init_twitch_data();
 
-	dstr_copy(&module_name, "rtmp-services plugin (libobs ");
-	dstr_cat(&module_name, obs_get_version_string());
-	dstr_cat(&module_name, ")");
+  // reconstruct a full string from smaller ones
+  dstr_copy( &module_name, "rtmp-services plugin (libobs " );
+  dstr_cat(  &module_name, obs_get_version_string()        );
+  dstr_cat(  &module_name, ")"                             );
 
-	proc_handler_t *ph = obs_get_proc_handler();
-	proc_handler_add(ph, "void twitch_ingests_refresh(int seconds)",
-			refresh_callback, NULL);
+  proc_handler_t *ph = obs_get_proc_handler();
+  proc_handler_add(
+    ph,
+    "void twitch_ingests_refresh(int seconds)",
+    refresh_callback,
+    NULL
+  );
 
 #if !defined(_WIN32) || CHECK_FOR_SERVICE_UPDATES
-	char *local_dir = obs_module_file("");
-	char *cache_dir = obs_module_config_path("");
 
-	if (cache_dir) {
-		update_info = update_info_create(
-				RTMP_SERVICES_LOG_STR,
-				module_name.array,
-				RTMP_SERVICES_URL,
-				local_dir,
-				cache_dir,
-				confirm_service_file, NULL);
-	}
+  // auto update on windows.
+  char *local_dir = obs_module_file("");
+  char *cache_dir = obs_module_config_path("");
 
-	load_twitch_data();
+  if (cache_dir) {
+    update_info = update_info_create(
+      RTMP_SERVICES_LOG_STR,
+      module_name.array,
+      RTMP_SERVICES_URL,
+      local_dir,
+      cache_dir,
+      confirm_service_file, NULL
+    );
+  }
 
-	bfree(local_dir);
-	bfree(cache_dir);
+  load_twitch_data();
+
+  bfree(local_dir);
+  bfree(cache_dir);
 #endif
 
-	obs_register_service(&rtmp_common_service);
-	obs_register_service(&rtmp_custom_service);
-	obs_register_service(&webrtc_janus_service);
-	obs_register_service(&webrtc_millicast_service);
-	return true;
+  obs_register_service( &rtmp_common_service      );
+  obs_register_service( &rtmp_custom_service      );
+  obs_register_service( &webrtc_janus_service     );
+  obs_register_service( &webrtc_evercast_service  );
+  obs_register_service( &webrtc_millicast_service );
+  return true;
 }
 
 void obs_module_unload(void)
 {
-	update_info_destroy(update_info);
-	unload_twitch_data();
-	dstr_free(&module_name);
+  update_info_destroy(update_info);
+  unload_twitch_data();
+  dstr_free(&module_name);
 }
