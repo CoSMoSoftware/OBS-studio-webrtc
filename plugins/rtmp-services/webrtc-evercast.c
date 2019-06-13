@@ -21,8 +21,8 @@ static void webrtc_evercast_update(void *data, obs_data_t *settings)
   bfree(service->token);
 
   service->server = bstrdup(obs_data_get_string(settings, "server"));
-  service->room = bstrdup(obs_data_get_string(settings, "room"));
-  service->token = bstrdup(obs_data_get_string(settings, "token"));
+  service->room   = bstrdup(obs_data_get_string(settings, "room"  ));
+  service->token  = bstrdup(obs_data_get_string(settings, "token" ));
 }
 
 static void webrtc_evercast_destroy(void *data)
@@ -52,9 +52,9 @@ static obs_properties_t *webrtc_evercast_properties(void *unused)
 
   obs_properties_add_text(ppts, "server", "Server Name", OBS_TEXT_DEFAULT);
 
-  obs_properties_add_text(ppts, "room", "Server Room", OBS_TEXT_DEFAULT);
+  obs_properties_add_text(ppts, "room",   "Server Room", OBS_TEXT_DEFAULT);
 
-  obs_properties_add_text(ppts, "token", "Stream Key", OBS_TEXT_DEFAULT);
+  obs_properties_add_text(ppts, "token",  "Stream Key",  OBS_TEXT_DEFAULT);
 
   return ppts;
 }
