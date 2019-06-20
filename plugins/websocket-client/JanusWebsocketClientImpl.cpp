@@ -31,19 +31,19 @@ connect(
   Listener* listener)
 {
   websocketpp::lib::error_code ec;
-  
+
   //reset loggin flag
   logged = false;
   try
   {
     // --- Register our message handler
     client.set_message_handler( [=](websocketpp::connection_hdl /* unused */, message_ptr frame) {
-      
+
       // get response
       auto msg = json::parse(frame->get_payload());
       // const char* x = frame->get_payload().c_str();
       // std::cout << x << std::endl << std::endl << std::endl ;
-      
+
       if (msg.find("janus") == msg.end())
         return;
       if (msg.find("ack")   != msg.end())
@@ -54,7 +54,7 @@ connect(
         listener->onOpened(sdp);
         return;
       }
-      
+
       // Check type
       std::string id = msg["janus"];
       if (id.compare("success") == 0) {
@@ -65,7 +65,7 @@ connect(
 
         // Get the Data session
         auto data = msg["data"];
-        
+
         // Server is sending response twice, ingore second one
         if (!logged) {
           //Get response code
@@ -78,7 +78,7 @@ connect(
             {"session_id",  session_id              },
             {"plugin",      "janus.plugin.videoroom"},
           };
-         
+
           connection->send(attachPlugin.dump());
           logged = true;
 
@@ -91,7 +91,8 @@ connect(
         } else { // logged
 
           handle_id = data["id"];
-          
+
+          long long janusroom = std::stoll(room);
           json joinRoom = {
             {"janus",       "message"              },
             {"transaction", std::to_string(rand()) },
@@ -99,7 +100,7 @@ connect(
             {"handle_id",   handle_id              },
             { "body" ,
               {
-                {"room",    room        },
+                {"room",    janusroom   },
                 {"display", "OBS"       },
                 {"ptype" ,  "publisher" },
                 {"request", "join"      }
@@ -115,8 +116,8 @@ connect(
       } // if "success"
 
     }); // --- handler
-    
-    
+
+
     // --- open Handler
     client.set_open_handler([=](websocketpp::connection_hdl /* unused */){
 
@@ -138,7 +139,7 @@ connect(
 
       // Serialize and send
       connection->send(login.dump());
-      
+
     }); // Open Handler
 
 
@@ -157,7 +158,7 @@ connect(
     client.set_tls_init_handler([&](websocketpp::connection_hdl /* unused */ ) {
       // Create context
       auto ctx = websocketpp::lib::make_shared<asio::ssl::context>(asio::ssl::context::tlsv1);
-      
+
       try {
         ctx->set_options(
           asio::ssl::context::default_workarounds |
@@ -173,17 +174,17 @@ connect(
 
     //Get connection
     connection = client.get_connection(url, ec);
-    
+
     if (ec) {
       std::cout << "could not create connection because: " << ec.message() << std::endl;
       return 0;
     }
     connection->add_subprotocol("janus-protocol");
-    
+
     // Note that connect here only requests a connection. No network messages are
     // exchanged until the event loop starts running in the next line.
     client.connect(connection);
-    
+
     //Async
     thread = std::thread([&]() {
       // Start the ASIO io_service run loop
@@ -191,9 +192,9 @@ connect(
       // will exit when this connection is closed.
       client.run();
     });
-    
+
   } // try
-  
+
   catch (websocketpp::exception const & e) {
     std::cout << e.what() << std::endl;
     return false;
@@ -272,7 +273,7 @@ trickle(const std::string &mid, int index, const std::string &candidate, bool la
       //Serialize and send
       if (connection->send(trickle.dump()))
         return false;
-      
+
       //OK
       return true;
     } else {
@@ -308,7 +309,7 @@ keepConnectionAlive()
       json keepaliveMsg = {
         { "janus",       "keepalive"                           },
         { "session_id",  session_id                            },
-        { "transaction", "keepalive-" + std::to_string(rand()) },  
+        { "transaction", "keepalive-" + std::to_string(rand()) },
       };
       try
       {
