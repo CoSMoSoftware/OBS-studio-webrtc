@@ -169,7 +169,10 @@ add_library( obs-outputs MODULE
   ${obs-outputs_librtmp_SOURCES}
   ${obs-outputs_librtmp_HEADERS}
 )
-target_include_directories( obs-outputs PUBLIC ${websocketclient_SOURCE_DIR} )
+target_include_directories( obs-outputs
+  PUBLIC ${websocketclient_SOURCE_DIR}
+  PUBLIC "${CMAKE_CURRENT_LIST_DIR}/../websocket-client" # For Websocketclient.h
+  )
 target_link_libraries( obs-outputs
   ${WEBRTC_LIBRARIES}
   ${SSL_LIBRARIES}
