@@ -22,6 +22,7 @@ set confirm_id=%confirm_line:*186=%
 set confirm_id=%confirm_id:~1%
 curl -Lb ./cookie "https://drive.google.com/uc?export=download&confirm=%confirm_id%&id=1mgOr53httBCxmmIoln4VozIdrw-sOUuY" -olibWebRTC-73.0-x64-Rel-msvc2017-COMMUNITY-BETA.zip
 7z x libWebRTC-73.0-x64-Rel-msvc2017-COMMUNITY-BETA.zip -olibWebRTC-73
+set libwebrtcPath=%CD%\libWebRTC-73\cmake
 rem ---------------------------------------------------------------------
 curl -c ./cookie -s -L "https://drive.google.com/uc?export=download&id=1nwuNAq2N9egnVGCmZ-_3JlUCI6-EroSL" > nul
 for /f "delims=" %%x in ('findstr /C:"NID" cookie') do set "confirm_line=%%x"
@@ -29,10 +30,11 @@ set confirm_id=%confirm_line:*186=%
 set confirm_id=%confirm_id:~1%
 curl -Lb ./cookie "https://drive.google.com/uc?export=download&confirm=%confirm_id%&id=1nwuNAq2N9egnVGCmZ-_3JlUCI6-EroSL" -oopenssl-1.1.zip
 7z x openssl-1.1.zip -oopenssl-1.1
+set opensslPath=%CD%\openssl-1.1\openssl-1.1\x64
 rem ---------------------------------------------------------------------
-echo %dir%
+echo %DIR%
 set build_config=Release
 mkdir build64
 cd build64
-cmake -G "Visual Studio 15 2017 Win64" -DCOPIED_DEPENDENCIES=false -DCOPY_DEPENDENCIES=true -DBUILD_CAPTIONS=true -DCOMPILE_D3D12_HOOK=true -DBUILD_BROWSER=true -DCEF_ROOT_DIR=%CEF_64% -Dlibwebrtc_DIR=%CD%\libWebRTC-73\cmake -DOPENSSL_ROOT_DIR=%CD%\openssl-1.1\openssl-1.1\x64  ..
+cmake -G "Visual Studio 15 2017 Win64" -DCOPIED_DEPENDENCIES=false -DCOPY_DEPENDENCIES=true -DBUILD_CAPTIONS=true -DCOMPILE_D3D12_HOOK=true -DBUILD_BROWSER=true -DCEF_ROOT_DIR=%CEF_64% -Dlibwebrtc_DIR=%libwebrtcPath% -DOPENSSL_ROOT_DIR=%opensslPath%  ..
 cd ..
