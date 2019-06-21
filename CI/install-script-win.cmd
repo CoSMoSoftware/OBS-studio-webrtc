@@ -12,14 +12,10 @@ if exist cef_binary_%CEF_VERSION%_windows64.zip (curl -kLO https://cdn-fastly.ob
 7z x cef_binary_%CEF_VERSION%_windows64.zip -oCEF_64
 set CEF_64=%CD%\CEF_64\cef_binary_%CEF_VERSION%_windows64
 curl -c ./cookie -s -L "https://drive.google.com/uc?export=download&id=1mgOr53httBCxmmIoln4VozIdrw-sOUuY" > nul
-type cookie
 for /f "delims=" %%x in ('findstr /C:"NID" cookie') do set "confirm_line=%%x"
-echo %confirm_line%
 set confirm_id=%confirm_line:*186=%
 set confirm_id=%confirm_id:~1%
-echo %confirm_id%
-
-rem curl -Lb ./cookie "https://drive.google.com/uc?export=download&confirm=`awk '/download/ {print $NF}' ./cookie`&id=1mgOr53httBCxmmIoln4VozIdrw-sOUuY" -olibWebRTC-73.0-x64-Rel-msvc2017-COMMUNITY-BETA.zip
+curl -Lb ./cookie "https://drive.google.com/uc?export=download&confirm=%confirm_id%&id=1mgOr53httBCxmmIoln4VozIdrw-sOUuY" -olibWebRTC-73.0-x64-Rel-msvc2017-COMMUNITY-BETA.zip
 rem 7z x libWebRTC-73.0-x64-Rel-msvc2017-COMMUNITY-BETA.zip -olibWebRTC-73
 rem curl -c ./cookie -s -L "https://drive.google.com/uc?export=download&id=1nwuNAq2N9egnVGCmZ-_3JlUCI6-EroSL" > nul
 rem curl -Lb ./cookie "https://drive.google.com/uc?export=download&confirm=`awk '/download/ {print $NF}' ./cookie`&id=1nwuNAq2N9egnVGCmZ-_3JlUCI6-EroSL" -oopenssl-1.1.zip
