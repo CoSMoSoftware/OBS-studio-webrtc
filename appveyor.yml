@@ -10,7 +10,7 @@ install:
   - cmd: C:\projects\obs-studio-webrtc\CI\install-script-win.cmd
 
 build_script:
-  - cmd: call cmake --build . --config %build_config% /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll"
+  - cmd: call cmake --build . --config %build_config%
 
 #before_deploy:
 #  - cmd: C:\projects\obs-studio\CI\before-deploy-win.cmd
