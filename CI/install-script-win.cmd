@@ -30,6 +30,7 @@ set confirm_id=%confirm_id:~1%
 curl -Lb ./cookie "https://drive.google.com/uc?export=download&confirm=%confirm_id%&id=1nwuNAq2N9egnVGCmZ-_3JlUCI6-EroSL" -oopenssl-1.1.zip
 7z x openssl-1.1.zip -oopenssl-1.1
 rem ---------------------------------------------------------------------
+echo %dir%
 set build_config=Release
 mkdir build64
 cd build64
