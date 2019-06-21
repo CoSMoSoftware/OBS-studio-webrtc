@@ -15,7 +15,8 @@ curl -c ./cookie -s -L "https://drive.google.com/uc?export=download&id=1mgOr53ht
 type cookie
 for /f "delims=" %%x in ('findstr /C:"NID" cookie') do set "confirm_line=%%x"
 echo %confirm_line%
-set confirm_id=%confirm_line:*186\==%
+set confirm_id=%confirm_line:*186=%
+set confirm_id=%confirm_id:~1%
 echo %confirm_id%
 
 rem curl -Lb ./cookie "https://drive.google.com/uc?export=download&confirm=`awk '/download/ {print $NF}' ./cookie`&id=1mgOr53httBCxmmIoln4VozIdrw-sOUuY" -olibWebRTC-73.0-x64-Rel-msvc2017-COMMUNITY-BETA.zip
