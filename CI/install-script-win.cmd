@@ -11,10 +11,10 @@ set VLCPath=%CD%\vlc
 if exist cef_binary_%CEF_VERSION%_windows64.zip (curl -kLO https://cdn-fastly.obsproject.com/downloads/cef_binary_%CEF_VERSION%_windows64.zip -f --retry 5 -z cef_binary_%CEF_VERSION%_windows64.zip) else (curl -kLO https://cdn-fastly.obsproject.com/downloads/cef_binary_%CEF_VERSION%_windows64.zip -f --retry 5 -C -)
 7z x cef_binary_%CEF_VERSION%_windows64.zip -oCEF_64
 set CEF_64=%CD%\CEF_64\cef_binary_%CEF_VERSION%_windows64
-curl -c ./cookie -s -L "https://drive.google.com/uc?export=download&id=1mgOr53httBCxmmIoln4VozIdrw-sOUuY"
+curl -c ./cookie -s -L "https://drive.google.com/uc?export=download&id=1mgOr53httBCxmmIoln4VozIdrw-sOUuY" > nul
 curl -Lb ./cookie "https://drive.google.com/uc?export=download&confirm=`awk '/download/ {print $NF}' ./cookie`&id=1mgOr53httBCxmmIoln4VozIdrw-sOUuY" -olibWebRTC-73.0-x64-Rel-msvc2017-COMMUNITY-BETA.zip
 7z x libWebRTC-73.0-x64-Rel-msvc2017-COMMUNITY-BETA.zip -olibWebRTC-73
-curl -c ./cookie -s -L "https://drive.google.com/uc?export=download&id=1nwuNAq2N9egnVGCmZ-_3JlUCI6-EroSL"
+curl -c ./cookie -s -L "https://drive.google.com/uc?export=download&id=1nwuNAq2N9egnVGCmZ-_3JlUCI6-EroSL" > nul
 curl -Lb ./cookie "https://drive.google.com/uc?export=download&confirm=`awk '/download/ {print $NF}' ./cookie`&id=1nwuNAq2N9egnVGCmZ-_3JlUCI6-EroSL" -oopenssl-1.1.zip
 7z x openssl-1.1.zip -oopenssl-1.1
 set build_config=Release
