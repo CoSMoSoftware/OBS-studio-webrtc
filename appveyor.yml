@@ -7,7 +7,6 @@ environment:
 
 install:
   - git submodule update --init --recursive
-  - cmd: C:\projects\obs-studio\CI\install-qt-win.cmd
   - cmd: C:\projects\obs-studio\CI\install-script-win.cmd
 
 build_script:
