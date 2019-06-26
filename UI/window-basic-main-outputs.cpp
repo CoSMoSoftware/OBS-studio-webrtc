@@ -1437,6 +1437,8 @@ bool AdvancedOutput::StartStreaming(obs_service_t *service)
       type = "spankchain_output";
     } else if (typeCheck.find("millicast") != std::string::npos) {
       type = "millicast_output";
+    } else if (typeCheck.find("evercast") != std::string::npos) {
+      type = "evercast_output";
     } else {
       type = "rtmp_output";
     }
