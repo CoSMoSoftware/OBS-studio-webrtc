@@ -70,7 +70,7 @@ extern "C" bool evercast_stream_start(void *data)
   //Don't allow it to be deleted
   stream->AddRef();
   //Start it
-  return stream->start(WebRTCStream::Janus);
+  return stream->start(WebRTCStream::Evercast);
 }
 
 extern "C" void evercast_receive_video(void *data, struct video_data *frame)
