@@ -85,10 +85,8 @@ WebRTCStream::WebRTCStream(obs_output_t * output)
     nullptr
   );
 
-  //Create capture module with out custome one
+  //Create capture module with our custom one
   videoCapturer = new VideoCapturer();
-  //thumbnailCapture = new VideoCapture();
-
 
   //bitrate and dropped frame
   bitrate = 0;
@@ -219,23 +217,6 @@ bool WebRTCStream::start(Type type)
   video_track = factory->CreateVideoTrack("video", videoSource);
   //Add stream to track
   stream->AddTrack(video_track);
-
-  //If doing thumnails
-  //if (thumbnail)
-  //{
-  //  //Create capturer
-  //  auto thumbnailCapturer = absl::make_unique<VideoCapturer>();
-  //  //Init it
-  //  // ALEX thumbnailCapturer->Init(thumbnailCapture);
-  //
-  //  //Create thumbnail source
-  //  rtc::scoped_refptr<webrtc::VideoTrackSourceInterface> thumbnailSource = factory->CreateVideoSource(std::move(thumbnailCapturer), NULL);
-  //
-  //  //Add thumbnail
-  //  rtc::scoped_refptr<webrtc::VideoTrackInterface> thumbnail_track = factory->CreateVideoTrack("thumbnail", thumbnailSource);
-  //  //Add stream to track
-  //  stream->AddTrack(thumbnail_track);
-  //}
 
   //Add the stream to the peer connection
   if (!pc->AddStream(stream))
@@ -453,54 +434,6 @@ void WebRTCStream::onVideoFrame(video_data *frame)
   // Create a webrtc::VideoFrame to pass to the capturer
   webrtc::VideoFrame video_frame(buffer, rtc::Time32(), rtc::TimeMillis(), webrtc::VideoRotation::kVideoRotation_0);
   videoCapturer->OnFrame(video_frame);
-
-  //If we are doing thumbnails and we are not skiping this frame
-  //if (thumbnail && thumbnailCapture && ((picId % thumbnailDownrate)==0))
-  //{
-
-  //   //Calculate size
-  //   thumbnailCaptureCapability.width = obs_output_get_width(output) / thumbnailDownscale;
-  //   thumbnailCaptureCapability.height = obs_output_get_height(output) / thumbnailDownscale;
-  //   thumbnailCaptureCapability.videoType = webrtc::VideoType::kI420;
-  //   //Calc size of the downscaled version
-  //   uint32_t donwscaledSize = thumbnailCaptureCapability.width*thumbnailCaptureCapability.height*3/2;
-  //   //Create new image for the I420 conversion and the downscaling
-  //   uint8_t* downscaled = (uint8_t*)malloc(size+donwscaledSize);
-
-  //   //Get planar pointers
-  //   uint8_t *dest_y = (uint8_t *)downscaled;
-  //   uint8_t *dest_u = (uint8_t *)dest_y + videoCaptureCapability.width*videoCaptureCapability.height;
-  //   uint8_t *dest_v = (uint8_t *)dest_y + videoCaptureCapability.width*videoCaptureCapability.height * 5 / 4;
-  //   uint8_t *resc_y = (uint8_t *)downscaled + size;
-  //   uint8_t *resc_u = (uint8_t *)resc_y + thumbnailCaptureCapability.width*thumbnailCaptureCapability.height;
-  //   uint8_t *resc_v = (uint8_t *)resc_y + thumbnailCaptureCapability.width*thumbnailCaptureCapability.height * 5 / 4;
-
-  //   //Convert first to I420
-  //   libyuv::NV12ToI420(
-  //       (uint8_t *)frame->data[0], frame->linesize[0],
-  //       (uint8_t *)frame->data[1], frame->linesize[1],
-  //       dest_y, videoCaptureCapability.width,
-  //       dest_u, videoCaptureCapability.width/2,
-  //       dest_v, videoCaptureCapability.width/2,
-  //       videoCaptureCapability.width, videoCaptureCapability.height);
-
-       //Rescale
-  //   libyuv::I420Scale(
-  //       dest_y, videoCaptureCapability.width,
-  //       dest_u, videoCaptureCapability.width / 2,
-  //       dest_v, videoCaptureCapability.width / 2,
-  //       videoCaptureCapability.width, videoCaptureCapability.height,
-  //       resc_y, thumbnailCaptureCapability.width,
-  //      resc_u, thumbnailCaptureCapability.width / 2,
-  //       resc_v, thumbnailCaptureCapability.width / 2,
-  //       thumbnailCaptureCapability.width, thumbnailCaptureCapability.height,
-  //       libyuv::kFilterNone
-  //   );
-  //   //Pass it
-  //   thumbnailCapture->IncomingFrame(resc_y, donwscaledSize, thumbnailCaptureCapability);
-  //   //Free downscaled version
-  //   free(downscaled);
-  //}
 
   //Increase number of pictures
   picId++;
