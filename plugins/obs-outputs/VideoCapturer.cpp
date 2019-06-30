@@ -5,11 +5,9 @@ VideoCapturer::VideoCapturer() : captured_frames_(0), start_thread_(nullptr) {}
 
 VideoCapturer::~VideoCapturer() {}
 
-cricket::CaptureState
+webrtc::MediaSourceInterface::SourceState
 VideoCapturer::
-Start(
-  const cricket::VideoFormat& /* unused capture_format */
-)
+Start()
 {
     std::unique_lock<std::mutex> lock(mutex);
 
@@ -17,14 +15,14 @@ Start(
         RTC_LOG(LS_ERROR) << "The capturer is already running";
         RTC_DCHECK(start_thread_->IsCurrent())
         << "Trying to start capturer on different threads";
-        return cricket::CS_FAILED;
+        return webrtc::MediaSourceInterface::kLive;
     }
 
     start_thread_ = rtc::Thread::Current();
     captured_frames_ = 0;
-    SetCaptureState(cricket::CS_RUNNING);
+    state_ = webrtc::MediaSourceInterface::kLive;
 
-    return cricket::CS_STARTING;
+    return webrtc::MediaSourceInterface::kInitializing;
 }
 
 void VideoCapturer::Stop()
@@ -40,7 +38,7 @@ void VideoCapturer::Stop()
     RTC_DCHECK(start_thread_->IsCurrent());
     mutex.unlock();
     start_thread_ = nullptr;
-    SetCaptureState(cricket::CS_STOPPED);
+    state_ = webrtc::MediaSourceInterface::kEnded;
 }
 
 void VideoCapturer::OnFrame(const webrtc::VideoFrame& frame)
@@ -48,5 +46,11 @@ void VideoCapturer::OnFrame(const webrtc::VideoFrame& frame)
     RTC_DCHECK(start_thread_);
     ++captured_frames_;
 
-    cricket::VideoCapturer::OnFrame(frame, frame.width(), frame.height());
+    rtc::AdaptedVideoTrackSource::OnFrame(frame);
+}
+
+webrtc::MediaSourceInterface::SourceState
+VideoCapturer::state() const
+{
+    return state_;
 }

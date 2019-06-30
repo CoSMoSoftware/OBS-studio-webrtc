@@ -4,8 +4,8 @@
 #include <stdio.h>
 
 #include "modules/audio_device/audio_device_generic.h"
-#include "rtc_base/refcountedobject.h"
-#include "rtc_base/criticalsection.h"
+#include "rtc_base/ref_counted_object.h"
+#include "rtc_base/critical_section.h"
 #include "rtc_base/checks.h"
 
 using webrtc::AudioDeviceBuffer;
@@ -34,7 +34,7 @@ public:
   }
 
   // Error handling
-  virtual ErrorCode LastError() const { return (ErrorCode)0;  }
+  // virtual ErrorCode LastError() const { return (ErrorCode)0; } // ErrorCode deprecated in webrtc 75
 
   // Full-duplex transportation of PCM audio
   virtual int32_t RegisterAudioCallback(AudioTransport* audioTransport)
@@ -148,8 +148,8 @@ public:
   virtual int32_t StereoRecordingIsAvailable( bool* ) const { return 0; }
   virtual int32_t SetStereoRecording(         bool  )       { return 0; }
   virtual int32_t StereoRecording(            bool* ) const { return 0; }
-  virtual int32_t SetRecordingChannel(        const ChannelType  )       { return 0; }
-  virtual int32_t RecordingChannel(                 ChannelType* ) const { return 0; }
+  // virtual int32_t SetRecordingChannel(        const ChannelType  )       { return 0; } // ChannelType removed in webrtc 75
+  // virtual int32_t RecordingChannel(                 ChannelType* ) const { return 0; } // ChannelType removed in webrtc 75
 
   // Delay information and control
   virtual int32_t PlayoutDelay(   uint16_t* ) const { return 0; }

@@ -22,11 +22,11 @@
 
 #include "api/media_stream_interface.h"
 #include "api/peer_connection_interface.h"
-#include "api/media_constraints_interface.h"
 #include "api/create_peerconnection_factory.h"
-#include "rtc_base/scoped_ref_ptr.h"
+#include "api/scoped_refptr.h"
 #include "rtc_base/ref_counted_object.h"
 #include "rtc_base/thread.h"
+#include "rtc_base/timestamp_aligner.h"
 
 class WebRTCStreamInterface :
   public WebsocketClient::Listener,
@@ -117,6 +117,7 @@ private:
   //bitrate and dropped frames
   uint64_t bitrate;
   int dropped_frame;
+  uint16_t id;
 
   //Websocket client
   WebsocketClient* client;
@@ -125,7 +126,8 @@ private:
   AudioDeviceModuleWrapper adm;
 
   //Video Capturer
-  VideoCapturer* videoCapturer;
+  rtc::scoped_refptr<VideoCapturer> videoCapturer;
+  rtc::TimestampAligner timestamp_aligner_;
 
   //Thumbnail wrapper
   //webrtc::VideoCaptureCapability thumbnailCaptureCapability;
