@@ -1,6 +1,11 @@
 cmake_minimum_required(VERSION 2.8.12)
 
-project(obs-studio)
+if( NOT OBS_WEBRTC_VENDOR_NAME )
+  set( _project_name obs-studio )
+else()
+  set( _project_name ${OBS_WEBRTC_VENDOR_NAME} )
+endif()
+project(${_project_name})
 
 # --- Handle CMake Options
 #
@@ -14,7 +19,7 @@ option( BUILD_TESTS "Build test directory (includes test sources and possibly a 
 mark_as_advanced(BUILD_TESTS)
 # NOTE ALEX: it is unusual to have options conditionned by external undocumented variables ...
 if(NOT INSTALLER_RUN)
-  option(ENABLE_UI "Enables the OBS user interfaces" ON)
+  option(ENABLE_UI "Enables the user interfaces" ON)
 endif()
 
 # --- Handle Project Dependencies
