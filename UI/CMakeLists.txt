@@ -271,9 +271,10 @@ if(WIN32)
     set(_output_suffix "32")
   endif()
 
-  set_target_properties(obs
+  set_target_properties(${_gui_name}
     PROPERTIES
       OUTPUT_NAME "${_gui_name}${_output_suffix}")
+  }
 endif()
 
 target_link_libraries(${_gui_name}
