@@ -2,16 +2,17 @@
 #include "frontend-tools-config.h"
 #include "../../properties-view.hpp"
 
-#include <QFileDialog>
-#include <QPlainTextEdit>
-#include <QHBoxLayout>
-#include <QVBoxLayout>
-#include <QScrollBar>
-#include <QPushButton>
+#include <QAction>
+#include <QDialogButtonBox>
 #include <QFontDatabase>
 #include <QFont>
-#include <QDialogButtonBox>
+#include <QFileDialog>
+#include <QHBoxLayout>
+#include <QPlainTextEdit>
+#include <QPushButton>
+#include <QScrollBar>
 #include <QResizeEvent>
+#include <QVBoxLayout>
 
 #include <obs.hpp>
 #include <obs-module.h>

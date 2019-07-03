@@ -63,8 +63,6 @@ target_link_libraries( websocketclient
   # NOTE ALEX: this is project specific and not using the standard module
   ${CURL_LIB}
   ${OPENSSL_LIBRARIES}
-  # ${OPENSSL_ROOT_DIR}/lib/libssl.dylib
-  # ${OPENSSL_ROOT_DIR}/lib/libcrypto.dylib
   )
 
 install_obs_plugin(websocketclient)
