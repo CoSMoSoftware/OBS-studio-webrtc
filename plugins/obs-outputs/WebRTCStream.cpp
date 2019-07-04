@@ -162,6 +162,8 @@ bool WebRTCStream::start(Type type)
   if (!obs_service_get_codec(service))
     codec = "vp8";
   else
+    // should check the value is acceptable here
+    // but since the input is supposedly a drop down menu, risk is low.
     codec = obs_service_get_codec(service);
 
   //Stop just in case

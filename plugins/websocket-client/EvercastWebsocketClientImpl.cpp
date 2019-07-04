@@ -229,7 +229,7 @@ bool
 EvercastWebsocketClientImpl::
 open(
   const std::string & sdp,
-  const std::string & /* unused? codec */,
+  const std::string & codec,
   const std::string & /* unused? Id    */
  )
 {
@@ -243,17 +243,18 @@ open(
       { "transaction"  , std::to_string(rand()) },
       { "body" ,
         {
-          { "request" ,"configure" },
-          {"muted", false},
-          {"video", true},
-          {"audio", true},
+          { "request", "configure" },
+          { "videocodec", codec },
+          { "muted", false },
+          { "video", true  },
+          { "audio", true  },
         }
       },
       { "jsep" ,
         {
-          { "type" ,"offer" },
-          {"sdp"  ,sdp},
-          {"trickle",true},
+          { "type" ,   "offer" },
+          { "sdp"  ,   sdp     },
+          { "trickle", true    },
         }
       }
     };

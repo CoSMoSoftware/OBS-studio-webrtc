@@ -1,7 +1,10 @@
 #include<obs-module.h>
 
 struct webrtc_millicast {
-  char *server, *milli_id, *codec, *token;
+  char *server;
+  char *milli_id;
+  char *codec;
+  char *token;
 };
 
 static const char *webrtc_millicast_name(void *unused)
@@ -21,7 +24,7 @@ static void webrtc_millicast_update(void *data, obs_data_t *settings)
 
   service->server   = bstrdup(obs_data_get_string(settings, "server"  ));
   service->milli_id = bstrdup(obs_data_get_string(settings, "milli_id"));
-  service->token    = bstrdup(obs_data_get_string(settings, "token"));
+  service->token    = bstrdup(obs_data_get_string(settings, "token"   ));
   service->codec    = bstrdup(obs_data_get_string(settings, "codec"   ));
 
 }
@@ -50,11 +53,16 @@ static obs_properties_t *webrtc_millicast_properties(void *unused)
 {
   UNUSED_PARAMETER(unused);
 
+  // Create the fields
+
   obs_properties_t *ppts = obs_properties_create();
   obs_properties_add_list(ppts, "server", obs_module_text("Server"), OBS_COMBO_TYPE_LIST, OBS_COMBO_FORMAT_STRING);
   obs_properties_add_text(ppts, "milli_id", "Publishing Stream Name",OBS_TEXT_DEFAULT);
   obs_properties_add_text(ppts, "token", obs_module_text("Publishing token"), OBS_TEXT_PASSWORD);
   obs_properties_add_list(ppts, "codec", obs_module_text("Codec"), OBS_COMBO_TYPE_LIST, OBS_COMBO_FORMAT_STRING);
+
+
+  // Populate the fields.
 
   obs_property_list_add_string(obs_properties_get(ppts, "server"),"Auto (Recommended)", "wss://live.millicast.com:443/ws/v1/pub");
   obs_property_list_add_string(obs_properties_get(ppts, "codec"),"h264", "h264");
