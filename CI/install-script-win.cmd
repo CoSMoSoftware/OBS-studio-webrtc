@@ -18,7 +18,7 @@ set CEF_64=%CD%\CEF_64\cef_binary_%CEF_VERSION%_windows64
 rem ---------------------------------------------------------------------
 curl -c ./cookie -s -L "https://drive.google.com/uc?export=download&id=1mgOr53httBCxmmIoln4VozIdrw-sOUuY" > nul
 for /f "delims="  %%x in ('findstr /C:"NID" cookie') do set "confirm_line=%%x"
-for /f "delims==" %%a in ("%confirm_line%") do set confirm_id=%%a
+for /f "delims==" %%a in ("%confirm_line%") do set "confirm_id=%%a"
 curl -Lb ./cookie "https://drive.google.com/uc?export=download&confirm=%confirm_id%&id=1mgOr53httBCxmmIoln4VozIdrw-sOUuY" -olibWebRTC-73.0-x64-Rel-msvc2017-COMMUNITY-BETA.zip
 7z x libWebRTC-73.0-x64-Rel-msvc2017-COMMUNITY-BETA.zip -olibWebRTC-73
 set libwebrtcPath=%CD%\libWebRTC-73\cmake
