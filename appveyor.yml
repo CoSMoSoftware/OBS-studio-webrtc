@@ -10,7 +10,7 @@ install:
   - cmd: C:\projects\obs-studio-webrtc\CI\install-script-win.cmd
 
 build_script:
-  - ctest -D Experimental -C %build_config%
+  - ctest -D Experimental -C Release
   - cpack
 
 #before_deploy:
