@@ -28,6 +28,9 @@
 #include "rtc_base/ref_counted_object.h"
 #include "rtc_base/thread.h"
 
+#include <regex>
+#include <string>
+
 class WebRTCStreamInterface :
   public WebsocketClient::Listener,
   public webrtc::PeerConnectionObserver,
@@ -147,9 +150,20 @@ private:
   obs_output_t *output;
 };
 
-class SDPModif {
+class SDPModif
+{
 public:
-  static void stereoSDP(std::string &sdp) {
+  enum VideoCodecs {
+    VP8,
+    VP9,
+    H264,
+    RED,
+    ULPFEC,
+    FEC
+  };
+
+  static void stereoSDP(std::string &sdp)
+  {
     std::vector<std::string> sdpLines;
     split(sdp, "\r\n", sdpLines);
     int fmtpLine = findLines(sdpLines, "a=fmtp:111");
@@ -162,7 +176,8 @@ public:
     sdp = join(sdpLines, "\r\n");
   }
 
-  static void bitrateSDP(std::string &sdp, int newBitrate) {
+  static void bitrateSDP(std::string &sdp, int newBitrate)
+  {
     std::vector<std::string> sdpLines;
     std::ostringstream newLineBitrate;
 
@@ -174,7 +189,195 @@ public:
     sdp = join(sdpLines, "\r\n");
   }
 
-  static std::string join(std::vector<std::string>& v, std::string delim) {
+  static void forcePayload(std::string & sdp,
+                           std::string video_codec,
+                           int packetization_mode = 1,
+                           const std::string profile_level_id = "42e01f")
+  {
+    int line;
+    std::ostringstream newLineA;
+    std::ostringstream newLineV;
+    std::string payloads = "";
+    std::vector<std::string> sdpLines;
+
+    split(sdp, (char *)"\r\n", sdpLines);
+
+    processCodec(video_codec, VP8, sdpLines, payloads);
+    processCodec(video_codec, VP9, sdpLines, payloads);
+    processCodec(video_codec, RED, sdpLines, payloads);
+    processCodec(video_codec, ULPFEC, sdpLines, payloads);
+    processCodec(video_codec, H264, sdpLines, payloads, packetization_mode, profile_level_id);
+  
+    line = findLines(sdpLines, "m=video");
+    if (line != -1) {
+      newLineV << "m=video 9 UDP/TLS/RTP/SAVPF" << payloads;
+      sdpLines.insert(sdpLines.begin() + line + 1, newLineV.str());
+      sdpLines.erase(sdpLines.begin() + line);
+    }
+
+    line = findLines(sdpLines, "m=audio");
+    if (line != -1) {
+      newLineA << "m=audio 9 UDP/TLS/RTP/SAVPF 111";
+      sdpLines.insert(sdpLines.begin() + line + 1, newLineA.str());
+      sdpLines.erase(sdpLines.begin() + line);
+    }
+
+    do {
+      line = findLines(sdpLines, "ISAC/");
+      if (line != -1)
+        sdpLines.erase(sdpLines.begin() + line);
+    } while (line != -1);
+
+    do {
+      line = findLines(sdpLines, "G722/");
+      if (line != -1)
+        sdpLines.erase(sdpLines.begin() + line);
+    } while (line != -1);
+
+    do {
+      line = findLines(sdpLines, "ILBC/");
+      if (line != -1)
+        sdpLines.erase(sdpLines.begin() + line);
+    } while (line != -1);
+
+    do {
+      line = findLines(sdpLines, "PCMU/");
+      if (line != -1)
+        sdpLines.erase(sdpLines.begin() + line);
+    } while (line != -1);
+
+    do {
+      line = findLines(sdpLines, "PCMA/");
+      if (line != -1)
+        sdpLines.erase(sdpLines.begin() + line);
+    } while (line != -1);
+
+    do {
+      line = findLines(sdpLines, "CN/");
+      if (line != -1)
+        sdpLines.erase(sdpLines.begin() + line);
+    } while (line != -1);
+
+    do {
+      line = findLines(sdpLines, "telephone-event/");
+      if (line != -1)
+        sdpLines.erase(sdpLines.begin() + line);
+    } while (line != -1);
+
+    sdp = join(sdpLines, "\r\n");
+  }
+
+  static void processCodec(std::string & desired_codec, VideoCodecs videoCodec,
+                           std::vector<std::string> & sdpLines,
+                           std::string & payloads,
+                           int desired_packetization_mode,
+                           const std::string & desired_profile_level_id)
+  {
+    int found;
+    bool keep = false;
+    std::smatch match, matchApt;
+    std::string codec, payload, payloadNumber, rtxPayloadNumber;
+    std::string h264fmtp = " level-asymmetry-allowed=[0-1];packetization-mode=([0-9]);profile-level-id=([0-9a-f]{6})";
+
+    switch (videoCodec) {
+    case VP8:
+      codec = "vp8";
+      payload = "VP8/90000";
+      break;
+    case VP9:
+      codec = "vp9";
+      payload = "VP9/90000";
+      break;
+    case H264:
+      codec = "h264";
+      payload = "H264/90000";
+      break;
+    case RED:
+      codec = "red";
+      payload = "red/90000";
+      break;
+    case ULPFEC:
+      codec = "ulpfec";
+      payload = "ulpfec/90000";
+      break;
+    case FEC:
+      codec = "ulpfec";
+      payload = "ulpfec/90000";
+      break;
+    default:
+      codec = "h264";
+      payload = "H264/90000";
+    }
+
+    do {
+      found = findLines(sdpLines, payload);
+      if (found != -1) {
+        std::string payloadRe = "a=rtpmap:([0-9]+) " + payload;
+        std::regex re(payloadRe);
+        if (std::regex_search(sdpLines[found], match, re)) {
+          payloadNumber = match[1].str();
+          if (codec == "h264") {
+            int fmtpLine = findLinesRegEx(sdpLines, payloadNumber + h264fmtp);
+            if (fmtpLine != -1) {
+              std::regex reFmtp(payloadNumber + h264fmtp);
+              if (std::regex_search(sdpLines[fmtpLine], match, reFmtp)) {
+                int packetization_mode = std::stoi(match[1].str());
+                std::string profile_level_id = match[2].str();
+                if (desired_codec == codec
+                    && desired_packetization_mode == packetization_mode
+                    && desired_profile_level_id == profile_level_id) {
+                  keep = true;
+                } else {
+                  keep = false;
+                }
+              }
+            }
+          } else {
+            if (desired_codec == codec)
+              keep = true;
+            else
+              keep = false;
+          }
+
+          if (keep) {
+            payloads += " " + payloadNumber;
+          } else  {
+            int line;
+            do {
+              line = findLines(sdpLines, ":" + payloadNumber + " ");
+              if (line != -1)
+                sdpLines.erase(sdpLines.begin() + line);
+            } while (line != -1);
+          }
+
+          std::string apt = "apt=" + payloadNumber;
+          int aptLine = findLines(sdpLines, apt);
+          if (aptLine != -1) {
+            std::regex reApt("a=fmtp:([0-9]+) apt");
+            if (std::regex_search(sdpLines[aptLine], matchApt, reApt)) {
+              rtxPayloadNumber = matchApt[1].str();
+              if (keep) {
+                payloads += " " + rtxPayloadNumber;
+              } else {
+                sdpLines.erase(sdpLines.begin() + aptLine);
+                sdpLines.erase(sdpLines.begin() + aptLine - 1);
+              }
+            }
+          }
+        }
+      }
+    } while (found != -1 && !keep);
+  }
+
+  static void processCodec(std::string & desired_codec, VideoCodecs videoCodec,
+                           std::vector<std::string> & sdpLines,
+                           std::string & payloads)
+  {
+    return processCodec(desired_codec, videoCodec, sdpLines, payloads, -1, "");
+  }
+
+  static std::string join(std::vector<std::string>& v, std::string delim)
+  {
     std::ostringstream s;
     for (const auto& i : v) {
       if (&i != &v[0]) {
@@ -186,7 +389,8 @@ public:
     return s.str();
   }
 
-  static void split(const std::string &s, char* delim, std::vector<std::string> & v){
+  static void split(const std::string &s, char* delim, std::vector<std::string> & v)
+  {
     char * dup = strdup(s.c_str());
     char * token = strtok(dup, delim);
     while(token != NULL){
@@ -196,11 +400,23 @@ public:
     free(dup);
   }
 
-  static int findLines(std::vector<std::string> sdpLines, std::string prefix) {
+  static int findLines(const std::vector<std::string> &sdpLines, std::string prefix)
+  {
     for (unsigned long i = 0 ; i < sdpLines.size() ; i++) {
       if ((sdpLines[i].find(prefix) != std::string::npos)) {
         return i;
       }
+    }
+    return -1;
+  }
+
+  static int findLinesRegEx(const std::vector<std::string> &sdpLines, std::string prefix)
+  {
+    std::regex re(prefix);
+    for (unsigned long i = 0; i < sdpLines.size(); i++) {
+      std::smatch match;
+      if (std::regex_search(sdpLines[i], match, re))
+        return i;
     }
     return -1;
   }

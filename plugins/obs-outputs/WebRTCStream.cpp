@@ -268,8 +268,21 @@ void WebRTCStream::OnSuccess(webrtc::SessionDescriptionInterface * desc)
   desc->ToString(&sdp);
   //Got offer
   info("Got offer\r\n%s", sdp.c_str());
+  std::string sdpNotConst = sdp;
+
+  //for H264: 0 (single NAL unit), 1 (non-interleaved), 2 (interleaved)
+  int packetization_mode = 1;
+  //for H264: 42001f, 42e01f
+  std::string profile_level_id = "42e01f";
+  //Force specific video/audio payload
+  SDPModif::forcePayload(sdpNotConst, codec, packetization_mode, profile_level_id);
+
+  webrtc::SdpParseError error;
+  //Create offer
+  std::unique_ptr<webrtc::SessionDescriptionInterface> offer =
+      webrtc::CreateSessionDescription(webrtc::SdpType::kOffer, sdpNotConst, &error);
   //Set local description
-  pc->SetLocalDescription(this, desc);
+  pc->SetLocalDescription(this, offer);
   //Send SDP
   info("WebRTCStream::OnSuccess: %s", codec.c_str());
   client->open(sdp, codec, milliId);
