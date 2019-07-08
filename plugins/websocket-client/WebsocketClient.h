@@ -34,6 +34,7 @@ public:
   class Listener
   {
   public:
+    virtual ~Listener() = default;
     virtual void onConnected(   ) = 0;
     virtual void onDisconnected() = 0;
     virtual void onLogged(      int code ) = 0;
@@ -42,6 +43,7 @@ public:
     virtual void onOpened(const std::string &sdp) = 0;
   };
 public:
+  virtual ~WebsocketClient() = default;
   virtual bool connect(
     const std::string & url,
     const std::string & room,
