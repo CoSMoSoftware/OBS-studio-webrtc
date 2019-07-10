@@ -652,7 +652,7 @@ bool SimpleOutput::StartStreaming(obs_service_t *service)
   /* --------------------- */
 
   const char *type = obs_service_get_output_type(service);
-  std:string typeCheck = obs_service_get_type(service);
+  std::string typeCheck = obs_service_get_type(service);
 
   if (!type) {
            if(typeCheck.find("janus")       != std::string::npos) {
@@ -1428,7 +1428,7 @@ bool AdvancedOutput::StartStreaming(obs_service_t *service)
       "TrackIndex");
 
   const char *type = obs_service_get_output_type(service);
-  std:string typeCheck = obs_service_get_type(service);
+  std::string typeCheck = obs_service_get_type(service);
 
   if (!type) {
     if(typeCheck.find("janus") != std::string::npos) {
