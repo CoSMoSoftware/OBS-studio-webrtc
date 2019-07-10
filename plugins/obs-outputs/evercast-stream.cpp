@@ -26,7 +26,7 @@ extern "C" const char *evercast_stream_getname(void *unused)
 {
   info("evercast_stream_getname");
   UNUSED_PARAMETER(unused);
-  return obs_module_text("JANUSStream");
+  return obs_module_text("EVERCASTStream");
 }
 
 extern "C" void evercast_stream_destroy(void *data)
@@ -107,13 +107,13 @@ extern "C" obs_properties_t *evercast_stream_properties(void *unused)
   obs_properties_t *props = obs_properties_create();
 
   obs_properties_add_int(props, OPT_DROP_THRESHOLD,
-      obs_module_text("JANUSStream.DropThreshold"),
+      obs_module_text("EVERCASTStream.DropThreshold"),
       200, 10000, 100);
 
   obs_properties_add_bool(props, OPT_NEWSOCKETLOOP_ENABLED,
-      obs_module_text("JANUSStream.NewSocketLoop"));
+      obs_module_text("EVERCASTStream.NewSocketLoop"));
   obs_properties_add_bool(props, OPT_LOWLATENCY_ENABLED,
-      obs_module_text("JANUSStream.LowLatencyMode"));
+      obs_module_text("EVERCASTStream.LowLatencyMode"));
 
   return props;
 }
