@@ -25,6 +25,8 @@ else()
   add_definitions(-DNO_CRYPTO)
 endif()
 
+include_directories(${CMAKE_SOURCE_DIR}/libobs)
+
 # --- Find libwebrtc or fail early
 if( WIN32 )
   set(WEBRTC_USE_FILE_INCLUDED 0)
@@ -34,6 +36,8 @@ message( STATUS "WebRTC Libs: " )
 foreach( _lib ${WEBRTC_LIBRARIES} )
   message( STATUS "-- ${_lib}" )
 endforeach()
+
+include_directories(${LIBWEBRTC_INCLUDE_DIRS})
 
 if (EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/ftl-sdk/CMakeLists.txt")
   find_package(Libcurl REQUIRED)
@@ -131,31 +135,49 @@ set(obs-outputs_librtmp_SOURCES
   librtmp/parseurl.c
   librtmp/rtmp.c)
 
+if(NOT WIN32)
+  set_source_files_properties(${obs-outputs_librtmp_SOURCES} PROPERTIES
+    COMPILE_FLAGS "-fvisibility=hidden")
+endif()
+
+set(obs-outputs_webrtc_HEADERS
+  AudioDeviceModuleWrapper.h
+  VideoCapturer.h
+  WebRTCStream.h
+  janus-stream.h
+  wowza-stream.h
+  evercast-stream.h
+  millicast-stream.h
+)
+
+set(obs-outputs_webrtc_SOURCES
+  AudioDeviceModuleWrapper.cpp
+  VideoCapturer.cpp
+  WebRTCStream.cpp
+  janus-stream.cpp
+  wowza-stream.cpp
+  evercast-stream.cpp
+  millicast-stream.cpp
+)
+
+if(NOT WIN32)
+  set_source_files_properties(${obs-outputs_webrtc_SOURCES} PROPERTIES
+    COMPILE_FLAGS "-fvisibility=hidden")
+endif()
+
 # --- header and source files
 set( obs-outputs_HEADERS
   obs-output-ver.h
   flv-mux.h
   rtmp-helpers.h
   rtmp-stream.h
-  evercast-stream.h
-  janus-stream.h
-  millicast-stream.h
   net-if.h
-  AudioDeviceModuleWrapper.h
-  VideoCapturer.h
-  WebRTCStream.h
   )
 
 set( obs-outputs_SOURCES
   obs-outputs.c
   rtmp-stream.c
-  janus-stream.cpp
-  evercast-stream.cpp
-  millicast-stream.cpp
   rtmp-windows.c
-  AudioDeviceModuleWrapper.cpp
-  VideoCapturer.cpp
-  WebRTCStream.cpp
   net-if.c
   null-output.c
   flv-output.c
@@ -168,6 +190,8 @@ add_library( obs-outputs MODULE
   ${obs-outputs_HEADERS}
   ${obs-outputs_librtmp_SOURCES}
   ${obs-outputs_librtmp_HEADERS}
+  ${obs-outputs_webrtc_SOURCES}
+  ${obs-outputs_webrtc_HEADERS}
 )
 target_include_directories( obs-outputs
   PUBLIC ${websocketclient_SOURCE_DIR}

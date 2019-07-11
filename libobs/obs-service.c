@@ -273,6 +273,15 @@ const char *obs_service_get_password(const obs_service_t *service)
 	return service->info.get_password(service->context.data);
 }
 
+const char *obs_service_get_protocol(const obs_service_t *service)
+{
+	if (!obs_service_valid(service, "obs_service_get_protocol"))
+		return NULL;
+
+	if (!service->info.get_protocol) return NULL;
+	return service->info.get_protocol(service->context.data);
+}
+
 void obs_service_activate(struct obs_service *service)
 {
 	if (!obs_service_valid(service, "obs_service_activate"))
