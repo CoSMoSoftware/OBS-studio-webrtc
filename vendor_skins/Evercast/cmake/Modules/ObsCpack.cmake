@@ -48,8 +48,8 @@ else()
     set(_output_suffix "")
   endif()
 
-  set(CPACK_PACKAGE_EXECUTABLES  "${_output_suffix}bit/ebs${_output_suffix}" "EBS Studio")
-  set(CPACK_CREATE_DESKTOP_LINKS "${_output_suffix}bit/ebs${_output_suffix}")
+  #set(CPACK_PACKAGE_EXECUTABLES  "${_output_suffix}bit/ebs${_output_suffix}" "EBS Studio")
+  #set(CPACK_CREATE_DESKTOP_LINKS "${_output_suffix}bit/ebs${_output_suffix}")
 endif()
 
 set(CPACK_BUNDLE_NAME "EBS")
