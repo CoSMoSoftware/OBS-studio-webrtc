@@ -175,7 +175,7 @@ target_include_directories( obs-outputs
   )
 target_link_libraries( obs-outputs
   ${WEBRTC_LIBRARIES}
-  ${SSL_LIBRARIES}
+  ${LIBMBEDTLS_LIBRARIES}
   ${ZLIB_LIBRARIES}
   ${obs-outputs_PLATFORM_DEPS}
   libobs
