@@ -127,9 +127,19 @@ bool WebRTCStream::start(Type type)
   if (!obs_service_get_url(service))
     return false;
 
+  // the codec should be generic, and vp8 is the default if empty
+  // possible values (should check): vp8, vp9, h264
+  if (!obs_service_get_codec(service))
+    codec = "vp8";
+  else
+    // should check the value is acceptable here
+    // but since the input is supposedly a drop down menu, risk is low.
+    codec = obs_service_get_codec(service);
+
   url = obs_service_get_url(service);
   milliId = "";
   milliToken = "";
+  protocol = "";
   const char *tmpString = nullptr;
   const char *tmpToken  = nullptr;
 
@@ -144,8 +154,10 @@ bool WebRTCStream::start(Type type)
     tmpString = obs_service_get_password(service);
     password = (NULL == tmpString ? "" : tmpString);
     if (type == WebRTCStream::Wowza) {
+      tmpString = obs_service_get_codec(service);
+      codec = (NULL == tmpString ? "Automatic" : tmpString);
       tmpString = obs_service_get_protocol(service);
-      protocol = (NULL == tmpString ? "UDP" : tmpString);
+      protocol = (NULL == tmpString ? "" : tmpString);
     }
     try {
       room = obs_service_get_room(service);
@@ -159,15 +171,6 @@ bool WebRTCStream::start(Type type)
       return false;
     }
   }
-
-  // the codec should be generic, and vp8 is the default if empty
-  // possible values (should check): vp8, vp9, h264
-  if (!obs_service_get_codec(service))
-    codec = "vp8";
-  else
-    // should check the value is acceptable here
-    // but since the input is supposedly a drop down menu, risk is low.
-    codec = obs_service_get_codec(service);
 
   //Stop just in case
   stop();
@@ -249,7 +252,7 @@ bool WebRTCStream::start(Type type)
     }
   } else if (type == WebRTCStream::Wowza) {
     info("connecting to [url: %s, protocol: %s, application name: %s, stream name: %s]",
-        url.c_str(), protocol.c_str(), username.c_str(), password.c_str());
+        url.c_str(), protocol.empty() ? "Automatic" : protocol.c_str(), username.c_str(), password.c_str());
     if (!client->connect(url, room, username, password, this)) {
       error("Unable to connect to server");
       obs_output_signal_stop(output, OBS_OUTPUT_CONNECT_FAILED);
@@ -294,8 +297,10 @@ void WebRTCStream::OnSuccess(webrtc::SessionDescriptionInterface * desc)
     audio_bitrate = (int)obs_data_get_int(aparams, "bitrate");
     info("Audio bitrate: %d", audio_bitrate);
     std::vector<int> video_payload_numbers;
-    // Force specific video payload
-    SDPModif::forcePayload(sdpNotConst, codec, video_payload_numbers, 0, "42e01f", 0);
+    if (!codec.compare("Automatic") == 0) {
+      // Force specific video payload
+      SDPModif::forcePayload(sdpNotConst, codec, video_payload_numbers, 0, "42e01f", 0);
+    }
     // Modify bitrate
     SDPModif::bitrateMaxMinSDP(sdpNotConst, video_bitrate, video_payload_numbers);
     // Enable stereo
@@ -347,17 +352,19 @@ void WebRTCStream::onRemoteIceCandidate(const std::string &sdpData)
   } else {
     std::string s = sdpData;
     s.erase(remove(s.begin(), s.end(), '\"'), s.end());
-    if (SDPModif::filterIceCandidates(s, protocol)) {
-      const std::string candidate = s;
-      info("Remote %s\n", candidate.c_str());
-      const std::string sdpMid = "";
-      int sdpMLineIndex = 0;
-      webrtc::SdpParseError error;
-      const webrtc::IceCandidateInterface* newCandidate =
-          webrtc::CreateIceCandidate(sdpMid, sdpMLineIndex, candidate, &error);
-      pc->AddIceCandidate(newCandidate);
-    } else {
-      info("Ignoring remote %s\n", s.c_str());
+    if (!protocol.empty()) {
+      if (SDPModif::filterIceCandidates(s, protocol)) {
+        const std::string candidate = s;
+        info("Remote %s\n", candidate.c_str());
+        const std::string sdpMid = "";
+        int sdpMLineIndex = 0;
+        webrtc::SdpParseError error;
+        const webrtc::IceCandidateInterface* newCandidate =
+            webrtc::CreateIceCandidate(sdpMid, sdpMLineIndex, candidate, &error);
+        pc->AddIceCandidate(newCandidate);
+      } else {
+        info("Ignoring remote %s\n", s.c_str());
+      }
     }
   }
 }

@@ -23,7 +23,7 @@ static void webrtc_wowza_update(void *data, obs_data_t *settings)
   bfree(service->token);
   bfree(service->codec);
   bfree(service->protocol);
-  
+
   service->server   = bstrdup(obs_data_get_string(settings, "server"  ));
   service->username = bstrdup(obs_data_get_string(settings, "username"));
   service->token    = bstrdup(obs_data_get_string(settings, "token"   ));
@@ -63,11 +63,13 @@ static obs_properties_t *webrtc_wowza_properties(void *unused)
   obs_properties_add_text(ppts, "token", "Stream Name", OBS_TEXT_DEFAULT);
 
   obs_properties_add_list(ppts, "codec", "Codec", OBS_COMBO_TYPE_LIST, OBS_COMBO_FORMAT_STRING);
+  obs_property_list_add_string(obs_properties_get(ppts, "codec"), "Automatic", "");
   obs_property_list_add_string(obs_properties_get(ppts, "codec"), "H264", "h264");
   obs_property_list_add_string(obs_properties_get(ppts, "codec"), "VP8", "vp8");
   obs_property_list_add_string(obs_properties_get(ppts, "codec"), "VP9", "vp9");
 
   obs_properties_add_list(ppts, "protocol", "Protocol", OBS_COMBO_TYPE_LIST, OBS_COMBO_FORMAT_STRING);
+  obs_property_list_add_string(obs_properties_get(ppts, "protocol"), "Automatic", "");
   obs_property_list_add_string(obs_properties_get(ppts, "protocol"), "UDP", "UDP");
   obs_property_list_add_string(obs_properties_get(ppts, "protocol"), "TCP", "TCP");
 
