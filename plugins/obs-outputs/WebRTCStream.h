@@ -264,39 +264,43 @@ public:
   // Remove all payloads from SDP except Opus and video_codec
   static void forcePayload(
     std::string& sdp,
+    std::vector<int>& audio_payload_numbers,
     std::vector<int>& video_payload_numbers,
     const std::string& video_codec
   )
   {
-    return forcePayload(sdp, video_payload_numbers, video_codec, "opus",
-                        0, "42e01f", 0);
+    return forcePayload(sdp, audio_payload_numbers, video_payload_numbers, "opus",
+                        video_codec, 0, "42e01f", 0);
   }
   // Remove all payloads from SDP except Opus and video_codec
   static void forcePayload(
     std::string& sdp,
+    std::vector<int>& audio_payload_numbers,
     std::vector<int>& video_payload_numbers,
     const std::string& video_codec,
     const int vp9_profile_id
   )
   {
-    return forcePayload(sdp, video_payload_numbers, video_codec, "opus",
-                        0, "42e01f", vp9_profile_id);
+    return forcePayload(sdp, audio_payload_numbers, video_payload_numbers, "opus",
+                        video_codec, 0, "42e01f", vp9_profile_id);
   }
   // Remove all payloads from SDP except Opus and video_codec
   static void forcePayload(
     std::string& sdp,
+    std::vector<int>& audio_payload_numbers,
     std::vector<int>& video_payload_numbers,
     const std::string& video_codec,
     const int h264_packetization_mode,
     const std::string& h264_profile_level_id
   )
   {
-    return forcePayload(sdp, video_payload_numbers, video_codec, "opus",
-                        h264_packetization_mode, h264_profile_level_id, 0);
+    return forcePayload(sdp, audio_payload_numbers, video_payload_numbers, "opus",
+                        video_codec, h264_packetization_mode, h264_profile_level_id, 0);
   }
   // Remove all payloads from SDP except Opus and video_codec
   static void forcePayload(
     std::string& sdp,
+    std::vector<int>& audio_payload_numbers,
     std::vector<int>& video_payload_numbers,
     const std::string& video_codec,
     const int h264_packetization_mode,
@@ -304,15 +308,16 @@ public:
     const int vp9_profile_id
   )
   {
-    return forcePayload(sdp, video_payload_numbers, video_codec, "opus",
-                        h264_packetization_mode, h264_profile_level_id, 0);
+    return forcePayload(sdp, audio_payload_numbers, video_payload_numbers, "opus",
+                        video_codec, h264_packetization_mode, h264_profile_level_id, 0);
   }
   // Remove all payloads from SDP except video_codec and audio_codec
   static void forcePayload(
     std::string& sdp,
+    std::vector<int>& audio_payload_numbers,
     std::vector<int>& video_payload_numbers,
-    const std::string& video_codec,
     const std::string& audio_codec,
+    const std::string& video_codec,
     const int h264_packetization_mode,
     const std::string& h264_profile_level_id,
     const int vp9_profile_id
@@ -321,24 +326,27 @@ public:
     int line;
     std::ostringstream newLineA;
     std::ostringstream newLineV;
-    std::string payloads = "";
+    std::string audio_payloads = "";
+    std::string video_payloads = "";
     std::vector<std::string> sdpLines;
     // Retained payloads stored in video_payload_numbers (and  payloads)
-    filterPayloads(sdp, payloads, video_payload_numbers, video_codec, audio_codec,
+    filterPayloads(sdp, audio_payloads, audio_payload_numbers, "audio", audio_codec,
+                   h264_packetization_mode, h264_profile_level_id, vp9_profile_id);
+    filterPayloads(sdp, video_payloads, video_payload_numbers, "video", video_codec,
                    h264_packetization_mode, h264_profile_level_id, vp9_profile_id);
     split(sdp, (char*)"\r\n", sdpLines);
-    // Replace video m-line
-    line = findLines(sdpLines, "m=video");
-    if (line != -1) {
-      newLineV << "m=video 9 UDP/TLS/RTP/SAVPF" << payloads;
-      sdpLines.insert(sdpLines.begin() + line + 1, newLineV.str());
-      sdpLines.erase(sdpLines.begin() + line);
-    }
     // Replace audio m-line
     line = findLines(sdpLines, "m=audio");
     if (line != -1) {
-      newLineA << "m=audio 9 UDP/TLS/RTP/SAVPF 111";
+      newLineA << "m=audio 9 UDP/TLS/RTP/SAVPF" << audio_payloads;
       sdpLines.insert(sdpLines.begin() + line + 1, newLineA.str());
+      sdpLines.erase(sdpLines.begin() + line);
+    }
+    // Replace video m-line
+    line = findLines(sdpLines, "m=video");
+    if (line != -1) {
+      newLineV << "m=video 9 UDP/TLS/RTP/SAVPF" << video_payloads;
+      sdpLines.insert(sdpLines.begin() + line + 1, newLineV.str());
       sdpLines.erase(sdpLines.begin() + line);
     }
     sdp = join(sdpLines, "\r\n");
@@ -372,29 +380,31 @@ private:
   static void filterPayloads(
     std::string& sdp,
     std::string& payloads,
-    std::vector<int>& video_payload_numbers,
-    const std::string& video_codec
+    std::vector<int>& payload_numbers,
+    const std::string& media_type,
+    const std::string& media_codec
   )
   {
-    return filterPayloads(sdp, payloads, video_payload_numbers, video_codec, "opus", 0, "42e01f", 0);
+    return filterPayloads(sdp, payloads, payload_numbers, media_type, media_codec, 0, "42e01f", 0);
   }
   // Remove all payloads from SDP except specified codecs
   static void filterPayloads(
     std::string& sdp,
     std::string& payloads,
-    std::vector<int>& video_payload_numbers,
+    std::vector<int>& payload_numbers,
+    const std::string& media_type,
     const std::initializer_list<std::string>& codecs
   )
   {
-    return filterPayloads(sdp, payloads, video_payload_numbers, codecs, 0, "42e01f", 0);
+    return filterPayloads(sdp, payloads, payload_numbers, media_type, codecs, 0, "42e01f", 0);
   }
-  // Remove all payloads from SDP except video_codec & audio_codec
+
   static void filterPayloads(
     std::string& sdp,
     std::string& payloads,
-    std::vector<int>& video_payload_numbers,
-    const std::string& video_codec,
-    const std::string& audio_codec,
+    std::vector<int>& payload_numbers,
+    const std::string& media_type,
+    const std::string& media_codec,
     const int h264_packetization_mode,
     const std::string& h264_profile_level_id,
     const int vp9_profile_id
@@ -405,118 +415,29 @@ private:
     std::vector<int> apt_payload_numbers;
     std::vector<std::string> sdpLines;
     split(sdp, (char*)"\r\n", sdpLines);
-    int line = -1;
-    for (std::string sdpLine : sdpLines) {
-      ++line;
+    int audioLine = findLines(sdpLines, "m=audio ");
+    int videoLine = findLines(sdpLines, "m=video ");
+    int for_start = 0;
+    int for_end = sdpLines.size();
+    if (media_type == "audio") {
+      for_start = audioLine;
+      for_end = videoLine;
+    } else if (media_type == "video") {
+      for_start = videoLine;
+    }
+    for (int i = for_start; i < for_end; i++) {
       std::string payloadCodec;
       std::string payloadNumber;
       std::string payloadRe = "a=rtpmap:([0-9]+) ([A-Za-z0-9-]+)";
       std::regex re(payloadRe);
       std::smatch match;
-      if (std::regex_search(sdpLine, match, re)) {
-        payloadNumber = match[1].str();
-        payloadCodec = match[2].str();
-        bool keep = false;
-        bool aptKeep = false;
-        if (caseInsensitiveStringCompare(video_codec, payloadCodec)) {
-          if (caseInsensitiveStringCompare("h264", payloadCodec)) {
-            int fmtpLine = findLinesRegEx(sdpLines, payloadNumber + h264fmtp);
-            if (fmtpLine != -1) {
-              std::smatch matchFmtp;
-              std::regex reFmtp(payloadNumber + h264fmtp);
-              if (std::regex_search(sdpLines[fmtpLine], matchFmtp, reFmtp)) {
-                int pkt_mode = std::stoi(matchFmtp[1].str());
-                std::string p_level_id = matchFmtp[2].str();
-                if (caseInsensitiveStringCompare(h264_profile_level_id, p_level_id) &&
-                    h264_packetization_mode == pkt_mode) {
-                  keep = true;
-                }
-              }
-            }
-          } else if (caseInsensitiveStringCompare("vp9", payloadCodec)) {
-            int fmtpLine = findLinesRegEx(sdpLines, payloadNumber + vp9fmtp);
-            if (fmtpLine != -1) {
-              std::smatch matchFmtp;
-              std::regex reFmtp(payloadNumber + vp9fmtp);
-              if (std::regex_search(sdpLines[fmtpLine], matchFmtp, reFmtp)) {
-                int profile_id = std::stoi(matchFmtp[1].str());
-                if (vp9_profile_id == profile_id) {
-                  keep = true;
-                }
-              }
-            }
-          } else {
-            keep = true;
-          }
-        }
-        std::string apt = "apt=" + payloadNumber;
-        std::string rtxPayloadNumber = "";
-        int aptLine = findLines(sdpLines, apt);
-        if (aptLine != -1) {
-          std::smatch matchApt;
-          std::regex reApt("a=fmtp:([0-9]+) apt");
-          if (std::regex_search(sdpLines[aptLine], matchApt, reApt)) {
-            rtxPayloadNumber = matchApt[1].str();
-            if (keep) {
-              aptKeep = true;
-            }
-          }
-        }
-        if (keep || aptKeep) {
-          if (keep) {
-            payloads += " " + payloadNumber;
-            video_payload_numbers.push_back(std::stoi(payloadNumber));
-          }
-          if (aptKeep) {
-            payloads += " " + rtxPayloadNumber;
-            apt_payload_numbers.push_back(std::stoi(rtxPayloadNumber));
-          }
-        } else if (!caseInsensitiveStringCompare(audio_codec, payloadCodec)) {
-          if (std::find(video_payload_numbers.begin(), video_payload_numbers.end(), std::stoi(payloadNumber)) != video_payload_numbers.end() ||
-              std::find(apt_payload_numbers.begin(), apt_payload_numbers.end(), std::stoi(payloadNumber)) != apt_payload_numbers.end()) {
-            // do nothing
-          } else {
-            deletePayload(sdp, std::stoi(payloadNumber));
-          }
-        }
-      }
-    }
-  }
-  // Remove all payloads from SDP except specified codecs
-  static void filterPayloads(
-    std::string& sdp,
-    std::string& payloads,
-    std::vector<int>& video_payload_numbers,
-    const std::initializer_list<std::string>& codecs,
-    const int h264_packetization_mode,
-    const std::string& h264_profile_level_id,
-    const int vp9_profile_id
-  )
-  {
-    std::string h264fmtp = " level-asymmetry-allowed=[0-1];packetization-mode=([0-9]);profile-level-id=([0-9a-f]{6})";
-    std::string vp9fmtp = " profile-id=([0-9])";
-    std::vector<int> apt_payload_numbers;
-    std::string audio_codec = "opus";
-    std::vector<std::string> sdpLines;
-    split(sdp, (char*)"\r\n", sdpLines);
-    int line = -1;
-    for (std::string sdpLine : sdpLines) {
-      ++line;
-      std::smatch match;
-      std::string payloadCodec;
-      std::string payloadNumber;
-      std::string payloadRe = "a=rtpmap:([0-9]+) ([a-z0-9-]+)";
-      std::regex re(payloadRe);
-      if (std::regex_search(sdpLine, match, re)) {
+      if (std::regex_search(sdpLines[i], match, re)) {
         payloadNumber = match[1].str();
         payloadCodec = match[2].str();
         bool found = false;
-        for (auto codec : codecs) {
-          if (caseInsensitiveStringCompare(codec, payloadCodec)) {
-            found = true;
-            break;
-          }
-        }
+        if (caseInsensitiveStringCompare(media_codec, payloadCodec))
+          found = true;
+        bool all = false;
         bool keep = false;
         bool aptKeep = false;
         if (found) {
@@ -549,6 +470,146 @@ private:
           } else {
             keep = true;
           }
+        } else if (media_codec.empty()) {
+          all = true;
+          keep = true;
+        }
+        std::string apt = "apt=" + payloadNumber;
+        std::string rtxPayloadNumber = "";
+        int aptLine = findLines(sdpLines, apt);
+        if (aptLine != -1) {
+          std::smatch matchApt;
+          std::regex reApt("a=fmtp:([0-9]+) apt");
+          if (std::regex_search(sdpLines[aptLine], matchApt, reApt)) {
+            rtxPayloadNumber = matchApt[1].str();
+            if (keep) {
+              aptKeep = true;
+            }
+          }
+        }
+        if (keep || aptKeep) {
+          if (keep) {
+            payloads += " " + payloadNumber;
+            payload_numbers.push_back(std::stoi(payloadNumber));
+          }
+          if (aptKeep) {
+            if (!all)
+              payloads += " " + rtxPayloadNumber;
+            apt_payload_numbers.push_back(std::stoi(rtxPayloadNumber));
+          }
+        } else {
+          auto begin = payload_numbers.begin();
+          auto end = payload_numbers.end();
+          auto apt_begin = apt_payload_numbers.begin();
+          auto apt_end = apt_payload_numbers.end();
+          auto payload = std::stoi(payloadNumber);
+          if (std::find(begin, end, payload) != end ||
+              std::find(apt_begin, apt_end, payload) != apt_end) {
+            // do nothing
+          } else {
+            deletePayload(sdp, payload);
+          }
+        }
+      }
+    }
+  }
+
+  // static void filterPayloads(
+  //   std::string& sdp,
+  //   std::string& payloads,
+  //   std::vector<int>& payload_numbers,
+  //   const std::string& media_type,
+  //   const std::string& media_codec,
+  //   const int h264_packetization_mode,
+  //   const std::string& h264_profile_level_id,
+  //   const int vp9_profile_id
+  // )
+  // {
+  //   // std::initializer_list<std::string> codecs = { media_codec };
+  //   auto codecs = { media_codec };
+  //   return filterPayloads(sdp, payloads, payload_numbers, media_type, codecs,
+  //       h264_packetization_mode, h264_profile_level_id, vp9_profile_id);
+  // }
+
+  // Remove all payloads from SDP except specified codecs
+  static void filterPayloads(
+    std::string& sdp,
+    std::string& payloads,
+    std::vector<int>& payload_numbers,
+    const std::string& media_type,
+    const std::initializer_list<std::string>& codecs,
+    const int h264_packetization_mode,
+    const std::string& h264_profile_level_id,
+    const int vp9_profile_id
+  )
+  {
+    std::string h264fmtp = " level-asymmetry-allowed=[0-1];packetization-mode=([0-9]);profile-level-id=([0-9a-f]{6})";
+    std::string vp9fmtp = " profile-id=([0-9])";
+    std::vector<int> apt_payload_numbers;
+    std::vector<std::string> sdpLines;
+    split(sdp, (char*)"\r\n", sdpLines);
+    int audioLine = findLines(sdpLines, "m=audio ");
+    int videoLine = findLines(sdpLines, "m=video ");
+    int for_start = 0;
+    int for_end = sdpLines.size();
+    if (media_type == "audio") {
+      for_start = audioLine;
+      for_end = videoLine;
+    } else if (media_type == "video") {
+      for_start = videoLine;
+    }
+    for (int i = for_start; i < for_end; i++) {
+      std::smatch match;
+      std::string payloadCodec;
+      std::string payloadNumber;
+      std::string payloadRe = "a=rtpmap:([0-9]+) ([a-z0-9-]+)";
+      std::regex re(payloadRe);
+      if (std::regex_search(sdpLines[i], match, re)) {
+        payloadNumber = match[1].str();
+        payloadCodec = match[2].str();
+        bool found = false;
+        for (auto&& codec : codecs) {
+          if (caseInsensitiveStringCompare(codec, payloadCodec)) {
+            found = true;
+            break;
+          }
+        }
+        bool all = false;
+        bool keep = false;
+        bool aptKeep = false;
+        if (found) {
+          if (caseInsensitiveStringCompare("h264", payloadCodec)) {
+            int fmtpLine = findLinesRegEx(sdpLines, payloadNumber + h264fmtp);
+            if (fmtpLine != -1) {
+              std::smatch matchFmtp;
+              std::regex reFmtp(payloadNumber + h264fmtp);
+              if (std::regex_search(sdpLines[fmtpLine], matchFmtp, reFmtp)) {
+                int pkt_mode = std::stoi(matchFmtp[1].str());
+                std::string p_level_id = matchFmtp[2].str();
+                if (caseInsensitiveStringCompare(h264_profile_level_id, p_level_id) &&
+                    h264_packetization_mode == pkt_mode) {
+                  keep = true;
+                }
+              }
+            }
+          } else if (caseInsensitiveStringCompare("vp9", payloadCodec)) {
+            int fmtpLine = findLinesRegEx(sdpLines, payloadNumber + vp9fmtp);
+            if (fmtpLine != -1) {
+              std::smatch matchFmtp;
+              std::regex reFmtp(payloadNumber + vp9fmtp);
+              if (std::regex_search(sdpLines[fmtpLine], matchFmtp, reFmtp)) {
+                int profile_id = std::stoi(matchFmtp[1].str());
+                if (vp9_profile_id == profile_id) {
+                  keep = true;
+                }
+              }
+            }
+          } else {
+            keep = true;
+          }
+        } else if (codecs.size() == 0) {
+          all = true;
+          keep = true;
         }
         std::string apt = "apt=" + payloadNumber;
         std::string rtxPayloadNumber = "";
@@ -567,18 +628,24 @@ private:
         if (keep || aptKeep) {
           if (keep) {
             payloads += " " + payloadNumber;
-            video_payload_numbers.push_back(std::stoi(payloadNumber));
+            payload_numbers.push_back(std::stoi(payloadNumber));
           }
           if (aptKeep) {
-            payloads += " " + rtxPayloadNumber;
+            if (!all)
+              payloads += " " + rtxPayloadNumber;
             apt_payload_numbers.push_back(std::stoi(rtxPayloadNumber));
           }
-        } else if (!caseInsensitiveStringCompare(audio_codec, payloadCodec)) {
-          if (std::find(video_payload_numbers.begin(), video_payload_numbers.end(), std::stoi(payloadNumber)) != video_payload_numbers.end() ||
-              std::find(apt_payload_numbers.begin(), apt_payload_numbers.end(), std::stoi(payloadNumber)) != apt_payload_numbers.end()) {
+        } else {
+          auto begin = payload_numbers.begin();
+          auto end = payload_numbers.end();
+          auto apt_begin = apt_payload_numbers.begin();
+          auto apt_end = apt_payload_numbers.end();
+          auto payload = std::stoi(payloadNumber);
+          if (std::find(begin, end, payload) != end ||
+              std::find(apt_begin, apt_end, payload) != apt_end) {
             // do nothing
           } else {
-            deletePayload(sdp, std::stoi(payloadNumber));
+            deletePayload(sdp, payload);
           }
         }
       }

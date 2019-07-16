@@ -155,7 +155,7 @@ bool WebRTCStream::start(Type type)
     password = (NULL == tmpString ? "" : tmpString);
     if (type == WebRTCStream::Wowza) {
       tmpString = obs_service_get_codec(service);
-      codec = (NULL == tmpString ? "Automatic" : tmpString);
+      codec = (NULL == tmpString ? "" : tmpString);
       tmpString = obs_service_get_protocol(service);
       protocol = (NULL == tmpString ? "" : tmpString);
     }
@@ -288,20 +288,26 @@ void WebRTCStream::OnSuccess(webrtc::SessionDescriptionInterface * desc)
   obs_data_t *vparams = obs_encoder_get_settings(vencoder);
   int video_bitrate = (int)obs_data_get_int(vparams, "bitrate");
 
-  info("Video codec:   %s", codec.c_str());
+  info("Video codec:   %s", codec.empty() ? "Automatic" : codec.c_str());
   info("Video bitrate: %d", video_bitrate);
 
   if (type == WebRTCStream::Wowza) {
     obs_encoder_t *aencoder = obs_output_get_audio_encoder(context, 0);
     obs_data_t *aparams = obs_encoder_get_settings(aencoder);
     audio_bitrate = (int)obs_data_get_int(aparams, "bitrate");
-    info("Audio bitrate: %d", audio_bitrate);
+    info("Audio bitrate: %d\n", audio_bitrate);
+    std::vector<int> audio_payload_numbers;
     std::vector<int> video_payload_numbers;
-    if (!codec.compare("Automatic") == 0) {
-      // Force specific video payload
-      SDPModif::forcePayload(sdpNotConst, video_payload_numbers,
-          codec, "opus", 0, "42e01f", 0);
+    std::string audio_codec = "opus";
+    std::string video_codec = this->codec;
+    // If codec setting is Automatic
+    if (codec.empty()) {
+      audio_codec = "";
+      video_codec = "";
     }
+    // Force specific payload
+    SDPModif::forcePayload(sdpNotConst, audio_payload_numbers,
+        video_payload_numbers, audio_codec, video_codec, 0, "42e01f", 0);
     // Modify bitrate
     SDPModif::bitrateMaxMinSDP(sdpNotConst, video_bitrate, video_payload_numbers);
     // Enable stereo
@@ -312,7 +318,7 @@ void WebRTCStream::OnSuccess(webrtc::SessionDescriptionInterface * desc)
   // Create offer
   std::unique_ptr<webrtc::SessionDescriptionInterface> offer =
       webrtc::CreateSessionDescription(webrtc::SdpType::kOffer, sdpNotConst, &error);
-  info("OFFER:\n%s\n", sdpNotConst.c_str());
+  info("OFFER:\n\n%s\n", sdpNotConst.c_str());
   //Set local description
   pc->SetLocalDescription(this, offer.release());
   //Send SDP
@@ -353,19 +359,17 @@ void WebRTCStream::onRemoteIceCandidate(const std::string &sdpData)
   } else {
     std::string s = sdpData;
     s.erase(remove(s.begin(), s.end(), '\"'), s.end());
-    if (!protocol.empty()) {
-      if (SDPModif::filterIceCandidates(s, protocol)) {
-        const std::string candidate = s;
-        info("Remote %s\n", candidate.c_str());
-        const std::string sdpMid = "";
-        int sdpMLineIndex = 0;
-        webrtc::SdpParseError error;
-        const webrtc::IceCandidateInterface* newCandidate =
-            webrtc::CreateIceCandidate(sdpMid, sdpMLineIndex, candidate, &error);
-        pc->AddIceCandidate(newCandidate);
-      } else {
-        info("Ignoring remote %s\n", s.c_str());
-      }
+    if (protocol.empty() || SDPModif::filterIceCandidates(s, protocol)) {
+      const std::string candidate = s;
+      info("Remote %s\n", candidate.c_str());
+      const std::string sdpMid = "";
+      int sdpMLineIndex = 0;
+      webrtc::SdpParseError error;
+      const webrtc::IceCandidateInterface* newCandidate =
+          webrtc::CreateIceCandidate(sdpMid, sdpMLineIndex, candidate, &error);
+      pc->AddIceCandidate(newCandidate);
+    } else {
+      info("Ignoring remote %s\n", s.c_str());
     }
   }
 }
@@ -435,7 +439,7 @@ void WebRTCStream::onOpened(const std::string &sdp)
 
   info("Video codec:   %s", codec.c_str());
   info("Video bitrate: %d", video_bitrate);
-  info("Audio bitrate: %d", audio_bitrate);
+  info("Audio bitrate: %d\n", audio_bitrate);
 
   if (type != WebRTCStream::Wowza) {
     // Modify video bitrate
@@ -448,7 +452,7 @@ void WebRTCStream::onOpened(const std::string &sdp)
   webrtc::SessionDescriptionInterface* answer =
       webrtc::CreateSessionDescription(webrtc::SessionDescriptionInterface::kAnswer, sdpNotConst, &error);
 
-  info("ANSWER\n%s\n", sdpNotConst.c_str());
+  info("ANSWER\n\n%s\n", sdpNotConst.c_str());
 
   pc->SetRemoteDescription(this, answer);
 
