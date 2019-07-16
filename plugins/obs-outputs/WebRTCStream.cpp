@@ -16,11 +16,11 @@
 #include "api/video_codecs/builtin_video_encoder_factory.h"
 #include "api/video/i420_buffer.h"
 #include <rtc_base/platform_file.h>
-#include <rtc_base/bitrateallocationstrategy.h>
+#include <rtc_base/bitrate_allocation_strategy.h>
 #include "rtc_base/checks.h"
-#include "rtc_base/criticalsection.h"
+#include "rtc_base/critical_section.h"
 
-#include "pc/rtcstatscollector.h"
+#include "pc/rtc_stats_collector.h"
 
 #define warn( format, ...) blog(LOG_WARNING, format, ##__VA_ARGS__)
 #define info( format, ...) blog(LOG_INFO,    format, ##__VA_ARGS__)
@@ -86,7 +86,7 @@ WebRTCStream::WebRTCStream(obs_output_t * output)
   );
 
   //Create capture module with our custom one
-  videoCapturer = new VideoCapturer();
+  videoCapturer = new rtc::RefCountedObject<VideoCapturer>();
 
   //bitrate and dropped frame
   bitrate = 0;
@@ -211,12 +211,8 @@ bool WebRTCStream::start(Type type)
   //Add stream to track
   stream->AddTrack(audio_track);
 
-  //Create video source
-    rtc::scoped_refptr<webrtc::VideoTrackSourceInterface> videoSource =
-      factory->CreateVideoSource(static_cast<std::unique_ptr<cricket::VideoCapturer>>(videoCapturer), NULL);
-
   //Add video
-  video_track = factory->CreateVideoTrack("video", videoSource);
+  video_track = factory->CreateVideoTrack("video", videoCapturer);
   //Add stream to track
   stream->AddTrack(video_track);
 
@@ -419,22 +415,38 @@ void WebRTCStream::onVideoFrame(video_data *frame)
   int target_width = outputWidth;
   int target_height = outputHeight;
 
-  // Convert frame
-  rtc::scoped_refptr<webrtc::I420Buffer> buffer = webrtc::I420Buffer::Create(target_width, abs(target_height), stride_y, stride_uv, stride_uv);
+  // Create frame buffer
+  rtc::scoped_refptr<webrtc::I420Buffer> buffer = webrtc::I420Buffer::Create(
+    target_width, abs(target_height), stride_y, stride_uv, stride_uv);
+
   libyuv::RotationMode rotation_mode = libyuv::kRotate0;
+  // Convert frame
   const int conversionResult = libyuv::ConvertToI420(
-    frame->data[0], size, buffer.get()->MutableDataY(),
-    buffer.get()->StrideY(), buffer.get()->MutableDataU(),
-    buffer.get()->StrideU(), buffer.get()->MutableDataV(),
-    buffer.get()->StrideV(), 0, 0,  // No Cropping
-    outputWidth, outputHeight, target_width, target_height, rotation_mode,
-    ConvertVideoType(videoType)
+    frame->data[0], size,
+    buffer.get()->MutableDataY(), buffer.get()->StrideY(),
+    buffer.get()->MutableDataU(), buffer.get()->StrideU(),
+    buffer.get()->MutableDataV(), buffer.get()->StrideV(), 0, 0, // No Cropping
+    outputWidth, outputHeight, target_width, target_height,
+    rotation_mode, ConvertVideoType(videoType)
   );
   // not using the result yet, silence compiler
   (void)conversionResult;
 
+  const int64_t obs_timestamp_us = (int64_t)frame->timestamp / rtc::kNumNanosecsPerMicrosec;
+
+  // Align timestamps from OBS capturer with rtc::TimeMicros timebase
+  const int64_t aligned_timestamp_us = timestamp_aligner_.TranslateTimestamp(
+    obs_timestamp_us, rtc::TimeMicros());
+
   // Create a webrtc::VideoFrame to pass to the capturer
-  webrtc::VideoFrame video_frame(buffer, rtc::Time32(), rtc::TimeMillis(), webrtc::VideoRotation::kVideoRotation_0);
+  webrtc::VideoFrame video_frame = webrtc::VideoFrame::Builder()
+    .set_video_frame_buffer(buffer)
+    .set_rotation(webrtc::kVideoRotation_0)
+    .set_timestamp_us(aligned_timestamp_us)
+    .set_id(++id)
+    .build();
+
+  // Send frame to video capturer
   videoCapturer->OnFrame(video_frame);
 
   //Increase number of pictures

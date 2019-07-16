@@ -6,7 +6,7 @@
 #include <util/threading.h>
 #include <inttypes.h>
 #include <rtc_base/platform_file.h>
-#include <rtc_base/bitrateallocationstrategy.h>
+#include <rtc_base/bitrate_allocation_strategy.h>
 #include <modules/audio_processing/include/audio_processing.h>
 
 #define warn(format, ...)  blog(LOG_WARNING, format, ##__VA_ARGS__)
