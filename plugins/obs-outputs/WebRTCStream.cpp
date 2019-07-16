@@ -299,7 +299,8 @@ void WebRTCStream::OnSuccess(webrtc::SessionDescriptionInterface * desc)
     std::vector<int> video_payload_numbers;
     if (!codec.compare("Automatic") == 0) {
       // Force specific video payload
-      SDPModif::forcePayload(sdpNotConst, codec, video_payload_numbers, 0, "42e01f", 0);
+      SDPModif::forcePayload(sdpNotConst, video_payload_numbers,
+          codec, "opus", 0, "42e01f", 0);
     }
     // Modify bitrate
     SDPModif::bitrateMaxMinSDP(sdpNotConst, video_bitrate, video_payload_numbers);

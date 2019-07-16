@@ -264,55 +264,55 @@ public:
   // Remove all payloads from SDP except Opus and video_codec
   static void forcePayload(
     std::string& sdp,
-    const std::string& video_codec,
-    std::vector<int>& video_payload_numbers
+    std::vector<int>& video_payload_numbers,
+    const std::string& video_codec
   )
   {
-    return forcePayload(sdp, video_codec, "opus", video_payload_numbers,
+    return forcePayload(sdp, video_payload_numbers, video_codec, "opus",
                         0, "42e01f", 0);
   }
   // Remove all payloads from SDP except Opus and video_codec
   static void forcePayload(
     std::string& sdp,
-    const std::string& video_codec,
     std::vector<int>& video_payload_numbers,
+    const std::string& video_codec,
     const int vp9_profile_id
   )
   {
-    return forcePayload(sdp, video_codec, "opus", video_payload_numbers,
+    return forcePayload(sdp, video_payload_numbers, video_codec, "opus",
                         0, "42e01f", vp9_profile_id);
   }
   // Remove all payloads from SDP except Opus and video_codec
   static void forcePayload(
     std::string& sdp,
-    const std::string& video_codec,
     std::vector<int>& video_payload_numbers,
+    const std::string& video_codec,
     const int h264_packetization_mode,
     const std::string& h264_profile_level_id
   )
   {
-    return forcePayload(sdp, video_codec, "opus", video_payload_numbers,
+    return forcePayload(sdp, video_payload_numbers, video_codec, "opus",
                         h264_packetization_mode, h264_profile_level_id, 0);
   }
   // Remove all payloads from SDP except Opus and video_codec
   static void forcePayload(
     std::string& sdp,
-    const std::string& video_codec,
     std::vector<int>& video_payload_numbers,
+    const std::string& video_codec,
     const int h264_packetization_mode,
     const std::string& h264_profile_level_id,
     const int vp9_profile_id
   )
   {
-    return forcePayload(sdp, video_codec, "opus", video_payload_numbers,
+    return forcePayload(sdp, video_payload_numbers, video_codec, "opus",
                         h264_packetization_mode, h264_profile_level_id, 0);
   }
   // Remove all payloads from SDP except video_codec and audio_codec
   static void forcePayload(
     std::string& sdp,
+    std::vector<int>& video_payload_numbers,
     const std::string& video_codec,
     const std::string& audio_codec,
-    std::vector<int>& video_payload_numbers,
     const int h264_packetization_mode,
     const std::string& h264_profile_level_id,
     const int vp9_profile_id
