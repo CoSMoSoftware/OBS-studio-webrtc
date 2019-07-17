@@ -40,7 +40,7 @@ deploy:
   bucket: ebs-build
   on:
     repo: CoSMoSoftware/OBS-studio-webrtc
-    branches:
+    branch:
       only:
       - m73-port
   upload-dir: travis-builds
