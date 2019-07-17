@@ -42,5 +42,5 @@ deploy:
     repo: CoSMoSoftware/OBS-studio-webrtc
     branch: m73-port
   skip_cleanup: true
-  local_dir: build
+  local_dir: build/nightly/
   upload-dir: travis-builds
