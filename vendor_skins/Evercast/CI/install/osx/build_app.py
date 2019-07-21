@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-candidate_paths = "bin ebs-plugins data".split()
+candidate_paths = "bin obs-plugins data".split()
 
 plist_path = "../cmake/osxbundle/Info.plist"
 icon_path = "../cmake/osxbundle/obs.icns"
