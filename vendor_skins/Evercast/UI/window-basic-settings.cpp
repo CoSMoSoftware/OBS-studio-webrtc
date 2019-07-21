@@ -761,12 +761,14 @@ void OBSBasicSettings::LoadServiceTypes()
 	while (obs_enum_service_types(idx++, &type)) {
 		const char *name = obs_service_get_display_name(type);
 		QString qName = QT_UTF8(name);
-		QString qType = QT_UTF8(type);
-
-		ui->streamType->addItem(qName, qType);
+                if( qName == "Evercast" ) {
+		  QString qType = QT_UTF8(type);
+		  ui->streamType->addItem(qName, qType);
+                  break;
+                }
 	}
 
-	type = obs_service_get_type(main->GetService());
+	// type = obs_service_get_type(main->GetService());
 	SetComboByValue(ui->streamType, type);
 }
 
