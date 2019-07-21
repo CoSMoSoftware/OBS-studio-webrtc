@@ -1042,7 +1042,7 @@ bool OBSBasic::InitService()
   if (LoadService())
     return true;
 
-  service = obs_service_create("rtmp_common", "default_service", nullptr,
+  service = obs_service_create("webrtc_evercast", "default_service", nullptr,
       nullptr);
   if (!service)
     return false;
@@ -3021,7 +3021,7 @@ void OBSBasic::RenderMain(void *data, uint32_t cx, uint32_t cy)
 obs_service_t *OBSBasic::GetService()
 {
   if (!service) {
-    service = obs_service_create("rtmp_common", NULL, NULL,
+    service = obs_service_create("webrtc_evercast", NULL, NULL,
         nullptr);
     obs_service_release(service);
   }
