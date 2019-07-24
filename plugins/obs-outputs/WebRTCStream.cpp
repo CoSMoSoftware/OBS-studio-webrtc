@@ -49,6 +49,9 @@ WebRTCStream::WebRTCStream(obs_output_t * output)
   rtc::LogMessage::ConfigureLogging("info");
   rtc::LogMessage::AddLogToStream(&logger, rtc::LoggingSeverity::LS_VERBOSE);
 
+  //SetRemoteDescription Observer
+  srdoi_observer = make_scoped_refptr(this);
+
   //Store output
   this->output = output;
   this->client = NULL;
@@ -362,10 +365,11 @@ void WebRTCStream::onOpened(const std::string &sdp)
   SDPModif::stereoSDP(sdpNotConst);
 
   webrtc::SdpParseError error;
-  webrtc::SessionDescriptionInterface* answer =
-  webrtc::CreateSessionDescription(webrtc::SessionDescriptionInterface::kAnswer, sdpNotConst, &error);
-
-  pc->SetRemoteDescription(this, answer);
+  // Create answer
+  std::unique_ptr<webrtc::SessionDescriptionInterface> answer =
+      webrtc::CreateSessionDescription(webrtc::SdpType::kAnswer, sdpNotConst, &error);
+  // Set remote description
+  pc->SetRemoteDescription(std::move(answer), srdoi_observer);
 
   //Set audio data format
   audio_convert_info conversion;
@@ -378,6 +382,13 @@ void WebRTCStream::onOpened(const std::string &sdp)
 
   //Start
   obs_output_begin_data_capture(output, 0);
+}
+
+void WebRTCStream::OnSetRemoteDescriptionComplete(webrtc::RTCError error)
+{
+  if (!error.ok()) {
+    warn("Error setting remote description");
+  }
 }
 
 void WebRTCStream::onOpenedError(int code)
