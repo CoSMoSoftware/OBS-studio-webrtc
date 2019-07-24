@@ -175,8 +175,10 @@ bool WebRTCStream::start(Type type)
   server.uri = "stun:stun.l.google.com:19302";
   config.servers.push_back(server);
 
+  webrtc::PeerConnectionDependencies pc_dependencies(this);
+
   //Create peer connection
-  pc = factory->CreatePeerConnection(config, NULL, NULL, this);
+  pc = factory->CreatePeerConnection(config, std::move(pc_dependencies));
 
   //Ensure it was created
   if (!pc.get())
