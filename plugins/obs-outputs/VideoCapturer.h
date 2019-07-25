@@ -6,14 +6,12 @@
 
 #include <mutex>
 
-class WebRTCStream;
-
 class VideoCapturer : public rtc::AdaptedVideoTrackSource {
 public:
     VideoCapturer();
     ~VideoCapturer() override;
 
-    void OnFrameCaptured(const webrtc::VideoFrame& frame);
+    void OnFrameCaptured(const webrtc::VideoFrame & frame);
 
     // VideoTrackSourceInterface API
     bool is_screencast() const override { return false; }

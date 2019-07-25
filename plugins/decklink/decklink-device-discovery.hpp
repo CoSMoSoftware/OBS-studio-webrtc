@@ -1,14 +1,15 @@
 #pragma once
 
+#include <obs-module.h>
+#include "platform.hpp"
+
 #include <vector>
 #include <mutex>
-
-#include "decklink.hpp"
 
 class DeckLinkDevice;
 
 typedef void (*DeviceChangeCallback)(void *param, DeckLinkDevice *device,
-		bool added);
+				     bool added);
 
 struct DeviceChangeInfo {
 	DeviceChangeCallback callback;
@@ -18,11 +19,11 @@ struct DeviceChangeInfo {
 class DeckLinkDeviceDiscovery : public IDeckLinkDeviceNotificationCallback {
 protected:
 	ComPtr<IDeckLinkDiscovery> discovery;
-	long                       refCount = 1;
-	bool                       initialized = false;
+	long refCount = 1;
+	bool initialized = false;
 
 	std::recursive_mutex deviceMutex;
-	std::vector<DeckLinkDevice*> devices;
+	std::vector<DeckLinkDevice *> devices;
 	std::vector<DeviceChangeInfo> callbacks;
 
 public:
@@ -43,8 +44,7 @@ public:
 		info.param = param;
 
 		for (DeviceChangeInfo &curCB : callbacks) {
-			if (curCB.callback == callback &&
-			    curCB.param    == param)
+			if (curCB.callback == callback && curCB.param == param)
 				return;
 		}
 
@@ -59,7 +59,7 @@ public:
 			DeviceChangeInfo &curCB = callbacks[i];
 
 			if (curCB.callback == callback &&
-			    curCB.param    == param) {
+			    curCB.param == param) {
 				callbacks.erase(callbacks.begin() + i);
 				return;
 			}
@@ -68,9 +68,9 @@ public:
 
 	DeckLinkDevice *FindByHash(const char *hash);
 
-	inline void Lock() {deviceMutex.lock();}
-	inline void Unlock() {deviceMutex.unlock();}
-	inline const std::vector<DeckLinkDevice*> &GetDevices() const
+	inline void Lock() { deviceMutex.lock(); }
+	inline void Unlock() { deviceMutex.unlock(); }
+	inline const std::vector<DeckLinkDevice *> &GetDevices() const
 	{
 		return devices;
 	}

@@ -14,28 +14,42 @@
 
 typedef websocketpp::client<websocketpp::config::asio_tls_client> Client;
 
-class JanusWebsocketClientImpl : public WebsocketClient
-{
+class JanusWebsocketClientImpl : public WebsocketClient {
 public:
     JanusWebsocketClientImpl();
     ~JanusWebsocketClientImpl();
-    virtual bool connect(const std::string& url, const std::string&room, const std::string& username, const std::string & token, Listener* listener) override;
-    virtual bool open(const std::string &sdp, const std::string& codec = "vp8", const std::string& milliId = "") override;
-    virtual bool trickle(const std::string &mid, const int index, const std::string &candidate, bool last) override;
-    virtual bool disconnect(const bool wait)  override;
+
+    // WebsocketClient::Listener implementation
+    bool connect(
+            const std::string & url,
+            const std::string & room,
+            const std::string & username,
+            const std::string & token,
+            WebsocketClient::Listener * listener) override;
+    bool open(
+            const std::string & sdp,
+            const std::string & codec,
+            const std::string & /* username */) override;
+    bool trickle(
+            const std::string & mid,
+            int index,
+            const std::string & candidate,
+            bool last) override;
+    bool disconnect(bool wait) override;
+
     void keepConnectionAlive();
+    void destroy();
 
 private:
     bool logged;
     long long session_id;
     long long handle_id;
 
-    std::atomic<bool> is_running;
-    std::future<void> handle;
-    std::thread thread;
-    std::thread thread_keepAlive;
-   
     Client client;
     Client::connection_ptr connection;
-};
+    std::thread thread;
+    std::thread thread_keepAlive;
+    std::atomic<bool> is_running;
 
+    std::string sanitizeString(const std::string & s);
+};

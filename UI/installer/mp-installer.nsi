@@ -3,14 +3,14 @@
 Unicode true
 
 ; Define your application name
-!define APPNAME "OBS Studio"
+!define APPNAME "OBS WebRTC"
 
 !ifndef APPVERSION
 !define APPVERSION "17.0.2"
 !define SHORTVERSION "17.0.2"
 !endif
 
-!define APPNAMEANDVERSION "OBS Studio ${SHORTVERSION}"
+!define APPNAMEANDVERSION "OBS WebRTC ${SHORTVERSION}"
 ; !define FULL
 !define REALSENSE_PLUGIN
 
@@ -20,12 +20,12 @@ Unicode true
 
 ; Main Install settings
 Name "${APPNAMEANDVERSION}"
-InstallDir "$PROGRAMFILES32\obs-studio"
+InstallDir "$PROGRAMFILES32\obs-webrtc"
 InstallDirRegKey HKLM "Software\${APPNAME}" ""
 !ifdef FULL
-OutFile "OBS-Studio-${SHORTVERSION}-Full-Installer.exe"
+OutFile "OBS-WebRTC-${SHORTVERSION}-Full-Installer.exe"
 !else
-OutFile "OBS-Studio-${SHORTVERSION}-Small-Installer.exe"
+OutFile "OBS-WebRTC-${SHORTVERSION}-Small-Installer.exe"
 !endif
 
 ; Use compression
@@ -39,13 +39,17 @@ RequestExecutionLevel admin
 
 !define MUI_ABORTWARNING
 !define MUI_FINISHPAGE_RUN
-!define MUI_FINISHPAGE_RUN_TEXT "Launch OBS Studio ${SHORTVERSION}"
+!define MUI_FINISHPAGE_RUN_TEXT "Launch OBS WebRTC ${SHORTVERSION}"
 !define MUI_FINISHPAGE_RUN_FUNCTION "LaunchOBS"
+
+; GPL is not an EULA, no need to agree to it.
+!define MUI_LICENSEPAGE_BUTTON $(^NextBtn)
+!define MUI_LICENSEPAGE_TEXT_BOTTOM "You are now aware of your rights. Click Next to continue."
 
 !define MUI_PAGE_CUSTOMFUNCTION_LEAVE PreReqCheck
 
 !insertmacro MUI_PAGE_WELCOME
-!insertmacro MUI_PAGE_LICENSE "new\core\data\obs-studio\license\gplv2.txt"
+!insertmacro MUI_PAGE_LICENSE "new\core\data\obs-webrtc\license\gplv2.txt"
 !insertmacro MUI_PAGE_DIRECTORY
 !ifdef FULL
 	!insertmacro MUI_PAGE_COMPONENTS
@@ -213,15 +217,15 @@ FunctionEnd
 
 Function LaunchOBS
 	${if} ${RunningX64}
-		Exec '"$WINDIR\explorer.exe" "$SMPROGRAMS\OBS Studio\OBS Studio (64bit).lnk"'
+		Exec '"$WINDIR\explorer.exe" "$SMPROGRAMS\OBS WebRTC\OBS WebRTC (64bit).lnk"'
 	${else}
-		Exec '"$WINDIR\explorer.exe" "$SMPROGRAMS\OBS Studio\OBS Studio (32bit).lnk"'
+		Exec '"$WINDIR\explorer.exe" "$SMPROGRAMS\OBS WebRTC\OBS WebRTC (32bit).lnk"'
 	${endif}
 FunctionEnd
 
 Var outputErrors
 
-Section "OBS Studio" SecCore
+Section "OBS WebRTC" SecCore
 
 	; Set Section properties
 	SectionIn RO
@@ -264,19 +268,19 @@ Section "OBS Studio" SecCore
 
 	${if} ${RunningX64}
 		SetOutPath "$INSTDIR\bin\64bit"
-		CreateShortCut "$DESKTOP\OBS Studio.lnk" "$INSTDIR\bin\64bit\obs64.exe"
+		CreateShortCut "$DESKTOP\OBS WebRTC.lnk" "$INSTDIR\bin\64bit\obs64.exe"
 	${else}
 		SetOutPath "$INSTDIR\bin\32bit"
-		CreateShortCut "$DESKTOP\OBS Studio.lnk" "$INSTDIR\bin\32bit\obs32.exe"
+		CreateShortCut "$DESKTOP\OBS WebRTC.lnk" "$INSTDIR\bin\32bit\obs32.exe"
 	${endif}
 	SetOutPath "$INSTDIR\bin\32bit"
-	CreateDirectory "$SMPROGRAMS\OBS Studio"
-	CreateShortCut "$SMPROGRAMS\OBS Studio\OBS Studio (32bit).lnk" "$INSTDIR\bin\32bit\obs32.exe"
-	CreateShortCut "$SMPROGRAMS\OBS Studio\Uninstall.lnk" "$INSTDIR\uninstall.exe"
+	CreateDirectory "$SMPROGRAMS\OBS WebRTC"
+	CreateShortCut "$SMPROGRAMS\OBS WebRTC\OBS WebRTC (32bit).lnk" "$INSTDIR\bin\32bit\obs32.exe"
+	CreateShortCut "$SMPROGRAMS\OBS WebRTC\Uninstall.lnk" "$INSTDIR\uninstall.exe"
 
 	${if} ${RunningX64}
 		SetOutPath "$INSTDIR\bin\64bit"
-		CreateShortCut "$SMPROGRAMS\OBS Studio\OBS Studio (64bit).lnk" "$INSTDIR\bin\64bit\obs64.exe"
+		CreateShortCut "$SMPROGRAMS\OBS WebRTC\OBS WebRTC (64bit).lnk" "$INSTDIR\bin\64bit\obs64.exe"
 	${endif}
 
 	SetOutPath "$INSTDIR\bin\32bit"
@@ -358,7 +362,7 @@ SectionEnd
 
 ; Modern install component descriptions
 !insertmacro MUI_FUNCTION_DESCRIPTION_BEGIN
-	!insertmacro MUI_DESCRIPTION_TEXT ${SecCore} "Core OBS Studio files"
+	!insertmacro MUI_DESCRIPTION_TEXT ${SecCore} "Core OBS WebRTC files"
 	!ifdef FULL
 		!insertmacro MUI_DESCRIPTION_TEXT ${SecPlugins} "Optional Plugins"
 		!insertmacro MUI_DESCRIPTION_TEXT ${SecPlugins_Browser} "Browser plugin (a source you can add to your scenes that displays web pages)"
@@ -369,7 +373,7 @@ SectionEnd
 !insertmacro MUI_FUNCTION_DESCRIPTION_END
 
 ;Uninstall section
-Section "un.obs-studio Program Files" UninstallSection1
+Section "un.obs-webrtc Program Files" UninstallSection1
 
 	SectionIn RO
 
@@ -381,11 +385,11 @@ Section "un.obs-studio Program Files" UninstallSection1
 	Delete "$INSTDIR\uninstall.exe"
 
 	; Delete Shortcuts
-	Delete "$DESKTOP\OBS Studio.lnk"
-	Delete "$SMPROGRAMS\OBS Studio\OBS Studio (32bit).lnk"
-	Delete "$SMPROGRAMS\OBS Studio\Uninstall.lnk"
+	Delete "$DESKTOP\OBS WebRTC.lnk"
+	Delete "$SMPROGRAMS\OBS WebRTC\OBS WebRTC (32bit).lnk"
+	Delete "$SMPROGRAMS\OBS WebRTC\Uninstall.lnk"
 	${if} ${RunningX64}
-		Delete "$SMPROGRAMS\OBS Studio\OBS Studio (64bit).lnk"
+		Delete "$SMPROGRAMS\OBS WebRTC\OBS WebRTC (64bit).lnk"
 	${endif}
 
 	IfFileExists "$INSTDIR\data\obs-plugins\win-ivcam\seg_service.exe" UnregisterSegService SkipUnreg
@@ -393,19 +397,19 @@ Section "un.obs-studio Program Files" UninstallSection1
 	ExecWait '"$INSTDIR\data\obs-plugins\win-ivcam\seg_service.exe" /UnregServer'
 	SkipUnreg:
 
-	; Clean up OBS Studio
+	; Clean up OBS WebRTC
 	RMDir /r "$INSTDIR\bin"
 	RMDir /r "$INSTDIR\data"
 	RMDir /r "$INSTDIR\obs-plugins"
 	RMDir "$INSTDIR"
 
 	; Remove remaining directories
-	RMDir "$SMPROGRAMS\OBS Studio"
-	RMDir "$INSTDIR\OBS Studio"
+	RMDir "$SMPROGRAMS\OBS WebRTC"
+	RMDir "$INSTDIR\OBS WebRTC"
 SectionEnd
 
 Section /o "un.User Settings" UninstallSection2
-	RMDir /R "$APPDATA\obs-studio"
+	RMDir /R "$APPDATA\obs-webrtc"
 SectionEnd
 
 !insertmacro MUI_UNFUNCTION_DESCRIPTION_BEGIN
@@ -415,11 +419,11 @@ SectionEnd
 
 ; Version information
 VIProductVersion "${APPVERSION}.0"
-VIAddVersionKey /LANG=${LANG_ENGLISH} "ProductName" "OBS Studio"
+VIAddVersionKey /LANG=${LANG_ENGLISH} "ProductName" "OBS WebRTC"
 VIAddVersionKey /LANG=${LANG_ENGLISH} "CompanyName" "obsproject.com"
 VIAddVersionKey /LANG=${LANG_ENGLISH} "LegalCopyright" "(c) 2012-2016"
 ; FileDescription is what shows in the UAC elevation prompt when signed
-VIAddVersionKey /LANG=${LANG_ENGLISH} "FileDescription" "OBS Studio"
+VIAddVersionKey /LANG=${LANG_ENGLISH} "FileDescription" "OBS WebRTC"
 VIAddVersionKey /LANG=${LANG_ENGLISH} "FileVersion" "1.0"
 
 ; eof

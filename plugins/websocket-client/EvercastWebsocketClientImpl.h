@@ -14,30 +14,29 @@
 
 typedef websocketpp::client<websocketpp::config::asio_tls_client> Client;
 
-class EvercastWebsocketClientImpl : public WebsocketClient
-{
+class EvercastWebsocketClientImpl : public WebsocketClient {
 public:
     EvercastWebsocketClientImpl();
     ~EvercastWebsocketClientImpl();
-    virtual bool connect(
-      const std::string & url,
-      const std::string & room,
-      const std::string & username,
-      const std::string & token,
-      WebsocketClient::Listener* listener
-    ) override;
-    virtual bool open(
-      const std::string & sdp,
-      const std::string & codec = "",
-      const std::string & Id    = "" 
-    ) override;
-    virtual bool trickle(
-      const std::string & mid,
-      const int index,
-      const std::string & candidate,
-      const bool last
-    ) override ;
-    virtual bool disconnect( const bool wait ) override;
+
+    // WebsocketClient::Listener implementation
+    bool connect(
+            const std::string & url,
+            const std::string & room,
+            const std::string & username,
+            const std::string & token,
+            WebsocketClient::Listener * listener) override;
+    bool open(
+            const std::string & sdp,
+            const std::string & codec,
+            const std::string & /* Id */) override;
+    bool trickle(
+            const std::string & mid,
+            const int index,
+            const std::string & candidate,
+            const bool last) override;
+    bool disconnect(const bool wait) override;
+
     void keepConnectionAlive();
     void destroy();
 
@@ -46,14 +45,11 @@ private:
     long long session_id;
     long long handle_id;
 
-    std::atomic<bool> is_running;
-    std::future<void> handle;
-    std::thread thread;
-    std::thread thread_keepAlive;
-   
     Client client;
     Client::connection_ptr connection;
+    std::thread thread;
+    std::thread thread_keepAlive;
+    std::atomic<bool> is_running;
 
-    std::string sanitizeString( const std::string & s );
+    std::string sanitizeString(const std::string & s);
 };
-

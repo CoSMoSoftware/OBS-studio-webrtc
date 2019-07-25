@@ -1,20 +1,18 @@
-/******************************************************************************
- Copyright (C) 2017 Hugh Bailey <obs.jim@gmail.com>
-
- This program is free software; you can redistribute it and/or modify
- it under the terms of the GNU General Public License as published by
- the Free Software Foundation; either version 2 of the License, or
- (at your option) any later version.
-
- This program is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- GNU General Public License for more details.
-
- You should have received a copy of the GNU General Public License
- along with this program; if not, write to the Free Software
- Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307, USA.
-******************************************************************************/
+/*
+ * Copyright (c) 2017-2018 Hugh Bailey <obs.jim@gmail.com>
+ *
+ * Permission to use, copy, modify, and distribute this software for any
+ * purpose with or without fee is hereby granted, provided that the above
+ * copyright notice and this permission notice appear in all copies.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+ * WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+ * MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+ * ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+ * WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+ * ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+ * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+ */
 
 #include "updater.hpp"
 
@@ -31,21 +29,21 @@ using namespace std;
 
 /* ----------------------------------------------------------------------- */
 
-HANDLE     cancelRequested = nullptr;
-HANDLE     updateThread    = nullptr;
-HINSTANCE  hinstMain       = nullptr;
-HWND       hwndMain        = nullptr;
-HCRYPTPROV hProvider       = 0;
+HANDLE cancelRequested = nullptr;
+HANDLE updateThread = nullptr;
+HINSTANCE hinstMain = nullptr;
+HWND hwndMain = nullptr;
+HCRYPTPROV hProvider = 0;
 
-static bool bExiting     = false;
+static bool bExiting = false;
 static bool updateFailed = false;
-static bool is32bit      = false;
+static bool is32bit = false;
 
 static bool downloadThreadFailure = false;
 
-int totalFileSize     = 0;
+int totalFileSize = 0;
 int completedFileSize = 0;
-static int completedUpdates  = 0;
+static int completedUpdates = 0;
 
 struct LastError {
 	DWORD code;
@@ -59,50 +57,48 @@ void FreeWinHttpHandle(HINTERNET handle)
 
 /* ----------------------------------------------------------------------- */
 
-// http://www.codeproject.com/Articles/320748/Haephrati-Elevating-during-runtime
-static bool IsAppRunningAsAdminMode()
+static inline bool is_64bit_windows(void);
+
+static inline bool HasVS2017Redist2()
 {
-	BOOL  fIsRunAsAdmin        = FALSE;
-	DWORD dwError              = ERROR_SUCCESS;
-	PSID  pAdministratorsGroup = nullptr;
+	wchar_t base[MAX_PATH];
+	wchar_t path[MAX_PATH];
+	WIN32_FIND_DATAW wfd;
+	HANDLE handle;
+	int folder = (is32bit && is_64bit_windows()) ? CSIDL_SYSTEMX86
+						     : CSIDL_SYSTEM;
 
-	/* Allocate and initialize a SID of the administrators group. */
-	SID_IDENTIFIER_AUTHORITY NtAuthority = SECURITY_NT_AUTHORITY;
-	if (!AllocateAndInitializeSid(&NtAuthority,
-	                              2,
-	                              SECURITY_BUILTIN_DOMAIN_RID,
-	                              DOMAIN_ALIAS_RID_ADMINS,
-	                              0,
-	                              0,
-	                              0,
-	                              0,
-	                              0,
-	                              0,
-	                              &pAdministratorsGroup)) {
-		dwError = GetLastError();
-		goto Cleanup;
-	}
+	SHGetFolderPathW(NULL, folder, NULL, SHGFP_TYPE_CURRENT, base);
 
-	/* Determine whether the SID of administrators group is enabled in the
-	 * primary access token of the process. */
-	if (!CheckTokenMembership(nullptr, pAdministratorsGroup,
-				&fIsRunAsAdmin)) {
-		dwError = GetLastError();
-		goto Cleanup;
-	}
-
-Cleanup:
-	/* Centralized cleanup for all allocated resources. */
-	if (pAdministratorsGroup) {
-		FreeSid(pAdministratorsGroup);
-		pAdministratorsGroup = nullptr;
-	}
-
-	/* Throw the error if something failed in the function. */
-	if (ERROR_SUCCESS != dwError)
+	StringCbCopyW(path, sizeof(path), base);
+	StringCbCatW(path, sizeof(path), L"\\msvcp140.dll");
+	handle = FindFirstFileW(path, &wfd);
+	if (handle == INVALID_HANDLE_VALUE) {
 		return false;
+	} else {
+		FindClose(handle);
+	}
 
-	return !!fIsRunAsAdmin;
+	StringCbCopyW(path, sizeof(path), base);
+	StringCbCatW(path, sizeof(path), L"\\vcruntime140.dll");
+	handle = FindFirstFileW(path, &wfd);
+	if (handle == INVALID_HANDLE_VALUE) {
+		return false;
+	} else {
+		FindClose(handle);
+	}
+
+	return true;
+}
+
+static bool HasVS2017Redist()
+{
+	PVOID old = nullptr;
+	bool redirect = !!Wow64DisableWow64FsRedirection(&old);
+	bool success = HasVS2017Redist2();
+	if (redirect)
+		Wow64RevertWow64FsRedirection(old);
+	return success;
 }
 
 static void Status(const wchar_t *fmt, ...)
@@ -139,16 +135,16 @@ try {
 	WinHandle hDest;
 
 	hSrc = CreateFile(src, GENERIC_READ, 0, nullptr, OPEN_EXISTING,
-			FILE_FLAG_SEQUENTIAL_SCAN, nullptr);
+			  FILE_FLAG_SEQUENTIAL_SCAN, nullptr);
 	if (!hSrc.Valid())
 		throw LastError();
 
-	hDest = CreateFile(dest, GENERIC_WRITE, 0, nullptr, CREATE_ALWAYS,
-			0, nullptr);
+	hDest = CreateFile(dest, GENERIC_WRITE, 0, nullptr, CREATE_ALWAYS, 0,
+			   nullptr);
 	if (!hDest.Valid())
 		throw LastError();
 
-	BYTE  buf[65536];
+	BYTE buf[65536];
 	DWORD read, wrote;
 
 	for (;;) {
@@ -186,10 +182,7 @@ static bool IsSafeFilename(const wchar_t *path)
 		return false;
 
 	while (*p) {
-		if (!isalnum(*p) &&
-		    *p != '.' &&
-		    *p != '/' &&
-		    *p != '_' &&
+		if (!isalnum(*p) && *p != '.' && *p != '/' && *p != '_' &&
 		    *p != '-')
 			return false;
 		p++;
@@ -203,7 +196,7 @@ static string QuickReadFile(const wchar_t *path)
 	string data;
 
 	WinHandle handle = CreateFileW(path, GENERIC_READ, 0, nullptr,
-			OPEN_EXISTING, 0, nullptr);
+				       OPEN_EXISTING, 0, nullptr);
 	if (!handle.Valid()) {
 		return string();
 	}
@@ -217,11 +210,7 @@ static string QuickReadFile(const wchar_t *path)
 	data.resize((size_t)size.QuadPart);
 
 	DWORD read;
-	if (!ReadFile(handle,
-	              &data[0],
-	              (DWORD)data.size(),
-	              &read,
-	              nullptr)) {
+	if (!ReadFile(handle, &data[0], (DWORD)data.size(), &read, nullptr)) {
 		return string();
 	}
 	if (read != size.QuadPart) {
@@ -248,28 +237,28 @@ struct update_t {
 	wstring tempPath;
 	wstring previousFile;
 	wstring basename;
-	string  packageName;
+	string packageName;
 
-	DWORD   fileSize = 0;
-	BYTE    hash[BLAKE2_HASH_LENGTH];
-	BYTE    downloadhash[BLAKE2_HASH_LENGTH];
-	BYTE    my_hash[BLAKE2_HASH_LENGTH];
-	state_t state     = STATE_INVALID;
-	bool    has_hash  = false;
-	bool    patchable = false;
+	DWORD fileSize = 0;
+	BYTE hash[BLAKE2_HASH_LENGTH];
+	BYTE downloadhash[BLAKE2_HASH_LENGTH];
+	BYTE my_hash[BLAKE2_HASH_LENGTH];
+	state_t state = STATE_INVALID;
+	bool has_hash = false;
+	bool patchable = false;
 
 	inline update_t() {}
 	inline update_t(const update_t &from)
-	        : sourceURL(from.sourceURL),
-	          outputPath(from.outputPath),
-	          tempPath(from.tempPath),
-	          previousFile(from.previousFile),
-	          basename(from.basename),
-	          packageName(from.packageName),
-	          fileSize(from.fileSize),
-	          state(from.state),
-	          has_hash(from.has_hash),
-	          patchable(from.patchable)
+		: sourceURL(from.sourceURL),
+		  outputPath(from.outputPath),
+		  tempPath(from.tempPath),
+		  previousFile(from.previousFile),
+		  basename(from.basename),
+		  packageName(from.packageName),
+		  fileSize(from.fileSize),
+		  state(from.state),
+		  has_hash(from.has_hash),
+		  patchable(from.patchable)
 	{
 		memcpy(hash, from.hash, sizeof(hash));
 		memcpy(downloadhash, from.downloadhash, sizeof(downloadhash));
@@ -277,16 +266,16 @@ struct update_t {
 	}
 
 	inline update_t(update_t &&from)
-	        : sourceURL(std::move(from.sourceURL)),
-	          outputPath(std::move(from.outputPath)),
-	          tempPath(std::move(from.tempPath)),
-	          previousFile(std::move(from.previousFile)),
-	          basename(std::move(from.basename)),
-	          packageName(std::move(from.packageName)),
-	          fileSize(from.fileSize),
-	          state(from.state),
-	          has_hash(from.has_hash),
-	          patchable(from.patchable)
+		: sourceURL(std::move(from.sourceURL)),
+		  outputPath(std::move(from.outputPath)),
+		  tempPath(std::move(from.tempPath)),
+		  previousFile(std::move(from.previousFile)),
+		  basename(std::move(from.basename)),
+		  packageName(std::move(from.packageName)),
+		  fileSize(from.fileSize),
+		  state(from.state),
+		  has_hash(from.has_hash),
+		  patchable(from.patchable)
 	{
 		from.state = STATE_INVALID;
 
@@ -297,12 +286,11 @@ struct update_t {
 
 	void CleanPartialUpdate()
 	{
-		if (state == STATE_INSTALL_FAILED ||
-			state == STATE_INSTALLED) {
+		if (state == STATE_INSTALL_FAILED || state == STATE_INSTALLED) {
 			if (!previousFile.empty()) {
 				DeleteFile(outputPath.c_str());
 				MyCopyFile(previousFile.c_str(),
-						outputPath.c_str());
+					   outputPath.c_str());
 				DeleteFile(previousFile.c_str());
 			} else {
 				DeleteFile(outputPath.c_str());
@@ -314,20 +302,22 @@ struct update_t {
 
 	inline update_t &operator=(const update_t &from)
 	{
-	        sourceURL = from.sourceURL;
-	        outputPath = from.outputPath;
-	        tempPath = from.tempPath;
-	        previousFile = from.previousFile;
-	        basename = from.basename;
-	        packageName = from.packageName;
-	        fileSize = from.fileSize;
-	        state = from.state;
-	        has_hash = from.has_hash;
-	        patchable = from.patchable;
+		sourceURL = from.sourceURL;
+		outputPath = from.outputPath;
+		tempPath = from.tempPath;
+		previousFile = from.previousFile;
+		basename = from.basename;
+		packageName = from.packageName;
+		fileSize = from.fileSize;
+		state = from.state;
+		has_hash = from.has_hash;
+		patchable = from.patchable;
 
 		memcpy(hash, from.hash, sizeof(hash));
 		memcpy(downloadhash, from.downloadhash, sizeof(downloadhash));
 		memcpy(my_hash, from.my_hash, sizeof(my_hash));
+
+		return *this;
 	}
 };
 
@@ -347,10 +337,9 @@ bool DownloadWorkerThread()
 	const DWORD tlsProtocols = WINHTTP_FLAG_SECURE_PROTOCOL_TLS1_2;
 
 	HttpHandle hSession = WinHttpOpen(L"OBS Studio Updater/2.1",
-	                                  WINHTTP_ACCESS_TYPE_DEFAULT_PROXY,
-	                                  WINHTTP_NO_PROXY_NAME,
-	                                  WINHTTP_NO_PROXY_BYPASS,
-	                                  0);
+					  WINHTTP_ACCESS_TYPE_DEFAULT_PROXY,
+					  WINHTTP_NO_PROXY_NAME,
+					  WINHTTP_NO_PROXY_BYPASS, 0);
 	if (!hSession) {
 		downloadThreadFailure = true;
 		Status(L"Update failed: Couldn't open obsproject.com");
@@ -358,13 +347,14 @@ bool DownloadWorkerThread()
 	}
 
 	WinHttpSetOption(hSession, WINHTTP_OPTION_SECURE_PROTOCOLS,
-		(LPVOID)&tlsProtocols, sizeof(tlsProtocols));
+			 (LPVOID)&tlsProtocols, sizeof(tlsProtocols));
 
-	HttpHandle hConnect = WinHttpConnect(hSession, L"obsproject.com",
-			INTERNET_DEFAULT_HTTPS_PORT, 0);
+	HttpHandle hConnect = WinHttpConnect(hSession,
+					     L"cdn-fastly.obsproject.com",
+					     INTERNET_DEFAULT_HTTPS_PORT, 0);
 	if (!hConnect) {
 		downloadThreadFailure = true;
-		Status(L"Update failed: Couldn't connect to obsproject.com");
+		Status(L"Update failed: Couldn't connect to cdn-fastly.obsproject.com");
 		return false;
 	}
 
@@ -397,18 +387,16 @@ bool DownloadWorkerThread()
 
 			Status(L"Downloading %s", update.outputPath.c_str());
 
-			if (!HTTPGetFile(hConnect,
-			                 update.sourceURL.c_str(),
-			                 update.tempPath.c_str(),
-			                 L"Accept-Encoding: gzip",
-			                 &responseCode)) {
+			if (!HTTPGetFile(hConnect, update.sourceURL.c_str(),
+					 update.tempPath.c_str(),
+					 L"Accept-Encoding: gzip",
+					 &responseCode)) {
 
 				downloadThreadFailure = true;
 				DeleteFile(update.tempPath.c_str());
 				Status(L"Update failed: Could not download "
 				       L"%s (error code %d)",
-				       update.outputPath.c_str(),
-				       responseCode);
+				       update.outputPath.c_str(), responseCode);
 				return 1;
 			}
 
@@ -417,19 +405,18 @@ bool DownloadWorkerThread()
 				DeleteFile(update.tempPath.c_str());
 				Status(L"Update failed: Could not download "
 				       L"%s (error code %d)",
-				       update.outputPath.c_str(),
-				       responseCode);
+				       update.outputPath.c_str(), responseCode);
 				return 1;
 			}
 
 			BYTE downloadHash[BLAKE2_HASH_LENGTH];
 			if (!CalculateFileHash(update.tempPath.c_str(),
-						downloadHash)) {
+					       downloadHash)) {
 				downloadThreadFailure = true;
 				DeleteFile(update.tempPath.c_str());
 				Status(L"Update failed: Couldn't verify "
-						L"integrity of %s",
-						update.outputPath.c_str());
+				       L"integrity of %s",
+				       update.outputPath.c_str());
 				return 1;
 			}
 
@@ -437,8 +424,8 @@ bool DownloadWorkerThread()
 				downloadThreadFailure = true;
 				DeleteFile(update.tempPath.c_str());
 				Status(L"Update failed: Integrity check "
-						L"failed on %s",
-						update.outputPath.c_str());
+				       L"failed on %s",
+				       update.outputPath.c_str());
 				return 1;
 			}
 
@@ -481,9 +468,9 @@ try {
 
 /* ----------------------------------------------------------------------- */
 
-#define WAITIFOBS_SUCCESS       0
+#define WAITIFOBS_SUCCESS 0
 #define WAITIFOBS_WRONG_PROCESS 1
-#define WAITIFOBS_CANCELLED     2
+#define WAITIFOBS_CANCELLED 2
 
 static inline DWORD WaitIfOBS(DWORD id, const wchar_t *expected)
 {
@@ -491,11 +478,9 @@ static inline DWORD WaitIfOBS(DWORD id, const wchar_t *expected)
 	wchar_t *name;
 	*path = 0;
 
-	WinHandle proc = OpenProcess(
-			PROCESS_QUERY_INFORMATION |
-			PROCESS_VM_READ |
-			SYNCHRONIZE,
-			false, id);
+	WinHandle proc = OpenProcess(PROCESS_QUERY_INFORMATION |
+					     PROCESS_VM_READ | SYNCHRONIZE,
+				     false, id);
 	if (!proc.Valid())
 		return WAITIFOBS_WRONG_PROCESS;
 
@@ -561,13 +546,13 @@ static inline bool UTF8ToWide(wchar_t *wide, int wideSize, const char *utf8)
 static inline bool WideToUTF8(char *utf8, int utf8Size, const wchar_t *wide)
 {
 	return !!WideCharToMultiByte(CP_UTF8, 0, wide, -1, utf8, utf8Size,
-			nullptr, nullptr);
+				     nullptr, nullptr);
 }
 
 static inline bool FileExists(const wchar_t *path)
 {
 	WIN32_FIND_DATAW wfd;
-	HANDLE           hFind;
+	HANDLE hFind;
 
 	hFind = FindFirstFileW(path, &wfd);
 	if (hFind != INVALID_HANDLE_VALUE)
@@ -578,10 +563,20 @@ static inline bool FileExists(const wchar_t *path)
 
 static bool NonCorePackageInstalled(const char *name)
 {
-	if (strcmp(name, "obs-browser") == 0) {
-		return FileExists(L"obs-plugins\\32bit\\obs-browser.dll");
-	} else if (strcmp(name, "realsense") == 0) {
-		return FileExists(L"obs-plugins\\32bit\\win-ivcam.dll");
+	if (is32bit) {
+		if (strcmp(name, "obs-browser") == 0) {
+			return FileExists(
+				L"obs-plugins\\32bit\\obs-browser.dll");
+		} else if (strcmp(name, "realsense") == 0) {
+			return FileExists(L"obs-plugins\\32bit\\win-ivcam.dll");
+		}
+	} else {
+		if (strcmp(name, "obs-browser") == 0) {
+			return FileExists(
+				L"obs-plugins\\64bit\\obs-browser.dll");
+		} else if (strcmp(name, "realsense") == 0) {
+			return FileExists(L"obs-plugins\\64bit\\win-ivcam.dll");
+		}
 	}
 
 	return false;
@@ -608,17 +603,22 @@ static inline bool is_64bit_file(const char *file)
 	       strstr(file, "64.exe") != nullptr;
 }
 
+static inline bool has_str(const char *file, const char *str)
+{
+	return (file && str) ? (strstr(file, str) != nullptr) : false;
+}
+
 #define UTF8ToWideBuf(wide, utf8) UTF8ToWide(wide, _countof(wide), utf8)
 #define WideToUTF8Buf(utf8, wide) WideToUTF8(utf8, _countof(utf8), wide)
 
-#define UPDATE_URL L"https://obsproject.com/update_studio"
+#define UPDATE_URL L"https://cdn-fastly.obsproject.com/update_studio"
 
 static bool AddPackageUpdateFiles(json_t *root, size_t idx,
-		const wchar_t *tempPath)
+				  const wchar_t *tempPath)
 {
 	json_t *package = json_array_get(root, idx);
-	json_t *name    = json_object_get(package, "name");
-	json_t *files   = json_object_get(package, "files");
+	json_t *name = json_object_get(package, "name");
+	json_t *files = json_object_get(package, "files");
 
 	bool isWin64 = is_64bit_windows();
 
@@ -639,10 +639,10 @@ static bool AddPackageUpdateFiles(json_t *root, size_t idx,
 		return true;
 
 	for (size_t j = 0; j < fileCount; j++) {
-		json_t *file     = json_array_get(files, j);
+		json_t *file = json_array_get(files, j);
 		json_t *fileName = json_object_get(file, "name");
-		json_t *hash     = json_object_get(file, "hash");
-		json_t *size     = json_object_get(file, "size");
+		json_t *hash = json_object_get(file, "hash");
+		json_t *size = json_object_get(file, "size");
 
 		if (!json_is_string(fileName))
 			continue;
@@ -653,12 +653,18 @@ static bool AddPackageUpdateFiles(json_t *root, size_t idx,
 
 		const char *fileUTF8 = json_string_value(fileName);
 		const char *hashUTF8 = json_string_value(hash);
-		int fileSize         = (int)json_integer_value(size);
+		int fileSize = (int)json_integer_value(size);
 
 		if (strlen(hashUTF8) != BLAKE2_HASH_LENGTH * 2)
 			continue;
 
 		if (!isWin64 && is_64bit_file(fileUTF8))
+			continue;
+
+		/* ignore update files of opposite arch to reduce download */
+
+		if ((is32bit && has_str(fileUTF8, "/64bit/")) ||
+		    (!is32bit && has_str(fileUTF8, "/32bit/")))
 			continue;
 
 		/* convert strings to wide */
@@ -677,20 +683,21 @@ static bool AddPackageUpdateFiles(json_t *root, size_t idx,
 
 		if (!IsSafeFilename(updateFileName)) {
 			Status(L"Update failed: Unsafe path '%s' found in "
-					L"manifest", updateFileName);
+			       L"manifest",
+			       updateFileName);
 			return false;
 		}
 
 		StringCbPrintf(sourceURL, sizeof(sourceURL), L"%s/%s/%s",
-				UPDATE_URL, wPackageName, updateFileName);
-		StringCbPrintf(tempFilePath, sizeof(tempFilePath),
-				L"%s\\%s", tempPath, updateHashStr);
+			       UPDATE_URL, wPackageName, updateFileName);
+		StringCbPrintf(tempFilePath, sizeof(tempFilePath), L"%s\\%s",
+			       tempPath, updateHashStr);
 
 		/* Check file hash */
 
-		BYTE    existingHash[BLAKE2_HASH_LENGTH];
+		BYTE existingHash[BLAKE2_HASH_LENGTH];
 		wchar_t fileHashStr[BLAKE2_HASH_STR_LENGTH];
-		bool    has_hash;
+		bool has_hash;
 
 		/* We don't really care if this fails, it's just to avoid
 		 * wasting bandwidth by downloading unmodified files */
@@ -708,14 +715,14 @@ static bool AddPackageUpdateFiles(json_t *root, size_t idx,
 		/* Add update file */
 
 		update_t update;
-		update.fileSize     = fileSize;
-		update.basename     = updateFileName;
-		update.outputPath   = updateFileName;
-		update.tempPath     = tempFilePath;
-		update.sourceURL    = sourceURL;
-		update.packageName  = packageName;
-		update.state        = STATE_PENDING_DOWNLOAD;
-		update.patchable    = false;
+		update.fileSize = fileSize;
+		update.basename = updateFileName;
+		update.outputPath = updateFileName;
+		update.tempPath = tempFilePath;
+		update.sourceURL = sourceURL;
+		update.packageName = packageName;
+		update.state = STATE_PENDING_DOWNLOAD;
+		update.patchable = false;
 
 		StringToHash(updateHashStr, update.downloadhash);
 		memcpy(update.hash, update.downloadhash, sizeof(update.hash));
@@ -733,15 +740,14 @@ static bool AddPackageUpdateFiles(json_t *root, size_t idx,
 }
 
 static void UpdateWithPatchIfAvailable(const char *name, const char *hash,
-		const char *source,
-		int size)
+				       const char *source, int size)
 {
 	wchar_t widePatchableFilename[MAX_PATH];
 	wchar_t widePatchHash[MAX_PATH];
 	wchar_t sourceURL[1024];
 	wchar_t patchHashStr[BLAKE2_HASH_STR_LENGTH];
 
-	if (strncmp(source, "https://obsproject.com/", 23) != 0)
+	if (strncmp(source, "https://cdn-fastly.obsproject.com/", 34) != 0)
 		return;
 
 	string patchPackageName = name;
@@ -774,7 +780,7 @@ static void UpdateWithPatchIfAvailable(const char *name, const char *hash,
 		 * patchable, and re-calculate download size */
 		totalFileSize -= (update.fileSize - size);
 		update.sourceURL = sourceURL;
-		update.fileSize  = size;
+		update.fileSize = size;
 		update.patchable = true;
 		break;
 	}
@@ -795,10 +801,10 @@ static bool UpdateFile(update_t &file)
 
 	if (attribs != INVALID_FILE_ATTRIBUTES) {
 		wchar_t *curFileName = nullptr;
-		wchar_t  baseName[MAX_PATH];
+		wchar_t baseName[MAX_PATH];
 
 		StringCbCopy(baseName, sizeof(baseName),
-				file.outputPath.c_str());
+			     file.outputPath.c_str());
 
 		curFileName = wcsrchr(baseName, '/');
 		if (curFileName) {
@@ -808,12 +814,10 @@ static bool UpdateFile(update_t &file)
 			curFileName = baseName;
 
 		/* Backup the existing file in case a rollback is needed */
-		StringCbCopy(oldFileRenamedPath,
-				sizeof(oldFileRenamedPath),
-				file.outputPath.c_str());
-		StringCbCat(oldFileRenamedPath,
-				sizeof(oldFileRenamedPath),
-				L".old");
+		StringCbCopy(oldFileRenamedPath, sizeof(oldFileRenamedPath),
+			     file.outputPath.c_str());
+		StringCbCat(oldFileRenamedPath, sizeof(oldFileRenamedPath),
+			    L".old");
 
 		if (!MyCopyFile(file.outputPath.c_str(), oldFileRenamedPath)) {
 			int is_sharing_violation =
@@ -832,19 +836,18 @@ static bool UpdateFile(update_t &file)
 
 		file.previousFile = oldFileRenamedPath;
 
-		int  error_code;
+		int error_code;
 		bool installed_ok;
 
 		if (file.patchable) {
-			error_code = ApplyPatch(
-					file.tempPath.c_str(),
-					file.outputPath.c_str());
+			error_code = ApplyPatch(file.tempPath.c_str(),
+						file.outputPath.c_str());
 			installed_ok = (error_code == 0);
 
 			if (installed_ok) {
 				BYTE patchedFileHash[BLAKE2_HASH_LENGTH];
 				if (!CalculateFileHash(file.outputPath.c_str(),
-						patchedFileHash)) {
+						       patchedFileHash)) {
 					Status(L"Update failed: Couldn't "
 					       L"verify integrity of patched %s",
 					       curFileName);
@@ -854,7 +857,7 @@ static bool UpdateFile(update_t &file)
 				}
 
 				if (memcmp(file.hash, patchedFileHash,
-						BLAKE2_HASH_LENGTH) != 0) {
+					   BLAKE2_HASH_LENGTH) != 0) {
 					Status(L"Update failed: Integrity "
 					       L"check of patched "
 					       L"%s failed",
@@ -865,9 +868,8 @@ static bool UpdateFile(update_t &file)
 				}
 			}
 		} else {
-			installed_ok = MyCopyFile(
-					file.tempPath.c_str(),
-					file.outputPath.c_str());
+			installed_ok = MyCopyFile(file.tempPath.c_str(),
+						  file.outputPath.c_str());
 			error_code = GetLastError();
 		}
 
@@ -883,8 +885,7 @@ static bool UpdateFile(update_t &file)
 			else
 				Status(L"Update failed: Couldn't update %s "
 				       L"(error %d)",
-				       curFileName,
-				       GetLastError());
+				       curFileName, GetLastError());
 
 			file.state = STATE_INSTALL_FAILED;
 			return false;
@@ -896,7 +897,7 @@ static bool UpdateFile(update_t &file)
 			/* Uh oh, we thought we could patch something but it's
 			 * no longer there! */
 			Status(L"Update failed: Source file %s not found",
-					file.outputPath.c_str());
+			       file.outputPath.c_str());
 			return false;
 		}
 
@@ -906,13 +907,11 @@ static bool UpdateFile(update_t &file)
 
 		file.previousFile = L"";
 
-		bool success = !!MyCopyFile(
-				file.tempPath.c_str(),
-				file.outputPath.c_str());
+		bool success = !!MyCopyFile(file.tempPath.c_str(),
+					    file.outputPath.c_str());
 		if (!success) {
 			Status(L"Update failed: Couldn't install %s (error %d)",
-					file.outputPath.c_str(),
-					GetLastError());
+			       file.outputPath.c_str(), GetLastError());
 			file.state = STATE_INSTALL_FAILED;
 			return false;
 		}
@@ -927,16 +926,158 @@ static wchar_t tempPath[MAX_PATH] = {};
 
 #define PATCH_MANIFEST_URL \
 	L"https://obsproject.com/update_studio/getpatchmanifest"
-#define HASH_NULL \
-	L"0000000000000000000000000000000000000000"
+#define HASH_NULL L"0000000000000000000000000000000000000000"
+
+static bool UpdateVS2017Redists(json_t *root)
+{
+	/* ------------------------------------------ *
+	 * Initialize session                         */
+
+	const DWORD tlsProtocols = WINHTTP_FLAG_SECURE_PROTOCOL_TLS1_2;
+
+	HttpHandle hSession = WinHttpOpen(L"OBS Studio Updater/2.1",
+					  WINHTTP_ACCESS_TYPE_DEFAULT_PROXY,
+					  WINHTTP_NO_PROXY_NAME,
+					  WINHTTP_NO_PROXY_BYPASS, 0);
+	if (!hSession) {
+		Status(L"Update failed: Couldn't open obsproject.com");
+		return false;
+	}
+
+	WinHttpSetOption(hSession, WINHTTP_OPTION_SECURE_PROTOCOLS,
+			 (LPVOID)&tlsProtocols, sizeof(tlsProtocols));
+
+	HttpHandle hConnect = WinHttpConnect(hSession,
+					     L"cdn-fastly.obsproject.com",
+					     INTERNET_DEFAULT_HTTPS_PORT, 0);
+	if (!hConnect) {
+		Status(L"Update failed: Couldn't connect to cdn-fastly.obsproject.com");
+		return false;
+	}
+
+	int responseCode;
+
+	DWORD waitResult = WaitForSingleObject(cancelRequested, 0);
+	if (waitResult == WAIT_OBJECT_0) {
+		return false;
+	}
+
+	/* ------------------------------------------ *
+	 * Download redist                            */
+
+	Status(L"Downloading %s", L"Visual C++ 2017 Redistributable");
+
+	const wchar_t *file = (is32bit) ? L"vc2017redist_x86.exe"
+					: L"vc2017redist_x64.exe";
+
+	wstring sourceURL;
+	sourceURL += L"https://cdn-fastly.obsproject.com/downloads/";
+	sourceURL += file;
+
+	wstring destPath;
+	destPath += tempPath;
+	destPath += L"\\";
+	destPath += file;
+
+	if (!HTTPGetFile(hConnect, sourceURL.c_str(), destPath.c_str(),
+			 L"Accept-Encoding: gzip", &responseCode)) {
+
+		DeleteFile(destPath.c_str());
+		Status(L"Update failed: Could not download "
+		       L"%s (error code %d)",
+		       L"Visual C++ 2017 Redistributable", responseCode);
+		return false;
+	}
+
+	/* ------------------------------------------ *
+	 * Get expected hash                          */
+
+	json_t *redistJson = json_object_get(
+		root, is32bit ? "vc2017_redist_x86" : "vc2017_redist_x64");
+	if (!redistJson) {
+		Status(L"Update failed: Could not parse VC2017 redist json");
+		return false;
+	}
+
+	const char *expectedHashUTF8 = json_string_value(redistJson);
+	wchar_t expectedHashWide[BLAKE2_HASH_STR_LENGTH];
+	BYTE expectedHash[BLAKE2_HASH_LENGTH];
+
+	if (!UTF8ToWideBuf(expectedHashWide, expectedHashUTF8)) {
+		DeleteFile(destPath.c_str());
+		Status(L"Update failed: Couldn't convert Json for redist hash");
+		return false;
+	}
+
+	StringToHash(expectedHashWide, expectedHash);
+
+	wchar_t downloadHashWide[BLAKE2_HASH_STR_LENGTH];
+	BYTE downloadHash[BLAKE2_HASH_LENGTH];
+
+	/* ------------------------------------------ *
+	 * Get download hash                          */
+
+	if (!CalculateFileHash(destPath.c_str(), downloadHash)) {
+		DeleteFile(destPath.c_str());
+		Status(L"Update failed: Couldn't verify integrity of %s",
+		       L"Visual C++ 2017 Redistributable");
+		return false;
+	}
+
+	/* ------------------------------------------ *
+	 * If hashes do not match, integrity failed   */
+
+	HashToString(downloadHash, downloadHashWide);
+	if (wcscmp(expectedHashWide, downloadHashWide) != 0) {
+		DeleteFile(destPath.c_str());
+		Status(L"Update failed: Couldn't verify integrity of %s",
+		       L"Visual C++ 2017 Redistributable");
+		return false;
+	}
+
+	/* ------------------------------------------ *
+	 * If hashes match, install redist            */
+
+	wchar_t commandline[MAX_PATH + MAX_PATH];
+	StringCbPrintf(commandline, sizeof(commandline),
+		       L"%s /install /quiet /norestart", destPath.c_str());
+
+	PROCESS_INFORMATION pi = {};
+	STARTUPINFO si = {};
+	si.cb = sizeof(si);
+
+	bool success = !!CreateProcessW(destPath.c_str(), commandline, nullptr,
+					nullptr, false, CREATE_NO_WINDOW,
+					nullptr, nullptr, &si, &pi);
+	if (success) {
+		Status(L"Installing %s...", L"Visual C++ 2017 Redistributable");
+
+		CloseHandle(pi.hThread);
+		WaitForSingleObject(pi.hProcess, INFINITE);
+		CloseHandle(pi.hProcess);
+	} else {
+		Status(L"Update failed: Could not execute "
+		       L"%s (error code %d)",
+		       L"Visual C++ 2017 Redistributable", (int)GetLastError());
+	}
+
+	DeleteFile(destPath.c_str());
+
+	waitResult = WaitForSingleObject(cancelRequested, 0);
+	if (waitResult == WAIT_OBJECT_0) {
+		return false;
+	}
+
+	return success;
+}
 
 static bool Update(wchar_t *cmdLine)
 {
 	/* ------------------------------------- *
 	 * Check to make sure OBS isn't running  */
 
-	HANDLE hObsUpdateMutex = OpenMutexW(SYNCHRONIZE, false,
-			L"OBSStudioUpdateMutex");
+	HANDLE hObsUpdateMutex =
+		OpenMutexW(SYNCHRONIZE, false, L"OBSStudioUpdateMutex");
 	if (hObsUpdateMutex) {
 		HANDLE hWait[2];
 		hWait[0] = hObsUpdateMutex;
@@ -961,7 +1102,7 @@ static bool Update(wchar_t *cmdLine)
 
 	CryptProvider hProvider;
 	if (!CryptAcquireContext(&hProvider, nullptr, MS_ENH_RSA_AES_PROV,
-				PROV_RSA_AES, CRYPT_VERIFYCONTEXT)) {
+				 PROV_RSA_AES, CRYPT_VERIFYCONTEXT)) {
 		SetDlgItemTextW(hwndMain, IDC_STATUS,
 				L"Update failed: CryptAcquireContext failure");
 		return false;
@@ -973,6 +1114,12 @@ static bool Update(wchar_t *cmdLine)
 
 	SetDlgItemTextW(hwndMain, IDC_STATUS,
 			L"Searching for available updates...");
+
+	HWND hProgress = GetDlgItem(hwndMain, IDC_PROGRESS);
+	LONG_PTR style = GetWindowLongPtr(hProgress, GWL_STYLE);
+	SetWindowLongPtr(hProgress, GWL_STYLE, style | PBS_MARQUEE);
+
+	SendDlgItemMessage(hwndMain, IDC_PROGRESS, PBM_SETMARQUEE, 1, 0);
 
 	/* ------------------------------------- *
 	 * Check if updating portable build      */
@@ -1006,18 +1153,21 @@ static bool Update(wchar_t *cmdLine)
 	} else {
 		CoTaskMemPtr<wchar_t> pOut;
 		HRESULT hr = SHGetKnownFolderPath(FOLDERID_RoamingAppData,
-				KF_FLAG_DEFAULT, nullptr, &pOut);
+						  KF_FLAG_DEFAULT, nullptr,
+						  &pOut);
 		if (hr != S_OK) {
 			Status(L"Update failed: Could not determine AppData "
-					L"location");
+			       L"location");
 			return false;
 		}
 
 		StringCbCopy(lpAppDataPath, sizeof(lpAppDataPath), pOut);
 	}
 
-	StringCbCat(lpAppDataPath, sizeof(lpAppDataPath),
-			L"\\obs-studio");
+	const char* c_dir = (string("\\") + config_dir).c_str();
+	const wchar_t* obs_settings_path = (wchar_t*)c_dir;
+
+	StringCbCat(lpAppDataPath, sizeof(lpAppDataPath), obs_settings_path);
 
 	/* ------------------------------------- *
 	 * Get download path                     */
@@ -1026,18 +1176,18 @@ static bool Update(wchar_t *cmdLine)
 	wchar_t tempDirName[MAX_PATH];
 
 	manifestPath[0] = 0;
-	tempDirName[0]  = 0;
+	tempDirName[0] = 0;
 
 	StringCbPrintf(manifestPath, sizeof(manifestPath),
-			L"%s\\updates\\manifest.json", lpAppDataPath);
+		       L"%s\\updates\\manifest.json", lpAppDataPath);
 	if (!GetTempPathW(_countof(tempDirName), tempDirName)) {
 		Status(L"Update failed: Failed to get temp path: %ld",
-				GetLastError());
+		       GetLastError());
 		return false;
 	}
-	if (!GetTempFileNameW(tempDirName, L"obs-studio", 0, tempPath)) {
+	if (!GetTempFileNameW(tempDirName, config_dir.c_str(), 0, tempPath)) {
 		Status(L"Update failed: Failed to create temp dir name: %ld",
-				GetLastError());
+		       GetLastError());
 		return false;
 	}
 
@@ -1060,7 +1210,8 @@ static bool Update(wchar_t *cmdLine)
 
 		if (!root) {
 			Status(L"Update failed: Couldn't parse update "
-					L"manifest: %S", error.text);
+			       L"manifest: %S",
+			       error.text);
 			return false;
 		}
 	}
@@ -1078,17 +1229,30 @@ static bool Update(wchar_t *cmdLine)
 
 	for (size_t i = 0; i < packageCount; i++) {
 		if (!AddPackageUpdateFiles(packages, i, tempPath)) {
-			Status(L"Failed to process update packages");
+			Status(L"Update failed: Failed to process update packages");
 			return false;
 		}
 	}
+
+	SendDlgItemMessage(hwndMain, IDC_PROGRESS, PBM_SETMARQUEE, 0, 0);
+	SetWindowLongPtr(hProgress, GWL_STYLE, style);
 
 	/* ------------------------------------- *
 	 * Exit if updates already installed     */
 
 	if (!updates.size()) {
 		Status(L"All available updates are already installed.");
+		SetDlgItemText(hwndMain, IDC_BUTTON, L"Launch OBS");
 		return true;
+	}
+
+	/* ------------------------------------- *
+	 * Check for VS2017 redistributables     */
+
+	if (!HasVS2017Redist()) {
+		if (!UpdateVS2017Redists(root)) {
+			return false;
+		}
 	}
 
 	/* ------------------------------------- *
@@ -1098,8 +1262,8 @@ static bool Update(wchar_t *cmdLine)
 
 	for (update_t &update : updates) {
 		wchar_t whash_string[BLAKE2_HASH_STR_LENGTH];
-		char    hash_string[BLAKE2_HASH_STR_LENGTH];
-		char    outputPath[MAX_PATH];
+		char hash_string[BLAKE2_HASH_STR_LENGTH];
+		char outputPath[MAX_PATH];
 
 		if (!update.has_hash)
 			continue;
@@ -1133,23 +1297,22 @@ static bool Update(wchar_t *cmdLine)
 	if (json_array_size(files) > 0) {
 		char *post_body = json_dumps(files, JSON_COMPACT);
 
-		int    responseCode;
+		int responseCode;
 
 		int len = (int)strlen(post_body);
 		uLong compressSize = compressBound(len);
 		string compressedJson;
 
 		compressedJson.resize(compressSize);
-		compress2((Bytef*)&compressedJson[0], &compressSize,
-				(const Bytef*)post_body, len,
-				Z_BEST_COMPRESSION);
+		compress2((Bytef *)&compressedJson[0], &compressSize,
+			  (const Bytef *)post_body, len, Z_BEST_COMPRESSION);
 		compressedJson.resize(compressSize);
 
 		bool success = !!HTTPPostData(PATCH_MANIFEST_URL,
-				(BYTE *)&compressedJson[0],
-				(int)compressedJson.size(),
-				L"Accept-Encoding: gzip", &responseCode,
-				newManifest);
+					      (BYTE *)&compressedJson[0],
+					      (int)compressedJson.size(),
+					      L"Accept-Encoding: gzip",
+					      &responseCode, newManifest);
 		free(post_body);
 
 		if (!success)
@@ -1157,8 +1320,8 @@ static bool Update(wchar_t *cmdLine)
 
 		if (responseCode != 200) {
 			Status(L"Update failed: HTTP/%d while trying to "
-					L"download patch manifest",
-					responseCode);
+			       L"download patch manifest",
+			       responseCode);
 			return false;
 		}
 	} else {
@@ -1172,7 +1335,7 @@ static bool Update(wchar_t *cmdLine)
 	root = json_loads(newManifest.c_str(), 0, &error);
 	if (!root) {
 		Status(L"Update failed: Couldn't parse patch manifest: %S",
-				error.text);
+		       error.text);
 		return false;
 	}
 
@@ -1191,10 +1354,10 @@ static bool Update(wchar_t *cmdLine)
 			return false;
 		}
 
-		json_t *name_json   = json_object_get(patch, "name");
-		json_t *hash_json   = json_object_get(patch, "hash");
+		json_t *name_json = json_object_get(patch, "name");
+		json_t *hash_json = json_object_get(patch, "hash");
 		json_t *source_json = json_object_get(patch, "source");
-		json_t *size_json   = json_object_get(patch, "size");
+		json_t *size_json = json_object_get(patch, "size");
 
 		if (!json_is_string(name_json))
 			continue;
@@ -1205,10 +1368,10 @@ static bool Update(wchar_t *cmdLine)
 		if (!json_is_integer(size_json))
 			continue;
 
-		const char *name   = json_string_value(name_json);
-		const char *hash   = json_string_value(hash_json);
+		const char *name = json_string_value(name_json);
+		const char *hash = json_string_value(hash_json);
 		const char *source = json_string_value(source_json);
-		int         size   = (int)json_integer_value(size_json);
+		int size = (int)json_integer_value(size_json);
 
 		UpdateWithPatchIfAvailable(name, hash, source, size);
 	}
@@ -1219,7 +1382,7 @@ static bool Update(wchar_t *cmdLine)
 	if (!RunDownloadWorkers(2))
 		return false;
 
-	if (completedUpdates != updates.size()) {
+	if ((size_t)completedUpdates != updates.size()) {
 		Status(L"Update failed to download all files.");
 		return false;
 	}
@@ -1230,8 +1393,7 @@ static bool Update(wchar_t *cmdLine)
 	int updatesInstalled = 0;
 	int lastPosition = 0;
 
-	SendDlgItemMessage(hwndMain, IDC_PROGRESS,
-		PBM_SETPOS, 0, 0);
+	SendDlgItemMessage(hwndMain, IDC_PROGRESS, PBM_SETPOS, 0, 0);
 
 	for (update_t &update : updates) {
 		if (!UpdateFile(update)) {
@@ -1239,11 +1401,12 @@ static bool Update(wchar_t *cmdLine)
 		} else {
 			updatesInstalled++;
 			int position = (int)(((float)updatesInstalled /
-				(float)completedUpdates) * 100.0f);
+					      (float)completedUpdates) *
+					     100.0f);
 			if (position > lastPosition) {
 				lastPosition = position;
 				SendDlgItemMessage(hwndMain, IDC_PROGRESS,
-					PBM_SETPOS, position, 0);
+						   PBM_SETPOS, position, 0);
 			}
 		}
 	}
@@ -1259,8 +1422,7 @@ static bool Update(wchar_t *cmdLine)
 			DeleteFile(update.tempPath.c_str());
 	}
 
-	SendDlgItemMessage(hwndMain, IDC_PROGRESS,
-		PBM_SETPOS, 100, 0);
+	SendDlgItemMessage(hwndMain, IDC_PROGRESS, PBM_SETPOS, 100, 0);
 
 	Status(L"Update complete.");
 	SetDlgItemText(hwndMain, IDC_BUTTON, L"Launch OBS");
@@ -1284,8 +1446,10 @@ static DWORD WINAPI UpdateThread(void *arg)
 		if (WaitForSingleObject(cancelRequested, 0) == WAIT_OBJECT_0)
 			Status(L"Update aborted.");
 
-		SendDlgItemMessage(hwndMain, IDC_PROGRESS, PBM_SETSTATE,
-				PBST_ERROR, 0);
+		HWND hProgress = GetDlgItem(hwndMain, IDC_PROGRESS);
+		LONG_PTR style = GetWindowLongPtr(hProgress, GWL_STYLE);
+		SetWindowLongPtr(hProgress, GWL_STYLE, style & ~PBS_MARQUEE);
+		SendMessage(hProgress, PBM_SETSTATE, PBST_ERROR, 0);
 
 		SetDlgItemText(hwndMain, IDC_BUTTON, L"Exit");
 		EnableWindow(GetDlgItem(hwndMain, IDC_BUTTON), true);
@@ -1320,15 +1484,13 @@ static void LaunchOBS()
 	GetCurrentDirectory(_countof(cwd) - 1, cwd);
 
 	StringCbCopy(obsPath, sizeof(obsPath), cwd);
-	StringCbCat(obsPath, sizeof(obsPath), is32bit
-			? L"\\bin\\32bit"
-			: L"\\bin\\64bit");
+	StringCbCat(obsPath, sizeof(obsPath),
+		    is32bit ? L"\\bin\\32bit" : L"\\bin\\64bit");
 	SetCurrentDirectory(obsPath);
 	StringCbCopy(newCwd, sizeof(newCwd), obsPath);
 
-	StringCbCat(obsPath, sizeof(obsPath), is32bit
-			? L"\\obs32.exe"
-			: L"\\obs64.exe");
+	StringCbCat(obsPath, sizeof(obsPath),
+		    is32bit ? L"\\obs32.exe" : L"\\obs64.exe");
 
 	if (!FileExists(obsPath)) {
 		StringCbCopy(obsPath, sizeof(obsPath), cwd);
@@ -1348,21 +1510,21 @@ static void LaunchOBS()
 
 	ZeroMemory(&execInfo, sizeof(execInfo));
 
-	execInfo.cbSize      = sizeof(execInfo);
-	execInfo.lpFile      = obsPath;
+	execInfo.cbSize = sizeof(execInfo);
+	execInfo.lpFile = obsPath;
 	execInfo.lpDirectory = newCwd;
-	execInfo.nShow       = SW_SHOWNORMAL;
+	execInfo.nShow = SW_SHOWNORMAL;
 
 	ShellExecuteEx(&execInfo);
 }
 
-static INT_PTR CALLBACK UpdateDialogProc(HWND hwnd, UINT message,
-		WPARAM wParam, LPARAM lParam)
+static INT_PTR CALLBACK UpdateDialogProc(HWND hwnd, UINT message, WPARAM wParam,
+					 LPARAM lParam)
 {
 	switch (message) {
 	case WM_INITDIALOG: {
-		static HICON hMainIcon = LoadIcon(hinstMain,
-				MAKEINTRESOURCE(IDI_ICON1));
+		static HICON hMainIcon =
+			LoadIcon(hinstMain, MAKEINTRESOURCE(IDI_ICON1));
 		SendMessage(hwnd, WM_SETICON, ICON_BIG, (LPARAM)hMainIcon);
 		SendMessage(hwnd, WM_SETICON, ICON_SMALL, (LPARAM)hMainIcon);
 		return true;
@@ -1371,8 +1533,8 @@ static INT_PTR CALLBACK UpdateDialogProc(HWND hwnd, UINT message,
 	case WM_COMMAND:
 		if (LOWORD(wParam) == IDC_BUTTON) {
 			if (HIWORD(wParam) == BN_CLICKED) {
-				DWORD result = WaitForSingleObject(
-						updateThread, 0);
+				DWORD result =
+					WaitForSingleObject(updateThread, 0);
 				if (result == WAIT_OBJECT_0) {
 					if (updateFailed)
 						PostQuitMessage(0);
@@ -1405,15 +1567,15 @@ static void RestartAsAdmin(LPWSTR lpCmdLine)
 	GetCurrentDirectoryW(_countof(cwd) - 1, cwd);
 
 	SHELLEXECUTEINFO shExInfo = {0};
-	shExInfo.cbSize           = sizeof(shExInfo);
-	shExInfo.fMask            = SEE_MASK_NOCLOSEPROCESS;
-	shExInfo.hwnd             = 0;
-	shExInfo.lpVerb           = L"runas";  /* Operation to perform */
-	shExInfo.lpFile           = myPath;    /* Application to start */
-	shExInfo.lpParameters     = lpCmdLine; /* Additional parameters */
-	shExInfo.lpDirectory      = cwd;
-	shExInfo.nShow            = SW_NORMAL;
-	shExInfo.hInstApp         = 0;
+	shExInfo.cbSize = sizeof(shExInfo);
+	shExInfo.fMask = SEE_MASK_NOCLOSEPROCESS;
+	shExInfo.hwnd = 0;
+	shExInfo.lpVerb = L"runas";        /* Operation to perform */
+	shExInfo.lpFile = myPath;          /* Application to start */
+	shExInfo.lpParameters = lpCmdLine; /* Additional parameters */
+	shExInfo.lpDirectory = cwd;
+	shExInfo.nShow = SW_NORMAL;
+	shExInfo.hInstApp = 0;
 
 	/* annoyingly the actual elevated updater will disappear behind other
 	 * windows :( */
@@ -1431,13 +1593,31 @@ static void RestartAsAdmin(LPWSTR lpCmdLine)
 	}
 }
 
+static bool HasElevation()
+{
+	SID_IDENTIFIER_AUTHORITY sia = SECURITY_NT_AUTHORITY;
+	PSID sid = nullptr;
+	BOOL elevated = false;
+	BOOL success;
+
+	success = AllocateAndInitializeSid(&sia, 2, SECURITY_BUILTIN_DOMAIN_RID,
+					   DOMAIN_ALIAS_RID_ADMINS, 0, 0, 0, 0,
+					   0, 0, &sid);
+	if (success && sid) {
+		CheckTokenMembership(nullptr, sid, &elevated);
+		FreeSid(sid);
+	}
+
+	return elevated;
+}
+
 int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE, LPWSTR lpCmdLine, int)
 {
 	INITCOMMONCONTROLSEX icce;
 
-	if (!IsAppRunningAsAdminMode()) {
-		HANDLE hLowMutex = CreateMutexW(nullptr, true,
-				L"OBSUpdaterRunningAsNonAdminUser");
+	if (!HasElevation()) {
+		HANDLE hLowMutex = CreateMutexW(
+			nullptr, true, L"OBSUpdaterRunningAsNonAdminUser");
 
 		RestartAsAdmin(lpCmdLine);
 
@@ -1464,13 +1644,13 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE, LPWSTR lpCmdLine, int)
 		hinstMain = hInstance;
 
 		icce.dwSize = sizeof(icce);
-		icce.dwICC  = ICC_PROGRESS_CLASS;
+		icce.dwICC = ICC_PROGRESS_CLASS;
 
 		InitCommonControlsEx(&icce);
 
 		hwndMain = CreateDialog(hInstance,
-				MAKEINTRESOURCE(IDD_UPDATEDIALOG), nullptr,
-				UpdateDialogProc);
+					MAKEINTRESOURCE(IDD_UPDATEDIALOG),
+					nullptr, UpdateDialogProc);
 		if (!hwndMain) {
 			return -1;
 		}
@@ -1479,8 +1659,8 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE, LPWSTR lpCmdLine, int)
 		SetForegroundWindow(hwndMain);
 
 		cancelRequested = CreateEvent(nullptr, true, false, nullptr);
-		updateThread = CreateThread(nullptr, 0, UpdateThread,
-				lpCmdLine, 0, nullptr);
+		updateThread = CreateThread(nullptr, 0, UpdateThread, lpCmdLine,
+					    0, nullptr);
 
 		MSG msg;
 		while (GetMessage(&msg, nullptr, 0, 0)) {
@@ -1492,8 +1672,8 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE, LPWSTR lpCmdLine, int)
 
 		/* there is no non-elevated process waiting for us if UAC is
 		 * disabled */
-		WinHandle hMutex = OpenMutex(SYNCHRONIZE, false,
-				L"OBSUpdaterRunningAsNonAdminUser");
+		WinHandle hMutex = OpenMutex(
+			SYNCHRONIZE, false, L"OBSUpdaterRunningAsNonAdminUser");
 		if (msg.wParam == 1 && !hMutex) {
 			LaunchOBS();
 		}

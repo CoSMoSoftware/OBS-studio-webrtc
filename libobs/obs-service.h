@@ -59,25 +59,23 @@ struct obs_service_info {
 
 	const char *(*get_url)(void *data);
 	const char *(*get_key)(void *data);
-	const char *(*get_room)(void *data);
-	const char *(*get_milli_id)(void *data);
 
-	const char *(*get_codec)(void *data);
-	const char *(*get_milli_token)(void *data);
+	const char *(*get_room)(void *data);
 
 	const char *(*get_username)(void *data);
 	const char *(*get_password)(void *data);
 
-	const char *(*get_protocol)(void *data);
-
 	bool (*supports_multitrack)(void *data);
 
 	void (*apply_encoder_settings)(void *data,
-			obs_data_t *video_encoder_settings,
-			obs_data_t *audio_encoder_settings);
+				       obs_data_t *video_encoder_settings,
+				       obs_data_t *audio_encoder_settings);
 
 	void *type_data;
 	void (*free_type_data)(void *type_data);
+
+	const char *(*get_codec)(void *data);
+	const char *(*get_protocol)(void *data);
 
 	const char *(*get_output_type)(void *data);
 
@@ -85,7 +83,7 @@ struct obs_service_info {
 };
 
 EXPORT void obs_register_service_s(const struct obs_service_info *info,
-		size_t size);
+				   size_t size);
 
 #define obs_register_service(info) \
 	obs_register_service_s(info, sizeof(struct obs_service_info))

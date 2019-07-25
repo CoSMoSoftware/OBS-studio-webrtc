@@ -1,7 +1,7 @@
 #include "decklink-device-mode.hpp"
 
-DeckLinkDeviceMode::DeckLinkDeviceMode(IDeckLinkDisplayMode *mode,
-		long long id) : id(id), mode(mode)
+DeckLinkDeviceMode::DeckLinkDeviceMode(IDeckLinkDisplayMode *mode, long long id)
+	: id(id), mode(mode)
 {
 	if (mode == nullptr)
 		return;
@@ -13,8 +13,8 @@ DeckLinkDeviceMode::DeckLinkDeviceMode(IDeckLinkDisplayMode *mode,
 		DeckLinkStringToStdString(decklinkStringName, name);
 }
 
-DeckLinkDeviceMode::DeckLinkDeviceMode(const std::string& name, long long id) :
-	id(id), mode(nullptr), name(name)
+DeckLinkDeviceMode::DeckLinkDeviceMode(const std::string &name, long long id)
+	: id(id), mode(nullptr), name(name)
 {
 }
 
@@ -32,6 +32,22 @@ BMDDisplayMode DeckLinkDeviceMode::GetDisplayMode(void) const
 	return bmdModeUnknown;
 }
 
+int DeckLinkDeviceMode::GetWidth()
+{
+	if (mode != nullptr)
+		return mode->GetWidth();
+
+	return 0;
+}
+
+int DeckLinkDeviceMode::GetHeight()
+{
+	if (mode != nullptr)
+		return mode->GetHeight();
+
+	return 0;
+}
+
 BMDDisplayModeFlags DeckLinkDeviceMode::GetDisplayModeFlags(void) const
 {
 	if (mode != nullptr)
@@ -45,7 +61,7 @@ long long DeckLinkDeviceMode::GetId(void) const
 	return id;
 }
 
-const std::string& DeckLinkDeviceMode::GetName(void) const
+const std::string &DeckLinkDeviceMode::GetName(void) const
 {
 	return name;
 }

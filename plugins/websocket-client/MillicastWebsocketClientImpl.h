@@ -14,43 +14,35 @@
 
 typedef websocketpp::client<websocketpp::config::asio_tls_client> Client;
 
-class MillicastWebsocketClientImpl : public WebsocketClient
-{
+class MillicastWebsocketClientImpl : public WebsocketClient {
 public:
     MillicastWebsocketClientImpl();
     ~MillicastWebsocketClientImpl();
-    virtual bool connect(
-      const std::string & url,
-      const std::string & room,
-      const std::string & username,
-      const std::string & token,
-      Listener          * listener
-    ) override;
-    virtual bool open(
-      const std::string & sdp,
-      const std::string & codec = "vp8",
-      const std::string & Id = ""
-    ) override;
-    virtual bool trickle(
-      const std::string & mid,
-      const int index,
-      const std::string & candidate,
-      const bool last
-    ) override;
-    virtual bool disconnect(
-      const bool wait
-    ) override;
+
+    // WebsocketClient::Listener implementation
+    bool connect(
+            const std::string & /* publish_api_url */,
+            const std::string & /* room */,
+            const std::string & stream_name,
+            const std::string & token,
+            WebsocketClient::Listener * listener) override;
+    bool open(
+            const std::string & sdp,
+            const std::string & video_codec,
+            const std::string & stream_name) override;
+    bool trickle(
+            const std::string & /* mid */,
+            int /* index */,
+            const std::string & /* candidate */,
+            bool /* last */) override;
+    bool disconnect(bool /* wait */) override;
 
 private:
-    // Candidate for deletion: bool logged;
     std::string token;
-    // Candidate for deletion: long long handle_id;
 
-    std::atomic<bool> is_running;
-    std::future<void> handle;
-    std::thread thread;
-   
     Client client;
     Client::connection_ptr connection;
-};
+    std::thread thread;
 
+    std::string sanitizeString(const std::string & s);
+};
