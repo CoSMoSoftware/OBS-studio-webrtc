@@ -24,7 +24,6 @@
 
 extern "C" const char *wowza_stream_getname(void *unused)
 {
-    info("wowza_stream_getname");
     UNUSED_PARAMETER(unused);
     return obs_module_text("WOWZAStream");
 }
@@ -42,6 +41,7 @@ extern "C" void wowza_stream_destroy(void *data)
 
 extern "C" void *wowza_stream_create(obs_data_t *settings, obs_output_t *output)
 {
+    UNUSED_PARAMETER(settings);
     info("wowza_stream_create");
     //Create new stream
     WebRTCStream* stream = new WebRTCStream(output);
@@ -53,6 +53,7 @@ extern "C" void *wowza_stream_create(obs_data_t *settings, obs_output_t *output)
 
 extern "C" void wowza_stream_stop(void *data, uint64_t ts)
 {
+    UNUSED_PARAMETER(ts);
     info("wowza_stream_stop");
     //Get stream
     WebRTCStream* stream = (WebRTCStream*)data;
@@ -80,7 +81,16 @@ extern "C" void wowza_receive_video(void *data, struct video_data *frame)
     //Process audio
     stream->onVideoFrame(frame);
 }
+
 extern "C" void wowza_receive_audio(void *data, struct audio_data *frame)
+{
+    //Get stream
+    WebRTCStream* stream = (WebRTCStream*)data;
+    //Process audio
+    stream->onAudioFrame(frame);
+}
+
+extern "C" void wowza_receive_multitrack_audio(void *data, size_t idx, struct audio_data *frame)
 {
     //Get stream
     WebRTCStream* stream = (WebRTCStream*)data;
@@ -128,37 +138,71 @@ extern "C" uint64_t wowza_stream_total_bytes_sent(void *data)
 
 extern "C" int wowza_stream_dropped_frames(void *data)
 {
-    return 0;
+    //Get stream
+    WebRTCStream* stream = (WebRTCStream*) data;
+    return stream->getDroppedFrames();
 }
 
 extern "C" float wowza_stream_congestion(void *data)
 {
+    UNUSED_PARAMETER(data);
     return 0.0f;
 }
 
 extern "C" {
+#ifdef _WIN32
     struct obs_output_info wowza_output_info = {
-        "wowza_output", //id
-        OBS_OUTPUT_AV |  OBS_OUTPUT_SERVICE | OBS_OUTPUT_MULTI_TRACK, //flags
-        wowza_stream_getname, //get_name
-        wowza_stream_create, //create
-        wowza_stream_destroy, //destroy
-        wowza_stream_start, //start
-        wowza_stream_stop, //stop
-        wowza_receive_video, //raw_video
-        wowza_receive_audio, //raw_audio
-        nullptr, //encoded_packet
-        nullptr, //update
-        wowza_stream_defaults, //get_defaults
-        wowza_stream_properties, //get_properties
-        nullptr, //pause
-        wowza_stream_total_bytes_sent, //get_total_bytes
-        wowza_stream_dropped_frames, //get_dropped_frame
-        nullptr, //type_data
-        nullptr, //free_type_data
-        wowza_stream_congestion, //get_congestion
-        nullptr, //get_connect_time_ms
-        "h264", //encoded_video_codecs
-        "opus" //encoded_audio_codecs
+        "wowza_output",
+        OBS_OUTPUT_AV | OBS_OUTPUT_SERVICE,
+        wowza_stream_getname,
+        wowza_stream_create,
+        wowza_stream_destroy,
+        wowza_stream_start,
+        wowza_stream_stop,
+        wowza_receive_video,
+        wowza_receive_audio,
+        nullptr,
+        nullptr,
+        wowza_stream_defaults,
+        wowza_stream_properties,
+        nullptr,
+        wowza_stream_total_bytes_sent,
+        wowza_stream_dropped_frames,
+        nullptr,
+        nullptr,
+        wowza_stream_congestion,
+        nullptr,
+        "h264",
+        "opus",
+        nullptr
     };
+#else
+    struct obs_output_info wowza_output_info = {
+        .id                   = "wowza_output",
+        .flags                = OBS_OUTPUT_AV |
+                                OBS_OUTPUT_SERVICE,
+        .get_name             = wowza_stream_getname,
+        .create               = wowza_stream_create,
+        .destroy              = wowza_stream_destroy,
+        .start                = wowza_stream_start,
+        .stop                 = wowza_stream_stop,
+        .raw_video            = wowza_receive_video,
+        .raw_audio            = wowza_receive_audio, // for single-track
+        .encoded_packet       = nullptr,
+        .update               = nullptr,
+        .get_defaults         = wowza_stream_defaults,
+        .get_properties       = wowza_stream_properties,
+        .unused1              = nullptr,
+        .get_total_bytes      = wowza_stream_total_bytes_sent,
+        .get_dropped_frames   = wowza_stream_dropped_frames,
+        .type_data            = nullptr,
+        .free_type_data       = nullptr,
+        .get_congestion       = wowza_stream_congestion,
+        .get_connect_time_ms  = nullptr,
+        .encoded_video_codecs = "h264",
+        .encoded_audio_codecs = "opus",
+        .raw_audio2           = nullptr
+        // .raw_audio2           = wowza_receive_multitrack_audio, // for multi-track
+    };
+#endif
 }

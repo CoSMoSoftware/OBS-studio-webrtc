@@ -70,7 +70,7 @@ extern "C" bool evercast_stream_start(void *data)
   //Don't allow it to be deleted
   stream->AddRef();
   //Start it
-  return stream->start(WebRTCStream::Evercast);
+  return stream->start(WebRTCStream::Type::Evercast);
 }
 
 extern "C" void evercast_receive_video(void *data, struct video_data *frame)
@@ -134,6 +134,7 @@ extern "C" int evercast_stream_dropped_frames(void *data)
 
 extern "C" float evercast_stream_congestion(void *data)
 {
+  UNUSED_PARAMETER(data);
   return 0.0f;
 }
 
@@ -160,6 +161,7 @@ extern "C" {
     evercast_stream_congestion, //get_congestion
     nullptr, //get_connect_time_ms
     "vp8", //encoded_video_codecs
-    "opus" //encoded_audio_codecs
+    "opus", //encoded_audio_codecs
+    nullptr //raw_audio2
   };
 }

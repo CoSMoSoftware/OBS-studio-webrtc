@@ -26,6 +26,8 @@
 
 #xcode
 *.xcodeproj/
+#vscode
+.vscode/
 
 #other stuff (windows stuff, qt moc stuff, etc)
 Release_MD/

@@ -3,57 +3,51 @@
 
 #include "../../obs-internal.h"
 #include "../../util/dstr.h"
+#include "../../util/apple/cfstring-utils.h"
 
 #include "mac-helpers.h"
 
-static inline bool cf_to_cstr(CFStringRef ref, char *buf, size_t size)
-{
-	if (!ref) return false;
-	return (bool)CFStringGetCString(ref, buf, size, kCFStringEncodingUTF8);
-}
-
 static bool obs_enum_audio_monitoring_device(obs_enum_audio_device_cb cb,
-		void *data, AudioDeviceID id, bool allow_inputs)
+					     void *data, AudioDeviceID id,
+					     bool allow_inputs)
 {
-	UInt32      size    = 0;
+	UInt32 size = 0;
 	CFStringRef cf_name = NULL;
-	CFStringRef cf_uid  = NULL;
-	char        name[1024];
-	char        uid[1024];
-	OSStatus    stat;
-	bool        cont = true;
+	CFStringRef cf_uid = NULL;
+	char *name = NULL;
+	char *uid = NULL;
+	OSStatus stat;
+	bool cont = true;
 
-	AudioObjectPropertyAddress addr = {
-		kAudioDevicePropertyStreams,
-		kAudioDevicePropertyScopeInput,
-		kAudioObjectPropertyElementMaster
-	};
+	AudioObjectPropertyAddress addr = {kAudioDevicePropertyStreams,
+					   kAudioDevicePropertyScopeOutput,
+					   kAudioObjectPropertyElementMaster};
 
-	/* check to see if it's a mac input device */
-	if (!allow_inputs) {
-		AudioObjectGetPropertyDataSize(id, &addr, 0, NULL, &size);
-		if (!size)
-			return true;
-	}
+	/* Check if the device is capable of audio output. */
+	AudioObjectGetPropertyDataSize(id, &addr, 0, NULL, &size);
+	if (!allow_inputs && !size)
+		return true;
 
 	size = sizeof(CFStringRef);
 
 	addr.mSelector = kAudioDevicePropertyDeviceUID;
 	stat = AudioObjectGetPropertyData(id, &addr, 0, NULL, &size, &cf_uid);
 	if (!success(stat, "get audio device UID"))
-		return true;
+		goto fail;
 
 	addr.mSelector = kAudioDevicePropertyDeviceNameCFString;
 	stat = AudioObjectGetPropertyData(id, &addr, 0, NULL, &size, &cf_name);
 	if (!success(stat, "get audio device name"))
 		goto fail;
 
-	if (!cf_to_cstr(cf_name, name, sizeof(name))) {
+	name = cfstr_copy_cstr(cf_name, kCFStringEncodingUTF8);
+	if (!name) {
 		blog(LOG_WARNING, "%s: failed to convert name", __FUNCTION__);
 		goto fail;
 	}
 
-	if (!cf_to_cstr(cf_uid, uid, sizeof(uid))) {
+	uid = cfstr_copy_cstr(cf_uid, kCFStringEncodingUTF8);
+	if (!uid) {
 		blog(LOG_WARNING, "%s: failed to convert uid", __FUNCTION__);
 		goto fail;
 	}
@@ -61,6 +55,8 @@ static bool obs_enum_audio_monitoring_device(obs_enum_audio_device_cb cb,
 	cont = cb(data, name, uid);
 
 fail:
+	bfree(name);
+	bfree(uid);
 	if (cf_name)
 		CFRelease(cf_name);
 	if (cf_uid)
@@ -69,33 +65,31 @@ fail:
 }
 
 static void enum_audio_devices(obs_enum_audio_device_cb cb, void *data,
-		bool allow_inputs)
+			       bool allow_inputs)
 {
-	AudioObjectPropertyAddress addr = {
-		kAudioHardwarePropertyDevices,
-		kAudioObjectPropertyScopeGlobal,
-		kAudioObjectPropertyElementMaster
-	};
+	AudioObjectPropertyAddress addr = {kAudioHardwarePropertyDevices,
+					   kAudioObjectPropertyScopeGlobal,
+					   kAudioObjectPropertyElementMaster};
 
-	UInt32        size = 0;
-	UInt32        count;
-	OSStatus      stat;
+	UInt32 size = 0;
+	UInt32 count;
+	OSStatus stat;
 	AudioDeviceID *ids;
 
 	stat = AudioObjectGetPropertyDataSize(kAudioObjectSystemObject, &addr,
-						0, NULL, &size);
+					      0, NULL, &size);
 	if (!success(stat, "get data size"))
 		return;
 
-	ids   = malloc(size);
+	ids = malloc(size);
 	count = size / sizeof(AudioDeviceID);
 
-	stat = AudioObjectGetPropertyData(kAudioObjectSystemObject, &addr,
-						0, NULL, &size, ids);
+	stat = AudioObjectGetPropertyData(kAudioObjectSystemObject, &addr, 0,
+					  NULL, &size, ids);
 	if (success(stat, "get data")) {
 		for (UInt32 i = 0; i < count; i++) {
 			if (!obs_enum_audio_monitoring_device(cb, data, ids[i],
-						allow_inputs))
+							      allow_inputs))
 				break;
 		}
 	}
@@ -122,21 +116,20 @@ static void get_default_id(char **p_id)
 	AudioObjectPropertyAddress addr = {
 		kAudioHardwarePropertyDefaultSystemOutputDevice,
 		kAudioObjectPropertyScopeGlobal,
-		kAudioObjectPropertyElementMaster
-	};
+		kAudioObjectPropertyElementMaster};
 
 	if (*p_id)
 		return;
 
-	OSStatus      stat;
+	OSStatus stat;
 	AudioDeviceID id = 0;
-	UInt32        size = sizeof(id);
+	UInt32 size = sizeof(id);
 
 	stat = AudioObjectGetPropertyData(kAudioObjectSystemObject, &addr, 0,
-			NULL, &size, &id);
+					  NULL, &size, &id);
 	if (success(stat, "AudioObjectGetPropertyData"))
 		obs_enum_audio_monitoring_device(alloc_default_id, p_id, id,
-				true);
+						 true);
 	if (!*p_id)
 		*p_id = bzalloc(1);
 }

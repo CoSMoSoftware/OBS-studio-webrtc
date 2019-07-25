@@ -20,23 +20,25 @@
 #include "../util/platform.h"
 #include "graphics-internal.h"
 
-#define GRAPHICS_IMPORT(func) \
-	do { \
-		exports->func = os_dlsym(module, #func); \
-		if (!exports->func) { \
-			success = false; \
-			blog(LOG_ERROR, "Could not load function '%s' from " \
-			                "module '%s'", #func, module_name); \
-		} \
+#define GRAPHICS_IMPORT(func)                                     \
+	do {                                                      \
+		exports->func = os_dlsym(module, #func);          \
+		if (!exports->func) {                             \
+			success = false;                          \
+			blog(LOG_ERROR,                           \
+			     "Could not load function '%s' from " \
+			     "module '%s'",                       \
+			     #func, module_name);                 \
+		}                                                 \
 	} while (false)
 
-#define GRAPHICS_IMPORT_OPTIONAL(func) \
-	do { \
+#define GRAPHICS_IMPORT_OPTIONAL(func)                   \
+	do {                                             \
 		exports->func = os_dlsym(module, #func); \
 	} while (false)
 
 bool load_graphics_imports(struct gs_exports *exports, void *module,
-		const char *module_name)
+			   const char *module_name)
 {
 	bool success = true;
 
@@ -171,6 +173,11 @@ bool load_graphics_imports(struct gs_exports *exports, void *module,
 	GRAPHICS_IMPORT(gs_shader_set_default);
 	GRAPHICS_IMPORT(gs_shader_set_next_sampler);
 
+	GRAPHICS_IMPORT_OPTIONAL(device_nv12_available);
+
+	GRAPHICS_IMPORT(device_debug_marker_begin);
+	GRAPHICS_IMPORT(device_debug_marker_end);
+
 	/* OSX/Cocoa specific functions */
 #ifdef __APPLE__
 	GRAPHICS_IMPORT_OPTIONAL(device_texture_create_from_iosurface);
@@ -189,6 +196,11 @@ bool load_graphics_imports(struct gs_exports *exports, void *module,
 	GRAPHICS_IMPORT_OPTIONAL(gs_texture_get_dc);
 	GRAPHICS_IMPORT_OPTIONAL(gs_texture_release_dc);
 	GRAPHICS_IMPORT_OPTIONAL(device_texture_open_shared);
+	GRAPHICS_IMPORT_OPTIONAL(device_texture_get_shared_handle);
+	GRAPHICS_IMPORT_OPTIONAL(device_texture_acquire_sync);
+	GRAPHICS_IMPORT_OPTIONAL(device_texture_release_sync);
+	GRAPHICS_IMPORT_OPTIONAL(device_texture_create_nv12);
+	GRAPHICS_IMPORT_OPTIONAL(device_stagesurface_create_nv12);
 #endif
 
 	return success;

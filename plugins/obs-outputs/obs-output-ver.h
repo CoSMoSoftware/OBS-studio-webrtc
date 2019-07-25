@@ -1,3 +1,3 @@
 #pragma once
 
-#define MODULE_NAME "obs-outputs module"
+#define MODULE_NAME "obs-output module"

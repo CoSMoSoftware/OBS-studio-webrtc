@@ -26,59 +26,80 @@
 #include <util/util.hpp>
 #include <util/platform.h>
 #include <obs-frontend-api.h>
+#include <functional>
 #include <string>
 #include <memory>
 #include <vector>
 #include <deque>
 
 #include "window-main.hpp"
+#include "ui-config.h"
+
+static std::string config_dir = std::string(CONFIG_DIR);
 
 std::string CurrentTimeString();
 std::string CurrentDateTimeString();
-std::string GenerateTimeDateFilename(const char *extension, bool noSpace=false);
+std::string GenerateTimeDateFilename(const char *extension,
+				     bool noSpace = false);
 std::string GenerateSpecifiedFilename(const char *extension, bool noSpace,
-					const char *format);
+				      const char *format);
 QObject *CreateShortcutFilter();
 
 struct BaseLexer {
 	lexer lex;
+
 public:
-	inline BaseLexer() {lexer_init(&lex);}
-	inline ~BaseLexer() {lexer_free(&lex);}
-	operator lexer*() {return &lex;}
+	inline BaseLexer() { lexer_init(&lex); }
+	inline ~BaseLexer() { lexer_free(&lex); }
+	operator lexer *() { return &lex; }
 };
 
 class OBSTranslator : public QTranslator {
 	Q_OBJECT
 
 public:
-	virtual bool isEmpty() const override {return false;}
+	virtual bool isEmpty() const override { return false; }
 
 	virtual QString translate(const char *context, const char *sourceText,
-			const char *disambiguation, int n) const override;
+				  const char *disambiguation,
+				  int n) const override;
 };
+
+typedef std::function<void()> VoidFunc;
 
 class OBSApp : public QApplication {
 	Q_OBJECT
 
 private:
-	std::string                    locale;
-	std::string		       theme;
-	ConfigFile                     globalConfig;
-	TextLookup                     textLookup;
-	OBSContext                     obsContext;
-	QPointer<OBSMainWindow>        mainWindow;
-	profiler_name_store_t          *profilerNameStore = nullptr;
+	std::string locale;
+	std::string theme;
+	ConfigFile globalConfig;
+	TextLookup textLookup;
+	OBSContext obsContext;
+	QPointer<OBSMainWindow> mainWindow;
+	profiler_name_store_t *profilerNameStore = nullptr;
 
-	os_inhibit_t                   *sleepInhibitor = nullptr;
-	int                            sleepInhibitRefs = 0;
+	os_inhibit_t *sleepInhibitor = nullptr;
+	int sleepInhibitRefs = 0;
+
+	bool enableHotkeysInFocus = true;
 
 	std::deque<obs_frontend_translate_ui_cb> translatorHooks;
+
+	bool UpdatePre22MultiviewLayout(const char *layout);
 
 	bool InitGlobalConfig();
 	bool InitGlobalConfigDefaults();
 	bool InitLocale();
 	bool InitTheme();
+
+	inline void ResetHotkeyState(bool inFocus);
+
+	QPalette defaultPalette;
+
+	void ParseExtraThemeData(const char *path);
+	void AddExtraThemeColor(QPalette &pal, int group, const char *name,
+				uint32_t color);
 
 public:
 	OBSApp(int &argc, char **argv, profiler_name_store_t *store);
@@ -87,19 +108,18 @@ public:
 	void AppInit();
 	bool OBSInit();
 
-	inline QMainWindow *GetMainWindow() const {return mainWindow.data();}
+	void EnableInFocusHotkeys(bool enable);
 
-	inline config_t *GlobalConfig() const {return globalConfig;}
+	inline QMainWindow *GetMainWindow() const { return mainWindow.data(); }
 
-	inline const char *GetLocale() const
-	{
-		return locale.c_str();
-	}
+	inline config_t *GlobalConfig() const { return globalConfig; }
 
-	inline const char *GetTheme() const {return theme.c_str();}
+	inline const char *GetLocale() const { return locale.c_str(); }
+
+	inline const char *GetTheme() const { return theme.c_str(); }
 	bool SetTheme(std::string name, std::string path = "");
 
-	inline lookup_t *GetTextLookup() const {return textLookup;}
+	inline lookup_t *GetTextLookup() const { return textLookup; }
 
 	inline const char *GetString(const char *lookupVal) const
 	{
@@ -116,6 +136,8 @@ public:
 	const char *GetLastLog() const;
 	const char *GetCurrentLog() const;
 
+	const char *GetLastCrashLog() const;
+
 	std::string GetVersionString() const;
 	bool IsPortableMode();
 
@@ -126,15 +148,18 @@ public:
 
 	inline void IncrementSleepInhibition()
 	{
-		if (!sleepInhibitor) return;
+		if (!sleepInhibitor)
+			return;
 		if (sleepInhibitRefs++ == 0)
 			os_inhibit_sleep_set_active(sleepInhibitor, true);
 	}
 
 	inline void DecrementSleepInhibition()
 	{
-		if (!sleepInhibitor) return;
-		if (sleepInhibitRefs == 0) return;
+		if (!sleepInhibitor)
+			return;
+		if (sleepInhibitRefs == 0)
+			return;
 		if (--sleepInhibitRefs == 0)
 			os_inhibit_sleep_set_active(sleepInhibitor, false);
 	}
@@ -144,10 +169,13 @@ public:
 		translatorHooks.emplace_front(cb);
 	}
 
-	inline void PopUITranslation()
-	{
-		translatorHooks.pop_front();
-	}
+	inline void PopUITranslation() { translatorHooks.pop_front(); }
+
+public slots:
+	void Exec(VoidFunc func);
+
+signals:
+	void StyleChanged();
 };
 
 int GetConfigPath(char *path, size_t size, const char *name);
@@ -156,12 +184,21 @@ char *GetConfigPathPtr(const char *name);
 int GetProgramDataPath(char *path, size_t size, const char *name);
 char *GetProgramDataPathPtr(const char *name);
 
-inline OBSApp *App() {return static_cast<OBSApp*>(qApp);}
+inline OBSApp *App()
+{
+	return static_cast<OBSApp *>(qApp);
+}
 
-inline config_t *GetGlobalConfig() {return App()->GlobalConfig();}
+inline config_t *GetGlobalConfig()
+{
+	return App()->GlobalConfig();
+}
 
 std::vector<std::pair<std::string, std::string>> GetLocaleNames();
-inline const char *Str(const char *lookup) {return App()->GetString(lookup);}
+inline const char *Str(const char *lookup)
+{
+	return App()->GetString(lookup);
+}
 #define QTStr(lookupVal) QString::fromUtf8(Str(lookupVal))
 
 bool GetFileSafeName(const char *name, std::string &file);
@@ -171,12 +208,16 @@ bool WindowPositionValid(QRect rect);
 
 static inline int GetProfilePath(char *path, size_t size, const char *file)
 {
-	OBSMainWindow *window = reinterpret_cast<OBSMainWindow*>(
-			App()->GetMainWindow());
+	OBSMainWindow *window =
+		reinterpret_cast<OBSMainWindow *>(App()->GetMainWindow());
 	return window->GetProfilePath(path, size, file);
 }
 
 extern bool portable_mode;
+
+extern bool remuxAfterRecord;
+extern std::string remuxFilename;
+
 extern bool opt_start_streaming;
 extern bool opt_start_recording;
 extern bool opt_start_replaybuffer;
