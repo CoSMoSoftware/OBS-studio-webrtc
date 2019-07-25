@@ -57,8 +57,8 @@ option(USE_WINDOWS_CRYPTOAPI "Use CryptGenRandom to seed the hash function." ON)
 
 if (MSVC)
    # This option must match the settings used in your program, in particular if you
-   # are linking statically
-   option(JANSSON_STATIC_CRT "Link the static CRT libraries" ON )
+	# are linking statically
+	option(JANSSON_STATIC_CRT "Link the static CRT libraries" ON )
 endif ()
 
 # Disabled by OBS
@@ -105,10 +105,15 @@ include (CheckTypeSize)
 if (MSVC)
    # Turn off Microsofts "security" warnings.
    add_definitions( "/W3 /D_CRT_SECURE_NO_WARNINGS /wd4005 /wd4996 /nologo" )
-   if (JANSSON_STATIC_CRT)
-     set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} /MT")
-     set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} /MTd")
+
+   # Disabled by OBS, options already set by top level CMakeLists
+   if (FALSE)
+      if (JANSSON_STATIC_CRT)
+         set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} /MT")
+         set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} /MTd")
+      endif()
    endif()
+
 endif()
 
 if (NOT WIN32 AND NOT APPLE)

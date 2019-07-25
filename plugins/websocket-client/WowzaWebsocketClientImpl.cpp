@@ -1,14 +1,9 @@
 #include "WowzaWebsocketClientImpl.h"
-#include "restclient-cpp/connection.h"
-#include "json.hpp"
+#include "nlohmann/json.hpp"
 
-#include "obs-defs.h"
-#include "util/base.h"
+#include <util/base.h>
 
-#include <iostream>
-#include <math.h>
 #include <string>
-#include <vector>
 
 #define warn(format, ...)  blog(LOG_WARNING, format, ##__VA_ARGS__)
 #define info(format, ...)  blog(LOG_INFO,    format, ##__VA_ARGS__)
@@ -34,50 +29,52 @@ WowzaWebsocketClientImpl::~WowzaWebsocketClientImpl()
     disconnect(false);
 }
 
-bool WowzaWebsocketClientImpl::connect(const std::string& url, const std::string& /* room */,
-        const std::string& username, const std::string& token, Listener* listener)
+bool WowzaWebsocketClientImpl::connect(
+        const std::string & url,
+        const std::string & appName,
+        const std::string & streamName,
+        const std::string & /* token */,
+        WebsocketClient::Listener * listener)
 {
-    debug("WowzaWebsocketClientImpl::connect");
+    websocketpp::lib::error_code ec;
+    std::string wss = sanitizeString(url);
+    this->appName = sanitizeString(appName);
+    this->streamName = sanitizeString(streamName);
 
-    appName = username;
-    streamName = token;
-
-    info("Application Name: %s", appName.c_str());
-    info("Stream Name: %s", streamName.c_str());
-    info("Server URL: %s", url.c_str());
+    info("Server URL:       %s", wss.c_str());
+    info("Application Name: %s", this->appName.c_str());
+    info("Stream Name:      %s", this->streamName.c_str());
 
     try {
-        // Register TLS hanlder
-        client.set_tls_init_handler([&](websocketpp::connection_hdl /* connection */) {
+         // --- TLS handler
+        client.set_tls_init_handler([&](websocketpp::connection_hdl /* con */) {
             // Create context
-            auto ctx = websocketpp::lib::make_shared<asio::ssl::context>(asio::ssl::context::tlsv12_client);
+            auto ctx = websocketpp::lib::make_shared<asio::ssl::context>(
+                    asio::ssl::context::tlsv12_client);
             try {
-                ctx->set_options(asio::ssl::context::default_workarounds |
-                                 asio::ssl::context::no_sslv2 |
-                                 asio::ssl::context::no_sslv3 |
-                                 asio::ssl::context::single_dh_use);
-            } catch (std::exception& e) {
+                // Remove support for undesired TLS versions
+                ctx->set_options(
+                        asio::ssl::context::default_workarounds |
+                        asio::ssl::context::no_sslv2 |
+                        asio::ssl::context::no_sslv3 |
+                        asio::ssl::context::single_dh_use);
+            } catch (std::exception & e) {
                 warn("TLS exception: %s", e.what());
             }
             return ctx;
         });
-
-        // Get connection
-        websocketpp::lib::error_code ec;
-        this->connection = client.get_connection(url, ec);
+ 
+        connection = client.get_connection(wss, ec);
         if (ec) {
-            warn("Error establishing TLS connection: %s", ec.message().c_str());
-            return 0;
-        }
-        if (!this->connection) {
-            warn("** NO CONNECTION **");
+            error("Error establishing websocket connection: %s", ec.message().c_str());
             return 0;
         }
 
-        // Register message handler
-        connection->set_message_handler([=](websocketpp::connection_hdl /* con */, message_ptr frame) {
+        // --- Message handler
+        connection->set_message_handler([=](
+                websocketpp::connection_hdl /* con */, message_ptr frame) {
             bool candidateFound = false;
-            const char* x = frame->get_payload().c_str();
+            const char *x = frame->get_payload().c_str();
             auto msg = json::parse(frame->get_payload());
             std::string sdp = "";
             json sdpData;
@@ -86,8 +83,9 @@ bool WowzaWebsocketClientImpl::connect(const std::string& url, const std::string
                 return;
 
             int status = msg["status"].get<int>();
-
             if (status == 200) {
+                if (msg.find("sdp") != msg.end())
+                    sdp = msg["sdp"]["sdp"];
                 if (msg.find("iceCandidates") != msg.end()) {
                     candidateFound = true;
                     sdpData = msg["iceCandidates"];
@@ -97,73 +95,71 @@ bool WowzaWebsocketClientImpl::connect(const std::string& url, const std::string
                     session_id = std::stoll(session_id_str);
                     info("Session ID: %s", session_id_str.c_str());
                 }
-                if (msg.find("sdp") != msg.end())
-                    sdp = msg["sdp"]["sdp"];
 
                 std::string command = msg["command"];
-
                 if (command.compare("sendOffer") == 0) {
                     info("sendOffer response received:\n%s\n", x);
-                    if (!sdp.empty())
+                    if (!sdp.empty()) {
+                        // Event
                         listener->onOpened(sdp);
+                    }
                     if (candidateFound) {
-                        for (json j : sdpData) {
-                            listener->onRemoteIceCandidate(j["candidate"].dump());
+                        for (const auto& iceCandidate : sdpData) {
+                            listener->onRemoteIceCandidate(iceCandidate["candidate"].dump());
                         }
                         listener->onRemoteIceCandidate("");
                     }
                 }
             } else {
-                info("RECEIVED MESSAGE:\n%s\n", x);
+                info("MESSAGE RECEIVED:\n%s\n", x);
                 if (status > 499) {
                     warn("Server returned status code: %d", status);
-                    listener->onLoggedError(OBS_OUTPUT_ERROR);
+                    listener->onDisconnected();
                 }
             }
         });
 
+        // --- Open handler
         connection->set_open_handler([=](websocketpp::connection_hdl /* con */) {
-            debug("** set_open_handler called **");
+            // Launch event
             listener->onConnected();
+            // Launch logged event
             listener->onLogged(0);
         });
 
+        // --- Close handler
         connection->set_close_handler([=](...) {
-            debug("** set_close_handler called **");
-            // Call listener
+            info("> set_close_handler called");
             listener->onDisconnected();
         });
 
+        // -- Failure handler
         connection->set_fail_handler([=](...) {
-            debug("** set_fail_handler called **");
-            // Call listener
+            info("> set_fail_handler called");
             listener->onDisconnected();
         });
 
-        connection->set_interrupt_handler([=](...) {
-            debug("** set_interrupt_handler called **");
-            // Call listener
-            listener->onDisconnected();
-        });
-
-        // Request a connection (no network messages are exchanged until event loop starts running)
+        // Note that connect here only requests a connection. No network messages
+        // exchanged until the event loop starts running in the next line.
         client.connect(connection);
         // Async
         thread = std::thread([&]() {
-            debug("** starting ASIO io_service run loop **");
-            // Start the ASIO io_service run loop (single connection will be made to the server)
-            client.run(); // exits when this connection is closed
+            // Start ASIO io_service run loop
+            // (single connection will be made to the server)
+            client.run();  // will exit when this connection is closed
         });
-    } catch (const websocketpp::exception& e) {
-        error("WowzaWebsocketClientImpl::connect exception: %s" , e.what());
+    } catch (const websocketpp::exception & e) {
+        warn("connect exception: %s", e.what());
         return false;
     }
+    // OK
     return true;
 }
 
-bool WowzaWebsocketClientImpl::open(const std::string& sdp,
-                                    const std::string& /* codec */,
-                                    const std::string& /* milliId */)
+bool WowzaWebsocketClientImpl::open(
+        const std::string & sdp,
+        const std::string & /* codec */,
+        const std::string & stream_name)
 {
     json offer = {
         { "direction", "publish" },
@@ -171,7 +167,7 @@ bool WowzaWebsocketClientImpl::open(const std::string& sdp,
         { "streamInfo",
             {
                 { "applicationName", appName },
-                { "streamName", streamName },
+                { "streamName", stream_name },
                 { "sessionId", "[empty]" }
             }
         },
@@ -182,45 +178,68 @@ bool WowzaWebsocketClientImpl::open(const std::string& sdp,
             }
         }
     };
-    info("Sending offer:\n%s\n", offer.dump().c_str());
+    info("Sending offer...");
     try {
-        if (connection->send(offer.dump()))
+        // Serialize and send
+        if (connection->send(offer.dump())) {
+            warn("Error sending offer");
             return false;
-    } catch (const websocketpp::exception& e) {
-        error("Error sending offer: %s", e.what());
+        }
+    } catch (const websocketpp::exception & e) {
+        warn("open exception: %s", e.what());
         return false;
     }
+    // OK
     return true;
 }
 
-bool WowzaWebsocketClientImpl::trickle(const std::string& /* mid */, int /* index */,
-                                       const std::string& candidate, bool /* last */)
+bool WowzaWebsocketClientImpl::trickle(
+        const std::string & /* mid */,
+        int /* index */,
+        const std::string & candidate,
+        bool /* last */)
 {
     debug("Trickle candidate: %s", candidate.c_str());
+    // OK
     return true;
 }
 
 bool WowzaWebsocketClientImpl::disconnect(bool wait)
 {
-    debug("WowzaWebsocketClientImpl::disconnect");
     if (!connection)
         return true;
     websocketpp::lib::error_code ec;
     try {
-        client.close(connection, websocketpp::close::status::normal, "", ec);
+        if (connection->get_state() == websocketpp::session::state::open)
+            client.close(connection, websocketpp::close::status::normal, std::string("disconnect"), ec);
+        if (ec)
+            warn("> Error on disconnect close: %s", ec.message().c_str());
+        // Don't wait for connection close
         client.stop();
         if (wait && thread.joinable()) {
             thread.join();
         } else {
-            client.set_open_handler([](...){});
-            client.set_close_handler([](...){});
-            client.set_fail_handler([](...){});
+            // Remove handlers
+            client.set_open_handler([](...) {});
+            client.set_close_handler([](...) {});
+            client.set_fail_handler([](...) {});
             if (thread.joinable())
                 thread.detach();
         }
-    } catch (const websocketpp::exception& e) {
-        error("WowzaWebsocketClientImpl::disconnect exception: %s", e.what());
+    } catch (const websocketpp::exception & e) {
+        warn("disconnect exception: %s", e.what());
         return false;
     }
     return true;
+}
+
+std::string WowzaWebsocketClientImpl::sanitizeString(const std::string & s)
+{
+    std::string _my_s = s;
+    size_t p = _my_s.find_first_not_of(" \n\r\t");
+    _my_s.erase(0, p);
+    p = _my_s.find_last_not_of(" \n\r\t");
+    if (p != std::string::npos)
+        _my_s.erase(p + 1);
+    return _my_s;
 }

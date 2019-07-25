@@ -58,13 +58,17 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 OBS_DECLARE_MODULE()
 OBS_MODULE_USE_DEFAULT_LOCALE("obs-qsv11", "en-US")
+MODULE_EXPORT const char *obs_module_description(void)
+{
+	return "Intel Quick Sync Video H.264 encoder support for Windows";
+}
 
 extern struct obs_encoder_info obs_qsv_encoder;
 
 bool obs_module_load(void)
 {
 	mfxIMPL impl = MFX_IMPL_HARDWARE_ANY | MFX_IMPL_VIA_D3D11;
-	mfxVersion ver = {{0 , 1}};
+	mfxVersion ver = {{0, 1}};
 	mfxSession session;
 	mfxStatus sts;
 

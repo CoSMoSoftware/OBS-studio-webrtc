@@ -41,7 +41,8 @@ enum effect_section {
 	EFFECT_PARAM,
 	EFFECT_TECHNIQUE,
 	EFFECT_SAMPLER,
-	EFFECT_PASS
+	EFFECT_PASS,
+	EFFECT_ANNOTATION
 };
 
 /* ------------------------------------------------------------------------- */
@@ -61,11 +62,13 @@ struct gs_effect_param {
 
 	/*char *full_name;
 	float scroller_min, scroller_max, scroller_inc, scroller_mul;*/
+	DARRAY(struct gs_effect_param) annotations;
 };
 
 static inline void effect_param_init(struct gs_effect_param *param)
 {
 	memset(param, 0, sizeof(struct gs_effect_param));
+	da_init(param->annotations);
 }
 
 static inline void effect_param_free(struct gs_effect_param *param)
@@ -74,10 +77,16 @@ static inline void effect_param_free(struct gs_effect_param *param)
 	//bfree(param->full_name);
 	da_free(param->cur_val);
 	da_free(param->default_val);
+
+	size_t i;
+	for (i = 0; i < param->annotations.num; i++)
+		effect_param_free(param->annotations.array + i);
+
+	da_free(param->annotations);
 }
 
 EXPORT void effect_param_parse_property(gs_eparam_t *param,
-		const char *property);
+					const char *property);
 
 /* ------------------------------------------------------------------------- */
 
@@ -106,6 +115,7 @@ static inline void effect_pass_free(struct gs_effect_pass *pass)
 	bfree(pass->name);
 	da_free(pass->vertshader_params);
 	da_free(pass->pixelshader_params);
+
 	gs_shader_destroy(pass->vertshader);
 	gs_shader_destroy(pass->pixelshader);
 }
@@ -129,7 +139,8 @@ static inline void effect_technique_free(struct gs_effect_technique *t)
 {
 	size_t i;
 	for (i = 0; i < t->passes.num; i++)
-		effect_pass_free(t->passes.array+i);
+		effect_pass_free(t->passes.array + i);
+
 	da_free(t->passes);
 	bfree(t->name);
 }
@@ -165,9 +176,9 @@ static inline void effect_free(gs_effect_t *effect)
 {
 	size_t i;
 	for (i = 0; i < effect->params.num; i++)
-		effect_param_free(effect->params.array+i);
+		effect_param_free(effect->params.array + i);
 	for (i = 0; i < effect->techniques.num; i++)
-		effect_technique_free(effect->techniques.array+i);
+		effect_technique_free(effect->techniques.array + i);
 
 	da_free(effect->params);
 	da_free(effect->techniques);
@@ -180,8 +191,9 @@ static inline void effect_free(gs_effect_t *effect)
 
 EXPORT void effect_upload_params(gs_effect_t *effect, bool changed_only);
 EXPORT void effect_upload_shader_params(gs_effect_t *effect,
-		gs_shader_t *shader, struct darray *pass_params,
-		bool changed_only);
+					gs_shader_t *shader,
+					struct darray *pass_params,
+					bool changed_only);
 
 #ifdef __cplusplus
 }

@@ -29,8 +29,8 @@
 #include "platform.hpp"
 using namespace std;
 
-static inline bool check_path(const char* data, const char *path,
-		string &output)
+static inline bool check_path(const char *data, const char *path,
+			      string &output)
 {
 	ostringstream str;
 	str << path << data;
@@ -41,7 +41,7 @@ static inline bool check_path(const char* data, const char *path,
 	return (access(output.c_str(), R_OK) == 0);
 }
 
-#define INSTALL_DATA_PATH OBS_INSTALL_PREFIX OBS_DATA_PATH "/obs-studio/"
+#define INSTALL_DATA_PATH OBS_INSTALL_PREFIX OBS_DATA_PATH "/" CONFIG_DIR "/"
 
 bool GetDataFilePath(const char *data, string &output)
 {
@@ -51,7 +51,9 @@ bool GetDataFilePath(const char *data, string &output)
 			return true;
 	}
 
-	if (check_path(data, OBS_DATA_PATH "/obs-studio/", output))
+	string config_path = string(OBS_DATA_PATH) + string("/") + config_dir + string("/");
+
+	if (check_path(data, config_path.c_str(), output))
 		return true;
 	if (check_path(data, INSTALL_DATA_PATH, output))
 		return true;

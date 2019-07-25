@@ -18,11 +18,11 @@
 
 #define do_log(level, format, ...) \
 	blog(level, "[wowza stream: '%s'] " format, \
-			obs_output_get_name(stream->output), ##__VA_ARGS__)
+		obs_output_get_name(stream->output), ##__VA_ARGS__)
 
-#define warn(format, ...)  do_log(LOG_WARNING, format, ##__VA_ARGS__)
-#define info(format, ...)  do_log(LOG_INFO,    format, ##__VA_ARGS__)
-#define debug(format, ...) do_log(LOG_DEBUG,   format, ##__VA_ARGS__)
+#define warn(format, ...) do_log(LOG_WARNING, format, ##__VA_ARGS__)
+#define info(format, ...) do_log(LOG_INFO, format, ##__VA_ARGS__)
+#define debug(format, ...) do_log(LOG_DEBUG, format, ##__VA_ARGS__)
 
 #define OPT_DROP_THRESHOLD "drop_threshold_ms"
 #define OPT_PFRAME_DROP_THRESHOLD "pframe_drop_threshold_ms"
@@ -54,6 +54,7 @@ struct wowza_stream {
 
 	volatile bool    active;
 	volatile bool    disconnected;
+	volatile bool    encode_error;
 	pthread_t        send_thread;
 
 	int              max_shutdown_time_sec;

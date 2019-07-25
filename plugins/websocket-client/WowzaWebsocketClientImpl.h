@@ -9,32 +9,44 @@
 #define _WEBSOCKETPP_CPP11_RANDOM_DEVICE_
 #define _WEBSOCKETPP_CPP11_MEMORY_
 
-#include "websocketpp/config/asio_client.hpp"
 #include "websocketpp/client.hpp"
+#include "websocketpp/config/asio_client.hpp"
 
-#include <ctime>
 #include <string>
 
 typedef websocketpp::client<websocketpp::config::asio_tls_client> Client;
 
-class WowzaWebsocketClientImpl : public WebsocketClient
-{
+class WowzaWebsocketClientImpl : public WebsocketClient {
 public:
     WowzaWebsocketClientImpl();
     ~WowzaWebsocketClientImpl();
-    virtual bool connect(const std::string& url, const std::string& /* room */, const std::string& username, const std::string& token, Listener* listener) override;
-    virtual bool open(const std::string& sdp, const std::string& /* codec = "h264" */, const std::string& /* milliId = "" */) override;
-    virtual bool trickle(const std::string& /* mid */, int /* index */, const std::string& candidate, bool /* last */) override;
-    virtual bool disconnect(bool wait) override;
+
+    // WebsocketClient::Listener implementation
+    bool connect(
+            const std::string & url,
+            const std::string & appName,
+            const std::string & streamName,
+            const std::string & /* token */,
+            WebsocketClient::Listener * listener) override;
+    bool open(
+            const std::string & sdp,
+            const std::string & /* codec */,
+            const std::string & streamName) override;
+    bool trickle(
+            const std::string & /* mid */,
+            int /* index */,
+            const std::string & candidate,
+            bool /* last */) override;
+    bool disconnect(bool wait) override;
 
 private:
     std::string appName;
-    long long session_id;
     std::string streamName;
-
-    std::future<void> handle;
-    std::thread thread;
+    long long session_id;
 
     Client client;
     Client::connection_ptr connection;
+    std::thread thread;
+
+    std::string sanitizeString(const std::string & s);
 };

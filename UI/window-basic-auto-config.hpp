@@ -8,6 +8,7 @@
 #include <condition_variable>
 #include <utility>
 #include <thread>
+#include <memory>
 #include <vector>
 #include <string>
 #include <mutex>
@@ -16,6 +17,9 @@ class Ui_AutoConfigStartPage;
 class Ui_AutoConfigVideoPage;
 class Ui_AutoConfigStreamPage;
 class Ui_AutoConfigTestPage;
+
+class AutoConfigStreamPage;
+class Auth;
 
 class AutoConfig : public QWizard {
 	Q_OBJECT
@@ -28,13 +32,13 @@ class AutoConfig : public QWizard {
 	enum class Type {
 		Invalid,
 		Streaming,
-		Recording
+		Recording,
 	};
 
 	enum class Service {
 		Twitch,
 		Smashcast,
-		Other
+		Other,
 	};
 
 	enum class Encoder {
@@ -42,12 +46,12 @@ class AutoConfig : public QWizard {
 		NVENC,
 		QSV,
 		AMD,
-		Stream
+		Stream,
 	};
 
 	enum class Quality {
 		Stream,
-		High
+		High,
 	};
 
 	enum class FPSType : int {
@@ -55,10 +59,12 @@ class AutoConfig : public QWizard {
 		PreferHighRes,
 		UseCurrent,
 		fps30,
-		fps60
+		fps60,
 	};
 
 	static inline const char *GetEncoderId(Encoder enc);
+
+	AutoConfigStreamPage *streamPage = nullptr;
 
 	Service service = Service::Other;
 	Quality recordingQuality = Quality::Stream;
@@ -84,7 +90,7 @@ class AutoConfig : public QWizard {
 	bool vceAvailable = false;
 
 	int startingBitrate = 2500;
-	int customServer = 0;
+	bool customServer = false;
 	bool bandwidthTest = false;
 	bool testRegions = true;
 	bool twitchAuto = false;
@@ -113,7 +119,7 @@ public:
 		StartPage,
 		VideoPage,
 		StreamPage,
-		TestPage
+		TestPage,
 	};
 };
 
@@ -155,11 +161,19 @@ class AutoConfigStreamPage : public QWizardPage {
 
 	friend class AutoConfig;
 
+	enum class Section : int {
+		Connect,
+		StreamKey,
+	};
+
+	std::shared_ptr<Auth> auth;
+
 	Ui_AutoConfigStreamPage *ui;
 	QString lastService;
 	bool ready = false;
 
 	void LoadServices(bool showAll);
+	inline bool IsCustom() const;
 
 public:
 	AutoConfigStreamPage(QWidget *parent = nullptr);
@@ -169,8 +183,14 @@ public:
 	virtual int nextId() const override;
 	virtual bool validatePage() override;
 
+	void OnAuthConnected();
+	void OnOAuthStreamKeyConnected();
+
 public slots:
 	void on_show_clicked();
+	void on_connectAccount_clicked();
+	void on_disconnectAccount_clicked();
+	void on_useStreamKey_clicked();
 	void ServiceChanged();
 	void UpdateKeyLink();
 	void UpdateServerList();
@@ -196,7 +216,7 @@ class AutoConfigTestPage : public QWizardPage {
 		BandwidthTest,
 		StreamEncoder,
 		RecordingEncoder,
-		Finished
+		Finished,
 	};
 
 	Stage stage = Stage::Starting;

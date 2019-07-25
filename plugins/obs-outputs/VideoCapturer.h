@@ -3,14 +3,12 @@
 
 #include "media/base/adapted_video_track_source.h"
 
-class WebRTCStream;
-
 class VideoCapturer : public rtc::AdaptedVideoTrackSource {
 public:
     VideoCapturer();
     ~VideoCapturer() override;
 
-    void OnFrameCaptured(const webrtc::VideoFrame& frame);
+    void OnFrameCaptured(const webrtc::VideoFrame & frame);
 
     // VideoTrackSourceInterface API
     bool is_screencast() const override { return false; }

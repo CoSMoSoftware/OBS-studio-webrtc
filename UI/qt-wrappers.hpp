@@ -17,10 +17,13 @@
 
 #pragma once
 
+#include <QApplication>
 #include <QMessageBox>
 #include <QWidget>
+#include <QThread>
 #include <obs.hpp>
 
+#include <functional>
 #include <memory>
 #include <vector>
 
@@ -35,16 +38,19 @@ struct gs_window;
 
 class OBSMessageBox {
 public:
-	static QMessageBox::StandardButton question(
-			QWidget *parent,
-			const QString &title,
-			const QString &text,
-			QMessageBox::StandardButtons buttons = QMessageBox::StandardButtons( QMessageBox::Yes | QMessageBox::No ),
-			QMessageBox::StandardButton defaultButton = QMessageBox::NoButton);
-	static void information(
-			QWidget *parent,
-			const QString &title,
-			const QString &text);
+	static QMessageBox::StandardButton
+	question(QWidget *parent, const QString &title, const QString &text,
+		 QMessageBox::StandardButtons buttons =
+			 QMessageBox::StandardButtons(QMessageBox::Yes |
+						      QMessageBox::No),
+		 QMessageBox::StandardButton defaultButton =
+			 QMessageBox::NoButton);
+	static void information(QWidget *parent, const QString &title,
+				const QString &text);
+	static void warning(QWidget *parent, const QString &title,
+			    const QString &text, bool enableRichText = false);
+	static void critical(QWidget *parent, const QString &title,
+			     const QString &text);
 };
 
 void OBSErrorBox(QWidget *parent, const char *msg, ...);
@@ -53,14 +59,27 @@ void QTToGSWindow(WId windowId, gs_window &gswindow);
 
 uint32_t TranslateQtKeyboardEventModifiers(Qt::KeyboardModifiers mods);
 
-QDataStream &operator<<(QDataStream &out,
-		const std::vector<std::shared_ptr<OBSSignal>> &signal_vec);
+QDataStream &
+operator<<(QDataStream &out,
+	   const std::vector<std::shared_ptr<OBSSignal>> &signal_vec);
 QDataStream &operator>>(QDataStream &in,
-		std::vector<std::shared_ptr<OBSSignal>> &signal_vec);
+			std::vector<std::shared_ptr<OBSSignal>> &signal_vec);
 QDataStream &operator<<(QDataStream &out, const OBSScene &scene);
 QDataStream &operator>>(QDataStream &in, OBSScene &scene);
 QDataStream &operator<<(QDataStream &out, const OBSSceneItem &si);
 QDataStream &operator>>(QDataStream &in, OBSSceneItem &si);
+
+QThread *CreateQThread(std::function<void()> func);
+
+void ExecuteFuncSafeBlock(std::function<void()> func);
+void ExecuteFuncSafeBlockMsgBox(std::function<void()> func,
+				const QString &title, const QString &text);
+
+/* allows executing without message boxes if starting up, otherwise with a
+ * message box */
+void EnableThreadedMessageBoxes(bool enable);
+void ExecThreadedWithoutBlocking(std::function<void()> func,
+				 const QString &title, const QString &text);
 
 class SignalBlocker {
 	QWidget *widget;
@@ -72,10 +91,17 @@ public:
 		blocked = widget->blockSignals(true);
 	}
 
-	inline ~SignalBlocker()
-	{
-		widget->blockSignals(blocked);
-	}
+	inline ~SignalBlocker() { widget->blockSignals(blocked); }
 };
 
 void DeleteLayout(QLayout *layout);
+
+static inline Qt::ConnectionType WaitConnection()
+{
+	return QThread::currentThread() == qApp->thread()
+		       ? Qt::DirectConnection
+		       : Qt::BlockingQueuedConnection;
+}
+
+bool LineEditCanceled(QEvent *event);
+bool LineEditChanged(QEvent *event);
