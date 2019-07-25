@@ -18,9 +18,9 @@
 #include "gl-subsystem.h"
 
 bool gl_init_face(GLenum target, GLenum type, uint32_t num_levels,
-		GLenum format, GLint internal_format, bool compressed,
-		uint32_t width, uint32_t height, uint32_t size,
-		const uint8_t ***p_data)
+		  GLenum format, GLint internal_format, bool compressed,
+		  uint32_t width, uint32_t height, uint32_t size,
+		  const uint8_t ***p_data)
 {
 	bool success = true;
 	const uint8_t **data = p_data ? *p_data : NULL;
@@ -29,14 +29,14 @@ bool gl_init_face(GLenum target, GLenum type, uint32_t num_levels,
 	for (i = 0; i < num_levels; i++) {
 		if (compressed) {
 			glCompressedTexImage2D(target, i, internal_format,
-					width, height, 0, size,
-					data ? *data : NULL);
+					       width, height, 0, size,
+					       data ? *data : NULL);
 			if (!gl_success("glCompressedTexImage2D"))
 				success = false;
 
 		} else {
 			glTexImage2D(target, i, internal_format, width, height,
-					0, format, type, data ? *data : NULL);
+				     0, format, type, data ? *data : NULL);
 			if (!gl_success("glTexImage2D"))
 				success = false;
 		}
@@ -44,12 +44,14 @@ bool gl_init_face(GLenum target, GLenum type, uint32_t num_levels,
 		if (data)
 			data++;
 
-		size   /= 4;
-		width  /= 2;
+		size /= 4;
+		width /= 2;
 		height /= 2;
 
-		if (width  == 0) width  = 1;
-		if (height == 0) height = 1;
+		if (width == 0)
+			width = 1;
+		if (height == 0)
+			height = 1;
 	}
 
 	if (data)
@@ -57,13 +59,11 @@ bool gl_init_face(GLenum target, GLenum type, uint32_t num_levels,
 	return success;
 }
 
-static bool gl_copy_fbo(struct gs_device *device,
-		GLuint dst, GLenum dst_target, uint32_t dst_x, uint32_t dst_y,
-		GLuint src, GLenum src_target, uint32_t src_x, uint32_t src_y,
-		uint32_t width, uint32_t height,
-		enum gs_color_format format)
+static bool gl_copy_fbo(struct gs_texture *dst, uint32_t dst_x, uint32_t dst_y,
+			struct gs_texture *src, uint32_t src_x, uint32_t src_y,
+			uint32_t width, uint32_t height)
 {
-	struct fbo_info *fbo = get_fbo(device, width, height, format);
+	struct fbo_info *fbo = get_fbo(src, width, height);
 	GLint last_fbo;
 	bool success = false;
 
@@ -74,11 +74,11 @@ static bool gl_copy_fbo(struct gs_device *device,
 		return false;
 	if (!gl_bind_framebuffer(GL_READ_FRAMEBUFFER, fbo->fbo))
 		return false;
-	if (!gl_bind_texture(dst_target, dst))
+	if (!gl_bind_texture(dst->gl_target, dst->texture))
 		goto fail;
 
 	glFramebufferTexture2D(GL_READ_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + 0,
-			src_target, src, 0);
+			       src->gl_target, src->texture, 0);
 	if (!gl_success("glFrameBufferTexture2D"))
 		goto fail;
 
@@ -86,15 +86,15 @@ static bool gl_copy_fbo(struct gs_device *device,
 	if (!gl_success("glReadBuffer"))
 		goto fail;
 
-	glCopyTexSubImage2D(dst_target, 0, dst_x, dst_y, src_x, src_y,
-			width, height);
+	glCopyTexSubImage2D(dst->gl_target, 0, dst_x, dst_y, src_x, src_y,
+			    width, height);
 	if (!gl_success("glCopyTexSubImage2D"))
 		goto fail;
 
 	success = true;
 
 fail:
-	if (!gl_bind_texture(dst_target, 0))
+	if (!gl_bind_texture(dst->gl_target, 0))
 		success = false;
 	if (!gl_bind_framebuffer(GL_READ_FRAMEBUFFER, last_fbo))
 		success = false;
@@ -102,29 +102,28 @@ fail:
 	return success;
 }
 
-bool gl_copy_texture(struct gs_device *device,
-		GLuint dst, GLenum dst_target, uint32_t dst_x, uint32_t dst_y,
-		GLuint src, GLenum src_target, uint32_t src_x, uint32_t src_y,
-		uint32_t width, uint32_t height, enum gs_color_format format)
+bool gl_copy_texture(struct gs_device *device, struct gs_texture *dst,
+		     uint32_t dst_x, uint32_t dst_y, struct gs_texture *src,
+		     uint32_t src_x, uint32_t src_y, uint32_t width,
+		     uint32_t height)
 {
 	bool success = false;
 
 	if (device->copy_type == COPY_TYPE_ARB) {
-		glCopyImageSubData(src, src_target, 0, src_x, src_y, 0,
-		                   dst, dst_target, 0, dst_x, dst_y, 0,
-		                   width, height, 1);
+		glCopyImageSubData(src->texture, src->gl_target, 0, src_x,
+				   src_y, 0, dst->texture, dst->gl_target, 0,
+				   dst_x, dst_y, 0, width, height, 1);
 		success = gl_success("glCopyImageSubData");
 
 	} else if (device->copy_type == COPY_TYPE_NV) {
-		glCopyImageSubDataNV(src, src_target, 0, src_x, src_y, 0,
-		                     dst, dst_target, 0, dst_x, dst_y, 0,
-		                     width, height, 1);
+		glCopyImageSubDataNV(src->texture, src->gl_target, 0, src_x,
+				     src_y, 0, dst->texture, dst->gl_target, 0,
+				     dst_x, dst_y, 0, width, height, 1);
 		success = gl_success("glCopyImageSubDataNV");
 
 	} else if (device->copy_type == COPY_TYPE_FBO_BLIT) {
-		success = gl_copy_fbo(device, dst, dst_target, dst_x, dst_y,
-		                              src, src_target, src_x, src_y,
-		                              width, height, format);
+		success = gl_copy_fbo(dst, dst_x, dst_y, src, src_x, src_y,
+				      width, height);
 		if (!success)
 			blog(LOG_ERROR, "gl_copy_texture failed");
 	}
@@ -133,7 +132,7 @@ bool gl_copy_texture(struct gs_device *device,
 }
 
 bool gl_create_buffer(GLenum target, GLuint *buffer, GLsizeiptr size,
-		const GLvoid *data, GLenum usage)
+		      const GLvoid *data, GLenum usage)
 {
 	bool success;
 	if (!gl_gen_buffers(1, buffer))
@@ -159,8 +158,7 @@ bool update_buffer(GLenum target, GLuint buffer, const void *data, size_t size)
 	/* glMapBufferRange with these flags will actually give far better
 	 * performance than a plain glMapBuffer call */
 	ptr = glMapBufferRange(target, 0, size,
-			GL_MAP_WRITE_BIT |
-			GL_MAP_INVALIDATE_BUFFER_BIT);
+			       GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT);
 	success = gl_success("glMapBufferRange");
 	if (success && ptr) {
 		memcpy(ptr, data, size);

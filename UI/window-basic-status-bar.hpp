@@ -12,7 +12,6 @@ class OBSBasicStatusBar : public QStatusBar {
 	Q_OBJECT
 
 private:
-	QLabel *webrtcVersion;
 	QLabel *delayInfo;
 	QLabel *droppedFrames;
 	QLabel *streamTime;
@@ -40,7 +39,7 @@ private:
 	int startTotalFrameCount = 0;
 	int lastSkippedFrameCount = 0;
 
-	int      bitrateUpdateSeconds = 0;
+	int bitrateUpdateSeconds = 0;
 	uint64_t lastBytesSent = 0;
 	uint64_t lastBytesSentTime = 0;
 

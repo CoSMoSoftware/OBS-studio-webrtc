@@ -53,9 +53,13 @@ if(WIN32 OR APPLE)
 	if (BUILD_BROWSER)
 		if (EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/obs-browser/CMakeLists.txt")
 			add_subdirectory(obs-browser)
+			set(BROWSER_AVAILABLE_INTERNAL ON CACHE BOOL "Interal global cmake variable" FORCE)
 		else()
 			message(STATUS "obs-browser submodule not found!  Please fetch submodules.  obs-browser plugin disabled.")
+			set(BROWSER_AVAILABLE_INTERNAL OFF CACHE BOOL "Interal global cmake variable" FORCE)
 		endif()
+	else()
+		set(BROWSER_AVAILABLE_INTERNAL OFF CACHE BOOL "Interal global cmake variable" FORCE)
 	endif()
 
 	if (EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/obs-vst/CMakeLists.txt")
@@ -74,6 +78,5 @@ add_subdirectory(obs-transitions)
 add_subdirectory(obs-text)
 add_subdirectory(rtmp-services)
 add_subdirectory(text-freetype2)
-# NOTE ALEX: we should protect this with a webrtc build flag
-add_subdirectory(obs-outputs) # this depends on websocket-client
-add_subdirectory(websocket-client) # this depends on OpenSSL
+add_subdirectory(obs-outputs)
+add_subdirectory(websocket-client)

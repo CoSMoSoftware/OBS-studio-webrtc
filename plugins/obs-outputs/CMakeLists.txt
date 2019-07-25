@@ -1,185 +1,228 @@
 project(obs-outputs)
 
-# --- SSL and ZLIB options
 set(WITH_RTMPS AUTO CACHE STRING "Enable RTMPS support with mbedTLS")
 set_property(CACHE WITH_RTMPS PROPERTY STRINGS AUTO ON OFF)
 
 option(STATIC_MBEDTLS "Statically link mbedTLS into binary" OFF)
 
 if (WITH_RTMPS OR (WITH_RTMPS STREQUAL "AUTO"))
-  find_package(MbedTLS QUIET)
-  find_package(ZLIB QUIET)
+	find_package(MbedTLS QUIET)
+	find_package(ZLIB QUIET)
 endif()
 
 if (LIBMBEDTLS_FOUND AND ZLIB_FOUND)
-  add_definitions(-DCRYPTO -DUSE_MBEDTLS)
-  include_directories(${LIBMBEDTLS_INCLUDE_DIRS} ${ZLIB_INCLUDE_DIRS})
+	add_definitions(-DCRYPTO -DUSE_MBEDTLS)
+	include_directories(${LIBMBEDTLS_INCLUDE_DIRS} ${ZLIB_INCLUDE_DIRS})
 else()
-  if(WITH_RTMPS STREQUAL "AUTO")
-    message(STATUS "mbedTLS was not found, RTMPS will be auto-disabled")
-  elseif (WITH_RTMPS)
-    message(FATAL_ERROR "RTMPS enabled by user, but mbedTLS was not found")
-  endif()
-  unset(LIBMBEDTLS_LIBRARIES)
-  unset(ZLIB_LIBRARIES)
-  add_definitions(-DNO_CRYPTO)
+	if(WITH_RTMPS STREQUAL "AUTO")
+		message(WARNING "mbedTLS was not found, RTMPS will be auto-disabled")
+	elseif (WITH_RTMPS)
+		message(FATAL_ERROR "RTMPS enabled by user, but mbedTLS was not found")
+	endif()
+	unset(LIBMBEDTLS_LIBRARIES)
+	unset(ZLIB_LIBRARIES)
+	add_definitions(-DNO_CRYPTO)
 endif()
 
-# --- Find libwebrtc or fail early
-if( WIN32 )
-  set(WEBRTC_USE_FILE_INCLUDED 0)
+#------------------------------------------------------------------------
+# WebRTC
+#
+if(WIN32)
+	set(WEBRTC_USE_FILE_INCLUDED 0)
 endif()
+
 find_package(libwebrtc 73 REQUIRED)
-message( STATUS "WebRTC Libs: " )
-foreach( _lib ${WEBRTC_LIBRARIES} )
-  message( STATUS "-- ${_lib}" )
+message(STATUS "WebRTC Libs: ")
+foreach(_lib ${WEBRTC_LIBRARIES})
+	message(STATUS "-- ${_lib}")
 endforeach()
 
-if (EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/ftl-sdk/CMakeLists.txt")
-  find_package(Libcurl REQUIRED)
+#------------------------------------------------------------------------
+# FTL-SDK (disabling for now due to compiling error)
+#
+# if (EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/ftl-sdk/CMakeLists.txt")
+# 	find_package(Libcurl REQUIRED)
 
-  add_definitions(-DFTL_STATIC_COMPILE)
+# 	add_definitions(-DFTL_STATIC_COMPILE)
 
-  include_directories(${LIBCURL_INCLUDE_DIRS})
+# 	include_directories(${LIBCURL_INCLUDE_DIRS})
 
-  set(ftl_SOURCES
-    ftl-stream.c
-    ftl-sdk/libftl/hmac/hmac.c
-    ftl-sdk/libftl/hmac/sha2.c
-    ftl-sdk/libftl/ftl-sdk.c
-    ftl-sdk/libftl/handshake.c
-    ftl-sdk/libftl/ingest.c
-    ftl-sdk/libftl/ftl_helpers.c
-    ftl-sdk/libftl/media.c
-    ftl-sdk/libftl/gettimeofday/gettimeofday.c
-    ftl-sdk/libftl/logging.c)
-  set(ftl_HEADERS
-    ftl-sdk/libftl/hmac/hmac.h
-    ftl-sdk/libftl/hmac/sha2.h
-    ftl-sdk/libftl/ftl.h
-    ftl-sdk/libftl/ftl_private.h)
-  set(ftl_IMPORTS
-    ${OBS_JANSSON_IMPORT}
-    ${LIBCURL_LIBRARIES})
+# 	set(ftl_SOURCES
+# 		ftl-stream.c
+# 		ftl-sdk/libftl/hmac/hmac.c
+# 		ftl-sdk/libftl/hmac/sha2.c
+# 		ftl-sdk/libftl/ftl-sdk.c
+# 		ftl-sdk/libftl/handshake.c
+# 		ftl-sdk/libftl/ingest.c
+# 		ftl-sdk/libftl/ftl_helpers.c
+# 		ftl-sdk/libftl/media.c
+# 		ftl-sdk/libftl/gettimeofday/gettimeofday.c
+# 		ftl-sdk/libftl/logging.c)
+# 	set(ftl_HEADERS
+# 		ftl-sdk/libftl/hmac/hmac.h
+# 		ftl-sdk/libftl/hmac/sha2.h
+# 		ftl-sdk/libftl/ftl.h
+# 		ftl-sdk/libftl/ftl_private.h)
+# 	set(ftl_IMPORTS
+# 		${OBS_JANSSON_IMPORT}
+# 		${LIBCURL_LIBRARIES})
 
-  if (WIN32)
-    list(APPEND ftl_SOURCES
-      ftl-sdk/libftl/win32/socket.c
-      ftl-sdk/libftl/gettimeofday/gettimeofday.c
-      ftl-sdk/libftl/win32/threads.c)
-    list(APPEND ftl_HEADERS
-      ftl-sdk/libftl/gettimeofday/gettimeofday.h
-      ftl-sdk/libftl/win32/threads.h)
+# 	if (WIN32)
+# 		list(APPEND ftl_SOURCES
+# 			ftl-sdk/libftl/win32/socket.c
+# 			ftl-sdk/libftl/gettimeofday/gettimeofday.c
+# 			ftl-sdk/libftl/win32/threads.c)
+# 		list(APPEND ftl_HEADERS
+# 			ftl-sdk/libftl/gettimeofday/gettimeofday.h
+# 			ftl-sdk/libftl/win32/threads.h)
 
-    include_directories(ftl-sdk/libftl/win32)
-  else()
-    list(APPEND ftl_SOURCES
-      ftl-sdk/libftl/posix/socket.c
-      ftl-sdk/libftl/posix/threads.c)
-    list(APPEND ftl_HEADERS
-      ftl-sdk/libftl/posix/threads.h)
+# 		include_directories(ftl-sdk/libftl/win32)
+# 	else()
+# 		list(APPEND ftl_SOURCES
+# 			ftl-sdk/libftl/posix/socket.c
+# 			ftl-sdk/libftl/posix/threads.c)
+# 		list(APPEND ftl_HEADERS
+# 			ftl-sdk/libftl/posix/threads.h)
 
-    include_directories(ftl-sdk/libftl/posix)
-  endif()
+# 		include_directories(ftl-sdk/libftl/posix)
+# 	endif()
 
-  include_directories(ftl-sdk/libftl)
+# 	include_directories(ftl-sdk/libftl)
 
-  set(COMPILE_FTL TRUE)
-else()
-  set(COMPILE_FTL FALSE)
-endif()
+# 	set(COMPILE_FTL TRUE)
+# else()
+# 	set(COMPILE_FTL FALSE)
+# endif()
+
+set(COMPILE_FTL FALSE)
 
 configure_file(
-  "${CMAKE_CURRENT_SOURCE_DIR}/obs-outputs-config.h.in"
-  "${CMAKE_BINARY_DIR}/plugins/obs-outputs/config/obs-outputs-config.h"
-  )
+	"${CMAKE_CURRENT_SOURCE_DIR}/obs-outputs-config.h.in"
+	"${CMAKE_BINARY_DIR}/plugins/obs-outputs/config/obs-outputs-config.h")
+
 include_directories("${CMAKE_BINARY_DIR}/plugins/obs-outputs/config")
 
-if( WIN32 )
-  set( obs-outputs_PLATFORM_DEPS
-    ws2_32
-    winmm
-    Iphlpapi
-    )
-  if( MSVC )
-    set( obs-outputs_PLATFORM_DEPS
-      ${obs-outputs_PLATFORM_DEPS}
-      w32-pthreads
-      )
-  endif( MSVC )
+
+if(WIN32)
+	set(obs-outputs_PLATFORM_DEPS
+		ws2_32
+		winmm
+		Iphlpapi)
+
+	if (WITH_RTMPS OR (WITH_RTMPS STREQUAL "AUTO"))
+		SET(obs-outputs_PLATFORM_DEPS
+			${obs-outputs_PLATFORM_DEPS}
+			crypt32)
+	endif()
+endif()
+
+if(MSVC)
+	set(obs-outputs_PLATFORM_DEPS
+		${obs-outputs_PLATFORM_DEPS}
+		w32-pthreads)
+endif()
+
+if(APPLE AND (WITH_RTMPS OR (WITH_RTMPS STREQUAL "AUTO")))
+	find_library(FOUNDATION_FRAMEWORK Foundation)
+	find_library(SECURITY_FRAMEWORK Security)
+
+	set(obs-outputs_PLATFORM_DEPS
+		${obs-outputs_PLATFORM_DEPS}
+		${FOUNDATION_FRAMEWORK}
+		${SECURITY_FRAMEWORK})
 endif()
 
 set(obs-outputs_librtmp_HEADERS
-  librtmp/amf.h
-  librtmp/bytes.h
-  librtmp/cencode.h
-  librtmp/dh.h
-  librtmp/dhgroups.h
-  librtmp/handshake.h
-  librtmp/http.h
-  librtmp/log.h
-  librtmp/md5.h
-  librtmp/rtmp.h
-  librtmp/rtmp_sys.h)
-
+	librtmp/amf.h
+	librtmp/bytes.h
+	librtmp/cencode.h
+	librtmp/dh.h
+	librtmp/dhgroups.h
+	librtmp/handshake.h
+	librtmp/http.h
+	librtmp/log.h
+	librtmp/md5.h
+	librtmp/rtmp.h
+	librtmp/rtmp_sys.h)
 set(obs-outputs_librtmp_SOURCES
-  librtmp/amf.c
-  librtmp/cencode.c
-  librtmp/hashswf.c
-  librtmp/log.c
-  # librtmp/md5.c
-  librtmp/parseurl.c
-  librtmp/rtmp.c)
+	librtmp/amf.c
+	librtmp/cencode.c
+	librtmp/hashswf.c
+	librtmp/log.c
+	# librtmp/md5.c
+	librtmp/parseurl.c
+	librtmp/rtmp.c)
 
-# --- header and source files
-set( obs-outputs_HEADERS
-  obs-output-ver.h
-  flv-mux.h
-  rtmp-helpers.h
-  rtmp-stream.h
-  evercast-stream.h
-  janus-stream.h
-  millicast-stream.h
-  net-if.h
-  AudioDeviceModuleWrapper.h
-  VideoCapturer.h
-  WebRTCStream.h
-  )
+if(NOT WIN32)
+	set_source_files_properties(${obs-outputs_librtmp_SOURCES} PROPERTIES
+		COMPILE_FLAGS "-fvisibility=hidden")
+endif()
 
-set( obs-outputs_SOURCES
-  obs-outputs.c
-  rtmp-stream.c
-  janus-stream.cpp
-  evercast-stream.cpp
-  millicast-stream.cpp
-  rtmp-windows.c
-  AudioDeviceModuleWrapper.cpp
-  VideoCapturer.cpp
-  WebRTCStream.cpp
-  net-if.c
-  null-output.c
-  flv-output.c
-  flv-mux.c
-  )
+set(obs-outputs_webrtc_HEADERS
+	AudioDeviceModuleWrapper.h
+	VideoCapturer.h
+	WebRTCStream.h
+	wowza-stream.h
+	janus-stream.h
+	millicast-stream.h)
+set(obs-outputs_webrtc_SOURCES
+	AudioDeviceModuleWrapper.cpp
+	VideoCapturer.cpp
+	WebRTCStream.cpp
+	wowza-stream.cpp
+	janus-stream.cpp
+	millicast-stream.cpp)
 
-# --- library target
-add_library( obs-outputs MODULE
-  ${obs-outputs_SOURCES}
-  ${obs-outputs_HEADERS}
-  ${obs-outputs_librtmp_SOURCES}
-  ${obs-outputs_librtmp_HEADERS}
-)
-target_include_directories( obs-outputs
-  PUBLIC ${websocketclient_SOURCE_DIR}
-  PUBLIC "${CMAKE_CURRENT_LIST_DIR}/../websocket-client" # For Websocketclient.h
-  )
-target_link_libraries( obs-outputs
-  ${WEBRTC_LIBRARIES}
-  ${SSL_LIBRARIES}
-  ${ZLIB_LIBRARIES}
-  ${obs-outputs_PLATFORM_DEPS}
-  libobs
-  websocketclient
-)
+if(NOT WIN32)
+	set_source_files_properties(${obs-outputs_webrtc_SOURCES} PROPERTIES
+		COMPILE_FLAGS "-fvisibility=hidden")
+endif()
+
+set(obs-outputs_HEADERS
+	"${CMAKE_BINARY_DIR}/plugins/obs-outputs/config/obs-outputs-config.h"
+	obs-output-ver.h
+	rtmp-helpers.h
+	rtmp-stream.h
+	net-if.h
+	flv-mux.h)
+set(obs-outputs_SOURCES
+	obs-outputs.c
+	null-output.c
+	rtmp-stream.c
+	rtmp-windows.c
+	flv-output.c
+	flv-mux.c
+	net-if.c)
+
+add_library(obs-outputs MODULE
+	${ftl_SOURCES}
+	${ftl_HEADERS}
+	${obs-outputs_SOURCES}
+	${obs-outputs_HEADERS}
+	${obs-outputs_librtmp_SOURCES}
+	${obs-outputs_librtmp_HEADERS}
+	${obs-outputs_webrtc_SOURCES}
+	${obs-outputs_webrtc_HEADERS})
+
+target_include_directories(obs-outputs
+	PUBLIC ${websocketclient_SOURCE_DIR}
+	PUBLIC "${CMAKE_CURRENT_LIST_DIR}/../websocket-client") # for WebsocketClient.h
+
+target_link_libraries(obs-outputs
+	libobs
+	websocketclient
+	${LIBMBEDTLS_LIBRARIES}
+	${WEBRTC_LIBRARIES}
+	${ZLIB_LIBRARIES}
+	${ftl_IMPORTS}
+	${obs-outputs_PLATFORM_DEPS})
+
+if(WIN32 AND MSVC)
+	if(${CMAKE_BUILD_TYPE} STREQUAL "Debug")
+		target_compile_options(obs-outputs PUBLIC "/MTd")
+	else()
+		target_compile_options(obs-outputs PUBLIC "/MT")
+	endif()
+endif()
 
 install_obs_plugin_with_data(obs-outputs data)

@@ -1,2 +1,0 @@
-// get the version number of libwebrtc as a header
-#cmakedefine WEBRTC_MAJOR_VERSION @WEBRTC_MAJOR_VERSION@
