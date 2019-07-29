@@ -407,19 +407,19 @@ void OBSBasicSettings::on_service_currentIndexChanged(int)
 		ui->authUsernameLabel->setText("Username");
 		ui->authPwLabel->setText("Password");
 		ui->streamkeyPageLayout->insertRow(1, ui->serverLabel,
-							ui->serverStackedWidget);
+						   ui->serverStackedWidget);
 		ui->streamkeyPageLayout->insertRow(2, ui->streamKeyLabel,
-							ui->streamKeyWidget);
+						   ui->streamKeyWidget);
 		ui->streamkeyPageLayout->insertRow(3, nullptr,
-							ui->useAuth);
+						   ui->useAuth);
 		ui->streamkeyPageLayout->insertRow(4, ui->authUsernameLabel,
-							ui->authUsername);
+						   ui->authUsername);
 		ui->streamkeyPageLayout->insertRow(5, ui->authPwLabel,
-							ui->authPwWidget);
+						   ui->authPwWidget);
 		ui->streamkeyPageLayout->insertRow(6, ui->codecLabel,
-							ui->codec);
+						   ui->codec);
 		ui->streamkeyPageLayout->insertRow(7, ui->streamProtocolLabel,
-							ui->streamProtocol);
+						   ui->streamProtocol);
 		ui->serverStackedWidget->setCurrentIndex(1);
 		ui->serverStackedWidget->setVisible(true);
 		ui->serverLabel->setVisible(true);

@@ -103,7 +103,7 @@ static inline bool bundle_matches(NSBundle *bundle)
 		return false;
 
 	NSRange r = [bundle.executablePath rangeOfString:@"Contents/MacOS/"];
-	return [bundle.bundleIdentifier isEqual:@"com.obsproject.obs-studio"] &&
+	return [bundle.bundleIdentifier isEqual:@"ci.cosmosoftware.obs-webrtc"] &&
 	       r.location != NSNotFound;
 }
 

@@ -378,8 +378,8 @@ endif()
 define_graphic_modules(obs)
 
 install_obs_core(obs)
-install_obs_data(obs data obs-studio)
-install_obs_data_file(obs ../AUTHORS obs-studio/authors)
+install_obs_data(obs data ${CONFIG_DIR})
+install_obs_data_file(obs ../AUTHORS ${CONFIG_DIR}/authors)
 
 if (UNIX AND UNIX_STRUCTURE AND NOT APPLE)
 	add_subdirectory(xdg-data)

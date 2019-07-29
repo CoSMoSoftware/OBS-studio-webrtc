@@ -1164,7 +1164,10 @@ static bool Update(wchar_t *cmdLine)
 		StringCbCopy(lpAppDataPath, sizeof(lpAppDataPath), pOut);
 	}
 
-	StringCbCat(lpAppDataPath, sizeof(lpAppDataPath), L"\\obs-studio");
+	const char* c_dir = (string("\\") + config_dir).c_str();
+	const wchar_t* obs_settings_path = (wchar_t*)c_dir;
+
+	StringCbCat(lpAppDataPath, sizeof(lpAppDataPath), obs_settings_path);
 
 	/* ------------------------------------- *
 	 * Get download path                     */
@@ -1182,7 +1185,7 @@ static bool Update(wchar_t *cmdLine)
 		       GetLastError());
 		return false;
 	}
-	if (!GetTempFileNameW(tempDirName, L"obs-studio", 0, tempPath)) {
+	if (!GetTempFileNameW(tempDirName, config_dir.c_str(), 0, tempPath)) {
 		Status(L"Update failed: Failed to create temp dir name: %ld",
 		       GetLastError());
 		return false;

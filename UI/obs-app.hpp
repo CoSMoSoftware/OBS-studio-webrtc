@@ -33,6 +33,9 @@
 #include <deque>
 
 #include "window-main.hpp"
+#include "ui-config.h"
+
+static std::string config_dir = std::string(CONFIG_DIR);
 
 std::string CurrentTimeString();
 std::string CurrentDateTimeString();

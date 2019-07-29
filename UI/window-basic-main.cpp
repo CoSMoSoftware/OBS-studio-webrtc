@@ -121,10 +121,10 @@ static void AddExtraModulePaths()
 	char base_module_dir[512];
 #if defined(_WIN32) || defined(__APPLE__)
 	int ret = GetProgramDataPath(base_module_dir, sizeof(base_module_dir),
-				     "obs-studio/plugins/%module%");
+				     (config_dir + "/plugins/%module%").c_str());
 #else
 	int ret = GetConfigPath(base_module_dir, sizeof(base_module_dir),
-				"obs-studio/plugins/%module%");
+				(config_dir + "/plugins/%module%").c_str());
 #endif
 
 	if (ret <= 0)
@@ -135,9 +135,9 @@ static void AddExtraModulePaths()
 	obs_add_module_path((path + "/bin").c_str(), (path + "/data").c_str());
 
 	BPtr<char> config_bin =
-		os_get_config_path_ptr("obs-studio/plugins/%module%/bin");
+		os_get_config_path_ptr((config_dir + "/plugins/%module%/bin").c_str());
 	BPtr<char> config_data =
-		os_get_config_path_ptr("obs-studio/plugins/%module%/data");
+		os_get_config_path_ptr((config_dir + "/plugins/%module%/data").c_str());
 	obs_add_module_path(config_bin, config_data);
 
 #elif ARCH_BITS == 64
@@ -1202,7 +1202,7 @@ bool OBSBasic::InitBasicConfigDefaults()
 	config_set_default_string(basicConfig, "SimpleOutput", "RecFormat",
 				  "mkv");
 	config_set_default_uint(basicConfig, "SimpleOutput", "VBitrate", 2500);
-	config_set_default_uint(basicConfig, "SimpleOutput", "ABitrate", 160);
+	config_set_default_uint(basicConfig, "SimpleOutput", "ABitrate", 128);
 	config_set_default_bool(basicConfig, "SimpleOutput", "UseAdvanced",
 				false);
 	config_set_default_bool(basicConfig, "SimpleOutput", "EnforceBitrate",
@@ -1245,7 +1245,7 @@ bool OBSBasic::InitBasicConfigDefaults()
 	config_set_default_uint(basicConfig, "AdvOut", "FFABitrate", 160);
 	config_set_default_uint(basicConfig, "AdvOut", "FFAudioMixes", 1);
 
-	config_set_default_uint(basicConfig, "AdvOut", "Track1Bitrate", 160);
+	config_set_default_uint(basicConfig, "AdvOut", "Track1Bitrate", 128);
 	config_set_default_uint(basicConfig, "AdvOut", "Track2Bitrate", 160);
 	config_set_default_uint(basicConfig, "AdvOut", "Track3Bitrate", 160);
 	config_set_default_uint(basicConfig, "AdvOut", "Track4Bitrate", 160);
@@ -1315,7 +1315,7 @@ bool OBSBasic::InitBasicConfigDefaults()
 	config_set_default_uint(basicConfig, "Video", "FPSDen", 1);
 	config_set_default_string(basicConfig, "Video", "ScaleType", "bicubic");
 	config_set_default_string(basicConfig, "Video", "ColorFormat", "NV12");
-	config_set_default_string(basicConfig, "Video", "ColorSpace", "601");
+	config_set_default_string(basicConfig, "Video", "ColorSpace", "709");
 	config_set_default_string(basicConfig, "Video", "ColorRange",
 				  "Partial");
 
@@ -1325,7 +1325,7 @@ bool OBSBasic::InitBasicConfigDefaults()
 		basicConfig, "Audio", "MonitoringDeviceName",
 		Str("Basic.Settings.Advanced.Audio.MonitoringDevice"
 		    ".Default"));
-	config_set_default_uint(basicConfig, "Audio", "SampleRate", 44100);
+	config_set_default_uint(basicConfig, "Audio", "SampleRate", 48000);
 	config_set_default_string(basicConfig, "Audio", "ChannelSetup",
 				  "Stereo");
 	config_set_default_double(basicConfig, "Audio", "MeterDecayRate",
@@ -1527,7 +1527,7 @@ void OBSBasic::OBSInit()
 	if (!sceneCollection)
 		throw "Failed to get scene collection name";
 
-	ret = snprintf(fileName, 512, "obs-studio/basic/scenes/%s.json",
+	ret = snprintf(fileName, 512, (config_dir + "/basic/scenes/%s.json").c_str(),
 		       sceneCollection);
 	if (ret <= 0)
 		throw "Failed to create scene collection file name";
@@ -1742,7 +1742,8 @@ void OBSBasic::OBSInit()
 	if (!first_run && !has_last_version && !Active()) {
 		QString msg;
 		msg = QTStr("Basic.FirstStartup.RunWizard");
-
+		// disable auto config prompt on first run
+		/*
 		QMessageBox::StandardButton button = OBSMessageBox::question(
 			this, QTStr("Basic.AutoConfig"), msg);
 
@@ -1755,6 +1756,7 @@ void OBSBasic::OBSInit()
 			OBSMessageBox::information(
 				this, QTStr("Basic.AutoConfig"), msg);
 		}
+		*/
 	}
 
 	ToggleMixerLayout(config_get_bool(App()->GlobalConfig(), "BasicWindow",
@@ -2353,7 +2355,7 @@ void OBSBasic::SaveProjectDeferred()
 	if (!sceneCollection)
 		return;
 
-	ret = snprintf(fileName, 512, "obs-studio/basic/scenes/%s.json",
+	ret = snprintf(fileName, 512, (config_dir + "/basic/scenes/%s.json").c_str(),
 		       sceneCollection);
 	if (ret <= 0)
 		return;
@@ -4767,7 +4769,7 @@ void OBSBasic::UploadLog(const char *subdir, const char *file)
 void OBSBasic::on_actionShowLogs_triggered()
 {
 	char logDir[512];
-	if (GetConfigPath(logDir, sizeof(logDir), "obs-studio/logs") <= 0)
+	if (GetConfigPath(logDir, sizeof(logDir), (config_dir + "/logs").c_str()) <= 0)
 		return;
 
 	QUrl url = QUrl::fromLocalFile(QT_UTF8(logDir));
@@ -4776,18 +4778,18 @@ void OBSBasic::on_actionShowLogs_triggered()
 
 void OBSBasic::on_actionUploadCurrentLog_triggered()
 {
-	UploadLog("obs-studio/logs", App()->GetCurrentLog());
+	UploadLog((config_dir + "/logs").c_str(), App()->GetCurrentLog());
 }
 
 void OBSBasic::on_actionUploadLastLog_triggered()
 {
-	UploadLog("obs-studio/logs", App()->GetLastLog());
+	UploadLog((config_dir + "/logs").c_str(), App()->GetLastLog());
 }
 
 void OBSBasic::on_actionViewCurrentLog_triggered()
 {
 	char logDir[512];
-	if (GetConfigPath(logDir, sizeof(logDir), "obs-studio/logs") <= 0)
+	if (GetConfigPath(logDir, sizeof(logDir), (config_dir + "/logs").c_str()) <= 0)
 		return;
 
 	const char *log = App()->GetCurrentLog();
@@ -4803,7 +4805,7 @@ void OBSBasic::on_actionViewCurrentLog_triggered()
 void OBSBasic::on_actionShowCrashLogs_triggered()
 {
 	char logDir[512];
-	if (GetConfigPath(logDir, sizeof(logDir), "obs-studio/crashes") <= 0)
+	if (GetConfigPath(logDir, sizeof(logDir), (config_dir + "/crashes").c_str()) <= 0)
 		return;
 
 	QUrl url = QUrl::fromLocalFile(QT_UTF8(logDir));
@@ -4812,7 +4814,7 @@ void OBSBasic::on_actionShowCrashLogs_triggered()
 
 void OBSBasic::on_actionUploadLastCrashLog_triggered()
 {
-	UploadLog("obs-studio/crashes", App()->GetLastCrashLog());
+	UploadLog((config_dir + "/crashes").c_str(), App()->GetLastCrashLog());
 }
 
 void OBSBasic::on_actionCheckForUpdates_triggered()
@@ -5716,7 +5718,7 @@ void OBSBasic::on_actionDiscord_triggered()
 void OBSBasic::on_actionShowSettingsFolder_triggered()
 {
 	char path[512];
-	int ret = GetConfigPath(path, 512, "obs-studio");
+	int ret = GetConfigPath(path, 512, config_dir.c_str());
 	if (ret <= 0)
 		return;
 
@@ -6549,7 +6551,7 @@ int OBSBasic::GetProfilePath(char *path, size_t size, const char *file) const
 	if (!file)
 		file = "";
 
-	ret = GetConfigPath(profiles_path, 512, "obs-studio/basic/profiles");
+	ret = GetConfigPath(profiles_path, 512, (config_dir + "/basic/profiles").c_str());
 	if (ret <= 0)
 		return ret;
 

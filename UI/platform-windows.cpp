@@ -51,10 +51,10 @@ static inline bool check_path(const char *data, const char *path,
 
 bool GetDataFilePath(const char *data, string &output)
 {
-	if (check_path(data, "data/obs-studio/", output))
+	if (check_path(data, (string("data/") + config_dir + string("/")).c_str(), output))
 		return true;
 
-	return check_path(data, OBS_DATA_PATH "/obs-studio/", output);
+	return check_path(data, OBS_DATA_PATH "/" CONFIG_DIR "/", output);
 }
 
 bool InitApplicationBundle()

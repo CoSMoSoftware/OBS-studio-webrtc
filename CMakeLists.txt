@@ -12,6 +12,14 @@ else()
 endif()
 project(${_project_name})
 
+if(NOT DEFINED CONFIG_DIR OR "${CONFIG_DIR}" STREQUAL "")
+	if(NOT OBS_WEBRTC_VENDOR_NAME)
+		set(CONFIG_DIR "obs-webrtc")
+	else()
+		set(CONFIG_DIR ${OBS_WEBRTC_VENDOR_NAME})
+	endif()
+endif()
+
 # --- Handle CMake Options
 #
 # does not use a project unique prefix, prone to overlap.

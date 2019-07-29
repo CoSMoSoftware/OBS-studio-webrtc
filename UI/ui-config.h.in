@@ -29,3 +29,5 @@
 #define RESTREAM_HASH     0x@RESTREAM_HASH@
 
 #define DEFAULT_THEME "Dark"
+
+#define CONFIG_DIR "@CONFIG_DIR@"
