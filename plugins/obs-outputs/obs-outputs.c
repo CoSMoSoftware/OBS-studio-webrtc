@@ -1,5 +1,8 @@
 #include <obs-module.h>
-
+// #include "wowza-stream.h"
+// #include "janus-stream.h"
+// #include "millicast-stream.h"
+// #include "evercast-stream.h"
 #include "obs-outputs-config.h"
 
 #ifdef _WIN32
@@ -20,6 +23,7 @@ extern struct obs_output_info flv_output_info;
 extern struct obs_output_info wowza_output_info;
 extern struct obs_output_info janus_output_info;
 extern struct obs_output_info millicast_output_info;
+extern struct obs_output_info evercast_output_info;
 #if COMPILE_FTL
 extern struct obs_output_info ftl_output_info;
 #endif
@@ -37,6 +41,7 @@ bool obs_module_load(void)
 	obs_register_output(&wowza_output_info);
 	obs_register_output(&janus_output_info);
 	obs_register_output(&millicast_output_info);
+	obs_register_output(&evercast_output_info);
 #if COMPILE_FTL
 	obs_register_output(&ftl_output_info);
 #endif

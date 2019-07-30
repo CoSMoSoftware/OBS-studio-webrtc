@@ -28,7 +28,9 @@ static void webrtc_janus_update(void *data, obs_data_t *settings)
 	service->room = bstrdup(obs_data_get_string(settings, "room"));
 	service->password = bstrdup(obs_data_get_string(settings, "password"));
 	service->codec = bstrdup(obs_data_get_string(settings, "codec"));
-	service->output = bstrdup("janus_output");
+	service->output = NULL;
+	if (!service->output)
+		service->output = bstrdup("janus_output");
 }
 
 static void webrtc_janus_destroy(void *data)

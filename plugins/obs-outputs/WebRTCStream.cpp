@@ -53,6 +53,7 @@ CustomLogger logger;
 WebRTCStream::WebRTCStream(obs_output_t *output)
 {
     rtc::LogMessage::ConfigureLogging("info");
+    rtc::LogMessage::AddLogToStream(&logger, rtc::LoggingSeverity::LS_VERBOSE);
 
     frame_id = 0;
     pli_received = 0;
@@ -124,8 +125,6 @@ WebRTCStream::~WebRTCStream()
 
 bool WebRTCStream::start(WebRTCStream::Type type)
 {
-    rtc::LogMessage::AddLogToStream(&logger, rtc::LoggingSeverity::LS_VERBOSE);
-
     this->type = type;
 
     obs_service_t *service = obs_output_get_service(output);
@@ -432,7 +431,7 @@ bool WebRTCStream::stop()
     info("WebRTCStream::stop");
     // Shutdown websocket connection and close Peer Connection
     close(true);
-    rtc::LogMessage::RemoveLogToStream(&logger);
+    // rtc::LogMessage::RemoveLogToStream(&logger);
     // Disconnect, this will call stop on main thread
     obs_output_end_data_capture(output);
     return true;

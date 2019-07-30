@@ -161,6 +161,7 @@ extern "C" {
     evercast_stream_congestion, //get_congestion
     nullptr, //get_connect_time_ms
     "vp8", //encoded_video_codecs
-    "opus" //encoded_audio_codecs
+    "opus", //encoded_audio_codecs
+    nullptr //raw_audio2
   };
 }

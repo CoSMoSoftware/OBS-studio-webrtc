@@ -1,23 +1,26 @@
-#include "wowza-stream.h"
-#include "WebRTCStream.h"
-
-#include <modules/audio_processing/include/audio_processing.h>
-#include <rtc_base/bitrate_allocation_strategy.h>
-#include <rtc_base/platform_file.h>
-
-#include <inttypes.h>
 #include <stdio.h>
+#include <obs-module.h>
+#include <obs-avc.h>
+#include <util/platform.h>
+#include <util/dstr.h>
+#include <util/threading.h>
+#include <inttypes.h>
+#include <rtc_base/platform_file.h>
+#include <rtc_base/bitrate_allocation_strategy.h>
+#include <modules/audio_processing/include/audio_processing.h>
 
-// #define warn(format, ...)  blog(LOG_WARNING, format, ##__VA_ARGS__)
-// #define info(format, ...)  blog(LOG_INFO,    format, ##__VA_ARGS__)
-// #define debug(format, ...) blog(LOG_DEBUG,   format, ##__VA_ARGS__)
+#define warn(format, ...)  blog(LOG_WARNING, format, ##__VA_ARGS__)
+#define info(format, ...)  blog(LOG_INFO,    format, ##__VA_ARGS__)
+#define debug(format, ...) blog(LOG_DEBUG,   format, ##__VA_ARGS__)
 
-// #define OPT_DROP_THRESHOLD "drop_threshold_ms"
-// #define OPT_PFRAME_DROP_THRESHOLD "pframe_drop_threshold_ms"
-// #define OPT_MAX_SHUTDOWN_TIME_SEC "max_shutdown_time_sec"
-// #define OPT_BIND_IP "bind_ip"
-// #define OPT_NEWSOCKETLOOP_ENABLED "new_socket_loop_enabled"
-// #define OPT_LOWLATENCY_ENABLED "low_latency_mode_enabled"
+#define OPT_DROP_THRESHOLD "drop_threshold_ms"
+#define OPT_PFRAME_DROP_THRESHOLD "pframe_drop_threshold_ms"
+#define OPT_MAX_SHUTDOWN_TIME_SEC "max_shutdown_time_sec"
+#define OPT_BIND_IP "bind_ip"
+#define OPT_NEWSOCKETLOOP_ENABLED "new_socket_loop_enabled"
+#define OPT_LOWLATENCY_ENABLED "low_latency_mode_enabled"
+
+#include "WebRTCStream.h"
 
 extern "C" const char *wowza_stream_getname(void *unused)
 {
@@ -38,6 +41,7 @@ extern "C" void wowza_stream_destroy(void *data)
 
 extern "C" void *wowza_stream_create(obs_data_t *settings, obs_output_t *output)
 {
+    UNUSED_PARAMETER(settings);
     info("wowza_stream_create");
     //Create new stream
     WebRTCStream *stream = new WebRTCStream(output);
@@ -49,6 +53,7 @@ extern "C" void *wowza_stream_create(obs_data_t *settings, obs_output_t *output)
 
 extern "C" void wowza_stream_stop(void *data, uint64_t ts)
 {
+    UNUSED_PARAMETER(ts);
     info("wowza_stream_stop");
     //Get stream
     WebRTCStream *stream = (WebRTCStream*)data;
@@ -66,7 +71,7 @@ extern "C" bool wowza_stream_start(void *data)
     //Don't allow it to be deleted
     stream->AddRef();
     //Start it
-    return stream->start(WebRTCStream::Type::Wowza);
+    return stream->start(WebRTCStream::Wowza);
 }
 
 extern "C" void wowza_receive_video(void *data, struct video_data *frame)

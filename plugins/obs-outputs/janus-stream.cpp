@@ -1,23 +1,26 @@
-#include "janus-stream.h"
-#include "WebRTCStream.h"
-
-#include <modules/audio_processing/include/audio_processing.h>
-#include <rtc_base/bitrate_allocation_strategy.h>
-#include <rtc_base/platform_file.h>
-
-#include <inttypes.h>
 #include <stdio.h>
+#include <obs-module.h>
+#include <obs-avc.h>
+#include <util/platform.h>
+#include <util/dstr.h>
+#include <util/threading.h>
+#include <inttypes.h>
+#include <rtc_base/platform_file.h>
+#include <rtc_base/bitrate_allocation_strategy.h>
+#include <modules/audio_processing/include/audio_processing.h>
 
-// #define warn(format, ...)  blog(LOG_WARNING, format, ##__VA_ARGS__)
-// #define info(format, ...)  blog(LOG_INFO,    format, ##__VA_ARGS__)
-// #define debug(format, ...) blog(LOG_DEBUG,   format, ##__VA_ARGS__)
+#define warn(format, ...)  blog(LOG_WARNING, format, ##__VA_ARGS__)
+#define info(format, ...)  blog(LOG_INFO,    format, ##__VA_ARGS__)
+#define debug(format, ...) blog(LOG_DEBUG,   format, ##__VA_ARGS__)
 
-// #define OPT_DROP_THRESHOLD "drop_threshold_ms"
-// #define OPT_PFRAME_DROP_THRESHOLD "pframe_drop_threshold_ms"
-// #define OPT_MAX_SHUTDOWN_TIME_SEC "max_shutdown_time_sec"
-// #define OPT_BIND_IP "bind_ip"
-// #define OPT_NEWSOCKETLOOP_ENABLED "new_socket_loop_enabled"
-// #define OPT_LOWLATENCY_ENABLED "low_latency_mode_enabled"
+#define OPT_DROP_THRESHOLD "drop_threshold_ms"
+#define OPT_PFRAME_DROP_THRESHOLD "pframe_drop_threshold_ms"
+#define OPT_MAX_SHUTDOWN_TIME_SEC "max_shutdown_time_sec"
+#define OPT_BIND_IP "bind_ip"
+#define OPT_NEWSOCKETLOOP_ENABLED "new_socket_loop_enabled"
+#define OPT_LOWLATENCY_ENABLED "low_latency_mode_enabled"
+
+#include "WebRTCStream.h"
 
 extern "C" const char *janus_stream_getname(void *unused)
 {
@@ -50,6 +53,7 @@ extern "C" void *janus_stream_create(obs_data_t *settings, obs_output_t *output)
 
 extern "C" void janus_stream_stop(void *data, uint64_t ts)
 {
+  UNUSED_PARAMETER(ts);
   info("janus_stream_stop");
   //Get stream
   WebRTCStream *stream = (WebRTCStream*)data;
@@ -96,10 +100,10 @@ extern "C" void janus_stream_defaults(obs_data_t *defaults)
   obs_data_set_default_bool(defaults, OPT_LOWLATENCY_ENABLED, false);
 }
 
-extern "C" obs_properties_t *janus_stream_properties(void *unused)
+extern "C" obs_properties_t *janus_stream_properties(void *data)
 {
   info("janus_stream_properties");
-  UNUSED_PARAMETER(unused);
+  UNUSED_PARAMETER(data);
 
   obs_properties_t *props = obs_properties_create();
 
@@ -138,7 +142,7 @@ extern "C" float janus_stream_congestion(void *data)
 extern "C" {
   struct obs_output_info janus_output_info = {
     "janus_output", //id
-    OBS_OUTPUT_AV |  OBS_OUTPUT_SERVICE, //flags
+    OBS_OUTPUT_AV |  OBS_OUTPUT_SERVICE | OBS_OUTPUT_MULTI_TRACK, //flags
     janus_stream_getname, //get_name
     janus_stream_create, //create
     janus_stream_destroy, //destroy
