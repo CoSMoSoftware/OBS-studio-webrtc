@@ -34,10 +34,7 @@ static void webrtc_wowza_update(void *data, obs_data_t *settings)
 	// service->password = bstrdup(obs_data_get_string(settings, "password"));
 	service->codec = bstrdup(obs_data_get_string(settings, "codec"));
 	service->protocol = bstrdup(obs_data_get_string(settings, "protocol"));
-	service->output = NULL;
-
-	if (!service->output)
-		service->output = bstrdup("wowza_output");
+	service->output = bstrdup("wowza_output");
 }
 
 static void webrtc_wowza_destroy(void *data)
@@ -68,14 +65,25 @@ static bool use_auth_modified(obs_properties_t *ppts, obs_property_t *p,
 {
 	p = obs_properties_get(ppts, "server");
 	obs_property_set_visible(p, true);
+
 	p = obs_properties_get(ppts, "key");
 	obs_property_set_visible(p, false);
+
 	p = obs_properties_get(ppts, "room");
 	obs_property_set_visible(p, true);
+
 	p = obs_properties_get(ppts, "username");
 	obs_property_set_visible(p, true);
+
 	p = obs_properties_get(ppts, "password");
 	obs_property_set_visible(p, false);
+
+	p = obs_properties_get(ppts, "codec");
+	obs_property_set_visible(p, true);
+
+	p = obs_properties_get(ppts, "protocol");
+	obs_property_set_visible(p, true);
+
 	return true;
 }
 
@@ -114,16 +122,16 @@ static const char *webrtc_wowza_url(void *data)
 	return service->server;
 }
 
+static const char *webrtc_wowza_key(void *data)
+{
+	UNUSED_PARAMETER(data);
+	return "";
+}
+
 static const char *webrtc_wowza_room(void *data)
 {
 	struct webrtc_wowza *service = data;
 	return service->room;
-}
-
-static const char *webrtc_wowza_key(void *data)
-{
-	UNUSED_PARAMETER(data);
-	return NULL;
 }
 
 static const char *webrtc_wowza_username(void *data)
@@ -144,9 +152,15 @@ static const char *webrtc_wowza_password(void *data)
 static const char *webrtc_wowza_codec(void *data)
 {
 	struct webrtc_wowza *service = data;
-	if (strcmp(service->protocol, "Automatic") == 0)
-		return NULL;
-	return service->codec;
+	if (strcmp(service->codec, "Automatic") == 0)
+		return "";
+	if (strcmp(service->protocol, "H264") == 0)
+		return "h264";
+	if (strcmp(service->protocol, "VP9") == 0)
+		return "vp9";
+	if (strcmp(service->protocol, "VP8") == 0)
+		return "vp8";
+	return "";
 }
 
 static const char *webrtc_wowza_protocol(void *data)
@@ -171,8 +185,8 @@ struct obs_service_info webrtc_wowza_service = {
 	.update         = webrtc_wowza_update,
 	.get_properties = webrtc_wowza_properties,
 	.get_url        = webrtc_wowza_url,
-	.get_room       = webrtc_wowza_room,
 	.get_key        = webrtc_wowza_key,
+	.get_room       = webrtc_wowza_room,
 	.get_username   = webrtc_wowza_username,
 	.get_password   = webrtc_wowza_password,
 	.get_codec      = webrtc_wowza_codec,
