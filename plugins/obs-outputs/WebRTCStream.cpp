@@ -27,10 +27,26 @@
 #define debug(format, ...) blog(LOG_DEBUG,   format, ##__VA_ARGS__)
 #define error(format, ...) blog(LOG_ERROR,   format, ##__VA_ARGS__)
 
+class StatsCallback : public webrtc::RTCStatsCollectorCallback
+{
+public:
+  rtc::scoped_refptr<const webrtc::RTCStatsReport> report() { return report_; }
+  bool called() const { return called_; }
+protected:
+  void OnStatsDelivered(
+      const rtc::scoped_refptr<const webrtc::RTCStatsReport>& report) override
+  {
+    report_ = report;
+    called_ = true;
+  }
+private:
+  bool called_ = false;
+  rtc::scoped_refptr<const webrtc::RTCStatsReport> report_;
+};
+
 class CustomLogger : public rtc::LogSink
 {
 public:
-
   virtual void OnLogMessage(const std::string& message)
   {
     debug("webrtc: %s",message.c_str());
@@ -41,6 +57,10 @@ CustomLogger logger;
 
 WebRTCStream::WebRTCStream(obs_output_t * output)
 {
+  pli_received = 0;
+  audio_bytes_sent = 0;
+  video_bytes_sent = 0;
+  total_bytes_sent = 0;
   picId = 0;
   thumbnail = false;
   thumbnailDownrate = 1;
@@ -87,10 +107,6 @@ WebRTCStream::WebRTCStream(obs_output_t * output)
 
   //Create capture module with our custom one
   videoCapturer = new rtc::RefCountedObject<VideoCapturer>();
-
-  //bitrate and dropped frame
-  bitrate = 0;
-  dropped_frame = 0;
 }
 
 WebRTCStream::~WebRTCStream()
@@ -461,17 +477,40 @@ void WebRTCStream::onAudioFrame(audio_data *frame)
   adm.onIncomingData(frame->data[0], frame->frames);
 }
 
-//bitrate and dropped_frame
-// Disable for now
-uint64_t WebRTCStream::getBitrate() {
-  // rtc::scoped_refptr<webrtc::MockStatsObserver> observerAudio (new rtc::RefCountedObject<webrtc::MockStatsObserver> ());
-  //
-  //   pc->GetStats (observerVideo, video_track, webrtc::PeerConnectionInterface::kStatsOutputLevelStandard);
-  // pc->GetStats (observerAudio, audio_track, webrtc::PeerConnectionInterface::kStatsOutputLevelStandard);
-  //
-  // std::this_thread::sleep_for(std::chrono::milliseconds(2));
-  //
-  //bitrate = observerVideo->BytesSent() + observerAudio->BytesSent();
-  //
-  return uint64_t(0);
+uint64_t WebRTCStream::getBitrate()
+{
+  rtc::scoped_refptr<const webrtc::RTCStatsReport> report = NewGetStats();
+
+  std::vector<const webrtc::RTCOutboundRTPStreamStats*> send_stream_stats =
+      report->GetStatsOfType<webrtc::RTCOutboundRTPStreamStats>();
+
+  for (const auto& stat : send_stream_stats) {
+    if (stat->kind.ValueToString() == "audio")
+      audio_bytes_sent = std::stoll(stat->bytes_sent.ValueToJson());
+    if (stat->kind.ValueToString() == "video") {
+      video_bytes_sent = std::stoll(stat->bytes_sent.ValueToJson());
+      pli_received = std::stoi(stat->pli_count.ValueToJson());
+    }
+  }
+  total_bytes_sent = audio_bytes_sent + video_bytes_sent;
+  return total_bytes_sent;
+}
+
+int WebRTCStream::getDroppedFrames()
+{
+  return pli_received;
+}
+
+// Synchronously get stats
+rtc::scoped_refptr<const webrtc::RTCStatsReport> WebRTCStream::NewGetStats()
+{
+  rtc::scoped_refptr<StatsCallback> callback =
+      new rtc::RefCountedObject<StatsCallback>();
+
+  pc->GetStats(callback);
+
+  while (!callback->called()) {
+    std::this_thread::sleep_for(std::chrono::microseconds(1));
+  }
+  return callback->report();
 }

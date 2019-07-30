@@ -53,7 +53,7 @@ extern "C" void *millicast_stream_create(obs_data_t *, obs_output_t *output)
   return (void*)stream;
 }
 
-extern "C" void millicast_stream_stop(void *data, uint64_t )
+extern "C" void millicast_stream_stop(void *data, uint64_t)
 {
   info("millicast_stream_stop");
   // Get stream
@@ -124,12 +124,14 @@ extern "C" uint64_t millicast_stream_total_bytes_sent(void *data)
 {
   //Get stream
   WebRTCStream* stream = (WebRTCStream*)data;
-  return stream->getBitrate ();
+  return stream->getBitrate();
 }
 
-extern "C" int millicast_stream_dropped_frames(void *)
+extern "C" int millicast_stream_dropped_frames(void *data)
 {
-  return 0;
+  //Get stream
+  WebRTCStream* stream = (WebRTCStream*)data;
+  return stream->getDroppedFrames();
 }
 
 extern "C" float millicast_stream_congestion(void *)
