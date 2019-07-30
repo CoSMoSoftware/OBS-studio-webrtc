@@ -127,8 +127,9 @@ extern "C" uint64_t evercast_stream_total_bytes_sent(void *data)
 
 extern "C" int evercast_stream_dropped_frames(void *data)
 {
-  UNUSED_PARAMETER(data);
-  return 0;
+  //Get stream
+  WebRTCStream *stream = (WebRTCStream*) data;
+  return stream->getDroppedFrames();
 }
 
 extern "C" float evercast_stream_congestion(void *data)

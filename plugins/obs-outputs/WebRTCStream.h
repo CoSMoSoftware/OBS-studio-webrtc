@@ -28,7 +28,6 @@
 #include "rtc_base/timestamp_aligner.h"
 
 #include <initializer_list>
-#include <iostream>
 #include <regex>
 #include <string>
 #include <vector>
@@ -95,8 +94,10 @@ public:
     // SetRemoteDescriptionObserverInterface
     void OnSetRemoteDescriptionComplete(webrtc::RTCError error) override;
 
-    // Bitrate
+    // Bitrate & dropped frames
     uint64_t getBitrate();
+    int getDroppedFrames();
+    rtc::scoped_refptr<const webrtc::RTCStatsReport> NewGetStats();
 
     template <typename T>
     rtc::scoped_refptr<T> make_scoped_refptr(T *t) {
@@ -116,9 +117,11 @@ private:
     std::string audio_codec;
     std::string video_codec;
 
-    int dropped_frame;
     uint16_t frame_id;
-    uint64_t observed_av_bitrate;
+    uint64_t audio_bytes_sent;
+    uint64_t video_bytes_sent;
+    uint64_t total_bytes_sent;
+    int pli_received;
 
     // Audio Wrapper
     rtc::scoped_refptr<AudioDeviceModuleWrapper> adm;
@@ -253,7 +256,7 @@ public:
         std::smatch match;
         std::regex re("candidate:([0-9]+) ([0-9]+) (TCP|UDP) ([0-9]+) ([0-9.]+) ([0-9]+) ([^0-9]+) ([0-9]+)");
         if (std::regex_search(candidate, match, re)) {
-            if (caseInsensitiveStringCompare(match[3].str(), protocol) == 0)
+            if (caseInsensitiveStringCompare(match[3].str(), protocol))
                 return true;
             return false;
         }
@@ -358,9 +361,9 @@ public:
         std::smatch match;
         std::regex re("candidate:([0-9]+) ([0-9]+) (TCP|UDP) ([0-9]+) ([0-9.]+) ([0-9]+) ([^0-9]+) ([0-9]+)");
         if (std::regex_search(candidate, match, re)) {
-            if (caseInsensitiveStringCompare(match[3].str(), "TCP") == 0)
+            if (caseInsensitiveStringCompare(match[3].str(), "TCP"))
                 candidate = std::regex_replace(candidate, re, "candidate:$1 $2 $3 49 $5 $6 $7 $8");
-            if (caseInsensitiveStringCompare(match[3].str(), "UDP") == 0)
+            if (caseInsensitiveStringCompare(match[3].str(), "UDP"))
                 candidate = std::regex_replace(candidate, re, "candidate:$1 $2 $3 50 $5 $6 $7 $8");
         }
     }
@@ -680,8 +683,8 @@ private:
 
     static bool caseInsensitiveStringCompare(const std::string &s1, const std::string &s2)
     {
-        std::string s1Cpy(s1);
-        std::string s2Cpy(s2);
+        std::string s1Cpy = s1;
+        std::string s2Cpy = s2;
         std::transform(s1Cpy.begin(), s1Cpy.end(), s1Cpy.begin(), ::tolower);
         std::transform(s2Cpy.begin(), s2Cpy.end(), s2Cpy.begin(), ::tolower);
         return (s1Cpy == s2Cpy);

@@ -24,12 +24,28 @@
 #define warn(format, ...) blog(LOG_WARNING, format, ##__VA_ARGS__)
 #define error(format, ...) blog(LOG_ERROR, format, ##__VA_ARGS__)
 
+class StatsCallback : public webrtc::RTCStatsCollectorCallback {
+public:
+    rtc::scoped_refptr<const webrtc::RTCStatsReport> report() { return report_; }
+    bool called() const { return called_; }
+protected:
+    void OnStatsDelivered(
+            const rtc::scoped_refptr<const webrtc::RTCStatsReport>& report) override
+    {
+        report_ = report;
+        called_ = true;
+    }
+private:
+    bool called_ = false;
+    rtc::scoped_refptr<const webrtc::RTCStatsReport> report_;
+};
+
 class CustomLogger : public rtc::LogSink {
 public:
     void OnLogMessage(const std::string &message) override
     {
         info("%s", message.c_str());
-    };
+    }
 };
 
 CustomLogger logger;
@@ -39,8 +55,10 @@ WebRTCStream::WebRTCStream(obs_output_t *output)
     rtc::LogMessage::ConfigureLogging("info");
 
     frame_id = 0;
-    dropped_frame = 0;
-    observed_av_bitrate = 0;
+    pli_received = 0;
+    audio_bytes_sent = 0;
+    video_bytes_sent = 0;
+    total_bytes_sent = 0;
 
     // Store output
     this->output = output;
@@ -422,7 +440,7 @@ bool WebRTCStream::stop()
 
 void WebRTCStream::onDisconnected()
 {
-    debug("WebRTCStream::onDisconnected");
+    info("WebRTCStream::onDisconnected");
     // Shutdown websocket connection and close Peer Connection
     close(false);
     // Disconnect, this will call stop on main thread
@@ -431,7 +449,7 @@ void WebRTCStream::onDisconnected()
 
 void WebRTCStream::onLoggedError(int code)
 {
-    debug("WebRTCStream::onLoggedError [code: %d]", code);
+    info("WebRTCStream::onLoggedError [code: %d]", code);
     // Shutdown websocket connection and close Peer Connection
     close(false);
     // Disconnect, this will call stop on main thread
@@ -440,7 +458,7 @@ void WebRTCStream::onLoggedError(int code)
 
 void WebRTCStream::onOpenedError(int code)
 {
-    debug("WebRTCStream::onOpenedError [code: %d]", code);
+    info("WebRTCStream::onOpenedError [code: %d]", code);
     // Shutdown websocket connection and close Peer Connection
     close(false);
     // Disconnect, this will call stop on main thread
@@ -510,19 +528,40 @@ void WebRTCStream::onVideoFrame(video_data *frame)
     videoCapturer->OnFrameCaptured(video_frame);
 }
 
-// Bitrate and dropped_frame (disabled for now)
-uint64_t WebRTCStream::getBitrate() {
-    /*
-    rtc::scoped_refptr<webrtc::MockStatsObserver> observerVideo(new rtc::RefCountedObject<webrtc::MockStatsObserver>());
-    rtc::scoped_refptr<webrtc::MockStatsObserver> observerAudio(new rtc::RefCountedObject<webrtc::MockStatsObserver>());
+uint64_t WebRTCStream::getBitrate()
+{
+    rtc::scoped_refptr<const webrtc::RTCStatsReport> report = NewGetStats();
 
-    pc->GetStats(observerVideo, video_track, webrtc::PeerConnectionInterface::kStatsOutputLevelStandard);
-    pc->GetStats(observerAudio, audio_track, webrtc::PeerConnectionInterface::kStatsOutputLevelStandard);
+    std::vector<const webrtc::RTCOutboundRTPStreamStats*> send_stream_stats =
+            report->GetStatsOfType<webrtc::RTCOutboundRTPStreamStats>();
 
-    std::this_thread::sleep_for(std::chrono::milliseconds(2));
+    for (const auto& stat : send_stream_stats) {
+        if (stat->kind.ValueToString() == "audio")
+            audio_bytes_sent = std::stoll(stat->bytes_sent.ValueToJson());
+        if (stat->kind.ValueToString() == "video") {
+            video_bytes_sent = std::stoll(stat->bytes_sent.ValueToJson());
+            pli_received = std::stoi(stat->pli_count.ValueToJson());
+        }
+    }
+    total_bytes_sent = audio_bytes_sent + video_bytes_sent;
+    return total_bytes_sent;
+}
 
-    observed_av_bitrate = observerVideo->BytesSent() + observerAudio->BytesSent();
-    return observed_av_bitrate;
-    */
-    return uint64_t(0);
+int WebRTCStream::getDroppedFrames()
+{
+    return pli_received;
+}
+
+// Synchronously get stats
+rtc::scoped_refptr<const webrtc::RTCStatsReport> WebRTCStream::NewGetStats()
+{
+    rtc::scoped_refptr<StatsCallback> stats_callback =
+            new rtc::RefCountedObject<StatsCallback>();
+
+    pc->GetStats(stats_callback);
+
+    while (!stats_callback->called()) {
+        std::this_thread::sleep_for(std::chrono::microseconds(1));
+    }
+    return stats_callback->report();
 }
