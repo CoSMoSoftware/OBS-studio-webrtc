@@ -327,19 +327,19 @@ void OBSBasicSettings::LoadServices(bool showAll)
 	}
 
 	ui->service->insertItem(
-		0, QString("WebRTC Evercast Streaming Server"),
+		0, QString("Evercast"),
 		QVariant((int)ListOpt::Evercast));
 
 	ui->service->insertItem(
-		0, QString("WebRTC Millicast Streaming Server"),
+		0, QString("Millicast"),
 		QVariant((int)ListOpt::Millicast));
 
 	ui->service->insertItem(
-		0, QString("WebRTC Janus Streaming Server"),
+		0, QString("Janus Video Room"),
 		QVariant((int)ListOpt::Janus));
 
 	ui->service->insertItem(
-		0, QString("WebRTC Wowza Streaming Engine"),
+		0, QString("Wowza Streaming Engine"),
 		QVariant((int)ListOpt::Wowza));
 
 	ui->service->insertItem(
