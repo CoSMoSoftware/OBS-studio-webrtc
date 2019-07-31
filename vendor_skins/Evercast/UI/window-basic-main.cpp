@@ -1370,8 +1370,9 @@ void OBSBasic::ResetOutputs()
 
   if (!outputHandler || !outputHandler->Active()) {
     outputHandler.reset();
-    outputHandler.reset(advOut ?
-      CreateAdvancedOutputHandler(this) :
+    outputHandler.reset(
+      // advOut ?
+      // CreateAdvancedOutputHandler(this) :
       CreateSimpleOutputHandler(this));
 
     delete replayBufferButton;
