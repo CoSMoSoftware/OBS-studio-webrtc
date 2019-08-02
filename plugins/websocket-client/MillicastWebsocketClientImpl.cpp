@@ -1,5 +1,10 @@
 #include "MillicastWebsocketClientImpl.h"
+
 #include "nlohmann/json.hpp"
+#include "restclient-cpp/connection.h"
+#include "restclient-cpp/restclient.h"
+
+// #include <cctype> // isspace
 
 using json = nlohmann::json;
 typedef websocketpp::config::asio_client::message_type::ptr message_ptr;
@@ -21,12 +26,42 @@ MillicastWebsocketClientImpl::~MillicastWebsocketClientImpl()
 }
 
 bool MillicastWebsocketClientImpl::connect(
-        const std::string & url,
+        const std::string & /* publish_api_url */,
         const std::string & /* room */,
-        const std::string & /* username */,
+        const std::string & username,
         const std::string & token,
         WebsocketClient::Listener * listener)
 {
+    this->token = sanitizeString(token);
+
+    RestClient::init();
+    RestClient::Connection* conn = new RestClient::Connection("");
+    RestClient::HeaderFields headers;
+    headers["Authorization"] = "Bearer " + this->token;
+    headers["Content-Type"] = "application/json";
+    conn->SetHeaders(headers);
+    conn->SetTimeout(5);
+    const std::string publish_api_url = "https://director.millicast.com/api/director/publish";
+    const std::string data = "{\"streamName\":\"" + sanitizeString(username) + "\"}\"";
+    RestClient::Response r = conn->post(publish_api_url, data);
+    delete conn;
+    RestClient::disable();
+
+    std::string url;
+    std::string jwt;
+    if (r.code == 200) {
+        auto wssData = json::parse(r.body);
+        url = wssData["data"]["urls"][0];
+        jwt = wssData["data"]["jwt"];
+        std::cout << "WSS url    : " << url << std::endl;
+        std::cout << "JWT (token): " << jwt << std::endl;
+    } else {
+        std::cout << "Error querying publishing websocket url" << std::endl;
+        std::cout << "code: %s" << r.code << std::endl;
+        std::cout << "body: %s" << r.body << std::endl;
+        return false;
+    }
+
     websocketpp::lib::error_code ec;
     try {
         // --- TLS handler
@@ -46,17 +81,12 @@ bool MillicastWebsocketClientImpl::connect(
             return ctx;
         });
 
-        // Copy token
-        this->token = token;
-        // Remove space in the token
-        this->token.erase(remove_if(this->token.begin(), this->token.end(), isspace), this->token.end());
-
         // Create websocket url
-        std::string wss = url + "?token=" + this->token;
+        std::string wss = url + "?token=" + jwt;
         std::cout << " Connection URL: " << wss  << std::endl;
         // Get connection
-        this->connection = client.get_connection(wss, ec);
-        if (!this->connection)
+        connection = client.get_connection(wss, ec);
+        if (!connection)
             std::cout << "Print NOT NULLL" << std::endl;
         connection->set_close_handshake_timeout(5000);
         if (ec) {
@@ -84,7 +114,7 @@ bool MillicastWebsocketClientImpl::connect(
                 auto data = msg["data"];
                 // Get response data
                 std::string sdp = data["sdp"];
-                std::string feedId = data["feedId"];
+                int feedId = data["feedId"].get<int>();
                 // Event
                 listener->onOpened(sdp);
                 // Keep the connection alive
@@ -148,17 +178,15 @@ bool MillicastWebsocketClientImpl::open(
 {
     std::cout << "WS-OPEN: milliId: " << milliId << std::endl;
     std::string video_codec = "vp8";
-    if (!codec.empty())
-        video_codec = codec;
     try {
-        // json data_no_codec = {
-        //     { "streamId", milliId },
-        //     { "name", milliId },
-        //     { "sdp" , sdp }
-        // };
+        json data_without_codec = {
+            { "name", sanitizeString(milliId) },
+            { "streamId", sanitizeString(milliId) },
+            { "sdp" , sdp }
+        };
         json data_with_codec = {
-            { "streamId", milliId },
-            { "name", milliId },
+            { "name", sanitizeString(milliId) },
+            { "streamId", sanitizeString(milliId) },
             { "sdp" , sdp },
             { "codec", video_codec }
         };
@@ -166,15 +194,9 @@ bool MillicastWebsocketClientImpl::open(
         json open = {
             { "type", "cmd" },
             { "name", "publish" },
-            { "transId", 0 },
-            { "data", data_with_codec }
+            { "transId", rand() },
+            { "data", codec.empty() ? data_without_codec : data_with_codec }
         };
-        // json open = {
-        //     { "type", "cmd" },
-        //     { "name", "publish" },
-        //     { "transId", 0 },
-        //     { "data", codec.empty() ? data_no_codec : data_with_codec }
-        // };
         // Serialize and send
         if (connection->send(open.dump()))
             return false;
@@ -228,4 +250,12 @@ bool MillicastWebsocketClientImpl::disconnect(bool /* wait */)
         return false;
     }
     return true;
+}
+
+std::string MillicastWebsocketClientImpl::sanitizeString(const std::string & s)
+{
+    std::string _my_s = s;
+    _my_s.erase(0, _my_s.find_first_not_of(" \n\r\t"));
+    _my_s.erase(_my_s.find_last_not_of(" \n\r\t") + 1);
+    return _my_s;
 }

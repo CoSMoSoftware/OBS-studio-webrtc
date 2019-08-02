@@ -22,6 +22,7 @@
 #include "api/set_remote_description_observer_interface.h"
 #include "modules/audio_processing/include/audio_processing.h"
 #include "rtc_base/bitrate_allocation_strategy.h"
+#include "rtc_base/critical_section.h"
 #include "rtc_base/platform_file.h"
 #include "rtc_base/ref_counted_object.h"
 #include "rtc_base/thread.h"
@@ -127,6 +128,8 @@ private:
     uint64_t video_bytes_sent;
     uint64_t total_bytes_sent;
     int pli_received;
+
+    rtc::CriticalSection crit_;
 
     // Audio Wrapper
     rtc::scoped_refptr<AudioDeviceModuleWrapper> adm;

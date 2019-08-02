@@ -79,7 +79,7 @@ bool WowzaWebsocketClientImpl::connect(
             return ctx;
         });
  
-        this->connection = client.get_connection(wss, ec);
+        connection = client.get_connection(wss, ec);
         if (ec) {
             error("Error establishing TLS connection: %s", ec.message().c_str());
             return 0;
