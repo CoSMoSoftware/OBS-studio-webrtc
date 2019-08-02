@@ -140,7 +140,7 @@ extern "C" obs_properties_t *wowza_stream_properties(void *unused)
 extern "C" uint64_t wowza_stream_total_bytes_sent(void *data)
 {
     //Get stream
-    WebRTCStream *stream = (WebRTCStream*) data;
+    WebRTCStream *stream = (WebRTCStream*)data;
     return stream->getBitrate();
 }
 

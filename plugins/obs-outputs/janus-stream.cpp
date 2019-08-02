@@ -141,28 +141,28 @@ extern "C" float janus_stream_congestion(void *data)
 
 extern "C" {
   struct obs_output_info janus_output_info = {
-    "janus_output", //id
-    OBS_OUTPUT_AV |  OBS_OUTPUT_SERVICE | OBS_OUTPUT_MULTI_TRACK, //flags
-    janus_stream_getname, //get_name
-    janus_stream_create, //create
-    janus_stream_destroy, //destroy
-    janus_stream_start, //start
-    janus_stream_stop, //stop
-    janus_receive_video, //raw_video
-    janus_receive_audio, //raw_audio
-    nullptr, //encoded_packet
-    nullptr, //update
-    janus_stream_defaults, //get_defaults
-    janus_stream_properties, //get_properties
-    nullptr, //unused1 (formerly pause)
-    janus_stream_total_bytes_sent, //get_total_bytes
-    janus_stream_dropped_frames, //get_dropped_frame
-    nullptr, //type_data
-    nullptr, //free_type_data
-    janus_stream_congestion, //get_congestion
-    nullptr, //get_connect_time_ms
-    "vp8", //encoded_video_codecs
-    "opus", //encoded_audio_codecs
-    nullptr //raw_audio2
+    "janus_output",
+    OBS_OUTPUT_AV | OBS_OUTPUT_SERVICE,
+    janus_stream_getname,
+    janus_stream_create,
+    janus_stream_destroy,
+    janus_stream_start,
+    janus_stream_stop,
+    janus_receive_video,
+    janus_receive_audio,
+    nullptr,
+    nullptr,
+    janus_stream_defaults,
+    janus_stream_properties,
+    nullptr,
+    janus_stream_total_bytes_sent,
+    janus_stream_dropped_frames,
+    nullptr,
+    nullptr,
+    janus_stream_congestion,
+    nullptr,
+    "vp8",
+    "opus",
+    nullptr
   };
 }

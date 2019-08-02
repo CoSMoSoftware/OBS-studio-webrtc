@@ -141,7 +141,7 @@ extern "C" float evercast_stream_congestion(void *data)
 extern "C" {
   struct obs_output_info evercast_output_info = {
     "evercast_output", //id
-    OBS_OUTPUT_AV |  OBS_OUTPUT_SERVICE | OBS_OUTPUT_MULTI_TRACK, //flags
+    OBS_OUTPUT_AV |  OBS_OUTPUT_SERVICE, //flags
     evercast_stream_getname, //get_name
     evercast_stream_create, //create
     evercast_stream_destroy, //destroy

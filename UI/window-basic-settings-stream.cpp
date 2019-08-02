@@ -26,6 +26,8 @@ enum class ListOpt : int {
 	Evercast
 };
 
+const int OTHER_SERVICES_COUNT = 1;
+
 enum class Section : int {
 	Connect,
 	StreamKey,
@@ -100,8 +102,8 @@ void OBSBasicSettings::LoadStream1Settings()
 		int idx = ui->service->findText(service);
 		if (idx == -1) {
 			if (service && *service)
-				ui->service->insertItem(1, service);
-			idx = 1;
+				ui->service->insertItem(OTHER_SERVICES_COUNT, service);
+			idx = OTHER_SERVICES_COUNT;
 		}
 		ui->service->setCurrentIndex(idx);
 
@@ -129,8 +131,11 @@ void OBSBasicSettings::LoadStream1Settings()
 			idx = 1;
 		if (strcmp(type, "webrtc_janus") == 0)
 			idx = 2;
-		if (strcmp(type, "webrtc_millicast") == 0)
+		if (strcmp(type, "webrtc_millicast") == 0) {
 			idx = 3;
+			// if (strlen(server) == 0)
+			// 	server = "wss://live.millicast.com:443/ws/v1/pub";
+		}
 		if (strcmp(type, "webrtc_evercast") == 0)
 			idx = 4;
 
@@ -466,7 +471,7 @@ void OBSBasicSettings::on_service_currentIndexChanged(int)
 		} else if (webrtc == (int)ListOpt::Janus) {
 			ui->serverLabel->setText("Server Name");
 			ui->roomLabel->setText("Server Room");
-			ui->authUsernameLabel->setText("Stream Name");
+			// ui->authUsernameLabel->setText("Stream Name");
 			ui->authPwLabel->setText("Stream Key");
 			ui->streamkeyPageLayout->insertRow(1, ui->serverLabel,
 							   ui->serverStackedWidget);
@@ -487,17 +492,17 @@ void OBSBasicSettings::on_service_currentIndexChanged(int)
 			ui->streamProtocolLabel->setVisible(false);
 			ui->streamProtocol->setVisible(false);
 		} else if (webrtc == (int)ListOpt::Millicast) {
-			ui->serverLabel->setText("Server URL");
+			// ui->serverLabel->setText("Publish API URL");
 			ui->authUsernameLabel->setText("Stream Name");
 			ui->authPwLabel->setText("Publishing Token");
-			ui->streamkeyPageLayout->insertRow(1, ui->serverLabel,
-							   ui->serverStackedWidget);
-			ui->streamkeyPageLayout->insertRow(2, ui->authUsernameLabel,
+			ui->streamkeyPageLayout->insertRow(1, ui->authUsernameLabel,
 							   ui->authUsername);
-			ui->streamkeyPageLayout->insertRow(3, ui->authPwLabel,
+			ui->streamkeyPageLayout->insertRow(2, ui->authPwLabel,
 							   ui->authPwWidget);
-			ui->streamkeyPageLayout->insertRow(4, ui->codecLabel,
+			ui->streamkeyPageLayout->insertRow(3, ui->codecLabel,
 							   ui->codec);
+			ui->serverLabel->setVisible(false);
+			ui->serverStackedWidget->setVisible(false);
 			ui->roomLabel->setVisible(false);
 			ui->room->setVisible(false);
 			ui->authUsernameLabel->setVisible(true);
@@ -508,10 +513,16 @@ void OBSBasicSettings::on_service_currentIndexChanged(int)
 			ui->codec->setVisible(true);
 			ui->streamProtocolLabel->setVisible(false);
 			ui->streamProtocol->setVisible(false);
+			// obs_service_t *service_obj = main->GetService();
+			// obs_data_t *settings = obs_service_get_settings(service_obj);
+			// const char *server = obs_data_get_string(settings, "server");
+			// if (strlen(server) == 0)
+			// 	ui->customServer->setText("wss://live.millicast.com:443/ws/v1/pub");
+			// obs_data_release(settings);
 		} else if (webrtc == (int)ListOpt::Evercast) {
 			ui->serverLabel->setText("Server Name");
 			ui->roomLabel->setText("Server Room");
-			ui->authUsernameLabel->setText("Stream Name");
+			// ui->authUsernameLabel->setText("Stream Name");
 			ui->authPwLabel->setText("Stream Key");
 			ui->streamkeyPageLayout->insertRow(1, ui->serverLabel,
 							   ui->serverStackedWidget);

@@ -21,9 +21,9 @@ public:
 
     // WebsocketClient::Listener implementation
     bool connect(
-            const std::string & url,
+            const std::string & /* publish_api_url */,
             const std::string & /* room */,
-            const std::string & /* username */,
+            const std::string & username,
             const std::string & token,
             WebsocketClient::Listener * listener) override;
     bool open(
@@ -37,13 +37,12 @@ public:
             bool /* last */) override;
     bool disconnect(bool /* wait */) override;
 
+    std::string sanitizeString(const std::string & s);
+
 private:
-    bool logged;
     std::string token;
-    long long handle_id;
 
     std::atomic<bool> is_running;
-    std::future<void> handle;
     std::thread thread;
 
     Client client;
