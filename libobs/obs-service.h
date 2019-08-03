@@ -68,6 +68,8 @@ struct obs_service_info {
 	const char *(*get_username)(void *data);
 	const char *(*get_password)(void *data);
 
+	const char *(*get_protocol)(void *data);
+
 	bool (*supports_multitrack)(void *data);
 
 	void (*apply_encoder_settings)(void *data,
