@@ -30,28 +30,6 @@ endif()
 
 MESSAGE(STATUS "EBS_VERSION: ${EBS_VERSION}")
 
-if(INSTALLER_RUN)
-  set(CPACK_PACKAGE_EXECUTABLES
-    "ebs32" "EBS Studio (32bit)"
-    "ebs64" "EBS Studio (64bit)")
-  set(CPACK_CREATE_DESKTOP_LINKS
-    "ebs32"
-    "ebs64")
-else()
-  if(WIN32)
-    if(CMAKE_SIZEOF_VOID_P EQUAL 8)
-      set(_output_suffix "64")
-    else()
-      set(_output_suffix "32")
-    endif()
-  else()
-    set(_output_suffix "")
-  endif()
-
-  #set(CPACK_PACKAGE_EXECUTABLES  "${_output_suffix}bit/ebs${_output_suffix}" "EBS Studio")
-  #set(CPACK_CREATE_DESKTOP_LINKS "${_output_suffix}bit/ebs${_output_suffix}")
-endif()
-
 set(CPACK_BUNDLE_NAME "EBS")
 set(CPACK_BUNDLE_PLIST "${CMAKE_SOURCE_DIR}/cmake/osxbundle/Info.plist")
 set(CPACK_BUNDLE_ICON "${CMAKE_SOURCE_DIR}/cmake/osxbundle/obs.icns")

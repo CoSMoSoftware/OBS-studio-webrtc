@@ -23,9 +23,10 @@
 // or we need to make one plugin dependent on the other.
 enum Type {
   Janus      = 0,
-  SpankChain = 1,
+  Wowza      = 1,
   Millicast  = 2,
-  Evercast   = 3
+  Evercast   = 3,
+  SpankChain = 4
 };
 
 class WEBSOCKETCLIENT_API WebsocketClient
@@ -41,6 +42,7 @@ public:
     virtual void onLoggedError( int code ) = 0;
     virtual void onOpenedError( int code ) = 0;
     virtual void onOpened(const std::string &sdp) = 0;
+    virtual void onRemoteIceCandidate(const std::string& sdpData) = 0;
   };
 public:
   virtual ~WebsocketClient() = default;

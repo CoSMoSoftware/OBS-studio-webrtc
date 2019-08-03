@@ -14,6 +14,12 @@ AudioDeviceModuleWrapper::~AudioDeviceModuleWrapper()
 {
 }
 
+rtc::scoped_refptr<AudioDeviceModuleWrapper>
+AudioDeviceModuleWrapper::CreateAudioDeviceModule()
+{
+	return rtc::scoped_refptr<AudioDeviceModuleWrapper>(
+			new rtc::RefCountedObject<AudioDeviceModuleWrapper>());
+}
 
 // ----------------------------------------------------------------------------
 //  Init
@@ -23,7 +29,7 @@ int32_t AudioDeviceModuleWrapper::Init()
 {
 	if (_initialized)
 		return 0;
-	
+
 	_initialized = true;
 	return 0;
 }
@@ -75,7 +81,7 @@ void AudioDeviceModuleWrapper::onIncomingData(uint8_t* data, size_t samples_per_
 	{
 		//Copy the missing ones
 		i = chunk - pendingLength;
-		//Copy 
+		//Copy
 		memcpy(pending + pendingLength*sample_size*channels, data, i*sample_size*channels);
 
 		//Add sent
@@ -103,4 +109,3 @@ void AudioDeviceModuleWrapper::onIncomingData(uint8_t* data, size_t samples_per_
 		memcpy(pending, data + i*sample_size*channels, pendingLength*sample_size*channels);
 	}
 }
-
