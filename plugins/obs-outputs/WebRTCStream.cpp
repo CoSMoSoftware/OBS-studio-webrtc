@@ -91,6 +91,7 @@ WebRTCStream::WebRTCStream(obs_output_t * output)
   //bitrate and dropped frame
   bitrate = 0;
   dropped_frame = 0;
+  id = 0;
 }
 
 WebRTCStream::~WebRTCStream()
@@ -536,7 +537,7 @@ void WebRTCStream::onVideoFrame(video_data *frame)
     .build();
 
   // Send frame to video capturer
-  videoCapturer->OnFrame(video_frame);
+  videoCapturer->OnFrameCaptured(video_frame);
 
   //Increase number of pictures
   picId++;
