@@ -24,6 +24,7 @@
 #include "api/peer_connection_interface.h"
 #include "api/create_peerconnection_factory.h"
 #include "api/scoped_refptr.h"
+#include "api/set_remote_description_observer_interface.h"
 #include "rtc_base/ref_counted_object.h"
 #include "rtc_base/thread.h"
 #include "rtc_base/timestamp_aligner.h"
@@ -37,7 +38,8 @@ class WebRTCStreamInterface :
   public WebsocketClient::Listener,
   public webrtc::PeerConnectionObserver,
   public webrtc::CreateSessionDescriptionObserver,
-  public webrtc::SetSessionDescriptionObserver
+  public webrtc::SetSessionDescriptionObserver,
+  public webrtc::SetRemoteDescriptionObserverInterface
 {
 
 };
@@ -103,8 +105,16 @@ public:
   void OnSuccess() override;
   //void OnFailure(const std::string& error) override;
 
+  // SetRemoteDescriptionObserverInterface implementation
+  void OnSetRemoteDescriptionComplete(webrtc::RTCError error) override;
+
   //bitrate
   uint64_t getBitrate();
+
+  template <typename T>
+  rtc::scoped_refptr<T> make_scoped_refptr(T* t) {
+    return rtc::scoped_refptr<T>(t);
+  }
 
 private:
   //Connection properties
@@ -118,6 +128,9 @@ private:
   std::string milliToken;
   std::string protocol;
   bool        thumbnail;
+
+  //SetRemoteDescription Observer
+  rtc::scoped_refptr<SetRemoteDescriptionObserverInterface> srdoi_observer;
 
   //tracks
   rtc::scoped_refptr<webrtc::VideoTrackInterface> video_track;
