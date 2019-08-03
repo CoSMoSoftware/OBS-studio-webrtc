@@ -655,13 +655,15 @@ bool SimpleOutput::StartStreaming(obs_service_t *service)
   std::string typeCheck = obs_service_get_type(service);
 
   if (!type) {
-           if(typeCheck.find("janus")       != std::string::npos) {
+    if(typeCheck.find("janus") != std::string::npos) {
       type = "janus_output";
+    } else if (typeCheck.find("wowza") != std::string::npos) {
+      type = "wowza_output";
     } else if (typeCheck.find("spankchain") != std::string::npos) {
       type = "spankchain_output";
-    } else if (typeCheck.find("millicast")  != std::string::npos) {
+    } else if (typeCheck.find("millicast") != std::string::npos) {
       type = "millicast_output";
-    } else if (typeCheck.find("evercast")   != std::string::npos) {
+    } else if (typeCheck.find("evercast") != std::string::npos) {
       type = "evercast_output";
     } else {
       type = "rtmp_output";
@@ -1433,6 +1435,8 @@ bool AdvancedOutput::StartStreaming(obs_service_t *service)
   if (!type) {
     if(typeCheck.find("janus") != std::string::npos) {
       type = "janus_output";
+    } else if (typeCheck.find("wowza") != std::string::npos) {
+      type = "wowza_output";
     } else if (typeCheck.find("spankchain") != std::string::npos) {
       type = "spankchain_output";
     } else if (typeCheck.find("millicast") != std::string::npos) {

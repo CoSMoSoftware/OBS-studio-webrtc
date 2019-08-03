@@ -56,8 +56,8 @@ WebRTCStream::WebRTCStream(obs_output_t * output)
   this->output = output;
   this->client = NULL;
 
-  //Block adm
-  adm.AddRef();
+  //Create audio device module
+  adm = new rtc::RefCountedObject<AudioDeviceModuleWrapper>();
 
   //Network thread
   network = rtc::Thread::CreateWithSocketServer();
@@ -79,7 +79,7 @@ WebRTCStream::WebRTCStream(obs_output_t * output)
     network.get(),
     worker.get(),
     signaling.get(),
-    &adm,
+    adm,
     webrtc::CreateBuiltinAudioEncoderFactory(),
     webrtc::CreateBuiltinAudioDecoderFactory(),
     webrtc::CreateBuiltinVideoEncoderFactory(),
@@ -94,6 +94,7 @@ WebRTCStream::WebRTCStream(obs_output_t * output)
   //bitrate and dropped frame
   bitrate = 0;
   dropped_frame = 0;
+  id = 0;
 }
 
 WebRTCStream::~WebRTCStream()
@@ -101,6 +102,7 @@ WebRTCStream::~WebRTCStream()
   stop();
 
   // Free factories first
+  adm = NULL;
   pc = NULL;
   factory = NULL;
   videoCapturer = NULL;
@@ -119,6 +121,7 @@ WebRTCStream::~WebRTCStream()
 
 bool WebRTCStream::start(Type type)
 {
+  this->type = type;
   //Get service
   obs_service_t *service = obs_output_get_service(output);
 
@@ -129,24 +132,38 @@ bool WebRTCStream::start(Type type)
   if (!obs_service_get_url(service))
     return false;
 
+  // the codec should be generic, and vp8 is the default if empty
+  // possible values (should check): vp8, vp9, h264
+  if (!obs_service_get_codec(service))
+    codec = "vp8";
+  else
+    // should check the value is acceptable here
+    // but since the input is supposedly a drop down menu, risk is low.
+    codec = obs_service_get_codec(service);
+
   url = obs_service_get_url(service);
   milliId = "";
   milliToken = "";
+  protocol = "";
   const char *tmpString = nullptr;
   const char *tmpToken  = nullptr;
 
-  if (type == WebRTCStream::Millicast){
-
+  if (type == WebRTCStream::Millicast) {
     tmpString = obs_service_get_milli_id(    service );
     tmpToken  = obs_service_get_milli_token( service );
     milliId    = (NULL == tmpString ? "" : tmpString );
     milliToken = (NULL == tmpToken  ? "" : tmpToken  );
-
   } else {
     tmpString = obs_service_get_username(service);
     username = (NULL == tmpString ? "" : tmpString);
     tmpString = obs_service_get_password(service);
     password = (NULL == tmpString ? "" : tmpString);
+    if (type == WebRTCStream::Wowza) {
+      tmpString = obs_service_get_codec(service);
+      codec = (NULL == tmpString ? "" : tmpString);
+      tmpString = obs_service_get_protocol(service);
+      protocol = (NULL == tmpString ? "" : tmpString);
+    }
     try {
       room = obs_service_get_room(service);
     }
@@ -160,15 +177,6 @@ bool WebRTCStream::start(Type type)
     }
   }
 
-  // the codec should be generic, and vp8 is the default if empty
-  // possible values (should check): vp8, vp9, h264
-  if (!obs_service_get_codec(service))
-    codec = "vp8";
-  else
-    // should check the value is acceptable here
-    // but since the input is supposedly a drop down menu, risk is low.
-    codec = obs_service_get_codec(service);
-
   //Stop just in case
   stop();
 
@@ -178,12 +186,13 @@ bool WebRTCStream::start(Type type)
   server.uri = "stun:stun.l.google.com:19302";
   config.servers.push_back(server);
 
+  webrtc::PeerConnectionDependencies pc_dependencies(this);
+
   //Create peer connection
-  pc = factory->CreatePeerConnection(config, NULL, NULL, this);
+  pc = factory->CreatePeerConnection(config, std::move(pc_dependencies));
 
   //Ensure it was created
-  if (!pc.get())
-  {
+  if (!pc.get()) {
     //Log
     error("Could not create PeerConnection");
     //Error
@@ -220,8 +229,7 @@ bool WebRTCStream::start(Type type)
   stream->AddTrack(video_track);
 
   //Add the stream to the peer connection
-  if (!pc->AddStream(stream))
-  {
+  if (!pc->AddStream(stream)) {
     //Log
     error("Adding stream to PeerConnection failed");
     //Error
@@ -237,21 +245,29 @@ bool WebRTCStream::start(Type type)
     return false;
   }
   //Log them
-  if (type == WebRTCStream::Millicast){
-   if(milliToken == "" || milliId == ""){
+  if (type == WebRTCStream::Millicast) {
+    if (milliToken == "" || milliId == "") {
       error("Invalid token or publishing name");
       obs_output_signal_stop(output, OBS_OUTPUT_CONNECT_FAILED);
       return false;
     }
     info("connecting to [url:%s,stream Id :%s,token :%s]", url.c_str(), milliId.c_str(), milliToken.c_str());
-    if(!client->connect(url, room, username, milliToken , this)){
+    if (!client->connect(url, room, username, milliToken , this)) {
       //Error
       obs_output_signal_stop(output, OBS_OUTPUT_CONNECT_FAILED);
       return false;
-    };
-  } else{
+    }
+  } else if (type == WebRTCStream::Wowza) {
+    info("connecting to [url: %s, protocol: %s, application name: %s, stream name: %s]",
+        url.c_str(), protocol.empty() ? "Automatic" : protocol.c_str(), username.c_str(), password.c_str());
+    if (!client->connect(url, room, username, password, this)) {
+      error("Unable to connect to server");
+      obs_output_signal_stop(output, OBS_OUTPUT_CONNECT_FAILED);
+      return false;
+    }
+  } else {
     info("connecting to [url:%s,room:%s,username:%s,password:%s]", url.c_str(), room.c_str(), username.c_str(), password.c_str());
-    if(!client->connect(url, room, username, password , this)){
+    if (!client->connect(url, room, username, password, this)) {
       //Error
       obs_output_signal_stop(output, OBS_OUTPUT_CONNECT_FAILED);
       return false;
@@ -267,13 +283,54 @@ void WebRTCStream::OnSuccess(webrtc::SessionDescriptionInterface * desc)
   std::string sdp;
   //Serialize sdp to string
   desc->ToString(&sdp);
+  std::string sdpNotConst = sdp;
   //Got offer
-  info("Got offer\r\n%s", sdp.c_str());
+  info("Got offer\r\n%s\n", sdp.c_str());
+
+  int audio_bitrate = 0;
+
+  obs_output_t *context = this->output;
+
+  obs_encoder_t *vencoder = obs_output_get_video_encoder(context);
+  obs_data_t *vparams = obs_encoder_get_settings(vencoder);
+  int video_bitrate = (int)obs_data_get_int(vparams, "bitrate");
+
+  info("Video codec:   %s", codec.empty() ? "Automatic" : codec.c_str());
+  info("Video bitrate: %d", video_bitrate);
+
+  if (type == WebRTCStream::Wowza) {
+    obs_encoder_t *aencoder = obs_output_get_audio_encoder(context, 0);
+    obs_data_t *aparams = obs_encoder_get_settings(aencoder);
+    audio_bitrate = (int)obs_data_get_int(aparams, "bitrate");
+    info("Audio bitrate: %d\n", audio_bitrate);
+    std::vector<int> audio_payload_numbers;
+    std::vector<int> video_payload_numbers;
+    std::string audio_codec = "opus";
+    std::string video_codec = this->codec;
+    // If codec setting is Automatic
+    if (codec.empty()) {
+      audio_codec = "";
+      video_codec = "";
+    }
+    // Force specific payload
+    SDPModif::forcePayload(sdpNotConst, audio_payload_numbers,
+        video_payload_numbers, audio_codec, video_codec, 0, "42e01f", 0);
+    // Modify bitrate
+    SDPModif::bitrateMaxMinSDP(sdpNotConst, video_bitrate, video_payload_numbers);
+    // Enable stereo
+    SDPModif::stereoSDP(sdpNotConst, audio_bitrate);
+  }
+
+  webrtc::SdpParseError error;
+  // Create offer
+  std::unique_ptr<webrtc::SessionDescriptionInterface> offer =
+      webrtc::CreateSessionDescription(webrtc::SdpType::kOffer, sdpNotConst, &error);
+  info("OFFER:\n\n%s\n", sdpNotConst.c_str());
   //Set local description
-  pc->SetLocalDescription(this, desc);
+  pc->SetLocalDescription(this, offer.release());
   //Send SDP
   info("WebRTCStream::OnSuccess: %s", codec.c_str());
-  client->open(sdp, codec, milliId);
+  client->open(sdpNotConst, codec, milliId);
 }
 
 void WebRTCStream::OnFailure(const std::string & error)
@@ -289,7 +346,7 @@ void WebRTCStream::OnFailure(const std::string & error)
 void WebRTCStream::OnSuccess()
 {
   //Got offer
-  info("SDP set successfully");
+  info("SDP set successfully\n");
 }
 
 void WebRTCStream::OnIceCandidate(const webrtc::IceCandidateInterface* candidate)
@@ -299,7 +356,30 @@ void WebRTCStream::OnIceCandidate(const webrtc::IceCandidateInterface* candidate
   candidate->ToString(&str);
   //Trickle
   client->trickle(candidate->sdp_mid(), candidate->sdp_mline_index(), str, false);
-};
+}
+
+void WebRTCStream::onRemoteIceCandidate(const std::string &sdpData)
+{
+  if (sdpData.empty()) {
+    info("ICE COMPLETE\n");
+    pc->AddIceCandidate(nullptr);
+  } else {
+    std::string s = sdpData;
+    s.erase(remove(s.begin(), s.end(), '\"'), s.end());
+    if (protocol.empty() || SDPModif::filterIceCandidates(s, protocol)) {
+      const std::string candidate = s;
+      info("Remote %s\n", candidate.c_str());
+      const std::string sdpMid = "";
+      int sdpMLineIndex = 0;
+      webrtc::SdpParseError error;
+      const webrtc::IceCandidateInterface* newCandidate =
+          webrtc::CreateIceCandidate(sdpMid, sdpMLineIndex, candidate, &error);
+      pc->AddIceCandidate(newCandidate);
+    } else {
+      info("Ignoring remote %s\n", s.c_str());
+    }
+  }
+}
 
 bool WebRTCStream::stop()
 {
@@ -312,8 +392,7 @@ bool WebRTCStream::stop()
   //Close PC
   old->Close();
   //Check client
-  if (client)
-  {
+  if (client) {
     //Disconnect client
     client->disconnect(true);
     //Delete client
@@ -350,21 +429,34 @@ void WebRTCStream::onLoggedError(int code)
 
 void WebRTCStream::onOpened(const std::string &sdp)
 {
-  info("onOpened\r\n%s", sdp.c_str());
+  info("onOpened\r\n%s\n", sdp.c_str());
   std::string sdpNotConst = sdp;
 
-  obs_output_t  *context  = this->output;
+  obs_output_t *context = this->output;
+
   obs_encoder_t *vencoder = obs_output_get_video_encoder(context);
-  obs_data_t *params = obs_encoder_get_settings(vencoder);
-  int bitrate_settings = obs_data_get_int(params, "bitrate");
+  obs_data_t *vparams = obs_encoder_get_settings(vencoder);
+  int video_bitrate = (int)obs_data_get_int(vparams, "bitrate");
 
-  //modify bitrate
-  SDPModif::bitrateSDP(sdpNotConst, bitrate_settings);
+  obs_encoder_t *aencoder = obs_output_get_audio_encoder(context, 0);
+  obs_data_t *aparams = obs_encoder_get_settings(aencoder);
+  int audio_bitrate = (int)obs_data_get_int(aparams, "bitrate");
 
-  // Enable stereo
-  SDPModif::stereoSDP(sdpNotConst);
+  audio_bitrate = 0; // remove to enable
+
+  info("Video codec:   %s", codec.c_str());
+  info("Video bitrate: %d", video_bitrate);
+  info("Audio bitrate: %d\n", audio_bitrate);
+
+  if (type != WebRTCStream::Wowza) {
+    // Modify video bitrate
+    SDPModif::bitrateSDP(sdpNotConst, video_bitrate);
+    // Enable stereo
+    SDPModif::stereoSDP(sdpNotConst, audio_bitrate);
+  }
 
   webrtc::SdpParseError error;
+
   // Create answer
   std::unique_ptr<webrtc::SessionDescriptionInterface> answer =
       webrtc::CreateSessionDescription(webrtc::SdpType::kAnswer, sdpNotConst, &error);
@@ -406,7 +498,6 @@ void WebRTCStream::onDisconnected()
   //Disconnect, this will call stop on main thread
   obs_output_signal_stop(output, OBS_OUTPUT_ERROR);
 }
-
 
 void WebRTCStream::onVideoFrame(video_data *frame)
 {
@@ -458,7 +549,7 @@ void WebRTCStream::onVideoFrame(video_data *frame)
     .build();
 
   // Send frame to video capturer
-  videoCapturer->OnFrame(video_frame);
+  videoCapturer->OnFrameCaptured(video_frame);
 
   //Increase number of pictures
   picId++;
@@ -469,7 +560,7 @@ void WebRTCStream::onAudioFrame(audio_data *frame)
   if (!frame)
     return;
   //Push it to the device
-  adm.onIncomingData(frame->data[0], frame->frames);
+  adm->onIncomingData(frame->data[0], frame->frames);
 }
 
 //bitrate and dropped_frame

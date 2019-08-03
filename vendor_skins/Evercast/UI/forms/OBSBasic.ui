@@ -113,7 +113,6 @@
     <property name="title">
      <string>Basic.MainMenu.File</string>
     </property>
-    <addaction name="actionShow_Recordings"/>
     <addaction name="actionRemux"/>
     <addaction name="separator"/>
     <addaction name="action_Settings"/>
@@ -1141,11 +1140,6 @@
    </property>
    <property name="themeID" stdset="0">
     <string notr="true">downArrowIconSmall</string>
-   </property>
-  </action>
-  <action name="actionShow_Recordings">
-   <property name="text">
-    <string>Basic.MainMenu.File.ShowRecordings</string>
    </property>
   </action>
   <action name="actionRemux">

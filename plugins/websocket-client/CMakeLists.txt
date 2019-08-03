@@ -33,6 +33,7 @@ include_directories( ${CURL_INCLUDE_DIR} )
 # support only their service, we shoul dmake it modular here.
 set( websocketclient_SOURCES 
   JanusWebsocketClientImpl.cpp
+  WowzaWebsocketClientImpl.cpp
   EvercastWebsocketClientImpl.cpp
   MillicastWebsocketClientImpl.cpp
   WebsocketClient.cpp
@@ -48,8 +49,9 @@ add_definitions( -DWEBSOCKETCLIENT_EXPORTS )
 
 set( websocketclient_HEADERS
   json.hpp
-  EvercastWebsocketClientImpl.h
   JanusWebsocketClientImpl.h
+  WowzaWebsocketClientImpl.h
+  EvercastWebsocketClientImpl.h
   MillicastWebsocketClientImpl.h
   WebsocketClient.h
   )
@@ -63,6 +65,7 @@ target_link_libraries( websocketclient
   # NOTE ALEX: this is project specific and not using the standard module
   ${CURL_LIB}
   ${OPENSSL_LIBRARIES}
+  libobs
   )
 
 install_obs_plugin(websocketclient)
