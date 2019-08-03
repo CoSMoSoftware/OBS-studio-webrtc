@@ -123,13 +123,15 @@ extern "C" obs_properties_t *janus_stream_properties(void *unused)
 extern "C" uint64_t janus_stream_total_bytes_sent(void *data)
 {
   //Get stream
-  WebRTCStream* stream = (WebRTCStream*) data;
+  WebRTCStream* stream = (WebRTCStream*)data;
   return stream->getBitrate();
 }
 
-extern "C" int janus_stream_dropped_frames(void *)
+extern "C" int janus_stream_dropped_frames(void *data)
 {
-  return 0;
+  //Get stream
+  WebRTCStream* stream = (WebRTCStream*)data;
+  return stream->getDroppedFrames();
 }
 
 extern "C" float janus_stream_congestion(void *)

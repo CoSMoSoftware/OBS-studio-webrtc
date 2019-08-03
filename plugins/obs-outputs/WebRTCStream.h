@@ -110,6 +110,8 @@ public:
 
   //bitrate
   uint64_t getBitrate();
+  int getDroppedFrames();
+  rtc::scoped_refptr<const webrtc::RTCStatsReport> NewGetStats();
 
   template <typename T>
   rtc::scoped_refptr<T> make_scoped_refptr(T* t) {
@@ -137,9 +139,10 @@ private:
   rtc::scoped_refptr<webrtc::AudioTrackInterface> audio_track;
 
   //bitrate and dropped frames
-  uint64_t bitrate;
-  int dropped_frame;
-  uint16_t id;
+  uint64_t audio_bytes_sent;
+  uint64_t video_bytes_sent;
+  uint64_t total_bytes_sent;
+  int pli_received;
 
   //Websocket client
   WebsocketClient* client;
@@ -150,6 +153,7 @@ private:
   //Video Capturer
   rtc::scoped_refptr<VideoCapturer> videoCapturer;
   rtc::TimestampAligner timestamp_aligner_;
+  uint16_t id;
 
   //Thumbnail wrapper
   //webrtc::VideoCaptureCapability thumbnailCaptureCapability;
