@@ -53,8 +53,8 @@ WebRTCStream::WebRTCStream(obs_output_t * output)
   this->output = output;
   this->client = NULL;
 
-  //Block adm
-  adm.AddRef();
+  //Create audio device module
+  adm = new rtc::RefCountedObject<AudioDeviceModuleWrapper>();
 
   //Network thread
   network = rtc::Thread::CreateWithSocketServer();
@@ -76,7 +76,7 @@ WebRTCStream::WebRTCStream(obs_output_t * output)
     network.get(),
     worker.get(),
     signaling.get(),
-    &adm,
+    adm,
     webrtc::CreateBuiltinAudioEncoderFactory(),
     webrtc::CreateBuiltinAudioDecoderFactory(),
     webrtc::CreateBuiltinVideoEncoderFactory(),
@@ -98,6 +98,7 @@ WebRTCStream::~WebRTCStream()
   stop();
 
   // Free factories first
+  adm = NULL;
   pc = NULL;
   factory = NULL;
   videoCapturer = NULL;
@@ -546,7 +547,7 @@ void WebRTCStream::onAudioFrame(audio_data *frame)
   if (!frame)
     return;
   //Push it to the device
-  adm.onIncomingData(frame->data[0], frame->frames);
+  adm->onIncomingData(frame->data[0], frame->frames);
 }
 
 //bitrate and dropped_frame

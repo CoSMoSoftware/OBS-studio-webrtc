@@ -132,7 +132,7 @@ private:
   WebsocketClient* client;
 
   //Audio Wrapper
-  AudioDeviceModuleWrapper adm;
+  rtc::scoped_refptr<AudioDeviceModuleWrapper> adm;
 
   //Video Capturer
   rtc::scoped_refptr<VideoCapturer> videoCapturer;
