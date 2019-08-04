@@ -1,7 +1,4 @@
 rem ---------------------------------------------------------------------
-set build_config=Release
-mkdir build64
-cd build64
 cmake ^
   -G "Visual Studio 15 2017 Win64" ^
   -DENABLE_SCRIPTING=OFF ^
@@ -12,6 +9,6 @@ cmake ^
   -Dlibwebrtc_DIR=%libwebrtcPath% ^
   -DOPENSSL_ROOT_DIR=%opensslPath% ^
   -DQt5_DIR=%QTDIR64%\lib\cmake\Qt5 ^
-  -DCMAKE_BUILD_TYPE=Release ^
+  -DCMAKE_BUILD_TYPE=%build_config% ^
   -DOBS_WEBRTC_VENDOR_NAME=Evercast ^
   ..

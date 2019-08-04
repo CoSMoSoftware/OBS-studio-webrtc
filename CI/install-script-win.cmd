@@ -28,3 +28,7 @@ for /f "tokens=2 delims==" %%a in ("%confirm_line%") do set "confirm_id=%%a"
 curl -Lb ./cookie "https://drive.google.com/uc?export=download&confirm=%confirm_id%&id=1nwuNAq2N9egnVGCmZ-_3JlUCI6-EroSL" -oopenssl-1.1.zip
 7z x openssl-1.1.zip -oopenssl-1.1
 set opensslPath=%CD%\openssl-1.1\openssl-1.1\x64
+rem ---------------------------------------------------------------------
+set build_config=Release
+mkdir build64
+cd build64
