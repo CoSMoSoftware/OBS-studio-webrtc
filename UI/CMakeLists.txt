@@ -115,13 +115,13 @@ elseif(APPLE)
   endif()
 
 elseif(UNIX)
-        find_package(Qt5X11Extras REQUIRED)
+  find_package(Qt5X11Extras REQUIRED)
 
   set(obs_PLATFORM_SOURCES
     platform-x11.cpp)
 
-        set(obs_PLATFORM_LIBRARIES
-                Qt5::X11Extras)
+  set(obs_PLATFORM_LIBRARIES
+    Qt5::X11Extras)
 endif()
 
 set(obs_libffutil_SOURCES
@@ -272,7 +272,9 @@ if(WIN32)
   endif()
   set_target_properties(${_gui_name}
     PROPERTIES
-      OUTPUT_NAME "${_gui_name}${_output_suffix}")
+      OUTPUT_NAME "${_gui_name}${_output_suffix}"
+  )
+  target_compile_options(${_gui_name} PRIVATE "/MD$<$<CONFIG:Debug>:d>")
 endif()
 
 target_link_libraries(${_gui_name}
