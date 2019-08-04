@@ -15,7 +15,13 @@ add_subdirectory(obs-frontend-api)
 
 # ----------------------------------------------------------------------------
 
-project(obs)
+if( NOT OBS_WEBRTC_VENDOR_NAME )
+	set( _gui_name obs )
+else()
+	# NOTE ALEX: ugly, fix me.
+	set( _gui_name ebs )
+endif()
+project(${_gui_name})
 
 set(DISABLE_UPDATE_MODULE TRUE CACHE BOOL "Disables building the update module")
 
@@ -133,13 +139,13 @@ elseif(APPLE)
 	endif()
 
 elseif(UNIX)
-  find_package(Qt5X11Extras REQUIRED)
+        find_package(Qt5X11Extras REQUIRED)
 
 	set(obs_PLATFORM_SOURCES
 		platform-x11.cpp)
 
-  set(obs_PLATFORM_LIBRARIES
-    Qt5::X11Extras)
+        set(obs_PLATFORM_LIBRARIES
+                Qt5::X11Extras)
 endif()
 
 if(BROWSER_AVAILABLE_INTERNAL)
@@ -334,7 +340,7 @@ set(obs_QRC
 qt5_wrap_ui(obs_UI_HEADERS ${obs_UI})
 qt5_add_resources(obs_QRC_SOURCES ${obs_QRC})
 
-add_executable(obs WIN32
+add_executable(${_gui_name} WIN32
 	${obs_SOURCES}
 	${obs_HEADERS}
 	${obs_UI_HEADERS}
@@ -349,12 +355,11 @@ if(WIN32)
 
 	set_target_properties(${_gui_name}
 		PROPERTIES
-		OUTPUT_NAME "${_gui_name}${_output_suffix}"
-	)
+			OUTPUT_NAME "${_gui_name}${_output_suffix}")
 	target_compile_options(${_gui_name} PRIVATE "/MD$<$<CONFIG:Debug>:d>")
 endif()
 
-target_link_libraries(obs
+target_link_libraries(${_gui_name}
 	libobs
 	Qt5::Widgets
 	Qt5::Svg
@@ -364,11 +369,11 @@ target_link_libraries(obs
 	${obs_PLATFORM_LIBRARIES})
 
 if (APPLE)
-	target_link_libraries(obs
+	target_link_libraries(${_gui_name}
 			Qt5::MacExtras)
-	set_target_properties(obs PROPERTIES LINK_FLAGS "-pagezero_size 10000 -image_base 100000000")
+	set_target_properties(${_gui_name} PROPERTIES LINK_FLAGS "-pagezero_size 10000 -image_base 100000000")
 	set_property(
-		TARGET obs
+		TARGET ${_gui_name}
 		APPEND
 		PROPERTY INSTALL_RPATH
 		"/usr/local/Cellar/python3/3.6.4_2/Frameworks/Python.framework/Versions/3.6/lib/"
@@ -377,11 +382,11 @@ if (APPLE)
 	)
 endif()
 
-define_graphic_modules(obs)
+define_graphic_modules(${_gui_name})
 
-install_obs_core(obs)
-install_obs_data(obs data ${CONFIG_DIR})
-install_obs_data_file(obs ../AUTHORS ${CONFIG_DIR}/authors)
+install_obs_core(${_gui_name})
+install_obs_data(${_gui_name} data ${CONFIG_DIR})
+install_obs_data_file(${_gui_name} ../AUTHORS ${CONFIG_DIR}/authors)
 
 if (UNIX AND UNIX_STRUCTURE AND NOT APPLE)
 	add_subdirectory(xdg-data)

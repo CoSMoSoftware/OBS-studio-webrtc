@@ -20,13 +20,11 @@ extern QCefCookieManager *panel_cookies;
 enum class ListOpt : int {
 	ShowAll = 1,
 	Custom,
-	Wowza,
 	Janus,
+	Wowza,
 	Millicast,
 	Evercast
 };
-
-const int OTHER_SERVICES_COUNT = 1;
 
 enum class Section : int {
 	Connect,
@@ -102,8 +100,8 @@ void OBSBasicSettings::LoadStream1Settings()
 		int idx = ui->service->findText(service);
 		if (idx == -1) {
 			if (service && *service)
-				ui->service->insertItem(OTHER_SERVICES_COUNT, service);
-			idx = OTHER_SERVICES_COUNT;
+				ui->service->insertItem(1, service);
+			idx = 1;
 		}
 		ui->service->setCurrentIndex(idx);
 
@@ -127,15 +125,12 @@ void OBSBasicSettings::LoadStream1Settings()
 			strcmp("", tmpString) == 0 ? "Automatic" : tmpString;
 
 		int idx = 0;
-		if (strcmp(type, "webrtc_wowza") == 0)
-			idx = 1;
 		if (strcmp(type, "webrtc_janus") == 0)
+			idx = 1;
+		if (strcmp(type, "webrtc_wowza") == 0)
 			idx = 2;
-		if (strcmp(type, "webrtc_millicast") == 0) {
+		if (strcmp(type, "webrtc_millicast") == 0)
 			idx = 3;
-			// if (strlen(server) == 0)
-			// 	server = "wss://live.millicast.com:443/ws/v1/pub";
-		}
 		if (strcmp(type, "webrtc_evercast") == 0)
 			idx = 4;
 
@@ -188,8 +183,8 @@ void OBSBasicSettings::SaveStream1Settings()
 
 	const char *service_id = webrtc == 0
 			? customServer ? "rtmp_custom" : "rtmp_common"
-			: webrtc == (int)ListOpt::Wowza ? "webrtc_wowza"
 			: webrtc == (int)ListOpt::Janus ? "webrtc_janus"
+			: webrtc == (int)ListOpt::Wowza ? "webrtc_wowza"
 			: webrtc == (int)ListOpt::Millicast ? "webrtc_millicast"
 			: webrtc == (int)ListOpt::Evercast ? "webrtc_evercast"
 			: "";
@@ -336,16 +331,16 @@ void OBSBasicSettings::LoadServices(bool showAll)
 		QVariant((int)ListOpt::Evercast));
 
 	ui->service->insertItem(
-		0, QString("Millicast"),
+		0, QString("Millicast WebRTC Streaming Platform"),
 		QVariant((int)ListOpt::Millicast));
 
 	ui->service->insertItem(
-		0, QString("Janus Video Room"),
-		QVariant((int)ListOpt::Janus));
+		0, QString("Wowza Streaming Engine - WebRTC"),
+		QVariant((int)ListOpt::Wowza));
 
 	ui->service->insertItem(
-		0, QString("Wowza Streaming Engine"),
-		QVariant((int)ListOpt::Wowza));
+		0, QString("Janus WebRTC Server"),
+		QVariant((int)ListOpt::Janus));
 
 	ui->service->insertItem(
 		0, QTStr("Basic.AutoConfig.StreamPage.Service.Custom"),
@@ -443,7 +438,30 @@ void OBSBasicSettings::on_service_currentIndexChanged(int)
 		ui->serverStackedWidget->setCurrentIndex(1);
 		ui->serverLabel->setVisible(true);
 		ui->serverStackedWidget->setVisible(true);
-		if (webrtc == (int)ListOpt::Wowza) {
+		if (webrtc == (int)ListOpt::Janus) {
+			ui->serverLabel->setText("Server Name");
+			ui->roomLabel->setText("Server Room");
+			// ui->authUsernameLabel->setText("Stream Name");
+			ui->authPwLabel->setText("Stream Key");
+			ui->streamkeyPageLayout->insertRow(1, ui->serverLabel,
+							   ui->serverStackedWidget);
+			ui->streamkeyPageLayout->insertRow(2, ui->roomLabel,
+							   ui->room);
+			ui->streamkeyPageLayout->insertRow(3, ui->authPwLabel,
+							   ui->authPwWidget);
+			ui->streamkeyPageLayout->insertRow(4, ui->codecLabel,
+							   ui->codec);
+			ui->roomLabel->setVisible(true);
+			ui->room->setVisible(true);
+			ui->authUsernameLabel->setVisible(false);
+			ui->authUsername->setVisible(false);
+			ui->authPwLabel->setVisible(true);
+			ui->authPwWidget->setVisible(true);
+			ui->codecLabel->setVisible(true);
+			ui->codec->setVisible(true);
+			ui->streamProtocolLabel->setVisible(false);
+			ui->streamProtocol->setVisible(false);
+		} else if (webrtc == (int)ListOpt::Wowza) {
 			ui->serverLabel->setText("Server URL");
 			ui->roomLabel->setText("Application Name");
 			ui->authUsernameLabel->setText("Stream Name");
@@ -468,33 +486,12 @@ void OBSBasicSettings::on_service_currentIndexChanged(int)
 			ui->codec->setVisible(true);
 			ui->streamProtocolLabel->setVisible(true);
 			ui->streamProtocol->setVisible(true);
-		} else if (webrtc == (int)ListOpt::Janus) {
-			ui->serverLabel->setText("Server Name");
-			ui->roomLabel->setText("Server Room");
-			// ui->authUsernameLabel->setText("Stream Name");
-			ui->authPwLabel->setText("Stream Key");
-			ui->streamkeyPageLayout->insertRow(1, ui->serverLabel,
-							   ui->serverStackedWidget);
-			ui->streamkeyPageLayout->insertRow(2, ui->roomLabel,
-							   ui->room);
-			ui->streamkeyPageLayout->insertRow(3, ui->authPwLabel,
-							   ui->authPwWidget);
-			ui->streamkeyPageLayout->insertRow(4, ui->codecLabel,
-							   ui->codec);
-			ui->roomLabel->setVisible(true);
-			ui->room->setVisible(true);
-			ui->authUsernameLabel->setVisible(false);
-			ui->authUsername->setVisible(false);
-			ui->authPwLabel->setVisible(true);
-			ui->authPwWidget->setVisible(true);
-			ui->codecLabel->setVisible(true);
-			ui->codec->setVisible(true);
-			ui->streamProtocolLabel->setVisible(false);
-			ui->streamProtocol->setVisible(false);
 		} else if (webrtc == (int)ListOpt::Millicast) {
 			// ui->serverLabel->setText("Publish API URL");
 			ui->authUsernameLabel->setText("Stream Name");
 			ui->authPwLabel->setText("Publishing Token");
+			// ui->streamkeyPageLayout->insertRow(1, ui->serverLabel,
+			// 				   ui->serverStackedWidget);
 			ui->streamkeyPageLayout->insertRow(1, ui->authUsernameLabel,
 							   ui->authUsername);
 			ui->streamkeyPageLayout->insertRow(2, ui->authPwLabel,
@@ -513,12 +510,6 @@ void OBSBasicSettings::on_service_currentIndexChanged(int)
 			ui->codec->setVisible(true);
 			ui->streamProtocolLabel->setVisible(false);
 			ui->streamProtocol->setVisible(false);
-			// obs_service_t *service_obj = main->GetService();
-			// obs_data_t *settings = obs_service_get_settings(service_obj);
-			// const char *server = obs_data_get_string(settings, "server");
-			// if (strlen(server) == 0)
-			// 	ui->customServer->setText("wss://live.millicast.com:443/ws/v1/pub");
-			// obs_data_release(settings);
 		} else if (webrtc == (int)ListOpt::Evercast) {
 			ui->serverLabel->setText("Server Name");
 			ui->roomLabel->setText("Server Room");
@@ -650,8 +641,8 @@ OBSService OBSBasicSettings::SpawnTempService()
 
 	const char *service_id = webrtc == 0
 			? custom ? "rtmp_custom" : "rtmp_common"
-			: webrtc == (int)ListOpt::Wowza ? "webrtc_wowza"
 			: webrtc == (int)ListOpt::Janus ? "webrtc_janus"
+			: webrtc == (int)ListOpt::Wowza ? "webrtc_wowza"
 			: webrtc == (int)ListOpt::Millicast ? "webrtc_millicast"
 			: webrtc == (int)ListOpt::Evercast ? "webrtc_evercast"
 			: "";
