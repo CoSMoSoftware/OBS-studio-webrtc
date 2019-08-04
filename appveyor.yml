@@ -8,20 +8,26 @@ environment:
 install:
   - git submodule update --init --recursive
   - cmd: C:\projects\obs-studio-webrtc\CI\install-script-win.cmd
+  - cmd: c:\projects\obs-studio-webrtc\CI\configure-script-win.cmd
 
 build_script:
-  - ctest -D Experimental -C Release
+# commenting this out time to mke it work
+#  - ctest -D Experimental -C Release
+  - cmake --build . --config Release
   - cpack
 
-#before_deploy:
-#  - cmd: C:\projects\obs-studio\CI\before-deploy-win.cmd
+before_deploy:
+  - cmd: C:\projects\obs-studio\CI\before-deploy-win.cmd
+
+# deploy:
 
 test: off
 
 cache:
   - dependencies2017.zip
   - vlc.zip
-  - 'cef_binary_%CEF_VERSION%_windows64.zip'
+ # right now, we just remove this option which takes otherwise a lot of space
+ # - 'cef_binary_%CEF_VERSION%_windows64.zip'
   - Qt_5.10.1.7z
   - libWebRTC-73.0-x64-Rel-msvc2017-COMMUNITY-BETA.zip
   - openssl-1.1.zip
