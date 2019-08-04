@@ -105,11 +105,6 @@ public:
         return rtc::scoped_refptr<T>(t);
     }
 
-  template <typename T>
-  rtc::scoped_refptr<T> make_scoped_refptr(T* t) {
-    return rtc::scoped_refptr<T>(t);
-  }
-
 private:
     // Connection properties
     Type type;
