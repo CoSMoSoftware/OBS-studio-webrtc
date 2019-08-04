@@ -1,5 +1,12 @@
 project(libobs)
 
+
+if( NOT OBS_WEBRTC_VENDOR_NAME )
+	set(_gui_name obs)
+else()
+	set(_gui_name ebs)
+endif()
+
 find_package(Threads REQUIRED)
 
 find_package(FFmpeg REQUIRED
@@ -458,7 +465,7 @@ if(UNIX AND NOT APPLE)
 endif()
 
 set_target_properties(libobs PROPERTIES
-	OUTPUT_NAME obs
+	OUTPUT_NAME ${_gui_name}
 	VERSION "0"
 	SOVERSION "0")
 target_compile_definitions(libobs
