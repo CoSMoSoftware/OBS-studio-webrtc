@@ -1,7 +1,7 @@
 #include <obs-module.h>
 #include <openssl/opensslv.h>
-#include "WowzaWebsocketClientImpl.h"
 #include "JanusWebsocketClientImpl.h"
+#include "WowzaWebsocketClientImpl.h"
 #include "MillicastWebsocketClientImpl.h"
 #include "EvercastWebsocketClientImpl.h"
 

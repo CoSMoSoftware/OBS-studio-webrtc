@@ -122,7 +122,7 @@ private:
     uint64_t audio_bytes_sent;
     uint64_t video_bytes_sent;
     uint64_t total_bytes_sent;
-    int pli_received;
+    int pli_received; // Picture Loss Indication
 
     rtc::CriticalSection crit_;
 

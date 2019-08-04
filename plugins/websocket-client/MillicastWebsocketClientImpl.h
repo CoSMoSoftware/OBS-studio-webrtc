@@ -37,12 +37,14 @@ public:
             bool /* last */) override;
     bool disconnect(bool /* wait */) override;
 
+    bool closeWSS();
+
     std::string sanitizeString(const std::string & s);
 
 private:
     std::string token;
 
-    std::atomic<bool> is_running;
+    // std::atomic<bool> is_running;
     std::thread thread;
 
     Client client;

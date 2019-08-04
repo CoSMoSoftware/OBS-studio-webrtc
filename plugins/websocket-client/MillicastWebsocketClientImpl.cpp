@@ -42,8 +42,10 @@ bool MillicastWebsocketClientImpl::connect(
     conn->SetHeaders(headers);
     conn->SetTimeout(5);
     const std::string publish_api_url = "https://director.millicast.com/api/director/publish";
-    const std::string data = "{\"streamName\":\"" + sanitizeString(username) + "\"}\"";
-    RestClient::Response r = conn->post(publish_api_url, data);
+    json data = {
+        { "streamName", sanitizeString(username) }
+    };
+    RestClient::Response r = conn->post(publish_api_url, data.dump());
     delete conn;
     RestClient::disable();
 
@@ -96,11 +98,9 @@ bool MillicastWebsocketClientImpl::connect(
 
         // --- Message handler
         connection->set_message_handler([=](websocketpp::connection_hdl /* con */, message_ptr frame) {
-            // Get response
             auto msg = json::parse(frame->get_payload());
             std::cout << "msg received: " << msg << std::endl;
 
-            // If there is no type, do nothing and get out of here
             if (msg.find("type") == msg.end())
                 return;
 
@@ -110,17 +110,31 @@ bool MillicastWebsocketClientImpl::connect(
                     return;
                 if (msg.find("data") == msg.end())
                     return;
-                // Get the data session
+
                 auto data = msg["data"];
-                // Get response data
-                std::string sdp = data["sdp"];
-                int feedId = data["feedId"].get<int>();
-                // Event
-                listener->onOpened(sdp);
-                // Keep the connection alive
-                is_running.store(true);
+
+                int feedId = 0;
+                if (data.find("feedId") != data.end())
+                    feedId = data["feedId"].get<int>();
+
+                std::string sdp = "";
+                if (data.find("sdp") != data.end()) {
+                    sdp = data["sdp"].get<std::string>() + std::string("a=x-google-flag:conference\r\n");
+                    // Event
+                    listener->onOpened(sdp);
+                    // Keep the connection alive
+                    // is_running.store(true);
+                    // closeWSS();
+                }
             } else if (type.compare("error") == 0) {
                 listener->onDisconnected();
+            } else if (type.compare("event") == 0) {
+                // listener->onDisconnected();
+                // if (msg.find("name") != msg.end()) {
+                //     std::string name = msg["name"];
+                //     if (name.compare("stopped") == 0)
+                //         listener->onDisconnected();
+                // }
             }
         });
 
@@ -145,6 +159,7 @@ bool MillicastWebsocketClientImpl::connect(
 
         // -- Failure handler
         connection->set_fail_handler([=](...) {
+            std::cout << "> set_fail_handler called" << std::endl;
             listener->onDisconnected();
         });
 
@@ -247,6 +262,34 @@ bool MillicastWebsocketClientImpl::disconnect(bool /* wait */)
             thread.detach();
     } catch (const websocketpp::exception & e) {
         std::cout << "disconnect exception: " << e.what() << std::endl;
+        return false;
+    }
+    return true;
+}
+
+bool MillicastWebsocketClientImpl::closeWSS()
+{
+    if (!connection)
+        return true;
+    websocketpp::lib::error_code ec;
+    try {
+        if (connection->get_state() == websocketpp::session::state::open)
+            client.close(connection, websocketpp::close::status::normal, std::string("disconnect"), ec);
+        if (ec)
+            std::cout << "> Error on closeWSS close: " << ec.message() << std::endl;
+        std::cout << "Closing websocket connection" << std::endl;
+        client.stop();
+        // Remove handlers
+        client.set_open_handler([](...) {});
+        client.set_close_handler([](...) {});
+        client.set_fail_handler([](...) {});
+        // Detach thread
+        if (thread.joinable())
+            thread.detach();
+        if (!connection)
+            std::cout << "Websocket connection closed" << std::endl;
+    } catch (const websocketpp::exception & e) {
+        std::cout << "closeWSS exception: " << e.what() << std::endl;
         return false;
     }
     return true;

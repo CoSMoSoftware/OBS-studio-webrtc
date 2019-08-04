@@ -48,8 +48,8 @@ include_directories(${CURL_INCLUDE_DIR})
 #
 set(websocketclient_SOURCES
 	WebsocketClient.cpp
-	WowzaWebsocketClientImpl.cpp
 	JanusWebsocketClientImpl.cpp
+	WowzaWebsocketClientImpl.cpp
 	MillicastWebsocketClientImpl.cpp
 	EvercastWebsocketClientImpl.cpp
 	restclient-cpp/source/connection.cc

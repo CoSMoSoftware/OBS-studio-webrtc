@@ -53,7 +53,8 @@ CustomLogger logger;
 
 WebRTCStream::WebRTCStream(obs_output_t *output)
 {
-    rtc::LogMessage::ConfigureLogging("info");
+    // rtc::LogMessage::ConfigureLogging("info");
+    rtc::LogMessage::RemoveLogToStream(&logger);
     rtc::LogMessage::AddLogToStream(&logger, rtc::LoggingSeverity::LS_VERBOSE);
 
     frame_id = 0;
@@ -105,6 +106,8 @@ WebRTCStream::WebRTCStream(obs_output_t *output)
 
 WebRTCStream::~WebRTCStream()
 {
+    rtc::LogMessage::RemoveLogToStream(&logger);
+
     // Shutdown websocket connection and close Peer Connection
     close(false);
 
@@ -204,12 +207,12 @@ bool WebRTCStream::start(WebRTCStream::Type type)
     stream = factory->CreateLocalMediaStream("obs");
 
     audio_track = factory->CreateAudioTrack("audio", factory->CreateAudioSource(options));
-    stream->AddTrack(audio_track);
     // pc->AddTrack(audio_track, {"obs"});
-
+    stream->AddTrack(audio_track);
+    
     video_track = factory->CreateVideoTrack("video", videoCapturer);
-    stream->AddTrack(video_track);
     // pc->AddTrack(video_track, {"obs"});
+    stream->AddTrack(video_track);
 
     // Add the stream to the peer connection
     if (!pc->AddStream(stream)) {
@@ -241,10 +244,10 @@ bool WebRTCStream::start(WebRTCStream::Type type)
     info("Video codec:  %s\n", video_codec.empty() ? "Automatic" : video_codec.c_str());
     info("Protocol:     %s\n", protocol.empty() ? "Automatic" : protocol.c_str());
 
-    if (type == WebRTCStream::Type::Wowza) {
-        info("Application Name: %s\nStream Name: %s\n", room.c_str(), username.c_str());
-    } else if (type == WebRTCStream::Type::Janus) {
+    if (type == WebRTCStream::Type::Janus) {
         info("Server Room: %s\nStream Key: %s\n", room.c_str(), password.c_str());
+    } else if (type == WebRTCStream::Type::Wowza) {
+        info("Application Name: %s\nStream Name: %s\n", room.c_str(), username.c_str());
     } else if (type == WebRTCStream::Type::Millicast) {
         info("Stream Name: %s\nPublishing Token: %s\n", username.c_str(), password.c_str());
         url = "";
@@ -286,7 +289,6 @@ void WebRTCStream::OnSuccess(webrtc::SessionDescriptionInterface *desc)
 
     info("Video codec:   %s", video_codec.empty() ? "Automatic" : video_codec.c_str());
     info("Video bitrate: %d\n", video_bitrate);
-    info("OFFER:\n\n%s\n", sdp.c_str());
 
     if (type == WebRTCStream::Type::Wowza) {
         info("Audio codec:   %s", audio_codec.c_str());
@@ -307,8 +309,10 @@ void WebRTCStream::OnSuccess(webrtc::SessionDescriptionInterface *desc)
         SDPModif::stereoSDP(sdpCopy, audio_bitrate);
     }
 
+    info("OFFER:\n\n%s\n", sdp.c_str()); // original (unmodified)
+
     webrtc::SdpParseError error;
-    // Create offer
+    // Create OFFER from sdpCopy
     std::unique_ptr<webrtc::SessionDescriptionInterface> offer =
             webrtc::CreateSessionDescription(webrtc::SdpType::kOffer, sdpCopy, &error);
 
@@ -321,7 +325,7 @@ void WebRTCStream::OnSuccess(webrtc::SessionDescriptionInterface *desc)
 
 void WebRTCStream::OnSuccess()
 {
-    debug("SDP set\n");
+    info("SDP set\n");
 }
 
 void WebRTCStream::OnFailure(const std::string &error)
@@ -370,7 +374,6 @@ void WebRTCStream::onOpened(const std::string &sdp)
     info("ANSWER:\n\n%s\n", sdp.c_str());
 
     std::string sdpCopy = sdp;
-    webrtc::SdpParseError error;
 
     if (type != WebRTCStream::Type::Wowza) {
         // Constrain video bitrate
@@ -378,16 +381,18 @@ void WebRTCStream::onOpened(const std::string &sdp)
         // Enable stereo & constrain audio bitrate
         SDPModif::stereoSDP(sdpCopy, audio_bitrate);
     }
-    // Create answer
+
+    // SetRemoteDescription observer
+    srd_observer = make_scoped_refptr(this);
+    webrtc::SdpParseError error;
+    // Create ANSWER from sdpCopy
     std::unique_ptr<webrtc::SessionDescriptionInterface> answer =
             webrtc::CreateSessionDescription(webrtc::SdpType::kAnswer, sdpCopy, &error);
-    // SetRemoteDescription Observer
-    srd_observer = make_scoped_refptr(this);
 
     info("SETTING REMOTE DESCRIPTION\n\n%s", sdpCopy.c_str());
     pc->SetRemoteDescription(std::move(answer), srd_observer);
 
-    // Set audio data format
+    // Set audio conversion info
     audio_convert_info conversion;
     conversion.format = AUDIO_FORMAT_16BIT;
     conversion.samples_per_sec = 48000;
@@ -400,9 +405,8 @@ void WebRTCStream::onOpened(const std::string &sdp)
 
 void WebRTCStream::OnSetRemoteDescriptionComplete(webrtc::RTCError error)
 {
-    if (!error.ok()) {
-        warn("Error setting remote description");
-    }
+    if (!error.ok())
+        warn("Error setting remote description: %s", error.message());
 }
 
 bool WebRTCStream::close(bool wait)
@@ -427,7 +431,6 @@ bool WebRTCStream::stop()
     info("WebRTCStream::stop");
     // Shutdown websocket connection and close Peer Connection
     close(true);
-    // rtc::LogMessage::RemoveLogToStream(&logger);
     // Disconnect, this will call stop on main thread
     obs_output_end_data_capture(output);
     return true;
@@ -551,6 +554,7 @@ int WebRTCStream::getDroppedFrames()
 rtc::scoped_refptr<const webrtc::RTCStatsReport> WebRTCStream::NewGetStats()
 {
     rtc::CritScope lock(&crit_);
+
     rtc::scoped_refptr<StatsCallback> stats_callback =
             new rtc::RefCountedObject<StatsCallback>();
 
@@ -559,5 +563,6 @@ rtc::scoped_refptr<const webrtc::RTCStatsReport> WebRTCStream::NewGetStats()
     while (!stats_callback->called()) {
         std::this_thread::sleep_for(std::chrono::microseconds(1));
     }
+
     return stats_callback->report();
 }

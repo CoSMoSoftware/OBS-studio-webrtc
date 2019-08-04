@@ -42,15 +42,6 @@ if(WEBRTC_FOUND)
 	include_directories(${WEBRTC_INCLUDE_DIRS})
 endif()
 
-# add_definitions(-DWEBRTC_LIBRARY_IMPL -DNDEBUG -DNO_TCMALLOC -DABSL_ALLOCATOR_NOTHROW)
-# if(APPLE)
-# 	add_definitions(-DWEBRTC_POSIX -DWEBRTC_MAC -DHAVE_PTHREAD)
-# elseif(WIN32)
-# 	add_definitions(-DWEBRTC_WIN -DWIN32 -D_WINDOWS -D__STD_C -DWIN32_LEAN_AND_MEAN -DNOMINMAX -D_UNICODE -DUNICODE)
-# elseif(CMAKE_SYSTEM_NAME STREQUAL "Linux")
-# 	add_definitions(-DWEBRTC_LINUX -D_GLIBCXX_USE_CXX11_ABI=0)
-# endif()
-
 #------------------------------------------------------------------------
 # FTL-SDK (disabling for now due to compiling error)
 #
@@ -176,16 +167,16 @@ set(obs-outputs_webrtc_HEADERS
 	AudioDeviceModuleWrapper.h
 	VideoCapturer.h
 	WebRTCStream.h
-	wowza-stream.h
 	janus-stream.h
+	wowza-stream.h
 	millicast-stream.h
 	evercast-stream.h)
 set(obs-outputs_webrtc_SOURCES
 	AudioDeviceModuleWrapper.cpp
 	VideoCapturer.cpp
 	WebRTCStream.cpp
-	wowza-stream.cpp
 	janus-stream.cpp
+	wowza-stream.cpp
 	millicast-stream.cpp
 	evercast-stream.cpp)
 

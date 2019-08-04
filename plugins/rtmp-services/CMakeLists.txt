@@ -7,8 +7,8 @@ set(rtmp-services_SOURCES
 	twitch.c
 	rtmp-common.c
 	rtmp-custom.c
-	webrtc-wowza.c
 	webrtc-janus.c
+	webrtc-wowza.c
 	webrtc-millicast.c
 	webrtc-evercast.c)
 
