@@ -11,9 +11,8 @@ install:
   - cmd: c:\projects\obs-studio-webrtc\CI\configure-script-win.cmd
 
 build_script:
-# commenting this out time to mke it work
-#  - ctest -D Experimental -C Release
-  - cmake --build . --config Release
+# - cmake --build . --config Release
+  - ctest -D Experimental -C Release
   - cpack
 
 before_deploy:
