@@ -1,8 +1,7 @@
 rem ---------------------------------------------------------------------
 if exist Qt_5.10.1.7z (curl -kLO https://cdn-fastly.obsproject.com/downloads/Qt_5.10.1.7z -f --retry 5 -z Qt_5.10.1.7z) else (curl -kLO https://cdn-fastly.obsproject.com/downloads/Qt_5.10.1.7z -f --retry 5 -C -)
 7z x Qt_5.10.1.7z -oQt
-mv Qt C:\QtDep
-set QTDIR64=C:\QtDep\5.10.1\msvc2017_64
+set QTDIR64=%CD%\Qt\5.10.1\msvc2017_64
 rem ---------------------------------------------------------------------
 if exist dependencies2017.zip (curl -kLO https://cdn-fastly.obsproject.com/downloads/dependencies2017.zip -f --retry 5 -z dependencies2017.zip) else (curl -kLO https://cdn-fastly.obsproject.com/downloads/dependencies2017.zip -f --retry 5 -C -)
 7z x dependencies2017.zip -odependencies2017
