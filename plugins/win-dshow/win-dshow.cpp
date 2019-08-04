@@ -418,8 +418,6 @@ static inline video_format ConvertVideoFormat(VideoFormat format)
 		return VIDEO_FORMAT_UYVY;
 	case VideoFormat::HDYC:
 		return VIDEO_FORMAT_UYVY;
-	case VideoFormat::MJPEG:
-		return VIDEO_FORMAT_YUY2;
 	default:
 		return VIDEO_FORMAT_NONE;
 	}
@@ -464,11 +462,18 @@ static inline enum speaker_layout convert_speaker_layout(uint8_t channels)
 //#define LOG_ENCODED_VIDEO_TS 1
 //#define LOG_ENCODED_AUDIO_TS 1
 
+#define MAX_SW_RES_INT (1920 * 1080)
+
 void DShowInput::OnEncodedVideoData(enum AVCodecID id, unsigned char *data,
 				    size_t size, long long ts)
 {
 	if (!ffmpeg_decode_valid(video_decoder)) {
-		if (ffmpeg_decode_init(video_decoder, id) < 0) {
+		/* Only use MJPEG hardware decoding on resolutions higher
+		 * than 1920x1080.  The reason why is because we want to strike
+		 * a reasonable balance between hardware and CPU usage. */
+		bool useHW = videoConfig.format != VideoFormat::MJPEG ||
+			     (videoConfig.cx * videoConfig.cy) > MAX_SW_RES_INT;
+		if (ffmpeg_decode_init(video_decoder, id, useHW) < 0) {
 			blog(LOG_WARNING, "Could not initialize video decoder");
 			return;
 		}
@@ -499,6 +504,11 @@ void DShowInput::OnVideoData(const VideoConfig &config, unsigned char *data,
 {
 	if (videoConfig.format == VideoFormat::H264) {
 		OnEncodedVideoData(AV_CODEC_ID_H264, data, size, startTime);
+		return;
+	}
+
+	if (videoConfig.format == VideoFormat::MJPEG) {
+		OnEncodedVideoData(AV_CODEC_ID_MJPEG, data, size, startTime);
 		return;
 	}
 
@@ -568,7 +578,7 @@ void DShowInput::OnEncodedAudioData(enum AVCodecID id, unsigned char *data,
 				    size_t size, long long ts)
 {
 	if (!ffmpeg_decode_valid(audio_decoder)) {
-		if (ffmpeg_decode_init(audio_decoder, id) < 0) {
+		if (ffmpeg_decode_init(audio_decoder, id, false) < 0) {
 			blog(LOG_WARNING, "Could not initialize audio decoder");
 			return;
 		}
@@ -794,9 +804,9 @@ static bool DetermineResolution(int &cx, int &cy, obs_data_t *settings,
 
 static long long GetOBSFPS();
 
-static inline bool IsEncoded(const VideoConfig &config)
+static inline bool IsDelayedDevice(const VideoConfig &config)
 {
-	return config.format >= VideoFormat::MJPEG ||
+	return config.format > VideoFormat::MJPEG ||
 	       wstrstri(config.name.c_str(), L"elgato") != NULL ||
 	       wstrstri(config.name.c_str(), L"stream engine") != NULL;
 }
@@ -814,7 +824,7 @@ inline void DShowInput::SetupBuffering(obs_data_t *settings)
 	bufType = (BufferingType)obs_data_get_int(settings, BUFFERING_VAL);
 
 	if (bufType == BufferingType::Auto)
-		useBuffering = IsEncoded(videoConfig);
+		useBuffering = IsDelayedDevice(videoConfig);
 	else
 		useBuffering = bufType == BufferingType::On;
 
@@ -905,26 +915,12 @@ bool DShowInput::UpdateVideoConfig(obs_data_t *settings)
 					 placeholders::_3, placeholders::_4,
 					 placeholders::_5);
 
-	if (videoConfig.internalFormat != VideoFormat::MJPEG)
-		videoConfig.format = videoConfig.internalFormat;
+	videoConfig.format = videoConfig.internalFormat;
 
 	if (!device.SetVideoConfig(&videoConfig)) {
 		blog(LOG_WARNING, "%s: device.SetVideoConfig failed",
 		     obs_source_get_name(source));
 		return false;
-	}
-
-	if (videoConfig.internalFormat == VideoFormat::MJPEG) {
-		videoConfig.format = VideoFormat::XRGB;
-		videoConfig.useDefaultConfig = false;
-
-		if (!device.SetVideoConfig(&videoConfig)) {
-			blog(LOG_WARNING,
-			     "%s: device.SetVideoConfig (XRGB) "
-			     "failed",
-			     obs_source_get_name(source));
-			return false;
-		}
 	}
 
 	DStr formatName = GetVideoFormatName(videoConfig.internalFormat);
