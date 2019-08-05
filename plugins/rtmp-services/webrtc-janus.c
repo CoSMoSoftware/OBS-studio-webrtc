@@ -11,7 +11,7 @@ struct webrtc_janus {
 static const char *webrtc_janus_name(void *unused)
 {
 	UNUSED_PARAMETER(unused);
-	return obs_module_text("WebRTC Janus Streaming Server");
+	return "Janus WebRTC Server";
 }
 
 static void webrtc_janus_update(void *data, obs_data_t *settings)
@@ -52,49 +52,72 @@ static void *webrtc_janus_create(obs_data_t *settings, obs_service_t *service)
 	return data;
 }
 
-// static bool use_auth_modified(obs_properties_t *ppts, obs_property_t *p,
-// 			      obs_data_t *settings)
-// {
-// 	p = obs_properties_get(ppts, "server");
-// 	obs_property_set_visible(p, true);
+static bool use_auth_modified(obs_properties_t *ppts, obs_property_t *p,
+			      obs_data_t *settings)
+{
+	p = obs_properties_get(ppts, "server");
+	obs_property_set_visible(p, true);
 
-// 	p = obs_properties_get(ppts, "key");
-// 	obs_property_set_visible(p, false);
+	p = obs_properties_get(ppts, "key");
+	obs_property_set_visible(p, false);
 
-// 	p = obs_properties_get(ppts, "room");
-// 	obs_property_set_visible(p, true);
+	p = obs_properties_get(ppts, "room");
+	obs_property_set_visible(p, true);
 
-// 	p = obs_properties_get(ppts, "username");
-// 	obs_property_set_visible(p, false);
+	p = obs_properties_get(ppts, "username");
+	obs_property_set_visible(p, false);
 
-// 	p = obs_properties_get(ppts, "password");
-// 	obs_property_set_visible(p, true);
+	p = obs_properties_get(ppts, "password");
+	obs_property_set_visible(p, true);
 
-// 	p = obs_properties_get(ppts, "codec");
-// 	obs_property_set_visible(p, true);
+	p = obs_properties_get(ppts, "codec");
+	obs_property_set_visible(p, true);
 
-// 	p = obs_properties_get(ppts, "protocol");
-// 	obs_property_set_visible(p, false);
+	p = obs_properties_get(ppts, "protocol");
+	obs_property_set_visible(p, false);
 
-// 	return true;
-// }
+	return true;
+}
 
 static obs_properties_t *webrtc_janus_properties(void *unused)
 {
 	UNUSED_PARAMETER(unused);
 
 	obs_properties_t *ppts = obs_properties_create();
-	// obs_property_t *p;
+	obs_property_t *p;
 
-	obs_properties_add_text(ppts, "server", "Server URL", OBS_TEXT_DEFAULT);
+	obs_properties_add_text(ppts, "server", "Server Name", OBS_TEXT_DEFAULT);
 	obs_properties_add_text(ppts, "room", "Server Room", OBS_TEXT_DEFAULT);
+
+	obs_properties_add_text(ppts, "username", "Username", OBS_TEXT_DEFAULT);
 	obs_properties_add_text(ppts, "password", "Stream Key", OBS_TEXT_DEFAULT);
 
-	obs_properties_add_list(ppts, "codec", "Codec", OBS_COMBO_TYPE_LIST, OBS_COMBO_FORMAT_STRING);
-	obs_property_list_add_string(obs_properties_get(ppts, "codec"), "Automatic", "");
-	obs_property_list_add_string(obs_properties_get(ppts, "codec"), "H264", "h264");
-	obs_property_list_add_string(obs_properties_get(ppts, "codec"), "VP8", "vp8");
-	obs_property_list_add_string(obs_properties_get(ppts, "codec"), "VP9", "vp9");
+	obs_properties_add_text(ppts, "codec", "Codec", OBS_TEXT_DEFAULT);
+	obs_properties_add_text(ppts, "protocol", "Protocol", OBS_TEXT_DEFAULT);
+
+	// obs_properties_add_list(ppts, "codec", "Codec", OBS_COMBO_TYPE_LIST, OBS_COMBO_FORMAT_STRING);
+	// obs_property_list_add_string(obs_properties_get(ppts, "codec"), "Automatic", "");
+	// obs_property_list_add_string(obs_properties_get(ppts, "codec"), "H264", "h264");
+	// obs_property_list_add_string(obs_properties_get(ppts, "codec"), "VP8", "vp8");
+	// obs_property_list_add_string(obs_properties_get(ppts, "codec"), "VP9", "vp9");
+
+	p = obs_properties_get(ppts, "server");
+	obs_property_set_visible(p, true);
+
+	p = obs_properties_get(ppts, "room");
+	obs_property_set_visible(p, true);
+
+	p = obs_properties_get(ppts, "username");
+	obs_property_set_visible(p, false);
+
+	p = obs_properties_get(ppts, "password");
+	obs_property_set_visible(p, true);
+
+	p = obs_properties_get(ppts, "codec");
+	obs_property_set_visible(p, true);
+
+	p = obs_properties_get(ppts, "protocol");
+	obs_property_set_visible(p, false);
 
 	// obs_property_set_modified_callback(p, use_auth_modified);
 

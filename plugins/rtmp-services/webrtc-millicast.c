@@ -11,7 +11,7 @@ struct webrtc_millicast {
 static const char *webrtc_millicast_name(void *unused)
 {
 	UNUSED_PARAMETER(unused);
-	return obs_module_text("WebRTC Millicast Streaming Server");
+	return "Millicast WebRTC Streaming Platform";
 }
 
 static void webrtc_millicast_update(void *data, obs_data_t *settings)
@@ -57,7 +57,7 @@ static bool use_auth_modified(obs_properties_t *ppts, obs_property_t *p,
 			      obs_data_t *settings)
 {
 	p = obs_properties_get(ppts, "server");
-	obs_property_set_visible(p, true);
+	obs_property_set_visible(p, false);
 
 	p = obs_properties_get(ppts, "key");
 	obs_property_set_visible(p, false);
@@ -87,19 +87,44 @@ static obs_properties_t *webrtc_millicast_properties(void *unused)
 	obs_properties_t *ppts = obs_properties_create();
 	obs_property_t *p;
 
-	obs_properties_add_list(ppts, "server", "Server URL", OBS_COMBO_TYPE_LIST, OBS_COMBO_FORMAT_STRING);
-	obs_property_list_add_string(obs_properties_get(ppts, "server"), "Auto (Recommended)", "wss://live.millicast.com:443/ws/v1/pub");
+	obs_properties_add_text(ppts, "server", "Publish API URL", OBS_TEXT_DEFAULT);
+	obs_properties_add_text(ppts, "room", "Room", OBS_TEXT_DEFAULT);
+
+	// obs_properties_add_list(ppts, "server", "Publish API URL", OBS_COMBO_TYPE_LIST, OBS_COMBO_FORMAT_STRING);
+	// obs_property_list_add_string(obs_properties_get(ppts, "server"), "Auto (Recommended)", "wss://live.millicast.com:443/ws/v1/pub");
+	// obs_property_list_add_string(obs_properties_get(ppts, "server"), "Auto (Recommended)", "https://director.millicast.com/api/director/publish");
 
 	obs_properties_add_text(ppts, "username", "Stream Name", OBS_TEXT_DEFAULT);
 	obs_properties_add_text(ppts, "password", "Publishing Token", OBS_TEXT_PASSWORD);
 
-	obs_properties_add_list(ppts, "codec", "Codec", OBS_COMBO_TYPE_LIST, OBS_COMBO_FORMAT_STRING);
-	obs_property_list_add_string(obs_properties_get(ppts, "codec"), "Automatic", "");
-	obs_property_list_add_string(obs_properties_get(ppts, "codec"), "H264", "h264");
-	obs_property_list_add_string(obs_properties_get(ppts, "codec"), "VP8", "vp8");
-	obs_property_list_add_string(obs_properties_get(ppts, "codec"), "VP9", "vp9");
+	obs_properties_add_text(ppts, "codec", "Codec", OBS_TEXT_DEFAULT);
+	obs_properties_add_text(ppts, "protocol", "Protocol", OBS_TEXT_DEFAULT);
 
-	obs_property_set_modified_callback(p, use_auth_modified);
+	// obs_properties_add_list(ppts, "codec", "Codec", OBS_COMBO_TYPE_LIST, OBS_COMBO_FORMAT_STRING);
+	// obs_property_list_add_string(obs_properties_get(ppts, "codec"), "Automatic", "");
+	// obs_property_list_add_string(obs_properties_get(ppts, "codec"), "H264", "h264");
+	// obs_property_list_add_string(obs_properties_get(ppts, "codec"), "VP8", "vp8");
+	// obs_property_list_add_string(obs_properties_get(ppts, "codec"), "VP9", "vp9");
+
+	p = obs_properties_get(ppts, "server");
+	obs_property_set_visible(p, false);
+
+	p = obs_properties_get(ppts, "room");
+	obs_property_set_visible(p, false);
+
+	p = obs_properties_get(ppts, "username");
+	obs_property_set_visible(p, true);
+
+	p = obs_properties_get(ppts, "password");
+	obs_property_set_visible(p, true);
+
+	p = obs_properties_get(ppts, "codec");
+	obs_property_set_visible(p, true);
+
+	p = obs_properties_get(ppts, "protocol");
+	obs_property_set_visible(p, false);
+
+	// obs_property_set_modified_callback(p, use_auth_modified);
 
 	return ppts;
 }

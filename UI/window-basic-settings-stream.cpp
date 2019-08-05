@@ -31,6 +31,14 @@ enum class Section : int {
 	StreamKey,
 };
 
+std::vector<std::string> webrtc_services = {
+	"webrtc_janus",
+	"webrtc_wowza",
+	"webrtc_millicast",
+	"webrtc_evercast"
+};
+std::vector<std::string>::size_type webrtc_count = webrtc_services.size();
+
 inline bool OBSBasicSettings::IsCustomService() const
 {
 	return ui->service->currentData().toInt() == (int)ListOpt::Custom;
@@ -125,14 +133,11 @@ void OBSBasicSettings::LoadStream1Settings()
 			strcmp("", tmpString) == 0 ? "Automatic" : tmpString;
 
 		int idx = 0;
-		if (strcmp(type, "webrtc_janus") == 0)
-			idx = 1;
-		if (strcmp(type, "webrtc_wowza") == 0)
-			idx = 2;
-		if (strcmp(type, "webrtc_millicast") == 0)
-			idx = 3;
-		if (strcmp(type, "webrtc_evercast") == 0)
-			idx = 4;
+		for (std::vector<std::string>::size_type i = 0; i < webrtc_count; ++i)
+			if (std::string(type) == webrtc_services[i]) {
+				idx = i + 1;
+				break;
+			}
 
 		ui->service->setCurrentIndex(idx);
 		ui->customServer->setText(server);
@@ -183,11 +188,7 @@ void OBSBasicSettings::SaveStream1Settings()
 
 	const char *service_id = webrtc == 0
 			? customServer ? "rtmp_custom" : "rtmp_common"
-			: webrtc == (int)ListOpt::Janus ? "webrtc_janus"
-			: webrtc == (int)ListOpt::Wowza ? "webrtc_wowza"
-			: webrtc == (int)ListOpt::Millicast ? "webrtc_millicast"
-			: webrtc == (int)ListOpt::Evercast ? "webrtc_evercast"
-			: "";
+			: webrtc_services[webrtc - 3].c_str();
 
 	obs_service_t *oldService = main->GetService();
 	OBSData hotkeyData = obs_hotkeys_save_service(oldService);
@@ -326,21 +327,10 @@ void OBSBasicSettings::LoadServices(bool showAll)
 			QVariant((int)ListOpt::ShowAll));
 	}
 
-	ui->service->insertItem(
-		0, QString("Evercast"),
-		QVariant((int)ListOpt::Evercast));
-
-	ui->service->insertItem(
-		0, QString("Millicast WebRTC Streaming Platform"),
-		QVariant((int)ListOpt::Millicast));
-
-	ui->service->insertItem(
-		0, QString("Wowza Streaming Engine - WebRTC"),
-		QVariant((int)ListOpt::Wowza));
-
-	ui->service->insertItem(
-		0, QString("Janus WebRTC Server"),
-		QVariant((int)ListOpt::Janus));
+	for (std::vector<std::string>::size_type i = webrtc_count; i-- > 0; )
+		ui->service->insertItem(
+			0, obs_service_get_display_name(webrtc_services[i].c_str()),
+			QVariant((int)i+3));
 
 	ui->service->insertItem(
 		0, QTStr("Basic.AutoConfig.StreamPage.Service.Custom"),
@@ -438,102 +428,61 @@ void OBSBasicSettings::on_service_currentIndexChanged(int)
 		ui->serverStackedWidget->setCurrentIndex(1);
 		ui->serverLabel->setVisible(true);
 		ui->serverStackedWidget->setVisible(true);
-		if (webrtc == (int)ListOpt::Janus) {
-			ui->serverLabel->setText("Server Name");
-			ui->roomLabel->setText("Server Room");
-			// ui->authUsernameLabel->setText("Stream Name");
-			ui->authPwLabel->setText("Stream Key");
-			ui->streamkeyPageLayout->insertRow(1, ui->serverLabel,
+		obs_properties_t *props = obs_get_service_properties(webrtc_services[(int)webrtc - 3].c_str());
+		obs_property_t *server = obs_properties_get(props, "server");
+		obs_property_t *room = obs_properties_get(props, "room");
+		obs_property_t *username = obs_properties_get(props, "username");
+		obs_property_t *password = obs_properties_get(props, "password");
+		obs_property_t *codec = obs_properties_get(props, "codec");
+		obs_property_t *protocol = obs_properties_get(props, "protocol");
+		ui->serverLabel->setText(obs_property_description(server));
+		ui->roomLabel->setText(obs_property_description(room));
+		ui->authUsernameLabel->setText(obs_property_description(username));
+		ui->authPwLabel->setText(obs_property_description(password));
+		int min_idx = 1;
+		if (obs_property_visible(server)) {
+			ui->streamkeyPageLayout->insertRow(min_idx, ui->serverLabel,
 							   ui->serverStackedWidget);
-			ui->streamkeyPageLayout->insertRow(2, ui->roomLabel,
-							   ui->room);
-			ui->streamkeyPageLayout->insertRow(3, ui->authPwLabel,
-							   ui->authPwWidget);
-			ui->streamkeyPageLayout->insertRow(4, ui->codecLabel,
-							   ui->codec);
-			ui->roomLabel->setVisible(true);
-			ui->room->setVisible(true);
-			ui->authUsernameLabel->setVisible(false);
-			ui->authUsername->setVisible(false);
-			ui->authPwLabel->setVisible(true);
-			ui->authPwWidget->setVisible(true);
-			ui->codecLabel->setVisible(true);
-			ui->codec->setVisible(true);
-			ui->streamProtocolLabel->setVisible(false);
-			ui->streamProtocol->setVisible(false);
-		} else if (webrtc == (int)ListOpt::Wowza) {
-			ui->serverLabel->setText("Server URL");
-			ui->roomLabel->setText("Application Name");
-			ui->authUsernameLabel->setText("Stream Name");
-			ui->authPwLabel->setText("Password");
-			ui->streamkeyPageLayout->insertRow(1, ui->serverLabel,
-							   ui->serverStackedWidget);
-			ui->streamkeyPageLayout->insertRow(2, ui->roomLabel,
-							   ui->room);
-			ui->streamkeyPageLayout->insertRow(3, ui->authUsernameLabel,
-							   ui->authUsername);
-			ui->streamkeyPageLayout->insertRow(4, ui->codecLabel,
-							   ui->codec);
-			ui->streamkeyPageLayout->insertRow(5, ui->streamProtocolLabel,
-							   ui->streamProtocol);
-			ui->roomLabel->setVisible(true);
-			ui->room->setVisible(true);
-			ui->authUsernameLabel->setVisible(true);
-			ui->authUsername->setVisible(true);
-			ui->authPwLabel->setVisible(false);
-			ui->authPwWidget->setVisible(false);
-			ui->codecLabel->setVisible(true);
-			ui->codec->setVisible(true);
-			ui->streamProtocolLabel->setVisible(true);
-			ui->streamProtocol->setVisible(true);
-		} else if (webrtc == (int)ListOpt::Millicast) {
-			// ui->serverLabel->setText("Publish API URL");
-			ui->authUsernameLabel->setText("Stream Name");
-			ui->authPwLabel->setText("Publishing Token");
-			// ui->streamkeyPageLayout->insertRow(1, ui->serverLabel,
-			// 				   ui->serverStackedWidget);
-			ui->streamkeyPageLayout->insertRow(1, ui->authUsernameLabel,
-							   ui->authUsername);
-			ui->streamkeyPageLayout->insertRow(2, ui->authPwLabel,
-							   ui->authPwWidget);
-			ui->streamkeyPageLayout->insertRow(3, ui->codecLabel,
-							   ui->codec);
-			ui->serverLabel->setVisible(false);
-			ui->serverStackedWidget->setVisible(false);
-			ui->roomLabel->setVisible(false);
-			ui->room->setVisible(false);
-			ui->authUsernameLabel->setVisible(true);
-			ui->authUsername->setVisible(true);
-			ui->authPwLabel->setVisible(true);
-			ui->authPwWidget->setVisible(true);
-			ui->codecLabel->setVisible(true);
-			ui->codec->setVisible(true);
-			ui->streamProtocolLabel->setVisible(false);
-			ui->streamProtocol->setVisible(false);
-		} else if (webrtc == (int)ListOpt::Evercast) {
-			ui->serverLabel->setText("Server Name");
-			ui->roomLabel->setText("Server Room");
-			// ui->authUsernameLabel->setText("Stream Name");
-			ui->authPwLabel->setText("Stream Key");
-			ui->streamkeyPageLayout->insertRow(1, ui->serverLabel,
-							   ui->serverStackedWidget);
-			ui->streamkeyPageLayout->insertRow(2, ui->roomLabel,
-							   ui->room);
-			ui->streamkeyPageLayout->insertRow(3, ui->authPwLabel,
-							   ui->authPwWidget);
-			ui->streamkeyPageLayout->insertRow(4, ui->codecLabel,
-							   ui->codec);
-			ui->roomLabel->setVisible(true);
-			ui->room->setVisible(true);
-			ui->authUsernameLabel->setVisible(false);
-			ui->authUsername->setVisible(false);
-			ui->authPwLabel->setVisible(true);
-			ui->authPwWidget->setVisible(true);
-			ui->codecLabel->setVisible(true);
-			ui->codec->setVisible(true);
-			ui->streamProtocolLabel->setVisible(false);
-			ui->streamProtocol->setVisible(false);
+			min_idx++;
 		}
+		if (obs_property_visible(room)) {
+			ui->streamkeyPageLayout->insertRow(min_idx, ui->roomLabel,
+							   ui->room);
+			min_idx++;
+		}
+		if (obs_property_visible(username)) {
+			ui->streamkeyPageLayout->insertRow(min_idx, ui->authUsernameLabel,
+							   ui->authUsername);
+			min_idx++;
+		}
+		if (obs_property_visible(password)) {
+			ui->streamkeyPageLayout->insertRow(min_idx, ui->authPwLabel,
+							   ui->authPwWidget);
+			min_idx++;
+		}
+		if (obs_property_visible(codec)) {
+			ui->streamkeyPageLayout->insertRow(min_idx, ui->codecLabel,
+							   ui->codec);
+			min_idx++;
+		}
+		if (obs_property_visible(protocol)) {
+			ui->streamkeyPageLayout->insertRow(min_idx, ui->streamProtocolLabel,
+							   ui->streamProtocol);
+			min_idx++;
+		}
+		ui->serverLabel->setVisible(obs_property_visible(server));
+		ui->serverStackedWidget->setVisible(obs_property_visible(server));
+		ui->roomLabel->setVisible(obs_property_visible(room));
+		ui->room->setVisible(obs_property_visible(room));
+		ui->authUsernameLabel->setVisible(obs_property_visible(username));
+		ui->authUsername->setVisible(obs_property_visible(username));
+		ui->authPwLabel->setVisible(obs_property_visible(password));
+		ui->authPwWidget->setVisible(obs_property_visible(password));
+		ui->codecLabel->setVisible(obs_property_visible(codec));
+		ui->codec->setVisible(obs_property_visible(codec));
+		ui->streamProtocolLabel->setVisible(obs_property_visible(protocol));
+		ui->streamProtocol->setVisible(obs_property_visible(protocol));
+		obs_properties_destroy(props);
 	} else if (!custom && webrtc == 0) { // rtmp_common
 		ui->authUsernameLabel->setText("Username");
 		ui->authPwLabel->setText("Password");
@@ -641,11 +590,7 @@ OBSService OBSBasicSettings::SpawnTempService()
 
 	const char *service_id = webrtc == 0
 			? custom ? "rtmp_custom" : "rtmp_common"
-			: webrtc == (int)ListOpt::Janus ? "webrtc_janus"
-			: webrtc == (int)ListOpt::Wowza ? "webrtc_wowza"
-			: webrtc == (int)ListOpt::Millicast ? "webrtc_millicast"
-			: webrtc == (int)ListOpt::Evercast ? "webrtc_evercast"
-			: "";
+			: webrtc_services[webrtc - 3].c_str();
 
 	OBSData settings = obs_data_create();
 	obs_data_release(settings);

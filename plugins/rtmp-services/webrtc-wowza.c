@@ -13,7 +13,7 @@ struct webrtc_wowza {
 static const char *webrtc_wowza_name(void *unused)
 {
 	UNUSED_PARAMETER(unused);
-	return obs_module_text("WebRTC Wowza Streaming Engine");
+	return "Wowza Streaming Engine - WebRTC";
 }
 
 static void webrtc_wowza_update(void *data, obs_data_t *settings)
@@ -98,20 +98,41 @@ static obs_properties_t *webrtc_wowza_properties(void *unused)
 	obs_properties_add_text(ppts, "room", "Application Name", OBS_TEXT_DEFAULT);
 
 	obs_properties_add_text(ppts, "username", "Stream Name", OBS_TEXT_DEFAULT);
-	// obs_properties_add_text(ppts, "password", "Password", OBS_TEXT_DEFAULT);
+	obs_properties_add_text(ppts, "password", "Password", OBS_TEXT_DEFAULT);
 
-	obs_properties_add_list(ppts, "codec", obs_module_text("Codec"), OBS_COMBO_TYPE_LIST, OBS_COMBO_FORMAT_STRING);
-	obs_property_list_add_string(obs_properties_get(ppts, "codec"), "Automatic", "");
-	obs_property_list_add_string(obs_properties_get(ppts, "codec"), "H264", "h264");
-	obs_property_list_add_string(obs_properties_get(ppts, "codec"), "VP8", "vp8");
-	obs_property_list_add_string(obs_properties_get(ppts, "codec"), "VP9", "vp9");
+	obs_properties_add_text(ppts, "codec", "Codec", OBS_TEXT_DEFAULT);
+	obs_properties_add_text(ppts, "protocol", "Protocol", OBS_TEXT_DEFAULT);
 
-	obs_properties_add_list(ppts, "protocol", "Protocol", OBS_COMBO_TYPE_LIST, OBS_COMBO_FORMAT_STRING);
-	obs_property_list_add_string(obs_properties_get(ppts, "protocol"), "Automatic", "");
-	obs_property_list_add_string(obs_properties_get(ppts, "protocol"), "UDP", "UDP");
-	obs_property_list_add_string(obs_properties_get(ppts, "protocol"), "TCP", "TCP");
+	// obs_properties_add_list(ppts, "codec", obs_module_text("Codec"), OBS_COMBO_TYPE_LIST, OBS_COMBO_FORMAT_STRING);
+	// obs_property_list_add_string(obs_properties_get(ppts, "codec"), "Automatic", "");
+	// obs_property_list_add_string(obs_properties_get(ppts, "codec"), "H264", "h264");
+	// obs_property_list_add_string(obs_properties_get(ppts, "codec"), "VP8", "vp8");
+	// obs_property_list_add_string(obs_properties_get(ppts, "codec"), "VP9", "vp9");
 
-	obs_property_set_modified_callback(p, use_auth_modified);
+	// obs_properties_add_list(ppts, "protocol", "Protocol", OBS_COMBO_TYPE_LIST, OBS_COMBO_FORMAT_STRING);
+	// obs_property_list_add_string(obs_properties_get(ppts, "protocol"), "Automatic", "");
+	// obs_property_list_add_string(obs_properties_get(ppts, "protocol"), "UDP", "UDP");
+	// obs_property_list_add_string(obs_properties_get(ppts, "protocol"), "TCP", "TCP");
+
+	p = obs_properties_get(ppts, "server");
+	obs_property_set_visible(p, true);
+
+	p = obs_properties_get(ppts, "room");
+	obs_property_set_visible(p, true);
+
+	p = obs_properties_get(ppts, "username");
+	obs_property_set_visible(p, true);
+
+	p = obs_properties_get(ppts, "password");
+	obs_property_set_visible(p, false);
+
+	p = obs_properties_get(ppts, "codec");
+	obs_property_set_visible(p, true);
+
+	p = obs_properties_get(ppts, "protocol");
+	obs_property_set_visible(p, true);
+
+	// obs_property_set_modified_callback(p, use_auth_modified);
 
 	return ppts;
 }
