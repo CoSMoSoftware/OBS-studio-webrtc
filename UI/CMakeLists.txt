@@ -11,12 +11,6 @@ add_subdirectory(obs-frontend-api)
 
 # ----------------------------------------------------------------------------
 
-if( NOT OBS_WEBRTC_VENDOR_NAME )
-  set( _gui_name obs )
-else()
-  # NOTE ALEX: ugly, fix me.
-  set( _gui_name ebs )
-endif()
 project(${_gui_name})
 
 set(ENABLE_WIN_UPDATER FALSE CACHE BOOL "Enable the windows updater")

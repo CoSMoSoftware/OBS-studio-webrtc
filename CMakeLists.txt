@@ -2,9 +2,13 @@ cmake_minimum_required(VERSION 2.8.12)
 
 if( NOT OBS_WEBRTC_VENDOR_NAME )
   set( _project_name obs-studio )
+  set( _gui_name obs )
 else()
   set( _project_name ${OBS_WEBRTC_VENDOR_NAME} )
+  # NOTE ALEX: ugly, fix me.
+  set( _gui_name ebs )
 endif()
+
 project(${_project_name})
 
 # --- Handle CMake Options
