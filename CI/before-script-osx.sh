@@ -3,6 +3,7 @@ export PATH=/usr/local/opt/ccache/libexec:$PATH
 mkdir build
 cd build
 cmake \
+-DENABLE_SCRIPTING=OFF \
 -DDepsPath=/tmp/obsdeps \
 -DCMAKE_BUILD_TYPE=Release \
 -DVLCPath=$PWD/../../vlc-master \
