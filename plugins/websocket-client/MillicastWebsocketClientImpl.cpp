@@ -28,7 +28,7 @@ MillicastWebsocketClientImpl::~MillicastWebsocketClientImpl()
 bool MillicastWebsocketClientImpl::connect(
         const std::string & /* publish_api_url */,
         const std::string & /* room */,
-        const std::string & username,
+        const std::string & stream_name,
         const std::string & token,
         WebsocketClient::Listener * listener)
 {
@@ -42,9 +42,7 @@ bool MillicastWebsocketClientImpl::connect(
     conn->SetHeaders(headers);
     conn->SetTimeout(5);
     const std::string publish_api_url = "https://director.millicast.com/api/director/publish";
-    json data = {
-        { "streamName", sanitizeString(username) }
-    };
+    json data = {{ "streamName", sanitizeString(stream_name) }};
     RestClient::Response r = conn->post(publish_api_url, data.dump());
     delete conn;
     RestClient::disable();
@@ -122,8 +120,6 @@ bool MillicastWebsocketClientImpl::connect(
                     sdp = data["sdp"].get<std::string>() + std::string("a=x-google-flag:conference\r\n");
                     // Event
                     listener->onOpened(sdp);
-                    // Keep the connection alive
-                    // is_running.store(true);
                     // closeWSS();
                 }
             } else if (type.compare("error") == 0) {
@@ -188,20 +184,19 @@ bool MillicastWebsocketClientImpl::connect(
 
 bool MillicastWebsocketClientImpl::open(
         const std::string & sdp,
-        const std::string & codec,
-        const std::string & milliId)
+        const std::string & video_codec,
+        const std::string & stream_name)
 {
-    std::cout << "WS-OPEN: milliId: " << milliId << std::endl;
-    std::string video_codec = "vp8";
+    std::cout << "WS-OPEN: stream_name: " << stream_name << std::endl;
     try {
         json data_without_codec = {
-            { "name", sanitizeString(milliId) },
-            { "streamId", sanitizeString(milliId) },
+            { "name", sanitizeString(stream_name) },
+            { "streamId", sanitizeString(stream_name) },
             { "sdp" , sdp }
         };
         json data_with_codec = {
-            { "name", sanitizeString(milliId) },
-            { "streamId", sanitizeString(milliId) },
+            { "name", sanitizeString(stream_name) },
+            { "streamId", sanitizeString(stream_name) },
             { "sdp" , sdp },
             { "codec", video_codec }
         };
@@ -210,7 +205,7 @@ bool MillicastWebsocketClientImpl::open(
             { "type", "cmd" },
             { "name", "publish" },
             { "transId", rand() },
-            { "data", codec.empty() ? data_without_codec : data_with_codec }
+            { "data", video_codec.empty() ? data_without_codec : data_with_codec }
         };
         // Serialize and send
         if (connection->send(open.dump()))

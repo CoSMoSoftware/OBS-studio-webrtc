@@ -23,13 +23,13 @@ public:
     bool connect(
             const std::string & /* publish_api_url */,
             const std::string & /* room */,
-            const std::string & username,
+            const std::string & stream_name,
             const std::string & token,
             WebsocketClient::Listener * listener) override;
     bool open(
             const std::string & sdp,
-            const std::string & codec,
-            const std::string & milliId) override;
+            const std::string & video_codec,
+            const std::string & stream_name) override;
     bool trickle(
             const std::string & /* mid */,
             int /* index */,
@@ -42,11 +42,8 @@ public:
     std::string sanitizeString(const std::string & s);
 
 private:
-    std::string token;
-
-    // std::atomic<bool> is_running;
-    std::thread thread;
-
     Client client;
     Client::connection_ptr connection;
+    std::thread thread;
+    std::string token;
 };
