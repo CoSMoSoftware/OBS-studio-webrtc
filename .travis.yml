@@ -33,6 +33,7 @@ matrix:
 script:
   - cd ./build
   - ctest -D Experimental -j4
+  - cd ..
 
 deploy:
   provider: s3
