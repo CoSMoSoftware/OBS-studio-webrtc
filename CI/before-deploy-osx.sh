@@ -31,3 +31,4 @@ packagesbuild ../CI/install/osx/CMakeLists.pkgproj
 hr "Moving package to nightly folder for distribution"
 mkdir -p nightly
 sudo mv OBS.pkg ./nightly/$FILENAME
+cd ..
