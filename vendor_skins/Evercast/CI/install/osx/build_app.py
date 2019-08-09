@@ -12,11 +12,6 @@ blacklist = """/usr /System""".split()
 #copied
 whitelist = """/usr/local""".split()
 
-#
-#
-#
-
-
 from sys import argv
 from glob import glob
 from subprocess import check_output, call
@@ -140,10 +135,10 @@ while inspect:
   # ---
   if "QtCore" in path:
     print( "--- QtCore in Path, copying plugins." )
-    # ALEX - add_plugins(path, "platforms")
-    # ALEX - add_plugins(path, "imageformats")
-    # ALEX - add_plugins(path, "accessible")
-    # ALEX - add_plugins(path, "styles")
+    add_plugins(path, "platforms")
+    add_plugins(path, "imageformats")
+    add_plugins(path, "accessible")
+    add_plugins(path, "styles")
 
   # --- extract runtime dependencies and correpsonding path
   out = check_output("{0}otool -L '{1}'".format(args.prefix, path), shell=True,
