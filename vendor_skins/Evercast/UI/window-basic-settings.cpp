@@ -1493,7 +1493,7 @@ void OBSBasicSettings::LoadSimpleOutputSettings()
 
 	// ui->simpleOutputPath->setText(path);
 	// ui->simpleNoSpace->setChecked(noSpace);
-	// ui->simpleOutputVBitrate->setValue(videoBitrate);
+  ui->simpleOutputVBitrate->setValue(videoBitrate);
 
 	// int idx = ui->simpleOutRecFormat->findText(format);
 	// ui->simpleOutRecFormat->setCurrentIndex(idx);
@@ -1508,9 +1508,9 @@ void OBSBasicSettings::LoadSimpleOutputSettings()
 	SetComboByName(ui->simpleOutputABitrate,
 			std::to_string(audioBitrate).c_str());
 
-	// ui->simpleOutAdvanced->setChecked(advanced);
-	// ui->simpleOutEnforce->setChecked(enforceBitrate);
-	// ui->simpleOutCustom->setText(custom);
+	ui->simpleOutAdvanced->setChecked(advanced);
+	ui->simpleOutEnforce->setChecked(enforceBitrate);
+	ui->simpleOutCustom->setText(custom);
 
 	// idx = ui->simpleOutRecQuality->findData(QString(recQual));
 	// if (idx == -1) idx = 0;
@@ -1530,7 +1530,7 @@ void OBSBasicSettings::LoadSimpleOutputSettings()
 	// ui->simpleRBSecMax->setValue(rbTime);
 	// ui->simpleRBMegsMax->setValue(rbSize);
 
-	// SimpleStreamingEncoderChanged();
+	SimpleStreamingEncoderChanged();
 }
 
 void OBSBasicSettings::LoadAdvOutputStreamingSettings()
