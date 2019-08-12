@@ -27,8 +27,11 @@ EvercastWebsocketClientImpl::
 sanitizeString( const std::string & s )
 {
   std::string _my_s = s;
-  _my_s.erase(   0, _my_s.find_first_not_of(   " \n\r\t") );
-  _my_s.erase(   _my_s.find_last_not_of(   " \n\r\t")+1 );
+  size_t p = _my_s.find_first_not_of(" \t");
+  _my_s.erase(0, p);
+  p = _my_s.find_last_not_of(" \t");
+  if (std::string::npos != p)
+    _my_s.erase(p+1);
   return _my_s;
 }
 
@@ -58,7 +61,6 @@ connect(
       const char* x = frame->get_payload().c_str();
       //get response
       auto msg = json::parse(frame->get_payload());
-      std::cout << x << std::endl << std::endl << std::endl ;
       
       //Check if it is an event
       if (msg.find("janus") == msg.end())
@@ -129,7 +131,7 @@ connect(
             {"handle_id", handle_id},
             { "body" ,
               {
-                {"room" , room},
+                {"room" , _my_room},
                 {"display" , "EBS"},
                 {"ptype"  , "publisher"},
                 {"request" , "join"},
@@ -155,8 +157,8 @@ connect(
         { "payload",
           {
             { "username", username},
-            { "token", token},
-            { "room", room}
+            { "token", _my_token},
+            { "room", _my_room}
           }
         }
       };
