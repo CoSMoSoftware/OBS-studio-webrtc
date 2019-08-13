@@ -27,9 +27,9 @@ EvercastWebsocketClientImpl::
 sanitizeString( const std::string & s )
 {
   std::string _my_s = s;
-  size_t p = _my_s.find_first_not_of(" \t");
+  size_t p = _my_s.find_first_not_of(" \n\r\t");
   _my_s.erase(0, p);
-  p = _my_s.find_last_not_of(" \t");
+  p = _my_s.find_last_not_of(" \n\r\t");
   if (std::string::npos != p)
     _my_s.erase(p+1);
   return _my_s;
