@@ -21,7 +21,7 @@ set libwebrtcPath=%CD%\libWebRTC-73\cmake
 rem ---------------------------------------------------------------------
 if exist openssl-1.1.tgz (curl -kLO https://libwebrtc-community-builds.s3.amazonaws.com/openssl-1.1.tgz -f --retry 5 -z openssl-1.1.tgz) else                 (curl -kLO https://libwebrtc-community-builds.s3.amazonaws.com/openssl-1.1.tgz -f --retry 5 -C -)
 tar -xzf openssl-1.1.tgz
-set opensslPath=%CD%\openssl-1.1\openssl-1.1\x64
+set opensslPath=%CD%\openssl-1.1\x64
 rem ---------------------------------------------------------------------
 set build_config=Release
 mkdir build64
