@@ -19,7 +19,7 @@ build_script:
 #  - cmd: C:\projects\obs-studio\CI\before-deploy-win.cmd
 
 artifacts:
-  path: '.\ebs*.exe'
+  path: '*.exe'
   name: ebs_nsis_pkg
 
 deploy:
