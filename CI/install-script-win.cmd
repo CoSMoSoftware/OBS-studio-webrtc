@@ -19,11 +19,8 @@ curl -Lb ./cookie "https://libwebrtc-community-builds.s3.amazonaws.com/libWebRTC
 tar -xzf libWebRTC-73-win.tar.gz
 set libwebrtcPath=%CD%\libWebRTC-73\cmake
 rem ---------------------------------------------------------------------
-curl -c ./cookie -s -L "https://drive.google.com/uc?export=download&id=1nwuNAq2N9egnVGCmZ-_3JlUCI6-EroSL" > nul
-for /f "delims=" %%x in ('findstr /C:"NID" cookie') do set "confirm_line=%%x"
-for /f "tokens=2 delims==" %%a in ("%confirm_line%") do set "confirm_id=%%a"
-curl -Lb ./cookie "https://drive.google.com/uc?export=download&confirm=%confirm_id%&id=1nwuNAq2N9egnVGCmZ-_3JlUCI6-EroSL" -oopenssl-1.1.zip
-7z x openssl-1.1.zip -oopenssl-1.1
+curl -Lb ./cookie "https://libwebrtc-community-builds.s3.amazonaws.com/openssl-1.1.tgz" -oopenssl-1.1.tgz
+tar -xzf openssl-1.1.tgz
 set opensslPath=%CD%\openssl-1.1\openssl-1.1\x64
 rem ---------------------------------------------------------------------
 set build_config=Release
