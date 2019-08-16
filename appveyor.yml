@@ -28,5 +28,5 @@ cache:
  # right now, we just remove this option which takes otherwise a lot of space
  # - 'cef_binary_%CEF_VERSION%_windows64.zip'
   - Qt_5.10.1.7z
-  - libWebRTC-73.0-x64-Rel-msvc2017-COMMUNITY-BETA.zip
-  - openssl-1.1.zip
+  - libWebRTC-73-win.tar.gz
+ # - openssl-1.1.zip
