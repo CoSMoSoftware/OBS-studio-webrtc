@@ -15,11 +15,11 @@ rem if exist cef_binary_%CEF_VERSION%_windows64.zip (curl -kLO https://cdn-fastl
 rem 7z x cef_binary_%CEF_VERSION%_windows64.zip -oCEF_64
 rem set CEF_64=%CD%\CEF_64\cef_binary_%CEF_VERSION%_windows64
 rem ---------------------------------------------------------------------
-curl -Lb ./cookie "https://libwebrtc-community-builds.s3.amazonaws.com/libWebRTC-73-win.tar.gz" -olibWebRTC-73-win.tar.gz
+if exist libWebRTC-73-win.tar.gz (curl -kLO https://libwebrtc-community-builds.s3.amazonaws.com/libWebRTC-73-win.tar.gz -f --retry 5 -z libWebRTC-73-win.tar.gz) else (curl -kLO https://libwebrtc-community-builds.s3.amazonaws.com/libWebRTC-73-win.tar.gz -f --retry 5 -C -)
 tar -xzf libWebRTC-73-win.tar.gz
 set libwebrtcPath=%CD%\libWebRTC-73\cmake
 rem ---------------------------------------------------------------------
-curl -Lb ./cookie "https://libwebrtc-community-builds.s3.amazonaws.com/openssl-1.1.tgz" -oopenssl-1.1.tgz
+if exist openssl-1.1.tgz (curl -kLO https://libwebrtc-community-builds.s3.amazonaws.com/openssl-1.1.tgz -f --retry 5 -z openssl-1.1.tgz) else                 (curl -kLO https://libwebrtc-community-builds.s3.amazonaws.com/openssl-1.1.tgz -f --retry 5 -C -)
 tar -xzf openssl-1.1.tgz
 set opensslPath=%CD%\openssl-1.1\openssl-1.1\x64
 rem ---------------------------------------------------------------------
