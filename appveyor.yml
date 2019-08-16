@@ -29,4 +29,4 @@ cache:
  # - 'cef_binary_%CEF_VERSION%_windows64.zip'
   - Qt_5.10.1.7z
   - libWebRTC-73-win.tar.gz
- # - openssl-1.1.zip
+  - openssl-1.1.zip
