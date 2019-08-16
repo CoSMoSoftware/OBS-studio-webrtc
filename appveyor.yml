@@ -19,7 +19,7 @@ build_script:
 #  - cmd: C:\projects\obs-studio\CI\before-deploy-win.cmd
 
 artifacts:
-  path: '*.exe'
+  path: C:/projects/obs-studio-webrtc/build64/ebs-studio-x64-m73-travis-mac-122-gbf1c7d78-modified.exe
   name: ebs_nsis_pkg
 
 deploy:
