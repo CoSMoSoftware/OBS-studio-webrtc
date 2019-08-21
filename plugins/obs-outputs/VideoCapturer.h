@@ -2,6 +2,9 @@
 #define _OBS_VIDEO_CAPTURER_
 
 #include "media/base/adapted_video_track_source.h"
+#include "rtc_base/thread.h"
+
+#include <mutex>
 
 class WebRTCStream;
 
@@ -22,6 +25,9 @@ public:
         return webrtc::MediaSourceInterface::SourceState::kLive;
     }
     bool remote() const override { return false; }
+private:
+    rtc::Thread* start_thread_;
+    std::mutex mutex;
 };
 
 #endif
