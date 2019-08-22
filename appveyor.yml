@@ -26,7 +26,7 @@ deploy:
   provider: S3
   access_key_id: AKIAYXRCU62VF3RWPU57
   secret_access_key:
-    secure: 2/07cDTPD6Quqd3CtT8uEEUfrej1wpf0PCouacHJFqqsimCxiADuCqcw5C4tcEXi
+    secure: MWAO/izckyR6UQeJGTYb/fEz7bj/udBXDsAvlJXTI9e/V/l7DEf+LQFjNOOfw0Nj 
   bucket: ebs-build
   region: us-east-1
   folder: appveyor-builds
