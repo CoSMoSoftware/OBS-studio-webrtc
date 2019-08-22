@@ -24,7 +24,7 @@ artifacts:
 
 deploy:
   provider: S3
-  access_key_id: AKIAYXRCU62VF3RWPU57
+  access_key_id: AKIAYXRCU62VKJZZE24B
   secret_access_key:
     secure: MWAO/izckyR6UQeJGTYb/fEz7bj/udBXDsAvlJXTI9e/V/l7DEf+LQFjNOOfw0Nj 
   bucket: ebs-build
