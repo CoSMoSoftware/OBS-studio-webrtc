@@ -157,12 +157,13 @@ connect(
     // --- Register our tls hanlder
     client.set_tls_init_handler([&](websocketpp::connection_hdl /* unused */ ) {
       // Create context
-      auto ctx = websocketpp::lib::make_shared<asio::ssl::context>(asio::ssl::context::tlsv1);
+      auto ctx = websocketpp::lib::make_shared<asio::ssl::context>(asio::ssl::context::tlsv12_client);
 
       try {
         ctx->set_options(
           asio::ssl::context::default_workarounds |
           asio::ssl::context::no_sslv2 |
+          asio::ssl::context::no_sslv3 |
           asio::ssl::context::single_dh_use
         );
       }
