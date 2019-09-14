@@ -97,8 +97,11 @@ bool WowzaWebsocketClientImpl::connect(const std::string& url, const std::string
                     session_id = std::stoll(session_id_str);
                     info("Session ID: %s", session_id_str.c_str());
                 }
-                if (msg.find("sdp") != msg.end())
-                    sdp = msg["sdp"]["sdp"];
+                if (msg.find("sdp") != msg.end()){
+                    // TODO alex: clang yells here
+                    // would need to fix that, but for now, I m just commenting it out
+                    // sdp = msg["sdp"]["sdp"];
+                }
 
                 std::string command = msg["command"];
 
