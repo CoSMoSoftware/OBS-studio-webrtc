@@ -57,12 +57,12 @@ static obs_properties_t *webrtc_evercast_properties(void *unused)
   obs_properties_add_text(ppts, "server", "Server Name", OBS_TEXT_DEFAULT);
   obs_properties_add_text(ppts, "room",   "Server Room", OBS_TEXT_DEFAULT);
   obs_properties_add_text(ppts, "token",  "Stream Key",  OBS_TEXT_DEFAULT);
-  obs_properties_add_list(ppts, "codec",  "Codec",
-    OBS_COMBO_TYPE_LIST, OBS_COMBO_FORMAT_STRING );
+  obs_properties_add_button_group(ppts, "codec",  "Codec",
+      OBS_BUTTON_GROUP_TYPE_LIST, OBS_BUTTON_GROUP_FORMAT_STRING );
 
-  obs_property_list_add_string(obs_properties_get(ppts,"codec"),"h264", "h264");
-  obs_property_list_add_string(obs_properties_get(ppts,"codec"),"vp8",  "vp8" );
-  obs_property_list_add_string(obs_properties_get(ppts,"codec"),"vp9",  "vp9" );
+  obs_property_button_group_add_string(obs_properties_get(ppts,"codec"),"h264", "h264");
+  obs_property_button_group_add_string(obs_properties_get(ppts,"codec"),"vp8",  "vp8" );
+  obs_property_button_group_add_string(obs_properties_get(ppts,"codec"),"vp9",  "vp9" );
 
   return ppts;
 }

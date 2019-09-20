@@ -178,6 +178,15 @@ static inline QString GetComboData(QComboBox *combo)
 	return combo->itemData(idx).toString();
 }
 
+static inline QString GetButtonGroupData(QButtonGroup *bg)
+{
+	int idx = bg->checkedId();
+	if (idx == -1)
+		return QString();
+
+	return bg->button(idx)->objectName();
+}
+
 static int FindEncoder(QComboBox *combo, const char *name, int id)
 {
 	CodecDesc codecDesc(name, id);
@@ -258,6 +267,7 @@ void OBSBasicSettings::HookWidget(QWidget *widget, const char *signal,
 #define EDIT_CHANGED    SIGNAL(textChanged(const QString &))
 #define CBEDIT_CHANGED  SIGNAL(editTextChanged(const QString &))
 #define CHECK_CHANGED   SIGNAL(clicked(bool))
+#define RADIO_CHANGED   SIGNAL(buttonClicked(int))
 #define SCROLL_CHANGED  SIGNAL(valueChanged(int))
 #define DSCROLL_CHANGED SIGNAL(valueChanged(double))
 #define TOGGLE_CHANGED  SIGNAL(toggled(bool))
@@ -289,14 +299,12 @@ OBSBasicSettings::OBSBasicSettings(QWidget *parent)
 			ui->advOutTrack3Bitrate, ui->advOutTrack4Bitrate,
 			ui->advOutTrack5Bitrate, ui->advOutTrack6Bitrate});
 
-	ui->listWidget->setAttribute(Qt::WA_MacShowFocusRect, false);
-
 	auto policy = ui->audioSourceScrollArea->sizePolicy();
 	policy.setVerticalStretch(true);
 	ui->audioSourceScrollArea->setSizePolicy(policy);
 
 	HookWidget(ui->language,             COMBO_CHANGED,  GENERAL_CHANGED);
-	HookWidget(ui->theme, 		     COMBO_CHANGED,  GENERAL_CHANGED);
+	HookWidget(ui->theme,                COMBO_CHANGED,  GENERAL_CHANGED);
 	HookWidget(ui->enableAutoUpdates,    CHECK_CHANGED,  GENERAL_CHANGED);
 	HookWidget(ui->openStatsOnStartup,   CHECK_CHANGED,  GENERAL_CHANGED);
 	HookWidget(ui->warnBeforeStreamStart,CHECK_CHANGED,  GENERAL_CHANGED);
@@ -319,8 +327,8 @@ OBSBasicSettings::OBSBasicSettings(QWidget *parent)
 	HookWidget(ui->doubleClickSwitch,    CHECK_CHANGED,  GENERAL_CHANGED);
 	HookWidget(ui->studioPortraitLayout, CHECK_CHANGED,  GENERAL_CHANGED);
 	HookWidget(ui->multiviewLayout,      COMBO_CHANGED,  GENERAL_CHANGED);
-	HookWidget(ui->outputMode,           COMBO_CHANGED,  OUTPUTS_CHANGED);
-	HookWidget(ui->streamType,           COMBO_CHANGED,  STREAM1_CHANGED);
+	HookWidget(ui->radioButtonOutputModeSimple, CHECK_CHANGED, OUTPUTS_CHANGED);
+	HookWidget(ui->webrtc_evercast,      RADIO_CHANGED,  STREAM1_CHANGED);
 	// HookWidget(ui->simpleOutputPath,     EDIT_CHANGED,   OUTPUTS_CHANGED);
 	// HookWidget(ui->simpleNoSpace,        CHECK_CHANGED,  OUTPUTS_CHANGED);
 	// HookWidget(ui->simpleOutRecFormat,   COMBO_CHANGED,  OUTPUTS_CHANGED);
@@ -518,7 +526,7 @@ OBSBasicSettings::OBSBasicSettings(QWidget *parent)
 
 	connect(ui->streamDelaySec, SIGNAL(valueChanged(int)),
 			this, SLOT(UpdateStreamDelayEstimate()));
-	connect(ui->outputMode, SIGNAL(currentIndexChanged(int)),
+	connect(ui->outputModeButtonGroup, SIGNAL(buttonClicked(int)),
 			this, SLOT(UpdateStreamDelayEstimate()));
 	connect(ui->simpleOutputVBitrate, SIGNAL(valueChanged(int)),
 			this, SLOT(UpdateStreamDelayEstimate()));
@@ -538,14 +546,14 @@ OBSBasicSettings::OBSBasicSettings(QWidget *parent)
 			this, SLOT(UpdateStreamDelayEstimate()));
 
 	//Apply button disabled until change.
-	EnableApplyButton(false);
+	EnableApplyButton(true);
 
 	// Initialize libff library
 	ff_init();
 
 	installEventFilter(CreateShortcutFilter());
 
-	LoadServiceTypes();
+	LoadServiceTypes(); // Only one service type: Evercast
 	LoadEncoderTypes();
 	LoadColorRanges();
 	LoadFormats();
@@ -659,8 +667,25 @@ OBSBasicSettings::OBSBasicSettings(QWidget *parent)
 			this, SLOT(AdvReplayBufferChanged()));
 	connect(ui->advRBSecMax, SIGNAL(valueChanged(int)),
 			this, SLOT(AdvReplayBufferChanged()));
-	connect(ui->listWidget, SIGNAL(currentRowChanged(int)),
+
+  // The ID of each QPushButton of the QButtonGroup is used to display the corresponding QWidget
+  // of the QStackedWidget named "settingPages"
+  ui->basicSettingsButtonGroup->setId(ui->SettingsGeneralButton,  0);
+  ui->basicSettingsButtonGroup->setId(ui->SettingsStreamButton,   1);
+  ui->basicSettingsButtonGroup->setId(ui->SettingsOutputButton,   2);
+  ui->basicSettingsButtonGroup->setId(ui->SettingsAudioButton,    3);
+  ui->basicSettingsButtonGroup->setId(ui->SettingsVideoButton,    4);
+  ui->basicSettingsButtonGroup->setId(ui->SettingsHotkeysButton,  5);
+  ui->basicSettingsButtonGroup->setId(ui->SettingsAdvancedButton, 6);
+	connect(ui->basicSettingsButtonGroup, SIGNAL(buttonClicked(int)),
 			this, SLOT(SimpleRecordingEncoderChanged()));
+
+  ui->streamTypeButtonGroup->setId(ui->webrtc_evercast, 0);
+  connect(ui->streamTypeButtonGroup, SIGNAL(buttonClicked(int)),
+      this, SLOT(SimpleRecordingEncoderChanged()));
+  ui->outputModeButtonGroup->setId(ui->radioButtonOutputModeSimple, 0);
+  connect(ui->outputModeButtonGroup, SIGNAL(buttonClicked(int)),
+      this, SLOT(SimpleRecordingEncoderChanged()));
 
 	// Get Bind to IP Addresses
 	obs_properties_t *ppts = obs_get_output_properties("rtmp_output");
@@ -761,15 +786,15 @@ void OBSBasicSettings::LoadServiceTypes()
 	while (obs_enum_service_types(idx++, &type)) {
 		const char *name = obs_service_get_display_name(type);
 		QString qName = QT_UTF8(name);
-                if( qName == "Evercast" ) {
-		  QString qType = QT_UTF8(type);
-		  ui->streamType->addItem(qName, qType);
-                  break;
-                }
+    if( qName == "Evercast" ) {
+      QString qType = QT_UTF8(type);
+		  // ui->streamType->addItem(qName, qType);
+      break;
+    }
 	}
 
-	// type = obs_service_get_type(main->GetService());
-	SetComboByValue(ui->streamType, type);
+	type = obs_service_get_type(main->GetService());
+	// SetComboByValue(ui->streamType, type);
 }
 
 #define TEXT_USE_STREAM_ENC \
@@ -1149,7 +1174,7 @@ void OBSBasicSettings::LoadStream1Settings()
 	loading = false;
 
 	if (main->StreamingActive()) {
-		ui->streamType->setEnabled(false);
+		ui->webrtc_evercast->setEnabled(false);
 		ui->streamContainer->setEnabled(false);
 	}
 }
@@ -1865,7 +1890,7 @@ void OBSBasicSettings::LoadOutputSettings()
 	const char *mode = config_get_string(main->Config(), "Output", "Mode");
 
 	int modeIdx = astrcmpi(mode, "Advanced") == 0 ? 1 : 0;
-	ui->outputMode->setCurrentIndex(modeIdx);
+	ui->outputModeButtonGroup->button(modeIdx)->setChecked(true);
 
 	LoadSimpleOutputSettings();
 	LoadAdvOutputStreamingSettings();
@@ -1876,7 +1901,7 @@ void OBSBasicSettings::LoadOutputSettings()
 	LoadAdvOutputAudioSettings();
 
 	if (video_output_active(obs_get_video())) {
-		ui->outputMode->setEnabled(false);
+		ui->radioButtonOutputModeSimple->setEnabled(false);
 		ui->outputModeLabel->setEnabled(false);
 		// ui->simpleRecordingGroupBox->setEnabled(false);
 		ui->replayBufferGroupBox->setEnabled(false);
@@ -2710,7 +2735,7 @@ void OBSBasicSettings::SaveGeneralSettings()
 
 void OBSBasicSettings::SaveStream1Settings()
 {
-	QString streamType = GetComboData(ui->streamType);
+	QString streamType = GetButtonGroupData(ui->streamTypeButtonGroup);
 
 	obs_service_t *oldService = main->GetService();
 	obs_data_t *hotkeyData = obs_hotkeys_save_service(oldService);
@@ -2941,7 +2966,7 @@ void OBSBasicSettings::SaveEncoder(QComboBox *combo, const char *section,
 void OBSBasicSettings::SaveOutputSettings()
 {
 	config_set_string(main->Config(), "Output", "Mode",
-			OutputModeFromIdx(ui->outputMode->currentIndex()));
+			OutputModeFromIdx(ui->outputModeButtonGroup->checkedId()));
 
 	QString encoder = ui->simpleOutStrEncoder->currentData().toString();
 	const char *presetType;
@@ -3289,10 +3314,8 @@ void OBSBasicSettings::on_theme_activated(int idx)
 	App()->SetTheme(currT);
 }
 
-void OBSBasicSettings::on_listWidget_itemSelectionChanged()
+void OBSBasicSettings::on_basicSettingsButtonGroup_buttonClicked(int row)
 {
-	int row = ui->listWidget->currentRow();
-
 	if (loading || row == pageIndex)
 		return;
 
@@ -3329,7 +3352,7 @@ void OBSBasicSettings::on_streamType_currentIndexChanged(int idx)
 		return;
 
 	QLayout *layout = ui->streamContainer->layout();
-	QString streamType = ui->streamType->itemData(idx).toString();
+	QString streamType = ui->streamTypeButtonGroup->button(idx)->text();
 	obs_data_t *settings = obs_service_defaults(QT_TO_UTF8(streamType));
 
 	delete streamProperties;
@@ -3865,7 +3888,7 @@ void OBSBasicSettings::UpdateAdvOutStreamDelayEstimate()
 
 void OBSBasicSettings::UpdateStreamDelayEstimate()
 {
-	if (ui->outputMode->currentIndex() == 0)
+	if (ui->outputModeButtonGroup->checkedId() == 0)
 		UpdateSimpleOutStreamDelayEstimate();
 	else
 		UpdateAdvOutStreamDelayEstimate();

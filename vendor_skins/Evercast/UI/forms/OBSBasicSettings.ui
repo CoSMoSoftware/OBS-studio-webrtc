@@ -28,93 +28,180 @@
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout">
-     <item alignment="Qt::AlignLeft">
-      <widget class="QListWidget" name="listWidget">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Minimum" vsizetype="Expanding">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="maximumSize">
-        <size>
-         <width>135</width>
-         <height>16777215</height>
-        </size>
-       </property>
-       <property name="iconSize">
-        <size>
-         <width>48</width>
-         <height>48</height>
-        </size>
-       </property>
-       <property name="currentRow">
+     <item>
+      <layout class="QVBoxLayout" name="verticalLayout_23">
+       <property name="bottomMargin">
         <number>0</number>
        </property>
-       <item>
-        <property name="text">
-         <string>Basic.Settings.General</string>
-        </property>
-        <property name="icon">
-         <iconset resource="obs.qrc">
-          <normaloff>:/settings/images/settings/system-settings-3.png</normaloff>:/settings/images/settings/system-settings-3.png</iconset>
-        </property>
+       <item alignment="Qt::AlignTop">
+        <widget class="QPushButton" name="SettingsGeneralButton">
+         <property name="enabled">
+          <bool>true</bool>
+         </property>
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>0</width>
+           <height>0</height>
+          </size>
+         </property>
+         <property name="text">
+          <string>Basic.Settings.General</string>
+         </property>
+         <property name="icon">
+          <iconset resource="obs.qrc">
+           <normaloff>:/settings/images/settings/system-settings-3.png</normaloff>:/settings/images/settings/system-settings-3.png</iconset>
+         </property>
+         <property name="iconSize">
+          <size>
+           <width>64</width>
+           <height>64</height>
+          </size>
+         </property>
+         <attribute name="buttonGroup">
+          <string notr="true">basicSettingsButtonGroup</string>
+         </attribute>
+        </widget>
+       </item>
+       <item alignment="Qt::AlignTop">
+        <widget class="QPushButton" name="SettingsStreamButton">
+         <property name="text">
+          <string>Basic.Settings.Stream</string>
+         </property>
+         <property name="icon">
+          <iconset resource="obs.qrc">
+           <normaloff>:/settings/images/settings/network.png</normaloff>:/settings/images/settings/network.png</iconset>
+         </property>
+         <property name="iconSize">
+          <size>
+           <width>64</width>
+           <height>64</height>
+          </size>
+         </property>
+         <attribute name="buttonGroup">
+          <string notr="true">basicSettingsButtonGroup</string>
+         </attribute>
+        </widget>
+       </item>
+       <item alignment="Qt::AlignTop">
+        <widget class="QPushButton" name="SettingsOutputButton">
+         <property name="text">
+          <string>Basic.Settings.Output</string>
+         </property>
+         <property name="icon">
+          <iconset resource="obs.qrc">
+           <normaloff>:/settings/images/settings/network-bluetooth.png</normaloff>:/settings/images/settings/network-bluetooth.png</iconset>
+         </property>
+         <property name="iconSize">
+          <size>
+           <width>64</width>
+           <height>64</height>
+          </size>
+         </property>
+         <attribute name="buttonGroup">
+          <string notr="true">basicSettingsButtonGroup</string>
+         </attribute>
+        </widget>
+       </item>
+       <item alignment="Qt::AlignTop">
+        <widget class="QPushButton" name="SettingsAudioButton">
+         <property name="text">
+          <string>Basic.Settings.Audio</string>
+         </property>
+         <property name="icon">
+          <iconset resource="obs.qrc">
+           <normaloff>:/settings/images/settings/decibel_audio_player.png</normaloff>:/settings/images/settings/decibel_audio_player.png</iconset>
+         </property>
+         <property name="iconSize">
+          <size>
+           <width>64</width>
+           <height>64</height>
+          </size>
+         </property>
+         <attribute name="buttonGroup">
+          <string notr="true">basicSettingsButtonGroup</string>
+         </attribute>
+        </widget>
+       </item>
+       <item alignment="Qt::AlignTop">
+        <widget class="QPushButton" name="SettingsVideoButton">
+         <property name="text">
+          <string>Basic.Settings.Video</string>
+         </property>
+         <property name="icon">
+          <iconset resource="obs.qrc">
+           <normaloff>:/settings/images/settings/video-display-3.png</normaloff>:/settings/images/settings/video-display-3.png</iconset>
+         </property>
+         <property name="iconSize">
+          <size>
+           <width>64</width>
+           <height>64</height>
+          </size>
+         </property>
+         <attribute name="buttonGroup">
+          <string notr="true">basicSettingsButtonGroup</string>
+         </attribute>
+        </widget>
+       </item>
+       <item alignment="Qt::AlignTop">
+        <widget class="QPushButton" name="SettingsHotkeysButton">
+         <property name="text">
+          <string>Basic.Settings.Hotkeys</string>
+         </property>
+         <property name="icon">
+          <iconset resource="obs.qrc">
+           <normaloff>:/settings/images/settings/preferences-desktop-keyboard-shortcuts.png</normaloff>:/settings/images/settings/preferences-desktop-keyboard-shortcuts.png</iconset>
+         </property>
+         <property name="iconSize">
+          <size>
+           <width>64</width>
+           <height>64</height>
+          </size>
+         </property>
+         <attribute name="buttonGroup">
+          <string notr="true">basicSettingsButtonGroup</string>
+         </attribute>
+        </widget>
+       </item>
+       <item alignment="Qt::AlignTop">
+        <widget class="QPushButton" name="SettingsAdvancedButton">
+         <property name="text">
+          <string>Basic.Settings.Advanced</string>
+         </property>
+         <property name="icon">
+          <iconset resource="obs.qrc">
+           <normaloff>:/settings/images/settings/advanced.png</normaloff>:/settings/images/settings/advanced.png</iconset>
+         </property>
+         <property name="iconSize">
+          <size>
+           <width>64</width>
+           <height>64</height>
+          </size>
+         </property>
+         <attribute name="buttonGroup">
+          <string notr="true">basicSettingsButtonGroup</string>
+         </attribute>
+        </widget>
        </item>
        <item>
-        <property name="text">
-         <string>Basic.Settings.Stream</string>
-        </property>
-        <property name="icon">
-         <iconset resource="obs.qrc">
-          <normaloff>:/settings/images/settings/network.png</normaloff>:/settings/images/settings/network.png</iconset>
-        </property>
+        <spacer name="verticalSpacer_3">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>500</height>
+          </size>
+         </property>
+        </spacer>
        </item>
-       <item>
-        <property name="text">
-         <string>Basic.Settings.Output</string>
-        </property>
-        <property name="icon">
-         <iconset resource="obs.qrc">
-          <normaloff>:/settings/images/settings/network-bluetooth.png</normaloff>:/settings/images/settings/network-bluetooth.png</iconset>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>Basic.Settings.Audio</string>
-        </property>
-        <property name="icon">
-         <iconset resource="obs.qrc">
-          <normaloff>:/settings/images/settings/decibel_audio_player.png</normaloff>:/settings/images/settings/decibel_audio_player.png</iconset>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>Basic.Settings.Video</string>
-        </property>
-        <property name="icon">
-         <iconset resource="obs.qrc">
-          <normaloff>:/settings/images/settings/video-display-3.png</normaloff>:/settings/images/settings/video-display-3.png</iconset>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>Basic.Settings.Hotkeys</string>
-        </property>
-        <property name="icon">
-         <iconset resource="obs.qrc">
-          <normaloff>:/settings/images/settings/preferences-desktop-keyboard-shortcuts.png</normaloff>:/settings/images/settings/preferences-desktop-keyboard-shortcuts.png</iconset>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>Basic.Settings.Advanced</string>
-        </property>
-        <property name="icon">
-         <iconset resource="obs.qrc">
-          <normaloff>:/settings/images/settings/advanced.png</normaloff>:/settings/images/settings/advanced.png</iconset>
-        </property>
-       </item>
-      </widget>
+      </layout>
      </item>
      <item>
       <widget class="QStackedWidget" name="settingsPages">
@@ -683,13 +770,33 @@
                     <property name="alignment">
                      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                     </property>
-                    <property name="buddy">
-                     <cstring>streamType</cstring>
-                    </property>
                    </widget>
                   </item>
                   <item row="0" column="1">
-                   <widget class="QComboBox" name="streamType"/>
+                   <widget class="QGroupBox" name="groupBox_17">
+                    <property name="title">
+                     <string/>
+                    </property>
+                    <widget class="QRadioButton" name="webrtc_evercast">
+                     <property name="geometry">
+                      <rect>
+                       <x>10</x>
+                       <y>10</y>
+                       <width>83</width>
+                       <height>23</height>
+                      </rect>
+                     </property>
+                     <property name="text">
+                      <string>Evercast</string>
+                     </property>
+                     <property name="checked">
+                      <bool>true</bool>
+                     </property>
+                     <attribute name="buttonGroup">
+                      <string notr="true">streamTypeButtonGroup</string>
+                     </attribute>
+                    </widget>
+                   </widget>
                   </item>
                  </layout>
                 </widget>
@@ -776,30 +883,35 @@
                   <property name="alignment">
                    <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                   </property>
-                  <property name="buddy">
-                   <cstring>outputMode</cstring>
-                  </property>
                  </widget>
                 </item>
                 <item row="0" column="1">
-                 <widget class="QComboBox" name="outputMode">
-                  <property name="enabled">
-                   <bool>true</bool>
+                 <widget class="QGroupBox" name="groupBox_18">
+                  <property name="title">
+                   <string/>
                   </property>
-                  <property name="sizePolicy">
-                   <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-                    <horstretch>0</horstretch>
-                    <verstretch>0</verstretch>
-                   </sizepolicy>
+                  <property name="alignment">
+                   <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
                   </property>
-                  <property name="currentIndex">
-                   <number>0</number>
-                  </property>
-                  <item>
+                  <widget class="QRadioButton" name="radioButtonOutputModeSimple">
+                   <property name="geometry">
+                    <rect>
+                     <x>10</x>
+                     <y>10</y>
+                     <width>281</width>
+                     <height>23</height>
+                    </rect>
+                   </property>
                    <property name="text">
                     <string>Basic.Settings.Output.Mode.Simple</string>
                    </property>
-                  </item>
+                   <property name="checked">
+                    <bool>true</bool>
+                   </property>
+                   <attribute name="buttonGroup">
+                    <string notr="true">outputModeButtonGroup</string>
+                   </attribute>
+                  </widget>
                  </widget>
                 </item>
                </layout>
@@ -4233,9 +4345,15 @@
   </layout>
  </widget>
  <tabstops>
-  <tabstop>listWidget</tabstop>
-  <tabstop>streamType</tabstop>
-  <tabstop>outputMode</tabstop>
+  <tabstop>SettingsGeneralButton</tabstop>
+  <tabstop>SettingsStreamButton</tabstop>
+  <tabstop>SettingsOutputButton</tabstop>
+  <tabstop>SettingsAudioButton</tabstop>
+  <tabstop>SettingsVideoButton</tabstop>
+  <tabstop>SettingsHotkeysButton</tabstop>
+  <tabstop>SettingsAdvancedButton</tabstop>
+  <tabstop>webrtc_evercast</tabstop>
+  <tabstop>radioButtonOutputModeSimple</tabstop>
   <tabstop>simpleOutputVBitrate</tabstop>
   <tabstop>simpleOutputABitrate</tabstop>
   <tabstop>simpleOutAdvanced</tabstop>
@@ -4372,22 +4490,6 @@
  </resources>
  <connections>
   <connection>
-   <sender>listWidget</sender>
-   <signal>currentRowChanged(int)</signal>
-   <receiver>settingsPages</receiver>
-   <slot>setCurrentIndex(int)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>75</x>
-     <y>35</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>199</x>
-     <y>50</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>fpsType</sender>
    <signal>currentIndexChanged(int)</signal>
    <receiver>fpsTypes</receiver>
@@ -4404,8 +4506,8 @@
    </hints>
   </connection>
   <connection>
-   <sender>outputMode</sender>
-   <signal>currentIndexChanged(int)</signal>
+   <sender>outputModeButtonGroup</sender>
+   <signal>buttonClicked(int)</signal>
    <receiver>outputModePages</receiver>
    <slot>setCurrentIndex(int)</slot>
    <hints>
@@ -4803,5 +4905,42 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>SettingsGeneralButton</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>settingsPages</receiver>
+   <slot>setCurrentIndex(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>75</x>
+     <y>35</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>199</x>
+     <y>50</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>basicSettingsButtonGroup</sender>
+   <signal>buttonClicked(int)</signal>
+   <receiver>settingsPages</receiver>
+   <slot>setCurrentIndex(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
+ <buttongroups>
+  <buttongroup name="streamTypeButtonGroup"/>
+  <buttongroup name="basicSettingsButtonGroup"/>
+  <buttongroup name="outputModeButtonGroup"/>
+ </buttongroups>
 </ui>
