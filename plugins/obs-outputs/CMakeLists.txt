@@ -97,18 +97,13 @@ if(WIN32)
 	set(WEBRTC_USE_FILE_INCLUDED 0)
 endif()
 
+# NOTE ALEX: force H264 component here for EBS.
 find_package(LibWebRTC REQUIRED)
 
 message(STATUS "WebRTC Libs: ")
 foreach(_lib ${WEBRTC_LIBRARIES})
 	message(STATUS "-- ${_lib}")
 endforeach()
-
-if(WEBRTC_FOUND)
-	include_directories(${WEBRTC_INCLUDE_DIRS})
-else()
-	message(FATAL_ERROR "WebRTC not found")
-endif()
 
 if(WIN32)
 	set(obs-outputs_PLATFORM_DEPS
