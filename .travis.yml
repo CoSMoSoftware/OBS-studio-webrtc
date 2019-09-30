@@ -1,9 +1,5 @@
 language: cpp
 
-branches:
-  only:
-  - m73-port
-
 cache:
   ccache: true
 
