@@ -50,6 +50,7 @@ enum obs_property_type {
 	OBS_PROPERTY_TEXT,
 	OBS_PROPERTY_PATH,
 	OBS_PROPERTY_LIST,
+  // NOTE LUDO: Clickable items replacement
   OBS_PROPERTY_BUTTON_GROUP,
 	OBS_PROPERTY_COLOR,
 	OBS_PROPERTY_BUTTON,
@@ -235,6 +236,7 @@ EXPORT obs_property_t *obs_properties_add_list(obs_properties_t *props,
 					       enum obs_combo_type type,
 					       enum obs_combo_format format);
 
+// NOTE LUDO: Clickable items replacement
 EXPORT obs_property_t *obs_properties_add_button_group(obs_properties_t *props,
                 const char *name, const char *description,
                 enum obs_button_group_type type, enum obs_button_group_format format);

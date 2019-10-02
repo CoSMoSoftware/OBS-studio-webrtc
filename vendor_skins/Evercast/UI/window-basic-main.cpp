@@ -2139,16 +2139,17 @@ void OBSBasic::CreateHotkeys()
 	// LoadHotkeyPair(recordingHotkeys, "OBSBasic.StartRecording",
 	// 	       "OBSBasic.StopRecording");
 
-	pauseHotkeys = obs_hotkey_pair_register_frontend(
-		"OBSBasic.PauseRecording", Str("Basic.Main.PauseRecording"),
-		"OBSBasic.UnpauseRecording", Str("Basic.Main.UnpauseRecording"),
-		MAKE_CALLBACK(basic.pause && !basic.pause->isChecked(),
-			      basic.PauseRecording, "Pausing recording"),
-		MAKE_CALLBACK(basic.pause && basic.pause->isChecked(),
-			      basic.UnpauseRecording, "Unpausing recording"),
-		this, this);
-	LoadHotkeyPair(pauseHotkeys, "OBSBasic.PauseRecording",
-		       "OBSBasic.UnpauseRecording");
+    // NOTE LUDO: #165 Remove button recording
+	// pauseHotkeys = obs_hotkey_pair_register_frontend(
+	// 	"OBSBasic.PauseRecording", Str("Basic.Main.PauseRecording"),
+	// 	"OBSBasic.UnpauseRecording", Str("Basic.Main.UnpauseRecording"),
+	// 	MAKE_CALLBACK(basic.pause && !basic.pause->isChecked(),
+	// 		      basic.PauseRecording, "Pausing recording"),
+	// 	MAKE_CALLBACK(basic.pause && basic.pause->isChecked(),
+	// 		      basic.UnpauseRecording, "Unpausing recording"),
+	// 	this, this);
+	// LoadHotkeyPair(pauseHotkeys, "OBSBasic.PauseRecording",
+	// 	       "OBSBasic.UnpauseRecording");
 
 	replayBufHotkeys = obs_hotkey_pair_register_frontend(
 		"OBSBasic.StartReplayBuffer",
