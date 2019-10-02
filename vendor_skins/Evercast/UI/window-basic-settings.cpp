@@ -311,8 +311,9 @@ OBSBasicSettings::OBSBasicSettings(QWidget *parent)
 	HookWidget(ui->projectorAlwaysOnTop, CHECK_CHANGED,  GENERAL_CHANGED);
 	HookWidget(ui->recordWhenStreaming,  CHECK_CHANGED,  GENERAL_CHANGED);
 	HookWidget(ui->keepRecordStreamStops,CHECK_CHANGED,  GENERAL_CHANGED);
-	HookWidget(ui->replayWhileStreaming, CHECK_CHANGED,  GENERAL_CHANGED);
-	HookWidget(ui->keepReplayStreamStops,CHECK_CHANGED,  GENERAL_CHANGED);
+  // NOTE LUDO: #166 Remove replay
+	// HookWidget(ui->replayWhileStreaming, CHECK_CHANGED,  GENERAL_CHANGED);
+	// HookWidget(ui->keepReplayStreamStops,CHECK_CHANGED,  GENERAL_CHANGED);
 	HookWidget(ui->systemTrayEnabled,    CHECK_CHANGED,  GENERAL_CHANGED);
 	HookWidget(ui->systemTrayWhenStarted,CHECK_CHANGED,  GENERAL_CHANGED);
 	HookWidget(ui->systemTrayAlways,     CHECK_CHANGED,  GENERAL_CHANGED);
@@ -1080,14 +1081,15 @@ void OBSBasicSettings::LoadGeneralSettings()
 				"KeepRecordingWhenStreamStops");
 	ui->keepRecordStreamStops->setChecked(keepRecordStreamStops);
 
-	bool replayWhileStreaming = config_get_bool(
-		GetGlobalConfig(), "BasicWindow", "ReplayBufferWhileStreaming");
-	ui->replayWhileStreaming->setChecked(replayWhileStreaming);
+  // NOTE LUDO: #166 Remove replay
+	// bool replayWhileStreaming = config_get_bool(
+	// 	GetGlobalConfig(), "BasicWindow", "ReplayBufferWhileStreaming");
+	// ui->replayWhileStreaming->setChecked(replayWhileStreaming);
 
-	bool keepReplayStreamStops =
-		config_get_bool(GetGlobalConfig(), "BasicWindow",
-				"KeepReplayBufferStreamStops");
-	ui->keepReplayStreamStops->setChecked(keepReplayStreamStops);
+	// bool keepReplayStreamStops =
+	// 	config_get_bool(GetGlobalConfig(), "BasicWindow",
+	// 			"KeepReplayBufferStreamStops");
+	// ui->keepReplayStreamStops->setChecked(keepReplayStreamStops);
 
 	bool systemTrayEnabled = config_get_bool(
 		GetGlobalConfig(), "BasicWindow", "SysTrayEnabled");
@@ -2802,14 +2804,15 @@ void OBSBasicSettings::SaveGeneralSettings()
 				"KeepRecordingWhenStreamStops",
 				ui->keepRecordStreamStops->isChecked());
 
-	if (WidgetChanged(ui->replayWhileStreaming))
-		config_set_bool(GetGlobalConfig(), "BasicWindow",
-				"ReplayBufferWhileStreaming",
-				ui->replayWhileStreaming->isChecked());
-	if (WidgetChanged(ui->keepReplayStreamStops))
-		config_set_bool(GetGlobalConfig(), "BasicWindow",
-				"KeepReplayBufferStreamStops",
-				ui->keepReplayStreamStops->isChecked());
+  // NOTE LUDO: #166 Remove replay
+	// if (WidgetChanged(ui->replayWhileStreaming))
+	// 	config_set_bool(GetGlobalConfig(), "BasicWindow",
+	// 			"ReplayBufferWhileStreaming",
+	// 			ui->replayWhileStreaming->isChecked());
+	// if (WidgetChanged(ui->keepReplayStreamStops))
+	// 	config_set_bool(GetGlobalConfig(), "BasicWindow",
+	// 			"KeepReplayBufferStreamStops",
+	// 			ui->keepReplayStreamStops->isChecked());
 
 	if (WidgetChanged(ui->systemTrayEnabled))
 		config_set_bool(GetGlobalConfig(), "BasicWindow",
@@ -4248,9 +4251,10 @@ void OBSBasicSettings::UpdateAutomaticReplayBufferCheckboxes()
 		state = ui->advReplayBuf->isChecked();
 		break;
 	}
-	ui->replayWhileStreaming->setEnabled(state);
-	ui->keepReplayStreamStops->setEnabled(
-		state && ui->replayWhileStreaming->isChecked());
+  // NOTE LUDO: #166 Remove replay
+	// ui->replayWhileStreaming->setEnabled(state);
+	// ui->keepReplayStreamStops->setEnabled(
+	// 	state && ui->replayWhileStreaming->isChecked());
 }
 
 void OBSBasicSettings::SimpleReplayBufferChanged()

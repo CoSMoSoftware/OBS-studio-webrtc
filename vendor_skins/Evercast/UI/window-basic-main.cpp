@@ -2151,18 +2151,19 @@ void OBSBasic::CreateHotkeys()
 	// LoadHotkeyPair(pauseHotkeys, "OBSBasic.PauseRecording",
 	// 	       "OBSBasic.UnpauseRecording");
 
-	replayBufHotkeys = obs_hotkey_pair_register_frontend(
-		"OBSBasic.StartReplayBuffer",
-		Str("Basic.Main.StartReplayBuffer"),
-		"OBSBasic.StopReplayBuffer", Str("Basic.Main.StopReplayBuffer"),
-		MAKE_CALLBACK(!basic.outputHandler->ReplayBufferActive(),
-			      basic.StartReplayBuffer,
-			      "Starting replay buffer"),
-		MAKE_CALLBACK(basic.outputHandler->ReplayBufferActive(),
-			      basic.StopReplayBuffer, "Stopping replay buffer"),
-		this, this);
-	LoadHotkeyPair(replayBufHotkeys, "OBSBasic.StartReplayBuffer",
-		       "OBSBasic.StopReplayBuffer");
+  // NOTE LUDO: #166 Remove replay
+	// replayBufHotkeys = obs_hotkey_pair_register_frontend(
+	// 	"OBSBasic.StartReplayBuffer",
+	// 	Str("Basic.Main.StartReplayBuffer"),
+	// 	"OBSBasic.StopReplayBuffer", Str("Basic.Main.StopReplayBuffer"),
+	// 	MAKE_CALLBACK(!basic.outputHandler->ReplayBufferActive(),
+	// 		      basic.StartReplayBuffer,
+	// 		      "Starting replay buffer"),
+	// 	MAKE_CALLBACK(basic.outputHandler->ReplayBufferActive(),
+	// 		      basic.StopReplayBuffer, "Stopping replay buffer"),
+	// 	this, this);
+	// LoadHotkeyPair(replayBufHotkeys, "OBSBasic.StartReplayBuffer",
+	// 	       "OBSBasic.StopReplayBuffer");
 
 	togglePreviewHotkeys = obs_hotkey_pair_register_frontend(
 		"OBSBasic.EnablePreview",
