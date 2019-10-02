@@ -306,11 +306,13 @@ OBSBasicSettings::OBSBasicSettings(QWidget *parent)
 	HookWidget(ui->openStatsOnStartup,   CHECK_CHANGED,  GENERAL_CHANGED);
 	HookWidget(ui->warnBeforeStreamStart,CHECK_CHANGED,  GENERAL_CHANGED);
 	HookWidget(ui->warnBeforeStreamStop, CHECK_CHANGED,  GENERAL_CHANGED);
-	HookWidget(ui->warnBeforeRecordStop, CHECK_CHANGED,  GENERAL_CHANGED);
+  // NOTE LUDO: #165 Remove button recording
+	// HookWidget(ui->warnBeforeRecordStop, CHECK_CHANGED,  GENERAL_CHANGED);
 	HookWidget(ui->hideProjectorCursor,  CHECK_CHANGED,  GENERAL_CHANGED);
 	HookWidget(ui->projectorAlwaysOnTop, CHECK_CHANGED,  GENERAL_CHANGED);
-	HookWidget(ui->recordWhenStreaming,  CHECK_CHANGED,  GENERAL_CHANGED);
-	HookWidget(ui->keepRecordStreamStops,CHECK_CHANGED,  GENERAL_CHANGED);
+  // NOTE LUDO: #165 Remove button recording
+	// HookWidget(ui->recordWhenStreaming,  CHECK_CHANGED,  GENERAL_CHANGED);
+	// HookWidget(ui->keepRecordStreamStops,CHECK_CHANGED,  GENERAL_CHANGED);
   // NOTE LUDO: #166 Remove replay
 	// HookWidget(ui->replayWhileStreaming, CHECK_CHANGED,  GENERAL_CHANGED);
 	// HookWidget(ui->keepReplayStreamStops,CHECK_CHANGED,  GENERAL_CHANGED);
@@ -1072,14 +1074,15 @@ void OBSBasicSettings::LoadGeneralSettings()
 						  "OpenStatsOnStartup");
 	ui->openStatsOnStartup->setChecked(openStatsOnStartup);
 
-	bool recordWhenStreaming = config_get_bool(
-		GetGlobalConfig(), "BasicWindow", "RecordWhenStreaming");
-	ui->recordWhenStreaming->setChecked(recordWhenStreaming);
+  // NOTE LUDO: #165 Remove button recording
+	// bool recordWhenStreaming = config_get_bool(
+	// 	GetGlobalConfig(), "BasicWindow", "RecordWhenStreaming");
+	// ui->recordWhenStreaming->setChecked(recordWhenStreaming);
 
-	bool keepRecordStreamStops =
-		config_get_bool(GetGlobalConfig(), "BasicWindow",
-				"KeepRecordingWhenStreamStops");
-	ui->keepRecordStreamStops->setChecked(keepRecordStreamStops);
+	// bool keepRecordStreamStops =
+	// 	config_get_bool(GetGlobalConfig(), "BasicWindow",
+	// 			"KeepRecordingWhenStreamStops");
+	// ui->keepRecordStreamStops->setChecked(keepRecordStreamStops);
 
   // NOTE LUDO: #166 Remove replay
 	// bool replayWhileStreaming = config_get_bool(
@@ -1135,9 +1138,10 @@ void OBSBasicSettings::LoadGeneralSettings()
 		GetGlobalConfig(), "BasicWindow", "WarnBeforeStoppingStream");
 	ui->warnBeforeStreamStop->setChecked(warnBeforeStreamStop);
 
-	bool warnBeforeRecordStop = config_get_bool(
-		GetGlobalConfig(), "BasicWindow", "WarnBeforeStoppingRecord");
-	ui->warnBeforeRecordStop->setChecked(warnBeforeRecordStop);
+  // NOTE LUDO: #165 Remove button recording
+	// bool warnBeforeRecordStop = config_get_bool(
+	// 	GetGlobalConfig(), "BasicWindow", "WarnBeforeStoppingRecord");
+	// ui->warnBeforeRecordStop->setChecked(warnBeforeRecordStop);
 
 	bool hideProjectorCursor = config_get_bool(
 		GetGlobalConfig(), "BasicWindow", "HideProjectorCursor");
@@ -2785,9 +2789,10 @@ void OBSBasicSettings::SaveGeneralSettings()
 	config_set_bool(GetGlobalConfig(), "BasicWindow",
 			"WarnBeforeStoppingStream",
 			ui->warnBeforeStreamStop->isChecked());
-	config_set_bool(GetGlobalConfig(), "BasicWindow",
-			"WarnBeforeStoppingRecord",
-			ui->warnBeforeRecordStop->isChecked());
+  // NOTE LUDO: #165 Remove button recording
+	// config_set_bool(GetGlobalConfig(), "BasicWindow",
+	// 		"WarnBeforeStoppingRecord",
+	// 		ui->warnBeforeRecordStop->isChecked());
 
 	config_set_bool(GetGlobalConfig(), "BasicWindow", "HideProjectorCursor",
 			ui->hideProjectorCursor->isChecked());
@@ -2795,14 +2800,15 @@ void OBSBasicSettings::SaveGeneralSettings()
 			"ProjectorAlwaysOnTop",
 			ui->projectorAlwaysOnTop->isChecked());
 
-	if (WidgetChanged(ui->recordWhenStreaming))
-		config_set_bool(GetGlobalConfig(), "BasicWindow",
-				"RecordWhenStreaming",
-				ui->recordWhenStreaming->isChecked());
-	if (WidgetChanged(ui->keepRecordStreamStops))
-		config_set_bool(GetGlobalConfig(), "BasicWindow",
-				"KeepRecordingWhenStreamStops",
-				ui->keepRecordStreamStops->isChecked());
+  // NOTE LUDO: #165 Remove button recording
+	// if (WidgetChanged(ui->recordWhenStreaming))
+	// 	config_set_bool(GetGlobalConfig(), "BasicWindow",
+	// 			"RecordWhenStreaming",
+	// 			ui->recordWhenStreaming->isChecked());
+	// if (WidgetChanged(ui->keepRecordStreamStops))
+	// 	config_set_bool(GetGlobalConfig(), "BasicWindow",
+	// 			"KeepRecordingWhenStreamStops",
+	// 			ui->keepRecordStreamStops->isChecked());
 
   // NOTE LUDO: #166 Remove replay
 	// if (WidgetChanged(ui->replayWhileStreaming))

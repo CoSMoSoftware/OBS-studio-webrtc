@@ -290,30 +290,6 @@
                      </property>
                     </widget>
                    </item>
-                   <item row="2" column="1">
-                    <widget class="QCheckBox" name="warnBeforeRecordStop">
-                     <property name="text">
-                      <string>Basic.Settings.General.WarnBeforeStoppingRecord</string>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="3" column="1">
-                    <widget class="QCheckBox" name="recordWhenStreaming">
-                     <property name="text">
-                      <string>Basic.Settings.General.RecordWhenStreaming</string>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="4" column="1">
-                    <widget class="QCheckBox" name="keepRecordStreamStops">
-                     <property name="enabled">
-                      <bool>false</bool>
-                     </property>
-                     <property name="text">
-                      <string>Basic.Settings.General.KeepRecordingWhenStreamStops</string>
-                     </property>
-                    </widget>
-                   </item>
                   </layout>
                  </widget>
                 </item>
@@ -5030,11 +5006,6 @@
   <tabstop>openStatsOnStartup</tabstop>
   <tabstop>warnBeforeStreamStart</tabstop>
   <tabstop>warnBeforeStreamStop</tabstop>
-  <tabstop>warnBeforeRecordStop</tabstop>
-  <tabstop>recordWhenStreaming</tabstop>
-  <tabstop>keepRecordStreamStops</tabstop>
-  <tabstop>replayWhileStreaming</tabstop>
-  <tabstop>keepReplayStreamStops</tabstop>
   <tabstop>snappingEnabled</tabstop>
   <tabstop>snapDistance</tabstop>
   <tabstop>screenSnapping</tabstop>
@@ -5083,11 +5054,7 @@
   <tabstop>simpleOutputPath</tabstop>
   <tabstop>simpleOutputBrowse</tabstop>
   <tabstop>simpleNoSpace</tabstop>
-  <tabstop>simpleOutRecQuality</tabstop>
-  <tabstop>simpleOutRecFormat</tabstop>
-  <tabstop>simpleOutRecEncoder</tabstop>
   <tabstop>simpleOutMuxCustom</tabstop>
-  <tabstop>simpleReplayBuf</tabstop>
   <tabstop>simpleRBSecMax</tabstop>
   <tabstop>simpleRBMegsMax</tabstop>
   <tabstop>advOutTabs</tabstop>
