@@ -297,7 +297,8 @@ OBSBasicSettings::OBSBasicSettings(QWidget *parent)
 			     ui->advOutTrack4Bitrate, ui->advOutTrack5Bitrate,
 			     ui->advOutTrack6Bitrate});
 
-	ui->listWidget->setAttribute(Qt::WA_MacShowFocusRect, false);
+  // NOTE LUDO #170: Settings: replace QListWidget by QPushButtons
+	// ui->listWidget->setAttribute(Qt::WA_MacShowFocusRect, false);
 
 	/* clang-format off */
 	HookWidget(ui->language,             COMBO_CHANGED,  GENERAL_CHANGED);
@@ -710,8 +711,21 @@ OBSBasicSettings::OBSBasicSettings(QWidget *parent)
 		SLOT(AdvReplayBufferChanged()));
 	connect(ui->advRBSecMax, SIGNAL(valueChanged(int)), this,
 		SLOT(AdvReplayBufferChanged()));
-	connect(ui->listWidget, SIGNAL(currentRowChanged(int)), this,
-		SLOT(SimpleRecordingEncoderChanged()));
+  // NOTE LUDO #170: Settings: replace QListWidget by QPushButtons
+	// connect(ui->listWidget, SIGNAL(currentRowChanged(int)), this,
+	// 	SLOT(SimpleRecordingEncoderChanged()));
+
+  // The ID of each QPushButton of the QButtonGroup is used to display the corresponding QWidget
+  // of the QStackedWidget named "settingPages"
+  ui->basicSettingsButtonGroup->setId(ui->SettingsGeneralButton,  0);
+  ui->basicSettingsButtonGroup->setId(ui->SettingsStreamButton,   1);
+  ui->basicSettingsButtonGroup->setId(ui->SettingsOutputButton,   2);
+  ui->basicSettingsButtonGroup->setId(ui->SettingsAudioButton,    3);
+  ui->basicSettingsButtonGroup->setId(ui->SettingsVideoButton,    4);
+  ui->basicSettingsButtonGroup->setId(ui->SettingsHotkeysButton,  5);
+  ui->basicSettingsButtonGroup->setId(ui->SettingsAdvancedButton, 6);
+	connect(ui->basicSettingsButtonGroup, SIGNAL(buttonClicked(int)),
+			this, SLOT(SimpleRecordingEncoderChanged()));
 
 	// Get Bind to IP Addresses
 	obs_properties_t *ppts = obs_get_output_properties("rtmp_output");
@@ -3500,10 +3514,20 @@ void OBSBasicSettings::on_theme_activated(int idx)
 	App()->SetTheme(currT.toUtf8().constData());
 }
 
-void OBSBasicSettings::on_listWidget_itemSelectionChanged()
-{
-	int row = ui->listWidget->currentRow();
+// NOTE LUDO #170: Settings: replace QListWidget by QPushButtons
+// void OBSBasicSettings::on_listWidget_itemSelectionChanged()
+// {
+	// int row = ui->listWidget->currentRow();
 
+	// if (loading || row == pageIndex)
+	// 	return;
+
+	// pageIndex = row;
+// }
+
+// NOTE LUDO #170: Settings: replace QListWidget by QPushButtons
+void OBSBasicSettings::on_basicSettingsButtonGroup_buttonClicked(int row)
+{
 	if (loading || row == pageIndex)
 		return;
 
@@ -4584,35 +4608,42 @@ void OBSBasicSettings::on_disableOSXVSync_clicked()
 
 void OBSBasicSettings::SetGeneralIcon(const QIcon &icon)
 {
-	ui->listWidget->item(0)->setIcon(icon);
+  // NOTE LUDO #170: Settings: replace QListWidget by QPushButtons
+	// ui->listWidget->item(0)->setIcon(icon);
 }
 
 void OBSBasicSettings::SetStreamIcon(const QIcon &icon)
 {
-	ui->listWidget->item(1)->setIcon(icon);
+  // NOTE LUDO #170: Settings: replace QListWidget by QPushButtons
+	// ui->listWidget->item(1)->setIcon(icon);
 }
 
 void OBSBasicSettings::SetOutputIcon(const QIcon &icon)
 {
-	ui->listWidget->item(2)->setIcon(icon);
+  // NOTE LUDO #170: Settings: replace QListWidget by QPushButtons
+	// ui->listWidget->item(2)->setIcon(icon);
 }
 
 void OBSBasicSettings::SetAudioIcon(const QIcon &icon)
 {
-	ui->listWidget->item(3)->setIcon(icon);
+  // NOTE LUDO #170: Settings: replace QListWidget by QPushButtons
+	// ui->listWidget->item(3)->setIcon(icon);
 }
 
 void OBSBasicSettings::SetVideoIcon(const QIcon &icon)
 {
-	ui->listWidget->item(4)->setIcon(icon);
+  // NOTE LUDO #170: Settings: replace QListWidget by QPushButtons
+	// ui->listWidget->item(4)->setIcon(icon);
 }
 
 void OBSBasicSettings::SetHotkeysIcon(const QIcon &icon)
 {
-	ui->listWidget->item(5)->setIcon(icon);
+  // NOTE LUDO #170: Settings: replace QListWidget by QPushButtons
+	// ui->listWidget->item(5)->setIcon(icon);
 }
 
 void OBSBasicSettings::SetAdvancedIcon(const QIcon &icon)
 {
-	ui->listWidget->item(6)->setIcon(icon);
+  // NOTE LUDO #170: Settings: replace QListWidget by QPushButtons
+	// ui->listWidget->item(6)->setIcon(icon);
 }

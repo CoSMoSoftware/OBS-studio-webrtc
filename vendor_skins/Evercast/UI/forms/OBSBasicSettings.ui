@@ -28,93 +28,165 @@
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout">
-     <item alignment="Qt::AlignLeft">
-      <widget class="QListWidget" name="listWidget">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Minimum" vsizetype="Expanding">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="maximumSize">
-        <size>
-         <width>135</width>
-         <height>16777215</height>
-        </size>
-       </property>
-       <property name="iconSize">
-        <size>
-         <width>32</width>
-         <height>32</height>
-        </size>
-       </property>
-       <property name="currentRow">
-        <number>0</number>
-       </property>
+     <item>
+      <layout class="QVBoxLayout" name="verticalLayout_6">
        <item>
-        <property name="text">
-         <string>Basic.Settings.General</string>
-        </property>
-        <property name="icon">
-         <iconset resource="obs.qrc">
-          <normaloff>:/settings/images/settings/general.svg</normaloff>:/settings/images/settings/general.svg</iconset>
-        </property>
+        <widget class="QPushButton" name="SettingsGeneralButton">
+         <property name="text">
+          <string>Basic.Settings.General</string>
+         </property>
+         <property name="icon">
+          <iconset resource="obs.qrc">
+           <normaloff>:/settings/images/settings/general.svg</normaloff>:/settings/images/settings/general.svg</iconset>
+         </property>
+         <property name="iconSize">
+          <size>
+           <width>32</width>
+           <height>32</height>
+          </size>
+         </property>
+         <attribute name="buttonGroup">
+          <string notr="true">basicSettingsButtonGroup</string>
+         </attribute>
+        </widget>
        </item>
        <item>
-        <property name="text">
-         <string>Basic.Settings.Stream</string>
-        </property>
-        <property name="icon">
-         <iconset resource="obs.qrc">
-          <normaloff>:/settings/images/settings/stream.svg</normaloff>:/settings/images/settings/stream.svg</iconset>
-        </property>
+        <widget class="QPushButton" name="SettingsStreamButton">
+         <property name="text">
+          <string>Basic.Settings.Stream</string>
+         </property>
+         <property name="icon">
+          <iconset resource="obs.qrc">
+           <normaloff>:/settings/images/settings/stream.svg</normaloff>:/settings/images/settings/stream.svg</iconset>
+         </property>
+         <property name="iconSize">
+          <size>
+           <width>32</width>
+           <height>32</height>
+          </size>
+         </property>
+         <attribute name="buttonGroup">
+          <string notr="true">basicSettingsButtonGroup</string>
+         </attribute>
+        </widget>
        </item>
        <item>
-        <property name="text">
-         <string>Basic.Settings.Output</string>
-        </property>
-        <property name="icon">
-         <iconset resource="obs.qrc">
-          <normaloff>:/settings/images/settings/output.svg</normaloff>:/settings/images/settings/output.svg</iconset>
-        </property>
+        <widget class="QPushButton" name="SettingsOutputButton">
+         <property name="text">
+          <string>Basic.Settings.Output</string>
+         </property>
+         <property name="icon">
+          <iconset resource="obs.qrc">
+           <normaloff>:/settings/images/settings/output.svg</normaloff>:/settings/images/settings/output.svg</iconset>
+         </property>
+         <property name="iconSize">
+          <size>
+           <width>32</width>
+           <height>32</height>
+          </size>
+         </property>
+         <attribute name="buttonGroup">
+          <string notr="true">basicSettingsButtonGroup</string>
+         </attribute>
+        </widget>
        </item>
        <item>
-        <property name="text">
-         <string>Basic.Settings.Audio</string>
-        </property>
-        <property name="icon">
-         <iconset resource="obs.qrc">
-          <normaloff>:/settings/images/settings/audio.svg</normaloff>:/settings/images/settings/audio.svg</iconset>
-        </property>
+        <widget class="QPushButton" name="SettingsAudioButton">
+         <property name="text">
+          <string>Basic.Settings.Audio</string>
+         </property>
+         <property name="icon">
+          <iconset resource="obs.qrc">
+           <normaloff>:/settings/images/settings/audio.svg</normaloff>:/settings/images/settings/audio.svg</iconset>
+         </property>
+         <property name="iconSize">
+          <size>
+           <width>32</width>
+           <height>32</height>
+          </size>
+         </property>
+         <attribute name="buttonGroup">
+          <string notr="true">basicSettingsButtonGroup</string>
+         </attribute>
+        </widget>
        </item>
        <item>
-        <property name="text">
-         <string>Basic.Settings.Video</string>
-        </property>
-        <property name="icon">
-         <iconset resource="obs.qrc">
-          <normaloff>:/settings/images/settings/video.svg</normaloff>:/settings/images/settings/video.svg</iconset>
-        </property>
+        <widget class="QPushButton" name="SettingsVideoButton">
+         <property name="text">
+          <string>Basic.Settings.Video</string>
+         </property>
+         <property name="icon">
+          <iconset resource="obs.qrc">
+           <normaloff>:/settings/images/settings/video.svg</normaloff>:/settings/images/settings/video.svg</iconset>
+         </property>
+         <property name="iconSize">
+          <size>
+           <width>32</width>
+           <height>32</height>
+          </size>
+         </property>
+         <attribute name="buttonGroup">
+          <string notr="true">basicSettingsButtonGroup</string>
+         </attribute>
+        </widget>
        </item>
        <item>
-        <property name="text">
-         <string>Basic.Settings.Hotkeys</string>
-        </property>
-        <property name="icon">
-         <iconset resource="obs.qrc">
-          <normaloff>:/settings/images/settings/hotkeys.svg</normaloff>:/settings/images/settings/hotkeys.svg</iconset>
-        </property>
+        <widget class="QPushButton" name="SettingsHotkeysButton">
+         <property name="text">
+          <string>Basic.Settings.Hotkeys</string>
+         </property>
+         <property name="icon">
+          <iconset resource="obs.qrc">
+           <normaloff>:/settings/images/settings/hotkeys.svg</normaloff>:/settings/images/settings/hotkeys.svg</iconset>
+         </property>
+         <property name="iconSize">
+          <size>
+           <width>32</width>
+           <height>32</height>
+          </size>
+         </property>
+         <attribute name="buttonGroup">
+          <string notr="true">basicSettingsButtonGroup</string>
+         </attribute>
+        </widget>
        </item>
        <item>
-        <property name="text">
-         <string>Basic.Settings.Advanced</string>
-        </property>
-        <property name="icon">
-         <iconset resource="obs.qrc">
-          <normaloff>:/settings/images/settings/advanced.svg</normaloff>:/settings/images/settings/advanced.svg</iconset>
-        </property>
+        <widget class="QPushButton" name="SettingsAdvancedButton">
+         <property name="text">
+          <string>Basic.Settings.Advanced</string>
+         </property>
+         <property name="icon">
+          <iconset resource="obs.qrc">
+           <normaloff>:/settings/images/settings/advanced.svg</normaloff>:/settings/images/settings/advanced.svg</iconset>
+         </property>
+         <property name="iconSize">
+          <size>
+           <width>32</width>
+           <height>32</height>
+          </size>
+         </property>
+         <property name="shortcut">
+          <string>Ctrl+S, Ctrl+S, Ctrl+S, Ctrl+S</string>
+         </property>
+         <attribute name="buttonGroup">
+          <string notr="true">basicSettingsButtonGroup</string>
+         </attribute>
+        </widget>
        </item>
-      </widget>
+       <item>
+        <spacer name="verticalSpacer_3">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>40</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+      </layout>
      </item>
      <item>
       <widget class="QStackedWidget" name="settingsPages">
@@ -151,8 +223,8 @@
              <rect>
               <x>0</x>
               <y>0</y>
-              <width>806</width>
-              <height>1225</height>
+              <width>729</width>
+              <height>1109</height>
              </rect>
             </property>
             <layout class="QVBoxLayout" name="verticalLayout_19">
@@ -1117,73 +1189,73 @@
               </widget>
              </item>
              <item row="9" column="0">
-               <widget class="QLabel" name="codecLabel">
+              <widget class="QLabel" name="codecLabel">
                <property name="text">
-                 <string>Codec</string>
+                <string>Codec</string>
                </property>
                <property name="buddy">
-                 <cstring>codec</cstring>
+                <cstring>codec</cstring>
                </property>
-               </widget>
+              </widget>
              </item>
              <item row="9" column="1">
-               <widget class="QComboBox" name="codec">
-                 <property name="currentIndex">
-                   <number>0</number>
-                 </property>
-                 <item>
-                   <property name="text">
-                     <string>Automatic</string>
-                   </property>
-                 </item>
-                 <item>
-                   <property name="text">
-                     <string>H264</string>
-                   </property>
-                 </item>
-                 <item>
-                   <property name="text">
-                     <string>VP8</string>
-                   </property>
-                 </item>
-                 <item>
-                   <property name="text">
-                     <string>VP9</string>
-                   </property>
-                 </item>
-               </widget>
+              <widget class="QComboBox" name="codec">
+               <property name="currentIndex">
+                <number>0</number>
+               </property>
+               <item>
+                <property name="text">
+                 <string>Automatic</string>
+                </property>
+               </item>
+               <item>
+                <property name="text">
+                 <string>H264</string>
+                </property>
+               </item>
+               <item>
+                <property name="text">
+                 <string>VP8</string>
+                </property>
+               </item>
+               <item>
+                <property name="text">
+                 <string>VP9</string>
+                </property>
+               </item>
+              </widget>
              </item>
              <item row="10" column="0">
-               <widget class="QLabel" name="streamProtocolLabel">
+              <widget class="QLabel" name="streamProtocolLabel">
                <property name="text">
-                 <string>Protocol</string>
+                <string>Protocol</string>
                </property>
                <property name="buddy">
-                 <cstring>streamProtocol</cstring>
+                <cstring>streamProtocol</cstring>
                </property>
-               </widget>
+              </widget>
              </item>
              <item row="10" column="1">
-               <widget class="QComboBox" name="streamProtocol">
-                 <property name="currentIndex">
-                   <number>0</number>
-                 </property>
-                 <item>
-                   <property name="text">
-                     <string>Automatic</string>
-                   </property>
-                 </item>
-                 <item>
-                   <property name="text">
-                     <string>UDP</string>
-                   </property>
-                 </item>
-                 <item>
-                   <property name="text">
-                     <string>TCP</string>
-                   </property>
-                 </item>
-               </widget>
+              <widget class="QComboBox" name="streamProtocol">
+               <property name="currentIndex">
+                <number>0</number>
+               </property>
+               <item>
+                <property name="text">
+                 <string>Automatic</string>
+                </property>
+               </item>
+               <item>
+                <property name="text">
+                 <string>UDP</string>
+                </property>
+               </item>
+               <item>
+                <property name="text">
+                 <string>TCP</string>
+                </property>
+               </item>
+              </widget>
              </item>
             </layout>
            </widget>
@@ -1222,7 +1294,7 @@
               <x>0</x>
               <y>0</y>
               <width>813</width>
-              <height>761</height>
+              <height>739</height>
              </rect>
             </property>
             <layout class="QVBoxLayout" name="verticalLayout_21">
@@ -4241,8 +4313,8 @@
              <rect>
               <x>0</x>
               <y>0</y>
-              <width>806</width>
-              <height>933</height>
+              <width>791</width>
+              <height>774</height>
              </rect>
             </property>
             <layout class="QVBoxLayout" name="verticalLayout_23">
@@ -4918,7 +4990,6 @@
   </layout>
  </widget>
  <tabstops>
-  <tabstop>listWidget</tabstop>
   <tabstop>scrollArea_2</tabstop>
   <tabstop>language</tabstop>
   <tabstop>theme</tabstop>
@@ -4971,12 +5042,6 @@
   <tabstop>simpleOutEnforce</tabstop>
   <tabstop>simpleOutPreset</tabstop>
   <tabstop>simpleOutCustom</tabstop>
-  <tabstop>simpleOutputPath</tabstop>
-  <tabstop>simpleOutputBrowse</tabstop>
-  <tabstop>simpleNoSpace</tabstop>
-  <tabstop>simpleOutMuxCustom</tabstop>
-  <tabstop>simpleRBSecMax</tabstop>
-  <tabstop>simpleRBMegsMax</tabstop>
   <tabstop>advOutTabs</tabstop>
   <tabstop>advOutTrack1</tabstop>
   <tabstop>advOutTrack2</tabstop>
@@ -5070,11 +5135,6 @@
   <tabstop>colorRange</tabstop>
   <tabstop>disableOSXVSync</tabstop>
   <tabstop>resetOSXVSync</tabstop>
-  <tabstop>filenameFormatting</tabstop>
-  <tabstop>overwriteIfExists</tabstop>
-  <tabstop>autoRemux</tabstop>
-  <tabstop>simpleRBPrefix</tabstop>
-  <tabstop>simpleRBSuffix</tabstop>
   <tabstop>streamDelayEnable</tabstop>
   <tabstop>streamDelaySec</tabstop>
   <tabstop>streamDelayPreserve</tabstop>
@@ -5091,22 +5151,6 @@
   <include location="obs.qrc"/>
  </resources>
  <connections>
-  <connection>
-   <sender>listWidget</sender>
-   <signal>currentRowChanged(int)</signal>
-   <receiver>settingsPages</receiver>
-   <slot>setCurrentIndex(int)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>75</x>
-     <y>35</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>199</x>
-     <y>50</y>
-    </hint>
-   </hints>
-  </connection>
   <connection>
    <sender>fpsType</sender>
    <signal>currentIndexChanged(int)</signal>
@@ -5428,38 +5472,6 @@
    </hints>
   </connection>
   <connection>
-   <sender>recordWhenStreaming</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>keepRecordStreamStops</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>933</x>
-     <y>222</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>933</x>
-     <y>245</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>replayWhileStreaming</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>keepReplayStreamStops</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>933</x>
-     <y>268</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>933</x>
-     <y>291</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>streamDelayEnable</sender>
    <signal>toggled(bool)</signal>
    <receiver>label_56</receiver>
@@ -5539,5 +5551,24 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>basicSettingsButtonGroup</sender>
+   <signal>buttonClicked(int)</signal>
+   <receiver>settingsPages</receiver>
+   <slot>setCurrentIndex(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
+ <buttongroups>
+  <buttongroup name="basicSettingsButtonGroup"/>
+ </buttongroups>
 </ui>
