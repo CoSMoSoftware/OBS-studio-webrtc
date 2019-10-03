@@ -751,7 +751,6 @@ OBSBasicSettings::OBSBasicSettings(QWidget *parent)
 
   // NOTE LUDO #169: Settings/Output no access to encoder settings except Video Bitrate
   ui->simpleOutStrEncoder->setEnabled(false);
-  ui->simpleOutputABitrate->setEnabled(false);
   ui->simpleOutAdvanced->setEnabled(false);
   ui->simpleOutEnforce->setEnabled(false);
   ui->simpleOutPreset->setEnabled(false);
