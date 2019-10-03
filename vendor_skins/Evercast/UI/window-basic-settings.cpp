@@ -363,8 +363,9 @@ OBSBasicSettings::OBSBasicSettings(QWidget *parent)
 	// HookWidget(ui->simpleOutRecEncoder,  COMBO_CHANGED,  OUTPUTS_CHANGED);
 	// HookWidget(ui->simpleOutMuxCustom,   EDIT_CHANGED,   OUTPUTS_CHANGED);
 	// HookWidget(ui->simpleReplayBuf,      CHECK_CHANGED,  OUTPUTS_CHANGED);
-	HookWidget(ui->simpleRBSecMax,       SCROLL_CHANGED, OUTPUTS_CHANGED);
-	HookWidget(ui->simpleRBMegsMax,      SCROLL_CHANGED, OUTPUTS_CHANGED);
+  // NOTE LUDO: #166 Remove replay
+	// HookWidget(ui->simpleRBSecMax,       SCROLL_CHANGED, OUTPUTS_CHANGED);
+	// HookWidget(ui->simpleRBMegsMax,      SCROLL_CHANGED, OUTPUTS_CHANGED);
 	HookWidget(ui->advOutEncoder,        COMBO_CHANGED,  OUTPUTS_CHANGED);
 	HookWidget(ui->advOutUseRescale,     CHECK_CHANGED,  OUTPUTS_CHANGED);
 	HookWidget(ui->advOutRescale,        CBEDIT_CHANGED, OUTPUTS_CHANGED);
@@ -674,8 +675,9 @@ OBSBasicSettings::OBSBasicSettings(QWidget *parent)
 		SLOT(SimpleReplayBufferChanged()));
 	connect(ui->simpleOutputABitrate, SIGNAL(currentIndexChanged(int)),
 		this, SLOT(SimpleReplayBufferChanged()));
-	connect(ui->simpleRBSecMax, SIGNAL(valueChanged(int)), this,
-		SLOT(SimpleReplayBufferChanged()));
+  // NOTE LUDO: #166 Remove replay
+	// connect(ui->simpleRBSecMax, SIGNAL(valueChanged(int)), this,
+	// 	SLOT(SimpleReplayBufferChanged()));
 	connect(ui->advReplayBuf, SIGNAL(toggled(bool)), this,
 		SLOT(AdvReplayBufferChanged()));
 	connect(ui->advOutRecTrack1, SIGNAL(toggled(bool)), this,
@@ -1490,16 +1492,18 @@ static inline bool IsSurround(const char *speakers)
 
 void OBSBasicSettings::LoadSimpleOutputSettings()
 {
-	const char *path =
-		config_get_string(main->Config(), "SimpleOutput", "FilePath");
-	bool noSpace = config_get_bool(main->Config(), "SimpleOutput",
-				       "FileNameWithoutSpace");
-	const char *format =
-		config_get_string(main->Config(), "SimpleOutput", "RecFormat");
+  // NOTE LUDO: #165 Remove button recording
+	// const char *path =
+	// 	config_get_string(main->Config(), "SimpleOutput", "FilePath");
+	// bool noSpace = config_get_bool(main->Config(), "SimpleOutput",
+	// 			       "FileNameWithoutSpace");
+	// const char *format =
+	// 	config_get_string(main->Config(), "SimpleOutput", "RecFormat");
 	int videoBitrate =
 		config_get_uint(main->Config(), "SimpleOutput", "VBitrate");
-	const char *streamEnc = config_get_string(
-		main->Config(), "SimpleOutput", "StreamEncoder");
+  // NOTE LUDO: #165 Remove button recording
+	// const char *streamEnc = config_get_string(
+	// 	main->Config(), "SimpleOutput", "StreamEncoder");
 	int audioBitrate =
 		config_get_uint(main->Config(), "SimpleOutput", "ABitrate");
 	bool advanced =
@@ -1516,18 +1520,20 @@ void OBSBasicSettings::LoadSimpleOutputSettings()
 		config_get_string(main->Config(), "SimpleOutput", "AMDPreset");
 	const char *custom = config_get_string(main->Config(), "SimpleOutput",
 					       "x264Settings");
-	const char *recQual =
-		config_get_string(main->Config(), "SimpleOutput", "RecQuality");
-	const char *recEnc =
-		config_get_string(main->Config(), "SimpleOutput", "RecEncoder");
-	const char *muxCustom = config_get_string(
-		main->Config(), "SimpleOutput", "MuxerCustom");
-	bool replayBuf =
-		config_get_bool(main->Config(), "SimpleOutput", "RecRB");
-	int rbTime =
-		config_get_int(main->Config(), "SimpleOutput", "RecRBTime");
-	int rbSize =
-		config_get_int(main->Config(), "SimpleOutput", "RecRBSize");
+  // NOTE LUDO: #165 Remove button recording
+	// const char *recQual =
+	// 	config_get_string(main->Config(), "SimpleOutput", "RecQuality");
+	// const char *recEnc =
+	// 	config_get_string(main->Config(), "SimpleOutput", "RecEncoder");
+	// const char *muxCustom = config_get_string(
+	// 	main->Config(), "SimpleOutput", "MuxerCustom");
+	// bool replayBuf =
+	// 	config_get_bool(main->Config(), "SimpleOutput", "RecRB");
+  // NOTE LUDO: #166 Remove replay
+	// int rbTime =
+	// 	config_get_int(main->Config(), "SimpleOutput", "RecRBTime");
+	// int rbSize =
+	// 	config_get_int(main->Config(), "SimpleOutput", "RecRBSize");
 
 	curPreset = preset;
 	curQSVPreset = qsvPreset;
@@ -1578,8 +1584,9 @@ void OBSBasicSettings::LoadSimpleOutputSettings()
 	// ui->simpleOutMuxCustom->setText(muxCustom);
 
 	// ui->simpleReplayBuf->setChecked(replayBuf);
-	ui->simpleRBSecMax->setValue(rbTime);
-	ui->simpleRBMegsMax->setValue(rbSize);
+  // NOTE LUDO: #166 Remove replay
+	// ui->simpleRBSecMax->setValue(rbTime);
+	// ui->simpleRBMegsMax->setValue(rbSize);
 
 	SimpleStreamingEncoderChanged();
 }
@@ -1925,19 +1932,21 @@ void OBSBasicSettings::LoadOutputSettings()
 	ui->outputMode->setCurrentIndex(modeIdx);
 
 	LoadSimpleOutputSettings();
-	LoadAdvOutputStreamingSettings();
-	LoadAdvOutputStreamingEncoderProperties();
-	LoadAdvOutputRecordingSettings();
-	LoadAdvOutputRecordingEncoderProperties();
-	LoadAdvOutputFFmpegSettings();
-	LoadAdvOutputAudioSettings();
+  // NOTE LUDO: #166 Remove replay
+	// LoadAdvOutputStreamingSettings();
+	// LoadAdvOutputStreamingEncoderProperties();
+	// LoadAdvOutputRecordingSettings();
+	// LoadAdvOutputRecordingEncoderProperties();
+	// LoadAdvOutputFFmpegSettings();
+	// LoadAdvOutputAudioSettings();
 
 	if (obs_video_active()) {
 		ui->outputMode->setEnabled(false);
 		ui->outputModeLabel->setEnabled(false);
     // NOTE LUDO: #165 Remove button recording
 		// ui->simpleRecordingGroupBox->setEnabled(false);
-		ui->replayBufferGroupBox->setEnabled(false);
+    // NOTE LUDO: #166 Remove replay
+		// ui->replayBufferGroupBox->setEnabled(false);
 		ui->advOutTopContainer->setEnabled(false);
 		ui->advOutRecTopContainer->setEnabled(false);
 		ui->advOutRecTypeContainer->setEnabled(false);
@@ -2264,20 +2273,23 @@ void OBSBasicSettings::LoadAdvancedSettings()
 	bool reconnect = config_get_bool(main->Config(), "Output", "Reconnect");
 	int retryDelay = config_get_int(main->Config(), "Output", "RetryDelay");
 	int maxRetries = config_get_int(main->Config(), "Output", "MaxRetries");
-	const char *filename = config_get_string(main->Config(), "Output",
-						 "FilenameFormatting");
-	bool overwriteIfExists =
-		config_get_bool(main->Config(), "Output", "OverwriteIfExists");
+  // NOTE LUDO: #165 Remove button recording
+	// const char *filename = config_get_string(main->Config(), "Output",
+	// 					 "FilenameFormatting");
+	// bool overwriteIfExists =
+	// 	config_get_bool(main->Config(), "Output", "OverwriteIfExists");
 	const char *bindIP =
 		config_get_string(main->Config(), "Output", "BindIP");
-	const char *rbPrefix = config_get_string(main->Config(), "SimpleOutput",
-						 "RecRBPrefix");
-	const char *rbSuffix = config_get_string(main->Config(), "SimpleOutput",
-						 "RecRBSuffix");
+  // NOTE LUDO: #165 Remove button recording
+	// const char *rbPrefix = config_get_string(main->Config(), "SimpleOutput",
+	// 					 "RecRBPrefix");
+	// const char *rbSuffix = config_get_string(main->Config(), "SimpleOutput",
+	// 					 "RecRBSuffix");
 	bool replayBuf = config_get_bool(main->Config(), "AdvOut", "RecRB");
 	int rbTime = config_get_int(main->Config(), "AdvOut", "RecRBTime");
 	int rbSize = config_get_int(main->Config(), "AdvOut", "RecRBSize");
-	bool autoRemux = config_get_bool(main->Config(), "Video", "AutoRemux");
+  // NOTE LUDO: #165 Remove button recording
+	// bool autoRemux = config_get_bool(main->Config(), "Video", "AutoRemux");
 
 	loading = true;
 
@@ -3154,8 +3166,9 @@ void OBSBasicSettings::SaveOutputSettings()
 	// SaveComboData(ui->simpleOutRecEncoder, "SimpleOutput", "RecEncoder");
 	// SaveEdit(ui->simpleOutMuxCustom, "SimpleOutput", "MuxerCustom");
 	// SaveCheckBox(ui->simpleReplayBuf, "SimpleOutput", "RecRB");
-	SaveSpinBox(ui->simpleRBSecMax, "SimpleOutput", "RecRBTime");
-	SaveSpinBox(ui->simpleRBMegsMax, "SimpleOutput", "RecRBSize");
+  // NOTE LUDO: #166 Remove replay
+	// SaveSpinBox(ui->simpleRBSecMax, "SimpleOutput", "RecRBTime");
+	// SaveSpinBox(ui->simpleRBMegsMax, "SimpleOutput", "RecRBSize");
 
 	curAdvStreamEncoder = GetComboData(ui->advOutEncoder);
 
