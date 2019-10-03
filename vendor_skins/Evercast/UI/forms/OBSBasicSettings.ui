@@ -1288,11 +1288,6 @@
                     <string>Basic.Settings.Output.Mode.Simple</string>
                    </property>
                   </item>
-                  <item>
-                   <property name="text">
-                    <string>Basic.Settings.Output.Mode.Adv</string>
-                   </property>
-                  </item>
                  </widget>
                 </item>
                </layout>
