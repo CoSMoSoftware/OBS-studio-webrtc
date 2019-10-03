@@ -747,6 +747,14 @@ OBSBasicSettings::OBSBasicSettings(QWidget *parent)
 		SLOT(AdvOutRecCheckWarnings()));
 	AdvOutRecCheckWarnings();
 
+  // NOTE LUDO #169: Settings/Output no access to encoder settings except Video Bitrate
+  ui->simpleOutStrEncoder->setEnabled(false);
+  ui->simpleOutputABitrate->setEnabled(false);
+  ui->simpleOutAdvanced->setEnabled(false);
+  ui->simpleOutEnforce->setEnabled(false);
+  ui->simpleOutPreset->setEnabled(false);
+  ui->simpleOutCustom->setEnabled(false);
+
 	ui->buttonBox->button(QDialogButtonBox::Apply)->setIcon(QIcon());
 	ui->buttonBox->button(QDialogButtonBox::Ok)->setIcon(QIcon());
 	ui->buttonBox->button(QDialogButtonBox::Cancel)->setIcon(QIcon());
