@@ -11,5 +11,5 @@ cmake ^
   -DQt5_DIR=%QTDIR64%\lib\cmake\Qt5 ^
   -DCMAKE_BUILD_TYPE=%build_config% ^
   -DOBS_WEBRTC_VENDOR_NAME=Evercast ^
-  -DOBS_VERSION_OVERRIDE=23.2.0
+  -DOBS_VERSION_OVERRIDE=23.2.0 ^
   ..
