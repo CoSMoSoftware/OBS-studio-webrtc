@@ -343,11 +343,14 @@ set(obs_QRC
 qt5_wrap_ui(obs_UI_HEADERS ${obs_UI})
 qt5_add_resources(obs_QRC_SOURCES ${obs_QRC})
 
-add_executable(${_gui_name} WIN32
+message( STATUS "rc file: ${obs_QRC_SOURCES} )
+
+add_executable( ${_gui_name} WIN32
 	${obs_SOURCES}
 	${obs_HEADERS}
 	${obs_UI_HEADERS}
-	${obs_QRC_SOURCES})
+	${obs_QRC_SOURCES}
+)
 
 if(WIN32)
 	if(CMAKE_SIZEOF_VOID_P EQUAL 8)
