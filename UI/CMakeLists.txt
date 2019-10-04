@@ -343,7 +343,7 @@ set(obs_QRC
 qt5_wrap_ui(obs_UI_HEADERS ${obs_UI})
 qt5_add_resources(obs_QRC_SOURCES ${obs_QRC})
 
-message( STATUS "rc file: ${obs_QRC_SOURCES} )
+message( STATUS "rc file: ${obs_QRC_SOURCES}." )
 
 add_executable( ${_gui_name} WIN32
 	${obs_SOURCES}
