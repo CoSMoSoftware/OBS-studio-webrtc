@@ -1106,15 +1106,19 @@
                </item>
               </layout>
              </item>
+             <item row="4" column="1">
+              <widget class="QCheckBox" name="bandwidthTestEnable">
+               <property name="text">
+                <string>Basic.Settings.Stream.BandwidthTestMode</string>
+               </property>
+              </widget>
+             </item>
              <item row="5" column="1">
               <widget class="QCheckBox" name="useAuth">
                <property name="text">
                 <string>Basic.Settings.Stream.Custom.UseAuthentication</string>
                </property>
               </widget>
-             </item>
-             <item row="6" column="1">
-              <widget class="QLineEdit" name="room"/>
              </item>
              <item row="6" column="0">
               <widget class="QLabel" name="roomLabel">
@@ -1126,8 +1130,8 @@
                </property>
               </widget>
              </item>
-             <item row="7" column="1">
-              <widget class="QLineEdit" name="authUsername"/>
+             <item row="6" column="1">
+              <widget class="QLineEdit" name="room"/>
              </item>
              <item row="7" column="0">
               <widget class="QLabel" name="authUsernameLabel">
@@ -1138,6 +1142,9 @@
                 <cstring>authUsername</cstring>
                </property>
               </widget>
+             </item>
+             <item row="7" column="1">
+              <widget class="QLineEdit" name="authUsername"/>
              </item>
              <item row="8" column="0">
               <widget class="QLabel" name="authPwLabel">
@@ -1181,48 +1188,80 @@
                </layout>
               </widget>
              </item>
-             <item row="4" column="1">
-              <widget class="QCheckBox" name="bandwidthTestEnable">
-               <property name="text">
-                <string>Basic.Settings.Stream.BandwidthTestMode</string>
-               </property>
-              </widget>
-             </item>
-             <item row="9" column="0">
-              <widget class="QLabel" name="codecLabel">
-               <property name="text">
-                <string>Codec</string>
-               </property>
-               <property name="buddy">
-                <cstring>codec</cstring>
-               </property>
-              </widget>
-             </item>
              <item row="9" column="1">
-              <widget class="QComboBox" name="codec">
-               <property name="currentIndex">
-                <number>0</number>
+              <widget class="QGroupBox" name="codecGroupBox">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Fixed" vsizetype="MinimumExpanding">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
                </property>
-               <item>
-                <property name="text">
-                 <string>Automatic</string>
+               <property name="minimumSize">
+                <size>
+                 <width>90</width>
+                 <height>80</height>
+                </size>
+               </property>
+               <property name="title">
+                <string/>
+               </property>
+               <widget class="QWidget" name="verticalLayoutWidget">
+                <property name="geometry">
+                 <rect>
+                  <x>10</x>
+                  <y>10</y>
+                  <width>71</width>
+                  <height>61</height>
+                 </rect>
                 </property>
-               </item>
-               <item>
-                <property name="text">
-                 <string>H264</string>
-                </property>
-               </item>
-               <item>
-                <property name="text">
-                 <string>VP8</string>
-                </property>
-               </item>
-               <item>
-                <property name="text">
-                 <string>VP9</string>
-                </property>
-               </item>
+                <layout class="QVBoxLayout" name="verticalLayout_7">
+                 <property name="leftMargin">
+                  <number>1</number>
+                 </property>
+                 <property name="topMargin">
+                  <number>1</number>
+                 </property>
+                 <property name="rightMargin">
+                  <number>1</number>
+                 </property>
+                 <property name="bottomMargin">
+                  <number>1</number>
+                 </property>
+                 <item>
+                  <widget class="QRadioButton" name="h264RadioButton">
+                   <property name="text">
+                    <string>H264</string>
+                   </property>
+                   <attribute name="buttonGroup">
+                    <string notr="true">codecButtonGroup</string>
+                   </attribute>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QRadioButton" name="vp8RadioButton">
+                   <property name="text">
+                    <string>VP8</string>
+                   </property>
+                   <attribute name="buttonGroup">
+                    <string notr="true">codecButtonGroup</string>
+                   </attribute>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QRadioButton" name="vp9RadioButton">
+                   <property name="text">
+                    <string>VP9</string>
+                   </property>
+                   <property name="checked">
+                    <bool>true</bool>
+                   </property>
+                   <attribute name="buttonGroup">
+                    <string notr="true">codecButtonGroup</string>
+                   </attribute>
+                  </widget>
+                 </item>
+                </layout>
+               </widget>
               </widget>
              </item>
              <item row="10" column="0">
@@ -1255,6 +1294,13 @@
                  <string>TCP</string>
                 </property>
                </item>
+              </widget>
+             </item>
+             <item row="9" column="0">
+              <widget class="QLabel" name="codecLabel">
+               <property name="text">
+                <string>Codec</string>
+               </property>
               </widget>
              </item>
             </layout>
@@ -5031,7 +5077,6 @@
   <tabstop>authUsername</tabstop>
   <tabstop>authPw</tabstop>
   <tabstop>authPwShow</tabstop>
-  <tabstop>codec</tabstop>
   <tabstop>streamProtocol</tabstop>
   <tabstop>scrollArea_3</tabstop>
   <tabstop>outputMode</tabstop>
@@ -5570,5 +5615,6 @@
  </connections>
  <buttongroups>
   <buttongroup name="basicSettingsButtonGroup"/>
+  <buttongroup name="codecButtonGroup"/>
  </buttongroups>
 </ui>

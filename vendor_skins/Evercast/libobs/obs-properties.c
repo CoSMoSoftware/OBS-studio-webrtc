@@ -93,7 +93,7 @@ struct group_data {
 	obs_properties_t *content;
 };
 
-// NOTE LUDO: Clickable items replacement
+// NOTE LUDO: #172 codecs list of radio buttons
 struct button_group_data {
         DARRAY(struct list_item) items;
         enum obs_button_group_type      type;
@@ -821,6 +821,15 @@ static inline struct list_data *get_list_data(struct obs_property *p)
 	return get_property_data(p);
 }
 
+// NOTE LUDO: #172 codecs list of radio buttons
+static inline struct button_group_data *get_button_group_data(struct obs_property *p)
+{
+        if (!p || !is_button_group(p))
+                return NULL;
+
+        return get_property_data(p);
+}
+
 static inline struct list_data *get_list_fmt_data(struct obs_property *p,
 						  enum obs_combo_format format)
 {
@@ -828,13 +837,12 @@ static inline struct list_data *get_list_fmt_data(struct obs_property *p,
 	return (data && data->format == format) ? data : NULL;
 }
 
-// NOTE LUDO: Clickable items replacement
-static inline struct button_group_data *get_button_group_data(struct obs_property *p)
+// NOTE LUDO: #172 codecs list of radio buttons
+static inline struct button_group_data *get_button_group_fmt_data(struct obs_property *p,
+		enum obs_button_group_format format)
 {
-        if (!p || !is_button_group(p))
-                return NULL;
-
-        return get_property_data(p);
+	struct button_group_data *data = get_button_group_data(p);
+	return (data && data->format == format) ? data : NULL;
 }
 
 /* ------------------------------------------------------------------------- */
@@ -1238,6 +1246,13 @@ size_t obs_property_list_item_count(obs_property_t *p)
 	return data ? data->items.num : 0;
 }
 
+// NOTE LUDO: #172 codecs list of radio buttons
+size_t obs_property_button_group_item_count(obs_property_t *p)
+{
+	struct button_group_data *data = get_button_group_data(p);
+	return data ? data->items.num : 0;
+}
+
 bool obs_property_list_item_disabled(obs_property_t *p, size_t idx)
 {
 	struct list_data *data = get_list_data(p);
@@ -1261,11 +1276,27 @@ const char *obs_property_list_item_name(obs_property_t *p, size_t idx)
 					       : NULL;
 }
 
+// NOTE LUDO: #172 codecs list of radio buttons
+const char *obs_property_button_group_item_name(obs_property_t *p, size_t idx)
+{
+	struct button_group_data *data = get_button_group_data(p);
+	return (data && idx < data->items.num) ?
+		data->items.array[idx].name : NULL;
+}
+
 const char *obs_property_list_item_string(obs_property_t *p, size_t idx)
 {
 	struct list_data *data = get_list_fmt_data(p, OBS_COMBO_FORMAT_STRING);
 	return (data && idx < data->items.num) ? data->items.array[idx].str
 					       : NULL;
+}
+
+// NOTE LUDO: #172 codecs list of radio buttons
+const char *obs_property_button_group_item_string(obs_property_t *p, size_t idx)
+{
+	struct button_group_data *data = get_button_group_fmt_data(p, OBS_BUTTON_GROUP_FORMAT_STRING);
+	return (data && idx < data->items.num) ?
+		data->items.array[idx].str : NULL;
 }
 
 long long obs_property_list_item_int(obs_property_t *p, size_t idx)

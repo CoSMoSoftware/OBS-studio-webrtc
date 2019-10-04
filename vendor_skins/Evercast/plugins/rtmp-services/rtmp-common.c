@@ -182,7 +182,6 @@ static void add_service(obs_property_t *list, json_t *service, bool show_all,
 		     name);
 		return;
 	}
-printf("****************** LUDO add service %s\n", name);
 	obs_property_list_add_string(list, name, name);
 }
 
@@ -199,7 +198,6 @@ static void add_services(obs_property_t *list, json_t *root, bool show_all,
 	}
 
 	json_array_foreach (root, index, service) {
-    printf("****** LUDO json add service\n");
 		add_service(list, service, show_all, cur_service);
 	}
 

@@ -123,7 +123,7 @@ void OBSPropertiesView::RefreshProperties()
 	widget->setLayout(layout);
 
 	QSizePolicy mainPolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-	QSizePolicy policy(QSizePolicy::Preferred, QSizePolicy::Preferred);
+	// QSizePolicy policy(QSizePolicy::Preferred, QSizePolicy::Preferred);
 	//widget->setSizePolicy(policy);
 
 	layout->setLabelAlignment(Qt::AlignRight);
@@ -1627,20 +1627,26 @@ static bool FrameRateChanged(QObject *widget, const char *name,
 
 void WidgetInfo::BoolChanged(const char *setting)
 {
-	QCheckBox *checkbox = static_cast<QCheckBox*>(widget);
+  // NOTE LUDO: #172 codecs list of radio buttons
+	// QCheckBox *checkbox = static_cast<QCheckBox*>(widget);
+	QCheckBox *checkbox = static_cast<QCheckBox*>(object);
 	obs_data_set_bool(view->settings, setting,
 			checkbox->checkState() == Qt::Checked);
 }
 
 void WidgetInfo::IntChanged(const char *setting)
 {
-	QSpinBox *spin = static_cast<QSpinBox*>(widget);
+  // NOTE LUDO: #172 codecs list of radio buttons
+	// QSpinBox *spin = static_cast<QSpinBox*>(widget);
+	QSpinBox *spin = static_cast<QSpinBox*>(object);
 	obs_data_set_int(view->settings, setting, spin->value());
 }
 
 void WidgetInfo::FloatChanged(const char *setting)
 {
-	QDoubleSpinBox *spin = static_cast<QDoubleSpinBox*>(widget);
+  // NOTE LUDO: #172 codecs list of radio buttons
+	// QDoubleSpinBox *spin = static_cast<QDoubleSpinBox*>(widget);
+	QDoubleSpinBox *spin = static_cast<QDoubleSpinBox*>(object);
 	obs_data_set_double(view->settings, setting, spin->value());
 }
 
@@ -1649,13 +1655,17 @@ void WidgetInfo::TextChanged(const char *setting)
 	obs_text_type type  = obs_property_text_type(property);
 
 	if (type == OBS_TEXT_MULTILINE) {
-		QPlainTextEdit *edit = static_cast<QPlainTextEdit*>(widget);
+    // NOTE LUDO: #172 codecs list of radio buttons
+		// QPlainTextEdit *edit = static_cast<QPlainTextEdit*>(widget);
+		QPlainTextEdit *edit = static_cast<QPlainTextEdit*>(object);
 		obs_data_set_string(view->settings, setting,
 				QT_TO_UTF8(edit->toPlainText()));
 		return;
 	}
 
-	QLineEdit *edit = static_cast<QLineEdit*>(widget);
+  // NOTE LUDO: #172 codecs list of radio buttons
+	// QLineEdit *edit = static_cast<QLineEdit*>(widget);
+	QLineEdit *edit = static_cast<QLineEdit*>(object);
 	obs_data_set_string(view->settings, setting, QT_TO_UTF8(edit->text()));
 }
 
@@ -1684,7 +1694,9 @@ bool WidgetInfo::PathChanged(const char *setting)
 	if (path.isEmpty())
 		return false;
 
-	QLineEdit *edit = static_cast<QLineEdit*>(widget);
+  // NOTE LUDO: #172 codecs list of radio buttons
+	// QLineEdit *edit = static_cast<QLineEdit*>(widget);
+	QLineEdit *edit = static_cast<QLineEdit*>(object);
 	edit->setText(path);
 	obs_data_set_string(view->settings, setting, QT_TO_UTF8(path));
 	return true;
@@ -1692,7 +1704,9 @@ bool WidgetInfo::PathChanged(const char *setting)
 
 void WidgetInfo::ListChanged(const char *setting)
 {
-	QComboBox        *combo = static_cast<QComboBox*>(widget);
+  // NOTE LUDO: #172 codecs list of radio buttons
+	// QComboBox        *combo = static_cast<QComboBox*>(widget);
+	QComboBox        *combo = static_cast<QComboBox*>(object);
 	obs_combo_format format = obs_property_list_format(property);
 	obs_combo_type   type   = obs_property_list_type(property);
 	QVariant         data;
@@ -1725,9 +1739,10 @@ void WidgetInfo::ListChanged(const char *setting)
 	}
 }
 
+// NOTE LUDO: #172 codecs list of radio buttons
 void WidgetInfo::ButtonGroupChanged(const char *setting)
 {
-	QButtonGroup *buttongroup = static_cast<QButtonGroup*>(widget);
+	QButtonGroup *buttongroup = reinterpret_cast<QButtonGroup*>(object);
   obs_data_set_string(view->settings, setting,
       buttongroup->checkedButton()->text().toStdString().c_str());
 }
@@ -1754,7 +1769,9 @@ bool WidgetInfo::ColorChanged(const char *setting)
 	if (!color.isValid())
 		return false;
 
-	QLabel *label = static_cast<QLabel*>(widget);
+  // NOTE LUDO: #172 codecs list of radio buttons
+	// QLabel *label = static_cast<QLabel*>(widget);
+	QLabel *label = static_cast<QLabel*>(object);
 	label->setText(color.name(QColor::HexArgb));
 	label->setPalette(QPalette(color));
 
@@ -1792,7 +1809,9 @@ bool WidgetInfo::FontChanged(const char *setting)
 	flags |= font.strikeOut() ? OBS_FONT_STRIKEOUT : 0;
 	obs_data_set_int(font_obj, "flags", flags);
 
-	QLabel *label = static_cast<QLabel*>(widget);
+  // NOTE LUDO: #172 codecs list of radio buttons
+	// QLabel *label = static_cast<QLabel*>(widget);
+	QLabel *label = static_cast<QLabel*>(object);
 	QFont labelFont;
 	MakeQFont(font_obj, labelFont, true);
 	label->setFont(labelFont);
@@ -1806,7 +1825,9 @@ bool WidgetInfo::FontChanged(const char *setting)
 void WidgetInfo::EditableListChanged()
 {
 	const char *setting = obs_property_name(property);
-	QListWidget *list = reinterpret_cast<QListWidget*>(widget);
+  // NOTE LUDO: #172 codecs list of radio buttons
+	// QListWidget *list = reinterpret_cast<QListWidget*>(widget);
+	QListWidget *list = reinterpret_cast<QListWidget*>(object);
 	obs_data_array *array = obs_data_array_create();
 
 	for (int i = 0; i < list->count(); i++) {
@@ -1835,7 +1856,9 @@ void WidgetInfo::ButtonClicked()
 
 void WidgetInfo::TogglePasswordText(bool show)
 {
-	reinterpret_cast<QLineEdit*>(widget)->setEchoMode(
+  // NOTE LUDO: #172 codecs list of radio buttons
+	// reinterpret_cast<QLineEdit*>(widget)->setEchoMode(
+	reinterpret_cast<QLineEdit*>(object)->setEchoMode(
 			show ? QLineEdit::Normal : QLineEdit::Password);
 }
 
@@ -1867,7 +1890,9 @@ void WidgetInfo::ControlChanged()
 		break;
 	case OBS_PROPERTY_EDITABLE_LIST: break;
 	case OBS_PROPERTY_FRAME_RATE:
-		if (!FrameRateChanged(widget, setting, view->settings))
+    // NOTE LUDO: #172 codecs list of radio buttons
+		// if (!FrameRateChanged(widget, setting, view->settings))
+		if (!FrameRateChanged(object, setting, view->settings))
 			return;
 		break;
 	}
@@ -1990,10 +2015,14 @@ void WidgetInfo::EditListAdd()
 
 void WidgetInfo::EditListAddText()
 {
-	QListWidget *list = reinterpret_cast<QListWidget*>(widget);
+  // NOTE LUDO: #172 codecs list of radio buttons
+	// QListWidget *list = reinterpret_cast<QListWidget*>(widget);
+	QListWidget *list = reinterpret_cast<QListWidget*>(object);
 	const char *desc = obs_property_description(property);
 
-	EditableItemDialog dialog(((QWidget*)widget)->window(), QString(), false);
+  // NOTE LUDO: #172 codecs list of radio buttons
+	// EditableItemDialog dialog(((QWidget*)widget)->window(), QString(), false);
+	EditableItemDialog dialog(((QWidget*)object)->window(), QString(), false);
 	auto title = QTStr("Basic.PropertiesWindow.AddEditableListEntry").arg(
 			QT_UTF8(desc));
 	dialog.setWindowTitle(title);
@@ -2010,7 +2039,9 @@ void WidgetInfo::EditListAddText()
 
 void WidgetInfo::EditListAddFiles()
 {
-	QListWidget *list = reinterpret_cast<QListWidget*>(widget);
+  // NOTE LUDO: #172 codecs list of radio buttons
+	// QListWidget *list = reinterpret_cast<QListWidget*>(widget);
+	QListWidget *list = reinterpret_cast<QListWidget*>(object);
 	const char *desc = obs_property_description(property);
 	const char *filter = obs_property_editable_list_filter(property);
 	const char *default_path =
@@ -2032,7 +2063,9 @@ void WidgetInfo::EditListAddFiles()
 
 void WidgetInfo::EditListAddDir()
 {
-	QListWidget *list = reinterpret_cast<QListWidget*>(widget);
+  // NOTE LUDO: #172 codecs list of radio buttons
+	// QListWidget *list = reinterpret_cast<QListWidget*>(widget);
+	QListWidget *list = reinterpret_cast<QListWidget*>(object);
 	const char *desc = obs_property_description(property);
 	const char *default_path =
 		obs_property_editable_list_default_path(property);
@@ -2052,7 +2085,9 @@ void WidgetInfo::EditListAddDir()
 
 void WidgetInfo::EditListRemove()
 {
-	QListWidget *list = reinterpret_cast<QListWidget*>(widget);
+  // NOTE LUDO: #172 codecs list of radio buttons
+	// QListWidget *list = reinterpret_cast<QListWidget*>(widget);
+	QListWidget *list = reinterpret_cast<QListWidget*>(object);
 	QList<QListWidgetItem*> items = list->selectedItems();
 
 	for (QListWidgetItem *item : items)
@@ -2062,7 +2097,9 @@ void WidgetInfo::EditListRemove()
 
 void WidgetInfo::EditListEdit()
 {
-	QListWidget *list = reinterpret_cast<QListWidget*>(widget);
+  // NOTE LUDO: #172 codecs list of radio buttons
+	// QListWidget *list = reinterpret_cast<QListWidget*>(widget);
+	QListWidget *list = reinterpret_cast<QListWidget*>(object);
 	enum obs_editable_list_type type = obs_property_editable_list_type(
 			property);
 	const char *desc = obs_property_description(property);
@@ -2086,7 +2123,9 @@ void WidgetInfo::EditListEdit()
 		return;
 	}
 
-	EditableItemDialog dialog(((QWidget*)widget)->window(), item->text(),
+  // NOTE LUDO: #172 codecs list of radio buttons
+	// EditableItemDialog dialog(((QWidget*)widget)->window(), item->text(),
+	EditableItemDialog dialog(((QWidget*)object)->window(), item->text(),
 			type != OBS_EDITABLE_LIST_TYPE_STRINGS, filter);
 	auto title = QTStr("Basic.PropertiesWindow.EditEditableListEntry").arg(
 			QT_UTF8(desc));
@@ -2104,7 +2143,9 @@ void WidgetInfo::EditListEdit()
 
 void WidgetInfo::EditListUp()
 {
-	QListWidget *list = reinterpret_cast<QListWidget*>(widget);
+  // NOTE LUDO: #172 codecs list of radio buttons
+	// QListWidget *list = reinterpret_cast<QListWidget*>(widget);
+	QListWidget *list = reinterpret_cast<QListWidget*>(object);
 	int lastItemRow = -1;
 
 	for (int i = 0; i < list->count(); i++) {
@@ -2129,7 +2170,9 @@ void WidgetInfo::EditListUp()
 
 void WidgetInfo::EditListDown()
 {
-	QListWidget *list = reinterpret_cast<QListWidget*>(widget);
+  // NOTE LUDO: #172 codecs list of radio buttons
+	// QListWidget *list = reinterpret_cast<QListWidget*>(widget);
+	QListWidget *list = reinterpret_cast<QListWidget*>(object);
 	int lastItemRow = list->count();
 
 	for (int i = list->count() - 1; i >= 0; i--) {

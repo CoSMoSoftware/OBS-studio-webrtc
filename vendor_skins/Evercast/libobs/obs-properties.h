@@ -339,6 +339,9 @@ EXPORT const char *obs_property_path_filter(obs_property_t *p);
 EXPORT const char *obs_property_path_default_path(obs_property_t *p);
 EXPORT enum obs_combo_type obs_property_list_type(obs_property_t *p);
 EXPORT enum obs_combo_format obs_property_list_format(obs_property_t *p);
+// NOTE LUDO: #172 codecs list of radio buttons
+EXPORT enum obs_button_group_type   obs_property_button_group_type(obs_property_t *p);
+EXPORT enum obs_button_group_format obs_property_button_group_format(obs_property_t *p);
 
 EXPORT void obs_property_int_set_limits(obs_property_t *p, int min, int max,
 					int step);
@@ -353,6 +356,11 @@ EXPORT void obs_property_list_clear(obs_property_t *p);
 // NOTE ALEX: Clickable items replacement.
 EXPORT size_t obs_property_button_group_add_string(obs_property_t *p,
                 const char *name, const char *val);
+
+// NOTE LUDO: #172 codecs list of radio buttons
+EXPORT size_t      obs_property_button_group_item_count(obs_property_t *p);
+EXPORT const char *obs_property_button_group_item_name(obs_property_t *p, size_t idx);
+EXPORT const char *obs_property_button_group_item_string(obs_property_t *p, size_t idx);
 
 EXPORT size_t obs_property_list_add_string(obs_property_t *p, const char *name,
 					   const char *val);

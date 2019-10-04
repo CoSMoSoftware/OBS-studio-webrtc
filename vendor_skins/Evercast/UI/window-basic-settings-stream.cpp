@@ -127,7 +127,9 @@ void OBSBasicSettings::LoadStream1Settings()
 
 		tmpString = obs_data_get_string(settings, "codec");
 		const char *codec =
-			strcmp("", tmpString) == 0 ? "Automatic" : tmpString;
+    // NOTE LUDO: #172 codecs list of radio buttons
+		// 	strcmp("", tmpString) == 0 ? "Automatic" : tmpString;
+			strcmp("", tmpString) == 0 ? "vp9" : tmpString;
 
 		tmpString = obs_data_get_string(settings, "protocol");
 		const char *protocol =
@@ -148,8 +150,18 @@ void OBSBasicSettings::LoadStream1Settings()
 		bool use_auth = true;
 		ui->useAuth->setChecked(use_auth);
 
-		int idxC = ui->codec->findText(codec);
-		ui->codec->setCurrentIndex(idxC);
+    // NOTE LUDO: #172 codecs list of radio buttons
+		// int idxC = ui->codec->findText(codec);
+		// ui->codec->setCurrentIndex(idxC);
+    QList<QAbstractButton *> listButtons = ui->codecButtonGroup->buttons();
+    QList<QAbstractButton *>::iterator iter;
+    for (iter = listButtons.begin(); iter != listButtons.end(); ++iter) {
+      QRadioButton *radiobutton = reinterpret_cast<QRadioButton *>(*iter);
+      if (strcmp(codec, radiobutton->text().toStdString().c_str()) == 0) {
+        radiobutton->setChecked(true);
+        break;
+      }
+    }
 
 		int idxP = ui->streamProtocol->findText(protocol);
 		ui->streamProtocol->setCurrentIndex(idxP);
@@ -225,8 +237,10 @@ void OBSBasicSettings::SaveStream1Settings()
 				QT_TO_UTF8(ui->authUsername->text()));
 		obs_data_set_string(settings, "password",
 				QT_TO_UTF8(ui->authPw->text()));
+    // NOTE LUDO: #172 codecs list of radio buttons
 		obs_data_set_string(settings, "codec",
-				QT_TO_UTF8(ui->codec->currentText()));
+				// QT_TO_UTF8(ui->codec->currentText()));
+				QT_TO_UTF8(ui->codecButtonGroup->checkedButton()->text()));
 		obs_data_set_string(settings, "protocol",
 				QT_TO_UTF8(ui->streamProtocol->currentText()));
 	}
@@ -408,8 +422,9 @@ void OBSBasicSettings::on_service_currentIndexChanged(int)
 						   ui->authUsername);
 		ui->streamkeyPageLayout->insertRow(5, ui->authPwLabel,
 						   ui->authPwWidget);
-		ui->streamkeyPageLayout->insertRow(6, ui->codecLabel,
-						   ui->codec);
+    // NOTE LUDO: #172 codecs list of radio buttons
+		// ui->streamkeyPageLayout->insertRow(6, ui->codecLabel,
+		// 				   ui->codec);
 		ui->streamkeyPageLayout->insertRow(7, ui->streamProtocolLabel,
 						   ui->streamProtocol);
 		ui->serverStackedWidget->setCurrentIndex(1);
@@ -421,7 +436,8 @@ void OBSBasicSettings::on_service_currentIndexChanged(int)
 		ui->room->setVisible(false);
 		on_useAuth_toggled();
 		ui->codecLabel->setVisible(false);
-		ui->codec->setVisible(false);
+    // NOTE LUDO: #172 codecs list of radio buttons
+		// ui->codec->setVisible(false);
 		ui->streamProtocolLabel->setVisible(false);
 		ui->streamProtocol->setVisible(false);
 	} else if (webrtc > 0) {
@@ -463,9 +479,10 @@ void OBSBasicSettings::on_service_currentIndexChanged(int)
 			min_idx++;
 		}
 		if (obs_property_visible(codec)) {
-			ui->streamkeyPageLayout->insertRow(min_idx, ui->codecLabel,
-							   ui->codec);
-			min_idx++;
+      // NOTE LUDO: #172 codecs list of radio buttons
+			// ui->streamkeyPageLayout->insertRow(min_idx, ui->codecLabel,
+			// 				   ui->codec);
+			// min_idx++;
 		}
 		if (obs_property_visible(protocol)) {
 			ui->streamkeyPageLayout->insertRow(min_idx, ui->streamProtocolLabel,
@@ -481,7 +498,8 @@ void OBSBasicSettings::on_service_currentIndexChanged(int)
 		ui->authPwLabel->setVisible(obs_property_visible(password));
 		ui->authPwWidget->setVisible(obs_property_visible(password));
 		ui->codecLabel->setVisible(obs_property_visible(codec));
-		ui->codec->setVisible(obs_property_visible(codec));
+    // NOTE LUDO: #172 codecs list of radio buttons
+		// ui->codec->setVisible(obs_property_visible(codec));
 		ui->streamProtocolLabel->setVisible(obs_property_visible(protocol));
 		ui->streamProtocol->setVisible(obs_property_visible(protocol));
 		obs_properties_destroy(props);
@@ -498,8 +516,9 @@ void OBSBasicSettings::on_service_currentIndexChanged(int)
 							ui->authUsername);
 		ui->streamkeyPageLayout->insertRow(5, ui->authPwLabel,
 							ui->authPwWidget);
-		ui->streamkeyPageLayout->insertRow(6, ui->codecLabel,
-							ui->codec);
+    // NOTE LUDO: #172 codecs list of radio buttons
+		// ui->streamkeyPageLayout->insertRow(6, ui->codecLabel,
+		// 					ui->codec);
 		ui->streamkeyPageLayout->insertRow(7, ui->streamProtocolLabel,
 							ui->streamProtocol);
 		ui->serverStackedWidget->setCurrentIndex(0);
@@ -512,7 +531,8 @@ void OBSBasicSettings::on_service_currentIndexChanged(int)
 		ui->streamProtocolLabel->setVisible(false);
 		ui->streamProtocol->setVisible(false);
 		ui->codecLabel->setVisible(false);
-		ui->codec->setVisible(false);
+    // NOTE LUDO: #172 codecs list of radio buttons
+		// ui->codec->setVisible(false);
 	}
 
 #ifdef BROWSER_AVAILABLE
