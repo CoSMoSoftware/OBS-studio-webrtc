@@ -1095,7 +1095,8 @@ bool OBSBasic::LoadService()
 	obs_data_t *data =
 		obs_data_create_from_json_file_safe(serviceJsonPath, "bak");
 
-	obs_data_set_default_string(data, "type", "rtmp_common");
+  // NOTE LUDO: make evercast the dafault service instead of rtmp_common
+	obs_data_set_default_string(data, "type", "webrtc_evercast");
 	type = obs_data_get_string(data, "type");
 
 	obs_data_t *settings = obs_data_get_obj(data, "settings");
