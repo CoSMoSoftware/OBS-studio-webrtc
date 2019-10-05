@@ -5,9 +5,9 @@
 	<key>CFBundleIconFile</key>
 	<string>OBS.icns</string>
 	<key>CFBundleName</key>
-	<string>EBSC</string>
+	<string>EBS</string>
 	<key>CFBundleGetInfoString</key>
-	<string>EBS - Free and Open Source Streaming/Recording Software</string>
+	<string>EBS - Free and Open Source Streaming Software</string>
 	<key>CFBundleExecutable</key>
 	<string>EBS</string>
 	<key>CFBundleIdentifier</key>
