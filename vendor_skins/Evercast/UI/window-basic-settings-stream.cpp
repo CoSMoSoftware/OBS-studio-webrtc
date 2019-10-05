@@ -127,7 +127,7 @@ void OBSBasicSettings::LoadStream1Settings()
 
 		tmpString = obs_data_get_string(settings, "codec");
 		const char *codec =
-    // NOTE LUDO: #172 codecs list of radio buttons
+                // NOTE LUDO: #172 codecs list of radio buttons
 		// 	strcmp("", tmpString) == 0 ? "Automatic" : tmpString;
 			strcmp("", tmpString) == 0 ? "vp9" : tmpString;
 
@@ -150,18 +150,18 @@ void OBSBasicSettings::LoadStream1Settings()
 		bool use_auth = true;
 		ui->useAuth->setChecked(use_auth);
 
-    // NOTE LUDO: #172 codecs list of radio buttons
+                // NOTE LUDO: #172 codecs list of radio buttons
 		// int idxC = ui->codec->findText(codec);
 		// ui->codec->setCurrentIndex(idxC);
-    QList<QAbstractButton *> listButtons = ui->codecButtonGroup->buttons();
-    QList<QAbstractButton *>::iterator iter;
-    for (iter = listButtons.begin(); iter != listButtons.end(); ++iter) {
-      QRadioButton *radiobutton = reinterpret_cast<QRadioButton *>(*iter);
-      if (strcmp(codec, radiobutton->text().toStdString().c_str()) == 0) {
-        radiobutton->setChecked(true);
-        break;
-      }
-    }
+                QList<QAbstractButton *> listButtons = ui->codecButtonGroup->buttons();
+                QList<QAbstractButton *>::iterator iter;
+                for (iter = listButtons.begin(); iter != listButtons.end(); ++iter) {
+                  QRadioButton *radiobutton = reinterpret_cast<QRadioButton *>(*iter);
+                  if (strcmp(codec, radiobutton->text().toStdString().c_str()) == 0) {
+                    radiobutton->setChecked(true);
+                    break;
+                  }
+                }
 
 		int idxP = ui->streamProtocol->findText(protocol);
 		ui->streamProtocol->setCurrentIndex(idxP);
@@ -199,9 +199,7 @@ void OBSBasicSettings::SaveStream1Settings()
 	bool customServer = IsCustomService();
 	int webrtc = IsWebRTC();
 
-	const char *service_id = webrtc == 0
-			? customServer ? "rtmp_custom" : "rtmp_common"
-			: webrtc_services[webrtc - 3].c_str();
+	const char *service_id = "webrtc_evercast";
 
 	obs_service_t *oldService = main->GetService();
 	OBSData hotkeyData = obs_hotkeys_save_service(oldService);
@@ -237,9 +235,8 @@ void OBSBasicSettings::SaveStream1Settings()
 				QT_TO_UTF8(ui->authUsername->text()));
 		obs_data_set_string(settings, "password",
 				QT_TO_UTF8(ui->authPw->text()));
-    // NOTE LUDO: #172 codecs list of radio buttons
+                // NOTE LUDO: #172 codecs list of radio buttons
 		obs_data_set_string(settings, "codec",
-				// QT_TO_UTF8(ui->codec->currentText()));
 				QT_TO_UTF8(ui->codecButtonGroup->checkedButton()->text()));
 		obs_data_set_string(settings, "protocol",
 				QT_TO_UTF8(ui->streamProtocol->currentText()));
@@ -308,7 +305,7 @@ void OBSBasicSettings::UpdateKeyLink()
 
 void OBSBasicSettings::LoadServices(bool showAll)
 {
-	obs_properties_t *props = obs_get_service_properties("rtmp_common");
+	obs_properties_t *props = obs_get_service_properties("webrtc_evercast");
 
 	OBSData settings = obs_data_create();
 	obs_data_release(settings);
@@ -347,7 +344,7 @@ void OBSBasicSettings::LoadServices(bool showAll)
 			0, obs_service_get_display_name(webrtc_services[i].c_str()),
 			QVariant((int)i+3));
 
-  // NOTE LUDO: #167 Settings/Stream: only one service displayed: Evercast
+        // NOTE LUDO: #167 Settings/Stream: only one service displayed: Evercast
 	// ui->service->insertItem(
 	// 	0, QTStr("Basic.AutoConfig.StreamPage.Service.Custom"),
 	// 	QVariant((int)ListOpt::Custom));
@@ -422,7 +419,7 @@ void OBSBasicSettings::on_service_currentIndexChanged(int)
 						   ui->authUsername);
 		ui->streamkeyPageLayout->insertRow(5, ui->authPwLabel,
 						   ui->authPwWidget);
-    // NOTE LUDO: #172 codecs list of radio buttons
+                // NOTE LUDO: #172 codecs list of radio buttons
 		// ui->streamkeyPageLayout->insertRow(6, ui->codecLabel,
 		// 				   ui->codec);
 		ui->streamkeyPageLayout->insertRow(7, ui->streamProtocolLabel,
@@ -436,7 +433,7 @@ void OBSBasicSettings::on_service_currentIndexChanged(int)
 		ui->room->setVisible(false);
 		on_useAuth_toggled();
 		ui->codecLabel->setVisible(false);
-    // NOTE LUDO: #172 codecs list of radio buttons
+                // NOTE LUDO: #172 codecs list of radio buttons
 		// ui->codec->setVisible(false);
 		ui->streamProtocolLabel->setVisible(false);
 		ui->streamProtocol->setVisible(false);
@@ -610,9 +607,7 @@ OBSService OBSBasicSettings::SpawnTempService()
 	bool custom = IsCustomService();
 	int webrtc = IsWebRTC();
 
-	const char *service_id = webrtc == 0
-			? custom ? "rtmp_custom" : "rtmp_common"
-			: webrtc_services[webrtc - 3].c_str();
+	const char *service_id = "webrtc_evercast";
 
 	OBSData settings = obs_data_create();
 	obs_data_release(settings);
