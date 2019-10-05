@@ -1230,7 +1230,7 @@
                  <item>
                   <widget class="QRadioButton" name="h264RadioButton">
                    <property name="text">
-                    <string>H264</string>
+                    <string>h264</string>
                    </property>
                    <attribute name="buttonGroup">
                     <string notr="true">codecButtonGroup</string>
@@ -1240,7 +1240,7 @@
                  <item>
                   <widget class="QRadioButton" name="vp8RadioButton">
                    <property name="text">
-                    <string>VP8</string>
+                    <string>vp8</string>
                    </property>
                    <attribute name="buttonGroup">
                     <string notr="true">codecButtonGroup</string>
@@ -1250,7 +1250,7 @@
                  <item>
                   <widget class="QRadioButton" name="vp9RadioButton">
                    <property name="text">
-                    <string>VP9</string>
+                    <string>vp9</string>
                    </property>
                    <property name="checked">
                     <bool>true</bool>
