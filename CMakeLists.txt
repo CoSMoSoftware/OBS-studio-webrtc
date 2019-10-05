@@ -91,6 +91,7 @@ if(WIN32)
 	list(GET UI_VERSION_SEMANTIC 1 UI_VERSION_MINOR)
 	list(GET UI_VERSION_SEMANTIC 2 UI_VERSION_PATCH)
 	configure_file(UI/obs.rc.in ${PROJECT_BINARY_DIR}/obs.rc)
+        set( obs.rc_DIR ${PROJECT_BINARY_DIR} )
 endif()
 
 # --- Handle Compiler Settings
