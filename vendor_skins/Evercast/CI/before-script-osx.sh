@@ -11,5 +11,6 @@ cmake \
 -DCMAKE_OSX_DEPLOYMENT_TARGET=10.10 \
 -DOPENSSL_ROOT_DIR=/usr/local/opt/openssl@1.1 \
 -Dlibwebrtc_DIR=/tmp/libWebRTC-73.0-x64-Rel-COMMUNITY-BETA/cmake \
+-DOBS_VERSION_OVERRIDE=23.2.0 \
 ..
 
