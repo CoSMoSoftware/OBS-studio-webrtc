@@ -4776,7 +4776,7 @@ void OBSBasic::UploadLog(const char *subdir, const char *file)
 	ui->menuLogFiles->setEnabled(false);
 
 	stringstream ss;
-	ss << "OBS " << App()->GetVersionString() << " log file uploaded at "
+	ss << "EBS " << App()->GetVersionString() << " log file uploaded at "
 	   << CurrentDateTimeString() << "\n\n"
 	   << fileString;
 
@@ -6571,7 +6571,7 @@ void OBSBasic::UpdateTitleBar()
 	const char *sceneCollection = config_get_string(
 		App()->GlobalConfig(), "Basic", "SceneCollection");
 
-	name << "OBS ";
+	name << "EBS ";
 	if (previewProgramMode)
 		name << "Studio ";
 
