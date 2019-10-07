@@ -21,6 +21,7 @@
 #include <mutex>
 #include <thread>
 #include <algorithm>
+#include <locale>
 
 #define debug(format, ...) blog(LOG_DEBUG, format, ##__VA_ARGS__)
 #define info(format, ...) blog(LOG_INFO, format, ##__VA_ARGS__)
@@ -237,9 +238,12 @@ bool WebRTCStream::start(WebRTCStream::Type type)
     protocol = obs_service_get_protocol(service) ? obs_service_get_protocol(service) : "";
 
     // NOTE LUDO: #178 make sure video codec name is written with lower case characters
-    std::transform(video_codec.begin(), video_codec.end(), video_codec.begin(),
-                   [](unsigned char c){ return std::tolower(c); } );
-
+/*    std::transform(video_codec.begin(), video_codec.end(), video_codec.begin(),
+		   [](unsigned char c) {
+			   std::locale loc;
+			   return std::tolower(c, loc);
+		   });
+*/
     info("Video codec:      %s", video_codec.empty() ? "Automatic" : video_codec.c_str());
     info("Protocol:         %s", protocol.empty() ? "Automatic" : protocol.c_str());
 
