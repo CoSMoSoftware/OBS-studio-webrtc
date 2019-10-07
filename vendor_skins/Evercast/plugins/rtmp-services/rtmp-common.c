@@ -262,7 +262,6 @@ static json_t *open_services_file(void)
 	json_t *root = NULL;
 
 	file = obs_module_config_path("services.json");
-  printf("********************* LUDO json file = %s\n", file);
 	if (file) {
 		root = open_json_file(file);
 		bfree(file);

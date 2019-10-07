@@ -1,5 +1,3 @@
-#include <iostream>
-
 #include <QMessageBox>
 
 #include "window-basic-settings.hpp"
@@ -106,7 +104,6 @@ void OBSBasicSettings::LoadStream1Settings()
 	const char *key = obs_data_get_string(settings, "key");
 
 	if (strcmp(type, "rtmp_custom") == 0) {
-std::cout << "*************** LUDO LoadStream1Settings() rtmp_custom" << std::endl;
     // NOTE LUDO: #173 replace Settings/Stream service Evercast combo box by a radio button
 		// ui->service->setCurrentIndex(0);
 		ui->customServer->setText(server);
@@ -120,7 +117,6 @@ std::cout << "*************** LUDO LoadStream1Settings() rtmp_custom" << std::en
 		ui->authPw->setText(QT_UTF8(password));
 		ui->useAuth->setChecked(use_auth);
 	} else if (strcmp(type, "rtmp_common") == 0) {
-std::cout << "*************** LUDO LoadStream1Settings() rtmp_common" << std::endl;
     // NOTE LUDO: #173 replace Settings/Stream service Evercast combo box by a radio button
 		// int idx = ui->service->findText(service);
 		// if (idx == -1) {
@@ -133,7 +129,6 @@ std::cout << "*************** LUDO LoadStream1Settings() rtmp_common" << std::en
 		bool bw_test = obs_data_get_bool(settings, "bwtest");
 		ui->bandwidthTestEnable->setChecked(bw_test);
 	} else {
-std::cout << "*************** LUDO LoadStream1Settings() autre" << std::endl;
 		const char *room = obs_data_get_string(settings, "room");
 		const char *username =
 			obs_data_get_string(settings, "username");
@@ -432,7 +427,6 @@ void OBSBasicSettings::on_service_currentIndexChanged(int)
 	ui->authPwWidget->setVisible(custom);
 
 	if (custom && webrtc == 0) {
-std::cout << "*************** LUDO on_service_currentIndexChanged() rtmp_custom" << std::endl;
 		ui->authUsernameLabel->setText("Username");
 		ui->authPwLabel->setText("Password");
 		ui->streamkeyPageLayout->insertRow(1, ui->serverLabel,
@@ -464,7 +458,6 @@ std::cout << "*************** LUDO on_service_currentIndexChanged() rtmp_custom"
 		ui->streamProtocolLabel->setVisible(false);
 		ui->streamProtocol->setVisible(false);
 	} else if (webrtc > 0) {
-std::cout << "*************** LUDO on_service_currentIndexChanged() webrtc" << std::endl;
 		ui->streamKeyLabel->setVisible(false);
 		ui->streamKeyWidget->setVisible(false);
 		ui->serverStackedWidget->setCurrentIndex(1);
@@ -530,7 +523,6 @@ std::cout << "*************** LUDO on_service_currentIndexChanged() webrtc" << s
 		ui->streamProtocol->setVisible(obs_property_visible(protocol));
 		obs_properties_destroy(props);
 	} else if (!custom && webrtc == 0) { // rtmp_common
-std::cout << "*************** LUDO on_service_currentIndexChanged() rtmp_common" << std::endl;
 		ui->authUsernameLabel->setText("Username");
 		ui->authPwLabel->setText("Password");
 		ui->streamkeyPageLayout->insertRow(1, ui->serverLabel,
