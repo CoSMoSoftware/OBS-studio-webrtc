@@ -1120,7 +1120,9 @@ bool OBSBasic::InitService()
 	if (LoadService())
 		return true;
 
-	service = obs_service_create("rtmp_common", "default_service", nullptr,
+  // NOTE LUDO: #182 make evercast the dafault service instead of rtmp_common
+	// service = obs_service_create("rtmp_common", "default_service", nullptr,
+	service = obs_service_create("webrtc_evercast", "default_service", nullptr,
 				     nullptr);
 	if (!service)
 		return false;
