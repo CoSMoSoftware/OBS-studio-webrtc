@@ -336,7 +336,9 @@ OBSBasicSettings::OBSBasicSettings(QWidget *parent)
 	HookWidget(ui->multiviewDrawNames,   CHECK_CHANGED,  GENERAL_CHANGED);
 	HookWidget(ui->multiviewDrawAreas,   CHECK_CHANGED,  GENERAL_CHANGED);
 	HookWidget(ui->multiviewLayout,      COMBO_CHANGED,  GENERAL_CHANGED);
-	HookWidget(ui->service,              COMBO_CHANGED,  STREAM1_CHANGED);
+  // NOTE LUDO: #173 replace Settings/Stream service Evercast combo box by a radio button
+	// HookWidget(ui->service,              COMBO_CHANGED,  STREAM1_CHANGED);
+	HookWidget(ui->evercastRadioButton,  CHECK_CHANGED,  STREAM1_CHANGED);
 	HookWidget(ui->server,               COMBO_CHANGED,  STREAM1_CHANGED);
 	HookWidget(ui->customServer,         EDIT_CHANGED,   STREAM1_CHANGED);
 	HookWidget(ui->key,                  EDIT_CHANGED,   STREAM1_CHANGED);
@@ -735,6 +737,9 @@ OBSBasicSettings::OBSBasicSettings(QWidget *parent)
   ui->codecButtonGroup->setId(ui->h264RadioButton, 0);
   ui->codecButtonGroup->setId(ui->vp8RadioButton,  1);
   ui->codecButtonGroup->setId(ui->vp9RadioButton,  2);
+
+  // NOTE LUDO: #173 replace Settings/Stream service Evercast combo box by a radio button
+  ui->serviceButtonGroup->setId(ui->evercastRadioButton, 1);
 
 	// Get Bind to IP Addresses
 	obs_properties_t *ppts = obs_get_output_properties("rtmp_output");
