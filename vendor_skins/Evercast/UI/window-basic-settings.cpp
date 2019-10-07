@@ -353,7 +353,9 @@ OBSBasicSettings::OBSBasicSettings(QWidget *parent)
 	HookWidget(ui->vp8RadioButton,       CHECK_CHANGED,  STREAM1_CHANGED);
 	HookWidget(ui->vp9RadioButton,       CHECK_CHANGED,  STREAM1_CHANGED);
 	HookWidget(ui->streamProtocol,       COMBO_CHANGED,  STREAM1_CHANGED);
-	HookWidget(ui->outputMode,           COMBO_CHANGED,  OUTPUTS_CHANGED);
+  // NOTE LUDO: #181 replace Settings/Output output mode Simple combo box by a radio button
+	// HookWidget(ui->outputMode,           COMBO_CHANGED,  OUTPUTS_CHANGED);
+	HookWidget(ui->simpleModeRadioButton,CHECK_CHANGED,  OUTPUTS_CHANGED);
   // NOTE LUDO: #165 Remove button recording
 	// HookWidget(ui->simpleOutputPath,     EDIT_CHANGED,   OUTPUTS_CHANGED);
 	// HookWidget(ui->simpleNoSpace,        CHECK_CHANGED,  OUTPUTS_CHANGED);
@@ -574,7 +576,9 @@ OBSBasicSettings::OBSBasicSettings(QWidget *parent)
 
 	connect(ui->streamDelaySec, SIGNAL(valueChanged(int)), this,
 		SLOT(UpdateStreamDelayEstimate()));
-	connect(ui->outputMode, SIGNAL(currentIndexChanged(int)), this,
+  // NOTE LUDO: #181 replace Settings/Output output mode Simple combo box by a radio button
+	// connect(ui->outputMode, SIGNAL(currentIndexChanged(int)), this,
+	connect(ui->outputModeButtonGroup, SIGNAL(buttonClicked(int)), this,
 		SLOT(UpdateStreamDelayEstimate()));
 	connect(ui->simpleOutputVBitrate, SIGNAL(valueChanged(int)), this,
 		SLOT(UpdateStreamDelayEstimate()));
@@ -740,6 +744,11 @@ OBSBasicSettings::OBSBasicSettings(QWidget *parent)
 
   // NOTE LUDO: #173 replace Settings/Stream service Evercast combo box by a radio button
   ui->serviceButtonGroup->setId(ui->evercastRadioButton, 1);
+
+  // NOTE LUDO: #181 replace Settings/Output output mode Simple combo box by a radio button
+  // simple mode = ID 0
+  // advanced mode = ID 1
+  ui->outputModeButtonGroup->setId(ui->simpleModeRadioButton, 0);
 
 	// Get Bind to IP Addresses
 	obs_properties_t *ppts = obs_get_output_properties("rtmp_output");
@@ -1955,8 +1964,9 @@ void OBSBasicSettings::LoadOutputSettings()
 
 	const char *mode = config_get_string(main->Config(), "Output", "Mode");
 
-	int modeIdx = astrcmpi(mode, "Advanced") == 0 ? 1 : 0;
-	ui->outputMode->setCurrentIndex(modeIdx);
+  // NOTE LUDO: #181 replace Settings/Output output mode Simple combo box by a radio button
+	// int modeIdx = astrcmpi(mode, "Advanced") == 0 ? 1 : 0;
+	// ui->outputMode->setCurrentIndex(modeIdx);
 
 	LoadSimpleOutputSettings();
   // NOTE LUDO: #166 Remove replay
@@ -1968,7 +1978,9 @@ void OBSBasicSettings::LoadOutputSettings()
 	// LoadAdvOutputAudioSettings();
 
 	if (obs_video_active()) {
-		ui->outputMode->setEnabled(false);
+    // NOTE LUDO: #181 replace Settings/Output output mode Simple combo box by a radio button
+		// ui->outputMode->setEnabled(false);
+    ui->simpleModeRadioButton->setEnabled(false);
 		ui->outputModeLabel->setEnabled(false);
     // NOTE LUDO: #165 Remove button recording
 		// ui->simpleRecordingGroupBox->setEnabled(false);
@@ -3065,10 +3077,11 @@ void OBSBasicSettings::SaveAdvancedSettings()
 
 static inline const char *OutputModeFromIdx(int idx)
 {
-	if (idx == 1)
-		return "Advanced";
-	else
-		return "Simple";
+  // NOTE LUDO: #181 replace Settings/Output output mode Simple combo box by a radio button
+	// if (idx == 1)
+	// 	return "Advanced";
+	// else
+		return "Simple"; // idx == 0
 }
 
 static inline const char *RecTypeFromIdx(int idx)
@@ -3163,7 +3176,9 @@ void OBSBasicSettings::SaveEncoder(QComboBox *combo, const char *section,
 void OBSBasicSettings::SaveOutputSettings()
 {
 	config_set_string(main->Config(), "Output", "Mode",
-			  OutputModeFromIdx(ui->outputMode->currentIndex()));
+        // NOTE LUDO: #181 replace Settings/Output output mode Simple combo box by a radio button
+			  // OutputModeFromIdx(ui->outputMode->currentIndex()));
+        OutputModeFromIdx(ui->outputModeButtonGroup->checkedId()));
 
 	QString encoder = ui->simpleOutStrEncoder->currentData().toString();
 	const char *presetType;
@@ -4128,10 +4143,11 @@ void OBSBasicSettings::UpdateAdvOutStreamDelayEstimate()
 
 void OBSBasicSettings::UpdateStreamDelayEstimate()
 {
-	if (ui->outputMode->currentIndex() == 0)
+  // NOTE LUDO: #181 replace Settings/Output output mode Simple combo box by a radio button
+	// if (ui->outputMode->currentIndex() == 0)
 		UpdateSimpleOutStreamDelayEstimate();
-	else
-		UpdateAdvOutStreamDelayEstimate();
+	// else
+	// 	UpdateAdvOutStreamDelayEstimate();
 
 	UpdateAutomaticReplayBufferCheckboxes();
 }
@@ -4306,7 +4322,9 @@ void OBSBasicSettings::SimpleStreamingEncoderChanged()
 void OBSBasicSettings::UpdateAutomaticReplayBufferCheckboxes()
 {
 	bool state = false;
-	switch (ui->outputMode->currentIndex()) {
+  // NOTE LUDO: #181 replace Settings/Output output mode Simple combo box by a radio button
+	// switch (ui->outputMode->currentIndex()) {
+  switch (ui->outputModeButtonGroup->checkedId()) {
 	case 0:
     // NOTE LUDO: #165 Remove button recording
 		// state = ui->simpleReplayBuf->isChecked();

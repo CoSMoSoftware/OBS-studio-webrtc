@@ -1343,7 +1343,7 @@
               <x>0</x>
               <y>0</y>
               <width>813</width>
-              <height>739</height>
+              <height>743</height>
              </rect>
             </property>
             <layout class="QVBoxLayout" name="verticalLayout_21">
@@ -1371,7 +1371,7 @@
                 <property name="fieldGrowthPolicy">
                  <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
                 </property>
-                <item row="0" column="0">
+                <item row="1" column="0">
                  <widget class="QLabel" name="outputModeLabel">
                   <property name="minimumSize">
                    <size>
@@ -1385,30 +1385,19 @@
                   <property name="alignment">
                    <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                   </property>
-                  <property name="buddy">
-                   <cstring>outputMode</cstring>
-                  </property>
                  </widget>
                 </item>
-                <item row="0" column="1">
-                 <widget class="QComboBox" name="outputMode">
-                  <property name="enabled">
+                <item row="1" column="1">
+                 <widget class="QRadioButton" name="simpleModeRadioButton">
+                  <property name="text">
+                   <string>Basic.Settings.Output.Mode.Simple</string>
+                  </property>
+                  <property name="checked">
                    <bool>true</bool>
                   </property>
-                  <property name="sizePolicy">
-                   <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-                    <horstretch>0</horstretch>
-                    <verstretch>0</verstretch>
-                   </sizepolicy>
-                  </property>
-                  <property name="currentIndex">
-                   <number>0</number>
-                  </property>
-                  <item>
-                   <property name="text">
-                    <string>Basic.Settings.Output.Mode.Simple</string>
-                   </property>
-                  </item>
+                  <attribute name="buttonGroup">
+                   <string notr="true">outputModeButtonGroup</string>
+                  </attribute>
                  </widget>
                 </item>
                </layout>
@@ -5081,7 +5070,6 @@
   <tabstop>authPwShow</tabstop>
   <tabstop>streamProtocol</tabstop>
   <tabstop>scrollArea_3</tabstop>
-  <tabstop>outputMode</tabstop>
   <tabstop>simpleOutputVBitrate</tabstop>
   <tabstop>simpleOutStrEncoder</tabstop>
   <tabstop>simpleOutputABitrate</tabstop>
@@ -5211,22 +5199,6 @@
     <hint type="destinationlabel">
      <x>241</x>
      <y>30</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>outputMode</sender>
-   <signal>currentIndexChanged(int)</signal>
-   <receiver>outputModePages</receiver>
-   <slot>setCurrentIndex(int)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>241</x>
-     <y>16</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>401</x>
-     <y>64</y>
     </hint>
    </hints>
   </connection>
@@ -5617,6 +5589,7 @@
  </connections>
  <buttongroups>
   <buttongroup name="basicSettingsButtonGroup"/>
+  <buttongroup name="outputModeButtonGroup"/>
   <buttongroup name="serviceButtonGroup"/>
   <buttongroup name="codecButtonGroup"/>
  </buttongroups>
