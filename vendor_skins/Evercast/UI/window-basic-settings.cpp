@@ -339,8 +339,10 @@ OBSBasicSettings::OBSBasicSettings(QWidget *parent)
   // NOTE LUDO: #173 replace Settings/Stream service Evercast combo box by a radio button
 	// HookWidget(ui->service,              COMBO_CHANGED,  STREAM1_CHANGED);
 	HookWidget(ui->evercastRadioButton,  CHECK_CHANGED,  STREAM1_CHANGED);
-	HookWidget(ui->server,               COMBO_CHANGED,  STREAM1_CHANGED);
-	HookWidget(ui->customServer,         EDIT_CHANGED,   STREAM1_CHANGED);
+  // NOTE LUDO: #185 Settings/Stream replace server name QStackedWidget by a QLineEdit
+	// HookWidget(ui->server,               COMBO_CHANGED,  STREAM1_CHANGED);
+	HookWidget(ui->serverName,           EDIT_CHANGED,   STREAM1_CHANGED);
+	// HookWidget(ui->customServer,         EDIT_CHANGED,   STREAM1_CHANGED);
 	HookWidget(ui->key,                  EDIT_CHANGED,   STREAM1_CHANGED);
 	HookWidget(ui->bandwidthTestEnable,  CHECK_CHANGED,  STREAM1_CHANGED);
 	HookWidget(ui->room,                 EDIT_CHANGED,   STREAM1_CHANGED);

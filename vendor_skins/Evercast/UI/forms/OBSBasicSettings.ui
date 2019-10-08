@@ -952,51 +952,6 @@
                </property>
               </widget>
              </item>
-             <item row="0" column="1">
-              <widget class="QStackedWidget" name="serverStackedWidget">
-               <property name="currentIndex">
-                <number>0</number>
-               </property>
-               <widget class="QWidget" name="servicePage">
-                <layout class="QHBoxLayout" name="horizontalLayout_21">
-                 <property name="leftMargin">
-                  <number>0</number>
-                 </property>
-                 <property name="topMargin">
-                  <number>0</number>
-                 </property>
-                 <property name="rightMargin">
-                  <number>0</number>
-                 </property>
-                 <property name="bottomMargin">
-                  <number>0</number>
-                 </property>
-                 <item>
-                  <widget class="QComboBox" name="server"/>
-                 </item>
-                </layout>
-               </widget>
-               <widget class="QWidget" name="customPage">
-                <layout class="QHBoxLayout" name="horizontalLayout_22">
-                 <property name="leftMargin">
-                  <number>0</number>
-                 </property>
-                 <property name="topMargin">
-                  <number>0</number>
-                 </property>
-                 <property name="rightMargin">
-                  <number>0</number>
-                 </property>
-                 <property name="bottomMargin">
-                  <number>0</number>
-                 </property>
-                 <item>
-                  <widget class="QLineEdit" name="customServer"/>
-                 </item>
-                </layout>
-               </widget>
-              </widget>
-             </item>
              <item row="1" column="0">
               <widget class="QLabel" name="streamKeyLabel">
                <property name="text">
@@ -1202,7 +1157,7 @@
                <property name="minimumSize">
                 <size>
                  <width>90</width>
-                 <height>80</height>
+                 <height>100</height>
                 </size>
                </property>
                <property name="title">
@@ -1214,7 +1169,7 @@
                   <x>10</x>
                   <y>10</y>
                   <width>71</width>
-                  <height>61</height>
+                  <height>83</height>
                  </rect>
                 </property>
                 <layout class="QVBoxLayout" name="verticalLayout_7">
@@ -1305,6 +1260,9 @@
                 <string>Codec</string>
                </property>
               </widget>
+             </item>
+             <item row="0" column="1">
+              <widget class="QLineEdit" name="serverName"/>
              </item>
             </layout>
            </widget>
@@ -1597,9 +1555,6 @@
                      <widget class="QLabel" name="simpleOutRecEncoderLabel_2">
                       <property name="text">
                        <string>Basic.Settings.Output.Encoder</string>
-                      </property>
-                      <property name="buddy">
-                       <cstring>simpleOutRecEncoder</cstring>
                       </property>
                      </widget>
                     </item>
@@ -5057,8 +5012,6 @@
   <tabstop>multiviewLayout</tabstop>
   <tabstop>connectAccount</tabstop>
   <tabstop>useStreamKey</tabstop>
-  <tabstop>server</tabstop>
-  <tabstop>customServer</tabstop>
   <tabstop>key</tabstop>
   <tabstop>show</tabstop>
   <tabstop>connectAccount2</tabstop>
