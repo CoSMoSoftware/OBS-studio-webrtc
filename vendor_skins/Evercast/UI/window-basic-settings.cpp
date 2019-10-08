@@ -793,6 +793,12 @@ OBSBasicSettings::OBSBasicSettings(QWidget *parent)
   ui->simpleOutPreset->setEnabled(false);
   ui->simpleOutCustom->setEnabled(false);
 
+  // NOTE LUDO: #184 Settings/Stream disable entry "Username"
+  ui->authUsernameLabel->setEnabled(false);
+  ui->authUsernameLabel->setVisible(false);
+  ui->authUsername->setEnabled(false);
+  ui->authUsername->setVisible(false);
+
 	ui->buttonBox->button(QDialogButtonBox::Apply)->setIcon(QIcon());
 	ui->buttonBox->button(QDialogButtonBox::Ok)->setIcon(QIcon());
 	ui->buttonBox->button(QDialogButtonBox::Cancel)->setIcon(QIcon());
