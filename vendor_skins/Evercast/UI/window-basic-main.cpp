@@ -1805,12 +1805,18 @@ void OBSBasic::OBSInit()
 	delete ui->actionShowCrashLogs;
 	delete ui->actionUploadLastCrashLog;
 	delete ui->menuCrashLogs;
-	delete ui->actionCheckForUpdates;
+  // NOTE LUDO: #186 do not check for OBS Studio updates
+	// delete ui->actionCheckForUpdates;
 	ui->actionShowCrashLogs = nullptr;
 	ui->actionUploadLastCrashLog = nullptr;
 	ui->menuCrashLogs = nullptr;
-	ui->actionCheckForUpdates = nullptr;
+  // NOTE LUDO: #186 do not check for OBS Studio updates
+	// ui->actionCheckForUpdates = nullptr;
 #endif
+
+  // NOTE LUDO: #186 do not check for OBS Studio updates
+	delete ui->actionCheckForUpdates;
+	ui->actionCheckForUpdates = nullptr;
 
 	OnFirstLoad();
 
