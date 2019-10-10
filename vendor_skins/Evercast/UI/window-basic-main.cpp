@@ -1637,7 +1637,8 @@ void OBSBasic::OBSInit()
 		disableSaving++;
 	}
 
-	TimedCheckForUpdates();
+  // NOTE LUDO: #186 do not check for OBS Studio updates
+	// TimedCheckForUpdates();
 	loaded = true;
 
 	previewEnabled = config_get_bool(App()->GlobalConfig(), "BasicWindow",
