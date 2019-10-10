@@ -3098,7 +3098,8 @@ void OBSBasic::CheckForUpdates(bool manualUpdate)
 #ifdef UPDATE_SPARKLE
 	trigger_sparkle_update();
 #elif _WIN32
-	ui->actionCheckForUpdates->setEnabled(false);
+  // NOTE LUDO: #186 do not check for OBS Studio updates
+	// ui->actionCheckForUpdates->setEnabled(false);
 
 	if (updateCheckThread && updateCheckThread->isRunning())
 		return;
@@ -3112,7 +3113,8 @@ void OBSBasic::CheckForUpdates(bool manualUpdate)
 
 void OBSBasic::updateCheckFinished()
 {
-	ui->actionCheckForUpdates->setEnabled(true);
+  // NOTE LUDO: #186 do not check for OBS Studio updates
+	// ui->actionCheckForUpdates->setEnabled(true);
 }
 
 void OBSBasic::DuplicateSelectedScene()
