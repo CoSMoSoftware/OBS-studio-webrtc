@@ -28,6 +28,12 @@
 
 using namespace std;
 
+bool isInBundle()
+{
+	NSRunningApplication *app = [NSRunningApplication currentApplication];
+	return [app bundleIdentifier] != nil;
+}
+
 bool GetDataFilePath(const char *data, string &output)
 {
 	stringstream str;
