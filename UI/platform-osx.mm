@@ -40,6 +40,7 @@ bool GetDataFilePath(const char *data, string &output)
 		NSRunningApplication *app =
 			[NSRunningApplication currentApplication];
 		NSURL *bundleURL = [app bundleURL];
+		// TODO: Should obs-studio be converted to the value of config_dir?
 		NSString *path = [NSString
 			stringWithFormat:@"Contents/Resources/data/obs-studio/%@",
 					 [NSString stringWithUTF8String:data]];
@@ -47,7 +48,7 @@ bool GetDataFilePath(const char *data, string &output)
 		output = [[dataURL path] UTF8String];
 	} else {
 		stringstream str;
-		str << OBS_DATA_PATH "/obs-studio/" << data;
+		str << OBS_DATA_PATH "/" << config_dir << "/" << data;
 		output = str.str();
 	}
 

@@ -16,6 +16,9 @@ brew install jack
 brew install speexdsp
 brew install ccache
 brew install mbedtls
+brew install clang-format
+brew install freetype
+brew install fdk-aac
 
 # replace obs one, by brew one.
 # brew install https://gist.githubusercontent.com/DDRBoxman/b3956fab6073335a4bf151db0dcbd4ad/raw/ed1342a8a86793ea8c10d8b4d712a654da121ace/qt.rb
