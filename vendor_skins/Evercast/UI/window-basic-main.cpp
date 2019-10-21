@@ -1287,11 +1287,11 @@ bool OBSBasic::InitBasicConfigDefaults()
 	config_set_default_bool(basicConfig, "Output", "LowLatencyEnable",
 				false);
 
-	int i = 0;
+  // NOTE LUDO: #116 set default temporal and spatial resolutions
+	// int i = 0;
 	uint32_t scale_cx = cx;
 	uint32_t scale_cy = cy;
 
-  // NOTE LUDO: #116 set default temporal and spatial resolutions
 	/* use a default scaled resolution that has a pixel count no higher
 	 * than 1280x720 */
 	// while (((scale_cx * scale_cy) > (1280 * 720)) && scaled_vals[i] > 0.0) {
