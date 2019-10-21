@@ -1291,13 +1291,14 @@ bool OBSBasic::InitBasicConfigDefaults()
 	uint32_t scale_cx = cx;
 	uint32_t scale_cy = cy;
 
+  // NOTE LUDO: #116 set default temporal and spatial resolutions
 	/* use a default scaled resolution that has a pixel count no higher
 	 * than 1280x720 */
-	while (((scale_cx * scale_cy) > (1280 * 720)) && scaled_vals[i] > 0.0) {
-		double scale = scaled_vals[i++];
-		scale_cx = uint32_t(double(cx) / scale);
-		scale_cy = uint32_t(double(cy) / scale);
-	}
+	// while (((scale_cx * scale_cy) > (1280 * 720)) && scaled_vals[i] > 0.0) {
+	// 	double scale = scaled_vals[i++];
+	// 	scale_cx = uint32_t(double(cx) / scale);
+	// 	scale_cy = uint32_t(double(cy) / scale);
+	// }
 
 	config_set_default_uint(basicConfig, "Video", "OutputCX", scale_cx);
 	config_set_default_uint(basicConfig, "Video", "OutputCY", scale_cy);
@@ -1316,7 +1317,9 @@ bool OBSBasic::InitBasicConfigDefaults()
 	config_set_default_uint(basicConfig, "Video", "FPSInt", 30);
 	config_set_default_uint(basicConfig, "Video", "FPSNum", 30);
 	config_set_default_uint(basicConfig, "Video", "FPSDen", 1);
-	config_set_default_string(basicConfig, "Video", "ScaleType", "bicubic");
+  // NOTE LUDO: #116 set default temporal and spatial resolutions
+	// config_set_default_string(basicConfig, "Video", "ScaleType", "bicubic");
+	config_set_default_string(basicConfig, "Video", "ScaleType", "bilinear");
 	config_set_default_string(basicConfig, "Video", "ColorFormat", "NV12");
 	config_set_default_string(basicConfig, "Video", "ColorSpace", "709");
 	config_set_default_string(basicConfig, "Video", "ColorRange",
