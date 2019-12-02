@@ -362,7 +362,8 @@ OBSBasicSettings::OBSBasicSettings(QWidget *parent)
 	// HookWidget(ui->simpleOutputPath,     EDIT_CHANGED,   OUTPUTS_CHANGED);
 	// HookWidget(ui->simpleNoSpace,        CHECK_CHANGED,  OUTPUTS_CHANGED);
 	// HookWidget(ui->simpleOutRecFormat,   COMBO_CHANGED,  OUTPUTS_CHANGED);
-	HookWidget(ui->simpleOutputVBitrate, SCROLL_CHANGED, OUTPUTS_CHANGED);
+  // NOTE LUDO: #194 replace Settings/Output video bitrate QSpinBox by QLineEdit
+	HookWidget(ui->simpleOutputVBitrate, EDIT_CHANGED,   OUTPUTS_CHANGED);
 	HookWidget(ui->simpleOutStrEncoder,  COMBO_CHANGED,  OUTPUTS_CHANGED);
 	HookWidget(ui->simpleOutputABitrate, COMBO_CHANGED,  OUTPUTS_CHANGED);
 	HookWidget(ui->simpleOutAdvanced,    CHECK_CHANGED,  OUTPUTS_CHANGED);
@@ -490,8 +491,9 @@ OBSBasicSettings::OBSBasicSettings(QWidget *parent)
 	// HookWidget(ui->autoRemux,            CHECK_CHANGED,  ADV_CHANGED);
 	/* clang-format on */
 
-	ui->simpleOutputVBitrate->setSingleStep(50);
-	ui->simpleOutputVBitrate->setSuffix(" Kbps");
+  // NOTE LUDO: #194 replace Settings/Output video bitrate QSpinBox by QLineEdit
+	// ui->simpleOutputVBitrate->setSingleStep(50);
+	// ui->simpleOutputVBitrate->setSuffix(" Kbps");
 	ui->advOutFFVBitrate->setSingleStep(50);
 	ui->advOutFFVBitrate->setSuffix(" Kbps");
 	ui->advOutFFABitrate->setSuffix(" Kbps");
@@ -582,7 +584,8 @@ OBSBasicSettings::OBSBasicSettings(QWidget *parent)
 	// connect(ui->outputMode, SIGNAL(currentIndexChanged(int)), this,
 	connect(ui->outputModeButtonGroup, SIGNAL(buttonClicked(int)), this,
 		SLOT(UpdateStreamDelayEstimate()));
-	connect(ui->simpleOutputVBitrate, SIGNAL(valueChanged(int)), this,
+  // NOTE LUDO: #194 replace Settings/Output video bitrate QSpinBox by QLineEdit
+	connect(ui->simpleOutputVBitrate, SIGNAL(textChanged(const QString &)), this,
 		SLOT(UpdateStreamDelayEstimate()));
 	connect(ui->simpleOutputABitrate, SIGNAL(currentIndexChanged(int)),
 		this, SLOT(UpdateStreamDelayEstimate()));
@@ -673,7 +676,8 @@ OBSBasicSettings::OBSBasicSettings(QWidget *parent)
   // NOTE LUDO: #165 Remove button recording
 	// connect(ui->simpleOutRecEncoder, SIGNAL(currentIndexChanged(int)), this,
 	// 	SLOT(SimpleRecordingEncoderChanged()));
-	connect(ui->simpleOutputVBitrate, SIGNAL(valueChanged(int)), this,
+  // NOTE LUDO: #194 replace Settings/Output video bitrate QSpinBox by QLineEdit
+	connect(ui->simpleOutputVBitrate, SIGNAL(textChanged(const QString &)), this,
 		SLOT(SimpleRecordingEncoderChanged()));
 	connect(ui->simpleOutputABitrate, SIGNAL(currentIndexChanged(int)),
 		this, SLOT(SimpleRecordingEncoderChanged()));
@@ -684,7 +688,8 @@ OBSBasicSettings::OBSBasicSettings(QWidget *parent)
   // NOTE LUDO: #165 Remove button recording
 	// connect(ui->simpleReplayBuf, SIGNAL(toggled(bool)), this,
 	// 	SLOT(SimpleReplayBufferChanged()));
-	connect(ui->simpleOutputVBitrate, SIGNAL(valueChanged(int)), this,
+  // NOTE LUDO: #194 replace Settings/Output video bitrate QSpinBox by QLineEdit
+	connect(ui->simpleOutputVBitrate, SIGNAL(textChanged(const QString &)), this,
 		SLOT(SimpleReplayBufferChanged()));
 	connect(ui->simpleOutputABitrate, SIGNAL(currentIndexChanged(int)),
 		this, SLOT(SimpleReplayBufferChanged()));
@@ -1589,7 +1594,8 @@ void OBSBasicSettings::LoadSimpleOutputSettings()
   // NOTE LUDO: #165 Remove button recording
 	// ui->simpleOutputPath->setText(path);
 	// ui->simpleNoSpace->setChecked(noSpace);
-	ui->simpleOutputVBitrate->setValue(videoBitrate);
+  // NOTE LUDO: #194 replace Settings/Output video bitrate QSpinBox by QLineEdit
+	ui->simpleOutputVBitrate->setText(QString::fromStdString(std::to_string(videoBitrate)));
 
   // NOTE LUDO: #165 Remove button recording
 	// int idx = ui->simpleOutRecFormat->findText(format);
@@ -3200,7 +3206,9 @@ void OBSBasicSettings::SaveOutputSettings()
 	else
 		presetType = "Preset";
 
-	SaveSpinBox(ui->simpleOutputVBitrate, "SimpleOutput", "VBitrate");
+  // NOTE LUDO: #194 replace Settings/Output video bitrate QSpinBox by QLineEdit
+	// SaveSpinBox(ui->simpleOutputVBitrate, "SimpleOutput", "VBitrate");
+  SaveEdit(ui->simpleOutputVBitrate, "SimpleOutput", "VBitrate");
 	SaveComboData(ui->simpleOutStrEncoder, "SimpleOutput", "StreamEncoder");
 	SaveCombo(ui->simpleOutputABitrate, "SimpleOutput", "ABitrate");
   // NOTE LUDO: #165 Remove button recording
@@ -4102,7 +4110,8 @@ static inline QString MakeMemorySizeString(int bitrate, int seconds)
 void OBSBasicSettings::UpdateSimpleOutStreamDelayEstimate()
 {
 	int seconds = ui->streamDelaySec->value();
-	int vBitrate = ui->simpleOutputVBitrate->value();
+  // NOTE LUDO: #194 replace Settings/Output video bitrate QSpinBox by QLineEdit
+	int vBitrate = ui->simpleOutputVBitrate->text().split(" ")[0].toInt();
 	int aBitrate = ui->simpleOutputABitrate->currentText().toInt();
 
 	QString msg = MakeMemorySizeString(vBitrate + aBitrate, seconds);
