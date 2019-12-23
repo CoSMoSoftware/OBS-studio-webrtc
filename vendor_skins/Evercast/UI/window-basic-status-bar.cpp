@@ -15,6 +15,8 @@ OBSBasicStatusBar::OBSBasicStatusBar(QWidget *parent)
     // NOTE LUDO: #193 remove recording time information from main window
 	  // recordTime(new QLabel),
 	  cpuUsage(new QLabel),
+    // NOTE LUDO: #80 add getStats
+    getstatsTextBox(new QPlainTextEdit),
 	  transparentPixmap(20, 20),
 	  greenPixmap(20, 20),
 	  grayPixmap(20, 20),
@@ -34,6 +36,10 @@ OBSBasicStatusBar::OBSBasicStatusBar(QWidget *parent)
 
 	kbps = new QLabel(brWidget);
 	brLayout->addWidget(kbps);
+
+  // NOTE LUDO: #80 add getStats
+  getstatsTextBox->setFixedSize(1, 1);
+  brLayout->addWidget(getstatsTextBox);
 
 	brWidget->setLayout(brLayout);
 
@@ -123,6 +129,8 @@ void OBSBasicStatusBar::Deactivate()
 		delayInfo->setText("");
 		droppedFrames->setText("");
 		kbps->setText("");
+    // NOTE LUDO: #80 add getStats
+    getstatsTextBox->setPlainText("");
 
 		delaySecTotal = 0;
 		delaySecStarting = 0;
@@ -161,14 +169,66 @@ void OBSBasicStatusBar::UpdateDelayMsg()
 	delayInfo->setText(msg);
 }
 
-#define BITRATE_UPDATE_SECONDS 2
+#define STATS_UPDATE_SECONDS 2
+
+// NOTE LUDO: #80 add getStats
+void OBSBasicStatusBar::UpdateStats()
+{
+  if (!streamOutput)
+    return;
+
+	if (++statsUpdateSeconds < STATS_UPDATE_SECONDS)
+		return;
+
+	statsUpdateSeconds = 0;
+
+  obs_output_get_stats(streamOutput);
+  QString msg = "";
+  msg.append("data_messages_sent:");
+  msg.append(QString::number(streamOutput ? obs_output_get_data_messages_sent(streamOutput) : 0));
+  msg.append("\n");
+  msg.append("data_bytes_sent:");
+  msg.append(QString::number(streamOutput ? obs_output_get_data_bytes_sent(streamOutput) : 0));
+  msg.append("\n");
+  msg.append("data_messages_received:");
+  msg.append(QString::number(streamOutput ? obs_output_get_data_messages_received(streamOutput) : 0));
+  msg.append("\n");
+  msg.append("data_bytes_received:");
+  msg.append(QString::number(streamOutput ? obs_output_get_data_bytes_received(streamOutput) : 0));
+  msg.append("\n");
+  msg.append("data_channels_opened:");
+  msg.append(QString::number(streamOutput ? obs_output_get_data_channels_opened(streamOutput) : 0));
+  msg.append("\n");
+  msg.append("data_channels_closed:");
+  msg.append(QString::number(streamOutput ? obs_output_get_data_channels_closed(streamOutput) : 0));
+  msg.append("\n");
+  msg.append("track_frame_width:");
+  msg.append(QString::number(streamOutput ? obs_output_get_track_frame_width(streamOutput) : 0));
+  msg.append("\n");
+  msg.append("track_frame_height:");
+  msg.append(QString::number(streamOutput ? obs_output_get_track_frame_height(streamOutput) : 0));
+  msg.append("\n");
+  msg.append("track_frames_sent:");
+  msg.append(QString::number(streamOutput ? obs_output_get_track_frames_sent(streamOutput) : 0));
+  msg.append("\n");
+  msg.append("track_huge_frames_sent:");
+  msg.append(QString::number(streamOutput ? obs_output_get_track_huge_frames_sent(streamOutput) : 0));
+  msg.append("\n");
+  msg.append("track_audio_level:");
+  msg.append(QString::number(streamOutput ? obs_output_get_track_audio_level(streamOutput) : 0));
+  msg.append("\n");
+  msg.append("track_total_audio_energy:");
+  msg.append(QString::number(streamOutput ? obs_output_get_track_total_audio_energy(streamOutput) : 0));
+  msg.append("\n");
+  msg.append("track_total_samples_duration:");
+  msg.append(QString::number(streamOutput ? obs_output_get_track_total_samples_duration(streamOutput) : 0));
+  msg.append("\n");
+  getstatsTextBox->setPlainText(msg);
+}
 
 void OBSBasicStatusBar::UpdateBandwidth()
 {
 	if (!streamOutput)
-		return;
-
-	if (++bitrateUpdateSeconds < BITRATE_UPDATE_SECONDS)
 		return;
 
 	uint64_t bytesSent = obs_output_get_total_bytes(streamOutput);
@@ -194,7 +254,6 @@ void OBSBasicStatusBar::UpdateBandwidth()
 
 	lastBytesSent = bytesSent;
 	lastBytesSentTime = bytesSentTime;
-	bitrateUpdateSeconds = 0;
 }
 
 void OBSBasicStatusBar::UpdateCPUUsage()
@@ -369,7 +428,7 @@ void OBSBasicStatusBar::ReconnectClear()
 {
 	retries = 0;
 	reconnectTimeout = 0;
-	bitrateUpdateSeconds = -1;
+	statsUpdateSeconds = -1;
 	lastBytesSent = 0;
 	lastBytesSentTime = os_gettime_ns();
 	delaySecTotal = 0;
@@ -394,6 +453,9 @@ void OBSBasicStatusBar::ReconnectSuccess()
 void OBSBasicStatusBar::UpdateStatusBar()
 {
 	OBSBasic *main = qobject_cast<OBSBasic *>(parent());
+
+  // NOTE LUDO: #80 add getStats
+  UpdateStats();
 
 	UpdateBandwidth();
 

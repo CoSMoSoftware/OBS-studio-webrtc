@@ -532,23 +532,109 @@ void WebRTCStream::onVideoFrame(video_data *frame)
     videoCapturer->OnFrameCaptured(video_frame);
 }
 
+// NOTE LUDO: #80 add getStats
+void WebRTCStream::getStats()
+{
+  rtc::scoped_refptr<const webrtc::RTCStatsReport> report = NewGetStats();
+
+  // RTCOutboundRTPStreamStat: bytes_sent, pli_count, packets_sent
+  std::vector<const webrtc::RTCOutboundRTPStreamStats*> send_stream_stats =
+          report->GetStatsOfType<webrtc::RTCOutboundRTPStreamStats>();
+  for (const auto& stat : send_stream_stats) {
+    if (stat->kind.ValueToString() == "audio") {
+      audio_bytes_sent = std::stoll(stat->bytes_sent.ValueToJson());
+    }
+    if (stat->kind.ValueToString() == "video") {
+      video_bytes_sent = std::stoll(stat->bytes_sent.ValueToJson());
+      pli_received = std::stoi(stat->pli_count.ValueToJson());
+    }
+    packets_sent   = std::stol(stat->packets_sent.ValueToJson());
+  }
+  total_bytes_sent = audio_bytes_sent + video_bytes_sent;
+
+  // RTCDataChannelStats
+  std::vector<const webrtc::RTCDataChannelStats*> data_channel_stats =
+          report->GetStatsOfType<webrtc::RTCDataChannelStats>();
+  for (const auto& stat : data_channel_stats) {
+    data_messages_sent     = std::stol(stat->messages_sent.ValueToJson());
+    data_bytes_sent        = std::stoll(stat->bytes_sent.ValueToJson());
+    data_messages_received = std::stol(stat->messages_received.ValueToJson());
+    data_bytes_received    = std::stoll(stat->bytes_received.ValueToJson());
+  }
+
+  // RTCMediaStreamTrackStats
+  // double audio_track_jitter_buffer_delay = 0.0;
+  // double video_track_jitter_buffer_delay = 0.0;
+  // uint64_t audio_track_jitter_buffer_emitted_count = 0;
+  // uint64_t video_track_jitter_buffer_emitted_count = 0;
+  std::vector<const webrtc::RTCMediaStreamTrackStats*> media_stream_track_stats =
+          report->GetStatsOfType<webrtc::RTCMediaStreamTrackStats>();
+  for (const auto& stat : media_stream_track_stats) {
+    if (stat->kind.ValueToString() == "audio") {
+      track_audio_level                  = std::stod(stat->audio_level.ValueToJson());
+      track_total_audio_energy           = std::stod(stat->total_audio_energy.ValueToJson());
+      // track_echo_return_loss             = std::stod(stat->echo_return_loss.ValueToJson());
+      // track_echo_return_loss_enhancement = std::stod(stat->echo_return_loss_enhancement.ValueToJson());
+      // track_total_samples_received       = std::stoll(stat->total_samples_received.ValueToJson());
+      track_total_samples_duration       = std::stod(stat->total_samples_duration.ValueToJson());
+      // track_concealed_samples            = std::stoll(stat->concealed_samples.ValueToJson());
+      // track_concealment_events           = std::stoll(stat->concealment_events.ValueToJson());
+    }
+    if (stat->kind.ValueToString() == "video") {
+      // video_track_jitter_buffer_delay = std::stod(stat->jitter_buffer_delay.ValueToJson());
+      // video_track_jitter_buffer_emitted_count = std::stoll(stat->jitter_buffer_emitted_count.ValueToJson());
+      track_frame_width         = std::stol(stat->frame_width.ValueToJson());
+      track_frame_height        = std::stol(stat->frame_height.ValueToJson());
+      track_frames_sent         = std::stol(stat->frames_sent.ValueToJson());
+      track_huge_frames_sent    = std::stol(stat->huge_frames_sent.ValueToJson());
+      // track_frames_received     = std::stol(stat->frames_received.ValueToJson());
+      // track_frames_decoded      = std::stol(stat->frames_decoded.ValueToJson());
+      // track_frames_dropped      = std::stol(stat->frames_dropped.ValueToJson());
+      // track_frames_corrupted    = std::stol(stat->frames_corrupted.ValueToJson());
+      // track_partial_frames_lost = std::stol(stat->partial_frames_lost.ValueToJson());
+      // track_full_frames_lost    = std::stol(stat->full_frames_lost.ValueToJson());
+    }
+    // uint64_t get_track_jitter_buffer_emitted_count   { return track_jitter_buffer_emitted_count; }
+    // // Video-only members
+    // uint32_t get_track_frame_width                   { return track_frame_width; }
+    // uint32_t get_track_frame_height                  { return track_frame_height; }
+    // double   get_track_frames_per_second             { return track_frames_per_second; }
+    // uint32_t get_track_frames_sent                   { return track_frames_sent; }
+    // uint32_t get_track_huge_frames_sent              { return track_huge_frames_sent; }
+    // uint32_t get_track_frames_received               { return track_frames_received; }
+    // uint32_t get_track_frames_decoded                { return track_frames_decoded; }
+    // uint32_t get_track_frames_dropped                { return track_frames_dropped; }
+    // uint32_t get_track_frames_corrupted              { return track_frames_corrupted; }
+    // uint32_t get_track_partial_frames_lost           { return track_partial_frames_lost; }
+    // uint32_t get_track_full_frames_lost              { return track_full_frames_lost; }
+    // // Audio-only members
+    // double   get_track_audio_level                   { return track_audio_level; }
+    // double   get_track_total_audio_energy            { return track_total_audio_energy; }
+    // double   get_track_echo_return_loss              { return track_echo_return_loss; }
+    // double   get_track_echo_return_loss_enhancement  { return track_echo_return_loss_enhancement; }
+    // uint64_t get_track_total_samples_received        { return track_total_samples_received; }
+    // double   get_track_total_samples_duration        { return track_total_samples_duration; }
+    // uint64_t get_track_concealed_samples             { return track_concealed_samples; }
+    // uint64_t get_track_concealment_events            { return track_concealment_events; }
+    // // Non-standard audio-only member
+    // uint64_t get_track_jitter_buffer_flushes         { return track_jitter_buffer_flushes; }
+    // uint64_t get_track_delayed_packet_outage_samples { return track_delayed_packet_outage_samples; }
+  }
+  // track_jitter_buffer_delay = audio_track_jitter_buffer_delay + video_track_jitter_buffer_delay;
+  // track_jitter_buffer_emitted_count = audio_track_jitter_buffer_emitted_count + video_track_jitter_buffer_emitted_count;
+
+  // RTCPeerConnectionStats
+  std::vector<const webrtc::RTCPeerConnectionStats*> pc_stats =
+          report->GetStatsOfType<webrtc::RTCPeerConnectionStats>();
+  for (const auto& stat : pc_stats) {
+    data_channels_opened = std::stol(stat->data_channels_opened.ValueToJson());
+    data_channels_closed = std::stol(stat->data_channels_closed.ValueToJson());
+  }
+}
+
 uint64_t WebRTCStream::getBitrate()
 {
-    rtc::scoped_refptr<const webrtc::RTCStatsReport> report = NewGetStats();
-
-    std::vector<const webrtc::RTCOutboundRTPStreamStats*> send_stream_stats =
-            report->GetStatsOfType<webrtc::RTCOutboundRTPStreamStats>();
-
-    for (const auto& stat : send_stream_stats) {
-        if (stat->kind.ValueToString() == "audio")
-            audio_bytes_sent = std::stoll(stat->bytes_sent.ValueToJson());
-        if (stat->kind.ValueToString() == "video") {
-            video_bytes_sent = std::stoll(stat->bytes_sent.ValueToJson());
-            pli_received = std::stoi(stat->pli_count.ValueToJson());
-        }
-    }
-    total_bytes_sent = audio_bytes_sent + video_bytes_sent;
-    return total_bytes_sent;
+  return total_bytes_sent;
 }
 
 int WebRTCStream::getDroppedFrames()
