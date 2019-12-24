@@ -349,7 +349,7 @@ extern "C" {
     evercast_stream_properties, //get_properties
     nullptr, //unused1 (formerly pause)
     // NOTE LUDO: #80 add getStats
-    evercast_get_stats,
+    evercast_stream_get_stats,
     evercast_stream_total_bytes_sent, //get_total_bytes
     evercast_stream_dropped_frames, //get_dropped_frames
     // NOTE LUDO: #80 add getStats
@@ -365,20 +365,20 @@ extern "C" {
     evercast_stream_track_frame_height,
     evercast_stream_track_frames_sent,
     evercast_stream_track_huge_frames_sent,
-    evercast_stream_track_frames_received,
-    evercast_stream_track_frames_decoded,
-    evercast_stream_track_frames_dropped,
-    evercast_stream_track_frames_corrupted,
-    evercast_stream_track_partial_frames_lost,
-    evercast_stream_track_full_frames_lost,
+    // evercast_stream_track_frames_received,
+    // evercast_stream_track_frames_decoded,
+    // evercast_stream_track_frames_dropped,
+    // evercast_stream_track_frames_corrupted,
+    // evercast_stream_track_partial_frames_lost,
+    // evercast_stream_track_full_frames_lost,
     evercast_stream_track_audio_level,
     evercast_stream_track_total_audio_energy,
-    evercast_stream_track_echo_return_loss,
-    evercast_stream_track_echo_return_loss_enhancement,
-    evercast_stream_track_total_samples_received,
+    // evercast_stream_track_echo_return_loss,
+    // evercast_stream_track_echo_return_loss_enhancement,
+    // evercast_stream_track_total_samples_received,
     evercast_stream_track_total_samples_duration,
-    evercast_stream_track_concealed_samples,
-    evercast_stream_track_concealment_events,
+    // evercast_stream_track_concealed_samples,
+    // evercast_stream_track_concealment_events,
     // RTCPeerConnectionStats
     evercast_stream_data_channels_opened,
     evercast_stream_data_channels_closed,
