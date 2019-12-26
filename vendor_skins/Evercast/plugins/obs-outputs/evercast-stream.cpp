@@ -126,6 +126,13 @@ extern "C" void evercast_stream_get_stats(void *data)
 	stream->getStats();
 }
 
+extern "C" const char *evercast_stream_get_stats_list(void *data)
+{
+  // Get stream
+	WebRTCStream* stream = (WebRTCStream*) data;
+	return stream->get_stats_list();
+}
+
 extern "C" uint64_t evercast_stream_total_bytes_sent(void *data)
 {
 	//Get stream
@@ -146,191 +153,6 @@ extern "C" float evercast_stream_congestion(void *data)
 	return 0.0f;
 }
 
-// RTCDataChannelStats
-extern "C" uint32_t evercast_stream_data_messages_sent(void *data)
-{
-  //Get stream
-  WebRTCStream *stream = (WebRTCStream*) data;
-  return stream->get_data_messages_sent();
-}
-
-extern "C" uint64_t evercast_stream_data_bytes_sent(void *data)
-{
-  //Get stream
-  WebRTCStream *stream = (WebRTCStream*) data;
-  return stream->get_data_bytes_sent();
-}
-
-extern "C" uint32_t evercast_stream_data_messages_received(void *data)
-{
-  //Get stream
-  WebRTCStream *stream = (WebRTCStream*) data;
-  return stream->get_data_messages_received();
-}
-
-extern "C" uint64_t evercast_stream_data_bytes_received(void *data)
-{
-  //Get stream
-  WebRTCStream *stream = (WebRTCStream*) data;
-  return stream->get_data_bytes_received();
-}
-
-// RTCMediaStreamTrackStats
-// extern "C" double evercast_stream_track_jitter_buffer_delay(void *data)
-// {
-//   //Get stream
-//   WebRTCStream *stream = (WebRTCStream*) data;
-//   return stream->get_track_jitter_buffer_delay();
-// }
-// extern "C" uint64_t evercast_stream_track_jitter_buffer_emitted_count(void *data)
-// {
-//   //Get stream
-//   WebRTCStream *stream = (WebRTCStream*) data;
-//   return stream->get_track_jitter_buffer_emitted_count();
-// }
-
-extern "C" uint32_t evercast_stream_track_frame_width(void *data)
-{
-  //Get stream
-  WebRTCStream *stream = (WebRTCStream*) data;
-  return stream->get_track_frame_width();
-}
-
-extern "C" uint32_t evercast_stream_track_frame_height(void *data)
-{
-  //Get stream
-  WebRTCStream *stream = (WebRTCStream*) data;
-  return stream->get_track_frame_height();
-}
-
-extern "C" uint32_t evercast_stream_track_frames_sent(void *data)
-{
-  //Get stream
-  WebRTCStream *stream = (WebRTCStream*) data;
-  return stream->get_track_frames_sent();
-}
-
-extern "C" uint32_t evercast_stream_track_huge_frames_sent(void *data)
-{
-  //Get stream
-  WebRTCStream *stream = (WebRTCStream*) data;
-  return stream->get_track_huge_frames_sent();
-}
-
-// extern "C" uint32_t evercast_stream_track_frames_received(void *data)
-// {
-//   //Get stream
-//   WebRTCStream *stream = (WebRTCStream*) data;
-//   return stream->get_track_frames_received();
-// }
-
-// extern "C" uint32_t evercast_stream_track_frames_decoded(void *data)
-// {
-//   //Get stream
-//   WebRTCStream *stream = (WebRTCStream*) data;
-//   return stream->get_track_frames_decoded();
-// }
-
-// extern "C" uint32_t evercast_stream_track_frames_dropped(void *data)
-// {
-//   //Get stream
-//   WebRTCStream *stream = (WebRTCStream*) data;
-//   return stream->get_track_frames_dropped();
-// }
-
-// extern "C" uint32_t evercast_stream_track_frames_corrupted(void *data)
-// {
-//   //Get stream
-//   WebRTCStream *stream = (WebRTCStream*) data;
-//   return stream->get_track_frames_corrupted();
-// }
-
-// extern "C" uint32_t evercast_stream_track_partial_frames_lost(void *data)
-// {
-//   //Get stream
-//   WebRTCStream *stream = (WebRTCStream*) data;
-//   return stream->get_track_partial_frames_lost();
-// }
-
-// extern "C" uint32_t evercast_stream_track_full_frames_lost(void *data)
-// {
-//   //Get stream
-//   WebRTCStream *stream = (WebRTCStream*) data;
-//   return stream->get_track_full_frames_lost();
-// }
-
-extern "C" double evercast_stream_track_audio_level(void *data)
-{
-  //Get stream
-  WebRTCStream *stream = (WebRTCStream*) data;
-  return stream->get_track_audio_level();
-}
-
-extern "C" double evercast_stream_track_total_audio_energy(void *data)
-{
-  //Get stream
-  WebRTCStream *stream = (WebRTCStream*) data;
-  return stream->get_track_total_audio_energy();
-}
-
-// extern "C" double evercast_stream_track_echo_return_loss(void *data)
-// {
-//   //Get stream
-//   WebRTCStream *stream = (WebRTCStream*) data;
-//   return stream->get_track_echo_return_loss();
-// }
-
-// extern "C" double evercast_stream_track_echo_return_loss_enhancement(void *data)
-// {
-//   //Get stream
-//   WebRTCStream *stream = (WebRTCStream*) data;
-//   return stream->get_track_echo_return_loss_enhancement();
-// }
-
-// extern "C" uint64_t evercast_stream_track_total_samples_received(void *data)
-// {
-//   //Get stream
-//   WebRTCStream *stream = (WebRTCStream*) data;
-//   return stream->get_track_total_samples_received();
-// }
-
-extern "C" double evercast_stream_track_total_samples_duration(void *data)
-{
-  //Get stream
-  WebRTCStream *stream = (WebRTCStream*) data;
-  return stream->get_track_total_samples_duration();
-}
-
-// extern "C" uint64_t evercast_stream_track_concealed_samples(void *data)
-// {
-//   //Get stream
-//   WebRTCStream *stream = (WebRTCStream*) data;
-//   return stream->get_track_concealed_samples();
-// }
-
-// extern "C" uint64_t evercast_stream_track_concealment_events(void *data)
-// {
-//   //Get stream
-//   WebRTCStream *stream = (WebRTCStream*) data;
-//   return stream->get_track_concealment_events();
-// }
-
-// RTCPeerConnectionStats
-extern "C" uint32_t evercast_stream_data_channels_opened(void *data)
-{
-	//Get stream
-	WebRTCStream *stream = (WebRTCStream*) data;
-	return stream->get_data_channels_opened();
-}
-
-extern "C" uint32_t evercast_stream_data_channels_closed(void *data)
-{
-	//Get stream
-	WebRTCStream *stream = (WebRTCStream*) data;
-	return stream->get_data_channels_closed();
-}
-
-
 extern "C" {
 #ifdef _WIN32
   struct obs_output_info evercast_output_info = {
@@ -350,38 +172,9 @@ extern "C" {
     nullptr, //unused1 (formerly pause)
     // NOTE LUDO: #80 add getStats
     evercast_stream_get_stats,
+    evercast_stream_get_stats_list,
     evercast_stream_total_bytes_sent, //get_total_bytes
     evercast_stream_dropped_frames, //get_dropped_frames
-    // NOTE LUDO: #80 add getStats
-    // RTCDataChannelStats
-    evercast_stream_data_messages_sent,
-    evercast_stream_data_bytes_sent,
-    evercast_stream_data_messages_received,
-    evercast_stream_data_bytes_received,
-    // RTCMediaStreamTrackStats
-    // evercast_stream_track_jitter_buffer_delay,
-    // evercast_stream_track_jitter_buffer_emitted_count,
-    evercast_stream_track_frame_width,
-    evercast_stream_track_frame_height,
-    evercast_stream_track_frames_sent,
-    evercast_stream_track_huge_frames_sent,
-    // evercast_stream_track_frames_received,
-    // evercast_stream_track_frames_decoded,
-    // evercast_stream_track_frames_dropped,
-    // evercast_stream_track_frames_corrupted,
-    // evercast_stream_track_partial_frames_lost,
-    // evercast_stream_track_full_frames_lost,
-    evercast_stream_track_audio_level,
-    evercast_stream_track_total_audio_energy,
-    // evercast_stream_track_echo_return_loss,
-    // evercast_stream_track_echo_return_loss_enhancement,
-    // evercast_stream_track_total_samples_received,
-    evercast_stream_track_total_samples_duration,
-    // evercast_stream_track_concealed_samples,
-    // evercast_stream_track_concealment_events,
-    // RTCPeerConnectionStats
-    evercast_stream_data_channels_opened,
-    evercast_stream_data_channels_closed,
     nullptr, //type_data
     nullptr, //free_type_data
     evercast_stream_congestion, //get_congestion
@@ -408,38 +201,9 @@ extern "C" {
     .unused1              = nullptr,
     // NOTE LUDO: #80 add getStats
     .get_stats            = evercast_stream_get_stats,
+    .get_stats_list       = evercast_stream_get_stats_list,
     .get_total_bytes      = evercast_stream_total_bytes_sent,
     .get_dropped_frames   = evercast_stream_dropped_frames,
-    // NOTE LUDO: #80 add getStats
-    // RTCDataChannelStats
-    .get_data_messages_sent     = evercast_stream_data_messages_sent,
-    .get_data_bytes_sent        = evercast_stream_data_bytes_sent,
-    .get_data_messages_received = evercast_stream_data_messages_received,
-    .get_data_bytes_received    = evercast_stream_data_bytes_received,
-    // RTCMediaStreamTrackStats
-    // .get_track_jitter_buffer_delay          = evercast_stream_track_jitter_buffer_delay,
-    // .get_track_jitter_buffer_emitted_count  = evercast_stream_track_jitter_buffer_emitted_count,
-    .get_track_frame_width                   = evercast_stream_track_frame_width,
-    .get_track_frame_height                  = evercast_stream_track_frame_height,
-    .get_track_frames_sent                   = evercast_stream_track_frames_sent,
-    .get_track_huge_frames_sent              = evercast_stream_track_huge_frames_sent,
-    // .get_track_frames_received               = evercast_stream_track_frames_received,
-    // .get_track_frames_decoded                = evercast_stream_track_frames_decoded,
-    // .get_track_frames_dropped                = evercast_stream_track_frames_dropped,
-    // .get_track_frames_corrupted              = evercast_stream_track_frames_corrupted,
-    // .get_track_partial_frames_lost           = evercast_stream_track_partial_frames_lost,
-    // .get_track_full_frames_lost              = evercast_stream_track_full_frames_lost,
-    .get_track_audio_level                   = evercast_stream_track_audio_level,
-    .get_track_total_audio_energy            = evercast_stream_track_total_audio_energy,
-    // .get_track_echo_return_loss              = evercast_stream_track_echo_return_loss,
-    // .get_track_echo_return_loss_enhancement  = evercast_stream_track_echo_return_loss_enhancement,
-    // .get_track_total_samples_received        = evercast_stream_track_total_samples_received,
-    .get_track_total_samples_duration        = evercast_stream_track_total_samples_duration,
-    // .get_track_concealed_samples             = evercast_stream_track_concealed_samples,
-    // .get_track_concealment_events            = evercast_stream_track_concealment_events,
-    // RTCPeerConnectionStats
-    .get_data_channels_opened  = evercast_stream_data_channels_opened,
-    .get_data_channels_closed  = evercast_stream_data_channels_closed,
     .type_data            = nullptr,
     .free_type_data       = nullptr,
     .get_congestion       = evercast_stream_congestion,

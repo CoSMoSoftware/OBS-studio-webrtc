@@ -184,45 +184,7 @@ void OBSBasicStatusBar::UpdateStats()
 
   obs_output_get_stats(streamOutput);
   QString msg = "";
-  msg.append("data_messages_sent:");
-  msg.append(QString::number(streamOutput ? obs_output_get_data_messages_sent(streamOutput) : 0));
-  msg.append("\n");
-  msg.append("data_bytes_sent:");
-  msg.append(QString::number(streamOutput ? obs_output_get_data_bytes_sent(streamOutput) : 0));
-  msg.append("\n");
-  msg.append("data_messages_received:");
-  msg.append(QString::number(streamOutput ? obs_output_get_data_messages_received(streamOutput) : 0));
-  msg.append("\n");
-  msg.append("data_bytes_received:");
-  msg.append(QString::number(streamOutput ? obs_output_get_data_bytes_received(streamOutput) : 0));
-  msg.append("\n");
-  msg.append("data_channels_opened:");
-  msg.append(QString::number(streamOutput ? obs_output_get_data_channels_opened(streamOutput) : 0));
-  msg.append("\n");
-  msg.append("data_channels_closed:");
-  msg.append(QString::number(streamOutput ? obs_output_get_data_channels_closed(streamOutput) : 0));
-  msg.append("\n");
-  msg.append("track_frame_width:");
-  msg.append(QString::number(streamOutput ? obs_output_get_track_frame_width(streamOutput) : 0));
-  msg.append("\n");
-  msg.append("track_frame_height:");
-  msg.append(QString::number(streamOutput ? obs_output_get_track_frame_height(streamOutput) : 0));
-  msg.append("\n");
-  msg.append("track_frames_sent:");
-  msg.append(QString::number(streamOutput ? obs_output_get_track_frames_sent(streamOutput) : 0));
-  msg.append("\n");
-  msg.append("track_huge_frames_sent:");
-  msg.append(QString::number(streamOutput ? obs_output_get_track_huge_frames_sent(streamOutput) : 0));
-  msg.append("\n");
-  msg.append("track_audio_level:");
-  msg.append(QString::number(streamOutput ? obs_output_get_track_audio_level(streamOutput) : 0));
-  msg.append("\n");
-  msg.append("track_total_audio_energy:");
-  msg.append(QString::number(streamOutput ? obs_output_get_track_total_audio_energy(streamOutput) : 0));
-  msg.append("\n");
-  msg.append("track_total_samples_duration:");
-  msg.append(QString::number(streamOutput ? obs_output_get_track_total_samples_duration(streamOutput) : 0));
-  msg.append("\n");
+  msg.append(streamOutput ? obs_output_get_stats_list(streamOutput) : "");
   getstatsTextBox->setPlainText(msg);
 }
 

@@ -888,6 +888,16 @@ void obs_output_get_stats(const obs_output_t *output)
   output->info.get_stats(output->context.data);
 }
 
+const char *obs_output_get_stats_list(const obs_output_t *output)
+{
+  if (!obs_output_valid(output, "obs_output_get_stats_list"))
+    return NULL;
+  if (!output->info.get_stats_list)
+    return NULL;
+
+  return output->info.get_stats_list(output->context.data);
+}
+
 uint64_t obs_output_get_total_bytes(const obs_output_t *output)
 {
 	if (!obs_output_valid(output, "obs_output_get_total_bytes"))
@@ -913,193 +923,6 @@ int obs_output_get_total_frames(const obs_output_t *output)
 	return obs_output_valid(output, "obs_output_get_total_frames")
 		       ? output->total_frames
 		       : 0;
-}
-
-// RTCDataChannelStats
-uint32_t obs_output_get_data_messages_sent(const obs_output_t *output)
-{
-  return obs_output_valid(output, "obs_output_get_data_messages_sent")
-            ? output->info.get_data_messages_sent(output->context.data)
-            : 0;
-}
-
-uint64_t obs_output_get_data_bytes_sent(const obs_output_t *output)
-{
-  return obs_output_valid(output, "obs_output_get_data_bytes_sent")
-            ? output->info.get_data_bytes_sent(output->context.data)
-            : 0;
-}
-
-uint32_t obs_output_get_data_messages_received(const obs_output_t *output)
-{
-  return obs_output_valid(output, "obs_output_get_data_messages_received")
-            ? output->info.get_data_messages_received(output->context.data)
-            : 0;
-}
-
-uint64_t obs_output_get_data_bytes_received(const obs_output_t *output)
-{
-  return obs_output_valid(output, "obs_output_get_data_bytes_received")
-            ? output->info.get_data_bytes_received(output->context.data)
-            : 0;
-}
-
-// RTCMediaStreamTrackStats
-// double obs_output_get_track_jitter_buffer_delay(const obs_output_t *output)
-// {
-//   return obs_output_valid(output, "obs_output_get_track_jitter_buffer_delay")
-//             ? output->info.get_track_jitter_buffer_delay(output->context.data)
-//             : 0;
-// }
-
-// uint64_t obs_output_get_track_jitter_buffer_emitted_count(const obs_output_t *output)
-// {
-//   return obs_output_valid(output, "obs_output_get_track_jitter_buffer_emitted_count")
-//             ? output->info.get_track_jitter_buffer_emitted_count(output->context.data)
-//             : 0;
-// }
-
-uint32_t obs_output_get_track_frame_width(const obs_output_t *output)
-{
-  return obs_output_valid(output, "obs_output_get_track_frame_width")
-            ? output->info.get_track_frame_width(output->context.data)
-            : 0;
-}
-
-uint32_t obs_output_get_track_frame_height(const obs_output_t *output)
-{
-  return obs_output_valid(output, "obs_output_get_track_frame_height")
-            ? output->info.get_track_frame_height(output->context.data)
-            : 0;
-}
-
-uint32_t obs_output_get_track_frames_sent(const obs_output_t *output)
-{
-  return obs_output_valid(output, "obs_output_get_track_frames_sent")
-            ? output->info.get_track_frames_sent(output->context.data)
-            : 0;
-}
-
-uint32_t obs_output_get_track_huge_frames_sent(const obs_output_t *output)
-{
-  return obs_output_valid(output, "obs_output_get_track_huge_frames_sent")
-            ? output->info.get_track_huge_frames_sent(output->context.data)
-            : 0;
-}
-
-// uint32_t obs_output_get_track_frames_received(const obs_output_t *output)
-// {
-//   return obs_output_valid(output, "obs_output_get_track_frames_received")
-//             ? output->info.get_track_frames_received(output->context.data)
-//             : 0;
-// }
-
-// uint32_t obs_output_get_track_frames_decoded(const obs_output_t *output)
-// {
-//   return obs_output_valid(output, "obs_output_get_track_frames_decoded")
-//             ? output->info.get_track_frames_decoded(output->context.data)
-//             : 0;
-// }
-
-// uint32_t obs_output_get_track_frames_dropped(const obs_output_t *output)
-// {
-//   return obs_output_valid(output, "obs_output_get_track_frames_dropped")
-//             ? output->info.get_track_frames_dropped(output->context.data)
-//             : 0;
-// }
-
-// uint32_t obs_output_get_track_frames_corrupted(const obs_output_t *output)
-// {
-//   return obs_output_valid(output, "obs_output_get_track_frames_corrupted")
-//             ? output->info.get_track_frames_corrupted(output->context.data)
-//             : 0;
-// }
-
-// uint32_t obs_output_get_track_partial_frames_lost(const obs_output_t *output)
-// {
-//   return obs_output_valid(output, "obs_output_get_track_partial_frames_lost")
-//             ? output->info.get_track_partial_frames_lost(output->context.data)
-//             : 0;
-// }
-
-// uint32_t obs_output_get_track_full_frames_lost(const obs_output_t *output)
-// {
-//   return obs_output_valid(output, "obs_output_get_track_full_frames_lost")
-//             ? output->info.get_track_full_frames_lost(output->context.data)
-//             : 0;
-// }
-
-double obs_output_get_track_audio_level(const obs_output_t *output)
-{
-  return obs_output_valid(output, "obs_output_get_track_audio_level")
-            ? output->info.get_track_audio_level(output->context.data)
-            : 0;
-}
-
-double obs_output_get_track_total_audio_energy(const obs_output_t *output)
-{
-  return obs_output_valid(output, "obs_output_get_track_total_audio_energy")
-            ? output->info.get_track_total_audio_energy(output->context.data)
-            : 0;
-}
-
-// double obs_output_get_track_echo_return_loss(const obs_output_t *output)
-// {
-//   return obs_output_valid(output, "obs_output_get_track_echo_return_loss")
-//             ? output->info.get_track_echo_return_loss(output->context.data)
-//             : 0;
-// }
-
-// double obs_output_get_track_echo_return_loss_enhancement(const obs_output_t *output)
-// {
-//   return obs_output_valid(output, "obs_output_get_track_echo_return_loss_enhancement")
-//             ? output->info.get_track_echo_return_loss_enhancement(output->context.data)
-//             : 0;
-// }
-
-// uint64_t obs_output_get_track_total_samples_received(const obs_output_t *output)
-// {
-//   return obs_output_valid(output, "obs_output_get_track_total_samples_received")
-//             ? output->info.get_track_total_samples_received(output->context.data)
-//             : 0;
-// }
-
-double obs_output_get_track_total_samples_duration(const obs_output_t *output)
-{
-  return obs_output_valid(output, "obs_output_get_track_total_samples_duration")
-            ? output->info.get_track_total_samples_duration(output->context.data)
-            : 0;
-}
-
-// uint64_t obs_output_get_track_concealed_samples(const obs_output_t *output)
-// {
-//   return obs_output_valid(output, "obs_output_get_track_concealed_samples")
-//             ? output->info.get_track_concealed_samples(output->context.data)
-//             : 0;
-// }
-
-// uint64_t obs_output_get_track_concealment_events(const obs_output_t *output)
-// {
-//   return obs_output_valid(output, "obs_output_get_track_concealment_events")
-//             ? output->info.get_track_concealment_events(output->context.data)
-//             : 0;
-// }
-
-
-
-// RTCPeerConnectionStats
-uint32_t obs_output_get_data_channels_opened(const obs_output_t *output)
-{
-  return obs_output_valid(output, "obs_output_get_data_channels_opened")
-            ? output->info.get_data_channels_opened(output->context.data)
-            : 0;
-}
-
-uint32_t obs_output_get_data_channels_closed(const obs_output_t *output)
-{
-  return obs_output_valid(output, "obs_output_get_data_channels_closed")
-            ? output->info.get_data_channels_closed(output->context.data)
-            : 0;
 }
 
 void obs_output_set_preferred_size(obs_output_t *output, uint32_t width,

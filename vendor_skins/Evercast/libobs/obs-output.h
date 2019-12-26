@@ -61,41 +61,11 @@ struct obs_output_info {
 
   void (*get_stats)(void *data);
 
+  const char* (*get_stats_list)(void *data);
+
 	uint64_t (*get_total_bytes)(void *data);
 
 	int (*get_dropped_frames)(void *data);
-
-  // RTCDataChannelStats
-  uint32_t (*get_data_messages_sent)(void *data);
-  uint64_t (*get_data_bytes_sent)(void *data);
-  uint32_t (*get_data_messages_received)(void *data);
-  uint64_t (*get_data_bytes_received)(void *data);
-
-  // RTCMediaStreamTrackStats
-  // double   (*get_track_jitter_buffer_delay)(void *data);
-  // uint64_t (*get_track_jitter_buffer_emitted_count)(void *data);
-  uint32_t (*get_track_frame_width)(void *data);
-  uint32_t (*get_track_frame_height)(void *data);
-  uint32_t (*get_track_frames_sent)(void *data);
-  uint32_t (*get_track_huge_frames_sent)(void *data);
-  // uint32_t (*get_track_frames_received)(void *data);
-  // uint32_t (*get_track_frames_decoded)(void *data);
-  // uint32_t (*get_track_frames_dropped)(void *data);
-  // uint32_t (*get_track_frames_corrupted)(void *data);
-  // uint32_t (*get_track_partial_frames_lost)(void *data);
-  // uint32_t (*get_track_full_frames_lost)(void *data);
-  double   (*get_track_audio_level)(void *data);
-  double   (*get_track_total_audio_energy)(void *data);
-  // double   (*get_track_echo_return_loss)(void *data);
-  // double   (*get_track_echo_return_loss_enhancement)(void *data);
-  // uint64_t (*get_track_total_samples_received)(void *data);
-  double   (*get_track_total_samples_duration)(void *data);
-  // uint64_t (*get_track_concealed_samples)(void *data);
-  // uint64_t (*get_track_concealment_events)(void *data);
-
-  // RTCPeerConnectionStats
-  uint32_t (*get_data_channels_opened)(void *data);
-  uint32_t (*get_data_channels_closed)(void *data);
 
 	void *type_data;
 	void (*free_type_data)(void *type_data);

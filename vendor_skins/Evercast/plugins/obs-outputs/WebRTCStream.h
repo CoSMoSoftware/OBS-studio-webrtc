@@ -97,46 +97,11 @@ public:
   // NOTE LUDO: #80 add getStats
   // WebRTC stats
   void getStats();
+  const char *get_stats_list() { return stats_list.c_str(); }
 
   // Bitrate & dropped frames
-  uint64_t getBitrate();
-  int getDroppedFrames();
-
-  // RTCDataChannelStats
-  uint32_t get_data_messages_sent()     { return data_messages_sent; }
-  uint64_t get_data_bytes_sent()        { return data_bytes_sent; }
-  uint32_t get_data_messages_received() { return data_messages_received; }
-  uint64_t get_data_bytes_received()    { return data_bytes_received; }
-
-  // RTCMediaStreamTrackStats
-  // double   get_track_jitter_buffer_delay()           { return track_jitter_buffer_delay; }
-  // uint64_t get_track_jitter_buffer_emitted_count()   { return track_jitter_buffer_emitted_count; }
-  // Video-only members
-  uint32_t get_track_frame_width()                   { return track_frame_width; }
-  uint32_t get_track_frame_height()                  { return track_frame_height; }
-  // double   get_track_frames_per_second()             { return track_frames_per_second; }
-  uint32_t get_track_frames_sent()                   { return track_frames_sent; }
-  uint32_t get_track_huge_frames_sent()              { return track_huge_frames_sent; }
-  // uint32_t get_track_frames_received()               { return track_frames_received; }
-  // uint32_t get_track_frames_decoded()                { return track_frames_decoded; }
-  // uint32_t get_track_frames_dropped()                { return track_frames_dropped; }
-  // uint32_t get_track_frames_corrupted()              { return track_frames_corrupted; }
-  // uint32_t get_track_partial_frames_lost()           { return track_partial_frames_lost; }
-  // uint32_t get_track_full_frames_lost()              { return track_full_frames_lost; }
-  // Audio-only members
-  double   get_track_audio_level()                   { return track_audio_level; }
-  double   get_track_total_audio_energy()            { return track_total_audio_energy; }
-  // double   get_track_echo_return_loss()              { return track_echo_return_loss; }
-  // double   get_track_echo_return_loss_enhancement()  { return track_echo_return_loss_enhancement; }
-  // uint64_t get_track_total_samples_received()        { return track_total_samples_received; }
-  double   get_track_total_samples_duration()        { return track_total_samples_duration; }
-  // uint64_t get_track_concealed_samples()             { return track_concealed_samples; }
-  // uint64_t get_track_concealment_events()            { return track_concealment_events; }
-  // Non-standard audio-only member
-
-  // RTCPeerConnectionStats
-  uint32_t get_data_channels_opened() { return data_channels_opened; }
-  uint32_t get_data_channels_closed() { return data_channels_closed; }
+  uint64_t getBitrate()        { return total_bytes_sent; }
+  int getDroppedFrames()       {return pli_received; }
 
   // Synchronously get stats
   rtc::scoped_refptr<const webrtc::RTCStatsReport> NewGetStats();
@@ -160,53 +125,7 @@ private:
   std::string video_codec;
 
   // NOTE LUDO: #80 add getStats
-  // RTCOutboundRTPStreamStat
-  uint16_t frame_id;
-  uint64_t audio_bytes_sent;
-  uint64_t video_bytes_sent;
-  uint64_t total_bytes_sent;
-  int      pli_received; // Picture Loss Indication
-  uint32_t packets_sent;
-  // double   target_bitrate;
-  // uint32_t frames_encoded;
-
-  // RTCDataChannelStats
-  uint32_t data_messages_sent;
-  uint64_t data_bytes_sent;
-  uint32_t data_messages_received;
-  uint64_t data_bytes_received;
-
-  // RTCMediaStreamTrackStats
-  // double   track_jitter_buffer_delay;
-  // uint64_t track_jitter_buffer_emitted_count;
-  // Video-only members
-  uint32_t track_frame_width;
-  uint32_t track_frame_height;
-  // double   track_frames_per_second;
-  uint32_t track_frames_sent;
-  uint32_t track_huge_frames_sent;
-  uint32_t track_frames_received;
-  uint32_t track_frames_decoded;
-  uint32_t track_frames_dropped;
-  uint32_t track_frames_corrupted;
-  uint32_t track_partial_frames_lost;
-  uint32_t track_full_frames_lost;
-  // Audio-only members
-  double   track_audio_level;
-  double   track_total_audio_energy;
-  double   track_echo_return_loss;
-  double   track_echo_return_loss_enhancement;
-  uint64_t track_total_samples_received;
-  double   track_total_samples_duration;
-  uint64_t track_concealed_samples;
-  uint64_t track_concealment_events;
-  // Non-standard audio-only member
-  uint64_t track_jitter_buffer_flushes;
-  uint64_t track_delayed_packet_outage_samples;
-
-  // RTCPeerConnectionStats
-  uint32_t data_channels_opened;
-  uint32_t data_channels_closed;
+  std::string stats_list;
 
   rtc::CriticalSection crit_;
 

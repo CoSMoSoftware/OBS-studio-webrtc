@@ -1781,38 +1781,10 @@ EXPORT void obs_output_set_reconnect_settings(obs_output_t *output,
 
 // NOTE LUDO: #80 add getStats
 EXPORT void obs_output_get_stats(const obs_output_t *output);
+EXPORT const char *obs_output_get_stats_list(const obs_output_t *output);
 EXPORT uint64_t obs_output_get_total_bytes(const obs_output_t *output);
 EXPORT int obs_output_get_frames_dropped(const obs_output_t *output);
 EXPORT int obs_output_get_total_frames(const obs_output_t *output);
-// RTCDataChannelStats
-EXPORT uint32_t obs_output_get_data_messages_sent(const obs_output_t *output);
-EXPORT uint64_t obs_output_get_data_bytes_sent(const obs_output_t *output);
-EXPORT uint32_t obs_output_get_data_messages_received(const obs_output_t *output);
-EXPORT uint64_t obs_output_get_data_bytes_received(const obs_output_t *output);
-// RTCMediaStreamTrackStats
-// EXPORT double   obs_output_get_track_jitter_buffer_delay(const obs_output_t *output);
-// EXPORT uint64_t obs_output_get_track_jitter_buffer_emitted_count(const obs_output_t *output);
-EXPORT uint32_t obs_output_get_track_frame_width(const obs_output_t *output);
-EXPORT uint32_t obs_output_get_track_frame_height(const obs_output_t *output);
-EXPORT uint32_t obs_output_get_track_frames_sent(const obs_output_t *output);
-EXPORT uint32_t obs_output_get_track_huge_frames_sent(const obs_output_t *output);
-// EXPORT uint32_t obs_output_get_track_frames_received(const obs_output_t *output);
-// EXPORT uint32_t obs_output_get_track_frames_decoded(const obs_output_t *output);
-// EXPORT uint32_t obs_output_get_track_frames_dropped(const obs_output_t *output);
-// EXPORT uint32_t obs_output_get_track_frames_corrupted(const obs_output_t *output);
-// EXPORT uint32_t obs_output_get_track_partial_frames_lost(const obs_output_t *output);
-// EXPORT uint32_t obs_output_get_track_full_frames_lost(const obs_output_t *output);
-EXPORT double   obs_output_get_track_audio_level(const obs_output_t *output);
-EXPORT double   obs_output_get_track_total_audio_energy(const obs_output_t *output);
-// EXPORT double   obs_output_get_track_echo_return_loss(const obs_output_t *output);
-// EXPORT double   obs_output_get_track_echo_return_loss_enhancement(const obs_output_t *output);
-// EXPORT uint64_t obs_output_get_track_total_samples_received(const obs_output_t *output);
-EXPORT double   obs_output_get_track_total_samples_duration(const obs_output_t *output);
-// EXPORT uint64_t obs_output_get_track_concealed_samples(const obs_output_t *output);
-// EXPORT uint64_t obs_output_get_track_concealment_events(const obs_output_t *output);
-// RTCPeerConnectionStats
-EXPORT uint32_t obs_output_get_data_channels_opened(const obs_output_t *output);
-EXPORT uint32_t obs_output_get_data_channels_closed(const obs_output_t *output);
 
 /**
  * Sets the preferred scaled resolution for this output.  Set width and height
