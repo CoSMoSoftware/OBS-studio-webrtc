@@ -126,6 +126,11 @@ private:
 
   // NOTE LUDO: #80 add getStats
   std::string stats_list;
+  uint16_t frame_id;
+  uint64_t audio_bytes_sent;
+  uint64_t video_bytes_sent;
+  uint64_t total_bytes_sent;
+  int      pli_received; // Picture Loss Indication
 
   rtc::CriticalSection crit_;
 

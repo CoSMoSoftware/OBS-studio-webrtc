@@ -538,7 +538,6 @@ void WebRTCStream::getStats()
   rtc::scoped_refptr<const webrtc::RTCStatsReport> report = NewGetStats();
   stats_list = "";
 
-  // RTCOutboundRTPStreamStat: bytes_sent, pli_count, packets_sent
   std::vector<const webrtc::RTCOutboundRTPStreamStats*> send_stream_stats =
           report->GetStatsOfType<webrtc::RTCOutboundRTPStreamStats>();
   for (const auto& stat : send_stream_stats) {
@@ -549,7 +548,6 @@ void WebRTCStream::getStats()
       video_bytes_sent = std::stoll(stat->bytes_sent.ValueToJson());
       pli_received = std::stoi(stat->pli_count.ValueToJson());
     }
-    packets_sent   = std::stol(stat->packets_sent.ValueToJson());
   }
   total_bytes_sent = audio_bytes_sent + video_bytes_sent;
 
