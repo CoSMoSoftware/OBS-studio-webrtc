@@ -79,9 +79,9 @@ public:
         std::ostringstream newLine;
         newLine << "b=AS:" << newBitrate;
         if (strncmp(sdpLines[vLine+1].c_str(), "c=", 2) == 0)
-            sdpLines.insert(sdpLines.begin() + vline+2, newLine.str());
+            sdpLines.insert(sdpLines.begin() + vLine+2, newLine.str());
         else
-            sdpLines.insert(sdpLines.begin() + vline+1, newLine.str());
+            sdpLines.insert(sdpLines.begin() + vLine+1, newLine.str());
         sdp = join(sdpLines, "\r\n");
     }
 
@@ -105,15 +105,15 @@ public:
             std::ostringstream newLine;
             newLine << "b=AS:" << newBitrate;
             if (strncmp(sdpLines[vLine+1].c_str(), "c=", 2) == 0)
-                sdpLines.insert(sdpLines.begin() + vline+2, newLine.str());
+                sdpLines.insert(sdpLines.begin() + vLine+2, newLine.str());
             else
-                sdpLines.insert(sdpLines.begin() + vline+1, newLine.str());
+                sdpLines.insert(sdpLines.begin() + vLine+1, newLine.str());
         }
         // video section contains b=AS. replace line with new b=AS constraint
         else {
             std::ostringstream newLine;
             newLine << "b=AS:" << newBitrate;
-            sdpLines.insert(sdpLines.begin() + testline+1, newLine.str());
+            sdpLines.insert(sdpLines.begin() + testLine+1, newLine.str());
             sdpLines.erase(sdpLines.begin() + testLine);
         }
 
@@ -131,7 +131,7 @@ public:
                 std::string post = match[2].str();
                 newLine << pre << "x-google-min-bitrate=" << kbps;
                 newLine << ";x-google-max-bitrate=" << kbps << post;
-                sdpLines.insert(sdpLines.begin() + testline+1, newLine.str());
+                sdpLines.insert(sdpLines.begin() + testLine+1, newLine.str());
                 sdpLines.erase(sdpLines.begin() + testLine);
             }
             sdp = join(sdpLines, "\r\n");
@@ -158,7 +158,7 @@ public:
                         std::string post = match[2].str();
                         newLine << pre << "x-google-min-bitrate=" << kbps;
                         newLine << ";x-google-max-bitrate=" << kbps << post;
-                        sdpLines.insert(sdpLines.begin() + testline+1, newLine.str());
+                        sdpLines.insert(sdpLines.begin() + testLine+1, newLine.str());
                         sdpLines.erase(sdpLines.begin() + testLine);
                     }
                 }
