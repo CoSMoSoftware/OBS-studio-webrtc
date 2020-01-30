@@ -644,6 +644,11 @@ void WebRTCStream::getStats()
       stats_list += "outbound_video_bytes_sent:"     + stat->bytes_sent.ValueToJson() + "\n";
       // stats_list += "outbound_video_target_bitrate:" + stat->target_bitrate.ValueToJson() + "\n";
       // stats_list += "outbound_video_frames_encoded:" + stat->frames_encoded.ValueToJson() + "\n";
+      stats_list += "outbound_video_fir_count:"      + stat->fir_count.ValueToJson() + "\n";
+      stats_list += "outbound_video_pli_count:"      + stat->pli_count.ValueToJson() + "\n";
+      stats_list += "outbound_video_nack_count:"     + stat->nack_count.ValueToJson() + "\n";
+      // stats_list += "outbound_video_sli_count:"      + stat->sli_count.ValueToJson() + "\n";
+      stats_list += "outbound_video_qp_sum:"         + stat->qp_sum.ValueToJson() + "\n";
     }
   }
 
