@@ -31,6 +31,7 @@
 #include <regex>
 #include <string>
 #include <vector>
+#include <chrono>
 
 class WebRTCStreamInterface :
   public WebsocketClient::Listener,
@@ -131,6 +132,8 @@ private:
   uint64_t video_bytes_sent;
   uint64_t total_bytes_sent;
   int      pli_received; // Picture Loss Indication
+  std::chrono::system_clock::time_point previous_time = std::chrono::system_clock::time_point(std::chrono::duration<int>(0)); // Used to compute fps
+  uint32_t previous_frames_sent = 0;
 
   rtc::CriticalSection crit_;
 

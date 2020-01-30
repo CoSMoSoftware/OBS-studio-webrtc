@@ -484,6 +484,10 @@ void WebRTCStream::onVideoFrame(video_data *frame)
     if (!videoCapturer)
         return;
 
+    if (std::chrono::system_clock::time_point(std::chrono::duration<int>(0)) == previous_time)
+      // First frame sent: Initialize previous_time
+      previous_time = std::chrono::system_clock::now();
+
     // Calculate size
     int outputWidth = obs_output_get_width(output);
     int outputHeight = obs_output_get_height(output);
@@ -586,6 +590,15 @@ void WebRTCStream::getStats()
       stats_list += "track_frame_height:"           + stat->frame_height.ValueToJson() + "\n";
       stats_list += "track_frames_sent:"            + stat->frames_sent.ValueToJson() + "\n";
       stats_list += "track_huge_frames_sent:"       + stat->huge_frames_sent.ValueToJson() + "\n";
+ 
+      // FPS = frames_sent / (time_now - start_time)
+      std::chrono::system_clock::time_point time_now = std::chrono::system_clock::now();
+      std::chrono::duration<double> elapsed_seconds = time_now - previous_time;
+      previous_time = time_now;
+      uint32_t frames_sent = std::stol(stat->frames_sent.ValueToJson());
+      stats_list += "track_fps:" + std::to_string((frames_sent - previous_frames_sent) / elapsed_seconds.count()) + "\n";
+      previous_frames_sent = frames_sent;
+
       // stats_list += "track_frames_received:"        + stat->frames_received.ValueToJson() + "\n";
       // stats_list += "track_frames_decoded:"         + stat->frames_decoded.ValueToJson() + "\n";
       // stats_list += "track_frames_dropped:"         + stat->frames_dropped.ValueToJson() + "\n";
@@ -604,17 +617,17 @@ void WebRTCStream::getStats()
   // }
 
   // RTCRTPStreamStats
-  std::vector<const webrtc::RTCRTPStreamStats*> rtcrtp_stats =
-          report->GetStatsOfType<webrtc::RTCRTPStreamStats>();
-  for (const auto& stat : rtcrtp_stats) {
-    if (stat->kind.ValueToString() == "video") {
-      stats_list += "rtcrtp_fir_count:" + stat->fir_count.ValueToJson() + "\n";
-      stats_list += "rtcrtp_pli_count:" + stat->pli_count.ValueToJson() + "\n";
-      stats_list += "rtcrtp_nack_count:" + stat->nack_count.ValueToJson() + "\n";
-      stats_list += "rtcrtp_sli_count:" + stat->sli_count.ValueToJson() + "\n";
-      stats_list += "rtcrtp_qp_sum:" + stat->qp_sum.ValueToJson() + "\n";
-    }
-  }
+  // std::vector<const webrtc::RTCRTPStreamStats*> rtcrtp_stats =
+  //         report->GetStatsOfType<webrtc::RTCRTPStreamStats>();
+  // for (const auto& stat : rtcrtp_stats) {
+  //   if (stat->kind.ValueToString() == "video") {
+  //     stats_list += "rtcrtp_fir_count:" + stat->fir_count.ValueToJson() + "\n";
+  //     stats_list += "rtcrtp_pli_count:" + stat->pli_count.ValueToJson() + "\n";
+  //     stats_list += "rtcrtp_nack_count:" + stat->nack_count.ValueToJson() + "\n";
+  //     stats_list += "rtcrtp_sli_count:" + stat->sli_count.ValueToJson() + "\n";
+  //     stats_list += "rtcrtp_qp_sum:" + stat->qp_sum.ValueToJson() + "\n";
+  //   }
+  // }
 
   // RTCInboundRTPStreamStats
   // std::vector<const webrtc::RTCInboundRTPStreamStats*> inbound_stream_stats =
