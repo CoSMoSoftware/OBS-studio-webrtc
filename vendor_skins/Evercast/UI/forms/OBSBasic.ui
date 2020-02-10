@@ -242,6 +242,12 @@
      <property name="title">
       <string>Basic.MainMenu.Edit.Transform</string>
      </property>
+     <addaction name="actionFitToScreen"/>
+     <addaction name="actionStretchToScreen"/>
+     <addaction name="actionCenterToScreen"/>
+     <addaction name="actionVerticalCenter"/>
+     <addaction name="actionHorizontalCenter"/>
+     <addaction name="separator"/>
      <addaction name="actionEditTransform"/>
      <addaction name="actionCopyTransform"/>
      <addaction name="actionPasteTransform"/>
@@ -253,12 +259,6 @@
      <addaction name="separator"/>
      <addaction name="actionFlipHorizontal"/>
      <addaction name="actionFlipVertical"/>
-     <addaction name="separator"/>
-     <addaction name="actionFitToScreen"/>
-     <addaction name="actionStretchToScreen"/>
-     <addaction name="actionCenterToScreen"/>
-     <addaction name="actionVerticalCenter"/>
-     <addaction name="actionHorizontalCenter"/>
     </widget>
     <widget class="QMenu" name="orderMenu">
      <property name="title">
