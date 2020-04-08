@@ -89,6 +89,11 @@ tags
 .DS_Store
 */.DS_Store
 */**/.DS_Store
+
 dependencies2015/
 *BUILD*
 UI/webrtcVersion.h
+/.vs
+/.idea
+/out/install/x64-Release
+CMakeSettings.json
