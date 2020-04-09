@@ -39,7 +39,7 @@ install_name_tool -change @rpath/libobs.0.dylib @executable_path/../Frameworks/l
 # copy sparkle into the app
 hr "Copying Sparkle.framework"
 cp -r ../../sparkle/Sparkle.framework ./EBS.app/Contents/Frameworks/
-install_name_tool -change @rpath/Sparkle.framework/Versions/A/Sparkle @executable_path/../Frameworks/Sparkle.framework/Versions/A/Sparkle ./EBS.app/Contents/MacOS/obs
+install_name_tool -change @rpath/Sparkle.framework/Versions/A/Sparkle @executable_path/../Frameworks/Sparkle.framework/Versions/A/Sparkle ./EBS.app/Contents/MacOS/ebs
 
 # Copy Chromium embedded framework to app Frameworks directory
 # hr "Copying Chromium Embedded Framework.framework"

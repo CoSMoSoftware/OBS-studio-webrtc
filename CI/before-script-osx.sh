@@ -15,4 +15,4 @@ cmake \
   -DBUILD_BROWSER=false \
   -DOBS_WEBRTC_VENDOR_NAME=Evercast \
   -DOBS_VERSION_OVERRIDE=23.2.0 \
-..
+  ..

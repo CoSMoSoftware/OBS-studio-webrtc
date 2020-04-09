@@ -31,7 +31,7 @@ cp ../CI/install/osx/Info.plist ./EBS.app/Contents
 -x ./EBS.app/Contents/PlugIns/obs-transitions.so \
 -x ./EBS.app/Contents/PlugIns/obs-vst.so \
 -x ./EBS.app/Contents/PlugIns/rtmp-services.so \
--x ./EBS.app/Contents/MacOS/obs \
+-x ./EBS.app/Contents/MacOS/ebs \
 -x ./EBS.app/Contents/MacOS/obs-ffmpeg-mux \
 -x ./EBS.app/Contents/PlugIns/obs-x264.so \
 -x ./EBS.app/Contents/PlugIns/text-freetype2.so \
