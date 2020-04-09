@@ -41,6 +41,7 @@ static inline int get_color_format_bits(enum gs_color_format format)
 {
 	switch ((uint32_t)format) {
 	case GS_RGBA:
+	case GS_BGRA:
 		return 32;
 	default:
 		return 0;
@@ -548,6 +549,11 @@ void device_leave_context(gs_device_t *device)
 {
 	UNUSED_PARAMETER(device);
 	wglMakeCurrent(NULL, NULL);
+}
+
+void *device_get_device_obj(gs_device_t *device)
+{
+	return device->plat->hrc;
 }
 
 void device_load_swapchain(gs_device_t *device, gs_swapchain_t *swap)

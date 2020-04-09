@@ -93,7 +93,6 @@ struct gl_platform *gl_platform_create(gs_device_t *device, uint32_t adapter)
 	GLint interval = 0;
 	[context setValues:&interval forParameter:NSOpenGLCPSwapInterval];
 	const bool success = gladLoadGL() != 0;
-	[NSOpenGLContext clearCurrentContext];
 
 	if (!success) {
 		blog(LOG_ERROR, "gladLoadGL failed");
@@ -270,6 +269,11 @@ void device_leave_context(gs_device_t *device)
 	device->cur_fbo = NULL;
 
 	CGLUnlockContext([device->plat->context CGLContextObj]);
+}
+
+void *device_get_device_obj(gs_device_t *device)
+{
+	return device->plat->context;
 }
 
 void device_load_swapchain(gs_device_t *device, gs_swapchain_t *swap)
