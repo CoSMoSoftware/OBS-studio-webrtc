@@ -8,8 +8,9 @@ cmake \
   -DCMAKE_BUILD_TYPE=Release \
   # -DCMAKE_INSTALL_PREFIX=/opt/ebs \
   -DVLCPath=$PWD/../../vlc-master \
+  # this is brew latest qt version. OBS latest is 5.14.1
   -DQTDIR=/usr/local/Cellar/qt/5.14.2 \
-  -DCMAKE_OSX_DEPLOYMENT_TARGET=10.14 \
+  -DCMAKE_OSX_DEPLOYMENT_TARGET=10.15 \
   -DOPENSSL_ROOT_DIR=/usr/local/opt/openssl@1.1 \
   -Dlibwebrtc_DIR=/tmp/libWebRTC-79.0-x64-Rel-COMMUNITY-BETA/cmake \
   -DBUILD_BROWSER=false \
