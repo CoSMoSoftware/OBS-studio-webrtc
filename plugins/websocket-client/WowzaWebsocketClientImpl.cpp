@@ -85,7 +85,7 @@ bool WowzaWebsocketClientImpl::connect(
             int status = msg["status"].get<int>();
             if (status == 200) {
                 if (msg.find("sdp") != msg.end())
-                    sdp = msg["sdp"]["sdp"];
+                    sdp = msg["sdp"].value("sdp","");
                 if (msg.find("iceCandidates") != msg.end()) {
                     candidateFound = true;
                     sdpData = msg["iceCandidates"];
@@ -94,11 +94,6 @@ bool WowzaWebsocketClientImpl::connect(
                     std::string session_id_str = msg["streamInfo"]["sessionId"];
                     session_id = std::stoll(session_id_str);
                     info("Session ID: %s", session_id_str.c_str());
-                }
-                if (msg.find("sdp") != msg.end()){
-                    // TODO alex: clang yells here
-                    // would need to fix that, but for now, I m just commenting it out
-                    // sdp = msg["sdp"]["sdp"];
                 }
 
                 std::string command = msg["command"];
