@@ -204,14 +204,15 @@ if(NOT INSTALLER_RUN)
 		endif()
 
 		find_package(Qt5Widgets ${FIND_MODE})
-    if( APPLE )
-      # Make sure we are using Qt installed by brew in /usr/local/Cellar/qt/...
-      list(GET Qt5Widgets_INCLUDE_DIRS 1 my_path)
-      string(FIND ${my_path} "/usr/local/Cellar/" index)
-      if(${index} EQUAL -1)
-        message( FATAL_ERROR "ERROR, you must give path to a Qt installed by brew in /usr/local/Cellar" )
-      endif()
-    endif()
+                if( APPLE )
+                        # Make sure we are using Qt installed by brew
+                        list(GET Qt5Widgets_INCLUDE_DIRS 1 my_path)
+                        string(FIND ${my_path} "/usr/local/Cellar/" cellar_index)
+                        string(FIND ${my_path} "/usr/local/opt/" opt_index)
+                        if( ${cellar_index} EQUAL -1 AND ${opt_index} EQUAL -1 )
+                                message( "ERROR, you must give path to a Qt installed by brew." )
+                        endif()
+                endif()
 	endif()
 
 	add_subdirectory(deps)
