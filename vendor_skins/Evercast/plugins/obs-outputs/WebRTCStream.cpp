@@ -194,8 +194,8 @@ bool WebRTCStream::start(WebRTCStream::Type type)
     options.stereo_swapping.emplace(false);
     options.typing_detection.emplace(false); // default: true
     options.experimental_agc.emplace(false);
-    options.extended_filter_aec.emplace(false);
-    options.delay_agnostic_aec.emplace(false);
+    // m79 options.extended_filter_aec.emplace(false);
+    // m79 options.delay_agnostic_aec.emplace(false);
     options.experimental_ns.emplace(false);
     options.residual_echo_detector.emplace(false); // default: true
     // options.tx_agc_limiter.emplace(false);
