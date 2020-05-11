@@ -32,8 +32,8 @@ tar -xzf ./osx-deps.tar.gz -C /tmp
 
 # if you have your own libwebrtc already installed, comment the following paragraph out.
 # Fetch libwebrtc 73 Community Edition
-wget --retry-connrefused --waitretry=1 https://libwebrtc-community-builds.s3.amazonaws.com/libWebRTC-73-mac.tar.gz
-tar -xf ./libWebRTC-73-mac.tar.gz -C /tmp
+wget --retry-connrefused --waitretry=1 https://libwebrtc-community-builds.s3.amazonaws.com/libWebRTC-79-mac.tar.gz
+tar -xf ./libWebRTC-79-mac.tar.gz -C /tmp
 
 # Fetch vlc codebase
 curl -L -O https://downloads.videolan.org/vlc/3.0.4/vlc-3.0.4.tar.xz

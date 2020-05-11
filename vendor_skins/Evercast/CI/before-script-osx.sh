@@ -7,10 +7,10 @@ cmake \
 -DCMAKE_BUILD_TYPE=RELEASE \
 -DCMAKE_INSTALL_PREFIX=/opt/ebs \
 -DVLCPath=$PWD/../../vlc-master \
--DQTDIR=/usr/local/Cellar/qt/5.10.1 \
+-DQTDIR=/usr/local/Cellar/qt/5.14.2 \
 -DCMAKE_OSX_DEPLOYMENT_TARGET=10.10 \
 -DOPENSSL_ROOT_DIR=/usr/local/opt/openssl@1.1 \
--Dlibwebrtc_DIR=/tmp/libWebRTC-73.0-x64-Rel-COMMUNITY-BETA/cmake \
+-Dlibwebrtc_DIR=/tmp/libWebRTC-79.0-x64-Rel-COMMUNITY-BETA/cmake \
 -DOBS_VERSION_OVERRIDE=23.2.0 \
 ..
 
