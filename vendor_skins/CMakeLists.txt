@@ -12,11 +12,15 @@ file(
   )
 
 foreach( _file ${_vendor_files_to_copy_over} )
-  get_filename_component( _vendor_subdir ${_file} DIRECTORY )
-  message( STATUS "${OBS_WEBRTC_VENDOR_NAME}: Copying ./${_file} over to ${PROJECT_SOURCE_DIR}/${_vendor_subdir}." )
+  message( STATUS "${OBS_WEBRTC_VENDOR_NAME}: Copying ./${_file} over to ${PROJECT_SOURCE_DIR}/${_subdir}." )
+  get_filename_component( _subdir ${_file} DIRECTORY )
+  file( RENAME
+    ${PROJECT_SOURCE_DIR}/${_file}
+    ${PROJECT_SOURCE_DIR}/${_file}.old
+    )
   file(
     COPY        ${_vendor_dir}/${_file}
-    DESTINATION ${PROJECT_SOURCE_DIR}/${_vendor_subdir}
+    DESTINATION ${PROJECT_SOURCE_DIR}/${_subdir}
     )
 endforeach()
 
