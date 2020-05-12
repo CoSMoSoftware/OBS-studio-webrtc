@@ -1,4 +1,5 @@
 image:
+# should we move to MSVC 2019?
  - Visual Studio 2017
 
 environment:
@@ -35,10 +36,11 @@ deploy:
 test: off
 
 cache:
+# TODO: check for msvc 2019
   - dependencies2017.zip
   - vlc.zip
  # right now, we just remove this option which takes otherwise a lot of space
  # - 'cef_binary_%CEF_VERSION%_windows64.zip'
-  - Qt_5.10.1.7z
-  - libWebRTC-73-win.tar.gz
+  - Qt_5.14.2.7z
+  - libWebRTC-79-win.tar.gz
   - openssl-1.1.zip
