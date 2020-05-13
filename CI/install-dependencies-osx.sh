@@ -19,14 +19,15 @@ brew install mbedtls
 
 # replace obs one, by brew one.
 # brew install https://gist.githubusercontent.com/DDRBoxman/b3956fab6073335a4bf151db0dcbd4ad/raw/ed1342a8a86793ea8c10d8b4d712a654da121ace/qt.rb
-brew upgrade qt5
+brew install qt5
 
 brew install https://gist.githubusercontent.com/DDRBoxman/4cada55c51803a2f963fa40ce55c9d3e/raw/572c67e908bfbc1bcb8c476ea77ea3935133f5b5/swig.rb
 
 # Install Packages app so we can build a package later
 # http://s.sudre.free.fr/Software/Packages/about.html
-wget --retry-connrefused --waitretry=1 https://s3-us-west-2.amazonaws.com/obs-nightly/Packages.pkg
-sudo installer -pkg ./Packages.pkg -target /
+# NOTE ALEX: pretty sure this does not work with latest version of MacOS
+# wget --retry-connrefused --waitretry=1 https://s3-us-west-2.amazonaws.com/obs-nightly/Packages.pkg
+# sudo installer -pkg ./Packages.pkg -target /
 
 # Set up ccache
 export PATH=/usr/local/opt/ccache/libexec:$PATH
@@ -50,4 +51,3 @@ wget --retry-connrefused --waitretry=1 -O sparkle.tar.bz2 https://github.com/spa
 mkdir ./sparkle
 tar -xf ./sparkle.tar.bz2 -C ./sparkle
 sudo cp -R ./sparkle/Sparkle.framework /Library/Frameworks/Sparkle.framework
-
