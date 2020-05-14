@@ -9,7 +9,7 @@ set -v
 # Leave obs-studio folder
 cd ../
 
-brew update
+brew update > /dev/null
 
 # Base OBS Deps and ccache
 brew install jack
