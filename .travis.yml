@@ -31,16 +31,17 @@ script:
   - ctest -D Experimental -j4
   - cd ..
 
-deploy:
-  provider: s3
-  edge: true
-  access_key_id: AKIAYXRCU62VF3RWPU57
-  secret_access_key:
-    secure: x+dbxIjNpCw+4vyHD/XGg0ecNcqWwE8EnPrcmoiAiE0CzhUQZ6p/wJGN+gXxlb3131a4YTyut3h8buFZbqftccinSVsSqzk+leB8jjrBEIJbwWI1/Sd9gRJjBsVY9WfoOsye6LZHEWgBxy2wdqgWfuDEDsuqm6wJAU6X7cxi9sKkMchVQ0HpE8Cv/M9veUXoQCnFo5ebZxEL/Mcl0CG26x/uJnZ4O7Bf+TWWhtGujSCTd+pIKl8E2nfU81kw4QLow8zZuWeOjOalJ1njOrw5uBR4HZb7ZQNNRYTNVn2SkvcUm/ICglwg9UJ3YcuSQM9I0J04GJWQAAVlB0svTN4KG0inLv7jAb8f3wfUFAJx5bDLWe47RsfXs4uHLgKzQupkvKBjMD/At2bngccRktuoOSqgrAFK0BccoXnInrKhyKttrSmCWYznKl2mi/qqfhJI1Y9r0sAh0Kzzu0zpLzBfz3A1RKC2Bi0B8IQ56zZTwG5bIXaAHPwqFe4SbquGksdipP+n7C1Dv7rFKCNalOKURU2Huftxp2RbeO9mpDpy4X5PRbwqPOpj28zQZkT6vvCcG2TfS9U0kPeLinZPDEybZxywwQP4Mu3/j3y1gyrylzE2gdBEaw5H3ChaLW2VG9IqIUBaOqtEDLsjDMgZrRjxwkQ8j+RxcChod3RxhJBPecM=
-  bucket: ebs-build
-  on:
-    repo: CoSMoSoftware/OBS-studio-webrtc
-    branch: m79-v23.2
-  skip_cleanup: true
-  local_dir: build/nightly/
-  upload-dir: travis-builds
+# need a new secret key - in the mean time, comment out.
+#deploy:
+#  provider: s3
+#  edge: true
+#  access_key_id: AKIAYXRCU62VF3RWPU57
+#  secret_access_key:
+#    secure: x+dbxIjNpCw+4vyHD/XGg0ecNcqWwE8EnPrcmoiAiE0CzhUQZ6p/wJGN+gXxlb3131a4YTyut3h8buFZbqftccinSVsSqzk+leB8jjrBEIJbwWI1/Sd9gRJjBsVY9WfoOsye6LZHEWgBxy2wdqgWfuDEDsuqm6wJAU6X7cxi9sKkMchVQ0HpE8Cv/M9veUXoQCnFo5ebZxEL/Mcl0CG26x/uJnZ4O7Bf+TWWhtGujSCTd+pIKl8E2nfU81kw4QLow8zZuWeOjOalJ1njOrw5uBR4HZb7ZQNNRYTNVn2SkvcUm/ICglwg9UJ3YcuSQM9I0J04GJWQAAVlB0svTN4KG0inLv7jAb8f3wfUFAJx5bDLWe47RsfXs4uHLgKzQupkvKBjMD/At2bngccRktuoOSqgrAFK0BccoXnInrKhyKttrSmCWYznKl2mi/qqfhJI1Y9r0sAh0Kzzu0zpLzBfz3A1RKC2Bi0B8IQ56zZTwG5bIXaAHPwqFe4SbquGksdipP+n7C1Dv7rFKCNalOKURU2Huftxp2RbeO9mpDpy4X5PRbwqPOpj28zQZkT6vvCcG2TfS9U0kPeLinZPDEybZxywwQP4Mu3/j3y1gyrylzE2gdBEaw5H3ChaLW2VG9IqIUBaOqtEDLsjDMgZrRjxwkQ8j+RxcChod3RxhJBPecM=
+#  bucket: ebs-build
+#  on:
+#    repo: CoSMoSoftware/OBS-studio-webrtc
+#    branch: m79-v23.2
+#  skip_cleanup: true
+#  local_dir: build/nightly/
+#  upload-dir: travis-builds
