@@ -23,6 +23,9 @@ fi
 
 sudo python ../CI/install/osx/build_app.py --public-key ../CI/install/osx/OBSPublicDSAKey.pem --sparkle-framework ../../sparkle/Sparkle.framework  --stable=$STABLE
 
+
+# NOTE ALEX: switch from package to DMG
+
 # Package app
 hr "Generating .pkg"
 packagesbuild ../CI/install/osx/CMakeLists.pkgproj
@@ -31,3 +34,6 @@ packagesbuild ../CI/install/osx/CMakeLists.pkgproj
 hr "Moving package to nightly folder for distribution"
 mkdir -p ./nightly
 sudo mv EBS.pkg ./nightly/$FILENAME
+
+# Make sure to update travis deployment env:
+echo rvm_autoupdate_flag=2 >> ~/.rvmrc
