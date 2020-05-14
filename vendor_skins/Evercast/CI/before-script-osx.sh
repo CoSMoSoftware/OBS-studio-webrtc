@@ -1,3 +1,5 @@
+# Copyright Dr. Alex. Gouaillard (2015, 2020)
+
 # Make sure ccache is found
 export PATH=/usr/local/opt/ccache/libexec:$PATH
 mkdir build

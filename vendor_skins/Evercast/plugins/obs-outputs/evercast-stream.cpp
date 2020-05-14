@@ -1,3 +1,5 @@
+# Copyright Dr. Alex. Gouaillard (2015, 2020)
+
 #include <stdio.h>
 #include <obs-module.h>
 #include <obs-avc.h>

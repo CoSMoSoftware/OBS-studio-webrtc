@@ -1,3 +1,5 @@
+# Copyright Dr. Alex. Gouaillard (2015, 2020)
+
 #ifndef _WEBRTCSTREAM_H_
 #define _WEBRTCSTREAM_H_
 

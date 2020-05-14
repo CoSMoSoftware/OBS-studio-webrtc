@@ -1,3 +1,5 @@
+# Copyright Dr. Alex. Gouaillard (2015, 2020)
+
 #include "WebsocketClient.h"
 
 //Use http://think-async.com/ insted of boost

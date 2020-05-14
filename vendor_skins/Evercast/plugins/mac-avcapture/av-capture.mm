@@ -1,3 +1,5 @@
+# Copyright Dr. Alex. Gouaillard (2015, 2020)
+
 #import <AVFoundation/AVFoundation.h>
 #import <CoreFoundation/CoreFoundation.h>
 #import <CoreMedia/CoreMedia.h>

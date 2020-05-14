@@ -1,3 +1,5 @@
+# Copyright Dr. Alex. Gouaillard (2015, 2020)
+
 #include "WebsocketClient.h"
 
 //Use http://think-async.com/ instead of boost
@@ -9,6 +11,7 @@
 #define _WEBSOCKETPP_CPP11_RANDOM_DEVICE_
 #define _WEBSOCKETPP_CPP11_MEMORY_
 
+#include <websocketpp/common/connection_hdl.hpp>
 #include "websocketpp/config/asio_client.hpp"
 #include "websocketpp/client.hpp"
 
@@ -16,40 +19,44 @@ typedef websocketpp::client<websocketpp::config::asio_tls_client> Client;
 
 class EvercastWebsocketClientImpl : public WebsocketClient {
 public:
-    EvercastWebsocketClientImpl();
-    ~EvercastWebsocketClientImpl();
+  EvercastWebsocketClientImpl();
+  ~EvercastWebsocketClientImpl();
 
-    // WebsocketClient::Listener implementation
-    bool connect(
-            const std::string & url,
-            const std::string & room,
-            const std::string & username,
-            const std::string & token,
-            WebsocketClient::Listener * listener) override;
-    bool open(
-            const std::string & sdp,
-            const std::string & codec,
-            const std::string & /* Id */) override;
-    bool trickle(
-            const std::string & mid,
-            const int index,
-            const std::string & candidate,
-            const bool last) override;
-    bool disconnect(const bool wait) override;
+   // WebsocketClient::Listener implementation
+  bool connect(
+          const std::string & url,
+          const std::string & room,
+          const std::string & username,
+          const std::string & token,
+          WebsocketClient::Listener * listener) override;
+  bool open(
+          const std::string & sdp,
+          const std::string & codec,
+          const std::string & /* Id */) override;
+  bool trickle(
+          const std::string & mid,
+          const int index,
+          const std::string & candidate,
+          const bool last) override;
+  bool disconnect(const bool wait) override;
 
-    void keepConnectionAlive();
-    void destroy();
+   void keepConnectionAlive();
+  void destroy();
 
 private:
-    bool logged;
-    long long session_id;
-    long long handle_id;
+  bool logged;
+  long long session_id;
+  long long handle_id;
 
-    Client client;
-    Client::connection_ptr connection;
-    std::thread thread;
-    std::thread thread_keepAlive;
-    std::atomic<bool> is_running;
+   Client client;
+  Client::connection_ptr connection;
+  std::thread thread;
+  std::thread thread_keepAlive;
+  std::atomic<bool> is_running;
 
-    std::string sanitizeString(const std::string & s);
+   std::string sanitizeString(const std::string & s);
+  void handleDisconnect(websocketpp::connection_hdl connectionHdl,
+                        WebsocketClient::Listener * listener,
+                        const char * callback_name);
 };
+

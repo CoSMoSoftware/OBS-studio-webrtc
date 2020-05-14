@@ -1,3 +1,5 @@
+# Copyright Dr. Alex. Gouaillard (2015, 2020)
+
 
 if(APPLE AND NOT CPACK_GENERATOR)
 	set(CPACK_GENERATOR "Bundle")

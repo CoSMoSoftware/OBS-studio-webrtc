@@ -1,3 +1,5 @@
+# Copyright Dr. Alex. Gouaillard (2015, 2020)
+
 #include "JanusWebsocketClientImpl.h"
 #include "nlohmann/json.hpp"
 

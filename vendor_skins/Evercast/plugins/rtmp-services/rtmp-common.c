@@ -1,3 +1,5 @@
+# Copyright Dr. Alex. Gouaillard (2015, 2020)
+
 #include <util/platform.h>
 #include <util/dstr.h>
 #include <obs-module.h>

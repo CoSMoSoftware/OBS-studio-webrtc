@@ -1,3 +1,5 @@
+# Copyright Dr. Alex. Gouaillard (2015, 2020)
+
 #include <QLabel>
 #include <QHBoxLayout>
 #include <QPainter>

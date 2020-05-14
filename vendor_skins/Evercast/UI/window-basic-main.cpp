@@ -17,6 +17,8 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ******************************************************************************/
 
+# Copyright Dr. Alex. Gouaillard (2015, 2020)
+
 #include <ctime>
 #include <obs.hpp>
 #include <QGuiApplication>

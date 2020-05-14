@@ -1,3 +1,5 @@
+# Copyright Dr. Alex. Gouaillard (2015, 2020)
+
 set( _vendor_dir ${CMAKE_CURRENT_LIST_DIR}/${OBS_WEBRTC_VENDOR_NAME} )
 
 if( NOT EXISTS ${_vendor_dir} )

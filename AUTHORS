@@ -1,3 +1,13 @@
+== WEBRTC extentions ==
+
+Are usually tagged with the following copyright mention in the file,
+and can be otherwise provided under a different license if need be:
+# Copyright Dr. Alex. Gouaillard (2015, 2020)
+
+In the context of this repository, the corresponding code is made available under the same license and the same conditions as the original OBS.
+
+== OBS ==
+
 Original Author: Hugh Bailey ("Jim")
 
 Contributors are sorted by their amount of commits / translated strings.

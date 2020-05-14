@@ -1,3 +1,5 @@
+# Copyright Dr. Alex. Gouaillard (2015, 2020)
+
 #include "MillicastWebsocketClientImpl.h"
 #include "nlohmann/json.hpp"
 #include "restclient-cpp/connection.h"

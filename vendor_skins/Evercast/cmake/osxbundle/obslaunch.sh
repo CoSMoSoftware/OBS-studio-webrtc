@@ -1,4 +1,6 @@
 #!/bin/sh
+# Copyright Dr. Alex. Gouaillard (2015, 2020)
+
 # use argument 1 as the version or get it from sw_vers
 os_ver=$(sw_vers -productVersion)
 

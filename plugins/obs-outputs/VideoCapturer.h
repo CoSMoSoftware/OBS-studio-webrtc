@@ -1,3 +1,5 @@
+# Copyright Dr. Alex. Gouaillard (2015, 2020)
+
 #ifndef _OBS_VIDEO_CAPTURER_
 #define _OBS_VIDEO_CAPTURER_
 

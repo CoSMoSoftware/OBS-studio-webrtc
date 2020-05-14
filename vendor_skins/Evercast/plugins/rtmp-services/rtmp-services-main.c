@@ -1,3 +1,5 @@
+# Copyright Dr. Alex. Gouaillard (2015, 2020)
+
 #include <util/text-lookup.h>
 #include <util/threading.h>
 #include <util/platform.h>

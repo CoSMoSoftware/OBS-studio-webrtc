@@ -1,3 +1,5 @@
+# Copyright Dr. Alex. Gouaillard (2015, 2020)
+
 #include <obs-frontend-api.h>
 #include <obs-module.h>
 #include <obs.hpp>

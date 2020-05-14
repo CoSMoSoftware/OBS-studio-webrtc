@@ -1,3 +1,5 @@
+# Copyright Dr. Alex. Gouaillard (2015, 2020)
+
 #ifndef _WEBSOCKETCLIENT_H_
 #define _WEBSOCKETCLIENT_H_
 
