@@ -1,4 +1,4 @@
-# Copyright Dr. Alex. Gouaillard (2015, 2020)
+/* Copyright Dr. Alex. Gouaillard (2015, 2020) */
 
 #include "WebRTCStream.h"
 #include "SDPModif.h"

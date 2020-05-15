@@ -1,4 +1,4 @@
-# Copyright Dr. Alex. Gouaillard (2015, 2020)
+/* Copyright Dr. Alex. Gouaillard (2015, 2020) */
 
 #ifndef _AUDIO_DEVICE_MODULE_WRAPPER_H_
 #define _AUDIO_DEVICE_MODULE_WRAPPER_H_

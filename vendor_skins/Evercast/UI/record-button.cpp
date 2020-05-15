@@ -1,4 +1,4 @@
-# Copyright Dr. Alex. Gouaillard (2015, 2020)
+/* Copyright Dr. Alex. Gouaillard (2015, 2020) */
 
 #include "record-button.hpp"
 #include "window-basic-main.hpp"

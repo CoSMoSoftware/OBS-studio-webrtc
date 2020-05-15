@@ -15,7 +15,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ******************************************************************************/
 
-# Copyright Dr. Alex. Gouaillard (2015, 2020)
+/* Copyright Dr. Alex. Gouaillard (2015, 2020) */
 
 #include "util/bmem.h"
 #include "util/darray.h"

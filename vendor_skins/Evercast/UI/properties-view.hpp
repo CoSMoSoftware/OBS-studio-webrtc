@@ -1,4 +1,4 @@
-# Copyright Dr. Alex. Gouaillard (2015, 2020)
+/* Copyright Dr. Alex. Gouaillard (2015, 2020) */
 
 #pragma once
 
