@@ -1,46 +1,42 @@
 language: cpp
-
 cache:
   ccache: true
-
 env:
   global:
   - USE_CCACHE=1
   - CCACHE_COMPRESS=1
   - CCACHE_MAXSIZE=200M
   - CCACHE_CPP2=1
-
 matrix:
   include:
-    - os: osx
-      env:
-       - CMAKE_PREFIX_PATH=/usr/local/opt/qt5/lib/cmake
-       - CEF_BUILD_VERSION=3.3282.1726.gc8368c8
-      before_install: "./CI/install-dependencies-osx.sh"
-      before_script: "./CI/before-script-osx.sh"
-      before_deploy: "./CI/before-deploy-osx.sh"
-    - os: linux
-      dist: trusty
-      sudo: required
-      before_install: "./CI/install-dependencies-linux.sh"
-      before_script: "./CI/before-script-linux.sh"
-
+  - os: osx
+    env:
+    - CMAKE_PREFIX_PATH=/usr/local/opt/qt5/lib/cmake
+    - CEF_BUILD_VERSION=3.3282.1726.gc8368c8
+    before_install: "./CI/install-dependencies-osx.sh"
+    before_script: "./CI/before-script-osx.sh"
+    before_deploy: "./CI/before-deploy-osx.sh"
+  - os: linux
+    dist: trusty
+    sudo: required
+    before_install: "./CI/install-dependencies-linux.sh"
+    before_script: "./CI/before-script-linux.sh"
 script:
   - cd ./build
   - ctest -D Experimental -j4
   - cd ..
+deploy:
+  provider: s3
+  edge: true
+  access_key_id:
+    secure: su7A+BqrCCQ9lsHAQvYDoFQRUBqklWHafcBFchKSy6U9WcqyEpiwnRzQLS3zYBTDLY5vBNVLtXnYBowt0bA189YoAXNMKWapXxvxbfdp3dy/zca/MUyO4kc5N2XDp2MM3OjjH12/KoNG8DgM/miVivfHONQi3SQrqxXT43jwB3iKKHoqksSgJgiWMNQP9rR2uhaEInytB3Yq3d4NfL2mfewA2oXVBOSCkY9PhVIngiRHDMF7OJhSbCukHONT8tzIQecLbzJTxwNiQpSK9OA80UA1oMS3w5cCPQuhWs+KmCWnVN6bmnw6tQEIGLjXePXvvzYtDiPfQhj1XNF7IgTXI0WvjgFat5UU7o0rMjdWaG6MhCAWxJmBoDzmPMwfNdo8gUBevS+UBOCCoPqDyfm0n6ATrF0weisgf0fv1D4ZFUo29/dUFanUuBiJN+PZ5M9kS1rtYNslJUb4+TYH//H0xObjukQq5zfMjbPHWtHmPfN+aIya1JcbaAqZmL7matSCKNJTwc/ILyBPg16pBUHYI04rbNBL0xbLBu5datjSK9l0kR34iMzIF7POykYo2ylzmE/kJSq96WmW21Hk1zdte+PLE2MWP0ralKm1awE04C+Wh7HkGnvqNpKFpOHNFa8YLpqyfwVfbHiRKt6T5xhrYc0f21ddFLN3F+GcOGUf4Ws=
+  secret_access_key:
+    secure: x9YNl396h5Dk1z44WrAJyz2Bv6+Zd1v83INJIgB2gH1af+5i8arf8uvlb+vJfo0Bup/rEc4v5BJemLrHuUanbWg4rTJ2ijtamp8I9fC6oMYD4oaioVSu4TAE0ReWUUd8adiTp+h99r0ZQoJbq1nJWc0ZgkfjzrVYeXP3vP8XiTdhDjuOJW8K5OhhwXpT9OcOCAi9R77AHcPkSCeGzpBN4gXJIK/Wc0OoyXmOshCjkyD3VkyHl9KLvGM4xZAxWh6YAS8kELm+eiQf++18o9KjPKRFLdpL/VqkyGXwdwsqQd2nMzm8ObK1V2Y2fiewZozih2xSv2RI/dlUXQK+LF+96CTgfJJfBdBSj2mEHF9X/NkqhmIbNJuMnwNMmOAPSb2D7Mhmr1273lGiAIu6bO1dlmMG/vq2O55q9GbjWK4WAJPQh4EeSSu4XuRQdV08XX7R8HjZnRpuKCf7bxTX8NeSOPGA21+CWR7b/DyIQFwp8S1izHEjamgKa21MuMZHqw2CcAre5gWQ7ag2R+L7L9AJ5QABYNV1H6np72yQuX+o0kiCqEM9qV2hWq0gz4wox7+/QdEAEi4sDvy+HeGj1JxAhAXmnRZ4R5GlhTv94aD+DmBe/BDI1ZpshykCOnpaCqacpfrrBQVwEyULu0ejbUVAwnr11LYFR0oYJo4wPbxnjKQ=
+  bucket: ebs-build
+  on:
+    repo: CoSMoSoftware/OBS-studio-webrtc
+    branch: m79-v23.2
+  skip_cleanup: true
+  local_dir: build/nightly/
+  upload-dir: travis-builds
 
-# need a new secret key - in the mean time, comment out.
-#deploy:
-#  provider: s3
-#  edge: true
-#  access_key_id: AKIAYXRCU62VF3RWPU57
-#  secret_access_key:
-#    secure: x+dbxIjNpCw+4vyHD/XGg0ecNcqWwE8EnPrcmoiAiE0CzhUQZ6p/wJGN+gXxlb3131a4YTyut3h8buFZbqftccinSVsSqzk+leB8jjrBEIJbwWI1/Sd9gRJjBsVY9WfoOsye6LZHEWgBxy2wdqgWfuDEDsuqm6wJAU6X7cxi9sKkMchVQ0HpE8Cv/M9veUXoQCnFo5ebZxEL/Mcl0CG26x/uJnZ4O7Bf+TWWhtGujSCTd+pIKl8E2nfU81kw4QLow8zZuWeOjOalJ1njOrw5uBR4HZb7ZQNNRYTNVn2SkvcUm/ICglwg9UJ3YcuSQM9I0J04GJWQAAVlB0svTN4KG0inLv7jAb8f3wfUFAJx5bDLWe47RsfXs4uHLgKzQupkvKBjMD/At2bngccRktuoOSqgrAFK0BccoXnInrKhyKttrSmCWYznKl2mi/qqfhJI1Y9r0sAh0Kzzu0zpLzBfz3A1RKC2Bi0B8IQ56zZTwG5bIXaAHPwqFe4SbquGksdipP+n7C1Dv7rFKCNalOKURU2Huftxp2RbeO9mpDpy4X5PRbwqPOpj28zQZkT6vvCcG2TfS9U0kPeLinZPDEybZxywwQP4Mu3/j3y1gyrylzE2gdBEaw5H3ChaLW2VG9IqIUBaOqtEDLsjDMgZrRjxwkQ8j+RxcChod3RxhJBPecM=
-#  bucket: ebs-build
-#  on:
-#    repo: CoSMoSoftware/OBS-studio-webrtc
-#    branch: m79-v23.2
-#  skip_cleanup: true
-#  local_dir: build/nightly/
-#  upload-dir: travis-builds
