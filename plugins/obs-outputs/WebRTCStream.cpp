@@ -188,12 +188,10 @@ bool WebRTCStream::start(WebRTCStream::Type type)
     options.echo_cancellation.emplace(false); // default: true
     options.auto_gain_control.emplace(false); // default: true
     options.noise_suppression.emplace(false); // default: true
-    options.highpass_filter.emplace(false); // default: true
+    options.highpass_filter.emplace(false);   // default: true
     options.stereo_swapping.emplace(false);
-    options.typing_detection.emplace(false); // default: true
+    options.typing_detection.emplace(false);  // default: true
     options.experimental_agc.emplace(false);
-    options.extended_filter_aec.emplace(false);
-    options.delay_agnostic_aec.emplace(false);
     options.experimental_ns.emplace(false);
     options.residual_echo_detector.emplace(false); // default: true
     // options.tx_agc_limiter.emplace(false);
