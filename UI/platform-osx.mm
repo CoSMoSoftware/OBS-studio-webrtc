@@ -36,22 +36,20 @@ bool isInBundle()
 
 bool GetDataFilePath(const char *data, string &output)
 {
-        if (isInBundle()) {
- 	        str << OBS_DATA_PATH "/" << config_dir << "/" << data;
-	        NSRunningApplication *app = output = str.str();
-	        [NSRunningApplication currentApplication];
- 		NSURL *bundleURL = [app bundleURL];
- 		// TODO: Should obs-studio be converted to the value of config_dir?
- 		NSString *path = [NSString
- 			stringWithFormat:@"Contents/Resources/data/obs-studio/%@",
- 					 [NSString stringWithUTF8String:data]];
- 		NSURL *dataURL = [bundleURL URLByAppendingPathComponent:path];
- 		output = [[dataURL path] UTF8String];
- 	} else {
- 		stringstream str;
- 		str << OBS_DATA_PATH "/" << config_dir << "/" << data;
- 		output = str.str();
- 	}
+	if (isInBundle()) {
+		NSRunningApplication *app =
+			[NSRunningApplication currentApplication];
+		NSURL *bundleURL = [app bundleURL];
+		NSString *path = [NSString
+			stringWithFormat:@"Contents/Resources/data/obs-studio/%@",
+					 [NSString stringWithUTF8String:data]];
+		NSURL *dataURL = [bundleURL URLByAppendingPathComponent:path];
+		output = [[dataURL path] UTF8String];
+	} else {
+		stringstream str;
+		str << OBS_DATA_PATH "/obs-studio/" << data;
+		output = str.str();
+	}
 
 	return !access(output.c_str(), R_OK);
 }
