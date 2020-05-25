@@ -12,11 +12,6 @@ blacklist = """/usr /System""".split()
 #copied
 whitelist = """/usr/local""".split()
 
-#
-#
-#
-
-
 from sys import argv
 from glob import glob
 from subprocess import check_output, call
@@ -188,16 +183,12 @@ try:
 except:
 	pass
 
+prefix = "tmp/Contents/Resources/"
 if args.sparkle is not None:
     copytree(args.sparkle, "tmp/Contents/Frameworks/Sparkle.framework", symlinks=True)
-
-prefix = "tmp/Contents/Resources/"
-sparkle_path = '@loader_path/{0}/Frameworks/Sparkle.framework/Versions/A/Sparkle'
-
-cmd('{0}install_name_tool -change {1} {2} {3}/bin/obs'.format(
-    args.prefix, actual_sparkle_path, sparkle_path.format('../..'), prefix))
-
-
+    sparkle_path = '@loader_path/{0}/Frameworks/Sparkle.framework/Versions/A/Sparkle'
+    cmd('{0}install_name_tool -change {1} {2} {3}/bin/obs'.format(
+        args.prefix, actual_sparkle_path, sparkle_path.format('../..'), prefix))
 
 for path, external, copy_as in inspected:
 	id_ = ""
