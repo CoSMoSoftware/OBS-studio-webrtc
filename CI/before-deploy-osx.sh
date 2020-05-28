@@ -8,10 +8,12 @@ hr() {
 set -e
 
 # Generate file name variables
+export APP_NAME=RFS
+export LIBWEBRTC_REV=79
+export DEPLOY_VERSION=23.2
 export GIT_HASH=$(git rev-parse --short HEAD)
 export FILE_DATE=$(date +%Y-%m-%d.%H:%M:%S)
-export FILENAME=$FILE_DATE-$GIT_HASH-$TRAVIS_BRANCH-osx.pkg
-export DEPLOY_VERSION=2.5
+export FILENAME=$APP_NAME-m$LIBWEBRTC_REVv$DEPLOY_VERSION-$FILE_DATE-$GIT_HASH-osx.pkg
 
 cd ./build
 
@@ -22,45 +24,46 @@ if [ -n "${TRAVIS_TAG}" ]; then
   STABLE=true
 fi
 
-#sudo python ../CI/install/osx/build_app.py --public-key ../CI/install/osx/EBSPublicDSAKey.pem --sparkle-framework ../../sparkle/Sparkle.framework --stable=$STABLE
-
 ../CI/install/osx/packageApp.sh
 
 # fix obs outputs
-cp /usr/local/opt/mbedtls/lib/libmbedtls.12.dylib ./EBS.app/Contents/Frameworks/
-cp /usr/local/opt/mbedtls/lib/libmbedcrypto.3.dylib ./EBS.app/Contents/Frameworks/
-cp /usr/local/opt/mbedtls/lib/libmbedx509.0.dylib ./EBS.app/Contents/Frameworks/
-install_name_tool -change /usr/local/opt/mbedtls/lib/libmbedtls.12.dylib @executable_path/../Frameworks/libmbedtls.12.dylib ./EBS.app/Contents/Plugins/obs-outputs.so
-install_name_tool -change /usr/local/opt/mbedtls/lib/libmbedcrypto.3.dylib @executable_path/../Frameworks/libmbedcrypto.3.dylib ./EBS.app/Contents/Plugins/obs-outputs.so
-install_name_tool -change /usr/local/opt/mbedtls/lib/libmbedx509.0.dylib @executable_path/../Frameworks/libmbedx509.0.dylib ./EBS.app/Contents/Plugins/obs-outputs.so
-install_name_tool -change /usr/local/opt/curl/lib/libcurl.4.dylib @executable_path/../Frameworks/libcurl.4.dylib ./EBS.app/Contents/Plugins/obs-outputs.so
-install_name_tool -change @rpath/libobs.0.dylib @executable_path/../Frameworks/libobs.0.dylib ./EBS.app/Contents/Plugins/obs-outputs.so
+cp /usr/local/opt/mbedtls/lib/libmbedtls.12.dylib ./$APP_NAME.app/Contents/Frameworks/
+cp /usr/local/opt/mbedtls/lib/libmbedcrypto.3.dylib ./$APP_NAME.app/Contents/Frameworks/
+cp /usr/local/opt/mbedtls/lib/libmbedx509.0.dylib ./$APP_NAME.app/Contents/Frameworks/
+install_name_tool -change /usr/local/opt/mbedtls/lib/libmbedtls.12.dylib   @executable_path/../Frameworks/libmbedtls.12.dylib   ./$APP_NAME.app/Contents/Plugins/obs-outputs.so
+install_name_tool -change /usr/local/opt/mbedtls/lib/libmbedcrypto.3.dylib @executable_path/../Frameworks/libmbedcrypto.3.dylib ./$APP_NAME.app/Contents/Plugins/obs-outputs.so
+install_name_tool -change /usr/local/opt/mbedtls/lib/libmbedx509.0.dylib   @executable_path/../Frameworks/libmbedx509.0.dylib   ./$APP_NAME.app/Contents/Plugins/obs-outputs.so
+install_name_tool -change /usr/local/opt/curl/lib/libcurl.4.dylib          @executable_path/../Frameworks/libcurl.4.dylib       ./$APP_NAME.app/Contents/Plugins/obs-outputs.so
+install_name_tool -change @rpath/libobs.0.dylib                            @executable_path/../Frameworks/libobs.0.dylib        ./$APP_NAME.app/Contents/Plugins/obs-outputs.so
 
+# NOTE ALEX: no update 
 # copy sparkle into the app
-hr "Copying Sparkle.framework"
-cp -r ../../sparkle/Sparkle.framework ./EBS.app/Contents/Frameworks/
-install_name_tool -change @rpath/Sparkle.framework/Versions/A/Sparkle @executable_path/../Frameworks/Sparkle.framework/Versions/A/Sparkle ./EBS.app/Contents/MacOS/ebs
+# hr "Copying Sparkle.framework"
+# cp -r ../../sparkle/Sparkle.framework ./$APP_NAME.app/Contents/Frameworks/
+# install_name_tool -change @rpath/Sparkle.framework/Versions/A/Sparkle @executable_path/../Frameworks/Sparkle.framework/Versions/A/Sparkle ./$APP_NAME.app/Contents/MacOS/ebs
 
+# NOTE ALEX: enable CEF LATER
 # Copy Chromium embedded framework to app Frameworks directory
-hr "Copying Chromium Embedded Framework.framework"
-sudo mkdir -p EBS.app/Contents/Frameworks
-sudo cp -r ../../cef_binary_${CEF_BUILD_VERSION}_macosx64/Release/Chromium\ Embedded\ Framework.framework EBS.app/Contents/Frameworks/
+# hr "Copying Chromium Embedded Framework.framework"
+# sudo mkdir -p $APP_NAME.app/Contents/Frameworks
+# sudo cp -r ../../cef_binary_${CEF_BUILD_VERSION}_macosx64/Release/Chromium\ Embedded\ Framework.framework $APP_NAME.app/Contents/Frameworks/
 
-# install_name_tool -change /usr/local/opt/qt/lib/QtGui.framework/Versions/5/QtGui @executable_path/../Frameworks/QtGui.framework/Versions/5/QtGui ./EBS.app/Contents/Plugins/obs-browser.so
-# install_name_tool -change /usr/local/opt/qt/lib/QtCore.framework/Versions/5/QtCore @executable_path/../Frameworks/QtCore.framework/Versions/5/QtCore ./EBS.app/Contents/Plugins/obs-browser.so
-# install_name_tool -change /usr/local/opt/qt/lib/QtWidgets.framework/Versions/5/QtWidgets @executable_path/../Frameworks/QtWidgets.framework/Versions/5/QtWidgets ./EBS.app/Contents/Plugins/obs-browser.so
+# install_name_tool -change /usr/local/opt/qt/lib/QtGui.framework/Versions/5/QtGui         @executable_path/../Frameworks/QtGui.framework/Versions/5/QtGui         ./$APP_NAME.app/Contents/Plugins/obs-browser.so
+# install_name_tool -change /usr/local/opt/qt/lib/QtCore.framework/Versions/5/QtCore       @executable_path/../Frameworks/QtCore.framework/Versions/5/QtCore       ./$APP_NAME.app/Contents/Plugins/obs-browser.so
+# install_name_tool -change /usr/local/opt/qt/lib/QtWidgets.framework/Versions/5/QtWidgets @executable_path/../Frameworks/QtWidgets.framework/Versions/5/QtWidgets ./$APP_NAME.app/Contents/Plugins/obs-browser.so
 
-cp ../CI/install/osx/EBSPublicDSAKey.pem EBS.app/Contents/Resources
+cp ../CI/install/osx/$APP_NAMEPublicDSAKey.pem $APP_NAME.app/Contents/Resources
 
 # edit plist
-plutil -insert CFBundleVersion -string $DEPLOY_VERSION ./EBS.app/Contents/Info.plist
-plutil -insert CFBundleShortVersionString -string $DEPLOY_VERSION ./EBS.app/Contents/Info.plist
-# plutil -insert EBSFeedsURL -string https://obsproject.com/osx_update/feeds.xml ./EBS.app/Contents/Info.plist
-# plutil -insert SUFeedURL -string https://obsproject.com/osx_update/stable/updates.xml ./EBS.app/Contents/Info.plist
-plutil -insert SUPublicDSAKeyFile -string EBSPublicDSAKey.pem ./EBS.app/Contents/Info.plist
+plutil -insert CFBundleVersion -string $DEPLOY_VERSION ./$APP_NAME.app/Contents/Info.plist
+plutil -insert CFBundleShortVersionString -string $DEPLOY_VERSION ./$APP_NAME.app/Contents/Info.plist
+# plutil -insert $APP_NAMEFeedsURL -string https://obsproject.com/osx_update/feeds.xml ./$APP_NAME.app/Contents/Info.plist
+# plutil -insert SUFeedURL -string https://obsproject.com/osx_update/stable/updates.xml ./$APP_NAME.app/Contents/Info.plist
+plutil -insert SUPublicDSAKeyFile -string $APP_NAMEPublicDSAKey.pem ./$APP_NAME.app/Contents/Info.plist
 
-#dmgbuild -s ../CI/install/osx/settings.json "EBS" ebs.dmg
-dmgbuild "EBS" ebs.dmg
+# NOTE ALEX: to check
+# dmgbuild -s ../CI/install/osx/settings.json "$APP_NAME" ebs.dmg
+dmgbuild "$APP_NAME" $APP_NAME.dmg
 
 if [ -v "$TRAVIS" ]; then
 	# Signing stuff
@@ -84,5 +87,5 @@ packagesbuild ../CI/install/osx/CMakeLists.pkgproj
 # Move to the folder that travis uses to upload artifacts from
 hr "Moving package to nightly folder for distribution"
 mkdir -p nightly
-sudo mv OBS.pkg ./nightly/$FILENAME
+sudo mv $APP_NAME.pkg ./nightly/$FILENAME
 cd ..
