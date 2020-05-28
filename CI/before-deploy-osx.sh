@@ -15,7 +15,8 @@ export GIT_HASH=$(git rev-parse --short HEAD)
 export FILE_DATE=$(date +%Y-%m-%d.%H:%M:%S)
 export FILENAME=$APP_NAME-m$LIBWEBRTC_REVv$DEPLOY_VERSION-$FILE_DATE-$GIT_HASH-osx.pkg
 
-cd ./build
+# NOTE ALEX: fix me
+# cd ./build
 
 # Package everything into a nice .app
 hr "Packaging .app"
@@ -52,18 +53,20 @@ install_name_tool -change @rpath/libobs.0.dylib                            @exec
 # install_name_tool -change /usr/local/opt/qt/lib/QtCore.framework/Versions/5/QtCore       @executable_path/../Frameworks/QtCore.framework/Versions/5/QtCore       ./$APP_NAME.app/Contents/Plugins/obs-browser.so
 # install_name_tool -change /usr/local/opt/qt/lib/QtWidgets.framework/Versions/5/QtWidgets @executable_path/../Frameworks/QtWidgets.framework/Versions/5/QtWidgets ./$APP_NAME.app/Contents/Plugins/obs-browser.so
 
-cp ../CI/install/osx/$APP_NAMEPublicDSAKey.pem $APP_NAME.app/Contents/Resources
+# NOTE ALEX: fix me
+# cp ../CI/install/osx/$APP_NAMEPublicDSAKey.pem $APP_NAME.app/Contents/Resources
 
 # edit plist
 plutil -insert CFBundleVersion -string $DEPLOY_VERSION ./$APP_NAME.app/Contents/Info.plist
 plutil -insert CFBundleShortVersionString -string $DEPLOY_VERSION ./$APP_NAME.app/Contents/Info.plist
 # plutil -insert $APP_NAMEFeedsURL -string https://obsproject.com/osx_update/feeds.xml ./$APP_NAME.app/Contents/Info.plist
 # plutil -insert SUFeedURL -string https://obsproject.com/osx_update/stable/updates.xml ./$APP_NAME.app/Contents/Info.plist
-plutil -insert SUPublicDSAKeyFile -string $APP_NAMEPublicDSAKey.pem ./$APP_NAME.app/Contents/Info.plist
+# NOTE ALEX: fix me
+# plutil -insert SUPublicDSAKeyFile -string $APP_NAMEPublicDSAKey.pem ./$APP_NAME.app/Contents/Info.plist
 
 # NOTE ALEX: to check
 # dmgbuild -s ../CI/install/osx/settings.json "$APP_NAME" ebs.dmg
-dmgbuild "$APP_NAME" $APP_NAME.dmg
+dmgbuild "$APP_NAME" $FILENAME.dmg
 
 if [ -v "$TRAVIS" ]; then
 	# Signing stuff
@@ -80,12 +83,3 @@ if [ -v "$TRAVIS" ]; then
 	security set-key-partition-list -S apple-tool:,apple: -s -k mysecretpassword build.keychain
 fi
 
-# Package app
-hr "Generating .pkg"
-packagesbuild ../CI/install/osx/CMakeLists.pkgproj
-
-# Move to the folder that travis uses to upload artifacts from
-hr "Moving package to nightly folder for distribution"
-mkdir -p nightly
-sudo mv $APP_NAME.pkg ./nightly/$FILENAME
-cd ..
