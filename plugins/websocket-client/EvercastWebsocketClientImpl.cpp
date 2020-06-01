@@ -1,3 +1,5 @@
+// Copyright Dr. Alex. Gouaillard (2015, 2020)
+
 #include "EvercastWebsocketClientImpl.h"
 #include "nlohmann/json.hpp"
 
@@ -37,26 +39,31 @@ bool EvercastWebsocketClientImpl::connect(
         const std::string & raw_token,
         WebsocketClient::Listener * listener)
 {
+    using namespace std::placeholders;
+
     websocketpp::lib::error_code ec;
-    std::string url = sanitizeString(raw_url);
-    std::string room = sanitizeString(raw_room);
+    std::string url      = sanitizeString(raw_url);
+    std::string room     = sanitizeString(raw_room);
     std::string username = sanitizeString(raw_username);
-    std::string token = sanitizeString(raw_token);
+    std::string token    = sanitizeString(raw_token);
 
     // Reset login flag
     logged = false;
     try {
         // --- Message handler
         client.set_message_handler([=](
-                websocketpp::connection_hdl /* con */, message_ptr frame) {
+            websocketpp::connection_hdl /* con */, message_ptr frame) {
             const char* x = frame->get_payload().c_str();
             info("MESSAGE RECEIVED:\n%s\n", x);
-            auto msg = json::parse(frame->get_payload());
+            last_message_recd_time = std::chrono::system_clock::now();
+            json msg = json::parse(frame->get_payload());
 
             if (msg.find("janus") == msg.end())
                 return;
-            if (msg.find("ack") != msg.end())
-                return;
+            // NOTE ALEX: double check if this change is valid,
+            // and if it is needed for Janus too.
+            // if (msg.find("ack") != msg.end())
+            //    return;
 
             // Check if it is an event
             if (msg.find("jsep") != msg.end()) {
@@ -68,6 +75,12 @@ bool EvercastWebsocketClientImpl::connect(
 
             // Check type
             std::string event = msg["janus"];
+
+            // NOTE ALEX: double check if this change is valid,
+            // and if it is needed for Janus too.
+            if (event == "ack")
+              return;
+
             if (event.compare("success") == 0) {
                 if (msg.find("transaction") == msg.end())
                     return;
@@ -79,41 +92,48 @@ bool EvercastWebsocketClientImpl::connect(
                 if (!logged) {
                     // Get response code
                     session_id = data["id"];
-                    // Create handle command
-                    json attachPlugin = {
-                        { "janus", "attach" },
-                        { "transaction", std::to_string(rand()) },
-                        { "session_id", session_id },
-                        { "plugin", "janus.plugin.lua" }
-                    };
-                    // Serialize and send
-                    connection->send(attachPlugin.dump());
+                    sendAttachMessage();
                     logged = true;
                     // Keep the connection alive
                     is_running.store(true);
                     thread_keepAlive = std::thread([&]() {
-                        EvercastWebsocketClientImpl::keepConnectionAlive();
+                        keepConnectionAlive(listener);
                     });
                 } else { // logged
                     handle_id = data["id"];
-                    json joinRoom = {
-                        { "janus", "message" },
-                        { "transaction", std::to_string(rand()) },
-                        { "session_id", session_id },
-                        { "handle_id", handle_id },
-                        { "body",
-                            {
-                                { "room", room },
-                                { "display", "EBS" },
-                                { "ptype", "publisher" },
-                                { "request", "join" }
-                            }
-                        }
-                    };
-                    // Serialize and send
-                    connection->send(joinRoom.dump());
+                    sendJoinMessage(room);
                     // Launch logged event
                     listener->onLogged(session_id);
+                }
+            }
+
+            // Error response handling
+            if (event == "event")
+            {
+                int error_code = parsePluginErrorCode(msg);
+
+                if (error_code == EVERCAST_ERR_DUPLICATE_USER)
+                {
+                    // Someone is already using that ID, probably a previous version of us.  Log in with a fresh ID.
+                    logged = false;
+                    session_id = 0;
+                    handle_id = 0;
+                    sendLoginMessage(username, token, room);
+
+                    // Keepalive stuff to prevent doubling-up on keepalive threads
+                    is_running.store(false);
+                    if (thread_keepAlive.joinable())
+                    {
+                        thread_keepAlive.join();
+                    }
+
+                    // Launch logged event
+                    listener->onLogged(session_id);
+                    return;
+                }
+                else if (error_code != EVERCAST_SUCCESS)
+                {
+                     warn("Unexpected Evercast error response:\n%s\n", x);
                 }
             }
         });
@@ -122,33 +142,16 @@ bool EvercastWebsocketClientImpl::connect(
         client.set_open_handler([=](websocketpp::connection_hdl /* con */) {
             // Launch event
             listener->onConnected();
-            // Login command
-            json login = {
-                { "janus", "create" },
-                { "transaction", std::to_string(rand()) },
-                { "payload",
-                    {
-                        { "username", username },
-                        { "token", token },
-                        { "room", room }
-                    }
-                }
-            };
-            // Serialize and send
-            connection->send(login.dump());
+            sendLoginMessage(username, token, room);
         });
 
-        // --- Close hanlder
-        client.set_close_handler([=](...) {
-            info("> set_close_handler called");
-            listener->onDisconnected();
-        });
+        // --- Close handler
+         client.set_close_handler(
+           std::bind(&EvercastWebsocketClientImpl::handleDisconnect, this, _1, listener));
 
         // --- Failure handler
-        client.set_fail_handler([=](...) {
-            info("> set_fail_handler called");
-            listener->onDisconnected();
-        });
+         client.set_fail_handler(
+           std::bind(&EvercastWebsocketClientImpl::handleFail, this, _1, listener));
 
         // --- TLS handler
         client.set_tls_init_handler([&](websocketpp::connection_hdl /* con */) {
@@ -200,46 +203,13 @@ bool EvercastWebsocketClientImpl::open(
         const std::string & codec,
         const std::string & /* Id */)
 {
+    bool result = false;
     try {
-        json body_no_codec = {
-            { "request", "configure" },
-            { "muted", false },
-            { "video", true },
-            { "audio", true }
-        };
-        json body_with_codec = {
-            { "request", "configure" },
-            { "videocodec", codec },
-            { "muted", false },
-            { "video", true },
-            { "audio", true }
-        };
-        // Send offer
-        json open = {
-            { "janus", "message" },
-            { "session_id", session_id },
-            { "handle_id", handle_id },
-            { "transaction", std::to_string(rand()) },
-            { "body", codec.empty() ? body_no_codec : body_with_codec },
-            { "jsep",
-                {
-                    { "type", "offer" },
-                    { "sdp", sdp },
-                    { "trickle", true }
-                }
-            }
-        };
-        // Serialize and send
-        if (connection->send(open.dump())) {
-            warn("Error sending open message");
-            return false;
-        }
+        result = sendOpenMessage(sdp, codec);
     } catch (const websocketpp::exception & e) {
         warn("open exception: %s", e.what());
-        return false;
     }
-    // OK
-    return true;
+    return result;
 }
 
 bool EvercastWebsocketClientImpl::trickle(
@@ -248,81 +218,38 @@ bool EvercastWebsocketClientImpl::trickle(
         const std::string & candidate,
         bool last)
 {
+    bool result = false;
     try {
-        if (!last) {
-            json trickle = {
-                { "janus", "trickle" },
-                { "handle_id", handle_id },
-                { "session_id", session_id },
-                { "transaction", "trickle" + std::to_string(rand()) },
-                { "candidate",
-                    {
-                        { "sdpMid", mid },
-                        { "sdpMLineIndex", index },
-                        { "candidate", candidate }
-                    }
-                }
-            };
-            // Serialize and send
-            if (connection->send(trickle.dump()))
-                return false;
-            // OK
-            return true;
-        } else {
-            json trickle = {
-                { "janus", "trickle" },
-                { "handle_id", handle_id },
-                { "session_id", session_id },
-                { "transaction", "trickle" + std::to_string(rand()) },
-                { "candidate",
-                    {
-                        { "completed", true }
-                    }
-                }
-            };
-            // Serialize and send
-            if (connection->send(trickle.dump()))
-                return false;
-        }
+        result = sendTrickleMessage(mid, index, candidate, last);
     } catch (const websocketpp::exception & e) {
         warn("trickle exception: %s", e.what());
-        return false;
     }
-    // OK
-    return true;
+    return result;
 }
 
-void EvercastWebsocketClientImpl::keepConnectionAlive()
+void EvercastWebsocketClientImpl::keepConnectionAlive(WebsocketClient::Listener * listener)
 {
     while (is_running.load()) {
         if (connection) {
-            json keepaliveMsg = {
-                { "janus", "keepalive" },
-                { "session_id", session_id },
-                { "transaction", "keepalive-" + std::to_string(rand()) }
-            };
+            if (hasTimedOut()) {
+                warn("Connection timed Out.");
+                listener->onDisconnected();
+                break;
+            }
             try {
-                // Serialize and send
-                connection->send(keepaliveMsg.dump());
-            } catch (const websocketpp::exception & e) {
+                sendKeepAliveMessage();
+            } catch (const websocketpp::exception &e) {
                 warn("keepConnectionAlive exception: %s", e.what());
             }
         }
-        std::this_thread::sleep_for(std::chrono::seconds(2));
     }
 }
 
 void EvercastWebsocketClientImpl::destroy()
 {
     if (connection) {
-        json destroyMsg = {
-            { "janus", "destroy" },
-            { "session_id", session_id },
-            { "transaction", std::to_string(rand()) }
-        };
         try {
-            // Serialize and send
-            connection->send(destroyMsg.dump());
+            sendDestroyMessage();
         } catch (const websocketpp::exception & e) {
             warn("destroy exception: %s", e.what());
         }
@@ -338,7 +265,7 @@ bool EvercastWebsocketClientImpl::disconnect(bool wait)
     try {
         // Stop keepAlive
         if (thread_keepAlive.joinable()) {
-            is_running.store(false);
+           is_running.store(false);
             thread_keepAlive.join();
         }
         // Stop client
@@ -375,4 +302,215 @@ std::string EvercastWebsocketClientImpl::sanitizeString(const std::string & s)
     if (p != std::string::npos)
         _my_s.erase(p + 1);
     return _my_s;
+ }
+
+void EvercastWebsocketClientImpl::handleDisconnect(
+    websocketpp::connection_hdl connectionHdl,
+    WebsocketClient::Listener * listener)
+{
+    UNUSED_PARAMETER(connectionHdl);
+    
+    info("> set_close_handler > handleDisconnect called");
+    if (listener)
+    {
+        listener->onDisconnected();
+    }
 }
+
+void EvercastWebsocketClientImpl::handleFail(
+    websocketpp::connection_hdl connectionHdl,
+    WebsocketClient::Listener * listener)
+{
+    UNUSED_PARAMETER(connectionHdl);
+
+    info("> set_fail_handler > handleFail called");
+    if (listener)
+    {
+        if (hasTimedOut()) {
+             warn("Connection Timed out");
+             listener->onDisconnected();
+         } else {
+             listener->onLoggedError(-1);
+         }
+    }
+}
+
+void EvercastWebsocketClientImpl::sendKeepAliveMessage()
+{
+    json keepaliveMsg = {
+        {"janus",       "keepalive"},
+        {"session_id",  session_id},
+        {"transaction", "keepalive-" + std::to_string(rand())}
+    };
+    sendMessage(keepaliveMsg, "keep-alive");
+}
+
+bool EvercastWebsocketClientImpl::sendTrickleMessage(const std::string &mid, int index, const std::string &candidate, bool last)
+{
+    json trickle;
+    if (!last) {
+        trickle = {
+                { "janus", "trickle" },
+                { "handle_id", handle_id },
+                { "session_id", session_id },
+                { "transaction", "trickle" + std::to_string(rand()) },
+                { "candidate",
+                        {
+                                { "sdpMid", mid },
+                                { "sdpMLineIndex", index },
+                                { "candidate", candidate }
+                        }
+                }
+        };
+    }
+    else
+    {
+        trickle = {
+                { "janus", "trickle" },
+                { "handle_id", handle_id },
+                { "session_id", session_id },
+                { "transaction", "trickle" + std::to_string(rand()) },
+                { "candidate",
+                        {
+                                { "completed", true }
+                        }
+                }
+        };
+    }
+
+    return sendMessage(trickle, "trickle");
+}
+
+bool EvercastWebsocketClientImpl::sendOpenMessage(const std::string &sdp, const std::string &codec)
+{
+     json body_no_codec = {
+             { "request", "configure" },
+             { "muted", false },
+             { "video", true },
+             { "audio", true }
+     };
+     json body_with_codec = {
+             { "request", "configure" },
+             { "videocodec", codec },
+             { "muted", false },
+             { "video", true },
+             { "audio", true }
+     };
+     // Send offer
+     json open = {
+             { "janus", "message" },
+             { "session_id", session_id },
+             { "handle_id", handle_id },
+             { "transaction", std::to_string(rand()) },
+             { "body", codec.empty() ? body_no_codec : body_with_codec },
+             { "jsep",
+                     {
+                             { "type", "offer" },
+                             { "sdp", sdp },
+                             { "trickle", true }
+                     }
+             }
+     };
+
+      return sendMessage(open, "open");
+}
+
+void EvercastWebsocketClientImpl::sendLoginMessage(std::string username, std::string token, std::string room)
+{
+     // Login command
+     json login = {
+             { "janus", "create" },
+             { "transaction", std::to_string(rand()) },
+             { "payload",
+                     {
+                             { "username", username },
+                             { "token", token },
+                             { "room", room }
+                     }
+             }
+     };
+     sendMessage(login, "login");
+}
+
+void EvercastWebsocketClientImpl::sendAttachMessage()
+{
+     // Create handle command
+     json attachPlugin = {
+             { "janus", "attach" },
+             { "transaction", std::to_string(rand()) },
+             { "session_id", session_id },
+             { "plugin", "janus.plugin.lua" }
+     };
+     sendMessage(attachPlugin, "attach");
+}
+
+void EvercastWebsocketClientImpl::sendJoinMessage(std::string room)
+{
+    json joinRoom = {
+         { "janus", "message" },
+         { "transaction", std::to_string(rand()) },
+         { "session_id", session_id },
+         { "handle_id", handle_id },
+         { "body",
+                 {
+                             { "room", room },
+                             { "display", "EBS" },
+                             { "ptype", "publisher" },
+                             { "request", "join" }
+                 }
+         }
+    };
+    sendMessage(joinRoom, "join");
+}
+
+void EvercastWebsocketClientImpl::sendDestroyMessage()
+{
+    json destroyMsg = {
+             { "janus", "destroy" },
+             { "session_id", session_id },
+             { "transaction", std::to_string(rand()) }
+    };
+    sendMessage(destroyMsg, "destroy");
+}
+
+bool EvercastWebsocketClientImpl::sendMessage(json msg, const char *name)
+{
+    info("Sending %s message...", name);
+
+    // Serialize and send
+    if (connection->send(msg.dump()))
+    {
+        warn("Error sending %s message", name);
+        return false;
+    }
+
+    return true;
+}
+
+int EvercastWebsocketClientImpl::parsePluginErrorCode(json &msg)
+ {
+    if (msg.find("plugindata") == msg.end())
+        return 0;
+
+    auto plugindata = msg["plugindata"];
+    if (plugindata.find("data") == plugindata.end())
+        return 0;
+
+    auto data = plugindata["data"];
+
+    if (data.find("error_code") == data.end())
+        return 0;
+
+    int error_code = data["error_code"];
+    return error_code;
+}
+
+bool EvercastWebsocketClientImpl::hasTimedOut()
+{
+    auto current_time = std::chrono::system_clock::now();
+    std::chrono::duration<double> gap = current_time - last_message_recd_time;
+    return gap.count() > EVERCAST_MESSAGE_TIMEOUT;
+}
+
+
+

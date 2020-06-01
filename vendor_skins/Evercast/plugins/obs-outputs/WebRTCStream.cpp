@@ -25,10 +25,10 @@
 #include <algorithm>
 #include <locale>
 
-#define debug(format, ...) blog(LOG_DEBUG, format, ##__VA_ARGS__)
-#define info(format, ...) blog(LOG_INFO, format, ##__VA_ARGS__)
-#define warn(format, ...) blog(LOG_WARNING, format, ##__VA_ARGS__)
-#define error(format, ...) blog(LOG_ERROR, format, ##__VA_ARGS__)
+#define debug(format, ...) blog(LOG_DEBUG,   format, ##__VA_ARGS__)
+#define info(format, ...)  blog(LOG_INFO,    format, ##__VA_ARGS__)
+#define warn(format, ...)  blog(LOG_WARNING, format, ##__VA_ARGS__)
+#define error(format, ...) blog(LOG_ERROR,   format, ##__VA_ARGS__)
 
 class StatsCallback : public webrtc::RTCStatsCollectorCallback {
 public:
@@ -139,16 +139,58 @@ bool WebRTCStream::start(WebRTCStream::Type type)
     info("WebRTCStream::start");
     this->type = type;
 
-    obs_service_t *service = obs_output_get_service(output);
-    if (!service)
-        return false;
+    // Access service if started, or fail
 
-    // WebSocket URL sanity check
-    if (type != WebRTCStream::Type::Millicast && !obs_service_get_url(service)) {
-        warn("Invalid url");
+    obs_service_t *service = obs_output_get_service(output);
+    if (!service) {
+        obs_output_set_last_error(
+            output,
+            "An unexpected error occurred during stream startup.")
         obs_output_signal_stop(output, OBS_OUTPUT_CONNECT_FAILED);
         return false;
     }
+
+    // Extract setting from service
+
+    url      = obs_service_get_url(service)      ? obs_service_get_url(service)      : "";
+    room     = obs_service_get_room(service)     ? obs_service_get_room(service)     : "";
+    username = obs_service_get_username(service) ? obs_service_get_username(service) : "";
+    password = obs_service_get_password(service) ? obs_service_get_password(service) : "";
+    video_codec = obs_service_get_codec(service) ? obs_service_get_codec(service)    : "";
+    protocol = obs_service_get_protocol(service) ? obs_service_get_protocol(service) : "";
+    // Some extra log
+    info("Video codec: %s", video_codec.empty() ? "Automatic" : video_codec.c_str());
+    info("Protocol:    %s", protocol.empty()    ? "Automatic" : protocol.c_str());
+
+    // Stream setting sanity check
+
+    bool isServiceValid = true;
+    if (type != WebRTCStream::Type::Millicast) {
+        if (url.empty()) {
+            warn("Invalid url");
+            isServiceValid = false;
+        }
+        if (room.empty()) {
+            warn("Missing room ID");
+            isServiceValid = false;
+        }
+    } 
+    if (type != WebRTCStream::Type::Wowza) {
+        if (password.empty()) {
+            warn("Missing Password");
+            isServiceValid = false;
+        }
+    }
+    if (!isServiceValid) {
+        obs_output_set_last_error(
+            output,
+            "Your service settings are not complete. Open the settings => stream window and complete them.");
+        obs_output_signal_stop(output, OBS_OUTPUT_CONNECT_FAILED);
+        return false;
+    }
+
+    // Set up encoders.
+    // NOTE ALEX: should not be done for webrtc.
 
     obs_output_t *context = output;
 
@@ -183,6 +225,8 @@ bool WebRTCStream::start(WebRTCStream::Type type)
 
     if (!pc.get()) {
         error("Error creating Peer Connection");
+        obs_output-set-last-error(output, "There was an error connecting to the server. Are you connected to the internet?");
+        obs_output_signal_stop(output, OBS_OUTPUT_CONNECT_FAILED);
         return false;
     } else {
         info("PEER CONNECTION CREATED\n");
@@ -192,9 +236,9 @@ bool WebRTCStream::start(WebRTCStream::Type type)
     options.echo_cancellation.emplace(false); // default: true
     options.auto_gain_control.emplace(false); // default: true
     options.noise_suppression.emplace(false); // default: true
-    options.highpass_filter.emplace(false); // default: true
+    options.highpass_filter.emplace(false);   // default: true
     options.stereo_swapping.emplace(false);
-    options.typing_detection.emplace(false); // default: true
+    options.typing_detection.emplace(false);  // default: true
     options.experimental_agc.emplace(false);
     // m79 options.extended_filter_aec.emplace(false);
     // m79 options.delay_agnostic_aec.emplace(false);
@@ -218,6 +262,8 @@ bool WebRTCStream::start(WebRTCStream::Type type)
         // Close Peer Connection
         close(false);
         // Disconnect, this will call stop on main thread
+        obs_output_set_last_error(output,
+            "There was a problem connecting your source(s) to the webrtc stream. Do your sources appear to be working correctly?");
         obs_output_signal_stop(output, OBS_OUTPUT_CONNECT_FAILED);
         return false;
     }
@@ -228,26 +274,13 @@ bool WebRTCStream::start(WebRTCStream::Type type)
         // Close Peer Connection
         close(false);
         // Disconnect, this will call stop on main thread
+        obs_output_set_last_error(output,
+            "There was a problem creating the websocket connection.  Are you behind a firewall?");
         obs_output_signal_stop(output, OBS_OUTPUT_CONNECT_FAILED);
         return false;
     }
 
-    url = obs_service_get_url(service) ? obs_service_get_url(service) : "";
-    room = obs_service_get_room(service) ? obs_service_get_room(service) : "";
-    username = obs_service_get_username(service) ? obs_service_get_username(service) : "";
-    password = obs_service_get_password(service) ? obs_service_get_password(service) : "";
-    video_codec = obs_service_get_codec(service) ? obs_service_get_codec(service) : "";
-    protocol = obs_service_get_protocol(service) ? obs_service_get_protocol(service) : "";
-
-    // NOTE LUDO: #178 make sure video codec name is written with lower case characters
-/*    std::transform(video_codec.begin(), video_codec.end(), video_codec.begin(),
-		   [](unsigned char c) {
-			   std::locale loc;
-			   return std::tolower(c, loc);
-		   });
-*/
-    info("Video codec:      %s", video_codec.empty() ? "Automatic" : video_codec.c_str());
-    info("Protocol:         %s", protocol.empty() ? "Automatic" : protocol.c_str());
+    // Extra logging
 
     if (type == WebRTCStream::Type::Janus) {
         info("Server Room:      %s\nStream Key:       %s\n",
@@ -258,6 +291,7 @@ bool WebRTCStream::start(WebRTCStream::Type type)
     } else if (type == WebRTCStream::Type::Millicast) {
         info("Stream Name:      %s\nPublishing Token: %s\n",
                 username.c_str(), password.c_str());
+        // Note alex: What~~?
         url = "Millicast";
     } else if (type == WebRTCStream::Type::Evercast) {
         info("Server Room:      %s\nStream Key:       %s\n",
@@ -265,12 +299,14 @@ bool WebRTCStream::start(WebRTCStream::Type type)
     }
     info("CONNECTING TO %s", url.c_str());
 
-    // Connect to server
+    // Connect to the signalling server
     if (!client->connect(url, room, username, password, this)) {
         warn("Error connecting to server");
         // Shutdown websocket connection and close Peer Connection
         close(false);
         // Disconnect, this will call stop on main thread
+        obs_output_set_last_error(output,
+             "There was a problem connecting to your room.");
         obs_output_signal_stop(output, OBS_OUTPUT_CONNECT_FAILED);
         return false;
     }
@@ -350,6 +386,29 @@ void WebRTCStream::OnIceCandidate(const webrtc::IceCandidateInterface *candidate
     client->trickle(candidate->sdp_mid(), candidate->sdp_mline_index(), str, false);
 }
 
+void WebRTCStream::OnIceConnectionChange(
+  webrtc::PeerConnectionInterface::IceConnectionState state /* new_state */)
+{
+    using namespace webrtc;
+    info("WebRTCStream::OnIceConnectionChange [%u]", state);
+
+    switch (state) {
+        case PeerConnectionInterface::IceConnectionState::kIceConnectionFailed:
+            // Close must be carried out on a separate thread in order to avoid deadlock
+            thread_closeAsync = std::thread([&] () {
+                close(false);
+                obs_output_set_last_error(
+                    output,
+                    "We found your room, but streaming failed. Are you behind a firewall?\n\n"
+                );
+                // Disconnect, this will call stop on main thread
+                obs_output_signal_stop(output, OBS_OUTPUT_ERROR);
+             });
+             break;
+         default:
+             break;
+    }
+}
 void WebRTCStream::onRemoteIceCandidate(const std::string &sdpData)
 {
     if (sdpData.empty()) {
@@ -459,6 +518,8 @@ void WebRTCStream::onLoggedError(int code)
     // Shutdown websocket connection and close Peer Connection
     close(false);
     // Disconnect, this will call stop on main thread
+    obs_output_set_last_error(output,
+         "We are having trouble connecting to your room. Are you behind a firewall?\n");
     obs_output_signal_stop(output, OBS_OUTPUT_ERROR);
 }
 

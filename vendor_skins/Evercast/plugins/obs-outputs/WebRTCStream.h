@@ -1,4 +1,4 @@
-/* Copyright Dr. Alex. Gouaillard (2015, 2020) */
+// Copyright Dr. Alex. Gouaillard (2015, 2020)
 
 #ifndef _WEBRTCSTREAM_H_
 #define _WEBRTCSTREAM_H_
@@ -34,6 +34,7 @@
 #include <string>
 #include <vector>
 #include <chrono>
+#include <thread>
 
 class WebRTCStreamInterface :
   public WebsocketClient::Listener,
@@ -80,7 +81,7 @@ public:
   void OnRemoveStream(rtc::scoped_refptr<webrtc::MediaStreamInterface> /* stream */) override {}
   void OnDataChannel(rtc::scoped_refptr<webrtc::DataChannelInterface> /* channel */) override {}
   void OnRenegotiationNeeded() override {}
-  void OnIceConnectionChange(webrtc::PeerConnectionInterface::IceConnectionState /* new_state */) override {}
+  void OnIceConnectionChange(webrtc::PeerConnectionInterface::IceConnectionState /* new_state */) override;
   void OnIceGatheringChange(webrtc::PeerConnectionInterface::IceGatheringState /* new_state */) override {}
   void OnIceCandidate(const webrtc::IceCandidateInterface *candidate) override;
   void OnIceConnectionReceivingChange(bool /* receiving */) override {}
@@ -136,6 +137,8 @@ private:
   int      pli_received; // Picture Loss Indication
   std::chrono::system_clock::time_point previous_time = std::chrono::system_clock::time_point(std::chrono::duration<int>(0)); // Used to compute fps
   uint32_t previous_frames_sent = 0;
+
+  std::thread thread_closeAsync;
 
   rtc::CriticalSection crit_;
 

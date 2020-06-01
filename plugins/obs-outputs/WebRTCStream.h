@@ -30,6 +30,8 @@
 #include <regex>
 #include <string>
 #include <vector>
+#include <chrono>
+#include <thread>
 
 class WebRTCStreamInterface :
     public WebsocketClient::Listener,
@@ -76,7 +78,7 @@ public:
     void OnRemoveStream(rtc::scoped_refptr<webrtc::MediaStreamInterface> /* stream */) override {}
     void OnDataChannel(rtc::scoped_refptr<webrtc::DataChannelInterface> /* channel */) override {}
     void OnRenegotiationNeeded() override {}
-    void OnIceConnectionChange(webrtc::PeerConnectionInterface::IceConnectionState /* new_state */) override {}
+    void OnIceConnectionChange(webrtc::PeerConnectionInterface::IceConnectionState /* new_state */) override; 
     void OnIceGatheringChange(webrtc::PeerConnectionInterface::IceGatheringState /* new_state */) override {}
     void OnIceCandidate(const webrtc::IceCandidateInterface *candidate) override;
     void OnIceConnectionReceivingChange(bool /* receiving */) override {}
@@ -93,10 +95,13 @@ public:
     // SetRemoteDescriptionObserverInterface
     void OnSetRemoteDescriptionComplete(webrtc::RTCError error) override;
 
+    // NOTE LUDO: #80 add getStats
+    // WebRTC stats
+    void getStats();
+    const char *get_stats_list() { return stats_list.c_str(); }
     // Bitrate & dropped frames
-    uint64_t getBitrate();
-    int getDroppedFrames();
-
+    uint64_t getBitrate()        { return total_bytes_sent; }
+    int getDroppedFrames()       { return pli_received; }
     // Synchronously get stats
     rtc::scoped_refptr<const webrtc::RTCStatsReport> NewGetStats();
 
@@ -117,12 +122,22 @@ private:
     std::string protocol;
     std::string audio_codec;
     std::string video_codec;
+    int channel_count;
 
+    // NOTE LUDO: #80 add getStats
+    std::string stats_list;
     uint16_t frame_id;
     uint64_t audio_bytes_sent;
     uint64_t video_bytes_sent;
     uint64_t total_bytes_sent;
-    int pli_received; // Picture Loss Indication
+    int pli_received;
+    // Used to compute fps
+    // NOTE ALEX: Should be initialized in constructor.
+    std::chrono::system_clock::time_point previous_time
+       = std::chrono::system_clock::time_point(std::chrono::duration<int>(0));
+    uint32_t previous_frames_sent = 0;
+
+    std::thread thread_closeAsync;
 
     rtc::CriticalSection crit_;
 

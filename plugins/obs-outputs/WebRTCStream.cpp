@@ -1,3 +1,5 @@
+/* Copyright Dr. Alex. Gouaillard (2015, 2020) */
+
 #include "WebRTCStream.h"
 #include "SDPModif.h"
 
@@ -20,11 +22,13 @@
 #include <memory>
 #include <mutex>
 #include <thread>
+#include <algorithm>
+#include <locale>
 
-#define debug(format, ...) blog(LOG_DEBUG, format, ##__VA_ARGS__)
-#define info(format, ...) blog(LOG_INFO, format, ##__VA_ARGS__)
-#define warn(format, ...) blog(LOG_WARNING, format, ##__VA_ARGS__)
-#define error(format, ...) blog(LOG_ERROR, format, ##__VA_ARGS__)
+#define debug(format, ...) blog(LOG_DEBUG,   format, ##__VA_ARGS__)
+#define info(format, ...)  blog(LOG_INFO,    format, ##__VA_ARGS__)
+#define warn(format, ...)  blog(LOG_WARNING, format, ##__VA_ARGS__)
+#define error(format, ...) blog(LOG_ERROR,   format, ##__VA_ARGS__)
 
 class StatsCallback : public webrtc::RTCStatsCollectorCallback {
 public:
@@ -135,16 +139,58 @@ bool WebRTCStream::start(WebRTCStream::Type type)
     info("WebRTCStream::start");
     this->type = type;
 
-    obs_service_t *service = obs_output_get_service(output);
-    if (!service)
-        return false;
+    // Access service if started, or fail
 
-    // WebSocket URL sanity check
-    if (type != WebRTCStream::Type::Millicast && !obs_service_get_url(service)) {
-        warn("Invalid url");
+    obs_service_t *service = obs_output_get_service(output);
+    if (!service) {
+        obs_output_set_last_error(
+            output,
+            "An unexpected error occurred during stream startup.");
         obs_output_signal_stop(output, OBS_OUTPUT_CONNECT_FAILED);
         return false;
     }
+
+    // Extract setting from service
+
+    url      = obs_service_get_url(service)      ? obs_service_get_url(service)      : "";
+    room     = obs_service_get_room(service)     ? obs_service_get_room(service)     : "";
+    username = obs_service_get_username(service) ? obs_service_get_username(service) : "";
+    password = obs_service_get_password(service) ? obs_service_get_password(service) : "";
+    video_codec = obs_service_get_codec(service) ? obs_service_get_codec(service)    : "";
+    protocol = obs_service_get_protocol(service) ? obs_service_get_protocol(service) : "";
+    // Some extra log
+    info("Video codec: %s", video_codec.empty() ? "Automatic" : video_codec.c_str());
+    info("Protocol:    %s", protocol.empty()    ? "Automatic" : protocol.c_str());
+
+    // Stream setting sanity check
+
+    bool isServiceValid = true;
+    if (type != WebRTCStream::Type::Millicast) {
+        if (url.empty()) {
+            warn("Invalid url");
+            isServiceValid = false;
+        }
+        if (room.empty()) {
+            warn("Missing room ID");
+            isServiceValid = false;
+        }
+    } 
+    if (type != WebRTCStream::Type::Wowza) {
+        if (password.empty()) {
+            warn("Missing Password");
+            isServiceValid = false;
+        }
+    }
+    if (!isServiceValid) {
+        obs_output_set_last_error(
+            output,
+            "Your service settings are not complete. Open the settings => stream window and complete them.");
+        obs_output_signal_stop(output, OBS_OUTPUT_CONNECT_FAILED);
+        return false;
+    }
+
+    // Set up encoders.
+    // NOTE ALEX: should not be done for webrtc.
 
     obs_output_t *context = output;
 
@@ -179,6 +225,8 @@ bool WebRTCStream::start(WebRTCStream::Type type)
 
     if (!pc.get()) {
         error("Error creating Peer Connection");
+        obs_output_set_last_error(output, "There was an error connecting to the server. Are you connected to the internet?");
+        obs_output_signal_stop(output, OBS_OUTPUT_CONNECT_FAILED);
         return false;
     } else {
         info("PEER CONNECTION CREATED\n");
@@ -192,6 +240,8 @@ bool WebRTCStream::start(WebRTCStream::Type type)
     options.stereo_swapping.emplace(false);
     options.typing_detection.emplace(false);  // default: true
     options.experimental_agc.emplace(false);
+    // m79 options.extended_filter_aec.emplace(false);
+    // m79 options.delay_agnostic_aec.emplace(false);
     options.experimental_ns.emplace(false);
     options.residual_echo_detector.emplace(false); // default: true
     // options.tx_agc_limiter.emplace(false);
@@ -212,6 +262,8 @@ bool WebRTCStream::start(WebRTCStream::Type type)
         // Close Peer Connection
         close(false);
         // Disconnect, this will call stop on main thread
+        obs_output_set_last_error(output,
+            "There was a problem connecting your source(s) to the webrtc stream. Do your sources appear to be working correctly?");
         obs_output_signal_stop(output, OBS_OUTPUT_CONNECT_FAILED);
         return false;
     }
@@ -222,19 +274,13 @@ bool WebRTCStream::start(WebRTCStream::Type type)
         // Close Peer Connection
         close(false);
         // Disconnect, this will call stop on main thread
+        obs_output_set_last_error(output,
+            "There was a problem creating the websocket connection.  Are you behind a firewall?");
         obs_output_signal_stop(output, OBS_OUTPUT_CONNECT_FAILED);
         return false;
     }
 
-    url = obs_service_get_url(service) ? obs_service_get_url(service) : "";
-    room = obs_service_get_room(service) ? obs_service_get_room(service) : "";
-    username = obs_service_get_username(service) ? obs_service_get_username(service) : "";
-    password = obs_service_get_password(service) ? obs_service_get_password(service) : "";
-    video_codec = obs_service_get_codec(service) ? obs_service_get_codec(service) : "";
-    protocol = obs_service_get_protocol(service) ? obs_service_get_protocol(service) : "";
-
-    info("Video codec:      %s", video_codec.empty() ? "Automatic" : video_codec.c_str());
-    info("Protocol:         %s", protocol.empty() ? "Automatic" : protocol.c_str());
+    // Extra logging
 
     if (type == WebRTCStream::Type::Janus) {
         info("Server Room:      %s\nStream Key:       %s\n",
@@ -245,6 +291,7 @@ bool WebRTCStream::start(WebRTCStream::Type type)
     } else if (type == WebRTCStream::Type::Millicast) {
         info("Stream Name:      %s\nPublishing Token: %s\n",
                 username.c_str(), password.c_str());
+        // Note alex: What~~?
         url = "Millicast";
     } else if (type == WebRTCStream::Type::Evercast) {
         info("Server Room:      %s\nStream Key:       %s\n",
@@ -252,12 +299,14 @@ bool WebRTCStream::start(WebRTCStream::Type type)
     }
     info("CONNECTING TO %s", url.c_str());
 
-    // Connect to server
+    // Connect to the signalling server
     if (!client->connect(url, room, username, password, this)) {
         warn("Error connecting to server");
         // Shutdown websocket connection and close Peer Connection
         close(false);
         // Disconnect, this will call stop on main thread
+        obs_output_set_last_error(output,
+             "There was a problem connecting to your room.");
         obs_output_signal_stop(output, OBS_OUTPUT_CONNECT_FAILED);
         return false;
     }
@@ -335,6 +384,30 @@ void WebRTCStream::OnIceCandidate(const webrtc::IceCandidateInterface *candidate
     candidate->ToString(&str);
     // Send candidate to remote peer
     client->trickle(candidate->sdp_mid(), candidate->sdp_mline_index(), str, false);
+}
+
+void WebRTCStream::OnIceConnectionChange(
+  webrtc::PeerConnectionInterface::IceConnectionState state /* new_state */)
+{
+    using namespace webrtc;
+    info("WebRTCStream::OnIceConnectionChange [%u]", state);
+
+    switch (state) {
+        case PeerConnectionInterface::IceConnectionState::kIceConnectionFailed:
+            // Close must be carried out on a separate thread in order to avoid deadlock
+            thread_closeAsync = std::thread([&] () {
+                close(false);
+                obs_output_set_last_error(
+                    output,
+                    "We found your room, but streaming failed. Are you behind a firewall?\n\n"
+                );
+                // Disconnect, this will call stop on main thread
+                obs_output_signal_stop(output, OBS_OUTPUT_ERROR);
+             });
+             break;
+         default:
+             break;
+    }
 }
 
 void WebRTCStream::onRemoteIceCandidate(const std::string &sdpData)
@@ -434,10 +507,17 @@ bool WebRTCStream::stop()
 void WebRTCStream::onDisconnected()
 {
     info("WebRTCStream::onDisconnected");
-    // Shutdown websocket connection and close Peer Connection
-    close(false);
-    // Disconnect, this will call stop on main thread
-    obs_output_signal_stop(output, OBS_OUTPUT_ERROR);
+
+    // are we done retrying?
+    if (thread_closeAsync.joinable())
+        thread_closeAsync.join();
+
+    // Shutdown websocket connection and close Peer Connection asynchronously
+    thread_closeAsync = std::thread([&]() {
+        close(false);
+        // Disconnect, this will call stop on main thread
+        obs_output_signal_stop(output, OBS_OUTPUT_DISCONNECTED);
+    });
 }
 
 void WebRTCStream::onLoggedError(int code)
@@ -446,6 +526,8 @@ void WebRTCStream::onLoggedError(int code)
     // Shutdown websocket connection and close Peer Connection
     close(false);
     // Disconnect, this will call stop on main thread
+    obs_output_set_last_error(output,
+         "We are having trouble connecting to your room. Are you behind a firewall?\n");
     obs_output_signal_stop(output, OBS_OUTPUT_ERROR);
 }
 
@@ -472,6 +554,10 @@ void WebRTCStream::onVideoFrame(video_data *frame)
         return;
     if (!videoCapturer)
         return;
+
+    if (std::chrono::system_clock::time_point(std::chrono::duration<int>(0)) == previous_time)
+      // First frame sent: Initialize previous_time
+      previous_time = std::chrono::system_clock::now();
 
     // Calculate size
     int outputWidth = obs_output_get_width(output);
@@ -521,32 +607,146 @@ void WebRTCStream::onVideoFrame(video_data *frame)
     videoCapturer->OnFrameCaptured(video_frame);
 }
 
-uint64_t WebRTCStream::getBitrate()
+// NOTE LUDO: #80 add getStats
+void WebRTCStream::getStats()
 {
-    rtc::scoped_refptr<const webrtc::RTCStatsReport> report = NewGetStats();
+  rtc::scoped_refptr<const webrtc::RTCStatsReport> report = NewGetStats();
+  if (nullptr == report) {
+    return;
+  }
+  stats_list = "";
 
-    if (nullptr == report) {
-      return (uint64_t)(0);
+  std::vector<const webrtc::RTCOutboundRTPStreamStats*> send_stream_stats =
+          report->GetStatsOfType<webrtc::RTCOutboundRTPStreamStats>();
+  for (const auto& stat : send_stream_stats) {
+    if (stat->kind.ValueToString() == "audio") {
+      audio_bytes_sent = std::stoll(stat->bytes_sent.ValueToJson());
     }
-
-    std::vector<const webrtc::RTCOutboundRTPStreamStats*> send_stream_stats =
-            report->GetStatsOfType<webrtc::RTCOutboundRTPStreamStats>();
-
-    for (const auto& stat : send_stream_stats) {
-        if (stat->kind.ValueToString() == "audio")
-            audio_bytes_sent = std::stoll(stat->bytes_sent.ValueToJson());
-        if (stat->kind.ValueToString() == "video") {
-            video_bytes_sent = std::stoll(stat->bytes_sent.ValueToJson());
-            pli_received = std::stoi(stat->pli_count.ValueToJson());
-        }
+    if (stat->kind.ValueToString() == "video") {
+      video_bytes_sent = std::stoll(stat->bytes_sent.ValueToJson());
+      pli_received = std::stoi(stat->pli_count.ValueToJson());
     }
-    total_bytes_sent = audio_bytes_sent + video_bytes_sent;
-    return total_bytes_sent;
-}
+  }
+  total_bytes_sent = audio_bytes_sent + video_bytes_sent;
 
-int WebRTCStream::getDroppedFrames()
-{
-    return pli_received;
+  // RTCDataChannelStats
+  std::vector<const webrtc::RTCDataChannelStats*> data_channel_stats =
+          report->GetStatsOfType<webrtc::RTCDataChannelStats>();
+  for (const auto& stat : data_channel_stats) {
+    stats_list += "data_messages_sent:"     + stat->messages_sent.ValueToJson() + "\n";
+    stats_list += "data_bytes_sent:"        + stat->bytes_sent.ValueToJson() + "\n";
+    stats_list += "data_messages_received:" + stat->messages_received.ValueToJson() + "\n";
+    stats_list += "data_bytes_received:"    + stat->bytes_received.ValueToJson() + "\n";
+  }
+
+  // RTCMediaStreamTrackStats
+  // double audio_track_jitter_buffer_delay = 0.0;
+  // double video_track_jitter_buffer_delay = 0.0;
+  // uint64_t audio_track_jitter_buffer_emitted_count = 0;
+  // uint64_t video_track_jitter_buffer_emitted_count = 0;
+  std::vector<const webrtc::RTCMediaStreamTrackStats*> media_stream_track_stats =
+          report->GetStatsOfType<webrtc::RTCMediaStreamTrackStats>();
+  for (const auto& stat : media_stream_track_stats) {
+    if (stat->kind.ValueToString() == "audio") {
+      stats_list += "track_audio_level:"            + stat->audio_level.ValueToJson() + "\n";
+      stats_list += "track_total_audio_energy:"     + stat->total_audio_energy.ValueToJson() + "\n";
+      // stats_list += "track_echo_return_loss:"   + stat->echo_return_loss.ValueToJson() + "\n";
+      // stats_list += "track_echo_return_loss_enhancement:" + stat->echo_return_loss_enhancement.ValueToJson() + "\n";
+      // stats_list += "track_total_samples_received:" + stat->total_samples_received.ValueToJson() + "\n";
+      stats_list += "track_total_samples_duration:" + stat->total_samples_duration.ValueToJson() + "\n";
+      // stats_list += "track_concealed_samples:" + stat->concealed_samples.ValueToJson() + "\n";
+      // stats_list += "track_concealment_events:" + stat->concealment_events.ValueToJson() + "\n";
+    }
+    if (stat->kind.ValueToString() == "video") {
+      // stats_list += "track_jitter_buffer_delay:"    + stat->jitter_buffer_delay.ValueToJson() + "\n";
+      // stats_list += "track_jitter_buffer_emitted_count:" + stat->jitter_buffer_emitted_count.ValueToJson() + "\n";
+      stats_list += "track_frame_width:"            + stat->frame_width.ValueToJson() + "\n";
+      stats_list += "track_frame_height:"           + stat->frame_height.ValueToJson() + "\n";
+      stats_list += "track_frames_sent:"            + stat->frames_sent.ValueToJson() + "\n";
+      stats_list += "track_huge_frames_sent:"       + stat->huge_frames_sent.ValueToJson() + "\n";
+ 
+      // FPS = frames_sent / (time_now - start_time)
+      std::chrono::system_clock::time_point time_now = std::chrono::system_clock::now();
+      std::chrono::duration<double> elapsed_seconds = time_now - previous_time;
+      previous_time = time_now;
+      uint32_t frames_sent = std::stol(stat->frames_sent.ValueToJson());
+      stats_list += "track_fps:" + std::to_string((frames_sent - previous_frames_sent) / elapsed_seconds.count()) + "\n";
+      previous_frames_sent = frames_sent;
+
+      // stats_list += "track_frames_received:"        + stat->frames_received.ValueToJson() + "\n";
+      // stats_list += "track_frames_decoded:"         + stat->frames_decoded.ValueToJson() + "\n";
+      // stats_list += "track_frames_dropped:"         + stat->frames_dropped.ValueToJson() + "\n";
+      // stats_list += "track_frames_corrupted:"       + stat->frames_corrupted.ValueToJson() + "\n";
+      // stats_list += "track_partial_frames_lost:"    + stat->partial_frames_lost.ValueToJson() + "\n";
+      // stats_list += "track_full_frames_lost:"       + stat->full_frames_lost.ValueToJson() + "\n";
+    }
+  }
+
+  // RTCPeerConnectionStats
+  // std::vector<const webrtc::RTCPeerConnectionStats*> pc_stats =
+  //         report->GetStatsOfType<webrtc::RTCPeerConnectionStats>();
+  // for (const auto& stat : pc_stats) {
+  //   stats_list += "data_channels_opened:" + stat->data_channels_opened.ValueToJson() + "\n";
+  //   stats_list += "data_channels_closed:" + stat->data_channels_closed.ValueToJson() + "\n";
+  // }
+
+  // RTCRTPStreamStats
+  // std::vector<const webrtc::RTCRTPStreamStats*> rtcrtp_stats =
+  //         report->GetStatsOfType<webrtc::RTCRTPStreamStats>();
+  // for (const auto& stat : rtcrtp_stats) {
+  //   if (stat->kind.ValueToString() == "video") {
+  //     stats_list += "rtcrtp_fir_count:" + stat->fir_count.ValueToJson() + "\n";
+  //     stats_list += "rtcrtp_pli_count:" + stat->pli_count.ValueToJson() + "\n";
+  //     stats_list += "rtcrtp_nack_count:" + stat->nack_count.ValueToJson() + "\n";
+  //     stats_list += "rtcrtp_sli_count:" + stat->sli_count.ValueToJson() + "\n";
+  //     stats_list += "rtcrtp_qp_sum:" + stat->qp_sum.ValueToJson() + "\n";
+  //   }
+  // }
+
+  // RTCInboundRTPStreamStats
+  // std::vector<const webrtc::RTCInboundRTPStreamStats*> inbound_stream_stats =
+  //         report->GetStatsOfType<webrtc::RTCInboundRTPStreamStats>();
+  // for (const auto& stat : inbound_stream_stats) {
+  //   stats_list += "inbound_stream_packets_received:"        + stat->packets_received.ValueToJson() + "\n";
+  //   stats_list += "inbound_stream_bytes_received:"          + stat->bytes_received.ValueToJson() + "\n";
+  //   stats_list += "inbound_stream_packets_lost:"            + stat->packets_lost.ValueToJson() + "\n";
+
+  //   if (stat->kind.ValueToString() == "audio") {
+  //     stats_list += "inbound_stream_jitter:" + stat->jitter.ValueToJson() + "\n";
+  //   }
+  // }
+
+  // RTCOutboundRTPStreamStats
+  std::vector<const webrtc::RTCOutboundRTPStreamStats*> outbound_stream_stats =
+          report->GetStatsOfType<webrtc::RTCOutboundRTPStreamStats>();
+  for (const auto& stat : outbound_stream_stats) {
+    if (stat->kind.ValueToString() == "audio") {
+      stats_list += "outbound_audio_packets_sent:"   + stat->packets_sent.ValueToJson() + "\n";
+      stats_list += "outbound_audio_bytes_sent:"     + stat->bytes_sent.ValueToJson() + "\n";
+      // stats_list += "outbound_audio_target_bitrate:" + stat->target_bitrate.ValueToJson() + "\n";
+      // stats_list += "outbound_audio_frames_encoded:" + stat->frames_encoded.ValueToJson() + "\n";
+    }
+    if (stat->kind.ValueToString() == "video") {
+      stats_list += "outbound_video_packets_sent:"   + stat->packets_sent.ValueToJson() + "\n";
+      stats_list += "outbound_video_bytes_sent:"     + stat->bytes_sent.ValueToJson() + "\n";
+      // stats_list += "outbound_video_target_bitrate:" + stat->target_bitrate.ValueToJson() + "\n";
+      // stats_list += "outbound_video_frames_encoded:" + stat->frames_encoded.ValueToJson() + "\n";
+      stats_list += "outbound_video_fir_count:"      + stat->fir_count.ValueToJson() + "\n";
+      stats_list += "outbound_video_pli_count:"      + stat->pli_count.ValueToJson() + "\n";
+      stats_list += "outbound_video_nack_count:"     + stat->nack_count.ValueToJson() + "\n";
+      // stats_list += "outbound_video_sli_count:"      + stat->sli_count.ValueToJson() + "\n";
+      stats_list += "outbound_video_qp_sum:"         + stat->qp_sum.ValueToJson() + "\n";
+    }
+  }
+
+  // RTCTransportStats
+  std::vector<const webrtc::RTCTransportStats*> transport_stats =
+          report->GetStatsOfType<webrtc::RTCTransportStats>();
+  for (const auto& stat : transport_stats) {
+    stats_list += "transport_bytes_sent:"     + stat->bytes_sent.ValueToJson() + "\n";
+    stats_list += "transport_bytes_received:" + stat->bytes_received.ValueToJson() + "\n";
+  }
+
 }
 
 rtc::scoped_refptr<const webrtc::RTCStatsReport> WebRTCStream::NewGetStats()
@@ -558,7 +758,7 @@ rtc::scoped_refptr<const webrtc::RTCStatsReport> WebRTCStream::NewGetStats()
     }
 
     rtc::scoped_refptr<StatsCallback> stats_callback =
-            new rtc::RefCountedObject<StatsCallback>();
+        new rtc::RefCountedObject<StatsCallback>();
 
     pc->GetStats(stats_callback);
 

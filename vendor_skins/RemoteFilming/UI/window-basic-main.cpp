@@ -5258,12 +5258,13 @@ void OBSBasic::StreamingStop(int code, QString last_error)
 
 	} else if (code != OBS_OUTPUT_SUCCESS && isVisible()) {
 		OBSMessageBox::information(this,
-					   QTStr("Output.ConnectFail.Title"),
-					   QT_UTF8(errorMessage));
+			QTStr("Output.ConnectFail.Title"),
+			QT_UTF8(errorMessage),
+                        use_last_error);
 
 	} else if (code != OBS_OUTPUT_SUCCESS && !isVisible()) {
 		SysTrayNotify(QT_UTF8(errorDescription),
-			      QSystemTrayIcon::Warning);
+			QSystemTrayIcon::Warning);
 	}
 
 	if (!startStreamMenu.isNull()) {
