@@ -32,19 +32,6 @@ OBSAbout::OBSAbout(QWidget *parent) : QDialog(parent), ui(new Ui::OBSAbout)
 
 	ui->version->setText(ver + bitness);
 
-	ui->contribute->setText(QTStr("About.Contribute"));
-	ui->donate->setText(
-		"&nbsp;&nbsp;<a href='https://obsproject.com/donate'>" +
-		QTStr("About.Donate") + "</a>");
-	ui->donate->setTextInteractionFlags(Qt::TextBrowserInteraction);
-	ui->donate->setOpenExternalLinks(true);
-
-	ui->getInvolved->setText(
-		"&nbsp;&nbsp;<a href='https://github.com/obsproject/obs-studio/blob/master/CONTRIBUTING.rst'>" +
-		QTStr("About.GetInvolved") + "</a>");
-	ui->getInvolved->setTextInteractionFlags(Qt::TextBrowserInteraction);
-	ui->getInvolved->setOpenExternalLinks(true);
-
 	ui->about->setText("<a href='#'>" + QTStr("About") + "</a>");
 	ui->authors->setText("<a href='#'>" + QTStr("About.Authors") + "</a>");
 	ui->license->setText("<a href='#'>" + QTStr("About.License") + "</a>");
@@ -54,9 +41,8 @@ OBSAbout::OBSAbout(QWidget *parent) : QDialog(parent), ui(new Ui::OBSAbout)
 	ui->about->setProperty("themeID", "aboutHLayout");
 	ui->authors->setProperty("themeID", "aboutHLayout");
 	ui->license->setProperty("themeID", "aboutHLayout");
-	ui->info->setProperty("themeID", "aboutInfo");
 
-	connect(ui->about, SIGNAL(clicked()), this, SLOT(ShowAbout()));
+	connect(ui->about,   SIGNAL(clicked()), this, SLOT(ShowAbout()));
 	connect(ui->authors, SIGNAL(clicked()), this, SLOT(ShowAuthors()));
 	connect(ui->license, SIGNAL(clicked()), this, SLOT(ShowLicense()));
 
@@ -84,7 +70,7 @@ void OBSAbout::ShowAbout()
 {
 	OBSBasic *main = OBSBasic::Get();
         QString text;
-	text += "<h1>Remote Filming Studio is for live single and multi camera film shoot streaming</h1>";
+	text += "<h3>Remote Filming Studio is for live single and multi camera film shoot streaming</h3>";
 	ui->textBrowser->setHtml(text);
 }
 

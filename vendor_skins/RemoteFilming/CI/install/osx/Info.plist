@@ -4,6 +4,8 @@
 <dict>
  	<key>CFBundleIconFile</key>
  	<string>OBS.icns</string>
+        <key>CFBundleDisplayName</key>
+        <string>Remote Filming Studio</string>
  	<key>CFBundleName</key>
  	<string>RemoteFilmingStudio</string>
  	<key>CFBundleGetInfoString</key>

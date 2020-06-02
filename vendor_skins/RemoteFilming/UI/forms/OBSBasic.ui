@@ -401,8 +401,6 @@
     <property name="title">
      <string>Basic.MainMenu.Tools</string>
     </property>
-    <addaction name="autoConfigure"/>
-    <addaction name="separator"/>
    </widget>
    <addaction name="menu_File"/>
    <addaction name="menuBasic_MainMenu_Edit"/>
@@ -1516,6 +1514,9 @@
    <property name="text">
     <string>Basic.MainMenu.Help.CheckForUpdates</string>
    </property>
+   <property name="visible">
+    <bool>false</bool>
+   </property>
   </action>
   <action name="actionInteract">
    <property name="text">
@@ -1762,6 +1763,9 @@
    <property name="text">
     <string>Basic.MainMenu.Help.HelpPortal</string>
    </property>
+   <property name="visible">
+    <bool>false</bool>
+   </property>
   </action>
   <action name="actionShowCrashLogs">
    <property name="text">
@@ -1779,6 +1783,9 @@
    </property>
    <property name="text">
     <string>Basic.MainMenu.Help.Discord</string>
+   </property>
+   <property name="visible">
+    <bool>false</bool>
    </property>
   </action>
   <action name="toggleStats">
