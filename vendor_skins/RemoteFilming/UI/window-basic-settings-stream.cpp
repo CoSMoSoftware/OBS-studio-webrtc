@@ -54,7 +54,7 @@ inline int OBSBasicSettings::IsWebRTC() const
 	// if (ui->service->currentData().toInt() > (int)ListOpt::Custom)
 	// 	return ui->service->currentData().toInt();
 	// return 0;
-  	return ui->serviceButtonGroup->checkedId();
+  	return 1;
 }
 
 void OBSBasicSettings::InitStreamPage()
@@ -88,6 +88,7 @@ void OBSBasicSettings::InitStreamPage()
 		SLOT(UpdateServerList()));
   	connect(ui->serviceButtonGroup, SIGNAL(buttonClicked(int)), this,
 		SLOT(UpdateKeyLink()));
+
 }
 
 void OBSBasicSettings::LoadStream1Settings()
@@ -141,7 +142,7 @@ void OBSBasicSettings::LoadStream1Settings()
 
 		tmpString = obs_data_get_string(settings, "codec");
 		const char *codec =
-               // NOTE LUDO: #172 codecs list of radio buttons
+                // NOTE LUDO: #172 codecs list of radio buttons
 		// 	strcmp("", tmpString) == 0 ? "Automatic" : tmpString;
 			strcmp("", tmpString) == 0 ? "vp9" : tmpString;
 
@@ -200,7 +201,7 @@ void OBSBasicSettings::LoadStream1Settings()
 	ui->key->setText(key);
 
 	lastService.clear();
-	on_service_currentIndexChanged(0);
+	on_service_currentIndexChanged(1);
 
 	obs_data_release(settings);
 
@@ -250,7 +251,7 @@ void OBSBasicSettings::SaveStream1Settings()
 	} else if (webrtc > 0) {
 		obs_data_set_string(settings, "server",
         			// NOTE LUDO: #185 Settings/Stream replace server name QStackedWidget
-                              // by a QLineEdit
+                                // by a QLineEdit
 				// QT_TO_UTF8(ui->customServer->text()));
         			QT_TO_UTF8(ui->serverName->text()));
 		obs_data_set_string(settings, "room",
@@ -453,7 +454,7 @@ void OBSBasicSettings::on_service_currentIndexChanged(int)
 						   ui->authUsername);
 		ui->streamkeyPageLayout->insertRow(5, ui->authPwLabel,
 						   ui->authPwWidget);
-               // NOTE LUDO: #172 codecs list of radio buttons
+                // NOTE LUDO: #172 codecs list of radio buttons
 		// ui->streamkeyPageLayout->insertRow(6, ui->codecLabel,
 		// 				   ui->codec);
 		ui->streamkeyPageLayout->insertRow(7, ui->streamProtocolLabel,
@@ -468,7 +469,7 @@ void OBSBasicSettings::on_service_currentIndexChanged(int)
 		ui->room->setVisible(false);
 		on_useAuth_toggled();
 		ui->codecLabel->setVisible(false);
-               // NOTE LUDO: #172 codecs list of radio buttons
+                // NOTE LUDO: #172 codecs list of radio buttons
 		// ui->codec->setVisible(false);
 		ui->streamProtocolLabel->setVisible(false);
 		ui->streamProtocol->setVisible(false);
@@ -482,13 +483,13 @@ void OBSBasicSettings::on_service_currentIndexChanged(int)
 		// ui->serverStackedWidget->setVisible(true);
     		// NOTE LUDO: #173 replace Settings/Stream service Evercast combo box by a radio button
 		// obs_properties_t *props = obs_get_service_properties(webrtc_services[(int)webrtc - 3].c_str());
-		obs_properties_t *props = obs_get_service_properties("webrtc_evercast");
-		obs_property_t *server = obs_properties_get(props, "server");
-		obs_property_t *room = obs_properties_get(props, "room");
-		obs_property_t *username = obs_properties_get(props, "username");
-		obs_property_t *password = obs_properties_get(props, "password");
-		obs_property_t *codec = obs_properties_get(props, "codec");
-		obs_property_t *protocol = obs_properties_get(props, "protocol");
+		obs_properties_t *props    = obs_get_service_properties("webrtc_millicast");
+		obs_property_t   *server   = obs_properties_get(props, "server");
+		obs_property_t   *room     = obs_properties_get(props, "room");
+		obs_property_t   *username = obs_properties_get(props, "username");
+		obs_property_t   *password = obs_properties_get(props, "password");
+		obs_property_t   *codec    = obs_properties_get(props, "codec");
+		obs_property_t   *protocol = obs_properties_get(props, "protocol");
 		ui->serverLabel->setText(obs_property_description(server));
 		ui->roomLabel->setText(obs_property_description(room));
 		ui->authUsernameLabel->setText(obs_property_description(username));
@@ -497,7 +498,7 @@ void OBSBasicSettings::on_service_currentIndexChanged(int)
 		if (obs_property_visible(server)) {
 			ui->streamkeyPageLayout->insertRow(min_idx, ui->serverLabel,
                 	// NOTE LUDO: #185 Settings/Stream replace server name QStackedWidget by a QLineEdit
-							  //  ui->serverStackedWidget);
+			//  ui->serverStackedWidget);
                 	ui->serverName);
 			min_idx++;
 		}
@@ -506,7 +507,7 @@ void OBSBasicSettings::on_service_currentIndexChanged(int)
 							   ui->room);
 			min_idx++;
 		}
-		if (obs_property_visible(username)) {
+		if (true) { // NOTE ALEX: FIXME obs_property_visible(username)) {
 			ui->streamkeyPageLayout->insertRow(min_idx, ui->authUsernameLabel,
 							   ui->authUsername);
 			min_idx++;
@@ -533,8 +534,8 @@ void OBSBasicSettings::on_service_currentIndexChanged(int)
     		ui->serverName->setVisible(obs_property_visible(server));
 		ui->roomLabel->setVisible(obs_property_visible(room));
 		ui->room->setVisible(obs_property_visible(room));
-		ui->authUsernameLabel->setVisible(obs_property_visible(username));
-		ui->authUsername->setVisible(obs_property_visible(username));
+		ui->authUsernameLabel->setVisible(true); // NOTE ALEX: FIXME obs_property_visible(username));
+		ui->authUsername->setVisible(true); // NOTE ALEX: FIXME obs_property_visible(username));
 		ui->authPwLabel->setVisible(obs_property_visible(password));
 		ui->authPwWidget->setVisible(obs_property_visible(password));
 		ui->codecLabel->setVisible(obs_property_visible(codec));

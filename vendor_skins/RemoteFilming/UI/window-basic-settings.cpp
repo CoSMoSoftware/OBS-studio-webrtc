@@ -802,11 +802,11 @@ OBSBasicSettings::OBSBasicSettings(QWidget *parent)
   ui->simpleOutPreset->setEnabled(false);
   ui->simpleOutCustom->setEnabled(false);
 
-  // NOTE LUDO: #184 Settings/Stream disable entry "Username"
-  ui->authUsernameLabel->setEnabled(false);
-  ui->authUsernameLabel->setVisible(false);
-  ui->authUsername->setEnabled(false);
-  ui->authUsername->setVisible(false);
+        // NOTE ALEX: Millicast needs these.
+        ui->authUsernameLabel->setEnabled(true);
+        ui->authUsernameLabel->setVisible(true);
+        ui->authUsername->setEnabled(true);
+        ui->authUsername->setVisible(true);
 
 	ui->buttonBox->button(QDialogButtonBox::Apply)->setIcon(QIcon());
 	ui->buttonBox->button(QDialogButtonBox::Ok)->setIcon(QIcon());
