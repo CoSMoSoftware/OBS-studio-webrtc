@@ -31,11 +31,15 @@ fi
 cp /usr/local/opt/mbedtls/lib/libmbedtls.12.dylib ./$APP_NAME.app/Contents/Frameworks/
 cp /usr/local/opt/mbedtls/lib/libmbedcrypto.3.dylib ./$APP_NAME.app/Contents/Frameworks/
 cp /usr/local/opt/mbedtls/lib/libmbedx509.0.dylib ./$APP_NAME.app/Contents/Frameworks/
-install_name_tool -change /usr/local/opt/mbedtls/lib/libmbedtls.12.dylib   @executable_path/../Frameworks/libmbedtls.12.dylib   ./$APP_NAME.app/Contents/Plugins/obs-outputs.so
-install_name_tool -change /usr/local/opt/mbedtls/lib/libmbedcrypto.3.dylib @executable_path/../Frameworks/libmbedcrypto.3.dylib ./$APP_NAME.app/Contents/Plugins/obs-outputs.so
-install_name_tool -change /usr/local/opt/mbedtls/lib/libmbedx509.0.dylib   @executable_path/../Frameworks/libmbedx509.0.dylib   ./$APP_NAME.app/Contents/Plugins/obs-outputs.so
-install_name_tool -change /usr/local/opt/curl/lib/libcurl.4.dylib          @executable_path/../Frameworks/libcurl.4.dylib       ./$APP_NAME.app/Contents/Plugins/obs-outputs.so
-install_name_tool -change @rpath/libobs.0.dylib                            @executable_path/../Frameworks/libobs.0.dylib        ./$APP_NAME.app/Contents/Plugins/obs-outputs.so
+install_name_tool -change /usr/local/opt/mbedtls/lib/libmbedtls.12.dylib     @executable_path/../Frameworks/libmbedtls.12.dylib   ./$APP_NAME.app/Contents/Plugins/obs-outputs.so
+install_name_tool -change /usr/local/opt/mbedtls/lib/libmbedcrypto.3.dylib   @executable_path/../Frameworks/libmbedcrypto.3.dylib ./$APP_NAME.app/Contents/Plugins/obs-outputs.so
+install_name_tool -change /usr/local/opt/mbedtls/lib/libmbedx509.0.dylib     @executable_path/../Frameworks/libmbedx509.0.dylib   ./$APP_NAME.app/Contents/Plugins/obs-outputs.so
+install_name_tool -change /usr/local/opt/curl/lib/libcurl.4.dylib            @executable_path/../Frameworks/libcurl.4.dylib       ./$APP_NAME.app/Contents/Plugins/obs-outputs.so
+install_name_tool -change @rpath/libobs.0.dylib                              @executable_path/../Frameworks/libobs.0.dylib        ./$APP_NAME.app/Contents/Plugins/obs-outputs.so
+
+# NOTE ALEX: specific to websocket plugin - should consolidate with other openssl/mbedtls at one point
+install_name_tool -change /usr/local/opt/openssl@1.1/lib/libssl.1.1.dylib    @executable_path/../Frameworks/libssl.1.1.dylib      ./$APP_NAME.app/Contents/Plugins/obs-outputs.so
+install_name_tool -change /usr/local/opt/openssl@1.1/lib/libcrypto.1.1.dylib @executable_path/../Frameworks/libcrypto.1.1.dylib   ./$APP_NAME.app/Contents/Plugins/obs-outputs.so
 
 # NOTE ALEX: no update 
 # copy sparkle into the app
@@ -65,6 +69,8 @@ plutil -insert CFBundleShortVersionString -string $DEPLOY_VERSION ./$APP_NAME.ap
 # plutil -insert SUPublicDSAKeyFile -string $APP_NAMEPublicDSAKey.pem ./$APP_NAME.app/Contents/Info.plist
 
 # NOTE ALEX: to check
+# NOTE ALEX: MacOS Catalina might make problem about python
+# had to use easy_install pip / pip install dmgbuild / and then change the path to add python-bin
 # dmgbuild -s ../CI/install/osx/settings.json "$APP_NAME" ebs.dmg
 dmgbuild "$APP_NAME" $FILENAME.dmg
 
