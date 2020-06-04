@@ -47,7 +47,7 @@ bool MillicastWebsocketClientImpl::connect(
     RestClient::Connection* conn = new RestClient::Connection("");
     RestClient::HeaderFields headers;
     headers["Authorization"] = "Bearer " + this->token;
-    headers["Content-Type"] = "application/json";
+    headers["Content-Type"]  = "application/json";
     conn->SetHeaders(headers);
     conn->SetTimeout(5);
     const std::string publish_api_url =
@@ -226,10 +226,10 @@ bool MillicastWebsocketClientImpl::open(
 }
 
 bool MillicastWebsocketClientImpl::trickle(
-        const std::string & /* mid */,
-        int /* index */,
+        const std::string & /* mid       */,
+        int                 /* index     */,
         const std::string & /* candidate */,
-        bool /* last */)
+        bool                /* last      */)
 {
     return true;
 }
@@ -247,7 +247,7 @@ bool MillicastWebsocketClientImpl::disconnect(bool /* wait */)
         // Serialize and send
         if (connection->send(close.dump()))
             return false;
-        // Wait for unpublish message to be sent
+        // Wait for unpublished message(s) to be sent
         std::this_thread::sleep_for(std::chrono::seconds(2));
         // Stop client
         if (connection->get_state() == websocketpp::session::state::open)
@@ -257,9 +257,9 @@ bool MillicastWebsocketClientImpl::disconnect(bool /* wait */)
         // Don't wait for connection close
         client.stop();
         // Remove handlers
-        client.set_open_handler([](...) {});
+        client.set_open_handler( [](...) {});
         client.set_close_handler([](...) {});
-        client.set_fail_handler([](...) {});
+        client.set_fail_handler( [](...) {});
         // Detach thread
         if (thread.joinable())
             thread.detach();
