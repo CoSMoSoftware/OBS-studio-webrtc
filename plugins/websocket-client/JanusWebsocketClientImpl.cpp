@@ -1,4 +1,4 @@
-/* Copyright Dr. Alex. Gouaillard (2015, 2020) */
+// Copyright Dr. Alex. Gouaillard (2015, 2020)
 
 #include "JanusWebsocketClientImpl.h"
 #include "nlohmann/json.hpp"
@@ -40,10 +40,10 @@ bool JanusWebsocketClientImpl::connect(
         WebsocketClient::Listener * listener)
 {
     websocketpp::lib::error_code ec;
-    std::string url = sanitizeString(raw_url);
-    std::string room = sanitizeString(raw_room);
+    std::string url      = sanitizeString(raw_url);
+    std::string room     = sanitizeString(raw_room);
     std::string username = sanitizeString(raw_username);
-    std::string token = sanitizeString(raw_token);
+    std::string token    = sanitizeString(raw_token);
 
     // Reset login flag
     logged = false;
@@ -53,7 +53,8 @@ bool JanusWebsocketClientImpl::connect(
                 websocketpp::connection_hdl /* con */, message_ptr frame) {
             const char* x = frame->get_payload().c_str();
             info("MESSAGE RECEIVED:\n%s\n", x);
-            auto msg = json::parse(frame->get_payload());
+            last_message_recd_time = std::chrono::system_clock::now();
+            json msg = json::parse(frame->get_payload());
 
             if (msg.find("janus") == msg.end())
                 return;
@@ -70,6 +71,7 @@ bool JanusWebsocketClientImpl::connect(
 
             // Check type
             std::string event = msg["janus"];
+
             if (event.compare("success") == 0) {
                 if (msg.find("transaction") == msg.end())
                     return;
@@ -81,39 +83,20 @@ bool JanusWebsocketClientImpl::connect(
                 if (!logged) {
                     // Get response code
                     session_id = data["id"];
-                    // Create handle command
-                    json attachPlugin = {
-                        { "janus", "attach" },
-                        { "transaction", std::to_string(rand()) },
-                        { "session_id", session_id },
-                        { "plugin", "janus.plugin.videoroom" }
-                    };
-                    // Serialize and send
-                    connection->send(attachPlugin.dump());
+                    sendAttachMessage();
+
+		     // NOTE ALEX: We actually do not know yet
+                    // whether the plugin has been succesfully attached or not
                     logged = true;
+                    
                     // Keep the connection alive
                     is_running.store(true);
                     thread_keepAlive = std::thread([&]() {
-                        JanusWebsocketClientImpl::keepConnectionAlive();
+                        keepConnectionAlive();
                     });
                 } else { // logged
                     handle_id = data["id"];
-                    json joinRoom = {
-                        { "janus", "message" },
-                        { "transaction", std::to_string(rand()) },
-                        { "session_id", session_id },
-                        { "handle_id", handle_id },
-                        { "body",
-                            {
-                                { "room", std::stoll(room) },
-                                { "display", "OBS" },
-                                { "ptype", "publisher" },
-                                { "request", "join" }
-                            }
-                        }
-                    };
-                    // Serialize and send
-                    connection->send(joinRoom.dump());
+                    sendJoinMessage(room);
                     // Launch logged event
                     listener->onLogged(session_id);
                 }
@@ -124,35 +107,28 @@ bool JanusWebsocketClientImpl::connect(
         client.set_open_handler([=](websocketpp::connection_hdl /* con */) {
             // Launch event
             listener->onConnected();
-            // Login command
-            json login = {
-                { "janus", "create" },
-                { "transaction", std::to_string(rand()) },
-                { "payload",
-                    {
-                        { "username", username },
-                        { "token", token },
-                        { "room", room }
-                    }
-                }
-            };
-            // Serialize and send
-            connection->send(login.dump());
+            sendLoginMessage(username, token, room);
         });
 
-        // --- Close hanlder
-        client.set_close_handler([=](...) {
-            info("> set_close_handler called");
-            listener->onDisconnected();
-        });
+        // --- Close handler
+        client.set_close_handler(
+            std::bind(
+                &JanusWebsocketClientImpl::handleDisconnect,
+                this, _1, listener
+            )
+        );
 
         // --- Failure handler
-        client.set_fail_handler([=](...) {
-            info("> set_fail_handler called");
-            listener->onDisconnected();
-        });
+        client.set_fail_handler(
+                std::bind(
+                &JanusWebsocketClientImpl::handleFail,
+                this, _1, listener
+            )
+        );
 
         // --- TLS handler
+        // NOTE ALEX: evercast version uses tlsv12_client instead of tlsv1.
+        // Double check against documentation.
         client.set_tls_init_handler([&](websocketpp::connection_hdl /* con */) {
             // Create context
             auto ctx = websocketpp::lib::make_shared<asio::ssl::context>(
@@ -169,6 +145,9 @@ bool JanusWebsocketClientImpl::connect(
             return ctx;
         });
 
+        // NOTE ALEX: Evercast version uses an extention that contains token and room ID
+        // THat could be redundant with the login, and/or could be an Evercast specific thing
+        // Double check against Janus WS connection documentation.
         connection = client.get_connection(url, ec);
         if (ec) {
             error("Error establishing websocket connection: %s", ec.message().c_str());
@@ -193,141 +172,79 @@ bool JanusWebsocketClientImpl::connect(
     return true;
 }
 
-bool JanusWebsocketClientImpl::open(
+bool
+JanusWebsocketClientImpl::
+open(
         const std::string & sdp,
         const std::string & codec,
         const std::string & /* username */)
 {
+    bool result = false;
     try {
-        json body_no_codec = {
-            { "request", "configure" },
-            { "muted", false },
-            { "video", true },
-            { "audio", true }
-        };
-        json body_with_codec = {
-            { "request", "configure" },
-            { "videocodec", codec },
-            { "muted", false },
-            { "video", true },
-            { "audio", true }
-        };
-        // Send offer
-        json open = {
-            { "janus", "message" },
-            { "session_id", session_id },
-            { "handle_id", handle_id },
-            { "transaction", std::to_string(rand()) },
-            { "body", codec.empty() ? body_no_codec : body_with_codec },
-            { "jsep",
-                {
-                    { "type", "offer" },
-                    { "sdp", sdp },
-                    { "trickle", true }
-                }
-            }
-        };
-        // Serialize and send
-        if (connection->send(open.dump())) {
-            warn("Error sending open message");
-            return false;
-        }
+        result = sendOpenMessage(sdp, codec);
     } catch (const websocketpp::exception & e) {
         warn("open exception: %s", e.what());
         return false;
     }
-    // OK
-    return true;
+    return result;
 }
 
-bool JanusWebsocketClientImpl::trickle(
+bool
+JanusWebsocketClientImpl::
+trickle(
         const std::string & mid,
         int index,
         const std::string & candidate,
         bool last)
 {
+    bool result = false;
     try {
-        if (!last) {
-            json trickle = {
-                { "janus", "trickle" },
-                { "handle_id", handle_id },
-                { "session_id", session_id },
-                { "transaction", "trickle" + std::to_string(rand()) },
-                { "candidate",
-                    {
-                        { "sdpMid", mid },
-                        { "sdpMLineIndex", index },
-                        { "candidate", candidate }
-                    }
-                }
-            };
-            // Serialize and send
-            if (connection->send(trickle.dump()))
-                return false;
-            // OK
-            return true;
-        } else {
-            json trickle = {
-                { "janus", "trickle" },
-                { "handle_id", handle_id },
-                { "session_id", session_id },
-                { "transaction", "trickle" + std::to_string(rand()) },
-                { "candidate",
-                    {
-                        { "completed", true }
-                    }
-                }
-            };
-            // Serialize and send
-            if (connection->send(trickle.dump()))
-                return false;
-        }
+        result = sendTrickleMessage(mid, index, candidate, last);
     } catch (const websocketpp::exception & e) {
         warn("trickle exception: %s", e.what());
         return false;
     }
-    // OK
-    return true;
+    return result;
 }
 
-void JanusWebsocketClientImpl::keepConnectionAlive()
+void
+JanusWebsocketClientImpl::
+keepConnectionAlive(
+  WebsocketClient::Listener * listener
+)
 {
     while (is_running.load()) {
         if (connection) {
-            json keepaliveMsg = {
-                { "janus", "keepalive" },
-                { "session_id", session_id },
-                { "transaction", "keepalive-" + std::to_string(rand()) }
-            };
+            if (hasTimedOut()) {
+                warn("Connection timed Out.");
+                listener->onDisconnected();
+                break;
+            }
             try {
-                // Serialize and send
-                connection->send(keepaliveMsg.dump());
-            } catch (const websocketpp::exception & e) {
+                sendKeepAliveMessage();
+            } catch (const websocketpp::exception &e) {
                 warn("keepConnectionAlive exception: %s", e.what());
             }
         }
-        std::this_thread::sleep_for(std::chrono::seconds(2));
     }
 }
 
-void JanusWebsocketClientImpl::destroy()
+void
+JanusWebsocketClientImpl::
+destroy()
 {
     if (connection) {
-        json destroyMsg = {
-            { "janus", "destroy" },
-            { "session_id", session_id },
-            { "transaction", std::to_string(rand()) }
-        };
         try {
-            // Serialize and send
-            connection->send(destroyMsg.dump());
+            sendDestroyMessage();
         } catch (const websocketpp::exception & e) {
             warn("destroy exception: %s", e.what());
         }
     }
 }
 
-bool JanusWebsocketClientImpl::disconnect(bool wait)
+bool
+JanusWebsocketClientImpl::
+disconnect(bool wait)
 {
     destroy();
     if (!connection)
@@ -364,7 +281,222 @@ bool JanusWebsocketClientImpl::disconnect(bool wait)
     return true;
 }
 
-std::string JanusWebsocketClientImpl::sanitizeString(const std::string & s)
+//---------------------------------------------------------
+//  WebSocket API Handlers / Callbacks
+//---------------------------------------------------------
+
+void
+JanusWebsocketClientImpl::
+handleDisconnect(
+    websocketpp::connection_hdl connectionHdl,
+    WebsocketClient::Listener * listener)
+{
+    UNUSED_PARAMETER(connectionHdl);
+    
+    info("> set_close_handler > handleDisconnect called");
+    if (listener)
+    {
+        listener->onDisconnected();
+    }
+}
+
+void
+JanusWebsocketClientImpl::
+handleFail(
+    websocketpp::connection_hdl connectionHdl,
+    WebsocketClient::Listener * listener)
+{
+    UNUSED_PARAMETER(connectionHdl);
+
+    info("> set_fail_handler > handleFail called");
+    if (listener)
+    {
+        if (hasTimedOut()) {
+             warn("Connection Timed out");
+             listener->onDisconnected();
+         } else {
+             listener->onLoggedError(-1);
+         }
+    }
+}
+//--------------------------------------
+// Janus Core API implementation
+//--------------------------------------
+
+// NOTE ALEX: this is specific to a plugin
+// and the plugin name is hardcoded. Could be improved
+// Also, a Janus core can attach to several plugins.
+void
+JanusWebsocketClientImpl::
+sendAttachMessage()
+{
+     // Create handle command
+     json attachPlugin = {
+             { "janus", "attach" },
+             { "transaction", std::to_string(rand()) },
+             { "session_id", session_id },
+             { "plugin", "janus.plugin.videoroom" }
+     };
+     sendMessage(attachPlugin, "attach");
+}
+
+// Core or videoRoom? 
+void
+JanusWebsocketClientImpl::
+sendLoginMessage(std::string username, std::string token, std::string room)
+{
+     // Login command
+     json login = {
+             { "janus", "create" },
+             { "transaction", std::to_string(rand()) },
+             { "payload",
+                     {
+                             { "username", username },
+                             { "token", token },
+                             { "room", room }
+                     }
+             }
+     };
+     sendMessage(login, "login");
+}
+
+void
+JanusWebsocketClientImpl::
+sendKeepAliveMessage()
+{
+    json keepaliveMsg = {
+        {"janus",       "keepalive"},
+        {"session_id",  session_id},
+        {"transaction", "keepalive-" + std::to_string(rand())}
+    };
+    sendMessage(keepaliveMsg, "keep-alive");
+}
+
+void
+JanusWebsocketClientImpl::
+sendDestroyMessage()
+{
+    json destroyMsg = {
+             { "janus", "destroy" },
+             { "session_id", session_id },
+             { "transaction", std::to_string(rand()) }
+    };
+    sendMessage(destroyMsg, "destroy");
+}
+
+//-------------------------------------------
+// Janus VideoRoom Plugin API implememtation
+//-------------------------------------------
+
+// NOTE ALEX: The display name is hardcoded here. FIXME.
+void
+JanusWebsocketClientImpl::
+sendJoinMessage(std::string room)
+{
+    json joinRoom = {
+         { "janus", "message" },
+         { "transaction", std::to_string(rand()) },
+         { "session_id", session_id },
+         { "handle_id", handle_id },
+         { "body",
+                 {
+                             { "room", room },
+                             { "display", "OBS" },
+                             { "ptype", "publisher" },
+                             { "request", "join" }
+                 }
+         }
+    };
+    sendMessage(joinRoom, "join");
+}
+
+bool
+JanusWebsocketClientImpl::
+sendTrickleMessage(
+  const std::string &mid,
+  int index,
+  const std::string &candidate,
+  bool last
+)
+{
+    json trickle;
+    if (!last) {
+        trickle = {
+                { "janus", "trickle" },
+                { "handle_id", handle_id },
+                { "session_id", session_id },
+                { "transaction", "trickle" + std::to_string(rand()) },
+                { "candidate",
+                        {
+                                { "sdpMid", mid },
+                                { "sdpMLineIndex", index },
+                                { "candidate", candidate }
+                        }
+                }
+        };
+    }
+    else
+    {
+        trickle = {
+                { "janus", "trickle" },
+                { "handle_id", handle_id },
+                { "session_id", session_id },
+                { "transaction", "trickle" + std::to_string(rand()) },
+                { "candidate",
+                        {
+                                { "completed", true }
+                        }
+                }
+        };
+    }
+
+    return sendMessage(trickle, "trickle");
+}
+
+bool
+JanusWebsocketClientImpl::
+sendOpenMessage(const std::string &sdp, const std::string &codec)
+{
+     json body_no_codec = {
+             { "request", "configure" },
+             { "muted", false },
+             { "video", true },
+             { "audio", true }
+     };
+     json body_with_codec = {
+             { "request", "configure" },
+             { "videocodec", codec },
+             { "muted", false },
+             { "video", true },
+             { "audio", true }
+     };
+     // Send offer
+     json open = {
+             { "janus", "message" },
+             { "session_id", session_id },
+             { "handle_id", handle_id },
+             { "transaction", std::to_string(rand()) },
+             { "body", codec.empty() ? body_no_codec : body_with_codec },
+             { "jsep",
+                     {
+                             { "type", "offer" },
+                             { "sdp", sdp },
+                             { "trickle", true }
+                     }
+             }
+     };
+
+      return sendMessage(open, "open");
+}
+
+//----------------------------------------
+// Helpers
+//----------------------------------------
+
+// Helper - Sanitize the streams coming from UI
+std::string
+JanusWebsocketClientImpl::
+sanitizeString(const std::string & s)
 {
     std::string _my_s = s;
     size_t p = _my_s.find_first_not_of(" \n\r\t");
@@ -374,3 +506,33 @@ std::string JanusWebsocketClientImpl::sanitizeString(const std::string & s)
         _my_s.erase(p + 1);
     return _my_s;
 }
+
+// Helper - Serialize and send message, with appropriate logging.
+bool
+JanusWebsocketClientImpl::
+sendMessage(json msg, const char *name)
+{
+    info("Sending %s message...", name);
+
+    // Serialize and send
+    if (connection->send(msg.dump()))
+    {
+        // this is a console log
+        // do we want to double up with a UI error modal window?
+        warn("Error sending %s message", name);
+        return false;
+    }
+
+    return true;
+}
+
+// Helper - Websocket layer - Check for timeout
+bool
+JanusWebsocketClientImpl::
+hasTimedOut()
+{
+    auto current_time = std::chrono::system_clock::now();
+    std::chrono::duration<double> gap = current_time - last_message_recd_time;
+    return gap.count() > 5;
+}
+

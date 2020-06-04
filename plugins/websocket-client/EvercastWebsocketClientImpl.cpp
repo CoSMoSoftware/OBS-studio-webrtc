@@ -107,7 +107,7 @@ bool EvercastWebsocketClientImpl::connect(
                 }
             }
 
-            // Error response handling
+            // Evercast Error response handling
             if (event == "event")
             {
                 int error_code = parsePluginErrorCode(msg);
@@ -146,12 +146,20 @@ bool EvercastWebsocketClientImpl::connect(
         });
 
         // --- Close handler
-         client.set_close_handler(
-           std::bind(&EvercastWebsocketClientImpl::handleDisconnect, this, _1, listener));
+        client.set_close_handler(
+            std::bind(
+                &EvercastWebsocketClientImpl::handleDisconnect,
+                this, _1, listener
+            )
+        );
 
         // --- Failure handler
-         client.set_fail_handler(
-           std::bind(&EvercastWebsocketClientImpl::handleFail, this, _1, listener));
+        client.set_fail_handler(
+                std::bind(
+                &EvercastWebsocketClientImpl::handleFail,
+                this, _1, listener
+            )
+        );
 
         // --- TLS handler
         client.set_tls_init_handler([&](websocketpp::connection_hdl /* con */) {
@@ -170,7 +178,7 @@ bool EvercastWebsocketClientImpl::connect(
             return ctx;
         });
 
-        // Create websocket url
+        // Create Evercast websocket url
         std::string wss = url + "/?token=" + token + "&roomId=" + room;
         info("Connection URL:   %s", wss.c_str());
 
@@ -190,7 +198,7 @@ bool EvercastWebsocketClientImpl::connect(
             // (single connection will be made to the server)
             client.run();  // will exit when this connection is closed
         });
-    } catch (websocketpp::exception const & e) {
+    } catch (const websocketpp::exception & e) {
         warn("connect exception: %s", e.what());
         return false;
     }
@@ -198,7 +206,9 @@ bool EvercastWebsocketClientImpl::connect(
     return true;
 }
 
-bool EvercastWebsocketClientImpl::open(
+bool
+EvercastWebsocketClientImpl::
+open(
         const std::string & sdp,
         const std::string & codec,
         const std::string & /* Id */)
@@ -208,11 +218,14 @@ bool EvercastWebsocketClientImpl::open(
         result = sendOpenMessage(sdp, codec);
     } catch (const websocketpp::exception & e) {
         warn("open exception: %s", e.what());
+        return false;
     }
     return result;
 }
 
-bool EvercastWebsocketClientImpl::trickle(
+bool
+EvercastWebsocketClientImpl::
+trickle(
         const std::string & mid,
         int index,
         const std::string & candidate,
@@ -223,11 +236,16 @@ bool EvercastWebsocketClientImpl::trickle(
         result = sendTrickleMessage(mid, index, candidate, last);
     } catch (const websocketpp::exception & e) {
         warn("trickle exception: %s", e.what());
+        return false;
     }
     return result;
 }
 
-void EvercastWebsocketClientImpl::keepConnectionAlive(WebsocketClient::Listener * listener)
+void
+EvercastWebsocketClientImpl::
+keepConnectionAlive(
+  WebsocketClient::Listener * listener
+)
 {
     while (is_running.load()) {
         if (connection) {
@@ -245,7 +263,9 @@ void EvercastWebsocketClientImpl::keepConnectionAlive(WebsocketClient::Listener 
     }
 }
 
-void EvercastWebsocketClientImpl::destroy()
+void
+EvercastWebsocketClientImpl::
+destroy()
 {
     if (connection) {
         try {
@@ -256,7 +276,9 @@ void EvercastWebsocketClientImpl::destroy()
     }
 }
 
-bool EvercastWebsocketClientImpl::disconnect(bool wait)
+bool
+EvercastWebsocketClientImpl::
+disconnect(bool wait)
 {
     destroy();
     if (!connection)
@@ -293,18 +315,15 @@ bool EvercastWebsocketClientImpl::disconnect(bool wait)
     return true;
 }
 
-std::string EvercastWebsocketClientImpl::sanitizeString(const std::string & s)
-{
-    std::string _my_s = s;
-    size_t p = _my_s.find_first_not_of(" \n\r\t");
-    _my_s.erase(0, p);
-    p = _my_s.find_last_not_of(" \n\r\t");
-    if (p != std::string::npos)
-        _my_s.erase(p + 1);
-    return _my_s;
- }
 
-void EvercastWebsocketClientImpl::handleDisconnect(
+
+//---------------------------------------------------------
+//  WebSocket API Handlers / Callbacks
+//---------------------------------------------------------
+
+void
+EvercastWebsocketClientImpl::
+handleDisconnect(
     websocketpp::connection_hdl connectionHdl,
     WebsocketClient::Listener * listener)
 {
@@ -317,7 +336,9 @@ void EvercastWebsocketClientImpl::handleDisconnect(
     }
 }
 
-void EvercastWebsocketClientImpl::handleFail(
+void
+EvercastWebsocketClientImpl::
+handleFail(
     websocketpp::connection_hdl connectionHdl,
     WebsocketClient::Listener * listener)
 {
@@ -335,7 +356,50 @@ void EvercastWebsocketClientImpl::handleFail(
     }
 }
 
-void EvercastWebsocketClientImpl::sendKeepAliveMessage()
+//--------------------------------------
+// Janus Core API implementation
+//--------------------------------------
+
+// NOTE ALEX: this is specific to a plugin
+// and the plugin name is hardcoded. Could be improved
+// Also, a Janus core can attach to several plugins.
+void
+EvercastWebsocketClientImpl::
+sendAttachMessage()
+{
+     // Create handle command
+     json attachPlugin = {
+             { "janus", "attach" },
+             { "transaction", std::to_string(rand()) },
+             { "session_id", session_id },
+             { "plugin", "janus.plugin.lua" }
+     };
+     sendMessage(attachPlugin, "attach");
+}
+
+// Core or videoRoom? 
+void
+EvercastWebsocketClientImpl::
+sendLoginMessage(std::string username, std::string token, std::string room)
+{
+     // Login command
+     json login = {
+             { "janus", "create" },
+             { "transaction", std::to_string(rand()) },
+             { "payload",
+                     {
+                             { "username", username },
+                             { "token", token },
+                             { "room", room }
+                     }
+             }
+     };
+     sendMessage(login, "login");
+}
+
+void
+EvercastWebsocketClientImpl::
+sendKeepAliveMessage()
 {
     json keepaliveMsg = {
         {"janus",       "keepalive"},
@@ -345,7 +409,53 @@ void EvercastWebsocketClientImpl::sendKeepAliveMessage()
     sendMessage(keepaliveMsg, "keep-alive");
 }
 
-bool EvercastWebsocketClientImpl::sendTrickleMessage(const std::string &mid, int index, const std::string &candidate, bool last)
+void
+EvercastWebsocketClientImpl::
+sendDestroyMessage()
+{
+    json destroyMsg = {
+             { "janus", "destroy" },
+             { "session_id", session_id },
+             { "transaction", std::to_string(rand()) }
+    };
+    sendMessage(destroyMsg, "destroy");
+}
+
+//-------------------------------------------
+// Janus VideoRoom Plugin API implememtation
+//-------------------------------------------
+
+
+// NOTE ALEX: The display name is hardcoded here. FIXME.
+void
+EvercastWebsocketClientImpl::
+sendJoinMessage(std::string room)
+{
+    json joinRoom = {
+         { "janus", "message" },
+         { "transaction", std::to_string(rand()) },
+         { "session_id", session_id },
+         { "handle_id", handle_id },
+         { "body",
+                 {
+                             { "room", room },
+                             { "display", "EBS" },
+                             { "ptype", "publisher" },
+                             { "request", "join" }
+                 }
+         }
+    };
+    sendMessage(joinRoom, "join");
+}
+
+bool
+EvercastWebsocketClientImpl::
+sendTrickleMessage(
+  const std::string &mid,
+  int index,
+  const std::string &candidate,
+  bool last
+)
 {
     json trickle;
     if (!last) {
@@ -381,7 +491,9 @@ bool EvercastWebsocketClientImpl::sendTrickleMessage(const std::string &mid, int
     return sendMessage(trickle, "trickle");
 }
 
-bool EvercastWebsocketClientImpl::sendOpenMessage(const std::string &sdp, const std::string &codec)
+bool
+EvercastWebsocketClientImpl::
+sendOpenMessage(const std::string &sdp, const std::string &codec)
 {
      json body_no_codec = {
              { "request", "configure" },
@@ -415,71 +527,36 @@ bool EvercastWebsocketClientImpl::sendOpenMessage(const std::string &sdp, const 
       return sendMessage(open, "open");
 }
 
-void EvercastWebsocketClientImpl::sendLoginMessage(std::string username, std::string token, std::string room)
+//----------------------------------------
+// Helpers
+//----------------------------------------
+
+// Helper - Sanitize the streams coming from UI
+std::string
+EvercastWebsocketClientImpl::
+sanitizeString(const std::string & s)
 {
-     // Login command
-     json login = {
-             { "janus", "create" },
-             { "transaction", std::to_string(rand()) },
-             { "payload",
-                     {
-                             { "username", username },
-                             { "token", token },
-                             { "room", room }
-                     }
-             }
-     };
-     sendMessage(login, "login");
+    std::string _my_s = s;
+    size_t p = _my_s.find_first_not_of(" \n\r\t");
+    _my_s.erase(0, p);
+    p = _my_s.find_last_not_of(" \n\r\t");
+    if (p != std::string::npos)
+        _my_s.erase(p + 1);
+    return _my_s;
 }
 
-void EvercastWebsocketClientImpl::sendAttachMessage()
-{
-     // Create handle command
-     json attachPlugin = {
-             { "janus", "attach" },
-             { "transaction", std::to_string(rand()) },
-             { "session_id", session_id },
-             { "plugin", "janus.plugin.lua" }
-     };
-     sendMessage(attachPlugin, "attach");
-}
-
-void EvercastWebsocketClientImpl::sendJoinMessage(std::string room)
-{
-    json joinRoom = {
-         { "janus", "message" },
-         { "transaction", std::to_string(rand()) },
-         { "session_id", session_id },
-         { "handle_id", handle_id },
-         { "body",
-                 {
-                             { "room", room },
-                             { "display", "EBS" },
-                             { "ptype", "publisher" },
-                             { "request", "join" }
-                 }
-         }
-    };
-    sendMessage(joinRoom, "join");
-}
-
-void EvercastWebsocketClientImpl::sendDestroyMessage()
-{
-    json destroyMsg = {
-             { "janus", "destroy" },
-             { "session_id", session_id },
-             { "transaction", std::to_string(rand()) }
-    };
-    sendMessage(destroyMsg, "destroy");
-}
-
-bool EvercastWebsocketClientImpl::sendMessage(json msg, const char *name)
+// Helper - Serialize and send message, with appropriate logging.
+bool
+EvercastWebsocketClientImpl::
+sendMessage(json msg, const char *name)
 {
     info("Sending %s message...", name);
 
     // Serialize and send
     if (connection->send(msg.dump()))
     {
+        // this is a console log
+        // do we want to double up with a UI error modal window?
         warn("Error sending %s message", name);
         return false;
     }
@@ -487,7 +564,10 @@ bool EvercastWebsocketClientImpl::sendMessage(json msg, const char *name)
     return true;
 }
 
-int EvercastWebsocketClientImpl::parsePluginErrorCode(json &msg)
+// Helper - Evercast lua Plugin API error message parser
+int
+EvercastWebsocketClientImpl::
+parsePluginErrorCode(json &msg)
  {
     if (msg.find("plugindata") == msg.end())
         return 0;
@@ -505,12 +585,13 @@ int EvercastWebsocketClientImpl::parsePluginErrorCode(json &msg)
     return error_code;
 }
 
-bool EvercastWebsocketClientImpl::hasTimedOut()
+// Helper - Websocket layer - Check for timeout
+bool
+EvercastWebsocketClientImpl::
+hasTimedOut()
 {
     auto current_time = std::chrono::system_clock::now();
     std::chrono::duration<double> gap = current_time - last_message_recd_time;
     return gap.count() > EVERCAST_MESSAGE_TIMEOUT;
 }
-
-
 
