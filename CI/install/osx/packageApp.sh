@@ -1,5 +1,3 @@
-export APP_NAME=RFS
-BUILD_CONFIG=Debug
 QT_REV=5.10.1
 
 rm -rf ./$APP_NAME.app
@@ -10,11 +8,11 @@ mkdir $APP_NAME.app/Contents/MacOS
 mkdir $APP_NAME.app/Contents/PlugIns
 mkdir $APP_NAME.app/Contents/Resources
 
-cp -r rundir/$BUILD_CONFIG/bin/ ./$APP_NAME.app/Contents/MacOS
-cp -r rundir/$BUILD_CONFIG/data ./$APP_NAME.app/Contents/Resources
-cp ../CI/install/osx/obs.icns ./$APP_NAME.app/Contents/Resources
+cp -r rundir/$BUILD_CONFIG/bin/         ./$APP_NAME.app/Contents/MacOS
+cp -r rundir/$BUILD_CONFIG/data         ./$APP_NAME.app/Contents/Resources
+cp ../CI/install/osx/obs.icns           ./$APP_NAME.app/Contents/Resources
 cp -r rundir/$BUILD_CONFIG/obs-plugins/ ./$APP_NAME.app/Contents/PlugIns
-cp ../CI/install/osx/Info.plist ./$APP_NAME.app/Contents
+cp ../CI/install/osx/Info.plist         ./$APP_NAME.app/Contents
 
 ../CI/install/osx/dylibBundler -b -cd -d ./$APP_NAME.app/Contents/Frameworks -p @executable_path/../Frameworks/ \
 -s ./$APP_NAME.app/Contents/MacOS \
