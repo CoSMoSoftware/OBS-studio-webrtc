@@ -3,7 +3,7 @@
 <plist version="1.0">
 <dict>
  	<key>CFBundleIconFile</key>
- 	<string>OBS.icns</string>
+ 	<string>obs.icns</string>
         <key>CFBundleDisplayName</key>
         <string>Remote Filming Studio</string>
  	<key>CFBundleName</key>
@@ -11,9 +11,9 @@
  	<key>CFBundleGetInfoString</key>
  	<string>Remote Filming Studio Software</string>
  	<key>CFBundleExecutable</key>
- 	<string>RFS</string>
+ 	<string>rfs</string>
  	<key>CFBundleIdentifier</key>
- 	<string>ci.cosmosoftware.obs-webrtc</string>
+ 	<string>io.cosmosoftware.remotefilming</string>
  	<key>CFBundlePackageType</key>
  	<string>APPL</string>
  	<key>CFBundleSignature</key>

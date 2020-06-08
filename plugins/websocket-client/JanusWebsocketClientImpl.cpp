@@ -1,7 +1,6 @@
 // Copyright Dr. Alex. Gouaillard (2015, 2020)
 
 #include "JanusWebsocketClientImpl.h"
-#include "nlohmann/json.hpp"
 
 #include <util/base.h>
 
@@ -13,7 +12,6 @@
 #define debug(format, ...) blog(LOG_DEBUG,   format, ##__VA_ARGS__)
 #define error(format, ...) blog(LOG_ERROR,   format, ##__VA_ARGS__)
 
-using json = nlohmann::json;
 typedef websocketpp::config::asio_client::message_type::ptr message_ptr;
 
 JanusWebsocketClientImpl::JanusWebsocketClientImpl()
@@ -92,7 +90,7 @@ bool JanusWebsocketClientImpl::connect(
                     // Keep the connection alive
                     is_running.store(true);
                     thread_keepAlive = std::thread([&]() {
-                        keepConnectionAlive();
+                        keepConnectionAlive(listener);
                     });
                 } else { // logged
                     handle_id = data["id"];
@@ -114,7 +112,7 @@ bool JanusWebsocketClientImpl::connect(
         client.set_close_handler(
             std::bind(
                 &JanusWebsocketClientImpl::handleDisconnect,
-                this, _1, listener
+                this, std::placeholders::_1, listener
             )
         );
 
@@ -122,7 +120,7 @@ bool JanusWebsocketClientImpl::connect(
         client.set_fail_handler(
                 std::bind(
                 &JanusWebsocketClientImpl::handleFail,
-                this, _1, listener
+                this, std::placeholders::_1, listener
             )
         );
 
