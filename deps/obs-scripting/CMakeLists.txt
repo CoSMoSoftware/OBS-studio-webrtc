@@ -5,7 +5,10 @@ if(NOT ENABLE_SCRIPTING)
 	return()
 endif()
 
-project(obs-scripting)
+if( POLICY CMP0048 )
+        cmake_policy(SET CMP0048 NEW)
+endif()
+project(obs-scripting VERSION 1.0.0)
 
 if(MSVC)
 	set(obs-scripting_PLATFORM_DEPS
