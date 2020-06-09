@@ -98,12 +98,19 @@ if(WIN32)
 endif()
 
 # NOTE ALEX: force H264 component here for EBS.
-find_package(LibWebRTC REQUIRED)
-
-message(STATUS "WebRTC Libs: ")
-foreach(_lib ${WEBRTC_LIBRARIES})
-	message(STATUS "-- ${_lib}")
-endforeach()
+find_package(LibWebRTC 79 REQUIRED)
+if( WEBRTC_H264_FOUND )
+        message( STATUS "This libwebrtc package was built with H264 support." )
+endif()
+if( WEBRTC_EXT_OPENSSL_FOUND )
+        message( STATUS "This libwebrtc package was built against openssl." )
+endif()
+if( WEBRTC_EXT_LIBSRTP_FOUND )
+        message( STATUS "This libwebrtc package was built with external libsrtp." )
+endif()
+if( WEBRTC_SFRAME_FOUND )
+        message( STATUS "This libwebrtc package was build with SFrame end-to-end encryption." )
+endif()
 
 if(WIN32)
 	set(obs-outputs_PLATFORM_DEPS
