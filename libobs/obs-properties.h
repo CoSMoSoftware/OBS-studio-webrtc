@@ -52,7 +52,9 @@ enum obs_property_type {
 	OBS_PROPERTY_LIST,
 	OBS_PROPERTY_COLOR,
 	OBS_PROPERTY_BUTTON,
-	OBS_PROPERTY_FONT,
+        // transform drop down menus into clickable button list for KITE Testing
+	OBS_PROPERTY_BUTTON_GROUP,
+        OBS_PROPERTY_FONT,
 	OBS_PROPERTY_EDITABLE_LIST,
 	OBS_PROPERTY_FRAME_RATE,
 	OBS_PROPERTY_GROUP,
@@ -69,6 +71,18 @@ enum obs_combo_type {
 	OBS_COMBO_TYPE_INVALID,
 	OBS_COMBO_TYPE_EDITABLE,
 	OBS_COMBO_TYPE_LIST,
+};
+
+// transform drop down menus into clickable button list for KITE Testing
+enum obs_button_group_format {
+        OBS_BUTTON_GROUP_FORMAT_INVALID,
+        OBS_BUTTON_GROUP_FORMAT_INT,
+        OBS_BUTTON_GROUP_FORMAT_FLOAT,
+        OBS_BUTTON_GROUP_FORMAT_STRING
+};
+enum obs_button_group_type {
+        OBS_BUTTON_GROUP_TYPE_INVALID,
+        OBS_BUTTON_GROUP_TYPE_LIST,
 };
 
 enum obs_editable_list_type {
@@ -214,15 +228,17 @@ obs_properties_add_path(obs_properties_t *props, const char *name,
 			const char *description, enum obs_path_type type,
 			const char *filter, const char *default_path);
 
-EXPORT obs_property_t *obs_properties_add_list(obs_properties_t *props,
-					       const char *name,
-					       const char *description,
-					       enum obs_combo_type type,
-					       enum obs_combo_format format);
+EXPORT obs_property_t *
+obs_properties_add_list(obs_properties_t *props,
+			const char *name,
+			const char *description,
+			enum obs_combo_type type,
+			enum obs_combo_format format);
 
-EXPORT obs_property_t *obs_properties_add_color(obs_properties_t *props,
-						const char *name,
-						const char *description);
+EXPORT obs_property_t *
+obs_properties_add_color(obs_properties_t *props,
+			 const char *name,
+			 const char *description);
 
 EXPORT obs_property_t *
 obs_properties_add_button(obs_properties_t *props, const char *name,
@@ -232,6 +248,14 @@ EXPORT obs_property_t *
 obs_properties_add_button2(obs_properties_t *props, const char *name,
 			   const char *text, obs_property_clicked_t callback,
 			   void *priv);
+
+// transform drop down menus into clickable button list for KITE Testing
+EXPORT obs_property_t *
+obs_properties_add_button_group(obs_properties_t *props,
+                		const char *name, const char *description,
+                		enum obs_button_group_type type,
+                                enum obs_button_group_format format);
+
 
 /**
  * Adds a font selection property.
@@ -293,67 +317,64 @@ EXPORT void obs_property_set_description(obs_property_t *p,
 EXPORT void obs_property_set_long_description(obs_property_t *p,
 					      const char *long_description);
 
-EXPORT const char *obs_property_name(obs_property_t *p);
-EXPORT const char *obs_property_description(obs_property_t *p);
-EXPORT const char *obs_property_long_description(obs_property_t *p);
-EXPORT enum obs_property_type obs_property_get_type(obs_property_t *p);
-EXPORT bool obs_property_enabled(obs_property_t *p);
-EXPORT bool obs_property_visible(obs_property_t *p);
-
-EXPORT bool obs_property_next(obs_property_t **p);
-
-EXPORT int obs_property_int_min(obs_property_t *p);
-EXPORT int obs_property_int_max(obs_property_t *p);
-EXPORT int obs_property_int_step(obs_property_t *p);
-EXPORT enum obs_number_type obs_property_int_type(obs_property_t *p);
-EXPORT const char *obs_property_int_suffix(obs_property_t *p);
-EXPORT double obs_property_float_min(obs_property_t *p);
-EXPORT double obs_property_float_max(obs_property_t *p);
-EXPORT double obs_property_float_step(obs_property_t *p);
-EXPORT enum obs_number_type obs_property_float_type(obs_property_t *p);
-EXPORT const char *obs_property_float_suffix(obs_property_t *p);
-EXPORT enum obs_text_type obs_property_text_type(obs_property_t *p);
-EXPORT enum obs_path_type obs_property_path_type(obs_property_t *p);
-EXPORT const char *obs_property_path_filter(obs_property_t *p);
-EXPORT const char *obs_property_path_default_path(obs_property_t *p);
-EXPORT enum obs_combo_type obs_property_list_type(obs_property_t *p);
-EXPORT enum obs_combo_format obs_property_list_format(obs_property_t *p);
-
-EXPORT void obs_property_int_set_limits(obs_property_t *p, int min, int max,
-					int step);
+EXPORT const char * obs_property_name(                       obs_property_t *p);
+EXPORT const char * obs_property_description(                obs_property_t *p);
+EXPORT const char * obs_property_long_description(           obs_property_t *p);
+EXPORT enum         obs_property_type obs_property_get_type( obs_property_t *p);
+EXPORT bool         obs_property_enabled(                    obs_property_t *p);
+EXPORT bool         obs_property_visible(                    obs_property_t *p);
+EXPORT bool         obs_property_next(                       obs_property_t **p);
+EXPORT int          obs_property_int_min(                    obs_property_t *p);
+EXPORT int          obs_property_int_max(                    obs_property_t *p);
+EXPORT int          obs_property_int_step(                   obs_property_t *p);
+EXPORT enum obs_number_type obs_property_int_type(           obs_property_t *p);
+EXPORT const char * obs_property_int_suffix(                 obs_property_t *p);
+EXPORT double       obs_property_float_min(                  obs_property_t *p);
+EXPORT double       obs_property_float_max(                  obs_property_t *p);
+EXPORT double       obs_property_float_step(                 obs_property_t *p);
+EXPORT enum         obs_number_type obs_property_float_type( obs_property_t *p);
+EXPORT const char * obs_property_float_suffix(               obs_property_t *p);
+EXPORT enum obs_text_type obs_property_text_type(            obs_property_t *p);
+EXPORT enum obs_path_type obs_property_path_type(            obs_property_t *p);
+EXPORT const char * obs_property_path_filter(                obs_property_t *p);
+EXPORT const char * obs_property_path_default_path(          obs_property_t *p);
+EXPORT enum obs_combo_type obs_property_list_type(           obs_property_t *p);
+EXPORT enum obs_combo_format obs_property_list_format(       obs_property_t *p);
+//--- transform drop down menus into clickable button list for KITE Testing
+EXPORT enum obs_button_group_type   obs_property_button_group_type(   obs_property_t *p);
+EXPORT enum obs_button_group_format obs_property_button_group_format( obs_property_t *p);
+EXPORT size_t obs_property_button_group_add_string(obs_property_t *p,
+                				   const char *name,
+                                                   const char *val);
+EXPORT size_t      obs_property_button_group_item_count(      obs_property_t *p);
+EXPORT const char *obs_property_button_group_item_name(       obs_property_t *p,
+                                                              size_t idx);
+EXPORT const char *obs_property_button_group_item_string(     obs_property_t *p, size_t idx);
+//---------------------------------------------------------------------------
+EXPORT void obs_property_int_set_limits(obs_property_t *p, int min, int max, int step);
 EXPORT void obs_property_float_set_limits(obs_property_t *p, double min,
 					  double max, double step);
 EXPORT void obs_property_int_set_suffix(obs_property_t *p, const char *suffix);
-EXPORT void obs_property_float_set_suffix(obs_property_t *p,
-					  const char *suffix);
-
+EXPORT void obs_property_float_set_suffix(obs_property_t *p, const char *suffix);
 EXPORT void obs_property_list_clear(obs_property_t *p);
-
-EXPORT size_t obs_property_list_add_string(obs_property_t *p, const char *name,
-					   const char *val);
-EXPORT size_t obs_property_list_add_int(obs_property_t *p, const char *name,
-					long long val);
-EXPORT size_t obs_property_list_add_float(obs_property_t *p, const char *name,
-					  double val);
-
+EXPORT size_t obs_property_list_add_string(obs_property_t *p, const char *name, const char *val);
+EXPORT size_t obs_property_list_add_int(obs_property_t *p, const char *name, long long val);
+EXPORT size_t obs_property_list_add_float(obs_property_t *p, const char *name, double val);
 EXPORT void obs_property_list_insert_string(obs_property_t *p, size_t idx,
 					    const char *name, const char *val);
 EXPORT void obs_property_list_insert_int(obs_property_t *p, size_t idx,
 					 const char *name, long long val);
 EXPORT void obs_property_list_insert_float(obs_property_t *p, size_t idx,
 					   const char *name, double val);
-
 EXPORT void obs_property_list_item_disable(obs_property_t *p, size_t idx,
 					   bool disabled);
-EXPORT bool obs_property_list_item_disabled(obs_property_t *p, size_t idx);
-
-EXPORT void obs_property_list_item_remove(obs_property_t *p, size_t idx);
-
-EXPORT size_t obs_property_list_item_count(obs_property_t *p);
-EXPORT const char *obs_property_list_item_name(obs_property_t *p, size_t idx);
-EXPORT const char *obs_property_list_item_string(obs_property_t *p, size_t idx);
-EXPORT long long obs_property_list_item_int(obs_property_t *p, size_t idx);
-EXPORT double obs_property_list_item_float(obs_property_t *p, size_t idx);
+EXPORT bool         obs_property_list_item_disabled(obs_property_t *p, size_t idx);
+EXPORT void         obs_property_list_item_remove(  obs_property_t *p, size_t idx);
+EXPORT size_t       obs_property_list_item_count(   obs_property_t *p);
+EXPORT const char * obs_property_list_item_name(    obs_property_t *p, size_t idx);
+EXPORT const char * obs_property_list_item_string(  obs_property_t *p, size_t idx);
+EXPORT long long    obs_property_list_item_int(     obs_property_t *p, size_t idx);
+EXPORT double       obs_property_list_item_float(   obs_property_t *p, size_t idx);
 
 EXPORT enum obs_editable_list_type
 obs_property_editable_list_type(obs_property_t *p);
