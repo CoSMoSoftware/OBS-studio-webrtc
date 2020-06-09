@@ -98,7 +98,9 @@ if(WIN32)
 endif()
 
 # NOTE ALEX: force H264 component here for EBS.
+message( STATUS "Looking for libwebrtc" )
 find_package(LibWebRTC 79 REQUIRED)
+message( STATUS "Looking for libwebrtc - found" )
 if( WEBRTC_H264_FOUND )
         message( STATUS "This libwebrtc package was built with H264 support." )
 endif()
