@@ -1,4 +1,5 @@
 QT_REV=5.10.1
+EXE_NAME=obs
 
 rm -rf ./$APP_NAME.app
 
@@ -31,7 +32,7 @@ cp ../CI/install/osx/Info.plist         ./$APP_NAME.app/Contents
 -x ./$APP_NAME.app/Contents/PlugIns/obs-transitions.so \
 -x ./$APP_NAME.app/Contents/PlugIns/obs-vst.so \
 -x ./$APP_NAME.app/Contents/PlugIns/rtmp-services.so \
--x ./$APP_NAME.app/Contents/MacOS/rfs \
+-x ./$APP_NAME.app/Contents/MacOS/$EXE_NAME \
 -x ./$APP_NAME.app/Contents/MacOS/obs-ffmpeg-mux \
 -x ./$APP_NAME.app/Contents/PlugIns/obs-x264.so \
 -x ./$APP_NAME.app/Contents/PlugIns/text-freetype2.so \

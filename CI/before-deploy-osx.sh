@@ -8,7 +8,7 @@ hr() {
 set -e
 
 # Generate file name variables
-export APP_NAME=RFS
+export APP_NAME=OBS
 export LIBWEBRTC_REV=79
 export DEPLOY_VERSION=23.2
 export GIT_HASH=$(git rev-parse --short HEAD)

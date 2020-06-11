@@ -5,11 +5,11 @@
  	<key>CFBundleIconFile</key>
  	<string>OBS.icns</string>
  	<key>CFBundleName</key>
- 	<string>RemoteFilmingStudio</string>
+ 	<string>Millicast</string>
  	<key>CFBundleGetInfoString</key>
- 	<string>Remote Filming Studio Software</string>
+ 	<string>Millicast</string>
  	<key>CFBundleExecutable</key>
- 	<string>RFS</string>
+ 	<string>obs</string>
  	<key>CFBundleIdentifier</key>
  	<string>ci.cosmosoftware.obs-webrtc</string>
  	<key>CFBundlePackageType</key>
@@ -23,8 +23,8 @@
  	<key>LSAppNapIsDisabled</key>
  	<true/>
  	<key>NSCameraUsageDescription</key>
- 	<string>RFS needs to access the camera to enable camera sources to work.</string>
+ 	<string>Millicast needs to access the camera to enable camera sources to work.</string>
  	<key>NSMicrophoneUsageDescription</key>
- 	<string>RFS needs to access the microphone to enable audio input.</string>
+ 	<string>Millicast needs to access the microphone to enable audio input.</string>
 </dict>
 </plist>
