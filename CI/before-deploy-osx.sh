@@ -67,5 +67,6 @@ plutil -insert CFBundleShortVersionString -string $DEPLOY_VERSION ./$APP_NAME.ap
 
 # NOTE ALEX: MacOS Catalina might make problem about python
 # had to use easy_install pip / pip install dmgbuild / and then change the path to add python-bin
+# anyway, the app needs to be signed before we make the package, and then the package needs to be signed too
 dmgbuild -s ../CI/install/osx/settings.json "$APP_NAME" rfs.dmg
 

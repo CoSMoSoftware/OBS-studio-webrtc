@@ -45,10 +45,12 @@ cp ../CI/install/osx/Info.plist         ./$APP_NAME.app/Contents
 
 mv ./$APP_NAME.app/Contents/MacOS/libobs-opengl.so ./$APP_NAME.app/Contents/Frameworks
 
+# NOTE ALEX: temporarily remove QtNetwork
+# signing is problematic with it and it is not used by MC-OBS-studio-webrtc
 # put qt network in here because streamdeck uses it
-cp -r /usr/local/opt/qt/lib/QtNetwork.framework ./$APP_NAME.app/Contents/Frameworks
-chmod +w ./$APP_NAME.app/Contents/Frameworks/QtNetwork.framework/Versions/5/QtNetwork
-install_name_tool -change /usr/local/opt/qt/lib/QtCore.framework/Versions/5/QtCore @executable_path/../Frameworks/QtCore.framework/Versions/5/QtCore ./$APP_NAME.app/Contents/Frameworks/QtNetwork.framework/Versions/5/QtNetwork
+# cp -r /usr/local/opt/qt/lib/QtNetwork.framework ./$APP_NAME.app/Contents/Frameworks
+# chmod +w ./$APP_NAME.app/Contents/Frameworks/QtNetwork.framework/Versions/5/QtNetwork
+# install_name_tool -change /usr/local/opt/qt/lib/QtCore.framework/Versions/5/QtCore @executable_path/../Frameworks/QtCore.framework/Versions/5/QtCore ./$APP_NAME.app/Contents/Frameworks/QtNetwork.framework/Versions/5/QtNetwork
 
 # decklink ui qt
 install_name_tool -change /usr/local/opt/qt/lib/QtGui.framework/Versions/5/QtGui @executable_path/../Frameworks/QtGui.framework/Versions/5/QtGui ./$APP_NAME.app/Contents/PlugIns/decklink-ouput-ui.so
