@@ -145,7 +145,7 @@ bool WebRTCStream::start(WebRTCStream::Type type)
     if (!service) {
         obs_output_set_last_error(
             output,
-            "An unexpected error occurred during stream startup.")
+            "An unexpected error occurred during stream startup.");
         obs_output_signal_stop(output, OBS_OUTPUT_CONNECT_FAILED);
         return false;
     }
@@ -225,7 +225,7 @@ bool WebRTCStream::start(WebRTCStream::Type type)
 
     if (!pc.get()) {
         error("Error creating Peer Connection");
-        obs_output-set-last-error(output, "There was an error connecting to the server. Are you connected to the internet?");
+        obs_output_set_last_error(output, "There was an error connecting to the server. Are you connected to the internet?");
         obs_output_signal_stop(output, OBS_OUTPUT_CONNECT_FAILED);
         return false;
     } else {

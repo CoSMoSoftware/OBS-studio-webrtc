@@ -5276,8 +5276,8 @@ void OBSBasic::StreamingStop(int code, QString last_error)
 	} else if (code != OBS_OUTPUT_SUCCESS && isVisible()) {
 		OBSMessageBox::information(this,
 			QTStr("Output.ConnectFail.Title"),
-			QT_UTF8(errorMessage),
-			use_last_error);
+			QT_UTF8(errorMessage)); // NOTE ALEX: FIXME,
+			// use_last_error);
 
 	} else if (code != OBS_OUTPUT_SUCCESS && !isVisible()) {
 		SysTrayNotify(QT_UTF8(errorDescription),

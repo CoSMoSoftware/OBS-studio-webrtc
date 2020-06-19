@@ -1,4 +1,4 @@
-# Copyright Dr. Alex. Gouaillard (2015, 2020)
+// Copyright Dr. Alex. Gouaillard (2015, 2020)
 
 #ifndef WIN32_LEAN_AND_MEAN
 #define WIN32_LEAN_AND_MEAN
