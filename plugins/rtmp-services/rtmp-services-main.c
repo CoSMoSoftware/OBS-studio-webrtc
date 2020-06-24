@@ -10,6 +10,10 @@
 
 OBS_DECLARE_MODULE()
 OBS_MODULE_USE_DEFAULT_LOCALE("rtmp-services", "en-US")
+MODULE_EXPORT const char *obs_module_description(void)
+{
+	return "OBS core RTMP services";
+}
 
 #define RTMP_SERVICES_LOG_STR "[rtmp-services plugin] "
 #define RTMP_SERVICES_VER_STR "rtmp-services plugin (libobs " OBS_VERSION ")"
@@ -17,8 +21,9 @@ OBS_MODULE_USE_DEFAULT_LOCALE("rtmp-services", "en-US")
 extern struct obs_service_info rtmp_common_service;
 extern struct obs_service_info rtmp_custom_service;
 extern struct obs_service_info webrtc_janus_service;
-extern struct obs_service_info webrtc_spankchain_service;
+extern struct obs_service_info webrtc_wowza_service;
 extern struct obs_service_info webrtc_millicast_service;
+extern struct obs_service_info webrtc_evercast_service;
 
 static update_info_t *update_info = NULL;
 static struct dstr module_name = {0};
@@ -34,7 +39,7 @@ static bool confirm_service_file(void *param, struct file_download_data *file)
 		obs_data_t *data;
 		int format_version;
 
-		data = obs_data_create_from_json((char*)file->buffer.array);
+		data = obs_data_create_from_json((char *)file->buffer.array);
 		if (!data)
 			return false;
 
@@ -77,20 +82,18 @@ bool obs_module_load(void)
 
 	proc_handler_t *ph = obs_get_proc_handler();
 	proc_handler_add(ph, "void twitch_ingests_refresh(int seconds)",
-			refresh_callback, NULL);
+			 refresh_callback, NULL);
 
 #if !defined(_WIN32) || CHECK_FOR_SERVICE_UPDATES
 	char *local_dir = obs_module_file("");
 	char *cache_dir = obs_module_config_path("");
 
 	if (cache_dir) {
-		update_info = update_info_create(
-				RTMP_SERVICES_LOG_STR,
-				module_name.array,
-				RTMP_SERVICES_URL,
-				local_dir,
-				cache_dir,
-				confirm_service_file, NULL);
+		update_info = update_info_create(RTMP_SERVICES_LOG_STR,
+						 module_name.array,
+						 RTMP_SERVICES_URL, local_dir,
+						 cache_dir,
+						 confirm_service_file, NULL);
 	}
 
 	load_twitch_data();
@@ -102,8 +105,9 @@ bool obs_module_load(void)
 	obs_register_service(&rtmp_common_service);
 	obs_register_service(&rtmp_custom_service);
 	obs_register_service(&webrtc_janus_service);
-	obs_register_service(&webrtc_spankchain_service);
+	obs_register_service(&webrtc_wowza_service);
 	obs_register_service(&webrtc_millicast_service);
+	obs_register_service(&webrtc_evercast_service);
 	return true;
 }
 

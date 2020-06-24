@@ -1,9 +1,45 @@
 cmake_minimum_required(VERSION 2.8.12)
 
-project(obs-studio)
+if (UNIX AND POLICY CMP0072)
+	# In case of both legacy and glvnd OpenGL libraries found. Prefer GLVND
+	cmake_policy(SET CMP0072 NEW)
+endif()
+if( APPLE AND POLICY CMP0068 )
+        cmake_policy(SET CMP0068 NEW)
+endif()
+if( POLICY CMP0048 )
+        cmake_policy(SET CMP0048 NEW)
+endif()
 
+if(NOT OBS_WEBRTC_VENDOR_NAME)
+	set(_project_name obs-studio)
+else()
+	set(_project_name ${OBS_WEBRTC_VENDOR_NAME})
+endif()
+project(${_project_name} VERSION 23.2)
+
+if(NOT DEFINED CONFIG_DIR OR "${CONFIG_DIR}" STREQUAL "")
+	if(NOT OBS_WEBRTC_VENDOR_NAME)
+		set(CONFIG_DIR "obs-webrtc")
+	else()
+		set(CONFIG_DIR ${OBS_WEBRTC_VENDOR_NAME})
+	endif()
+endif()
+
+# --- Handle CMake Options
+#
+# does not use a project unique prefix, prone to overlap.
+#
 option(BUILD_CAPTIONS "Build captions" FALSE)
 
+# --- Handle Project Dependencies
+#
+# supposes that the super build, or the user uses QTDIR (CLI or ENV), QTDIR32 and or QTDIR64 (ENV only)
+# and not the more standard Qt5_DIR variable. Brittle.
+#
+# supposes that the DepsPath variable exists and point to the obs precompile dependencies.
+# Could be improved thourgh a superbuild script to make it fully deterministic.
+#
 if(WIN32)
 	if (QTDIR OR DEFINED ENV{QTDIR} OR DEFINED ENV{QTDIR32} OR DEFINED ENV{QTDIR64})
 		# Qt path set by user or env var
@@ -19,13 +55,52 @@ if(WIN32)
 	endif()
 endif()
 
+# --- manage vendor look and feel
+
+if( OBS_WEBRTC_VENDOR_NAME )
+	add_subdirectory( vendor_skins )
+endif()
+
+# --- extend cmake with our own scripts, macros and modules
+
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules/")
 set(ENABLE_SCRIPTING TRUE CACHE BOOL "Enables scripting")
-set(SCRIPTING_ENABLED OFF CACHE BOOL "Interal global cmake variable" FORCE)
+set(SCRIPTING_ENABLED OFF CACHE BOOL "Internal global cmake variable" FORCE)
 
 include(ObsHelpers)
 include(ObsCpack)
 include(GNUInstallDirs)
+
+# Must be a string in the format of "x.x.x-rcx"
+if(DEFINED RELEASE_CANDIDATE)
+	set(OBS_VERSION "${RELEASE_CANDIDATE}")
+	string(REPLACE "-rc" "." RC_SPLIT ${RELEASE_CANDIDATE})
+	string(REPLACE "." ";" RC_SPLIT ${RC_SPLIT})
+	message(WARNING "******************************************************************************\nRelease candidate deteced, OBS_VERSION is now: ${OBS_VERSION}\n******************************************************************************")
+	list(GET RC_SPLIT 0 OBS_RELEASE_CANDIDATE_MAJOR)
+	list(GET RC_SPLIT 1 OBS_RELEASE_CANDIDATE_MINOR)
+	list(GET RC_SPLIT 2 OBS_RELEASE_CANDIDATE_PATCH)
+	list(GET RC_SPLIT 3 OBS_RELEASE_CANDIDATE)
+else()
+	set(OBS_RELEASE_CANDIDATE_MAJOR 0)
+	set(OBS_RELEASE_CANDIDATE_MINOR 0)
+	set(OBS_RELEASE_CANDIDATE_PATCH 0)
+	set(OBS_RELEASE_CANDIDATE 0)
+endif()
+
+# Binary Versioning for Windows
+if(WIN32)
+	string(REPLACE "-" ";" UI_VERSION_SPLIT ${OBS_VERSION})
+	list(GET UI_VERSION_SPLIT 0 UI_VERSION)
+	string(REPLACE "." ";" UI_VERSION_SEMANTIC ${UI_VERSION})
+	list(GET UI_VERSION_SEMANTIC 0 UI_VERSION_MAJOR)
+	list(GET UI_VERSION_SEMANTIC 1 UI_VERSION_MINOR)
+	list(GET UI_VERSION_SEMANTIC 2 UI_VERSION_PATCH)
+	configure_file(UI/obs.rc.in ${PROJECT_BINARY_DIR}/obs.rc)
+        set( obs.rc_DIR ${PROJECT_BINARY_DIR} )
+endif()
+
+# --- Handle Compiler Settings
 
 if(MSVC AND NOT EXISTS "${CMAKE_BINARY_DIR}/ALL_BUILD.vcxproj.user")
 	file(GENERATE
@@ -34,7 +109,7 @@ if(MSVC AND NOT EXISTS "${CMAKE_BINARY_DIR}/ALL_BUILD.vcxproj.user")
 endif()
 
 if(NOT CMAKE_BUILD_TYPE)
-        set(CMAKE_BUILD_TYPE RelWithDebInfo)
+	set(CMAKE_BUILD_TYPE RelWithDebInfo)
 endif()
 
 find_package(CXX11 REQUIRED)
@@ -42,6 +117,10 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CXX11_FLAGS}")
 
 if(${CMAKE_C_COMPILER_ID} MATCHES "Clang" OR ${CMAKE_CXX_COMPILER_ID} MATCHES "Clang")
 	set(CMAKE_COMPILER_IS_CLANG TRUE)
+endif()
+
+if(CMAKE_SYSTEM_PROCESSOR MATCHES "^(powerpc|ppc)64le")
+	add_compile_definitions(NO_WARN_X86_INTRINSICS)
 endif()
 
 if(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX OR CMAKE_COMPILER_IS_CLANG)
@@ -60,7 +139,7 @@ elseif(MSVC)
 	endif()
 
 	# Disable pointless constant condition warnings
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4127 /wd4201")
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4127 /wd4201 /wd4456 /wd4457 /wd4458 /wd4459 /wd4595")
 endif()
 
 if(WIN32)
@@ -68,6 +147,7 @@ if(WIN32)
 endif()
 
 if(MSVC)
+	add_compile_options("/MP")
 	set(CMAKE_C_FLAGS_DEBUG "/DDEBUG=1 /D_DEBUG=1 ${CMAKE_C_FLAGS_DEBUG}")
 	set(CMAKE_CXX_FLAGS_DEBUG "/DDEBUG=1 /D_DEBUG=1 ${CMAKE_C_FLAGS_DEBUG}")
 
@@ -95,14 +175,16 @@ elseif(UNIX)
 	if(USE_XDG)
 		add_definitions(-DUSE_XDG)
 	endif()
-
 	if(NOT UNIX_STRUCTURE)
 		list(APPEND CMAKE_INSTALL_RPATH "$ORIGIN")
 	endif()
 endif()
 
-option(BUILD_TESTS "Build test directory (includes test sources and possibly a platform test executable)" FALSE)
+option( BUILD_TESTS "Build test directory (includes test sources and possibly a platform test executable)" FALSE)
 mark_as_advanced(BUILD_TESTS)
+
+
+# --- Handle source code, UI, package, ....
 
 if(NOT INSTALLER_RUN)
 	option(ENABLE_UI "Enables the OBS user interfaces" ON)
@@ -110,6 +192,33 @@ if(NOT INSTALLER_RUN)
 		set(UI_ENABLED FALSE)
 	else()
 		set(UI_ENABLED TRUE)
+
+		if(CMAKE_SIZEOF_VOID_P EQUAL 8)
+			set(_lib_suffix 64)
+		else()
+			set(_lib_suffix 32)
+		endif()
+
+		if(DEFINED QTDIR${_lib_suffix})
+			list(APPEND CMAKE_PREFIX_PATH "${QTDIR${_lib_suffix}}")
+		elseif(DEFINED QTDIR)
+			list(APPEND CMAKE_PREFIX_PATH "${QTDIR}")
+		elseif(DEFINED ENV{QTDIR${_lib_suffix}})
+			list(APPEND CMAKE_PREFIX_PATH "$ENV{QTDIR${_lib_suffix}}")
+		elseif(DEFINED ENV{QTDIR})
+			list(APPEND CMAKE_PREFIX_PATH "$ENV{QTDIR}")
+		endif()
+
+		find_package(Qt5Widgets ${FIND_MODE})
+                if( APPLE )
+                        # Make sure we are using Qt installed by brew
+                        list(GET Qt5Widgets_INCLUDE_DIRS 1 my_path)
+                        string(FIND ${my_path} "/usr/local/Cellar/" cellar_index)
+                        string(FIND ${my_path} "/usr/local/opt/" opt_index)
+                        if( ${cellar_index} EQUAL -1 AND ${opt_index} EQUAL -1 )
+                                message( "ERROR, you must give path to a Qt installed by brew." )
+                        endif()
+                endif()
 	endif()
 
 	add_subdirectory(deps)
@@ -120,16 +229,24 @@ if(NOT INSTALLER_RUN)
 
 	add_subdirectory(libobs-opengl)
 	add_subdirectory(libobs)
-	add_subdirectory(UI)
 	add_subdirectory(plugins)
+	add_subdirectory(UI)
 	if (BUILD_TESTS)
 		add_subdirectory(test)
 	endif()
 
 	add_subdirectory(cmake/helper_subdir)
 else()
+	# if INSTALLER_RUN
 	obs_generate_multiarch_installer()
 endif()
 
+# this prepares the packaging by copying over
+# all binaries needed. Make sure to extend
+# if you add any binary or dependency
 include(CopyMSVCBins)
+
+# enable submissions to a CDash server
+enable_testing()
+include(CTest)
 

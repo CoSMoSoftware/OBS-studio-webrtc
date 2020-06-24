@@ -12,6 +12,7 @@ set(libobs-d3d11_SOURCES
 	d3d11-stagesurf.cpp
 	d3d11-subsystem.cpp
 	d3d11-texture2d.cpp
+	d3d11-texture3d.cpp
 	d3d11-vertexbuffer.cpp
 	d3d11-duplicator.cpp
 	d3d11-rebuild.cpp
@@ -30,6 +31,7 @@ set_target_properties(libobs-d3d11
 		PREFIX "")
 target_link_libraries(libobs-d3d11
 	libobs
+	d3d9
 	d3d11
 	dxgi)
 

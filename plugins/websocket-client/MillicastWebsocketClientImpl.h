@@ -1,3 +1,5 @@
+/* Copyright Dr. Alex. Gouaillard (2015, 2020) */
+
 #include "WebsocketClient.h"
 
 //Use http://think-async.com/ insted of boost
@@ -14,41 +16,35 @@
 
 typedef websocketpp::client<websocketpp::config::asio_tls_client> Client;
 
-class MillicastWebsocketClientImpl : public WebsocketClient
-{
+class MillicastWebsocketClientImpl : public WebsocketClient {
 public:
     MillicastWebsocketClientImpl();
     ~MillicastWebsocketClientImpl();
-    virtual bool connect(
-      std::string url,
-      long long room,
-      std::string username,
-      std::string token,
-      WebsocketClient::Listener* listener
-    );
-    virtual bool open(
-      const std::string &sdp,
-      const std::string& codec = "h264",
-      const std::string& milliId = ""
-    );
-    virtual bool trickle(
-      const std::string &mid,
-      int index,
-      const std::string &candidate,
-      bool last
-    );
-    virtual bool disconnect(bool wait);
+
+    // WebsocketClient::Listener implementation
+    bool connect(
+            const std::string & /* publish_api_url */,
+            const std::string & /* room */,
+            const std::string & stream_name,
+            const std::string & token,
+            WebsocketClient::Listener * listener) override;
+    bool open(
+            const std::string & sdp,
+            const std::string & video_codec,
+            const std::string & stream_name) override;
+    bool trickle(
+            const std::string & /* mid */,
+            int /* index */,
+            const std::string & /* candidate */,
+            bool /* last */) override;
+    bool disconnect(bool /* wait */) override;
 
 private:
-    bool logged;
     std::string token;
-    long long handle_id;
 
-    std::atomic<bool> is_running;
-    std::future<void> handle;
-    std::thread thread;
-   
     Client client;
     Client::connection_ptr connection;
-};
+    std::thread thread;
 
+    std::string sanitizeString(const std::string & s);
+};

@@ -35,7 +35,7 @@ bool XCompcapMain::init()
 
 	if (major == 0 && minor < 2) {
 		blog(LOG_ERROR, "Xcomposite extension is too old: %d.%d < 0.2",
-				major, minor);
+		     major, minor);
 		return false;
 	}
 
@@ -51,43 +51,41 @@ obs_properties_t *XCompcapMain::properties()
 {
 	obs_properties_t *props = obs_properties_create();
 
-	obs_property_t *wins = obs_properties_add_list(props, "capture_window",
-			obs_module_text("Window"),
-			OBS_COMBO_TYPE_LIST, OBS_COMBO_FORMAT_STRING);
+	obs_property_t *wins = obs_properties_add_list(
+		props, "capture_window", obs_module_text("Window"),
+		OBS_COMBO_TYPE_LIST, OBS_COMBO_FORMAT_STRING);
 
-	for (Window win: XCompcap::getTopLevelWindows()) {
+	for (Window win : XCompcap::getTopLevelWindows()) {
 		std::string wname = XCompcap::getWindowName(win);
 		std::string cls = XCompcap::getWindowClass(win);
 		std::string winid = std::to_string((long long)win);
 		std::string desc =
-			(winid + WIN_STRING_DIV + wname +
-			 WIN_STRING_DIV + cls);
+			(winid + WIN_STRING_DIV + wname + WIN_STRING_DIV + cls);
 
-		obs_property_list_add_string(wins, wname.c_str(),
-				desc.c_str());
+		obs_property_list_add_string(wins, wname.c_str(), desc.c_str());
 	}
 
-	obs_properties_add_int(props, "cut_top", obs_module_text("CropTop"),
-			0, 4096, 1);
+	obs_properties_add_int(props, "cut_top", obs_module_text("CropTop"), 0,
+			       4096, 1);
 	obs_properties_add_int(props, "cut_left", obs_module_text("CropLeft"),
-			0, 4096, 1);
+			       0, 4096, 1);
 	obs_properties_add_int(props, "cut_right", obs_module_text("CropRight"),
-			0, 4096, 1);
+			       0, 4096, 1);
 	obs_properties_add_int(props, "cut_bot", obs_module_text("CropBottom"),
-			0, 4096, 1);
+			       0, 4096, 1);
 
 	obs_properties_add_bool(props, "swap_redblue",
-			obs_module_text("SwapRedBlue"));
+				obs_module_text("SwapRedBlue"));
 	obs_properties_add_bool(props, "lock_x", obs_module_text("LockX"));
 
 	obs_properties_add_bool(props, "show_cursor",
-			obs_module_text("CaptureCursor"));
+				obs_module_text("CaptureCursor"));
 
 	obs_properties_add_bool(props, "include_border",
-			obs_module_text("IncludeXBorder"));
+				obs_module_text("IncludeXBorder"));
 
 	obs_properties_add_bool(props, "exclude_alpha",
-			obs_module_text("ExcludeAlpha"));
+				obs_module_text("ExcludeAlpha"));
 
 	return props;
 }
@@ -108,20 +106,24 @@ void XCompcapMain::defaults(obs_data_t *settings)
 
 #define FIND_WINDOW_INTERVAL 2.0
 
-struct XCompcapMain_private
-{
+struct XCompcapMain_private {
 	XCompcapMain_private()
-		:win(0)
-		,cut_top(0), cur_cut_top(0)
-		,cut_left(0), cur_cut_left(0)
-		,cut_right(0), cur_cut_right(0)
-		,cut_bot(0), cur_cut_bot(0)
-		,inverted(false)
-		,width(0),height(0)
-		,pixmap(0)
-		,glxpixmap(0)
-		,tex(0)
-		,gltex(0)
+		: win(0),
+		  cut_top(0),
+		  cur_cut_top(0),
+		  cut_left(0),
+		  cur_cut_left(0),
+		  cut_right(0),
+		  cur_cut_right(0),
+		  cut_bot(0),
+		  cur_cut_bot(0),
+		  inverted(false),
+		  width(0),
+		  height(0),
+		  pixmap(0),
+		  glxpixmap(0),
+		  tex(0),
+		  gltex(0)
 	{
 		pthread_mutexattr_init(&lockattr);
 		pthread_mutexattr_settype(&lockattr, PTHREAD_MUTEX_RECURSIVE);
@@ -148,6 +150,7 @@ struct XCompcapMain_private
 	bool lockX;
 	bool include_border;
 	bool exclude_alpha;
+	bool draw_opaque;
 
 	double window_check_time = 0.0;
 
@@ -167,7 +170,6 @@ struct XCompcapMain_private
 	bool cursor_outside = false;
 	xcursor_t *cursor = nullptr;
 };
-
 
 XCompcapMain::XCompcapMain(obs_data_t *settings, obs_source_t *source)
 {
@@ -230,7 +232,7 @@ static Window getWindowFromString(std::string wstr)
 	std::string wcls = wstr.substr(lastMark + markSize);
 
 	Window matchedNameWin = wid;
-	for (Window cwin: XCompcap::getTopLevelWindows()) {
+	for (Window cwin : XCompcap::getTopLevelWindows()) {
 		std::string cwinname = XCompcap::getWindowName(cwin);
 		std::string ccls = XCompcap::getWindowClass(cwin);
 
@@ -248,35 +250,103 @@ static Window getWindowFromString(std::string wstr)
 static void xcc_cleanup(XCompcapMain_private *p)
 {
 	PLock lock(&p->lock);
-	XDisplayLock xlock;
+	XErrorLock xlock;
 
 	if (p->gltex) {
+		GLuint gltex = *(GLuint *)gs_texture_get_obj(p->gltex);
+		glBindTexture(GL_TEXTURE_2D, gltex);
+		if (p->glxpixmap) {
+			glXReleaseTexImageEXT(xdisp, p->glxpixmap,
+					      GLX_FRONT_LEFT_EXT);
+			if (xlock.gotError()) {
+				blog(LOG_ERROR,
+				     "cleanup glXReleaseTexImageEXT failed: %s",
+				     xlock.getErrorText().c_str());
+				xlock.resetError();
+			}
+			glXDestroyPixmap(xdisp, p->glxpixmap);
+			if (xlock.gotError()) {
+				blog(LOG_ERROR,
+				     "cleanup glXDestroyPixmap failed: %s",
+				     xlock.getErrorText().c_str());
+				xlock.resetError();
+			}
+			p->glxpixmap = 0;
+		}
 		gs_texture_destroy(p->gltex);
 		p->gltex = 0;
 	}
 
-	if (p->glxpixmap) {
-		glXDestroyPixmap(xdisp, p->glxpixmap);
-		p->glxpixmap = 0;
-	}
-
 	if (p->pixmap) {
 		XFreePixmap(xdisp, p->pixmap);
+		if (xlock.gotError()) {
+			blog(LOG_ERROR, "cleanup glXDestroyPixmap failed: %s",
+			     xlock.getErrorText().c_str());
+			xlock.resetError();
+		}
 		p->pixmap = 0;
 	}
 
 	if (p->win) {
 		XCompositeUnredirectWindow(xdisp, p->win,
-				CompositeRedirectAutomatic);
+					   CompositeRedirectAutomatic);
 		XSelectInput(xdisp, p->win, 0);
 		p->win = 0;
 	}
+
+	if (p->tex) {
+		gs_texture_destroy(p->tex);
+		p->tex = 0;
+	}
 }
+
+static gs_color_format gs_format_from_tex()
+{
+	GLint iformat = 0;
+	// consider GL_ARB_internalformat_query
+	glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_INTERNAL_FORMAT,
+				 &iformat);
+
+	// These formats are known to be wrong on Intel platforms. We intentionally
+	// use swapped internal formats here to preserve historic behavior which
+	// swapped colors accidentally and because D3D11 would not support a
+	// GS_RGBX format
+	switch (iformat) {
+	case GL_RGB:
+		return GS_BGRX;
+	case GL_RGBA:
+		return GS_RGBA;
+	default:
+		return GS_RGBA;
+	}
+}
+
+// from libobs-opengl/gl-subsystem.h because we need to handle GLX modifying textures outside libobs.
+struct fb_info;
+
+struct gs_texture {
+	gs_device_t *device;
+	enum gs_texture_type type;
+	enum gs_color_format format;
+	GLenum gl_format;
+	GLenum gl_target;
+	GLenum gl_internal_format;
+	GLenum gl_type;
+	GLuint texture;
+	uint32_t levels;
+	bool is_dynamic;
+	bool is_render_target;
+	bool is_dummy;
+	bool gen_mipmaps;
+
+	gs_samplerstate_t *cur_sampler;
+	struct fbo_info *fbo;
+};
+// End shitty hack.
 
 void XCompcapMain::updateSettings(obs_data_t *settings)
 {
 	PLock lock(&p->lock);
-	XErrorLock xlock;
 	ObsGsContextHolder obsctx;
 
 	blog(LOG_DEBUG, "Settings updating");
@@ -286,8 +356,8 @@ void XCompcapMain::updateSettings(obs_data_t *settings)
 	xcc_cleanup(p);
 
 	if (settings) {
-		const char *windowName = obs_data_get_string(settings,
-				"capture_window");
+		const char *windowName =
+			obs_data_get_string(settings, "capture_window");
 
 		p->windowName = windowName;
 		p->win = getWindowFromString(windowName);
@@ -299,29 +369,28 @@ void XCompcapMain::updateSettings(obs_data_t *settings)
 		p->lockX = obs_data_get_bool(settings, "lock_x");
 		p->swapRedBlue = obs_data_get_bool(settings, "swap_redblue");
 		p->show_cursor = obs_data_get_bool(settings, "show_cursor");
-		p->include_border = obs_data_get_bool(settings, "include_border");
+		p->include_border =
+			obs_data_get_bool(settings, "include_border");
 		p->exclude_alpha = obs_data_get_bool(settings, "exclude_alpha");
+		p->draw_opaque = false;
 	} else {
 		p->win = prevWin;
 	}
 
-	xlock.resetError();
-
+	XErrorLock xlock;
 	if (p->win)
 		XCompositeRedirectWindow(xdisp, p->win,
-				CompositeRedirectAutomatic);
-
+					 CompositeRedirectAutomatic);
 	if (xlock.gotError()) {
 		blog(LOG_ERROR, "XCompositeRedirectWindow failed: %s",
-				xlock.getErrorText().c_str());
+		     xlock.getErrorText().c_str());
 		return;
 	}
 
 	if (p->win)
 		XSelectInput(xdisp, p->win,
-			StructureNotifyMask
-			| ExposureMask
-			| VisibilityChangeMask);
+			     StructureNotifyMask | ExposureMask |
+				     VisibilityChangeMask);
 	XSync(xdisp, 0);
 
 	XWindowAttributes attr;
@@ -337,15 +406,56 @@ void XCompcapMain::updateSettings(obs_data_t *settings)
 		int x, y;
 
 		XTranslateCoordinates(xdisp, p->win, attr.root, 0, 0, &x, &y,
-				&child);
+				      &child);
 		xcursor_offset(p->cursor, x, y);
 	}
 
-	gs_color_format cf = GS_RGBA;
+	const int config_attrs[] = {GLX_BIND_TO_TEXTURE_RGBA_EXT,
+				    GL_TRUE,
+				    GLX_DRAWABLE_TYPE,
+				    GLX_PIXMAP_BIT,
+				    GLX_BIND_TO_TEXTURE_TARGETS_EXT,
+				    GLX_TEXTURE_2D_BIT_EXT,
+				    GLX_DOUBLEBUFFER,
+				    GL_FALSE,
+				    None};
+	int nelem = 0;
+	GLXFBConfig *configs = glXChooseFBConfig(
+		xdisp, XCompcap::getRootWindowScreen(attr.root), config_attrs,
+		&nelem);
 
-	if (p->exclude_alpha) {
-		cf = GS_BGRX;
+	bool found = false;
+	GLXFBConfig config;
+	for (int i = 0; i < nelem; i++) {
+		config = configs[i];
+		XVisualInfo *visual = glXGetVisualFromFBConfig(xdisp, config);
+		if (!visual)
+			continue;
+
+		if (attr.depth != visual->depth) {
+			XFree(visual);
+			continue;
+		}
+		XFree(visual);
+		found = true;
+		break;
 	}
+	if (!found) {
+		blog(LOG_ERROR, "no matching fb config found");
+		p->win = 0;
+		p->height = 0;
+		p->width = 0;
+		XFree(configs);
+		return;
+	}
+
+	if (p->exclude_alpha || attr.depth != 32) {
+		p->draw_opaque = true;
+	}
+
+	int inverted;
+	glXGetFBConfigAttrib(xdisp, config, GLX_Y_INVERTED_EXT, &inverted);
+	p->inverted = inverted != 0;
 
 	p->border = attr.border_width;
 
@@ -373,105 +483,80 @@ void XCompcapMain::updateSettings(obs_data_t *settings)
 		p->cur_cut_right = 0;
 	}
 
-	if (p->tex)
-		gs_texture_destroy(p->tex);
-
-	uint8_t *texData = new uint8_t[width() * height() * 4];
-
-	memset(texData, 0, width() * height() * 4);
-
-	const uint8_t* texDataArr[] = { texData, 0 };
-
-	p->tex = gs_texture_create(width(), height(), cf, 1,
-			texDataArr, 0);
-
-	delete[] texData;
-
-	if (p->swapRedBlue) {
-		GLuint tex = *(GLuint*)gs_texture_get_obj(p->tex);
-		glBindTexture(GL_TEXTURE_2D, tex);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_B, GL_RED);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_R, GL_BLUE);
-		glBindTexture(GL_TEXTURE_2D, 0);
-	}
-
-	const int attrs[] =
-	{
-		GLX_BIND_TO_TEXTURE_RGBA_EXT, GL_TRUE,
-		GLX_DRAWABLE_TYPE, GLX_PIXMAP_BIT,
-		GLX_BIND_TO_TEXTURE_TARGETS_EXT, GLX_TEXTURE_2D_BIT_EXT,
-		GLX_DOUBLEBUFFER, GL_FALSE,
-		None
-	};
-
-	int nelem = 0;
-	GLXFBConfig* configs = glXChooseFBConfig(xdisp,
-			XCompcap::getRootWindowScreen(attr.root),
-			attrs, &nelem);
-
-	if (nelem <= 0) {
-		blog(LOG_ERROR, "no matching fb config found");
-		p->win = 0;
-		p->height = 0;
-		p->width = 0;
-		return;
-	}
-
-	glXGetFBConfigAttrib(xdisp, configs[0], GLX_Y_INVERTED_EXT, &nelem);
-	p->inverted = nelem != 0;
-
+	// Precautionary since we dont error check every GLX call above.
 	xlock.resetError();
 
 	p->pixmap = XCompositeNameWindowPixmap(xdisp, p->win);
-
 	if (xlock.gotError()) {
 		blog(LOG_ERROR, "XCompositeNameWindowPixmap failed: %s",
-				xlock.getErrorText().c_str());
+		     xlock.getErrorText().c_str());
 		p->pixmap = 0;
 		XFree(configs);
 		return;
 	}
 
-	const int attribs[] =
-	{
-		GLX_TEXTURE_TARGET_EXT, GLX_TEXTURE_2D_EXT,
-		GLX_TEXTURE_FORMAT_EXT, GLX_TEXTURE_FORMAT_RGBA_EXT,
-		None
-	};
+	// Should be consistent format with config we are using. Since we searched on RGBA lets use RGBA here.
+	const int pixmap_attrs[] = {GLX_TEXTURE_TARGET_EXT, GLX_TEXTURE_2D_EXT,
+				    GLX_TEXTURE_FORMAT_EXT,
+				    GLX_TEXTURE_FORMAT_RGBA_EXT, None};
 
-	p->glxpixmap = glXCreatePixmap(xdisp, configs[0], p->pixmap, attribs);
-
+	p->glxpixmap = glXCreatePixmap(xdisp, config, p->pixmap, pixmap_attrs);
 	if (xlock.gotError()) {
 		blog(LOG_ERROR, "glXCreatePixmap failed: %s",
-				xlock.getErrorText().c_str());
+		     xlock.getErrorText().c_str());
 		XFreePixmap(xdisp, p->pixmap);
 		XFree(configs);
 		p->pixmap = 0;
 		p->glxpixmap = 0;
 		return;
 	}
-
 	XFree(configs);
 
-	p->gltex = gs_texture_create(p->width, p->height, cf, 1, 0,
-			GS_GL_DUMMYTEX);
-
-	GLuint gltex = *(GLuint*)gs_texture_get_obj(p->gltex);
+	// Build an OBS texture to bind the pixmap to.
+	p->gltex = gs_texture_create(p->width, p->height, GS_RGBA, 1, 0,
+				     GS_GL_DUMMYTEX);
+	GLuint gltex = *(GLuint *)gs_texture_get_obj(p->gltex);
 	glBindTexture(GL_TEXTURE_2D, gltex);
 	glXBindTexImageEXT(xdisp, p->glxpixmap, GLX_FRONT_LEFT_EXT, NULL);
+	if (xlock.gotError()) {
+		blog(LOG_ERROR, "glXBindTexImageEXT failed: %s",
+		     xlock.getErrorText().c_str());
+		XFreePixmap(xdisp, p->pixmap);
+		XFree(configs);
+		p->pixmap = 0;
+		p->glxpixmap = 0;
+		return;
+	}
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	// glxBindTexImageEXT might modify the textures format.
+	gs_color_format format = gs_format_from_tex();
+	glBindTexture(GL_TEXTURE_2D, 0);
+	// sync OBS texture format based on any glxBindTexImageEXT changes
+	p->gltex->format = format;
+
+	// Create a pure OBS texture to use for rendering. Using the same
+	// format so we can copy instead of drawing from the source gltex.
+	if (p->tex)
+		gs_texture_destroy(p->tex);
+	p->tex = gs_texture_create(width(), height(), format, 1, 0,
+				   GS_GL_DUMMYTEX);
+	if (p->swapRedBlue) {
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_B, GL_RED);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_R, GL_BLUE);
+	}
 
 	if (!p->windowName.empty()) {
-		blog(LOG_INFO, "[window-capture: '%s'] update settings:\n"
-				"\ttitle: %s\n"
-				"\tclass: %s",
-				obs_source_get_name(p->source),
-				XCompcap::getWindowName(p->win).c_str(),
-				XCompcap::getWindowClass(p->win).c_str());
-		blog(LOG_DEBUG, "\n"
-				"\tid:    %s",
-				std::to_string((long long)p->win).c_str());
+		blog(LOG_INFO,
+		     "[window-capture: '%s'] update settings:\n"
+		     "\ttitle: %s\n"
+		     "\tclass: %s\n"
+		     "\tBit depth: %i\n"
+		     "\tFound proper GLXFBConfig (in %i): %s\n",
+		     obs_source_get_name(p->source),
+		     XCompcap::getWindowName(p->win).c_str(),
+		     XCompcap::getWindowClass(p->win).c_str(), attr.depth,
+		     nelem, found ? "yes" : "no");
 	}
 }
 
@@ -519,33 +604,28 @@ void XCompcapMain::tick(float seconds)
 	obs_enter_graphics();
 
 	if (p->lockX) {
+		// XDisplayLock is still live so we should already be locked.
 		XLockDisplay(xdisp);
 		XSync(xdisp, 0);
 	}
 
 	if (p->include_border) {
-		gs_copy_texture_region(
-				p->tex, 0, 0,
-				p->gltex,
-				p->cur_cut_left,
-				p->cur_cut_top,
-				width(), height());
+		gs_copy_texture_region(p->tex, 0, 0, p->gltex, p->cur_cut_left,
+				       p->cur_cut_top, width(), height());
 	} else {
-		gs_copy_texture_region(
-				p->tex, 0, 0,
-				p->gltex,
-				p->cur_cut_left + p->border,
-				p->cur_cut_top + p->border,
-				width(), height());
+		gs_copy_texture_region(p->tex, 0, 0, p->gltex,
+				       p->cur_cut_left + p->border,
+				       p->cur_cut_top + p->border, width(),
+				       height());
 	}
 
 	if (p->cursor && p->show_cursor) {
 		xcursor_tick(p->cursor);
 
 		p->cursor_outside =
-			p->cursor->x < p->cur_cut_left                   ||
-			p->cursor->y < p->cur_cut_top                    ||
-			p->cursor->x > int(p->width  - p->cur_cut_right) ||
+			p->cursor->x < p->cur_cut_left ||
+			p->cursor->y < p->cur_cut_top ||
+			p->cursor->x > int(p->width - p->cur_cut_right) ||
 			p->cursor->y > int(p->height - p->cur_cut_bot);
 	}
 
@@ -562,7 +642,10 @@ void XCompcapMain::render(gs_effect_t *effect)
 
 	PLock lock(&p->lock, true);
 
-	effect = obs_get_base_effect(OBS_EFFECT_OPAQUE);
+	if (p->draw_opaque)
+		effect = obs_get_base_effect(OBS_EFFECT_OPAQUE);
+	else
+		effect = obs_get_base_effect(OBS_EFFECT_DEFAULT);
 
 	if (!lock.isLocked() || !p->tex)
 		return;

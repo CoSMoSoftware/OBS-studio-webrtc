@@ -1,219 +1,177 @@
 #ifndef _WEBRTCSTREAM_H_
 #define _WEBRTCSTREAM_H_
 
-// NOTE ALEX: WTF
-#pragma comment(lib,"Strmiids.lib") 
+#if WIN32
+#pragma comment(lib,"Strmiids.lib")
 #pragma comment(lib,"Secur32.lib")
 #pragma comment(lib,"Msdmo.lib")
 #pragma comment(lib,"dmoguids.lib")
 #pragma comment(lib,"wmcodecdspuuid.lib")
 #pragma comment(lib,"amstrmid.lib")
+#endif
 
 #include "obs.h"
 #include "WebsocketClient.h"
-#include "VideoCapture.h"
 #include "VideoCapturer.h"
 #include "AudioDeviceModuleWrapper.h"
 
-#include <rtc_base/platform_file.h>
-#include <rtc_base/bitrateallocationstrategy.h>
-#include <modules/audio_processing/include/audio_processing.h>
-
-#include "api/mediastreaminterface.h"
-#include "api/peerconnectioninterface.h"
-#include "modules/video_capture/video_capture.h"
-#include "modules/video_capture/video_capture_defines.h"
-#include "modules/video_capture/video_capture_factory.h"
-#include "api/mediaconstraintsinterface.h"
-#include "api/peerconnectioninterface.h"
-#include "rtc_base/scoped_ref_ptr.h"
-#include "rtc_base/refcountedobject.h"
+#include "api/create_peerconnection_factory.h"
+#include "api/media_stream_interface.h"
+#include "api/peer_connection_interface.h"
+#include "api/scoped_refptr.h"
+#include "api/set_remote_description_observer_interface.h"
+#include "modules/audio_processing/include/audio_processing.h"
+#include "rtc_base/critical_section.h"
+#include "rtc_base/ref_counted_object.h"
 #include "rtc_base/thread.h"
+#include "rtc_base/timestamp_aligner.h"
+
+#include <initializer_list>
+#include <regex>
+#include <string>
+#include <vector>
+#include <chrono>
+#include <thread>
 
 class WebRTCStreamInterface :
-  public WebsocketClient::Listener,
-  public webrtc::PeerConnectionObserver,
-  public webrtc::CreateSessionDescriptionObserver,
-  public webrtc::SetSessionDescriptionObserver,
-  public cricket::WebRtcVcmFactoryInterface
-{
+    public WebsocketClient::Listener,
+    public webrtc::PeerConnectionObserver,
+    public webrtc::CreateSessionDescriptionObserver,
+    public webrtc::SetSessionDescriptionObserver,
+    public webrtc::SetRemoteDescriptionObserverInterface {};
 
-};
-class WebRTCStream : public rtc::RefCountedObject<WebRTCStreamInterface>
-{
+class WebRTCStream : public rtc::RefCountedObject<WebRTCStreamInterface> {
 public:
-  enum Type {
-    Janus      = 0,
-    SpankChain = 1,
-    Millicast  = 2
-  };
-public:
-  WebRTCStream(obs_output_t *output);
-  ~WebRTCStream();
+    enum Type {
+        Janus     = 0,
+        Wowza     = 1,
+        Millicast = 2,
+        Evercast  = 3
+    };
 
-  bool start(Type type);
-  void onVideoFrame(video_data *frame);
-  void onAudioFrame(audio_data *frame);
-  bool enableThumbnail(uint8_t downscale, uint8_t downrate)
-  {
-    if (!downscale || !downrate)
-      return false;
-    thumbnailDownscale = downscale;
-    thumbnailDownrate = downrate;
-    return (thumbnail = true);
-  }
-  void setCodec(const std::string& codec)
-  {
-    this->codec = codec;
-  }
-  bool stop();
+    WebRTCStream(obs_output_t *output);
+    ~WebRTCStream() override;
 
-  //
-  // WebsocketClient::Listener implementation.
-  //
-  virtual void onConnected();
-  virtual void onLogged(int code);
-  virtual void onLoggedError(int code);
-  virtual void onOpened(const std::string &sdp);
-  virtual void onOpenedError(int code);
-  virtual void onDisconnected();
+    bool close(bool wait);
+    bool start(Type type);
+    bool stop();
+    void onAudioFrame(audio_data *frame);
+    void onVideoFrame(video_data *frame);
+    void setCodec(const std::string &new_codec) { this->video_codec = new_codec; }
 
-  //
-  // PeerConnectionObserver implementation.
-  //
-  void OnSignalingChange(webrtc::PeerConnectionInterface::SignalingState new_state) override {};
-  void OnAddStream(rtc::scoped_refptr<webrtc::MediaStreamInterface> stream) override {};
-  void OnRemoveStream(rtc::scoped_refptr<webrtc::MediaStreamInterface> stream) override {};
-  void OnDataChannel(rtc::scoped_refptr<webrtc::DataChannelInterface> channel) override {}
-  void OnRenegotiationNeeded() override {}
-  void OnIceConnectionChange(webrtc::PeerConnectionInterface::IceConnectionState new_state) override {};
-  void OnIceGatheringChange(webrtc::PeerConnectionInterface::IceGatheringState new_state) override {};
-  void OnIceCandidate(const webrtc::IceCandidateInterface* candidate) override;
-  void OnIceConnectionReceivingChange(bool receiving) override {}
+    //
+    // WebsocketClient::Listener implementation.
+    //
+    void onConnected() override;
+    void onDisconnected() override;
+    void onLogged(int code) override;
+    void onLoggedError(int code) override;
+    void onOpened(const std::string &sdp) override;
+    void onOpenedError(int code) override;
+    void onRemoteIceCandidate(const std::string &sdpData) override;
 
-  // CreateSessionDescriptionObserver implementation.
-  void OnSuccess(webrtc::SessionDescriptionInterface* desc) override;
-  void OnFailure(const std::string& error) override;
-  // SetSessionDescriptionObserver implementation
-  void OnSuccess() override;
-  //void OnFailure(const std::string& error) override;
+    //
+    // PeerConnectionObserver implementation.
+    //
+    void OnSignalingChange(webrtc::PeerConnectionInterface::SignalingState /* new_state */) override {}
+    void OnAddStream(rtc::scoped_refptr<webrtc::MediaStreamInterface> /* stream */) override {}
+    void OnRemoveStream(rtc::scoped_refptr<webrtc::MediaStreamInterface> /* stream */) override {}
+    void OnDataChannel(rtc::scoped_refptr<webrtc::DataChannelInterface> /* channel */) override {}
+    void OnRenegotiationNeeded() override {}
+    void OnIceConnectionChange(webrtc::PeerConnectionInterface::IceConnectionState /* new_state */) override; 
+    void OnIceGatheringChange(webrtc::PeerConnectionInterface::IceGatheringState /* new_state */) override {}
+    void OnIceCandidate(const webrtc::IceCandidateInterface *candidate) override;
+    void OnIceConnectionReceivingChange(bool /* receiving */) override {}
 
-  virtual rtc::scoped_refptr<webrtc::VideoCaptureModule> Create(const char*)
-  {
-    return videoCapture;
-  }
-  virtual webrtc::VideoCaptureModule::DeviceInfo* CreateDeviceInfo()
-  {
-    return webrtc::VideoCaptureFactory::CreateDeviceInfo();
-  }
-  virtual void DestroyDeviceInfo(webrtc::VideoCaptureModule::DeviceInfo* info)
-  {
-    delete(info);
-  }
+    // CreateSessionDescriptionObserver
+    void OnSuccess(webrtc::SessionDescriptionInterface *desc) override;
 
-  //bitrate
-  uint64_t getBitrate();
+    // CreateSessionDescriptionObserver / SetSessionDescriptionObserver
+    void OnFailure(const std::string &error) override;
+
+    // SetSessionDescriptionObserver
+    void OnSuccess() override;
+
+    // SetRemoteDescriptionObserverInterface
+    void OnSetRemoteDescriptionComplete(webrtc::RTCError error) override;
+
+    // NOTE LUDO: #80 add getStats
+    // WebRTC stats
+    void getStats();
+    const char *get_stats_list() { return stats_list.c_str(); }
+    // Bitrate & dropped frames
+    uint64_t getBitrate()        { return total_bytes_sent; }
+    int getDroppedFrames()       { return pli_received; }
+    // Synchronously get stats
+    rtc::scoped_refptr<const webrtc::RTCStatsReport> NewGetStats();
+
+    template <typename T>
+    rtc::scoped_refptr<T> make_scoped_refptr(T *t) {
+        return rtc::scoped_refptr<T>(t);
+    }
 
 private:
-  //Connection properties
-  std::string url;
-  long long  room;
-  std::string username;
-  std::string password;
-  std::string codec;
-  std::string milliId;
-  std::string milliToken;
-  bool        thumbnail;
+    // Connection properties
+    Type type;
+    int audio_bitrate;
+    int video_bitrate;
+    std::string url;
+    std::string room;
+    std::string username;
+    std::string password;
+    std::string protocol;
+    std::string audio_codec;
+    std::string video_codec;
+    int channel_count;
 
-  //tracks
-  rtc::scoped_refptr<webrtc::VideoTrackInterface> video_track;
-  rtc::scoped_refptr<webrtc::AudioTrackInterface> audio_track;
+    // NOTE LUDO: #80 add getStats
+    std::string stats_list;
+    uint16_t frame_id;
+    uint64_t audio_bytes_sent;
+    uint64_t video_bytes_sent;
+    uint64_t total_bytes_sent;
+    int pli_received;
+    // Used to compute fps
+    // NOTE ALEX: Should be initialized in constructor.
+    std::chrono::system_clock::time_point previous_time
+       = std::chrono::system_clock::time_point(std::chrono::duration<int>(0));
+    uint32_t previous_frames_sent = 0;
 
-  //bitrate and dropped frames
-  uint64_t bitrate;
-  int dropped_frame;
+    std::thread thread_closeAsync;
 
-  //Websocket client
-  WebsocketClient* client;
-  //Audio Wrapper
-  AudioDeviceModuleWrapper adm;
-  //Video Wrappers
-  webrtc::VideoCaptureCapability videoCaptureCapability;
-  rtc::scoped_refptr<VideoCapture> videoCapture;
-  //Thumbnail wrapper
-  webrtc::VideoCaptureCapability thumbnailCaptureCapability;
-  rtc::scoped_refptr<VideoCapture> thumbnailCapture;
-  uint32_t picId;
-  uint8_t thumbnailDownscale;
-  uint8_t thumbnailDownrate;
-  //Peerconnection
-  rtc::scoped_refptr<webrtc::PeerConnectionFactoryInterface> factory;
-  rtc::scoped_refptr<webrtc::PeerConnectionInterface> pc;
-  //WebRTC threads
-  std::unique_ptr<rtc::Thread> network;
-  std::unique_ptr<rtc::Thread> worker;
-  std::unique_ptr<rtc::Thread> signaling;
-  //OBS stream output
-  obs_output_t *output;
-};
+    rtc::CriticalSection crit_;
 
-class SDPModif {
-public:
-  static void stereoSDP(std::string &sdp) {
-      std::vector<std::string> sdpLines;
-      split(sdp, "\r\n", sdpLines);
-      int fmtpLine = findLines(sdpLines, "a=fmtp:111");
-      if (fmtpLine != -1) {
-        sdpLines[fmtpLine] = sdpLines[fmtpLine].append(";stereo=1;sprop-stereo=1");
-      } else {
-        int artpLine = findLines(sdpLines, "a=rtpmap:111 opus/48000/2");
-        sdpLines.insert(sdpLines.begin() + artpLine + 1, "a=fmtp:111 stereo=1;sprop-stereo=1");
-      }
-      sdp = join(sdpLines, "\r\n");
-  }
+    // Audio Wrapper
+    rtc::scoped_refptr<AudioDeviceModuleWrapper> adm;
 
-  static void bitrateSDP(std::string &sdp, int newBitrate) {
-      std::vector<std::string> sdpLines;
-      std::ostringstream newLineBitrate;
+    // Video Capturer
+    rtc::scoped_refptr<VideoCapturer> videoCapturer;
+    rtc::TimestampAligner timestamp_aligner_;
 
-      split(sdp, "\r\n", sdpLines);
-      int videoLine = findLines(sdpLines, "m=video ");
-      newLineBitrate << "b=AS:" << newBitrate;
+    // PeerConnection
+    rtc::scoped_refptr<webrtc::PeerConnectionFactoryInterface> factory;
+    rtc::scoped_refptr<webrtc::PeerConnectionInterface> pc;
 
-      sdpLines.insert(sdpLines.begin() + videoLine + 2, newLineBitrate.str()); 
-      sdp = join(sdpLines, "\r\n");
-  }
+    // SetRemoteDescription observer
+    rtc::scoped_refptr<webrtc::SetRemoteDescriptionObserverInterface> srd_observer;
 
-  static std::string join(std::vector<std::string>& v, std::string delim) {
-      std::ostringstream s;
-      for (const auto& i : v) {
-          if (&i != &v[0]) {
-              s << delim ;
-          }
-          s << i;
-      }
-      s << delim;
-      return s.str();
-  }
+    // Media stream
+    rtc::scoped_refptr<webrtc::MediaStreamInterface> stream;
 
-  static void split(const std::string &s, char* delim, std::vector<std::string> & v){
-      char * dup = strdup(s.c_str());
-      char * token = strtok(dup, delim);
-      while(token != NULL){
-          v.push_back(std::string(token));
-          token = strtok(NULL, delim);
-      }
-      free(dup);
-  }
+    // Tracks
+    rtc::scoped_refptr<webrtc::AudioTrackInterface> audio_track;
+    rtc::scoped_refptr<webrtc::VideoTrackInterface> video_track;
 
-  static int findLines(std::vector<std::string> sdpLines, std::string prefix) {
-      for (unsigned long i = 0 ; i < sdpLines.size() ; i++) {
-          if ((sdpLines[i].find(prefix) != std::string::npos)) {
-              return i;
-          }
-      }
-      return -1;
-  }
+    // WebRTC threads
+    std::unique_ptr<rtc::Thread> network;
+    std::unique_ptr<rtc::Thread> worker;
+    std::unique_ptr<rtc::Thread> signaling;
+
+    // Websocket client
+    WebsocketClient *client;
+
+    // OBS stream output
+    obs_output_t *output;
 };
 
 #endif

@@ -17,7 +17,7 @@
 #pragma once
 
 class WinHandle {
-	HANDLE handle;
+	HANDLE handle = INVALID_HANDLE_VALUE;
 
 	inline void Clear()
 	{
@@ -26,13 +26,13 @@ class WinHandle {
 	}
 
 public:
-	inline WinHandle()               : handle(NULL)    {}
+	inline WinHandle() {}
 	inline WinHandle(HANDLE handle_) : handle(handle_) {}
-	inline ~WinHandle()                                {Clear();}
+	inline ~WinHandle() { Clear(); }
 
-	inline operator HANDLE() const {return handle;}
+	inline operator HANDLE() const { return handle; }
 
-	inline WinHandle& operator=(HANDLE handle_)
+	inline WinHandle &operator=(HANDLE handle_)
 	{
 		if (handle_ != handle) {
 			Clear();
@@ -42,10 +42,7 @@ public:
 		return *this;
 	}
 
-	inline HANDLE* operator&()
-	{
-		return &handle;
-	}
+	inline HANDLE *operator&() { return &handle; }
 
 	inline bool Valid() const
 	{

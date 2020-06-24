@@ -6,6 +6,7 @@
 #include <QLabel>
 #include "window-basic-adv-audio.hpp"
 #include "window-basic-main.hpp"
+#include "item-widget-helpers.hpp"
 #include "adv-audio-control.hpp"
 #include "obs-app.hpp"
 #include "qt-wrappers.hpp"
@@ -15,9 +16,9 @@ Q_DECLARE_METATYPE(OBSSource);
 OBSBasicAdvAudio::OBSBasicAdvAudio(QWidget *parent)
 	: QDialog(parent),
 	  sourceAddedSignal(obs_get_signal_handler(), "source_activate",
-			  OBSSourceAdded, this),
+			    OBSSourceAdded, this),
 	  sourceRemovedSignal(obs_get_signal_handler(), "source_deactivate",
-			  OBSSourceRemoved, this)
+			      OBSSourceRemoved, this)
 {
 	QScrollArea *scrollArea;
 	QVBoxLayout *vlayout;
@@ -28,33 +29,33 @@ OBSBasicAdvAudio::OBSBasicAdvAudio(QWidget *parent)
 	mainLayout = new QGridLayout;
 	mainLayout->setContentsMargins(0, 0, 0, 0);
 	label = new QLabel(QTStr("Basic.AdvAudio.Name"));
-	label->setAlignment(Qt::AlignHCenter);
+	label->setStyleSheet("font-weight: bold;");
 	mainLayout->addWidget(label, 0, idx++);
 	label = new QLabel(QTStr("Basic.AdvAudio.Volume"));
-	label->setAlignment(Qt::AlignHCenter);
+	label->setStyleSheet("font-weight: bold;");
 	mainLayout->addWidget(label, 0, idx++);
 	label = new QLabel(QTStr("Basic.AdvAudio.Mono"));
-	label->setAlignment(Qt::AlignHCenter);
+	label->setStyleSheet("font-weight: bold;");
 	mainLayout->addWidget(label, 0, idx++);
-	label = new QLabel(QTStr("Basic.AdvAudio.Panning"));
-	label->setAlignment(Qt::AlignHCenter);
+	label = new QLabel(QTStr("Basic.AdvAudio.Balance"));
+	label->setStyleSheet("font-weight: bold;");
 	mainLayout->addWidget(label, 0, idx++);
 	label = new QLabel(QTStr("Basic.AdvAudio.SyncOffset"));
-	label->setAlignment(Qt::AlignHCenter);
+	label->setStyleSheet("font-weight: bold;");
 	mainLayout->addWidget(label, 0, idx++);
 #if defined(_WIN32) || defined(__APPLE__) || HAVE_PULSEAUDIO
 	label = new QLabel(QTStr("Basic.AdvAudio.Monitoring"));
-	label->setAlignment(Qt::AlignHCenter);
+	label->setStyleSheet("font-weight: bold;");
 	mainLayout->addWidget(label, 0, idx++);
 #endif
 	label = new QLabel(QTStr("Basic.AdvAudio.AudioTracks"));
-	label->setAlignment(Qt::AlignHCenter);
+	label->setStyleSheet("font-weight: bold;");
 	mainLayout->addWidget(label, 0, idx++);
 
 	controlArea = new QWidget;
 	controlArea->setLayout(mainLayout);
 	controlArea->setSizePolicy(QSizePolicy::Preferred,
-			QSizePolicy::Preferred);
+				   QSizePolicy::Preferred);
 
 	vlayout = new QVBoxLayout;
 	vlayout->addWidget(controlArea);
@@ -79,15 +80,16 @@ OBSBasicAdvAudio::OBSBasicAdvAudio(QWidget *parent)
 	vlayout->addLayout(buttonLayout);
 	setLayout(vlayout);
 
-	connect(closeButton, &QPushButton::clicked, [this] () {close();});
+	connect(closeButton, &QPushButton::clicked, [this]() { close(); });
 
 	installEventFilter(CreateShortcutFilter());
 
 	/* enum user scene/sources */
 	obs_enum_sources(EnumSources, this);
 
-	resize(1000, 340);
+	resize(1100, 340);
 	setWindowTitle(QTStr("Basic.AdvAudio"));
+	setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
 	setSizeGripEnabled(true);
 	setWindowModality(Qt::NonModal);
 	setAttribute(Qt::WA_DeleteOnClose, true);
@@ -95,7 +97,7 @@ OBSBasicAdvAudio::OBSBasicAdvAudio(QWidget *parent)
 
 OBSBasicAdvAudio::~OBSBasicAdvAudio()
 {
-	OBSBasic *main = reinterpret_cast<OBSBasic*>(parent());
+	OBSBasic *main = reinterpret_cast<OBSBasic *>(parent());
 
 	for (size_t i = 0; i < controls.size(); ++i)
 		delete controls[i];
@@ -105,7 +107,7 @@ OBSBasicAdvAudio::~OBSBasicAdvAudio()
 
 bool OBSBasicAdvAudio::EnumSources(void *param, obs_source_t *source)
 {
-	OBSBasicAdvAudio *dialog = reinterpret_cast<OBSBasicAdvAudio*>(param);
+	OBSBasicAdvAudio *dialog = reinterpret_cast<OBSBasicAdvAudio *>(param);
 	uint32_t flags = obs_source_get_output_flags(source);
 
 	if ((flags & OBS_SOURCE_AUDIO) != 0 && obs_source_active(source))
@@ -116,24 +118,29 @@ bool OBSBasicAdvAudio::EnumSources(void *param, obs_source_t *source)
 
 void OBSBasicAdvAudio::OBSSourceAdded(void *param, calldata_t *calldata)
 {
-	OBSSource source((obs_source_t*)calldata_ptr(calldata, "source"));
+	OBSSource source((obs_source_t *)calldata_ptr(calldata, "source"));
 
-	QMetaObject::invokeMethod(reinterpret_cast<OBSBasicAdvAudio*>(param),
-			"SourceAdded", Q_ARG(OBSSource, source));
+	QMetaObject::invokeMethod(reinterpret_cast<OBSBasicAdvAudio *>(param),
+				  "SourceAdded", Q_ARG(OBSSource, source));
 }
 
 void OBSBasicAdvAudio::OBSSourceRemoved(void *param, calldata_t *calldata)
 {
-	OBSSource source((obs_source_t*)calldata_ptr(calldata, "source"));
+	OBSSource source((obs_source_t *)calldata_ptr(calldata, "source"));
 
-	QMetaObject::invokeMethod(reinterpret_cast<OBSBasicAdvAudio*>(param),
-			"SourceRemoved", Q_ARG(OBSSource, source));
+	QMetaObject::invokeMethod(reinterpret_cast<OBSBasicAdvAudio *>(param),
+				  "SourceRemoved", Q_ARG(OBSSource, source));
 }
 
 inline void OBSBasicAdvAudio::AddAudioSource(obs_source_t *source)
 {
 	OBSAdvAudioCtrl *control = new OBSAdvAudioCtrl(mainLayout, source);
-	controls.push_back(control);
+
+	InsertQObjectByName(controls, control);
+
+	for (auto control : controls) {
+		control->ShowAudioControl(mainLayout);
+	}
 }
 
 void OBSBasicAdvAudio::SourceAdded(OBSSource source)

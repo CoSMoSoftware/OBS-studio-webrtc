@@ -3,14 +3,14 @@ project(rtmp-services)
 include_directories(${OBS_JANSSON_INCLUDE_DIRS})
 
 set(rtmp-services_SOURCES
+	rtmp-services-main.c
 	twitch.c
 	rtmp-common.c
 	rtmp-custom.c
-	rtmp-services-main.c
 	webrtc-janus.c
-	webrtc-spankchain.c
+	webrtc-wowza.c
 	webrtc-millicast.c
-	)
+	webrtc-evercast.c)
 
 set(rtmp-services_HEADERS
 	twitch.h
