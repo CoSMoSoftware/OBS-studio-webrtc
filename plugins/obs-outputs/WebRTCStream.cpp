@@ -75,6 +75,7 @@ WebRTCStream::WebRTCStream(obs_output_t *output)
     this->client = nullptr;
 
     // Create audio device module
+    // NOTE ALEX: check if we still need this
     adm = new rtc::RefCountedObject<AudioDeviceModuleWrapper>();
 
     // Network thread
@@ -204,6 +205,17 @@ bool WebRTCStream::start(WebRTCStream::Type type)
     video_bitrate = (int)obs_data_get_int(vsettings, "bitrate");
     obs_data_release(vsettings);
 
+    struct obs_audio_info audio_info;
+    if (!obs_get_audio_info(&audio_info)) {
+	warn("Failed to load audio settings.  Defaulting to opus.");
+         audio_codec = "opus";
+    } else {
+         // NOTE ALEX: if input # channel > output we should down mix
+         //            if input is > 2 but < 6 we might have a porblem with multiopus.
+         channel_count = (int)(audio_info.speakers);
+         audio_codec = channel_count <= 2 ? "opus" : "multiopus";
+    }
+
     // Shutdown websocket connection and close Peer Connection (just in case)
     if (close(false))
         obs_output_signal_stop(output, OBS_OUTPUT_ERROR);
@@ -225,7 +237,8 @@ bool WebRTCStream::start(WebRTCStream::Type type)
 
     if (!pc.get()) {
         error("Error creating Peer Connection");
-        obs_output_set_last_error(output, "There was an error connecting to the server. Are you connected to the internet?");
+        obs_output_set_last_error(output,
+            "There was an error connecting to the server. Are you connected to the internet?");
         obs_output_signal_stop(output, OBS_OUTPUT_CONNECT_FAILED);
         return false;
     } else {
@@ -248,7 +261,7 @@ bool WebRTCStream::start(WebRTCStream::Type type)
 
     stream = factory->CreateLocalMediaStream("obs");
 
-    audio_track = factory->CreateAudioTrack("audio", factory->CreateAudioSource(options));
+    audio_track = factory->CreateAudioTrack("audio", obsWebrtcAudioSource::Create(&options));
     // pc->AddTrack(audio_track, {"obs"});
     stream->AddTrack(audio_track);
     
@@ -331,7 +344,6 @@ void WebRTCStream::OnSuccess(webrtc::SessionDescriptionInterface *desc)
     info("WebRTCStream::OnSuccess\n");
     std::string sdp;
     desc->ToString(&sdp);
-    audio_codec = "opus";
 
     info("Audio codec:      %s", audio_codec.c_str());
     info("Audio bitrate:    %d\n", audio_bitrate);
@@ -340,28 +352,29 @@ void WebRTCStream::OnSuccess(webrtc::SessionDescriptionInterface *desc)
     info("OFFER:\n\n%s\n", sdp.c_str());
 
     std::string sdpCopy = sdp;
-    if (type == WebRTCStream::Type::Wowza) {
-        std::vector<int> audio_payloads;
-        std::vector<int> video_payloads;
-        // If codec setting is Automatic
-        if (video_codec.empty()) {
-            audio_codec = "";
-            video_codec = "";
-        }
-        // Force specific video/audio payload
-        SDPModif::forcePayload(sdpCopy, audio_payloads, video_payloads,
-                audio_codec, video_codec, 0, "42e01f", 0);
-        // Constrain video bitrate
-        SDPModif::bitrateMaxMinSDP(sdpCopy, video_bitrate, video_payloads);
-        // Enable stereo & constrain audio bitrate
-        SDPModif::stereoSDP(sdpCopy, audio_bitrate);
+    std::vector<int> audio_payloads;
+    std::vector<int> video_payloads;
+    // If codec setting is Automatic
+    if(video_codec.empty()) {
+        audio_codec = "";
+        video_codec = "";
     }
+    // Force specific video/audio payload
+    SDPModif::forcePayload(
+        sdpCopy, audio_payloads, video_payloads,
+        audio_codec, video_codec, 0, "42e01f", 0);
+    // Constrain video bitrate
+    SDPModif::bitrateMaxMinSDP(sdpCopy, video_bitrate, video_payloads);
+    // Enable stereo & constrain audio bitrate
+    // NOTE ALEX: check that it does not incorrectly detect multiopus as opus
+    SDPModif::stereoSDP(sdpCopy, audio_bitrate);
+    // NOTE ALEX: nothing special to do about multiopus with CoSMo libwebrtc package.
 
     info("SETTING LOCAL DESCRIPTION\n\n");
     pc->SetLocalDescription(this, desc);
 
     info("Sending OFFER (SDP) to remote peer:\n\n%s", sdpCopy.c_str());
-    client->open(sdpCopy, video_codec, username);
+    client->open(sdpCopy, video_codec, audio_codec, username);
 }
 
 void WebRTCStream::OnSuccess()
@@ -462,7 +475,7 @@ void WebRTCStream::onOpened(const std::string &sdp)
     audio_convert_info conversion;
     conversion.format = AUDIO_FORMAT_16BIT;
     conversion.samples_per_sec = 48000;
-    conversion.speakers = SPEAKERS_STEREO;
+    conversion.speakers = (speaker_layout)channel_count;
     obs_output_set_audio_conversion(output, &conversion);
 
     info("Begin data capture...");
@@ -545,7 +558,7 @@ void WebRTCStream::onAudioFrame(audio_data *frame)
     if (!frame)
         return;
     // Push it to the device
-    adm->onIncomingData(frame->data[0], frame->frames);
+    audio_source->OnAudioData(frame);
 }
 
 void WebRTCStream::onVideoFrame(video_data *frame)
@@ -556,8 +569,8 @@ void WebRTCStream::onVideoFrame(video_data *frame)
         return;
 
     if (std::chrono::system_clock::time_point(std::chrono::duration<int>(0)) == previous_time)
-      // First frame sent: Initialize previous_time
-      previous_time = std::chrono::system_clock::now();
+        // First frame sent: Initialize previous_time
+        previous_time = std::chrono::system_clock::now();
 
     // Calculate size
     int outputWidth = obs_output_get_width(output);

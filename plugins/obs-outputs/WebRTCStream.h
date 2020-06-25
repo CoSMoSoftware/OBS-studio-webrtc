@@ -10,11 +10,16 @@
 #pragma comment(lib,"amstrmid.lib")
 #endif
 
+// lib obs includes
 #include "obs.h"
+
+// obs-webrtc includes
 #include "WebsocketClient.h"
 #include "VideoCapturer.h"
 #include "AudioDeviceModuleWrapper.h"
+#include "obsWebrtcAudioSource.h"
 
+// webrtc includes
 #include "api/create_peerconnection_factory.h"
 #include "api/media_stream_interface.h"
 #include "api/peer_connection_interface.h"
@@ -26,6 +31,7 @@
 #include "rtc_base/thread.h"
 #include "rtc_base/timestamp_aligner.h"
 
+// std lib
 #include <initializer_list>
 #include <regex>
 #include <string>
@@ -157,6 +163,9 @@ private:
 
     // Media stream
     rtc::scoped_refptr<webrtc::MediaStreamInterface> stream;
+
+    // Webrtc Source that wraps an OBS capturer 
+    rtc::scoped_refptr<obsWebrtcAudioSource> audio_source;
 
     // Tracks
     rtc::scoped_refptr<webrtc::AudioTrackInterface> audio_track;

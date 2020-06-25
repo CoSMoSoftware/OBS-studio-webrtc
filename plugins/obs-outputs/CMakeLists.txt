@@ -99,7 +99,7 @@ endif()
 
 # NOTE ALEX: force H264 component here for EBS.
 message( STATUS "Looking for libwebrtc" )
-find_package(LibWebRTC 79 REQUIRED)
+find_package(LibWebRTC 84 REQUIRED)
 message( STATUS "Looking for libwebrtc - found" )
 if( WEBRTC_H264_FOUND )
         message( STATUS "This libwebrtc package was built with H264 support." )
@@ -171,21 +171,23 @@ endif()
 
 set(obs-outputs_webrtc_HEADERS
 	AudioDeviceModuleWrapper.h
+	evercast-stream.h
+	janus-stream.h
+	millicast-stream.h
+        obsWebrtcAudioSource.h
 	SDPModif.h
 	VideoCapturer.h
 	WebRTCStream.h
-	janus-stream.h
-	wowza-stream.h
-	millicast-stream.h
-	evercast-stream.h)
+	wowza-stream.h)
 set(obs-outputs_webrtc_SOURCES
 	AudioDeviceModuleWrapper.cpp
+	evercast-stream.cpp
+	janus-stream.cpp
+	millicast-stream.cpp
+        obsWebrtcAudioSource.cpp
 	VideoCapturer.cpp
 	WebRTCStream.cpp
-	janus-stream.cpp
-	wowza-stream.cpp
-	millicast-stream.cpp
-	evercast-stream.cpp)
+	wowza-stream.cpp)
 
 if(NOT WIN32)
 	set_source_files_properties(${obs-outputs_webrtc_SOURCES} PROPERTIES

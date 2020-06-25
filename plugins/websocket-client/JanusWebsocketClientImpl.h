@@ -33,7 +33,8 @@ public:
         WebsocketClient::Listener * listener) override;
     bool open(
         const std::string & sdp,
-        const std::string & codec,
+        const std::string & video_codec,
+        const std::string & audio_codec,
         const std::string & /* username */) override;
     bool trickle(
         const std::string & mid,
