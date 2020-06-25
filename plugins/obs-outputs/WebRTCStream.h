@@ -23,6 +23,7 @@
 #include "api/create_peerconnection_factory.h"
 #include "api/media_stream_interface.h"
 #include "api/peer_connection_interface.h"
+#include "api/rtcerror.h"
 #include "api/scoped_refptr.h"
 #include "api/set_remote_description_observer_interface.h"
 #include "modules/audio_processing/include/audio_processing.h"

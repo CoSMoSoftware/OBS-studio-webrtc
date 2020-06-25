@@ -382,9 +382,9 @@ void WebRTCStream::OnSuccess()
     info("Local Description set\n");
 }
 
-void WebRTCStream::OnFailure(const std::string &error)
+void WebRTCStream::OnFailure(webrtc::RTCError error)
 {
-    warn("WebRTCStream::OnFailure [%s]", error.c_str());
+    warn("WebRTCStream::OnFailure [%s]", error.message());
     // Shutdown websocket connection and close Peer Connection
     close(false);
     // Disconnect, this will call stop on main thread
