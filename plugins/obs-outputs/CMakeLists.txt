@@ -97,9 +97,12 @@ if(WIN32)
 	set(WEBRTC_USE_FILE_INCLUDED 0)
 endif()
 
-# NOTE ALEX: force H264 component here for EBS.
 message( STATUS "Looking for libwebrtc" )
-find_package(LibWebRTC 84 REQUIRED)
+# CoSMo libwebrtc package has versioning and COMPONENTS
+find_package(LibWebRTC 84 QUIET COMPONENTS H264 )
+  if( NOT libwebrtc_FOUND )
+    # A FindLibWebRTC package is also provided in the repository for self-compiled libwebrtc
+    find_package(LibWebRTC QUIET)
 message( STATUS "Looking for libwebrtc - found" )
 if( WEBRTC_H264_FOUND )
         message( STATUS "This libwebrtc package was built with H264 support." )
@@ -112,6 +115,9 @@ if( WEBRTC_EXT_LIBSRTP_FOUND )
 endif()
 if( WEBRTC_SFRAME_FOUND )
         message( STATUS "This libwebrtc package was build with SFrame end-to-end encryption." )
+endif()
+if( WEBRTC_ADVERTISE_MULTIOPUS_CODEC )
+        message( STATUS "This libwebrtc package was build with built-in multiopus codec." )
 endif()
 
 if(WIN32)
