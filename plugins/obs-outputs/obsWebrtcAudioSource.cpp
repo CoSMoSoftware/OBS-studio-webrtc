@@ -16,14 +16,14 @@ obsWebrtcAudioSource::Create(cricket::AudioOptions *options)
  	return source;
 }
 
-void obsWebrtcAudioSource::AddSink(AudioTrackSinkInterface *sink) {
+void obsWebrtcAudioSource::AddSink(webrtc::AudioTrackSinkInterface *sink) {
 	if (nullptr != sink_) {
  		blog(LOG_WARNING, "Replacing audio sink..."); }
 
   	sink_ = sink;
 }
 
-void obsWebrtcAudioSource::RemoveSink(AudioTrackSinkInterface *sink) {
+void obsWebrtcAudioSource::RemoveSink(webrtc::AudioTrackSinkInterface *sink) {
  	if (sink_ != sink) {
  		blog(LOG_WARNING, "Attempting to remove unassigned sink...");
  		return; }
@@ -33,7 +33,7 @@ void obsWebrtcAudioSource::RemoveSink(AudioTrackSinkInterface *sink) {
 
 void obsWebrtcAudioSource::OnAudioData(audio_data *frame)
 {
- 	AudioTrackSinkInterface *sink = this->sink_;
+ 	webrtc::AudioTrackSinkInterface *sink = this->sink_;
  	if (nullptr == sink) {
  		return;
  	}

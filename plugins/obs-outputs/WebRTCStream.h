@@ -93,7 +93,7 @@ public:
     void OnSuccess(webrtc::SessionDescriptionInterface *desc) override;
 
     // CreateSessionDescriptionObserver / SetSessionDescriptionObserver
-    void OnFailure(const std::string &error) override;
+    void OnFailure(webrtc::RTCError error) override;
 
     // SetSessionDescriptionObserver
     void OnSuccess() override;
