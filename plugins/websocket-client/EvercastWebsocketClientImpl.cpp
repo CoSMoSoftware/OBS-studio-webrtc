@@ -210,12 +210,13 @@ bool
 EvercastWebsocketClientImpl::
 open(
         const std::string & sdp,
-        const std::string & codec,
+        const std::string & video_codec,
+        const std::string & audio_codec,
         const std::string & /* Id */)
 {
     bool result = false;
     try {
-        result = sendOpenMessage(sdp, codec);
+        result = sendOpenMessage(sdp, video_codec);
     } catch (const websocketpp::exception & e) {
         warn("open exception: %s", e.what());
         return false;

@@ -160,7 +160,8 @@ bool WowzaWebsocketClientImpl::connect(
 
 bool WowzaWebsocketClientImpl::open(
         const std::string & sdp,
-        const std::string & /* codec */,
+        const std::string & /* video_codec */,
+        const std::string & /* audio_codec */,
         const std::string & stream_name)
 {
     json offer = {
