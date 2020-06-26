@@ -357,7 +357,6 @@ void WebRTCStream::OnSuccess(webrtc::SessionDescriptionInterface *desc)
     std::vector<int> video_payloads;
     // If codec setting is Automatic
     if(video_codec.empty()) {
-        audio_codec = "";
         video_codec = "";
     }
     // Force specific video/audio payload
