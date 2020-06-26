@@ -261,7 +261,8 @@ bool WebRTCStream::start(WebRTCStream::Type type)
 
     stream = factory->CreateLocalMediaStream("obs");
 
-    audio_track = factory->CreateAudioTrack("audio", obsWebrtcAudioSource::Create(&options));
+    audio_source = obsWebrtcAudioSource::Create(&options);
+    audio_track = factory->CreateAudioTrack("audio", audio_source);
     // pc->AddTrack(audio_track, {"obs"});
     stream->AddTrack(audio_track);
     
