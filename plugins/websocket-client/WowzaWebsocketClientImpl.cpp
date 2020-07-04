@@ -87,7 +87,7 @@ bool WowzaWebsocketClientImpl::connect(
             int status = msg["status"].get<int>();
             if (status == 200) {
                 if (msg.find("sdp") != msg.end())
-                    sdp = msg["sdp"]["sdp"];
+                    sdp = msg["sdp"]["sdp"].get<std::string>();
                 if (msg.find("iceCandidates") != msg.end()) {
                     candidateFound = true;
                     sdpData = msg["iceCandidates"];

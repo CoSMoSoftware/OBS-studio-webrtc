@@ -61,8 +61,8 @@ bool MillicastWebsocketClientImpl::connect(
     std::string jwt;
     if (r.code == 200) {
         auto wssData = json::parse(r.body);
-        url = wssData["data"]["urls"][0];
-        jwt = wssData["data"]["jwt"];
+        url = wssData["data"]["urls"][0].get<std::string>();
+        jwt = wssData["data"]["jwt"].get<std::string>();
         info("WSS url:          %s", url.c_str());
         info("JWT (token):      %s", jwt.c_str());
     } else {
