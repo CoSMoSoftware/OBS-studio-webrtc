@@ -119,6 +119,21 @@ extern "C" obs_properties_t *janus_stream_properties(void *data)
 	return props;
 }
 
+// NOTE LUDO: #80 add getStats
+extern "C" void janus_stream_get_stats(void *data)
+{
+  // Get stream
+	WebRTCStream* stream = (WebRTCStream*) data;
+	stream->getStats();
+}
+
+extern "C" const char *janus_stream_get_stats_list(void *data)
+{
+  // Get stream
+	WebRTCStream* stream = (WebRTCStream*) data;
+	return stream->get_stats_list();
+}
+
 extern "C" uint64_t janus_stream_total_bytes_sent(void *data)
 {
 	//Get stream
@@ -156,6 +171,9 @@ extern "C" {
 		janus_stream_defaults, //get_defaults
 		janus_stream_properties, //get_properties
 		nullptr, //unused1 (formerly pause)
+    // NOTE LUDO: #80 add getStats
+    janus_stream_get_stats,
+    janus_stream_get_stats_list,
 		janus_stream_total_bytes_sent, //get_total_bytes
 		janus_stream_dropped_frames, //get_dropped_frames
 		nullptr, //type_data
@@ -182,6 +200,9 @@ extern "C" {
 		.get_defaults         = janus_stream_defaults,
 		.get_properties       = janus_stream_properties,
 		.unused1              = nullptr,
+    // NOTE LUDO: #80 add getStats
+    .get_stats            = janus_stream_get_stats,
+    .get_stats_list       = janus_stream_get_stats_list,
 		.get_total_bytes      = janus_stream_total_bytes_sent,
 		.get_dropped_frames   = janus_stream_dropped_frames,
 		.type_data            = nullptr,

@@ -121,6 +121,21 @@ extern "C" obs_properties_t *millicast_stream_properties(void *unused)
 	return props;
 }
 
+// NOTE LUDO: #80 add getStats
+extern "C" void millicast_stream_get_stats(void *data)
+{
+  // Get stream
+	WebRTCStream* stream = (WebRTCStream*) data;
+	stream->getStats();
+}
+
+extern "C" const char *millicast_stream_get_stats_list(void *data)
+{
+  // Get stream
+	WebRTCStream* stream = (WebRTCStream*) data;
+	return stream->get_stats_list();
+}
+
 extern "C" uint64_t millicast_stream_total_bytes_sent(void *data)
 {
 	//Get stream
@@ -158,6 +173,9 @@ extern "C" {
 		millicast_stream_defaults, //get_defaults
 		millicast_stream_properties, //get_properties
 		nullptr, //unused1 (formerly pause)
+    // NOTE LUDO: #80 add getStats
+    millicast_stream_get_stats,
+    millicast_stream_get_stats_list,
 		millicast_stream_total_bytes_sent, //get_total_bytes
 		millicast_stream_dropped_frames, //get_dropped_frames
 		nullptr, //type_data
@@ -184,6 +202,9 @@ extern "C" {
 		.get_defaults         = millicast_stream_defaults,
 		.get_properties       = millicast_stream_properties,
 		.unused1              = nullptr,
+    // NOTE LUDO: #80 add getStats
+    .get_stats            = millicast_stream_get_stats,
+    .get_stats_list       = millicast_stream_get_stats_list,
 		.get_total_bytes      = millicast_stream_total_bytes_sent,
 		.get_dropped_frames   = millicast_stream_dropped_frames,
 		.type_data            = nullptr,

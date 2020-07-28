@@ -133,6 +133,21 @@ extern "C" obs_properties_t *wowza_stream_properties(void *unused)
 	return props;
 }
 
+// NOTE LUDO: #80 add getStats
+extern "C" void wowza_stream_get_stats(void *data)
+{
+  // Get stream
+	WebRTCStream* stream = (WebRTCStream*) data;
+	stream->getStats();
+}
+
+extern "C" const char *wowza_stream_get_stats_list(void *data)
+{
+  // Get stream
+	WebRTCStream* stream = (WebRTCStream*) data;
+	return stream->get_stats_list();
+}
+
 extern "C" uint64_t wowza_stream_total_bytes_sent(void *data)
 {
 	//Get stream
@@ -170,6 +185,9 @@ extern "C" {
 		wowza_stream_defaults, //get_defaults
 		wowza_stream_properties, //get_properties
 		nullptr, //unused1 (formerly pause)
+    // NOTE LUDO: #80 add getStats
+    wowza_stream_get_stats,
+    wowza_stream_get_stats_list,
 		wowza_stream_total_bytes_sent, //get_total_bytes
 		wowza_stream_dropped_frames, //get_dropped_frames
 		nullptr, //type_data
@@ -196,6 +214,9 @@ extern "C" {
 		.get_defaults         = wowza_stream_defaults,
 		.get_properties       = wowza_stream_properties,
 		.unused1              = nullptr,
+    // NOTE LUDO: #80 add getStats
+    .get_stats            = wowza_stream_get_stats,
+    .get_stats_list       = wowza_stream_get_stats_list,
 		.get_total_bytes      = wowza_stream_total_bytes_sent,
 		.get_dropped_frames   = wowza_stream_dropped_frames,
 		.type_data            = nullptr,

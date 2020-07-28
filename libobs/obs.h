@@ -1779,6 +1779,9 @@ EXPORT obs_service_t *obs_output_get_service(const obs_output_t *output);
 EXPORT void obs_output_set_reconnect_settings(obs_output_t *output,
 					      int retry_count, int retry_sec);
 
+// NOTE LUDO: #80 add getStats
+EXPORT void obs_output_get_stats(const obs_output_t *output);
+EXPORT const char *obs_output_get_stats_list(const obs_output_t *output);
 EXPORT uint64_t obs_output_get_total_bytes(const obs_output_t *output);
 EXPORT int obs_output_get_frames_dropped(const obs_output_t *output);
 EXPORT int obs_output_get_total_frames(const obs_output_t *output);

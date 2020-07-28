@@ -59,6 +59,11 @@ struct obs_output_info {
 
 	void (*unused1)(void *data);
 
+	// NOTE LUDO: #80 add getStats
+  void (*get_stats)(void *data);
+
+  const char* (*get_stats_list)(void *data);
+
 	uint64_t (*get_total_bytes)(void *data);
 
 	int (*get_dropped_frames)(void *data);

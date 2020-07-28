@@ -117,6 +117,21 @@ extern "C" obs_properties_t *evercast_stream_properties(void *unused)
 	return props;
 }
 
+// NOTE LUDO: #80 add getStats
+extern "C" void evercast_stream_get_stats(void *data)
+{
+  // Get stream
+	WebRTCStream* stream = (WebRTCStream*) data;
+	stream->getStats();
+}
+
+extern "C" const char *evercast_stream_get_stats_list(void *data)
+{
+  // Get stream
+	WebRTCStream* stream = (WebRTCStream*) data;
+	return stream->get_stats_list();
+}
+
 extern "C" uint64_t evercast_stream_total_bytes_sent(void *data)
 {
 	//Get stream
@@ -154,6 +169,9 @@ extern "C" {
 		evercast_stream_defaults, //get_defaults
 		evercast_stream_properties, //get_properties
 		nullptr, //unused1 (formerly pause)
+    // NOTE LUDO: #80 add getStats
+    evercast_stream_get_stats,
+    evercast_stream_get_stats_list,
 		evercast_stream_total_bytes_sent, //get_total_bytes
 		evercast_stream_dropped_frames, //get_dropped_frames
 		nullptr, //type_data
@@ -180,6 +198,9 @@ extern "C" {
 		.get_defaults         = evercast_stream_defaults,
 		.get_properties       = evercast_stream_properties,
 		.unused1              = nullptr,
+    // NOTE LUDO: #80 add getStats
+    .get_stats            = evercast_stream_get_stats,
+    .get_stats_list       = evercast_stream_get_stats_list,
 		.get_total_bytes      = evercast_stream_total_bytes_sent,
 		.get_dropped_frames   = evercast_stream_dropped_frames,
 		.type_data            = nullptr,
