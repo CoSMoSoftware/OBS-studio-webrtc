@@ -246,6 +246,9 @@ endif()
 # if you add any binary or dependency
 include(CopyMSVCBins)
 
+# mainly for windows DLL
+include( InstallRequiredSystemLibraries )
+
 # enable submissions to a CDash server
 enable_testing()
 include(CTest)
