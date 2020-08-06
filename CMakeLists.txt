@@ -246,8 +246,17 @@ endif()
 # if you add any binary or dependency
 include(CopyMSVCBins)
 
-# mainly for windows DLL
-include( InstallRequiredSystemLibraries )
+if( WIN32 )
+	if(CMAKE_SIZEOF_VOID_P EQUAL 8)
+		set(_bit_suffix "/64bit")
+	else()
+		set(_bit_suffix "/32bit")
+	endif()
+
+	# mainly for windows DLL
+	set( CMAKE_INSTALL_SYSTEM_RUNTIME_DESTINATION bin/${_bit_suffix} )
+	include( InstallRequiredSystemLibraries )
+endif()
 
 # enable submissions to a CDash server
 enable_testing()
