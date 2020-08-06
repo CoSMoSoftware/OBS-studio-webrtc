@@ -1634,7 +1634,8 @@ void OBSBasic::OBSInit()
 		disableSaving++;
 	}
 
-	TimedCheckForUpdates();
+  // NOTE LUDO: #186 do not check for OBS Studio updates
+	// TimedCheckForUpdates();
 	loaded = true;
 
 	previewEnabled = config_get_bool(App()->GlobalConfig(), "BasicWindow",
@@ -1802,12 +1803,18 @@ void OBSBasic::OBSInit()
 	delete ui->actionShowCrashLogs;
 	delete ui->actionUploadLastCrashLog;
 	delete ui->menuCrashLogs;
-	delete ui->actionCheckForUpdates;
+	// NOTE LUDO: #186 do not check for OBS Studio updates
+	// delete ui->actionCheckForUpdates;
 	ui->actionShowCrashLogs = nullptr;
 	ui->actionUploadLastCrashLog = nullptr;
 	ui->menuCrashLogs = nullptr;
-	ui->actionCheckForUpdates = nullptr;
+  // NOTE LUDO: #186 do not check for OBS Studio updates
+	// ui->actionCheckForUpdates = nullptr;
 #endif
+
+  // NOTE LUDO: #186 do not check for OBS Studio updates
+	delete ui->actionCheckForUpdates;
+	ui->actionCheckForUpdates = nullptr;
 
 	OnFirstLoad();
 
@@ -3086,7 +3093,8 @@ void OBSBasic::CheckForUpdates(bool manualUpdate)
 #ifdef UPDATE_SPARKLE
 	trigger_sparkle_update();
 #elif _WIN32
-	ui->actionCheckForUpdates->setEnabled(false);
+  // NOTE LUDO: #186 do not check for OBS Studio updates
+	// ui->actionCheckForUpdates->setEnabled(false);
 
 	if (updateCheckThread && updateCheckThread->isRunning())
 		return;
@@ -3100,7 +3108,8 @@ void OBSBasic::CheckForUpdates(bool manualUpdate)
 
 void OBSBasic::updateCheckFinished()
 {
-	ui->actionCheckForUpdates->setEnabled(true);
+  // NOTE LUDO: #186 do not check for OBS Studio updates
+	// ui->actionCheckForUpdates->setEnabled(true);
 }
 
 void OBSBasic::DuplicateSelectedScene()
