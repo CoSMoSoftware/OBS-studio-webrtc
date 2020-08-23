@@ -1192,6 +1192,11 @@
                      <string>VP9</string>
                    </property>
                  </item>
+                 <item>
+                   <property name="text">
+                     <string>AV1</string>
+                   </property>
+                 </item>
                </widget>
              </item>
              <item row="10" column="0">

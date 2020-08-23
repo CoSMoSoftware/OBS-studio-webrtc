@@ -92,21 +92,13 @@ static obs_properties_t *webrtc_millicast_properties(void *unused)
 	obs_properties_add_text(ppts, "server", "Publish API URL", OBS_TEXT_DEFAULT);
 	obs_properties_add_text(ppts, "room", "Room", OBS_TEXT_DEFAULT);
 
-	// obs_properties_add_list(ppts, "server", "Publish API URL", OBS_COMBO_TYPE_LIST, OBS_COMBO_FORMAT_STRING);
-	// obs_property_list_add_string(obs_properties_get(ppts, "server"), "Auto (Recommended)", "wss://live.millicast.com:443/ws/v1/pub");
-	// obs_property_list_add_string(obs_properties_get(ppts, "server"), "Auto (Recommended)", "https://director.millicast.com/api/director/publish");
-
 	obs_properties_add_text(ppts, "username", "Stream Name", OBS_TEXT_DEFAULT);
 	obs_properties_add_text(ppts, "password", "Publishing Token", OBS_TEXT_PASSWORD);
 
 	obs_properties_add_text(ppts, "codec", "Codec", OBS_TEXT_DEFAULT);
 	obs_properties_add_text(ppts, "protocol", "Protocol", OBS_TEXT_DEFAULT);
 
-	// obs_properties_add_list(ppts, "codec", "Codec", OBS_COMBO_TYPE_LIST, OBS_COMBO_FORMAT_STRING);
-	// obs_property_list_add_string(obs_properties_get(ppts, "codec"), "Automatic", "");
-	// obs_property_list_add_string(obs_properties_get(ppts, "codec"), "H264", "h264");
-	// obs_property_list_add_string(obs_properties_get(ppts, "codec"), "VP8", "vp8");
-	// obs_property_list_add_string(obs_properties_get(ppts, "codec"), "VP9", "vp9");
+	obs_property_list_add_string(obs_properties_get(ppts, "codec"), "AV1", "av1");
 
 	p = obs_properties_get(ppts, "server");
 	obs_property_set_visible(p, false);
@@ -171,17 +163,6 @@ static const char *webrtc_millicast_codec(void *data)
 
 static const char *webrtc_millicast_protocol(void *data)
 {
-	// struct webrtc_millicast *service = data;
-	// if (strcmp(service->protocol, "Automatic") == 0)
-	// 	return "";
-	// if (strcmp(service->protocol, "H264") == 0)
-	// 	return "h264";
-	// if (strcmp(service->protocol, "VP9") == 0)
-	// 	return "vp9";
-	// if (strcmp(service->protocol, "VP8") == 0)
-	// 	return "vp8";
-	// return "";
-
 	UNUSED_PARAMETER(data);
 	return "";
 }
