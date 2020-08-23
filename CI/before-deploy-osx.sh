@@ -9,7 +9,7 @@ set -e
 
 # Generate file name variables
 export APP_NAME=OBS
-export LIBWEBRTC_REV=79
+export LIBWEBRTC_REV=84
 export DEPLOY_VERSION=23.2
 export GIT_HASH=$(git rev-parse --short HEAD)
 export FILE_DATE=$(date +%Y-%m-%d.%H:%M:%S)
@@ -38,7 +38,7 @@ install_name_tool -change @rpath/libobs.0.dylib                              @ex
 install_name_tool -change /usr/local/opt/openssl@1.1/lib/libssl.1.1.dylib    @executable_path/../Frameworks/libssl.1.1.dylib      ./$APP_NAME.app/Contents/Plugins/obs-outputs.so
 install_name_tool -change /usr/local/opt/openssl@1.1/lib/libcrypto.1.1.dylib @executable_path/../Frameworks/libcrypto.1.1.dylib   ./$APP_NAME.app/Contents/Plugins/obs-outputs.so
 
-# NOTE ALEX: no update 
+# NOTE ALEX: no auto-update 
 # copy sparkle into the app
 # hr "Copying Sparkle.framework"
 # cp -r ../../sparkle/Sparkle.framework ./$APP_NAME.app/Contents/Frameworks/
@@ -68,5 +68,5 @@ plutil -insert CFBundleShortVersionString -string $DEPLOY_VERSION ./$APP_NAME.ap
 # NOTE ALEX: MacOS Catalina might make problem about python
 # had to use easy_install pip / pip install dmgbuild / and then change the path to add python-bin
 # anyway, the app needs to be signed before we make the package, and then the package needs to be signed too
-dmgbuild -s ../CI/install/osx/settings.json "$APP_NAME" rfs.dmg
+dmgbuild -s ../CI/install/osx/settings.json "$APP_NAME" $APP_NAME.dmg
 
