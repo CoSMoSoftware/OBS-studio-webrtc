@@ -661,12 +661,15 @@ void WebRTCStream::getStats()
           report->GetStatsOfType<webrtc::RTCMediaStreamTrackStats>();
   for (const auto& stat : media_stream_track_stats) {
     if (stat->kind.ValueToString() == "audio") {
-      stats_list += "track_audio_level:"            + stat->audio_level.ValueToJson() + "\n";
-      stats_list += "track_total_audio_energy:"     + stat->total_audio_energy.ValueToJson() + "\n";
+      if (stat->audio_level.is_defined())
+        stats_list += "track_audio_level:"            + stat->audio_level.ValueToJson() + "\n";
+      if (stat->total_audio_energy.is_defined())
+        stats_list += "track_total_audio_energy:"     + stat->total_audio_energy.ValueToJson() + "\n";
       // stats_list += "track_echo_return_loss:"   + stat->echo_return_loss.ValueToJson() + "\n";
       // stats_list += "track_echo_return_loss_enhancement:" + stat->echo_return_loss_enhancement.ValueToJson() + "\n";
       // stats_list += "track_total_samples_received:" + stat->total_samples_received.ValueToJson() + "\n";
-      stats_list += "track_total_samples_duration:" + stat->total_samples_duration.ValueToJson() + "\n";
+      if (stat->total_samples_duration.is_defined())
+        stats_list += "track_total_samples_duration:" + stat->total_samples_duration.ValueToJson() + "\n";
       // stats_list += "track_concealed_samples:" + stat->concealed_samples.ValueToJson() + "\n";
       // stats_list += "track_concealment_events:" + stat->concealment_events.ValueToJson() + "\n";
     }
