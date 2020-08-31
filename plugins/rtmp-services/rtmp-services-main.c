@@ -24,6 +24,7 @@ extern struct obs_service_info webrtc_janus_service;
 extern struct obs_service_info webrtc_wowza_service;
 extern struct obs_service_info webrtc_millicast_service;
 extern struct obs_service_info webrtc_evercast_service;
+extern struct obs_service_info webrtc_custom_service;
 
 static update_info_t *update_info = NULL;
 static struct dstr module_name = {0};
@@ -108,6 +109,7 @@ bool obs_module_load(void)
 	obs_register_service(&webrtc_wowza_service);
 	obs_register_service(&webrtc_millicast_service);
 	obs_register_service(&webrtc_evercast_service);
+	obs_register_service(&webrtc_custom_service);
 	return true;
 }
 

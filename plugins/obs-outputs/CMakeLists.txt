@@ -181,6 +181,7 @@ set(obs-outputs_webrtc_HEADERS
 	evercast-stream.h
 	janus-stream.h
 	millicast-stream.h
+	webrtc-custom-stream.h
         obsWebrtcAudioSource.h
 	SDPModif.h
 	VideoCapturer.h
@@ -191,6 +192,7 @@ set(obs-outputs_webrtc_SOURCES
 	evercast-stream.cpp
 	janus-stream.cpp
 	millicast-stream.cpp
+	webrtc-custom-stream.cpp
         obsWebrtcAudioSource.cpp
 	VideoCapturer.cpp
 	WebRTCStream.cpp

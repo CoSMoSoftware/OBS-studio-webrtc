@@ -53,6 +53,7 @@ set(websocketclient_SOURCES
 	JanusWebsocketClientImpl.cpp
 	WowzaWebsocketClientImpl.cpp
 	MillicastWebsocketClientImpl.cpp
+	CustomWebrtcImpl.cpp
 	EvercastWebsocketClientImpl.cpp
 	restclient-cpp/source/connection.cc
 	restclient-cpp/source/helpers.cc
@@ -68,6 +69,7 @@ set(websocketclient_HEADERS
 	JanusWebsocketClientImpl.h
 	WowzaWebsocketClientImpl.h
 	MillicastWebsocketClientImpl.h
+	CustomWebrtcImpl.h
 	EvercastWebsocketClientImpl.h)
 
 add_library(websocketclient SHARED
