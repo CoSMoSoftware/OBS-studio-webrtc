@@ -53,7 +53,8 @@ public:
         Janus     = 0,
         Wowza     = 1,
         Millicast = 2,
-        Evercast  = 3
+        Evercast  = 3,
+	CustomWebrtc = 4
     };
 
     WebRTCStream(obs_output_t *output);
@@ -89,6 +90,7 @@ public:
     void OnIceGatheringChange(webrtc::PeerConnectionInterface::IceGatheringState /* new_state */) override {}
     void OnIceCandidate(const webrtc::IceCandidateInterface *candidate) override;
     void OnIceConnectionReceivingChange(bool /* receiving */) override {}
+    void OnConnectionChange(webrtc::PeerConnectionInterface::PeerConnectionState new_state) override;
 
     // CreateSessionDescriptionObserver
     void OnSuccess(webrtc::SessionDescriptionInterface *desc) override;

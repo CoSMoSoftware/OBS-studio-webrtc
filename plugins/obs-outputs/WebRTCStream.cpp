@@ -171,17 +171,21 @@ bool WebRTCStream::start(WebRTCStream::Type type)
             warn("Invalid url");
             isServiceValid = false;
         }
-        if (room.empty()) {
-            warn("Missing room ID");
-            isServiceValid = false;
-        }
+	if (type != WebRTCStream::Type::CustomWebrtc) {
+		if (room.empty()) {
+			warn("Missing room ID");
+			isServiceValid = false;
+		}
+	}
+	if (type != WebRTCStream::Type::Wowza &&
+	    type != WebRTCStream::Type::CustomWebrtc) {
+		if (password.empty()) {
+			warn("Missing Password");
+			isServiceValid = false;
+		}
+	}
     } 
-    if (type != WebRTCStream::Type::Wowza) {
-        if (password.empty()) {
-            warn("Missing Password");
-            isServiceValid = false;
-        }
-    }
+    
     if (!isServiceValid) {
         obs_output_set_last_error(
             output,
@@ -374,7 +378,12 @@ void WebRTCStream::OnSuccess(webrtc::SessionDescriptionInterface *desc)
     pc->SetLocalDescription(this, desc);
 
     info("Sending OFFER (SDP) to remote peer:\n\n%s", sdpCopy.c_str());
-    client->open(sdpCopy, video_codec, audio_codec, username);
+    if (!client->open(sdpCopy, video_codec, audio_codec, username)) {
+	// Shutdown websocket connection and close Peer Connection
+	close(false);
+	// Disconnect, this will call stop on main thread
+	obs_output_signal_stop(output, OBS_OUTPUT_ERROR);
+    }
 }
 
 void WebRTCStream::OnSuccess()
@@ -418,6 +427,34 @@ void WebRTCStream::OnIceConnectionChange(
                 obs_output_signal_stop(output, OBS_OUTPUT_ERROR);
              });
              break;
+         default:
+             break;
+    }
+}
+
+void WebRTCStream::OnConnectionChange(
+  webrtc::PeerConnectionInterface::PeerConnectionState state)
+{
+    using namespace webrtc;
+    info("WebRTCStream::OnConnectionChange [%u]", state);
+
+    switch (state) {
+        case PeerConnectionInterface::PeerConnectionState::kFailed:
+	{
+    
+            // Close must be carried out on a separate thread in order to avoid deadlock
+            auto thread = std::thread([&] () {
+                obs_output_set_last_error(
+                    output,
+                    "Connection failure\n\n"
+                );
+                // Disconnect, this will call stop on main thread
+                obs_output_signal_stop(output, OBS_OUTPUT_ERROR);
+             });
+	     //Detach
+	     thread.detach();
+             break;
+	 }
          default:
              break;
     }

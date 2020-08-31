@@ -20,6 +20,7 @@ extern struct obs_output_info janus_output_info;
 extern struct obs_output_info wowza_output_info;
 extern struct obs_output_info millicast_output_info;
 extern struct obs_output_info evercast_output_info;
+extern struct obs_output_info webrtc_custom_output_info;
 #if COMPILE_FTL
 extern struct obs_output_info ftl_output_info;
 #endif
@@ -38,6 +39,7 @@ bool obs_module_load(void)
 	obs_register_output(&wowza_output_info);
 	obs_register_output(&millicast_output_info);
 	obs_register_output(&evercast_output_info);
+	obs_register_output(&webrtc_custom_output_info);
 #if COMPILE_FTL
 	obs_register_output(&ftl_output_info);
 #endif

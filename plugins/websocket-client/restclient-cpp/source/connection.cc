@@ -387,6 +387,10 @@ RestClient::Connection::performCurlRequest(const std::string& uri) {
                      1L);
   }
 
+  // Allow self signed certificates
+  curl_easy_setopt(this->curlHandle, CURLOPT_SSL_VERIFYPEER, false);
+  curl_easy_setopt(this->curlHandle, CURLOPT_SSL_VERIFYHOST, false);
+
   res = curl_easy_perform(this->curlHandle);
   if (res != CURLE_OK) {
     switch (res) {
