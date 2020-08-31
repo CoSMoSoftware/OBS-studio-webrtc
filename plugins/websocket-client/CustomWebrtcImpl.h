@@ -16,14 +16,14 @@
 
 typedef websocketpp::client<websocketpp::config::asio_tls_client> Client;
 
-class MillicastWebsocketClientImpl : public WebsocketClient {
+class CustomWebrtcImpl : public WebsocketClient {
 public:
-    MillicastWebsocketClientImpl();
-    ~MillicastWebsocketClientImpl();
+    CustomWebrtcImpl();
+    ~CustomWebrtcImpl();
 
     // WebsocketClient::Listener implementation
     bool connect(
-            const std::string & /* publish_api_url */,
+            const std::string & publish_api_url,
             const std::string & /* room */,
             const std::string & stream_name,
             const std::string & token,
@@ -41,11 +41,8 @@ public:
     bool disconnect(bool /* wait */) override;
 
 private:
+    std::string serverUrl;
     std::string token;
-
-    Client client;
-    Client::connection_ptr connection;
-    std::thread thread;
-
+    WebsocketClient::Listener* listener = nullptr;
     std::string sanitizeString(const std::string & s);
 };
