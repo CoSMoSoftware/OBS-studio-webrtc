@@ -416,17 +416,19 @@ void WebRTCStream::OnIceConnectionChange(
 
     switch (state) {
         case PeerConnectionInterface::IceConnectionState::kIceConnectionFailed:
-            // Close must be carried out on a separate thread in order to avoid deadlock
-            thread_closeAsync = std::thread([&] () {
-                close(false);
-                obs_output_set_last_error(
-                    output,
-                    "We found your room, but streaming failed. Are you behind a firewall?\n\n"
-                );
-                // Disconnect, this will call stop on main thread
-                obs_output_signal_stop(output, OBS_OUTPUT_ERROR);
-             });
+	{
+	    // Close must be carried out on a separate thread in order to avoid deadlock
+	    auto thread  = std::thread([=]() {
+		obs_output_set_last_error(
+			output,
+			"We found your room, but streaming failed. Are you behind a firewall?\n\n"
+		);
+		// Disconnect, this will call stop on main thread
+		obs_output_signal_stop(output, OBS_OUTPUT_ERROR);
+	     });
+	     thread.detach();
              break;
+	 }
          default:
              break;
     }
@@ -443,7 +445,7 @@ void WebRTCStream::OnConnectionChange(
 	{
     
             // Close must be carried out on a separate thread in order to avoid deadlock
-            auto thread = std::thread([&] () {
+            auto thread = std::thread([=] () {
                 obs_output_set_last_error(
                     output,
                     "Connection failure\n\n"
