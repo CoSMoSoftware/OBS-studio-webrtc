@@ -19,8 +19,7 @@ if( NOT OBS_WEBRTC_VENDOR_NAME )
 	set( _gui_name obs )
 else()
 	# NOTE ALEX: ugly, fix me.
-	# set( _gui_name ebs )
-	set( _gui_name obs )
+	set( _gui_name obs-pacpost )
 endif()
 project(${_gui_name})
 
