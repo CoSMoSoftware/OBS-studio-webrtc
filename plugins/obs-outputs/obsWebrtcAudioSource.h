@@ -5,14 +5,14 @@
 #define _OBS_WEBRTC_AUDIO_SOURCE_H_
 
 // lib obs include
-#include "media-io/audio-io.h"
+#include <media-io/audio-io.h>
 
 // webrtc includes
-#include "api/scoped_refptr.h"
-#include "api/notifier.h"
-#include "api/peer_connection_interface.h"
-#include "api/media_stream_interface.h"
-#include "rtc_base/ref_counted_object.h"
+#include <api/scoped_refptr.h>
+#include <api/notifier.h>
+#include <api/peer_connection_interface.h>
+#include <api/media_stream_interface.h>
+#include <rtc_base/ref_counted_object.h>
 
 // Glue class to use OBS audio capturer and proxy the audio data through to
 // webrtc pipeline. Allows to fully control the audio capturing, and to reuse

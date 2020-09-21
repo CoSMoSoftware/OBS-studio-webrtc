@@ -3,8 +3,8 @@
 #ifndef _OBS_VIDEO_CAPTURER_
 #define _OBS_VIDEO_CAPTURER_
 
-#include "media/base/adapted_video_track_source.h"
-#include "rtc_base/thread.h"
+#include <media/base/adapted_video_track_source.h>
+#include <rtc_base/thread.h>
 
 #include <mutex>
 
