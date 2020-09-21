@@ -121,6 +121,8 @@ if( WEBRTC_ADVERTISE_MULTIOPUS_CODEC )
         message( STATUS "This libwebrtc package was build with built-in multiopus codec." )
 endif()
 
+include_directories("${WEBRTC_INCLUDE_DIR}")
+
 if(WIN32)
 	set(obs-outputs_PLATFORM_DEPS
 		ws2_32
