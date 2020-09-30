@@ -8,10 +8,9 @@ set(rtmp-services_SOURCES
 	rtmp-common.c
 	rtmp-custom.c
 	webrtc-janus.c
-	webrtc-wowza.c
 	webrtc-millicast.c
 	webrtc-custom.c
-	webrtc-evercast.c)
+	)
 
 set(rtmp-services_HEADERS
 	twitch.h

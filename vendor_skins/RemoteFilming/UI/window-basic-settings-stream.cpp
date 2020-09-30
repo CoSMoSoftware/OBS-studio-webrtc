@@ -21,9 +21,6 @@ extern QCefCookieManager *panel_cookies;
 enum class ListOpt : int {
 	ShowAll = 1,
 	Custom,
-//	Janus,
-//	Wowza,
-//	Evercast,
 	Millicast
 };
 
@@ -34,26 +31,17 @@ enum class Section : int {
 
 // NOTE LUDO: #167 Settings/Stream: only one service displayed: Millicast
 std::vector<std::string> webrtc_services = {
-//	"webrtc_janus",
-//	"webrtc_wowza",
-//	"webrtc_evercast",
 	"webrtc_millicast"
 };
 std::vector<std::string>::size_type webrtc_count = webrtc_services.size();
 
 inline bool OBSBasicSettings::IsCustomService() const
 {
-    	// NOTE LUDO: #173 replace Settings/Stream service Evercast combo box by a radio button
-    	// return ui->service->currentData().toInt() == (int)ListOpt::Custom;
   	return false;
 }
 
 inline int OBSBasicSettings::IsWebRTC() const
 {
- 	// NOTE LUDO: #173 replace Settings/Stream service Evercast combo box by a radio button
-	// if (ui->service->currentData().toInt() > (int)ListOpt::Custom)
-	// 	return ui->service->currentData().toInt();
-	// return 0;
   	return 1;
 }
 
@@ -79,11 +67,6 @@ void OBSBasicSettings::InitStreamPage()
 
 	LoadServices(false);
 
-  	// NOTE LUDO: #173 replace Settings/Stream service Evercast combo box by a radio button
-	// connect(ui->service, SIGNAL(currentIndexChanged(int)), this,
-	// 	SLOT(UpdateServerList()));
-	// connect(ui->service, SIGNAL(currentIndexChanged(int)), this,
-	// 	SLOT(UpdateKeyLink()));
   	connect(ui->serviceButtonGroup, SIGNAL(buttonClicked(int)), this,
 		SLOT(UpdateServerList()));
   	connect(ui->serviceButtonGroup, SIGNAL(buttonClicked(int)), this,
@@ -106,11 +89,6 @@ void OBSBasicSettings::LoadStream1Settings()
 	const char *key = obs_data_get_string(settings, "key");
 
 	if (strcmp(type, "rtmp_custom") == 0) {
-    		// NOTE LUDO: #173 replace Settings/Stream service Evercast combo box by a radio button
-		// ui->service->setCurrentIndex(0);
-    		// NOTE LUDO: #185 Settings/Stream replace server name QStackedWidget by a QLineEdit
-		// ui->customServer->setText(server);
-
 		bool use_auth = obs_data_get_bool(settings, "use_auth");
 		const char *username =
 			obs_data_get_string(settings, "username");
@@ -120,15 +98,6 @@ void OBSBasicSettings::LoadStream1Settings()
 		ui->authPw->setText(QT_UTF8(password));
 		ui->useAuth->setChecked(use_auth);
 	} else if (strcmp(type, "rtmp_common") == 0) {
-    		// NOTE LUDO: #173 replace Settings/Stream service Evercast combo box by a radio button
-		// int idx = ui->service->findText(service);
-		// if (idx == -1) {
-		// 	if (service && *service)
-		// 		ui->service->insertItem(1, service);
-		// 	idx = 1;
-		// }
-		// ui->service->setCurrentIndex(idx);
-
 		bool bw_test = obs_data_get_bool(settings, "bwtest");
 		ui->bandwidthTestEnable->setChecked(bw_test);
 	} else {
@@ -342,53 +311,8 @@ void OBSBasicSettings::LoadServices(bool showAll)
 	obs_property_t *prop = obs_properties_get(props, "show_all");
 	obs_property_modified(prop, settings);
 
-  	// NOTE LUDO: #173 replace Settings/Stream service Evercast combo box by a radio button
-	// ui->service->blockSignals(true);
-	// ui->service->clear();
-
-	// QStringList names;
-
-	// obs_property_t *services = obs_properties_get(props, "service");
-	// size_t services_count = obs_property_list_item_count(services);
-	// for (size_t i = 0; i < services_count; i++) {
-	// 	const char *name = obs_property_list_item_string(services, i);
-	// 	names.push_back(name);
-	// }
-
-	// if (showAll)
-	// 	names.sort();
-
-	// NOTE ALEX: do not add the "ShowAll entry in the service list
-	// for (QString &name : names)
-	// 	ui->service->addItem(name);
-
-	// if (!showAll) {
-	// NOTE ALEX: do not add the "ShowAll entry in the service list
-	// 	ui->service->addItem(
-	// 		QTStr("Basic.AutoConfig.StreamPage.Service.ShowAll"),
-	// 		QVariant((int)ListOpt::ShowAll));
-	// }
-
-	// for (std::vector<std::string>::size_type i = webrtc_count; i-- > 0; )
-	// 	ui->service->insertItem(
-	// 		0, obs_service_get_display_name(webrtc_services[i].c_str()),
-	// 		QVariant((int)i+3));
-
-	// NOTE ALEX: do not insert the "Custom" entry to the list
-	// ui->service->insertItem(
-	// 	0, QTStr("Basic.AutoConfig.StreamPage.Service.Custom"),
-	// 	QVariant((int)ListOpt::Custom));
-
-        // NOTE ALEX: do not insert any rtmp service entry in the service list
-	// if (!lastService.isEmpty()) {
-	// 	int idx = ui->service->findText(lastService);
-	// 	if (idx != -1)
-	// 		ui->service->setCurrentIndex(idx);
-	// }
-
 	obs_properties_destroy(props);
 
-	// ui->service->blockSignals(false);
 }
 
 static inline bool is_auth_service(const std::string &service)
@@ -398,14 +322,6 @@ static inline bool is_auth_service(const std::string &service)
 
 void OBSBasicSettings::on_service_currentIndexChanged(int)
 {
-  	// NOTE LUDO: #173 replace Settings/Stream service Evercast combo box by a radio button
-	// bool showMore = ui->service->currentData().toInt() ==
-	// 		(int)ListOpt::ShowAll;
-	// if (showMore)
-	// 	return;
-
-  	// NOTE LUDO: #173 replace Settings/Stream service Evercast combo box by a radio button
-	// std::string service = QT_TO_UTF8(ui->service->currentText());
   	std::string service = QT_TO_UTF8(ui->serviceButtonGroup->checkedButton()->text());
 	bool custom = IsCustomService();
 	int webrtc = IsWebRTC();
@@ -454,14 +370,8 @@ void OBSBasicSettings::on_service_currentIndexChanged(int)
 						   ui->authUsername);
 		ui->streamkeyPageLayout->insertRow(5, ui->authPwLabel,
 						   ui->authPwWidget);
-                // NOTE LUDO: #172 codecs list of radio buttons
-		// ui->streamkeyPageLayout->insertRow(6, ui->codecLabel,
-		// 				   ui->codec);
 		ui->streamkeyPageLayout->insertRow(7, ui->streamProtocolLabel,
 						   ui->streamProtocol);
-    		// NOTE LUDO: #185 Settings/Stream replace server name QStackedWidget by a QLineEdit
-		// ui->serverStackedWidget->setCurrentIndex(1);
-		// ui->serverStackedWidget->setVisible(true);
 		ui->serverLabel->setVisible(true);
 		ui->streamKeyLabel->setVisible(true);
 		ui->streamKeyWidget->setVisible(true);
@@ -469,20 +379,13 @@ void OBSBasicSettings::on_service_currentIndexChanged(int)
 		ui->room->setVisible(false);
 		on_useAuth_toggled();
 		ui->codecLabel->setVisible(false);
-                // NOTE LUDO: #172 codecs list of radio buttons
-		// ui->codec->setVisible(false);
 		ui->streamProtocolLabel->setVisible(false);
 		ui->streamProtocol->setVisible(false);
 	} else if (webrtc > 0) {
 		ui->streamKeyLabel->setVisible(false);
 		ui->streamKeyWidget->setVisible(false);
-    		// NOTE LUDO: #185 Settings/Stream replace server name QStackedWidget by a QLineEdit
-		// ui->serverStackedWidget->setCurrentIndex(1);
 		ui->serverLabel->setVisible(true);
     		ui->serverName->setVisible(true);
-		// ui->serverStackedWidget->setVisible(true);
-    		// NOTE LUDO: #173 replace Settings/Stream service Evercast combo box by a radio button
-		// obs_properties_t *props = obs_get_service_properties(webrtc_services[(int)webrtc - 3].c_str());
 		obs_properties_t *props    = obs_get_service_properties("webrtc_millicast");
 		obs_property_t   *server   = obs_properties_get(props, "server");
 		obs_property_t   *room     = obs_properties_get(props, "room");
@@ -592,17 +495,11 @@ void OBSBasicSettings::on_service_currentIndexChanged(int)
 
 void OBSBasicSettings::UpdateServerList()
 {
-  	// NOTE LUDO: #173 replace Settings/Stream service Evercast combo box by a radio button
-	// QString serviceName = ui->service->currentText();
   	QString serviceName = ui->serviceButtonGroup->checkedButton()->text();
-	// bool showMore = ui->service->currentData().toInt() ==
-	// 		(int)ListOpt::ShowAll;
   	bool showMore = false;
 
 	if (showMore) {
 		LoadServices(true);
-    		// NOTE LUDO: #173 replace Settings/Stream service Evercast combo box by a radio button
-		// ui->service->showPopup();
 		return;
 	} else {
 		lastService = serviceName;
@@ -616,18 +513,6 @@ void OBSBasicSettings::UpdateServerList()
 
 	obs_data_set_string(settings, "service", QT_TO_UTF8(serviceName));
 	obs_property_modified(services, settings);
-
-  	// NOTE LUDO: #185 Settings/Stream replace server name QStackedWidget by a QLineEdit
-	// obs_property_t *servers = obs_properties_get(props, "server");
-
-	// ui->server->clear();
-
-	// size_t servers_count = obs_property_list_item_count(servers);
-	// for (size_t i = 0; i < servers_count; i++) {
-	// 	const char *name = obs_property_list_item_name(servers, i);
-	// 	const char *server = obs_property_list_item_string(servers, i);
-	// 	ui->server->addItem(name, server);
-	// }
 
 	obs_properties_destroy(props);
 }
@@ -665,19 +550,13 @@ OBSService OBSBasicSettings::SpawnTempService()
 	obs_data_release(settings);
 
 	if (!custom && webrtc == 0) {
-    	// NOTE LUDO: #173 replace Settings/Stream service Evercast combo box by a radio button
 		obs_data_set_string(settings, "service",
-			// QT_TO_UTF8(ui->service->currentText()));
             		QT_TO_UTF8(ui->serviceButtonGroup->checkedButton()->text()));
 		obs_data_set_string(
 			settings, "server",
-      			// NOTE LUDO: #185 Settings/Stream replace server name QStackedWidget by a QLineEdit
-			// QT_TO_UTF8(ui->server->currentData().toString()));
       			QT_TO_UTF8(ui->serverName->text()));
 	} else {
 		obs_data_set_string(settings, "server",
-            		// NOTE LUDO: #185 Settings/Stream replace server name QStackedWidget by a QLineEdit
-			// QT_TO_UTF8(ui->customServer->text()));
             		QT_TO_UTF8(ui->serverName->text()));
 	}
 	obs_data_set_string(settings, "key", QT_TO_UTF8(ui->key->text()));
@@ -715,8 +594,6 @@ void OBSBasicSettings::OnOAuthStreamKeyConnected()
 
 void OBSBasicSettings::OnAuthConnected()
 {
-  	// NOTE LUDO: #173 replace Settings/Stream service Evercast combo box by a radio button
-	// std::string service = QT_TO_UTF8(ui->service->currentText());
   	std::string service = QT_TO_UTF8(ui->serviceButtonGroup->checkedButton()->text());
 	Auth::Type type = Auth::AuthType(service);
 
@@ -760,8 +637,6 @@ void OBSBasicSettings::on_disconnectAccount_clicked()
 	main->auth.reset();
 	auth.reset();
 
-  	// NOTE LUDO: #173 replace Settings/Stream service Evercast combo box by a radio button
-	// std::string service = QT_TO_UTF8(ui->service->currentText());
   	std::string service = QT_TO_UTF8(ui->serviceButtonGroup->checkedButton()->text());
 
 #ifdef BROWSER_AVAILABLE
