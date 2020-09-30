@@ -231,7 +231,7 @@ bool WebRTCStream::start(WebRTCStream::Type type)
     // config.bundle_policy = webrtc::PeerConnectionInterface::kBundlePolicyMaxBundle;
     // config.disable_ipv6 = true;
     // config.rtcp_mux_policy = webrtc::PeerConnectionInterface::kRtcpMuxPolicyRequire;
-    // config.sdp_semantics = webrtc::SdpSemantics::kUnifiedPlan;
+    config.sdp_semantics = webrtc::SdpSemantics::kUnifiedPlan;
     // config.set_cpu_adaptation(false);
     // config.set_suspend_below_min_bitrate(false);
 
@@ -274,17 +274,34 @@ bool WebRTCStream::start(WebRTCStream::Type type)
     // pc->AddTrack(video_track, {"obs"});
     stream->AddTrack(video_track);
 
-    // Add the stream to the peer connection
-    if (!pc->AddStream(stream)) {
-        warn("Adding stream to PeerConnection failed");
-        // Close Peer Connection
-        close(false);
-        // Disconnect, this will call stop on main thread
-        obs_output_set_last_error(output,
-            "There was a problem connecting your source(s) to the webrtc stream. Do your sources appear to be working correctly?");
-        obs_output_signal_stop(output, OBS_OUTPUT_CONNECT_FAILED);
-        return false;
+    //Add audio track
+    webrtc::RtpTransceiverInit audio_init;
+    audio_init.stream_ids.push_back(stream->id());
+    audio_init.direction = webrtc::RtpTransceiverDirection::kSendOnly;
+    pc->AddTransceiver(audio_track, audio_init);
+
+    bool simulcast = false;
+
+    //Add video track
+    webrtc::RtpTransceiverInit video_init;
+    video_init.stream_ids.push_back(stream->id());
+    video_init.direction = webrtc::RtpTransceiverDirection::kSendOnly;
+    if (simulcast) {
+	webrtc::RtpEncodingParameters large;
+	webrtc::RtpEncodingParameters medium;
+	webrtc::RtpEncodingParameters small;
+	large.rid = "L";
+	large.scale_resolution_down_by = 1;
+	medium.rid = "M";
+	medium.scale_resolution_down_by = 2;
+	small.rid = "S";
+	small.scale_resolution_down_by = 4;
+	//In reverse order so large is dropped first on low network condition
+	video_init.send_encodings.push_back(small);
+	video_init.send_encodings.push_back(medium);
+	video_init.send_encodings.push_back(large);
     }
+    pc->AddTransceiver(video_track, video_init);
 
     client = createWebsocketClient(type);
     if (!client) {
