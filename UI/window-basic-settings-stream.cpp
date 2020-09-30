@@ -21,9 +21,7 @@ enum class ListOpt : int {
 	ShowAll = 1,
 	Custom,
 	Janus,
-	Wowza,
 	Millicast,
-	Evercast,
 	CustomWebrtc
 };
 
@@ -34,9 +32,7 @@ enum class Section : int {
 
 std::vector<std::string> webrtc_services = {
 	"webrtc_janus",
-	"webrtc_wowza",
 	"webrtc_millicast",
-	"webrtc_evercast",
 	"webrtc_custom"
 };
 std::vector<std::string>::size_type webrtc_count = webrtc_services.size();

@@ -178,7 +178,6 @@ endif()
 
 set(obs-outputs_webrtc_HEADERS
 	AudioDeviceModuleWrapper.h
-	evercast-stream.h
 	janus-stream.h
 	millicast-stream.h
 	webrtc-custom-stream.h
@@ -186,17 +185,16 @@ set(obs-outputs_webrtc_HEADERS
 	SDPModif.h
 	VideoCapturer.h
 	WebRTCStream.h
-	wowza-stream.h)
+	)
 set(obs-outputs_webrtc_SOURCES
 	AudioDeviceModuleWrapper.cpp
-	evercast-stream.cpp
 	janus-stream.cpp
 	millicast-stream.cpp
 	webrtc-custom-stream.cpp
         obsWebrtcAudioSource.cpp
 	VideoCapturer.cpp
 	WebRTCStream.cpp
-	wowza-stream.cpp)
+	)
 
 if(NOT WIN32)
 	set_source_files_properties(${obs-outputs_webrtc_SOURCES} PROPERTIES

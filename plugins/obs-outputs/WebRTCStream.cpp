@@ -185,9 +185,6 @@ bool WebRTCStream::start(WebRTCStream::Type type)
 			warn("Missing room ID");
 			isServiceValid = false;
 		}
-	}
-	if (type != WebRTCStream::Type::Wowza &&
-	    type != WebRTCStream::Type::CustomWebrtc) {
 		if (password.empty()) {
 			warn("Missing Password");
 			isServiceValid = false;
@@ -312,17 +309,11 @@ bool WebRTCStream::start(WebRTCStream::Type type)
     if (type == WebRTCStream::Type::Janus) {
         info("Server Room:      %s\nStream Key:       %s\n",
                 room.c_str(), password.c_str());
-    } else if (type == WebRTCStream::Type::Wowza) {
-        info("Application Name: %s\nStream Name:      %s\n",
-                room.c_str(), username.c_str());
     } else if (type == WebRTCStream::Type::Millicast) {
         info("Stream Name:      %s\nPublishing Token: %s\n",
                 username.c_str(), password.c_str());
         // Note alex: What~~?
         url = "Millicast";
-    } else if (type == WebRTCStream::Type::Evercast) {
-        info("Server Room:      %s\nStream Key:       %s\n",
-                room.c_str(), password.c_str());
     }
     info("CONNECTING TO %s", url.c_str());
 
@@ -501,12 +492,10 @@ void WebRTCStream::onOpened(const std::string &sdp)
 
     std::string sdpCopy = sdp;
 
-    if (type != WebRTCStream::Type::Wowza) {
-        // Constrain video bitrate
-        SDPModif::bitrateSDP(sdpCopy, video_bitrate);
-        // Enable stereo & constrain audio bitrate
-        SDPModif::stereoSDP(sdpCopy, audio_bitrate);
-    }
+    // Constrain video bitrate
+    SDPModif::bitrateSDP(sdpCopy, video_bitrate);
+    // Enable stereo & constrain audio bitrate
+    SDPModif::stereoSDP(sdpCopy, audio_bitrate);
 
     // SetRemoteDescription observer
     srd_observer = make_scoped_refptr(this);

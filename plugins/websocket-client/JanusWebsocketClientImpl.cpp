@@ -125,8 +125,6 @@ bool JanusWebsocketClientImpl::connect(
         );
 
         // --- TLS handler
-        // NOTE ALEX: evercast version uses tlsv12_client instead of tlsv1.
-        // Double check against documentation.
         client.set_tls_init_handler([&](websocketpp::connection_hdl /* con */) {
             // Create context
             auto ctx = websocketpp::lib::make_shared<asio::ssl::context>(
@@ -143,9 +141,6 @@ bool JanusWebsocketClientImpl::connect(
             return ctx;
         });
 
-        // NOTE ALEX: Evercast version uses an extention that contains token and room ID
-        // THat could be redundant with the login, and/or could be an Evercast specific thing
-        // Double check against Janus WS connection documentation.
         connection = client.get_connection(url, ec);
         if (ec) {
             error("Error establishing websocket connection: %s", ec.message().c_str());
