@@ -6,6 +6,7 @@
 
 struct cocoa_window {
 	CGWindowID window_id;
+	int owner_pid;
 
 	pthread_mutex_t name_lock;
 	NSString *owner_name;
@@ -16,6 +17,8 @@ struct cocoa_window {
 typedef struct cocoa_window *cocoa_window_t;
 
 NSArray *enumerate_cocoa_windows(void);
+
+NSArray *filter_nonzero_kcgwindowlayer_sources(NSArray *windows_arr);
 
 bool find_window(cocoa_window_t cw, obs_data_t *settings, bool force);
 

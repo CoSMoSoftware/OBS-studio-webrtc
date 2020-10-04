@@ -8,6 +8,7 @@
 #include <algorithm>
 #include <string>
 #include <memory>
+#include <locale>
 
 using namespace std;
 using namespace Gdiplus;
@@ -68,6 +69,7 @@ using namespace Gdiplus;
 #define S_EXTENTS_CX                    "extents_cx"
 #define S_EXTENTS_CY                    "extents_cy"
 #define S_TRANSFORM                     "transform"
+#define S_ANTIALIASING                  "antialiasing"
 
 #define S_ALIGN_LEFT                    "left"
 #define S_ALIGN_CENTER                  "center"
@@ -80,6 +82,10 @@ using namespace Gdiplus;
 #define S_TRANSFORM_NONE                0
 #define S_TRANSFORM_UPPERCASE           1
 #define S_TRANSFORM_LOWERCASE           2
+#define S_TRANSFORM_STARTCASE           3
+
+#define S_ANTIALIASING_NONE             0
+#define S_ANTIALIASING_STANDARD         1
 
 #define T_(v)                           obs_module_text(v)
 #define T_FONT                          T_("Font")
@@ -108,6 +114,7 @@ using namespace Gdiplus;
 #define T_EXTENTS_CX                    T_("Width")
 #define T_EXTENTS_CY                    T_("Height")
 #define T_TRANSFORM                     T_("Transform")
+#define T_ANTIALIASING                  T_("Antialiasing")
 
 #define T_FILTER_TEXT_FILES             T_("Filter.TextFiles")
 #define T_FILTER_ALL_FILES              T_("Filter.AllFiles")
@@ -123,6 +130,7 @@ using namespace Gdiplus;
 #define T_TRANSFORM_NONE                T_("Transform.None")
 #define T_TRANSFORM_UPPERCASE           T_("Transform.Uppercase")
 #define T_TRANSFORM_LOWERCASE           T_("Transform.Lowercase")
+#define T_TRANSFORM_STARTCASE           T_("Transform.Startcase")
 
 /* clang-format on */
 
@@ -239,6 +247,7 @@ struct TextSource {
 	bool italic = false;
 	bool underline = false;
 	bool strikeout = false;
+	bool antialiasing = true;
 	bool vertical = false;
 
 	bool use_outline = false;
@@ -284,6 +293,8 @@ struct TextSource {
 			       const Brush &brush);
 	void RenderText();
 	void LoadFileText();
+	void TransformText();
+	void SetAntiAliasing(Graphics &graphics_bitmap);
 
 	const char *GetMainString(const char *str);
 
@@ -571,9 +582,8 @@ void TextSource::RenderText()
 		warn_stat("graphics_bitmap.Clear");
 	}
 
-	graphics_bitmap.SetTextRenderingHint(TextRenderingHintAntiAlias);
 	graphics_bitmap.SetCompositingMode(CompositingModeSourceOver);
-	graphics_bitmap.SetSmoothingMode(SmoothingModeAntiAlias);
+	SetAntiAliasing(graphics_bitmap);
 
 	if (!text.empty()) {
 		if (use_outline) {
@@ -654,6 +664,45 @@ void TextSource::LoadFileText()
 		text.push_back('\n');
 }
 
+void TextSource::TransformText()
+{
+	const locale loc = locale(obs_get_locale());
+	const ctype<wchar_t> &f = use_facet<ctype<wchar_t>>(loc);
+	if (text_transform == S_TRANSFORM_UPPERCASE)
+		f.toupper(&text[0], &text[0] + text.size());
+	else if (text_transform == S_TRANSFORM_LOWERCASE)
+		f.tolower(&text[0], &text[0] + text.size());
+	else if (text_transform == S_TRANSFORM_STARTCASE) {
+		bool upper = true;
+		for (wstring::iterator it = text.begin(); it != text.end();
+		     ++it) {
+			const wchar_t upper_char = f.toupper(*it);
+			const wchar_t lower_char = f.tolower(*it);
+			if (upper && lower_char != upper_char) {
+				upper = false;
+				*it = upper_char;
+			} else if (lower_char != upper_char) {
+				*it = lower_char;
+			} else {
+				upper = iswspace(*it);
+			}
+		}
+	}
+}
+
+void TextSource::SetAntiAliasing(Graphics &graphics_bitmap)
+{
+	if (!antialiasing) {
+		graphics_bitmap.SetTextRenderingHint(
+			TextRenderingHintSingleBitPerPixel);
+		graphics_bitmap.SetSmoothingMode(SmoothingModeNone);
+		return;
+	}
+
+	graphics_bitmap.SetTextRenderingHint(TextRenderingHintAntiAlias);
+	graphics_bitmap.SetSmoothingMode(SmoothingModeAntiAlias);
+}
+
 #define obs_data_get_uint32 (uint32_t) obs_data_get_int
 
 inline void TextSource::Update(obs_data_t *s)
@@ -682,6 +731,7 @@ inline void TextSource::Update(obs_data_t *s)
 	uint32_t n_extents_cx = obs_data_get_uint32(s, S_EXTENTS_CX);
 	uint32_t n_extents_cy = obs_data_get_uint32(s, S_EXTENTS_CY);
 	int new_text_transform = (int)obs_data_get_int(s, S_TRANSFORM);
+	bool new_antialiasing = obs_data_get_bool(s, S_ANTIALIASING);
 
 	const char *font_face = obs_data_get_string(font_obj, "face");
 	int font_size = (int)obs_data_get_int(font_obj, "size");
@@ -733,6 +783,7 @@ inline void TextSource::Update(obs_data_t *s)
 	extents_cx = n_extents_cx;
 	extents_cy = n_extents_cy;
 	text_transform = new_text_transform;
+	antialiasing = new_antialiasing;
 
 	if (!gradient) {
 		color2 = color;
@@ -758,10 +809,7 @@ inline void TextSource::Update(obs_data_t *s)
 		if (!text.empty())
 			text.push_back('\n');
 	}
-	if (text_transform == S_TRANSFORM_UPPERCASE)
-		transform(text.begin(), text.end(), text.begin(), towupper);
-	else if (text_transform == S_TRANSFORM_LOWERCASE)
-		transform(text.begin(), text.end(), text.begin(), towlower);
+	TransformText();
 
 	use_outline = new_outline;
 	outline_color = new_o_color;
@@ -803,6 +851,7 @@ inline void TextSource::Tick(float seconds)
 
 		if (update_file) {
 			LoadFileText();
+			TransformText();
 			RenderText();
 			update_file = false;
 		}
@@ -937,6 +986,8 @@ static obs_properties_t *get_properties(void *data)
 	obs_properties_add_path(props, S_FILE, T_FILE, OBS_PATH_FILE,
 				filter.c_str(), path.c_str());
 
+	obs_properties_add_bool(props, S_ANTIALIASING, T_ANTIALIASING);
+
 	p = obs_properties_add_list(props, S_TRANSFORM, T_TRANSFORM,
 				    OBS_COMBO_TYPE_LIST, OBS_COMBO_FORMAT_INT);
 	obs_property_list_add_int(p, T_TRANSFORM_NONE, S_TRANSFORM_NONE);
@@ -944,8 +995,11 @@ static obs_properties_t *get_properties(void *data)
 				  S_TRANSFORM_UPPERCASE);
 	obs_property_list_add_int(p, T_TRANSFORM_LOWERCASE,
 				  S_TRANSFORM_LOWERCASE);
+	obs_property_list_add_int(p, T_TRANSFORM_STARTCASE,
+				  S_TRANSFORM_STARTCASE);
 
 	obs_properties_add_bool(props, S_VERTICAL, T_VERTICAL);
+
 	obs_properties_add_color(props, S_COLOR, T_COLOR);
 	p = obs_properties_add_int_slider(props, S_OPACITY, T_OPACITY, 0, 100,
 					  1);
@@ -1005,13 +1059,44 @@ static obs_properties_t *get_properties(void *data)
 	return props;
 }
 
+static void defaults(obs_data_t *settings, int ver)
+{
+	obs_data_t *font_obj = obs_data_create();
+	obs_data_set_default_string(font_obj, "face", "Arial");
+	obs_data_set_default_int(font_obj, "size", ver == 1 ? 36 : 256);
+
+	obs_data_set_default_obj(settings, S_FONT, font_obj);
+	obs_data_set_default_string(settings, S_ALIGN, S_ALIGN_LEFT);
+	obs_data_set_default_string(settings, S_VALIGN, S_VALIGN_TOP);
+	obs_data_set_default_int(settings, S_COLOR, 0xFFFFFF);
+	obs_data_set_default_int(settings, S_OPACITY, 100);
+	obs_data_set_default_int(settings, S_GRADIENT_COLOR, 0xFFFFFF);
+	obs_data_set_default_int(settings, S_GRADIENT_OPACITY, 100);
+	obs_data_set_default_double(settings, S_GRADIENT_DIR, 90.0);
+	obs_data_set_default_int(settings, S_BKCOLOR, 0x000000);
+	obs_data_set_default_int(settings, S_BKOPACITY, 0);
+	obs_data_set_default_int(settings, S_OUTLINE_SIZE, 2);
+	obs_data_set_default_int(settings, S_OUTLINE_COLOR, 0xFFFFFF);
+	obs_data_set_default_int(settings, S_OUTLINE_OPACITY, 100);
+	obs_data_set_default_int(settings, S_CHATLOG_LINES, 6);
+	obs_data_set_default_bool(settings, S_EXTENTS_WRAP, true);
+	obs_data_set_default_int(settings, S_EXTENTS_CX, 100);
+	obs_data_set_default_int(settings, S_EXTENTS_CY, 100);
+	obs_data_set_default_int(settings, S_TRANSFORM, S_TRANSFORM_NONE);
+	obs_data_set_default_bool(settings, S_ANTIALIASING, true);
+
+	obs_data_release(font_obj);
+};
+
 bool obs_module_load(void)
 {
 	obs_source_info si = {};
 	si.id = "text_gdiplus";
 	si.type = OBS_SOURCE_TYPE_INPUT;
-	si.output_flags = OBS_SOURCE_VIDEO | OBS_SOURCE_CUSTOM_DRAW;
+	si.output_flags = OBS_SOURCE_VIDEO | OBS_SOURCE_CUSTOM_DRAW |
+			  OBS_SOURCE_CAP_OBSOLETE;
 	si.get_properties = get_properties;
+	si.icon_type = OBS_ICON_TYPE_TEXT;
 
 	si.get_name = [](void *) { return obs_module_text("TextGDIPlus"); };
 	si.create = [](obs_data_t *settings, obs_source_t *source) {
@@ -1026,33 +1111,7 @@ bool obs_module_load(void)
 	si.get_height = [](void *data) {
 		return reinterpret_cast<TextSource *>(data)->cy;
 	};
-	si.get_defaults = [](obs_data_t *settings) {
-		obs_data_t *font_obj = obs_data_create();
-		obs_data_set_default_string(font_obj, "face", "Arial");
-		obs_data_set_default_int(font_obj, "size", 36);
-
-		obs_data_set_default_obj(settings, S_FONT, font_obj);
-		obs_data_set_default_string(settings, S_ALIGN, S_ALIGN_LEFT);
-		obs_data_set_default_string(settings, S_VALIGN, S_VALIGN_TOP);
-		obs_data_set_default_int(settings, S_COLOR, 0xFFFFFF);
-		obs_data_set_default_int(settings, S_OPACITY, 100);
-		obs_data_set_default_int(settings, S_GRADIENT_COLOR, 0xFFFFFF);
-		obs_data_set_default_int(settings, S_GRADIENT_OPACITY, 100);
-		obs_data_set_default_double(settings, S_GRADIENT_DIR, 90.0);
-		obs_data_set_default_int(settings, S_BKCOLOR, 0x000000);
-		obs_data_set_default_int(settings, S_BKOPACITY, 0);
-		obs_data_set_default_int(settings, S_OUTLINE_SIZE, 2);
-		obs_data_set_default_int(settings, S_OUTLINE_COLOR, 0xFFFFFF);
-		obs_data_set_default_int(settings, S_OUTLINE_OPACITY, 100);
-		obs_data_set_default_int(settings, S_CHATLOG_LINES, 6);
-		obs_data_set_default_bool(settings, S_EXTENTS_WRAP, true);
-		obs_data_set_default_int(settings, S_EXTENTS_CX, 100);
-		obs_data_set_default_int(settings, S_EXTENTS_CY, 100);
-		obs_data_set_default_int(settings, S_TRANSFORM,
-					 S_TRANSFORM_NONE);
-
-		obs_data_release(font_obj);
-	};
+	si.get_defaults = [](obs_data_t *settings) { defaults(settings, 1); };
 	si.update = [](void *data, obs_data_t *settings) {
 		reinterpret_cast<TextSource *>(data)->Update(settings);
 	};
@@ -1063,7 +1122,15 @@ bool obs_module_load(void)
 		reinterpret_cast<TextSource *>(data)->Render();
 	};
 
+	obs_source_info si_v2 = si;
+	si_v2.version = 2;
+	si_v2.output_flags &= ~OBS_SOURCE_CAP_OBSOLETE;
+	si_v2.get_defaults = [](obs_data_t *settings) {
+		defaults(settings, 2);
+	};
+
 	obs_register_source(&si);
+	obs_register_source(&si_v2);
 
 	const GdiplusStartupInput gdip_input;
 	GdiplusStartup(&gdip_token, &gdip_input, nullptr);

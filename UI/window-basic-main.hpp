@@ -34,6 +34,7 @@
 #include "window-projector.hpp"
 #include "window-basic-about.hpp"
 #include "auth-base.hpp"
+#include "log-viewer.hpp"
 
 #include <obs-frontend-internal.hpp>
 
@@ -78,6 +79,8 @@ struct SavedProjectorInfo {
 	int monitor;
 	std::string geometry;
 	std::string name;
+	bool alwaysOnTop;
+	bool alwaysOnTopOverridden;
 };
 
 struct QuickTransition {
@@ -86,12 +89,15 @@ struct QuickTransition {
 	obs_hotkey_id hotkey = OBS_INVALID_HOTKEY_ID;
 	int duration = 0;
 	int id = 0;
+	bool fadeToBlack = false;
 
 	inline QuickTransition() {}
-	inline QuickTransition(OBSSource source_, int duration_, int id_)
+	inline QuickTransition(OBSSource source_, int duration_, int id_,
+			       bool fadeToBlack_ = false)
 		: source(source_),
 		  duration(duration_),
 		  id(id_),
+		  fadeToBlack(fadeToBlack_),
 		  renamedSignal(std::make_shared<OBSSignal>(
 			  obs_source_get_signal_handler(source), "rename",
 			  SourceRenamed, this))
@@ -114,6 +120,36 @@ private:
 
 class OBSBasic : public OBSMainWindow {
 	Q_OBJECT
+	Q_PROPERTY(QIcon imageIcon READ GetImageIcon WRITE SetImageIcon
+			   DESIGNABLE true)
+	Q_PROPERTY(QIcon colorIcon READ GetColorIcon WRITE SetColorIcon
+			   DESIGNABLE true)
+	Q_PROPERTY(QIcon slideshowIcon READ GetSlideshowIcon WRITE
+			   SetSlideshowIcon DESIGNABLE true)
+	Q_PROPERTY(QIcon audioInputIcon READ GetAudioInputIcon WRITE
+			   SetAudioInputIcon DESIGNABLE true)
+	Q_PROPERTY(QIcon audioOutputIcon READ GetAudioOutputIcon WRITE
+			   SetAudioOutputIcon DESIGNABLE true)
+	Q_PROPERTY(QIcon desktopCapIcon READ GetDesktopCapIcon WRITE
+			   SetDesktopCapIcon DESIGNABLE true)
+	Q_PROPERTY(QIcon windowCapIcon READ GetWindowCapIcon WRITE
+			   SetWindowCapIcon DESIGNABLE true)
+	Q_PROPERTY(QIcon gameCapIcon READ GetGameCapIcon WRITE SetGameCapIcon
+			   DESIGNABLE true)
+	Q_PROPERTY(QIcon cameraIcon READ GetCameraIcon WRITE SetCameraIcon
+			   DESIGNABLE true)
+	Q_PROPERTY(QIcon textIcon READ GetTextIcon WRITE SetTextIcon
+			   DESIGNABLE true)
+	Q_PROPERTY(QIcon mediaIcon READ GetMediaIcon WRITE SetMediaIcon
+			   DESIGNABLE true)
+	Q_PROPERTY(QIcon browserIcon READ GetBrowserIcon WRITE SetBrowserIcon
+			   DESIGNABLE true)
+	Q_PROPERTY(QIcon groupIcon READ GetGroupIcon WRITE SetGroupIcon
+			   DESIGNABLE true)
+	Q_PROPERTY(QIcon sceneIcon READ GetSceneIcon WRITE SetSceneIcon
+			   DESIGNABLE true)
+	Q_PROPERTY(QIcon defaultIcon READ GetDefaultIcon WRITE SetDefaultIcon
+			   DESIGNABLE true)
 
 	friend class OBSAbout;
 	friend class OBSBasicPreview;
@@ -124,8 +160,12 @@ class OBSBasic : public OBSMainWindow {
 	friend class AutoConfig;
 	friend class AutoConfigStreamPage;
 	friend class RecordButton;
+	friend class ReplayBufferButton;
 	friend class ExtraBrowsersModel;
 	friend class ExtraBrowsersDelegate;
+	friend class DeviceCaptureToolbar;
+	friend class DeviceToolbarPropertiesThread;
+	friend struct BasicOutputHandler;
 	friend struct OBSStudioAPI;
 
 	enum class MoveDir { Up, Down, Left, Right };
@@ -136,6 +176,7 @@ class OBSBasic : public OBSMainWindow {
 		DropType_Image,
 		DropType_Media,
 		DropType_Html,
+		DropType_Url,
 	};
 
 private:
@@ -153,12 +194,14 @@ private:
 	long disableSaving = 1;
 	bool projectChanged = false;
 	bool previewEnabled = true;
-	bool fullscreenInterface = false;
 
-	const char *copyString;
+	std::list<const char *> copyStrings;
 	const char *copyFiltersString = nullptr;
 	bool copyVisible = true;
 
+	bool closing = false;
+	QScopedPointer<QThread> devicePropertiesThread;
+	QScopedPointer<QThread> whatsNewInitThread;
 	QScopedPointer<QThread> updateCheckThread;
 	QScopedPointer<QThread> introCheckThread;
 	QScopedPointer<QThread> logUploadThread;
@@ -171,7 +214,11 @@ private:
 	QPointer<QDockWidget> statsDock;
 	QPointer<OBSAbout> about;
 
+	OBSLogViewer *logView = nullptr;
+
 	QPointer<QTimer> cpuUsageTimer;
+	QPointer<QTimer> diskFullTimer;
+
 	os_cpu_usage_info_t *cpuUsageInfo = nullptr;
 
 	OBSService service;
@@ -188,7 +235,6 @@ private:
 	gs_vertbuffer_t *circle = nullptr;
 
 	bool sceneChanging = false;
-	bool ignoreSelectionUpdate = false;
 
 	int previewX = 0, previewY = 0;
 	int previewCX = 0, previewCY = 0;
@@ -197,18 +243,23 @@ private:
 	ConfigFile basicConfig;
 
 	std::vector<SavedProjectorInfo *> savedProjectorsArray;
-	QPointer<QWidget> projectors[10];
-	QList<QPointer<QWidget>> windowProjectors;
+	std::vector<OBSProjector *> projectors;
 
 	QPointer<QWidget> stats;
 	QPointer<QWidget> remux;
 	QPointer<QWidget> extraBrowsers;
+	QPointer<QWidget> importer;
 
 	QPointer<QMenu> startStreamMenu;
 
 	QPointer<QPushButton> transitionButton;
 	QPointer<QPushButton> replayBufferButton;
+	QPointer<QHBoxLayout> replayLayout;
 	QScopedPointer<QPushButton> pause;
+	QScopedPointer<QPushButton> replay;
+
+	QPointer<QPushButton> vcamButton;
+	bool vcamEnabled = false;
 
 	QScopedPointer<QSystemTrayIcon> trayIcon;
 	QPointer<QAction> sysTrayStream;
@@ -231,6 +282,8 @@ private:
 	QPointer<QMenu> deinterlaceMenu;
 	QPointer<QMenu> perSceneTransitionMenu;
 	QPointer<QObject> shortcutFilter;
+	QPointer<QAction> renameScene;
+	QPointer<QAction> renameSource;
 
 	QPointer<QWidget> programWidget;
 	QPointer<QVBoxLayout> programLayout;
@@ -252,7 +305,7 @@ private:
 	void UpdateVolumeControlsPeakMeterType();
 	void ClearVolumeControls();
 
-	void UploadLog(const char *subdir, const char *file);
+	void UploadLog(const char *subdir, const char *file, const bool crash);
 
 	void Save(const char *file);
 	void Load(const char *file);
@@ -299,11 +352,12 @@ private:
 
 	void CloseDialogs();
 	void ClearSceneData();
+	void ClearProjectors();
 
 	void Nudge(int dist, MoveDir dir);
 
 	OBSProjector *OpenProjector(obs_source_t *source, int monitor,
-				    QString title, ProjectorType type);
+				    ProjectorType type);
 
 	void GetAudioSourceFilters();
 	void GetAudioSourceProperties();
@@ -328,8 +382,11 @@ private:
 
 	int GetTopSelectedSourceItem();
 
+	QModelIndexList GetAllSelectedSourceItems();
+
 	obs_hotkey_pair_id streamingHotkeys, recordingHotkeys, pauseHotkeys,
-		replayBufHotkeys, togglePreviewHotkeys;
+		replayBufHotkeys, vcamHotkeys, togglePreviewHotkeys,
+		contextBarHotkeys;
 	obs_hotkey_id forceStreamingStopHotkey;
 
 	void InitDefaultTransitions();
@@ -340,6 +397,7 @@ private:
 	void LoadTransitions(obs_data_array_t *transitions);
 
 	obs_source_t *fadeTransition;
+	obs_source_t *cutTransition;
 
 	void CreateProgramDisplay();
 	void CreateProgramOptions();
@@ -352,7 +410,7 @@ private:
 	void ClearQuickTransitionWidgets();
 	void RefreshQuickTransitions();
 	void DisableQuickTransitionWidgets();
-	void EnableQuickTransitionWidgets();
+	void EnableTransitionWidgets(bool enable);
 	void CreateDefaultQuickTransitions();
 
 	QMenu *CreatePerSceneTransitionMenu();
@@ -368,8 +426,7 @@ private:
 
 	void SetPreviewProgramMode(bool enabled);
 	void ResizeProgram(uint32_t cx, uint32_t cy);
-	void SetCurrentScene(obs_scene_t *scene, bool force = false,
-			     bool direct = false);
+	void SetCurrentScene(obs_scene_t *scene, bool force = false);
 	static void RenderProgram(void *data, uint32_t cx, uint32_t cy);
 
 	std::vector<QuickTransition> quickTransitions;
@@ -384,6 +441,9 @@ private:
 	volatile bool previewProgramMode = false;
 	obs_hotkey_id togglePreviewProgramHotkey = 0;
 	obs_hotkey_id transitionHotkey = 0;
+	obs_hotkey_id statsHotkey = 0;
+	obs_hotkey_id screenshotHotkey = 0;
+	obs_hotkey_id sourceScreenshotHotkey = 0;
 	int quickTransitionIdCounter = 1;
 	bool overridingTransition = false;
 
@@ -397,6 +457,9 @@ private:
 	inline void OnDeactivate();
 
 	void AddDropSource(const char *file, DropType image);
+	void AddDropURL(const char *url, QString &name, obs_data_t *settings,
+			const obs_video_info &ovi);
+	void ConfirmDropUrl(const QString &url);
 	void dragEnterEvent(QDragEnterEvent *event) override;
 	void dragLeaveEvent(QDragLeaveEvent *event) override;
 	void dragMoveEvent(QDragMoveEvent *event) override;
@@ -420,8 +483,7 @@ private:
 	void LoadSavedProjectors(obs_data_array_t *savedProjectors);
 
 	void ReceivedIntroJson(const QString &text);
-
-	bool NoSourcesConfirmation();
+	void ShowWhatsNew(const QString &url);
 
 #ifdef BROWSER_AVAILABLE
 	QList<QSharedPointer<QDockWidget>> extraBrowserDocks;
@@ -436,9 +498,53 @@ private:
 				 bool firstCreate);
 #endif
 
+	QIcon imageIcon;
+	QIcon colorIcon;
+	QIcon slideshowIcon;
+	QIcon audioInputIcon;
+	QIcon audioOutputIcon;
+	QIcon desktopCapIcon;
+	QIcon windowCapIcon;
+	QIcon gameCapIcon;
+	QIcon cameraIcon;
+	QIcon textIcon;
+	QIcon mediaIcon;
+	QIcon browserIcon;
+	QIcon groupIcon;
+	QIcon sceneIcon;
+	QIcon defaultIcon;
+
+	QIcon GetImageIcon() const;
+	QIcon GetColorIcon() const;
+	QIcon GetSlideshowIcon() const;
+	QIcon GetAudioInputIcon() const;
+	QIcon GetAudioOutputIcon() const;
+	QIcon GetDesktopCapIcon() const;
+	QIcon GetWindowCapIcon() const;
+	QIcon GetGameCapIcon() const;
+	QIcon GetCameraIcon() const;
+	QIcon GetTextIcon() const;
+	QIcon GetMediaIcon() const;
+	QIcon GetBrowserIcon() const;
+	QIcon GetDefaultIcon() const;
+
+	QSlider *tBar;
+	bool tBarActive = false;
+
+	OBSSource GetOverrideTransition(OBSSource source);
+	int GetOverrideTransitionDuration(OBSSource source);
+
+	void UpdateProjectorHideCursor();
+	void UpdateProjectorAlwaysOnTop(bool top);
+	void ResetProjectors();
+
+	QPointer<QObject> screenshotData;
+
 public slots:
 	void DeferSaveBegin();
 	void DeferSaveEnd();
+
+	void DisplayStreamStartError();
 
 	void StartStreaming();
 	void StopStreaming();
@@ -467,23 +573,31 @@ public slots:
 	void ReplayBufferStopping();
 	void ReplayBufferStop(int code);
 
+	void StartVirtualCam();
+	void StopVirtualCam();
+
+	void OnVirtualCamStart();
+	void OnVirtualCamStop(int code);
+
 	void SaveProjectDeferred();
 	void SaveProject();
 
 	void SetTransition(OBSSource transition);
-	void TransitionToScene(OBSScene scene, bool force = false,
-			       bool direct = false);
+	void OverrideTransition(OBSSource transition);
+	void TransitionToScene(OBSScene scene, bool force = false);
 	void TransitionToScene(OBSSource scene, bool force = false,
-			       bool direct = false,
-			       bool quickTransition = false);
-	void SetCurrentScene(OBSSource scene, bool force = false,
-			     bool direct = false);
+			       bool quickTransition = false,
+			       int quickDuration = 0, bool black = false,
+			       bool manual = false);
+	void SetCurrentScene(OBSSource scene, bool force = false);
 
 	bool AddSceneCollection(bool create_new,
 				const QString &name = QString());
 
 	void UpdatePatronJson(const QString &text, const QString &error);
 
+	void ShowContextBar();
+	void HideContextBar();
 	void PauseRecording();
 	void UnpauseRecording();
 
@@ -492,8 +606,6 @@ private slots:
 	void AddScene(OBSSource source);
 	void RemoveScene(OBSSource source);
 	void RenameSources(OBSSource source, QString newName, QString prevName);
-
-	void SelectSceneItem(OBSScene scene, OBSSceneItem item, bool select);
 
 	void ActivateAudioSource(OBSSource source);
 	void DeactivateAudioSource(OBSSource source);
@@ -505,10 +617,11 @@ private slots:
 	void ToggleAlwaysOnTop();
 
 	void ReorderSources(OBSScene scene);
+	void RefreshSources(OBSScene scene);
 
 	void ProcessHotkey(obs_hotkey_id id, bool pressed);
 
-	void AddTransition();
+	void AddTransition(QString id);
 	void RenameTransition();
 	void TransitionClicked();
 	void TransitionStopped();
@@ -556,16 +669,45 @@ private slots:
 	void SceneCopyFilters();
 	void ScenePasteFilters();
 
+	void CheckDiskSpaceRemaining();
+	void OpenSavedProjector(SavedProjectorInfo *info);
+
+	void ScenesReordered();
+
+	void ResetStatsHotkey();
+
+	void SetImageIcon(const QIcon &icon);
+	void SetColorIcon(const QIcon &icon);
+	void SetSlideshowIcon(const QIcon &icon);
+	void SetAudioInputIcon(const QIcon &icon);
+	void SetAudioOutputIcon(const QIcon &icon);
+	void SetDesktopCapIcon(const QIcon &icon);
+	void SetWindowCapIcon(const QIcon &icon);
+	void SetGameCapIcon(const QIcon &icon);
+	void SetCameraIcon(const QIcon &icon);
+	void SetTextIcon(const QIcon &icon);
+	void SetMediaIcon(const QIcon &icon);
+	void SetBrowserIcon(const QIcon &icon);
+	void SetGroupIcon(const QIcon &icon);
+	void SetSceneIcon(const QIcon &icon);
+	void SetDefaultIcon(const QIcon &icon);
+
+	void TBarChanged(int value);
+	void TBarReleased();
+
+	void LockVolumeControl(bool lock);
+
 private:
 	/* OBS Callbacks */
 	static void SceneReordered(void *data, calldata_t *params);
+	static void SceneRefreshed(void *data, calldata_t *params);
 	static void SceneItemAdded(void *data, calldata_t *params);
-	static void SceneItemSelected(void *data, calldata_t *params);
-	static void SceneItemDeselected(void *data, calldata_t *params);
 	static void SourceCreated(void *data, calldata_t *params);
 	static void SourceRemoved(void *data, calldata_t *params);
 	static void SourceActivated(void *data, calldata_t *params);
 	static void SourceDeactivated(void *data, calldata_t *params);
+	static void SourceAudioActivated(void *data, calldata_t *params);
+	static void SourceAudioDeactivated(void *data, calldata_t *params);
 	static void SourceRenamed(void *data, calldata_t *params);
 	static void RenderMain(void *data, uint32_t cx, uint32_t cy);
 
@@ -579,7 +721,17 @@ private:
 	static void HotkeyTriggered(void *data, obs_hotkey_id id, bool pressed);
 
 	void AutoRemux();
+
 	void UpdatePause(bool activate = true);
+	void UpdateReplayBuffer(bool activate = true);
+
+	bool OutputPathValid();
+	void OutputPathInvalidMessage();
+
+	bool LowDiskSpace();
+	void DiskSpaceMessage();
+
+	OBSSource prevFTBSource = nullptr;
 
 public:
 	OBSSource GetProgramSource();
@@ -603,6 +755,8 @@ public:
 		return os_atomic_load_bool(&previewProgramMode);
 	}
 
+	inline bool VCamEnabled() const { return vcamEnabled; }
+
 	bool StreamingActive() const;
 	bool Active() const;
 
@@ -610,6 +764,7 @@ public:
 	int ResetVideo();
 	bool ResetAudio();
 
+	void AddVCamButton();
 	void ResetOutputs();
 
 	void ResetAudioDevice(const char *sourceId, const char *deviceId,
@@ -671,6 +826,16 @@ public:
 
 	static OBSBasic *Get();
 
+	const char *GetCurrentOutputPath();
+
+	void DeleteProjector(OBSProjector *projector);
+	void AddProjectorMenuMonitors(QMenu *parent, QObject *target,
+				      const char *slot);
+
+	QIcon GetSourceIcon(const char *id) const;
+	QIcon GetGroupIcon() const;
+	QIcon GetSceneIcon() const;
+
 protected:
 	virtual void closeEvent(QCloseEvent *event) override;
 	virtual void changeEvent(QEvent *event) override;
@@ -707,9 +872,12 @@ private slots:
 	void on_actionVerticalCenter_triggered();
 	void on_actionHorizontalCenter_triggered();
 
+	void on_customContextMenuRequested(const QPoint &pos);
+
 	void on_scenes_currentItemChanged(QListWidgetItem *current,
 					  QListWidgetItem *prev);
 	void on_scenes_customContextMenuRequested(const QPoint &pos);
+	void on_actionGridMode_triggered();
 	void on_actionAddScene_triggered();
 	void on_actionRemoveScene_triggered();
 	void on_actionSceneUp_triggered();
@@ -737,7 +905,12 @@ private slots:
 
 	void on_streamButton_clicked();
 	void on_recordButton_clicked();
+	void VCamButtonClicked();
 	void on_settingsButton_clicked();
+	void Screenshot(OBSSource source_ = nullptr);
+	void ScreenshotSelectedSource();
+	void ScreenshotProgram();
+	void ScreenshotScene();
 
 	void on_actionHelpPortal_triggered();
 	void on_actionWebsite_triggered();
@@ -767,14 +940,20 @@ private slots:
 	void on_actionAlwaysOnTop_triggered();
 
 	void on_toggleListboxToolbars_toggled(bool visible);
+	void on_toggleContextBar_toggled(bool visible);
 	void on_toggleStatusBar_toggled(bool visible);
+	void on_toggleSourceIcons_toggled(bool visible);
 
 	void on_transitions_currentIndexChanged(int index);
-	void on_transitionAdd_clicked();
 	void on_transitionRemove_clicked();
 	void on_transitionProps_clicked();
+	void on_transitionDuration_valueChanged(int value);
 
 	void on_modeSwitch_clicked();
+
+	// Source Context Buttons
+	void on_sourcePropertiesButton_clicked();
+	void on_sourceFiltersButton_clicked();
 
 	void on_autoConfigure_triggered();
 	void on_stats_triggered();
@@ -785,6 +964,8 @@ private slots:
 	void PauseToggled();
 
 	void logUploadFinished(const QString &text, const QString &error);
+	void crashUploadFinished(const QString &text, const QString &error);
+	void openLogDialog(const QString &text, const bool crash);
 
 	void updateCheckFinished();
 
@@ -834,6 +1015,9 @@ public slots:
 	bool StreamingActive();
 	bool RecordingActive();
 	bool ReplayBufferActive();
+
+	void ClearContextBar();
+	void UpdateContextBar();
 
 public:
 	explicit OBSBasic(QWidget *parent = 0);

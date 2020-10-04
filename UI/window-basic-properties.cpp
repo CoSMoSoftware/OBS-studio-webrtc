@@ -29,7 +29,8 @@
 
 using namespace std;
 
-static void CreateTransitionScene(OBSSource scene, char *text, uint32_t color);
+static void CreateTransitionScene(OBSSource scene, const char *text,
+				  uint32_t color);
 
 OBSBasicProperties::OBSBasicProperties(QWidget *parent, OBSSource source_)
 	: QDialog(parent),
@@ -204,6 +205,7 @@ OBSBasicProperties::~OBSBasicProperties()
 	}
 	obs_source_dec_showing(source);
 	main->SaveProject();
+	main->UpdateContextBar();
 }
 
 void OBSBasicProperties::AddPreviewButton()
@@ -278,7 +280,8 @@ static obs_source_t *CreateLabel(const char *name, size_t h)
 	return txtSource;
 }
 
-static void CreateTransitionScene(OBSSource scene, char *text, uint32_t color)
+static void CreateTransitionScene(OBSSource scene, const char *text,
+				  uint32_t color)
 {
 	obs_data_t *settings = obs_data_create();
 	obs_data_set_int(settings, "width", obs_source_get_width(scene));

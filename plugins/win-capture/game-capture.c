@@ -5,11 +5,13 @@
 #include <util/threading.h>
 #include <windows.h>
 #include <dxgi.h>
-#include <emmintrin.h>
+#include <util/sse-intrin.h>
+#include <util/util_uint64.h>
 #include <ipc-util/pipe.h>
 #include "obfuscate.h"
 #include "inject-library.h"
 #include "graphics-hook-info.h"
+#include "graphics-hook-ver.h"
 #include "window-helpers.h"
 #include "cursor-capture.h"
 #include "app-helpers.h"
@@ -30,8 +32,6 @@
 #define SETTING_ACTIVE_WINDOW    "active_window"
 #define SETTING_WINDOW_PRIORITY  "priority"
 #define SETTING_COMPATIBILITY    "sli_compatibility"
-#define SETTING_FORCE_SCALING    "force_scaling"
-#define SETTING_SCALE_RES        "scale_res"
 #define SETTING_CURSOR           "capture_cursor"
 #define SETTING_TRANSPARENCY     "allow_transparency"
 #define SETTING_LIMIT_FRAMERATE  "limit_framerate"
@@ -54,8 +54,6 @@
 #define TEXT_ANY_FULLSCREEN      obs_module_text("GameCapture.AnyFullscreen")
 #define TEXT_SLI_COMPATIBILITY   obs_module_text("SLIFix")
 #define TEXT_ALLOW_TRANSPARENCY  obs_module_text("AllowTransparency")
-#define TEXT_FORCE_SCALING       obs_module_text("GameCapture.ForceScaling")
-#define TEXT_SCALE_RES           obs_module_text("GameCapture.ScaleRes")
 #define TEXT_WINDOW              obs_module_text("WindowCapture.Window")
 #define TEXT_MATCH_PRIORITY      obs_module_text("WindowCapture.Priority")
 #define TEXT_MATCH_TITLE         obs_module_text("WindowCapture.Priority.Title")
@@ -102,11 +100,8 @@ struct game_capture_config {
 	char *executable;
 	enum window_priority priority;
 	enum capture_mode mode;
-	uint32_t scale_cx;
-	uint32_t scale_cy;
 	bool cursor;
 	bool force_shmem;
-	bool force_scaling;
 	bool allow_transparency;
 	bool limit_framerate;
 	bool capture_overlays;
@@ -222,7 +217,7 @@ static inline HANDLE open_map_plus_id(struct game_capture *gc,
 				      const wchar_t *name, DWORD id)
 {
 	wchar_t new_name[64];
-	_snwprintf(new_name, 64, L"%s%lu", name, id);
+	swprintf(new_name, 64, L"%s%lu", name, id);
 
 	debug("map id: %S", new_name);
 
@@ -390,8 +385,6 @@ static inline bool using_older_non_mode_format(obs_data_t *settings)
 static inline void get_config(struct game_capture_config *cfg,
 			      obs_data_t *settings, const char *window)
 {
-	int ret;
-	const char *scale_str;
 	const char *mode_str = NULL;
 
 	build_window_strings(window, &cfg->class, &cfg->title,
@@ -417,7 +410,6 @@ static inline void get_config(struct game_capture_config *cfg,
 	cfg->cursor = obs_data_get_bool(settings, SETTING_CURSOR);
 	cfg->allow_transparency =
 		obs_data_get_bool(settings, SETTING_TRANSPARENCY);
-	cfg->force_scaling = obs_data_get_bool(settings, SETTING_FORCE_SCALING);
 	cfg->limit_framerate =
 		obs_data_get_bool(settings, SETTING_LIMIT_FRAMERATE);
 	cfg->capture_overlays =
@@ -426,20 +418,6 @@ static inline void get_config(struct game_capture_config *cfg,
 		obs_data_get_bool(settings, SETTING_ANTI_CHEAT_HOOK);
 	cfg->hook_rate =
 		(enum hook_rate)obs_data_get_int(settings, SETTING_HOOK_RATE);
-
-	scale_str = obs_data_get_string(settings, SETTING_SCALE_RES);
-	ret = sscanf(scale_str, "%" PRIu32 "x%" PRIu32, &cfg->scale_cx,
-		     &cfg->scale_cy);
-
-	cfg->scale_cx &= ~2;
-	cfg->scale_cy &= ~2;
-
-	if (cfg->force_scaling) {
-		if (ret != 2 || cfg->scale_cx == 0 || cfg->scale_cy == 0) {
-			cfg->scale_cx = 0;
-			cfg->scale_cy = 0;
-		}
-	}
 }
 
 static inline int s_cmp(const char *str1, const char *str2)
@@ -461,13 +439,6 @@ static inline bool capture_needs_reset(struct game_capture_config *cfg1,
 		    s_cmp(cfg1->title, cfg2->title) != 0 ||
 		    s_cmp(cfg1->executable, cfg2->executable) != 0 ||
 		    cfg1->priority != cfg2->priority)) {
-		return true;
-
-	} else if (cfg1->force_scaling != cfg2->force_scaling) {
-		return true;
-
-	} else if (cfg1->force_scaling && (cfg1->scale_cx != cfg2->scale_cx ||
-					   cfg1->scale_cy != cfg2->scale_cy)) {
 		return true;
 
 	} else if (cfg1->force_shmem != cfg2->force_shmem) {
@@ -523,12 +494,7 @@ static void game_capture_update(void *data, obs_data_t *settings)
 	get_config(&cfg, settings, window);
 	reset_capture = capture_needs_reset(&cfg, &gc->config);
 
-	if (cfg.force_scaling && (cfg.scale_cx == 0 || cfg.scale_cy == 0)) {
-		gc->error_acquiring = true;
-		warn("error acquiring, scale is bad");
-	} else {
-		gc->error_acquiring = false;
-	}
+	gc->error_acquiring = false;
 
 	if (cfg.mode == CAPTURE_MODE_HOTKEY &&
 	    gc->config.mode != CAPTURE_MODE_HOTKEY) {
@@ -673,10 +639,11 @@ static inline bool open_target_process(struct game_capture *gc)
 static inline bool init_keepalive(struct game_capture *gc)
 {
 	wchar_t new_name[64];
-	_snwprintf(new_name, 64, L"%s%lu", WINDOW_HOOK_KEEPALIVE,
-		   gc->process_id);
+	swprintf(new_name, 64, WINDOW_HOOK_KEEPALIVE L"%lu", gc->process_id);
 
-	gc->keepalive_mutex = CreateMutexW(NULL, false, new_name);
+	gc->keepalive_mutex = gc->is_app
+				      ? create_app_mutex(gc->app_sid, new_name)
+				      : CreateMutexW(NULL, false, new_name);
 	if (!gc->keepalive_mutex) {
 		warn("Failed to create keepalive mutex: %lu", GetLastError());
 		return false;
@@ -727,7 +694,8 @@ static inline void reset_frame_interval(struct game_capture *gc)
 	uint64_t interval = 0;
 
 	if (obs_get_video_info(&ovi)) {
-		interval = ovi.fps_den * 1000000000ULL / ovi.fps_num;
+		interval =
+			util_mul_div64(ovi.fps_den, 1000000000ULL, ovi.fps_num);
 
 		/* Always limit capture framerate to some extent.  If a game
 		 * running at 900 FPS is being captured without some sort of
@@ -767,11 +735,7 @@ static inline bool init_hook_info(struct game_capture *gc)
 							     : offsets32;
 	gc->global_hook_info->capture_overlay = gc->config.capture_overlays;
 	gc->global_hook_info->force_shmem = gc->config.force_shmem;
-	gc->global_hook_info->use_scale = gc->config.force_scaling;
-	if (gc->config.scale_cx)
-		gc->global_hook_info->cx = gc->config.scale_cx;
-	if (gc->config.scale_cy)
-		gc->global_hook_info->cy = gc->config.scale_cy;
+	gc->global_hook_info->UNUSED_use_scale = false;
 	reset_frame_interval(gc);
 
 	obs_enter_graphics();
@@ -893,23 +857,22 @@ static inline bool create_inject_process(struct game_capture *gc,
 	return success;
 }
 
+extern char *get_hook_path(bool b64);
+
 static inline bool inject_hook(struct game_capture *gc)
 {
 	bool matching_architecture;
 	bool success = false;
-	const char *hook_dll;
 	char *inject_path;
 	char *hook_path;
 
 	if (gc->process_is_64bit) {
-		hook_dll = "graphics-hook64.dll";
 		inject_path = obs_module_file("inject-helper64.exe");
 	} else {
-		hook_dll = "graphics-hook32.dll";
 		inject_path = obs_module_file("inject-helper32.exe");
 	}
 
-	hook_path = obs_module_file(hook_dll);
+	hook_path = get_hook_path(gc->process_is_64bit);
 
 	if (!check_file_integrity(gc, inject_path, "inject helper")) {
 		goto cleanup;
@@ -930,7 +893,7 @@ static inline bool inject_hook(struct game_capture *gc)
 	} else {
 		info("using helper (%s hook)",
 		     use_anticheat(gc) ? "compatibility" : "direct");
-		success = create_inject_process(gc, inject_path, hook_dll);
+		success = create_inject_process(gc, inject_path, hook_path);
 	}
 
 cleanup:
@@ -1238,6 +1201,17 @@ static inline bool init_events(struct game_capture *gc)
 
 enum capture_result { CAPTURE_FAIL, CAPTURE_RETRY, CAPTURE_SUCCESS };
 
+static inline bool init_data_map(struct game_capture *gc, HWND window)
+{
+	wchar_t name[64];
+	swprintf(name, 64, SHMEM_TEXTURE "_%" PRIu64 "_",
+		 (uint64_t)(uintptr_t)window);
+
+	gc->hook_data_map =
+		open_map_plus_id(gc, name, gc->global_hook_info->map_id);
+	return !!gc->hook_data_map;
+}
+
 static inline enum capture_result init_capture_data(struct game_capture *gc)
 {
 	gc->cx = gc->global_hook_info->cx;
@@ -1251,10 +1225,19 @@ static inline enum capture_result init_capture_data(struct game_capture *gc)
 
 	CloseHandle(gc->hook_data_map);
 
-	gc->hook_data_map = open_map_plus_id(gc, SHMEM_TEXTURE,
-					     gc->global_hook_info->map_id);
+	DWORD error = 0;
+	if (!init_data_map(gc, gc->window)) {
+		HWND retry_hwnd = (HWND)(uintptr_t)gc->global_hook_info->window;
+		error = GetLastError();
+
+		/* if there's an error, just override.  some windows don't play
+		 * nice. */
+		if (init_data_map(gc, retry_hwnd)) {
+			error = 0;
+		}
+	}
+
 	if (!gc->hook_data_map) {
-		DWORD error = GetLastError();
 		if (error == 2) {
 			return CAPTURE_RETRY;
 		} else {
@@ -1297,11 +1280,11 @@ static void copy_b5g6r5_tex(struct game_capture *gc, int cur_texture,
 	uint32_t gc_cy = gc->cy;
 	uint32_t gc_pitch = gc->pitch;
 
-	for (uint32_t y = 0; y < gc_cy; y++) {
+	for (size_t y = 0; y < gc_cy; y++) {
 		uint8_t *row = input + (gc_pitch * y);
 		uint8_t *out = data + (pitch * y);
 
-		for (uint32_t x = 0; x < gc_cx; x += 8) {
+		for (size_t x = 0; x < gc_cx; x += 8) {
 			__m128i pixels_blue, pixels_green, pixels_red;
 			__m128i pixels_result;
 			__m128i *pixels_dest;
@@ -1385,11 +1368,11 @@ static void copy_b5g5r5a1_tex(struct game_capture *gc, int cur_texture,
 	uint32_t gc_cy = gc->cy;
 	uint32_t gc_pitch = gc->pitch;
 
-	for (uint32_t y = 0; y < gc_cy; y++) {
+	for (size_t y = 0; y < gc_cy; y++) {
 		uint8_t *row = input + (gc_pitch * y);
 		uint8_t *out = data + (pitch * y);
 
-		for (uint32_t x = 0; x < gc_cx; x += 8) {
+		for (size_t x = 0; x < gc_cx; x += 8) {
 			__m128i pixels_blue, pixels_green, pixels_red,
 				pixels_alpha;
 			__m128i pixels_result;
@@ -1533,13 +1516,13 @@ static void copy_shmem_tex(struct game_capture *gc)
 
 		} else if (pitch == gc->pitch) {
 			memcpy(data, gc->texture_buffers[cur_texture],
-			       pitch * gc->cy);
+			       (size_t)pitch * (size_t)gc->cy);
 		} else {
 			uint8_t *input = gc->texture_buffers[cur_texture];
 			uint32_t best_pitch = pitch < gc->pitch ? pitch
 								: gc->pitch;
 
-			for (uint32_t y = 0; y < gc->cy; y++) {
+			for (size_t y = 0; y < gc->cy; y++) {
 				uint8_t *line_in = input + gc->pitch * y;
 				uint8_t *line_out = data + pitch * y;
 				memcpy(line_out, line_in, best_pitch);
@@ -1605,6 +1588,17 @@ static inline bool init_shtex_capture(struct game_capture *gc)
 static bool start_capture(struct game_capture *gc)
 {
 	debug("Starting capture");
+
+	/* prevent from using a DLL version that's higher than current */
+	if (gc->global_hook_info->hook_ver_major > HOOK_VER_MAJOR) {
+		warn("cannot initialize hook, DLL hook version is "
+		     "%" PRIu32 ".%" PRIu32
+		     ", current plugin hook major version is %d.%d",
+		     gc->global_hook_info->hook_ver_major,
+		     gc->global_hook_info->hook_ver_minor, HOOK_VER_MAJOR,
+		     HOOK_VER_MINOR);
+		return false;
+	}
 
 	if (gc->global_hook_info->type == CAPTURE_TYPE_MEMORY) {
 		if (!init_shmem_capture(gc)) {
@@ -1783,7 +1777,7 @@ static inline void game_capture_render_cursor(struct game_capture *gc)
 	POINT p = {0};
 	HWND window;
 
-	if (!gc->global_hook_info->base_cx || !gc->global_hook_info->base_cy)
+	if (!gc->global_hook_info->cx || !gc->global_hook_info->cy)
 		return;
 
 	window = !!gc->global_hook_info->window
@@ -1792,14 +1786,8 @@ static inline void game_capture_render_cursor(struct game_capture *gc)
 
 	ClientToScreen(window, &p);
 
-	float x_scale = (float)gc->global_hook_info->cx /
-			(float)gc->global_hook_info->base_cx;
-	float y_scale = (float)gc->global_hook_info->cy /
-			(float)gc->global_hook_info->base_cy;
-
-	cursor_draw(&gc->cursor_data, -p.x, -p.y, x_scale, y_scale,
-		    gc->global_hook_info->base_cx,
-		    gc->global_hook_info->base_cy);
+	cursor_draw(&gc->cursor_data, -p.x, -p.y, gc->global_hook_info->cx,
+		    gc->global_hook_info->cy);
 }
 
 static void game_capture_render(void *data, gs_effect_t *effect)
@@ -1856,10 +1844,8 @@ static void game_capture_defaults(obs_data_t *settings)
 	obs_data_set_default_int(settings, SETTING_WINDOW_PRIORITY,
 				 (int)WINDOW_PRIORITY_EXE);
 	obs_data_set_default_bool(settings, SETTING_COMPATIBILITY, false);
-	obs_data_set_default_bool(settings, SETTING_FORCE_SCALING, false);
 	obs_data_set_default_bool(settings, SETTING_CURSOR, true);
 	obs_data_set_default_bool(settings, SETTING_TRANSPARENCY, false);
-	obs_data_set_default_string(settings, SETTING_SCALE_RES, "0x0");
 	obs_data_set_default_bool(settings, SETTING_LIMIT_FRAMERATE, false);
 	obs_data_set_default_bool(settings, SETTING_CAPTURE_OVERLAYS, false);
 	obs_data_set_default_bool(settings, SETTING_ANTI_CHEAT_HOOK, true);
@@ -1889,17 +1875,7 @@ static bool mode_callback(obs_properties_t *ppts, obs_property_t *p,
 	return true;
 }
 
-static bool use_scaling_callback(obs_properties_t *ppts, obs_property_t *p,
-				 obs_data_t *settings)
-{
-	bool use_scale = obs_data_get_bool(settings, SETTING_FORCE_SCALING);
-
-	p = obs_properties_get(ppts, SETTING_SCALE_RES);
-	obs_property_set_enabled(p, use_scale);
-	return true;
-}
-
-static void insert_preserved_val(obs_property_t *p, const char *val)
+static void insert_preserved_val(obs_property_t *p, const char *val, size_t idx)
 {
 	char *class = NULL;
 	char *title = NULL;
@@ -1909,8 +1885,8 @@ static void insert_preserved_val(obs_property_t *p, const char *val)
 	build_window_strings(val, &class, &title, &executable);
 
 	dstr_printf(&desc, "[%s]: %s", executable, title);
-	obs_property_list_insert_string(p, 1, desc.array, val);
-	obs_property_list_item_disable(p, 1, true);
+	obs_property_list_insert_string(p, idx, desc.array, val);
+	obs_property_list_item_disable(p, idx, true);
 
 	dstr_free(&desc);
 	bfree(class);
@@ -1918,14 +1894,15 @@ static void insert_preserved_val(obs_property_t *p, const char *val)
 	bfree(executable);
 }
 
-static bool window_changed_callback(obs_properties_t *ppts, obs_property_t *p,
-				    obs_data_t *settings)
+bool check_window_property_setting(obs_properties_t *ppts, obs_property_t *p,
+				   obs_data_t *settings, const char *val,
+				   size_t idx)
 {
 	const char *cur_val;
 	bool match = false;
 	size_t i = 0;
 
-	cur_val = obs_data_get_string(settings, SETTING_CAPTURE_WINDOW);
+	cur_val = obs_data_get_string(settings, val);
 	if (!cur_val) {
 		return false;
 	}
@@ -1942,7 +1919,7 @@ static bool window_changed_callback(obs_properties_t *ppts, obs_property_t *p,
 	}
 
 	if (cur_val && *cur_val && !match) {
-		insert_preserved_val(p, cur_val);
+		insert_preserved_val(p, cur_val, idx);
 		return true;
 	}
 
@@ -1950,10 +1927,12 @@ static bool window_changed_callback(obs_properties_t *ppts, obs_property_t *p,
 	return false;
 }
 
-static const double default_scale_vals[] = {1.25, 1.5, 2.0, 2.5, 3.0};
-
-#define NUM_DEFAULT_SCALE_VALS \
-	(sizeof(default_scale_vals) / sizeof(default_scale_vals[0]))
+static bool window_changed_callback(obs_properties_t *ppts, obs_property_t *p,
+				    obs_data_t *settings)
+{
+	return check_window_property_setting(ppts, p, settings,
+					     SETTING_CAPTURE_WINDOW, 1);
+}
 
 static BOOL CALLBACK EnumFirstMonitor(HMONITOR monitor, HDC hdc, LPRECT rc,
 				      LPARAM data)
@@ -2040,29 +2019,6 @@ static obs_properties_t *game_capture_properties(void *data)
 	obs_properties_add_bool(ppts, SETTING_COMPATIBILITY,
 				TEXT_SLI_COMPATIBILITY);
 
-	p = obs_properties_add_bool(ppts, SETTING_FORCE_SCALING,
-				    TEXT_FORCE_SCALING);
-
-	obs_property_set_modified_callback(p, use_scaling_callback);
-
-	p = obs_properties_add_list(ppts, SETTING_SCALE_RES, TEXT_SCALE_RES,
-				    OBS_COMBO_TYPE_EDITABLE,
-				    OBS_COMBO_FORMAT_STRING);
-
-	for (size_t i = 0; i < NUM_DEFAULT_SCALE_VALS; i++) {
-		char scale_str[64];
-		uint32_t new_cx =
-			(uint32_t)((double)cx / default_scale_vals[i]) & ~2;
-		uint32_t new_cy =
-			(uint32_t)((double)cy / default_scale_vals[i]) & ~2;
-
-		sprintf(scale_str, "%" PRIu32 "x%" PRIu32, new_cx, new_cy);
-
-		obs_property_list_add_string(p, scale_str, scale_str);
-	}
-
-	obs_property_set_enabled(p, false);
-
 	obs_properties_add_bool(ppts, SETTING_TRANSPARENCY,
 				TEXT_ALLOW_TRANSPARENCY);
 
@@ -2103,4 +2059,5 @@ struct obs_source_info game_capture_info = {
 	.update = game_capture_update,
 	.video_tick = game_capture_tick,
 	.video_render = game_capture_render,
+	.icon_type = OBS_ICON_TYPE_GAME_CAPTURE,
 };

@@ -44,12 +44,6 @@ extern "C" {
 #define CODEC_FLAG_TRUNC CODEC_FLAG_TRUNCATED
 #endif
 
-#if LIBAVUTIL_VERSION_INT >= AV_VERSION_INT(54, 31, 100)
-#define AV_PIX_FMT_VDTOOL AV_PIX_FMT_VIDEOTOOLBOX
-#else
-#define AV_PIX_FMT_VDTOOL AV_PIX_FMT_VDA_VLD
-#endif
-
 struct mp_media;
 
 struct mp_decode {
@@ -58,14 +52,17 @@ struct mp_decode {
 	bool audio;
 
 	AVCodecContext *decoder;
+	AVBufferRef *hw_ctx;
 	AVCodec *codec;
 
 	int64_t last_duration;
 	int64_t frame_pts;
 	int64_t next_pts;
 	AVFrame *in_frame;
+	AVFrame *sw_frame;
 	AVFrame *hw_frame;
 	AVFrame *frame;
+	enum AVPixelFormat hw_format;
 	bool got_first_keyframe;
 	bool frame_ready;
 	bool eof;

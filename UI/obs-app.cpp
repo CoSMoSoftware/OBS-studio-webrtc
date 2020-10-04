@@ -34,9 +34,11 @@
 #include <QGuiApplication>
 #include <QProxyStyle>
 #include <QScreen>
+#include <QProcess>
 
 #include "qt-wrappers.hpp"
 #include "obs-app.hpp"
+#include "log-viewer.hpp"
 #include "window-basic-main.hpp"
 #include "window-basic-settings.hpp"
 #include "crash-report.hpp"
@@ -48,6 +50,7 @@
 
 #ifdef _WIN32
 #include <windows.h>
+#include <filesystem>
 #else
 #include <signal.h>
 #include <pthread.h>
@@ -73,15 +76,18 @@ bool opt_start_streaming = false;
 bool opt_start_recording = false;
 bool opt_studio_mode = false;
 bool opt_start_replaybuffer = false;
+bool opt_start_virtualcam = false;
 bool opt_minimize_tray = false;
 bool opt_allow_opengl = false;
 bool opt_always_on_top = false;
+bool opt_disable_updater = false;
 string opt_starting_collection;
 string opt_starting_profile;
 string opt_starting_scene;
 
-bool remuxAfterRecord = false;
-string remuxFilename;
+bool restart = false;
+
+QPointer<OBSLogViewer> obsLogViewer;
 
 // GPU hint exports for AMD/NVIDIA laptops
 #ifdef _MSC_VER
@@ -93,6 +99,10 @@ QObject *CreateShortcutFilter()
 {
 	return new OBSEventFilter([](QObject *obj, QEvent *event) {
 		auto mouse_event = [](QMouseEvent &event) {
+			if (!App()->HotkeysEnabledInFocus() &&
+			    event.button() != Qt::LeftButton)
+				return true;
+
 			obs_key_combination_t hotkey = {0, OBS_KEY_NONE};
 			bool pressed = event.type() == QEvent::MouseButtonPress;
 
@@ -147,6 +157,9 @@ QObject *CreateShortcutFilter()
 		};
 
 		auto key_event = [&](QKeyEvent *event) {
+			if (!App()->HotkeysEnabledInFocus())
+				return true;
+
 			QDialog *dialog = qobject_cast<QDialog *>(obj);
 
 			obs_key_combination_t hotkey = {0, OBS_KEY_NONE};
@@ -177,6 +190,9 @@ QObject *CreateShortcutFilter()
 				hotkey.key = obs_key_from_virtual_key(
 					event->nativeVirtualKey());
 			}
+
+			if (event->isAutoRepeat())
+				return true;
 
 			hotkey.modifiers = TranslateQtKeyboardEventModifiers(
 				event->modifiers());
@@ -237,12 +253,22 @@ string CurrentDateTimeString()
 }
 
 static inline void LogString(fstream &logFile, const char *timeString,
-			     char *str)
+			     char *str, int log_level)
 {
-	logFile << timeString << str << endl;
+	string msg;
+	msg += timeString;
+	msg += str;
+
+	logFile << msg << endl;
+
+	if (!!obsLogViewer)
+		QMetaObject::invokeMethod(obsLogViewer.data(), "AddLine",
+					  Qt::QueuedConnection,
+					  Q_ARG(int, log_level),
+					  Q_ARG(QString, QString(msg.c_str())));
 }
 
-static inline void LogStringChunk(fstream &logFile, char *str)
+static inline void LogStringChunk(fstream &logFile, char *str, int log_level)
 {
 	char *nextLine = str;
 	string timeString = CurrentTimeString();
@@ -259,12 +285,12 @@ static inline void LogStringChunk(fstream &logFile, char *str)
 			nextLine[0] = 0;
 		}
 
-		LogString(logFile, timeString.c_str(), str);
+		LogString(logFile, timeString.c_str(), str, log_level);
 		nextLine++;
 		str = nextLine;
 	}
 
-	LogString(logFile, timeString.c_str(), str);
+	LogString(logFile, timeString.c_str(), str, log_level);
 }
 
 #define MAX_REPEATED_LINES 30
@@ -355,7 +381,7 @@ static void do_log(int log_level, const char *msg, va_list args, void *param)
 	if (log_level <= LOG_INFO || log_verbose) {
 		if (too_many_repeated_entries(logFile, msg, str))
 			return;
-		LogStringChunk(logFile, str);
+		LogStringChunk(logFile, str, log_level);
 	}
 
 #if defined(_WIN32) && defined(OBS_DEBUGBREAK_ON_ERROR)
@@ -418,6 +444,8 @@ bool OBSApp::InitGlobalConfigDefaults()
 				"ShowListboxToolbars", true);
 	config_set_default_bool(globalConfig, "BasicWindow", "ShowStatusBar",
 				true);
+	config_set_default_bool(globalConfig, "BasicWindow", "ShowSourceIcons",
+				true);
 	config_set_default_bool(globalConfig, "BasicWindow", "StudioModeLabels",
 				true);
 
@@ -425,6 +453,9 @@ bool OBSApp::InitGlobalConfigDefaults()
 		config_set_default_string(globalConfig, "General",
 					  "CurrentTheme", DEFAULT_THEME);
 	}
+
+	config_set_default_string(globalConfig, "General", "HotkeyFocusType",
+				  "NeverDisableHotkeys");
 
 	config_set_default_bool(globalConfig, "BasicWindow",
 				"VerticalVolControl", false);
@@ -452,6 +483,10 @@ bool OBSApp::InitGlobalConfigDefaults()
 	config_set_default_bool(globalConfig, "Video", "ResetOSXVSyncOnExit",
 				true);
 #endif
+
+	config_set_default_bool(globalConfig, "BasicWindow",
+				"MediaControlsCountdownTimer", true);
+
 	return true;
 }
 
@@ -469,34 +504,34 @@ static bool MakeUserDirs()
 {
 	char path[512];
 
-	if (GetConfigPath(path, sizeof(path), (config_dir + "/basic").c_str()) <= 0)
+	if (GetConfigPath(path, sizeof(path), "obs-studio/basic") <= 0)
 		return false;
 	if (!do_mkdir(path))
 		return false;
 
-	if (GetConfigPath(path, sizeof(path), (config_dir + "/logs").c_str()) <= 0)
+	if (GetConfigPath(path, sizeof(path), "obs-studio/logs") <= 0)
 		return false;
 	if (!do_mkdir(path))
 		return false;
 
-	if (GetConfigPath(path, sizeof(path), (config_dir + "/profiler_data").c_str()) <= 0)
+	if (GetConfigPath(path, sizeof(path), "obs-studio/profiler_data") <= 0)
 		return false;
 	if (!do_mkdir(path))
 		return false;
 
 #ifdef _WIN32
-	if (GetConfigPath(path, sizeof(path), (config_dir + "/crashes").c_str()) <= 0)
+	if (GetConfigPath(path, sizeof(path), "obs-studio/crashes") <= 0)
 		return false;
 	if (!do_mkdir(path))
 		return false;
 
-	if (GetConfigPath(path, sizeof(path), (config_dir + "/updates").c_str()) <= 0)
+	if (GetConfigPath(path, sizeof(path), "obs-studio/updates") <= 0)
 		return false;
 	if (!do_mkdir(path))
 		return false;
 #endif
 
-	if (GetConfigPath(path, sizeof(path), (config_dir + "/plugin_config").c_str()) <= 0)
+	if (GetConfigPath(path, sizeof(path), "obs-studio/plugin_config") <= 0)
 		return false;
 	if (!do_mkdir(path))
 		return false;
@@ -508,12 +543,12 @@ static bool MakeUserProfileDirs()
 {
 	char path[512];
 
-	if (GetConfigPath(path, sizeof(path), (config_dir + "/basic/profiles").c_str()) <= 0)
+	if (GetConfigPath(path, sizeof(path), "obs-studio/basic/profiles") <= 0)
 		return false;
 	if (!do_mkdir(path))
 		return false;
 
-	if (GetConfigPath(path, sizeof(path), (config_dir + "/basic/scenes").c_str()) <= 0)
+	if (GetConfigPath(path, sizeof(path), "obs-studio/basic/scenes") <= 0)
 		return false;
 	if (!do_mkdir(path))
 		return false;
@@ -527,7 +562,7 @@ static string GetProfileDirFromName(const char *name)
 	os_glob_t *glob;
 	char path[512];
 
-	if (GetConfigPath(path, sizeof(path), (config_dir + "/basic/profiles").c_str()) <= 0)
+	if (GetConfigPath(path, sizeof(path), "obs-studio/basic/profiles") <= 0)
 		return outputPath;
 
 	strcat(path, "/*");
@@ -573,7 +608,7 @@ static string GetSceneCollectionFileFromName(const char *name)
 	os_glob_t *glob;
 	char path[512];
 
-	if (GetConfigPath(path, sizeof(path), (config_dir + "/basic/scenes").c_str()) <= 0)
+	if (GetConfigPath(path, sizeof(path), "obs-studio/basic/scenes") <= 0)
 		return outputPath;
 
 	strcat(path, "/*.json");
@@ -657,7 +692,7 @@ bool OBSApp::InitGlobalConfig()
 	char path[512];
 	bool changed = false;
 
-	int len = GetConfigPath(path, sizeof(path), (config_dir + "/global.ini").c_str());
+	int len = GetConfigPath(path, sizeof(path), "obs-studio/global.ini");
 	if (len <= 0) {
 		return false;
 	}
@@ -693,9 +728,10 @@ bool OBSApp::InitGlobalConfig()
 		}
 	}
 
+	uint32_t lastVersion =
+		config_get_int(globalConfig, "General", "LastVersion");
+
 	if (!config_has_user_value(globalConfig, "General", "Pre19Defaults")) {
-		uint32_t lastVersion =
-			config_get_int(globalConfig, "General", "LastVersion");
 		bool useOldDefaults = lastVersion &&
 				      lastVersion <
 					      MAKE_SEMANTIC_VERSION(19, 0, 0);
@@ -706,8 +742,6 @@ bool OBSApp::InitGlobalConfig()
 	}
 
 	if (!config_has_user_value(globalConfig, "General", "Pre21Defaults")) {
-		uint32_t lastVersion =
-			config_get_int(globalConfig, "General", "LastVersion");
 		bool useOldDefaults = lastVersion &&
 				      lastVersion <
 					      MAKE_SEMANTIC_VERSION(21, 0, 0);
@@ -718,8 +752,6 @@ bool OBSApp::InitGlobalConfig()
 	}
 
 	if (!config_has_user_value(globalConfig, "General", "Pre23Defaults")) {
-		uint32_t lastVersion =
-			config_get_int(globalConfig, "General", "LastVersion");
 		bool useOldDefaults = lastVersion &&
 				      lastVersion <
 					      MAKE_SEMANTIC_VERSION(23, 0, 0);
@@ -729,11 +761,33 @@ bool OBSApp::InitGlobalConfig()
 		changed = true;
 	}
 
+#define PRE_24_1_DEFS "Pre24.1Defaults"
+	if (!config_has_user_value(globalConfig, "General", PRE_24_1_DEFS)) {
+		bool useOldDefaults = lastVersion &&
+				      lastVersion <
+					      MAKE_SEMANTIC_VERSION(24, 1, 0);
+
+		config_set_bool(globalConfig, "General", PRE_24_1_DEFS,
+				useOldDefaults);
+		changed = true;
+	}
+#undef PRE_24_1_DEFS
+
 	if (config_has_user_value(globalConfig, "BasicWindow",
 				  "MultiviewLayout")) {
 		const char *layout = config_get_string(
 			globalConfig, "BasicWindow", "MultiviewLayout");
 		changed |= UpdatePre22MultiviewLayout(layout);
+	}
+
+	if (lastVersion && lastVersion < MAKE_SEMANTIC_VERSION(24, 0, 0)) {
+		bool disableHotkeysInFocus = config_get_bool(
+			globalConfig, "General", "DisableHotkeysInFocus");
+		if (disableHotkeysInFocus)
+			config_set_string(globalConfig, "General",
+					  "HotkeyFocusType",
+					  "DisableHotkeysInFocus");
+		changed = true;
 	}
 
 	if (changed)
@@ -1018,7 +1072,7 @@ bool OBSApp::SetTheme(std::string name, std::string path)
 	if (path == "") {
 		char userDir[512];
 		name = "themes/" + name + ".qss";
-		string temp = config_dir + "/" + name;
+		string temp = "obs-studio/" + name;
 		int ret = GetConfigPath(userDir, sizeof(userDir), temp.c_str());
 
 		if (ret > 0 && QFile::exists(userDir)) {
@@ -1043,21 +1097,27 @@ bool OBSApp::InitTheme()
 	defaultPalette = palette();
 
 	const char *themeName =
-		config_get_string(globalConfig, "General", "CurrentTheme");
+		config_get_string(globalConfig, "General", "CurrentTheme2");
 
-	if (!themeName) {
+	if (!themeName)
+		/* Use deprecated "CurrentTheme" value if available */
+		themeName = config_get_string(globalConfig, "General",
+					      "CurrentTheme");
+	if (!themeName)
 		/* Use deprecated "Theme" value if available */
 		themeName = config_get_string(globalConfig, "General", "Theme");
-		if (!themeName)
-			themeName = DEFAULT_THEME;
-		if (!themeName)
-			themeName = "Dark";
-	}
+	if (!themeName)
+		themeName = DEFAULT_THEME;
+	if (!themeName)
+		themeName = "Dark";
 
 	if (strcmp(themeName, "Default") == 0)
 		themeName = "System";
 
-	return SetTheme(themeName);
+	if (strcmp(themeName, "System") != 0 && SetTheme(themeName))
+		return true;
+
+	return SetTheme("System");
 }
 
 OBSApp::OBSApp(int &argc, char **argv, profiler_name_store_t *store)
@@ -1088,6 +1148,9 @@ OBSApp::~OBSApp()
 
 	os_inhibit_sleep_set_active(sleepInhibitor, false);
 	os_inhibit_sleep_destroy(sleepInhibitor);
+
+	if (libobs_initialized)
+		obs_shutdown();
 }
 
 static void move_basic_to_profiles(void)
@@ -1097,13 +1160,13 @@ static void move_basic_to_profiles(void)
 	os_glob_t *glob;
 
 	/* if not first time use */
-	if (GetConfigPath(path, 512, (config_dir + "/basic").c_str()) <= 0)
+	if (GetConfigPath(path, 512, "obs-studio/basic") <= 0)
 		return;
 	if (!os_file_exists(path))
 		return;
 
 	/* if the profiles directory doesn't already exist */
-	if (GetConfigPath(new_path, 512, (config_dir + "/basic/profiles").c_str()) <= 0)
+	if (GetConfigPath(new_path, 512, "obs-studio/basic/profiles") <= 0)
 		return;
 	if (os_file_exists(new_path))
 		return;
@@ -1150,12 +1213,12 @@ static void move_basic_to_scene_collections(void)
 	char path[512];
 	char new_path[512];
 
-	if (GetConfigPath(path, 512, (config_dir + "/basic").c_str()) <= 0)
+	if (GetConfigPath(path, 512, "obs-studio/basic") <= 0)
 		return;
 	if (!os_file_exists(path))
 		return;
 
-	if (GetConfigPath(new_path, 512, (config_dir + "/basic/scenes").c_str()) <= 0)
+	if (GetConfigPath(new_path, 512, "obs-studio/basic/scenes") <= 0)
 		return;
 	if (os_file_exists(new_path))
 		return;
@@ -1221,8 +1284,7 @@ void OBSApp::AppInit()
 		EnableOSXVSync(false);
 #endif
 
-	enableHotkeysInFocus = !config_get_bool(globalConfig, "General",
-						"DisableHotkeysInFocus");
+	UpdateHotkeyFocusSetting(false);
 
 	move_basic_to_profiles();
 	move_basic_to_scene_collections();
@@ -1243,7 +1305,7 @@ static bool StartupOBS(const char *locale, profiler_name_store_t *store)
 {
 	char path[512];
 
-	if (GetConfigPath(path, sizeof(path), (config_dir + "/plugin_config").c_str()) <= 0)
+	if (GetConfigPath(path, sizeof(path), "obs-studio/plugin_config") <= 0)
 		return false;
 
 	return obs_startup(locale, path, store);
@@ -1251,13 +1313,34 @@ static bool StartupOBS(const char *locale, profiler_name_store_t *store)
 
 inline void OBSApp::ResetHotkeyState(bool inFocus)
 {
-	obs_hotkey_enable_background_press(inFocus || enableHotkeysInFocus);
+	obs_hotkey_enable_background_press(
+		(inFocus && enableHotkeysInFocus) ||
+		(!inFocus && enableHotkeysOutOfFocus));
 }
 
-void OBSApp::EnableInFocusHotkeys(bool enable)
+void OBSApp::UpdateHotkeyFocusSetting(bool resetState)
 {
-	enableHotkeysInFocus = enable;
-	ResetHotkeyState(applicationState() != Qt::ApplicationActive);
+	enableHotkeysInFocus = true;
+	enableHotkeysOutOfFocus = true;
+
+	const char *hotkeyFocusType =
+		config_get_string(globalConfig, "General", "HotkeyFocusType");
+
+	if (astrcmpi(hotkeyFocusType, "DisableHotkeysInFocus") == 0) {
+		enableHotkeysInFocus = false;
+	} else if (astrcmpi(hotkeyFocusType, "DisableHotkeysOutOfFocus") == 0) {
+		enableHotkeysOutOfFocus = false;
+	}
+
+	if (resetState)
+		ResetHotkeyState(applicationState() == Qt::ApplicationActive);
+}
+
+void OBSApp::DisableHotkeys()
+{
+	enableHotkeysInFocus = false;
+	enableHotkeysOutOfFocus = false;
+	ResetHotkeyState(applicationState() == Qt::ApplicationActive);
 }
 
 Q_DECLARE_METATYPE(VoidFunc)
@@ -1265,6 +1348,17 @@ Q_DECLARE_METATYPE(VoidFunc)
 void OBSApp::Exec(VoidFunc func)
 {
 	func();
+}
+
+static void ui_task_handler(obs_task_t task, void *param, bool wait)
+{
+	auto doTask = [=]() {
+		/* to get clang-format to behave */
+		task(param);
+	};
+	QMetaObject::invokeMethod(App(), "Exec",
+				  wait ? WaitConnection() : Qt::AutoConnection,
+				  Q_ARG(VoidFunc, doTask));
 }
 
 bool OBSApp::OBSInit()
@@ -1277,6 +1371,10 @@ bool OBSApp::OBSInit()
 
 	if (!StartupOBS(locale.c_str(), GetProfilerNameStore()))
 		return false;
+
+	libobs_initialized = true;
+
+	obs_set_ui_task_handler(ui_task_handler);
 
 #ifdef _WIN32
 	bool browserHWAccel =
@@ -1307,9 +1405,9 @@ bool OBSApp::OBSInit()
 
 	connect(this, &QGuiApplication::applicationStateChanged,
 		[this](Qt::ApplicationState state) {
-			ResetHotkeyState(state != Qt::ApplicationActive);
+			ResetHotkeyState(state == Qt::ApplicationActive);
 		});
-	ResetHotkeyState(applicationState() != Qt::ApplicationActive);
+	ResetHotkeyState(applicationState() == Qt::ApplicationActive);
 	return true;
 }
 
@@ -1347,6 +1445,11 @@ string OBSApp::GetVersionString() const
 bool OBSApp::IsPortableMode()
 {
 	return portable_mode;
+}
+
+bool OBSApp::IsUpdaterDisabled()
+{
+	return opt_disable_updater;
 }
 
 #ifdef __APPLE__
@@ -1556,19 +1659,122 @@ string GenerateTimeDateFilename(const char *extension, bool noSpace)
 string GenerateSpecifiedFilename(const char *extension, bool noSpace,
 				 const char *format)
 {
-	OBSBasic *main = reinterpret_cast<OBSBasic *>(App()->GetMainWindow());
-	bool autoRemux = config_get_bool(main->Config(), "Video", "AutoRemux");
-
-	if ((strcmp(extension, "mp4") == 0) && autoRemux)
-		extension = "mkv";
-
 	BPtr<char> filename =
 		os_generate_formatted_filename(extension, !noSpace, format);
-
-	remuxFilename = string(filename);
-	remuxAfterRecord = autoRemux;
-
 	return string(filename);
+}
+
+static void FindBestFilename(string &strPath, bool noSpace)
+{
+	int num = 2;
+
+	if (!os_file_exists(strPath.c_str()))
+		return;
+
+	const char *ext = strrchr(strPath.c_str(), '.');
+	if (!ext)
+		return;
+
+	int extStart = int(ext - strPath.c_str());
+	for (;;) {
+		string testPath = strPath;
+		string numStr;
+
+		numStr = noSpace ? "_" : " (";
+		numStr += to_string(num++);
+		if (!noSpace)
+			numStr += ")";
+
+		testPath.insert(extStart, numStr);
+
+		if (!os_file_exists(testPath.c_str())) {
+			strPath = testPath;
+			break;
+		}
+	}
+}
+
+static void ensure_directory_exists(string &path)
+{
+	replace(path.begin(), path.end(), '\\', '/');
+
+	size_t last = path.rfind('/');
+	if (last == string::npos)
+		return;
+
+	string directory = path.substr(0, last);
+	os_mkdirs(directory.c_str());
+}
+
+static void remove_reserved_file_characters(string &s)
+{
+	replace(s.begin(), s.end(), '\\', '/');
+	replace(s.begin(), s.end(), '*', '_');
+	replace(s.begin(), s.end(), '?', '_');
+	replace(s.begin(), s.end(), '"', '_');
+	replace(s.begin(), s.end(), '|', '_');
+	replace(s.begin(), s.end(), ':', '_');
+	replace(s.begin(), s.end(), '>', '_');
+	replace(s.begin(), s.end(), '<', '_');
+}
+
+string GetFormatString(const char *format, const char *prefix,
+		       const char *suffix)
+{
+	string f;
+
+	if (prefix && *prefix) {
+		f += prefix;
+		if (f.back() != ' ')
+			f += " ";
+	}
+
+	f += format;
+
+	if (suffix && *suffix) {
+		if (*suffix != ' ')
+			f += " ";
+		f += suffix;
+	}
+
+	remove_reserved_file_characters(f);
+
+	return f;
+}
+
+string GetOutputFilename(const char *path, const char *ext, bool noSpace,
+			 bool overwrite, const char *format)
+{
+	OBSBasic *main = reinterpret_cast<OBSBasic *>(App()->GetMainWindow());
+
+	os_dir_t *dir = path && path[0] ? os_opendir(path) : nullptr;
+
+	if (!dir) {
+		if (main->isVisible())
+			OBSMessageBox::warning(main,
+					       QTStr("Output.BadPath.Title"),
+					       QTStr("Output.BadPath.Text"));
+		else
+			main->SysTrayNotify(QTStr("Output.BadPath.Text"),
+					    QSystemTrayIcon::Warning);
+		return "";
+	}
+
+	os_closedir(dir);
+
+	string strPath;
+	strPath += path;
+
+	char lastChar = strPath.back();
+	if (lastChar != '/' && lastChar != '\\')
+		strPath += "/";
+
+	strPath += GenerateSpecifiedFilename(ext, noSpace, format);
+	ensure_directory_exists(strPath);
+	if (!overwrite)
+		FindBestFilename(strPath, noSpace);
+
+	return strPath;
 }
 
 vector<pair<string, string>> GetLocaleNames()
@@ -1598,13 +1804,13 @@ static void create_log_file(fstream &logFile)
 {
 	stringstream dst;
 
-	get_last_log(false, (config_dir + "/logs").c_str(), lastLogFile);
+	get_last_log(false, "obs-studio/logs", lastLogFile);
 #ifdef _WIN32
-	get_last_log(true, (config_dir + "/crashes").c_str(), lastCrashLogFile);
+	get_last_log(true, "obs-studio/crashes", lastCrashLogFile);
 #endif
 
 	currentLogFile = GenerateTimeDateFilename("txt");
-	dst << config_dir << "/logs/" << currentLogFile.c_str();
+	dst << "obs-studio/logs/" << currentLogFile.c_str();
 
 	BPtr<char> path(GetConfigPathPtr(dst.str().c_str()));
 
@@ -1617,7 +1823,7 @@ static void create_log_file(fstream &logFile)
 #endif
 
 	if (logFile.is_open()) {
-		delete_oldest_file(false, (config_dir + "/logs").c_str());
+		delete_oldest_file(false, "obs-studio/logs");
 		base_set_log_handler(do_log, &logFile);
 	} else {
 		blog(LOG_ERROR, "Failed to open log file");
@@ -1660,9 +1866,7 @@ static void SaveProfilerData(const ProfilerSnapshot &snap)
 
 #define LITERAL_SIZE(x) x, (sizeof(x) - 1)
 	ostringstream dst;
-	const char *profiler_data_dir = (config_dir + "/profiler_data/").c_str();
-	size_t data_dir_size = strlen(profiler_data_dir);
-	dst.write(profiler_data_dir, data_dir_size);
+	dst.write(LITERAL_SIZE("obs-studio/profiler_data/"));
 	dst.write(currentLogFile.c_str(), pos);
 	dst.write(LITERAL_SIZE(".csv.gz"));
 #undef LITERAL_SIZE
@@ -1705,14 +1909,22 @@ static int run_program(fstream &logFile, int argc, char *argv[])
 	QGuiApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
 #endif
 
+#if !defined(_WIN32) && !defined(__APPLE__) && BROWSER_AVAILABLE
+	setenv("QT_NO_GLIB", "1", true);
+#endif
+
 	QCoreApplication::addLibraryPath(".");
+
+#if __APPLE__
+	InstallNSApplicationSubclass();
+#endif
 
 	OBSApp program(argc, argv, profilerNameStore.get());
 	try {
 		bool created_log = false;
 
 		program.AppInit();
-		delete_oldest_file(false, (config_dir + "/profiler_data").c_str());
+		delete_oldest_file(false, "obs-studio/profiler_data");
 
 		OBSTranslator translator;
 		program.installTranslator(&translator);
@@ -1769,6 +1981,22 @@ static int run_program(fstream &logFile, int argc, char *argv[])
 	run:
 #endif
 
+#if !defined(_WIN32) && !defined(__APPLE__)
+		// Mounted by termina during chromeOS linux container startup
+		// https://chromium.googlesource.com/chromiumos/overlays/board-overlays/+/master/project-termina/chromeos-base/termina-lxd-scripts/files/lxd_setup.sh
+		os_dir_t *crosDir = os_opendir("/opt/google/cros-containers");
+		if (crosDir) {
+			QMessageBox::StandardButtons buttons(QMessageBox::Ok);
+			QMessageBox mb(QMessageBox::Critical,
+				       QTStr("ChromeOS.Title"),
+				       QTStr("ChromeOS.Text"), buttons,
+				       nullptr);
+
+			mb.exec();
+			return 0;
+		}
+#endif
+
 		if (!created_log) {
 			create_log_file(logFile);
 			created_log = true;
@@ -1789,12 +2017,16 @@ static int run_program(fstream &logFile, int argc, char *argv[])
 
 		prof.Stop();
 
-		return program.exec();
+		ret = program.exec();
 
 	} catch (const char *error) {
 		blog(LOG_ERROR, "%s", error);
 		OBSErrorBox(nullptr, "%s", error);
 	}
+
+	if (restart)
+		QProcess::startDetached(qApp->arguments()[0],
+					qApp->arguments());
 
 	return ret;
 }
@@ -1805,8 +2037,7 @@ static int run_program(fstream &logFile, int argc, char *argv[])
 
 #define CRASH_MESSAGE                                                      \
 	"Woops, OBS has crashed!\n\nWould you like to copy the crash log " \
-	"to the clipboard?  (Crash logs will still be saved to the "       \
-	"crashes folder in the settings directory)"
+	"to the clipboard? The crash log will still be saved to:\n\n%s"
 
 static void main_crash_handler(const char *format, va_list args, void *param)
 {
@@ -1815,10 +2046,12 @@ static void main_crash_handler(const char *format, va_list args, void *param)
 	vsnprintf(text, MAX_CRASH_REPORT_SIZE, format, args);
 	text[MAX_CRASH_REPORT_SIZE - 1] = 0;
 
-	delete_oldest_file(true, (config_dir + "/crashes").c_str());
+	string crashFilePath = "obs-studio/crashes";
 
-	string name = config_dir + "/crashes/Crash ";
-	name += GenerateTimeDateFilename("txt");
+	delete_oldest_file(true, crashFilePath.c_str());
+
+	string name = crashFilePath + "/";
+	name += "Crash " + GenerateTimeDateFilename("txt");
 
 	BPtr<char> path(GetConfigPathPtr(name.c_str()));
 
@@ -1836,7 +2069,26 @@ static void main_crash_handler(const char *format, va_list args, void *param)
 	file << text;
 	file.close();
 
-	int ret = MessageBoxA(NULL, CRASH_MESSAGE, "OBS has crashed!",
+	string pathString(path.Get());
+
+#ifdef _WIN32
+	std::replace(pathString.begin(), pathString.end(), '/', '\\');
+#endif
+
+	string absolutePath =
+		canonical(filesystem::path(pathString)).u8string();
+
+	size_t size = snprintf(nullptr, 0, CRASH_MESSAGE, absolutePath.c_str());
+
+	unique_ptr<char[]> message_buffer(new char[size + 1]);
+
+	snprintf(message_buffer.get(), size + 1, CRASH_MESSAGE,
+		 absolutePath.c_str());
+
+	string finalMessage =
+		string(message_buffer.get(), message_buffer.get() + size);
+
+	int ret = MessageBoxA(NULL, finalMessage.c_str(), "OBS has crashed!",
 			      MB_YESNO | MB_ICONERROR | MB_TASKMODAL);
 
 	if (ret == IDYES) {
@@ -1875,6 +2127,18 @@ static void load_debug_privilege(void)
 
 		AdjustTokenPrivileges(token, false, &tp, sizeof(tp), NULL,
 				      NULL);
+	}
+
+	if (!!LookupPrivilegeValue(NULL, SE_INC_BASE_PRIORITY_NAME, &val)) {
+		tp.PrivilegeCount = 1;
+		tp.Privileges[0].Luid = val;
+		tp.Privileges[0].Attributes = SE_PRIVILEGE_ENABLED;
+
+		if (!AdjustTokenPrivileges(token, false, &tp, sizeof(tp), NULL,
+					   NULL)) {
+			blog(LOG_INFO, "Could not set privilege to "
+				       "increase GPU priority");
+		}
 	}
 
 	CloseHandle(token);
@@ -1941,7 +2205,7 @@ bool GetFileSafeName(const char *name, std::string &file)
 		return false;
 
 	wfile.resize(len);
-	os_utf8_to_wcs(name, base_len, &wfile[0], len);
+	os_utf8_to_wcs(name, base_len, &wfile[0], len + 1);
 
 	for (size_t i = wfile.size(); i > 0; i--) {
 		size_t im1 = i - 1;
@@ -1961,7 +2225,7 @@ bool GetFileSafeName(const char *name, std::string &file)
 		return false;
 
 	file.resize(len);
-	os_wcs_to_utf8(wfile.c_str(), wfile.size(), &file[0], len);
+	os_wcs_to_utf8(wfile.c_str(), wfile.size(), &file[0], len + 1);
 	return true;
 }
 
@@ -2021,7 +2285,7 @@ static void move_to_xdg(void)
 	if (!home)
 		return;
 
-	if (snprintf(old_path, 512, ((std::string)"%s/." + config_dir).c_str(), home) <= 0)
+	if (snprintf(old_path, 512, "%s/.obs-studio", home) <= 0)
 		return;
 
 	/* make base xdg path if it doesn't already exist */
@@ -2030,7 +2294,7 @@ static void move_to_xdg(void)
 	if (os_mkdirs(new_path) == MKDIR_ERROR)
 		return;
 
-	if (GetConfigPath(new_path, 512, config_dir.c_str()) <= 0)
+	if (GetConfigPath(new_path, 512, "obs-studio") <= 0)
 		return;
 
 	if (os_file_exists(old_path) && !os_file_exists(new_path)) {
@@ -2174,7 +2438,7 @@ static void convert_14_2_encoder_setting(const char *encoder, const char *file)
 static void upgrade_settings(void)
 {
 	char path[512];
-	int pathlen = GetConfigPath(path, 512, (config_dir + "/basic/profiles").c_str());
+	int pathlen = GetConfigPath(path, 512, "obs-studio/basic/profiles");
 
 	if (pathlen <= 0)
 		return;
@@ -2309,6 +2573,9 @@ int main(int argc, char *argv[])
 		} else if (arg_is(argv[i], "--startreplaybuffer", nullptr)) {
 			opt_start_replaybuffer = true;
 
+		} else if (arg_is(argv[i], "--startvirtualcam", nullptr)) {
+			opt_start_virtualcam = true;
+
 		} else if (arg_is(argv[i], "--collection", nullptr)) {
 			if (++i < argc)
 				opt_starting_collection = argv[i];
@@ -2330,30 +2597,40 @@ int main(int argc, char *argv[])
 		} else if (arg_is(argv[i], "--allow-opengl", nullptr)) {
 			opt_allow_opengl = true;
 
-		} else if (arg_is(argv[i], "--help", "-h")) {
-			std::cout
-				<< "--help, -h: Get list of available commands.\n\n"
-				<< "--startstreaming: Automatically start streaming.\n"
-				<< "--startrecording: Automatically start recording.\n"
-				<< "--startreplaybuffer: Start replay buffer.\n\n"
-				<< "--collection <string>: Use specific scene collection."
-				<< "\n"
-				<< "--profile <string>: Use specific profile.\n"
-				<< "--scene <string>: Start with specific scene.\n\n"
-				<< "--studio-mode: Enable studio mode.\n"
-				<< "--minimize-to-tray: Minimize to system tray.\n"
-				<< "--portable, -p: Use portable mode.\n"
-				<< "--multi, -m: Don't warn when launching multiple instances.\n\n"
-				<< "--verbose: Make log more verbose.\n"
-				<< "--always-on-top: Start in 'always on top' mode.\n\n"
-				<< "--unfiltered_log: Make log unfiltered.\n\n"
-				<< "--allow-opengl: Allow OpenGL on Windows.\n\n"
-				<< "--version, -V: Get current version.\n";
+		} else if (arg_is(argv[i], "--disable-updater", nullptr)) {
+			opt_disable_updater = true;
 
+		} else if (arg_is(argv[i], "--help", "-h")) {
+			std::string help =
+				"--help, -h: Get list of available commands.\n\n"
+				"--startstreaming: Automatically start streaming.\n"
+				"--startrecording: Automatically start recording.\n"
+				"--startreplaybuffer: Start replay buffer.\n"
+				"--startvirtualcam: Start virtual camera (if available).\n\n"
+				"--collection <string>: Use specific scene collection."
+				"\n"
+				"--profile <string>: Use specific profile.\n"
+				"--scene <string>: Start with specific scene.\n\n"
+				"--studio-mode: Enable studio mode.\n"
+				"--minimize-to-tray: Minimize to system tray.\n"
+				"--portable, -p: Use portable mode.\n"
+				"--multi, -m: Don't warn when launching multiple instances.\n\n"
+				"--verbose: Make log more verbose.\n"
+				"--always-on-top: Start in 'always on top' mode.\n\n"
+				"--unfiltered_log: Make log unfiltered.\n\n"
+				"--disable-updater: Disable built-in updater (Windows/Mac only)\n\n";
+
+#ifdef _WIN32
+			MessageBoxA(NULL, help.c_str(), "Help",
+				    MB_OK | MB_ICONASTERISK);
+#else
+			std::cout << help
+				  << "--version, -V: Get current version.\n";
+#endif
 			exit(0);
 
 		} else if (arg_is(argv[i], "--version", "-V")) {
-			std::cout << "OBS WebRTC - "
+			std::cout << "OBS Studio - "
 				  << App()->GetVersionString() << "\n";
 			exit(0);
 		}
@@ -2366,6 +2643,12 @@ int main(int argc, char *argv[])
 			os_file_exists(BASE_PATH "/obs_portable_mode") ||
 			os_file_exists(BASE_PATH "/portable_mode.txt") ||
 			os_file_exists(BASE_PATH "/obs_portable_mode.txt");
+	}
+
+	if (!opt_disable_updater) {
+		opt_disable_updater =
+			os_file_exists(BASE_PATH "/disable_updater") ||
+			os_file_exists(BASE_PATH "/disable_updater.txt");
 	}
 #endif
 

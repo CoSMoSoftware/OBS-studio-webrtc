@@ -21,8 +21,7 @@ set(obs-ffmpeg_config_HEADERS
 
 set(obs-ffmpeg_HEADERS
 	obs-ffmpeg-formats.h
-	obs-ffmpeg-compat.h
-	closest-pixel-format.h)
+	obs-ffmpeg-compat.h)
 
 set(obs-ffmpeg_SOURCES
 	obs-ffmpeg.c
@@ -45,9 +44,12 @@ if(ENABLE_FFMPEG_LOGGING)
 endif()
 
 if(WIN32)
+	set(MODULE_DESCRIPTION "OBS FFmpeg module")
+	configure_file(${CMAKE_SOURCE_DIR}/cmake/winrc/obs-module.rc.in obs-ffmpeg.rc)
 	list(APPEND obs-ffmpeg_SOURCES
 		jim-nvenc.c
-		jim-nvenc-helpers.c)
+		jim-nvenc-helpers.c
+		obs-ffmpeg.rc)
 	list(APPEND obs-ffmpeg_HEADERS
 		jim-nvenc.h)
 endif()
@@ -61,6 +63,7 @@ target_link_libraries(obs-ffmpeg
 	media-playback
 	${obs-ffmpeg_PLATFORM_DEPS}
 	${FFMPEG_LIBRARIES})
+set_target_properties(obs-ffmpeg PROPERTIES FOLDER "plugins/obs-ffmpeg")
 
 install_obs_plugin_with_data(obs-ffmpeg data)
 

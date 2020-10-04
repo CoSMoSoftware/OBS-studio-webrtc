@@ -20,6 +20,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <util/bmem.h>
 #include <util/platform.h>
 #include <util/threading.h>
+#include <util/util_uint64.h>
 #include <obs-module.h>
 
 #include <alsa/asoundlib.h>
@@ -88,6 +89,7 @@ struct obs_source_info alsa_input_capture = {
 	.get_defaults = alsa_get_defaults,
 	.get_name = alsa_get_name,
 	.get_properties = alsa_get_properties,
+	.icon_type = OBS_ICON_TYPE_AUDIO_INPUT,
 };
 
 static bool _alsa_try_open(struct alsa_data *);
@@ -561,8 +563,9 @@ void *_alsa_listen(void *attr)
 		}
 
 		out.frames = frames;
-		out.timestamp = os_gettime_ns() -
-				((frames * NSEC_PER_SEC) / data->rate);
+		out.timestamp =
+			os_gettime_ns() -
+			util_mul_div64(frames, NSEC_PER_SEC, data->rate);
 
 		if (!data->first_ts)
 			data->first_ts = out.timestamp + STARTUP_TIMEOUT_NS;

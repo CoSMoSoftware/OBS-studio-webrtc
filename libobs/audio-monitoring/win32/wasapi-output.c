@@ -2,6 +2,7 @@
 #include "../../util/circlebuf.h"
 #include "../../util/platform.h"
 #include "../../util/darray.h"
+#include "../../util/util_uint64.h"
 #include "../../obs-internal.h"
 
 #include "wasapi-output.h"
@@ -9,6 +10,14 @@
 #define ACTUALLY_DEFINE_GUID(name, l, w1, w2, b1, b2, b3, b4, b5, b6, b7, b8) \
 	EXTERN_C const GUID DECLSPEC_SELECTANY name = {                       \
 		l, w1, w2, {b1, b2, b3, b4, b5, b6, b7, b8}}
+
+#define do_log(level, format, ...)                      \
+	blog(level, "[audio monitoring: '%s'] " format, \
+	     obs_source_get_name(monitor->source), ##__VA_ARGS__)
+
+#define warn(format, ...) do_log(LOG_WARNING, format, ##__VA_ARGS__)
+#define info(format, ...) do_log(LOG_INFO, format, ##__VA_ARGS__)
+#define debug(format, ...) do_log(LOG_DEBUG, format, ##__VA_ARGS__)
 
 ACTUALLY_DEFINE_GUID(CLSID_MMDeviceEnumerator, 0xBCDE0395, 0xE52F, 0x467C, 0x8E,
 		     0x3D, 0xC4, 0x57, 0x92, 0x91, 0x69, 0x2E);
@@ -70,8 +79,8 @@ static bool process_audio_delay(struct audio_monitor *monitor, float **data,
 		monitor->prev_video_ts = last_frame_ts;
 
 	} else if (monitor->prev_video_ts == last_frame_ts) {
-		monitor->time_since_prev += (uint64_t)*frames * 1000000000ULL /
-					    (uint64_t)monitor->sample_rate;
+		monitor->time_since_prev += util_mul_div64(
+			*frames, 1000000000ULL, monitor->sample_rate);
 	} else {
 		monitor->time_since_prev = 0;
 	}
@@ -82,8 +91,8 @@ static bool process_audio_delay(struct audio_monitor *monitor, float **data,
 
 		circlebuf_peek_front(&monitor->delay_buffer, &cur_ts,
 				     sizeof(ts));
-		front_ts = cur_ts - ((uint64_t)pad * 1000000000ULL /
-				     (uint64_t)monitor->sample_rate);
+		front_ts = cur_ts - util_mul_div64(pad, 1000000000ULL,
+						   monitor->sample_rate);
 		diff = (int64_t)front_ts - (int64_t)last_frame_ts;
 		bad_diff = !last_frame_ts || llabs(diff) > 5000000000 ||
 			   monitor->time_since_prev > 100000000ULL;
@@ -256,6 +265,7 @@ static bool audio_monitor_init(struct audio_monitor *monitor,
 
 	const char *id = obs->audio.monitoring_device_id;
 	if (!id) {
+		warn("%s: No device ID set", __FUNCTION__);
 		return false;
 	}
 
@@ -277,6 +287,8 @@ static bool audio_monitor_init(struct audio_monitor *monitor,
 	hr = CoCreateInstance(&CLSID_MMDeviceEnumerator, NULL, CLSCTX_ALL,
 			      &IID_IMMDeviceEnumerator, (void **)&immde);
 	if (FAILED(hr)) {
+		warn("%s: Failed to create IMMDeviceEnumerator: %08lX",
+		     __FUNCTION__, hr);
 		return false;
 	}
 
@@ -291,6 +303,7 @@ static bool audio_monitor_init(struct audio_monitor *monitor,
 	}
 
 	if (FAILED(hr)) {
+		warn("%s: Failed to get device: %08lX", __FUNCTION__, hr);
 		goto fail;
 	}
 
@@ -301,11 +314,13 @@ static bool audio_monitor_init(struct audio_monitor *monitor,
 					       &IID_IAudioClient, CLSCTX_ALL,
 					       NULL, (void **)&monitor->client);
 	if (FAILED(hr)) {
+		warn("%s: Failed to activate device: %08lX", __FUNCTION__, hr);
 		goto fail;
 	}
 
 	hr = monitor->client->lpVtbl->GetMixFormat(monitor->client, &wfex);
 	if (FAILED(hr)) {
+		warn("%s: Failed to get mix format: %08lX", __FUNCTION__, hr);
 		goto fail;
 	}
 
@@ -313,6 +328,7 @@ static bool audio_monitor_init(struct audio_monitor *monitor,
 						 AUDCLNT_SHAREMODE_SHARED, 0,
 						 10000000, 0, wfex, NULL);
 	if (FAILED(hr)) {
+		warn("%s: Failed to initialize: %08lX", __FUNCTION__, hr);
 		goto fail;
 	}
 
@@ -346,6 +362,7 @@ static bool audio_monitor_init(struct audio_monitor *monitor,
 
 	hr = monitor->client->lpVtbl->GetBufferSize(monitor->client, &frames);
 	if (FAILED(hr)) {
+		warn("%s: Failed to get buffer size: %08lX", __FUNCTION__, hr);
 		goto fail;
 	}
 
@@ -353,15 +370,19 @@ static bool audio_monitor_init(struct audio_monitor *monitor,
 						 &IID_IAudioRenderClient,
 						 (void **)&monitor->render);
 	if (FAILED(hr)) {
+		warn("%s: Failed to get IAudioRenderClient: %08lX",
+		     __FUNCTION__, hr);
 		goto fail;
 	}
 
 	if (pthread_mutex_init(&monitor->playback_mutex, NULL) != 0) {
+		warn("%s: Failed to initialize mutex", __FUNCTION__);
 		goto fail;
 	}
 
 	hr = monitor->client->lpVtbl->Start(monitor->client);
 	if (FAILED(hr)) {
+		warn("%s: Failed to start audio: %08lX", __FUNCTION__, hr);
 		goto fail;
 	}
 

@@ -84,7 +84,7 @@ static inline void darray_reserve(const size_t element_size, struct darray *dst,
 				  const size_t capacity)
 {
 	void *ptr;
-	if (capacity == 0 || capacity <= dst->num)
+	if (capacity == 0 || capacity <= dst->capacity)
 		return;
 
 	ptr = bmalloc(element_size * capacity);
@@ -284,7 +284,7 @@ static inline void darray_insert_array(const size_t element_size,
 
 	assert(array != NULL);
 	assert(num != 0);
-	assert(idx < dst->num);
+	assert(idx <= dst->num);
 
 	old_num = dst->num;
 	darray_resize(element_size, dst, dst->num + num);

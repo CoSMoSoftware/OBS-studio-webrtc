@@ -35,6 +35,8 @@ typedef void (*LIBVLC_MEDIA_ADD_OPTION)(libvlc_media_t *p_md,
 					const char *options);
 typedef void (*LIBVLC_MEDIA_RETAIN)(libvlc_media_t *p_md);
 typedef void (*LIBVLC_MEDIA_RELEASE)(libvlc_media_t *p_md);
+typedef char *(*LIBVLC_MEDIA_GET_META)(libvlc_media_t *p_md,
+				       libvlc_meta_t e_meta);
 
 /* libvlc media player */
 typedef libvlc_media_player_t *(*LIBVLC_MEDIA_PLAYER_NEW)(
@@ -61,10 +63,18 @@ typedef int (*LIBVLC_MEDIA_PLAYER_PLAY)(libvlc_media_player_t *p_mi);
 typedef void (*LIBVLC_MEDIA_PLAYER_STOP)(libvlc_media_player_t *p_mi);
 typedef libvlc_time_t (*LIBVLC_MEDIA_PLAYER_GET_TIME)(
 	libvlc_media_player_t *p_mi);
+typedef void (*LIBVLC_MEDIA_PLAYER_SET_TIME)(libvlc_media_player_t *p_mi,
+					     libvlc_time_t i_time);
 typedef int (*LIBVLC_VIDEO_GET_SIZE)(libvlc_media_player_t *p_mi, unsigned num,
 				     unsigned *px, unsigned *py);
 typedef libvlc_event_manager_t *(*LIBVLC_MEDIA_PLAYER_EVENT_MANAGER)(
 	libvlc_media_player_t *p_mp);
+typedef libvlc_state_t (*LIBVLC_MEDIA_PLAYER_GET_STATE)(
+	libvlc_media_player_t *p_mi);
+typedef libvlc_time_t (*LIBVLC_MEDIA_PLAYER_GET_LENGTH)(
+	libvlc_media_player_t *p_mi);
+typedef libvlc_media_t *(*LIBVLC_MEDIA_PLAYER_GET_MEDIA)(
+	libvlc_media_player_t *p_mi);
 
 /* libvlc media list */
 typedef libvlc_media_list_t *(*LIBVLC_MEDIA_LIST_NEW)(
@@ -112,6 +122,7 @@ extern LIBVLC_MEDIA_NEW_LOCATION libvlc_media_new_location_;
 extern LIBVLC_MEDIA_ADD_OPTION libvlc_media_add_option_;
 extern LIBVLC_MEDIA_RELEASE libvlc_media_release_;
 extern LIBVLC_MEDIA_RETAIN libvlc_media_retain_;
+extern LIBVLC_MEDIA_GET_META libvlc_media_get_meta_;
 
 /* libvlc media player */
 extern LIBVLC_MEDIA_PLAYER_NEW libvlc_media_player_new_;
@@ -124,8 +135,12 @@ extern LIBVLC_AUDIO_SET_FORMAT_CALLBACKS libvlc_audio_set_format_callbacks_;
 extern LIBVLC_MEDIA_PLAYER_PLAY libvlc_media_player_play_;
 extern LIBVLC_MEDIA_PLAYER_STOP libvlc_media_player_stop_;
 extern LIBVLC_MEDIA_PLAYER_GET_TIME libvlc_media_player_get_time_;
+extern LIBVLC_MEDIA_PLAYER_SET_TIME libvlc_media_player_set_time_;
 extern LIBVLC_VIDEO_GET_SIZE libvlc_video_get_size_;
 extern LIBVLC_MEDIA_PLAYER_EVENT_MANAGER libvlc_media_player_event_manager_;
+extern LIBVLC_MEDIA_PLAYER_GET_STATE libvlc_media_player_get_state_;
+extern LIBVLC_MEDIA_PLAYER_GET_LENGTH libvlc_media_player_get_length_;
+extern LIBVLC_MEDIA_PLAYER_GET_MEDIA libvlc_media_player_get_media_;
 
 /* libvlc media list */
 extern LIBVLC_MEDIA_LIST_NEW libvlc_media_list_new_;

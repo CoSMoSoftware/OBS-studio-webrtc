@@ -27,7 +27,6 @@
 #include <QLineEdit>
 #include <QMessageBox>
 #include <QCloseEvent>
-#include <QFileDialog>
 #include <QDirIterator>
 #include <QVariant>
 #include <QTreeView>
@@ -50,7 +49,39 @@
 #include <util/platform.h>
 #include "ui-config.h"
 
+#define ENCODER_HIDE_FLAGS \
+	(OBS_ENCODER_CAP_DEPRECATED | OBS_ENCODER_CAP_INTERNAL)
+
 using namespace std;
+
+class SettingsEventFilter : public QObject {
+	QScopedPointer<OBSEventFilter> shortcutFilter;
+
+public:
+	inline SettingsEventFilter()
+		: shortcutFilter((OBSEventFilter *)CreateShortcutFilter())
+	{
+	}
+
+protected:
+	bool eventFilter(QObject *obj, QEvent *event) override
+	{
+		int key;
+
+		switch (event->type()) {
+		case QEvent::KeyPress:
+		case QEvent::KeyRelease:
+			key = static_cast<QKeyEvent *>(event)->key();
+			if (key == Qt::Key_Escape) {
+				return false;
+			}
+		default:
+			break;
+		}
+
+		return shortcutFilter->filter(obj, event);
+	}
+};
 
 // Used for QVariant in codec comboboxes
 namespace {
@@ -95,6 +126,16 @@ struct CodecDesc {
 Q_DECLARE_METATYPE(FormatDesc)
 Q_DECLARE_METATYPE(CodecDesc)
 
+static inline bool ResTooHigh(uint32_t cx, uint32_t cy)
+{
+	return cx > 16384 || cy > 16384;
+}
+
+static inline bool ResTooLow(uint32_t cx, uint32_t cy)
+{
+	return cx < 8 || cy < 8;
+}
+
 /* parses "[width]x[height]", string, i.e. 1024x768 */
 static bool ConvertResText(const char *res, uint32_t &cx, uint32_t &cy)
 {
@@ -128,6 +169,11 @@ static bool ConvertResText(const char *res, uint32_t &cx, uint32_t &cy)
 	/* shouldn't be any more tokens after this */
 	if (lexer_getbasetoken(lex, &token, IGNORE_WHITESPACE))
 		return false;
+
+	if (ResTooHigh(cx, cy) || ResTooLow(cx, cy)) {
+		cx = cy = 0;
+		return false;
+	}
 
 	return true;
 }
@@ -247,6 +293,43 @@ static void PopulateAACBitrates(initializer_list<QComboBox *> boxes)
 	}
 }
 
+static int gcd(int a, int b)
+{
+	return b == 0 ? a : gcd(b, a % b);
+}
+
+static std::tuple<int, int> aspect_ratio(int cx, int cy)
+{
+	int common = gcd(cx, cy);
+	int newCX = cx / common;
+	int newCY = cy / common;
+
+	if (newCX == 8 && newCY == 5) {
+		newCX = 16;
+		newCY = 10;
+	}
+
+	return std::make_tuple(newCX, newCY);
+}
+
+static inline void HighlightGroupBoxLabel(QGroupBox *gb, QWidget *widget,
+					  QString objectName)
+{
+	QFormLayout *layout = qobject_cast<QFormLayout *>(gb->layout());
+
+	if (!layout)
+		return;
+
+	QLabel *label = qobject_cast<QLabel *>(layout->labelForField(widget));
+
+	if (label) {
+		label->setObjectName(objectName);
+
+		label->style()->unpolish(label);
+		label->style()->polish(label);
+	}
+}
+
 void RestrictResetBitrates(initializer_list<QComboBox *> boxes, int maxbitrate);
 
 void OBSBasicSettings::HookWidget(QWidget *widget, const char *signal,
@@ -286,9 +369,9 @@ OBSBasicSettings::OBSBasicSettings(QWidget *parent)
 
 	EnableThreadedMessageBoxes(true);
 
-	ui->setupUi(this);
-
 	setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
+
+	ui->setupUi(this);
 
 	main->EnableOutputs(false);
 
@@ -325,6 +408,7 @@ OBSBasicSettings::OBSBasicSettings(QWidget *parent)
 	HookWidget(ui->overflowHide,         CHECK_CHANGED,  GENERAL_CHANGED);
 	HookWidget(ui->overflowAlwaysVisible,CHECK_CHANGED,  GENERAL_CHANGED);
 	HookWidget(ui->overflowSelectionHide,CHECK_CHANGED,  GENERAL_CHANGED);
+	HookWidget(ui->automaticSearch,      CHECK_CHANGED,  GENERAL_CHANGED);
 	HookWidget(ui->doubleClickSwitch,    CHECK_CHANGED,  GENERAL_CHANGED);
 	HookWidget(ui->studioPortraitLayout, CHECK_CHANGED,  GENERAL_CHANGED);
 	HookWidget(ui->prevProgLabelToggle,  CHECK_CHANGED,  GENERAL_CHANGED);
@@ -337,12 +421,10 @@ OBSBasicSettings::OBSBasicSettings(QWidget *parent)
 	HookWidget(ui->customServer,         EDIT_CHANGED,   STREAM1_CHANGED);
 	HookWidget(ui->key,                  EDIT_CHANGED,   STREAM1_CHANGED);
 	HookWidget(ui->bandwidthTestEnable,  CHECK_CHANGED,  STREAM1_CHANGED);
-	HookWidget(ui->room,                 EDIT_CHANGED,   STREAM1_CHANGED);
+	HookWidget(ui->twitchAddonDropdown,  COMBO_CHANGED,  STREAM1_CHANGED);
 	HookWidget(ui->useAuth,              CHECK_CHANGED,  STREAM1_CHANGED);
 	HookWidget(ui->authUsername,         EDIT_CHANGED,   STREAM1_CHANGED);
 	HookWidget(ui->authPw,               EDIT_CHANGED,   STREAM1_CHANGED);
-	HookWidget(ui->codec,                COMBO_CHANGED,  STREAM1_CHANGED);
-	HookWidget(ui->streamProtocol,       COMBO_CHANGED,  STREAM1_CHANGED);
 	HookWidget(ui->outputMode,           COMBO_CHANGED,  OUTPUTS_CHANGED);
 	HookWidget(ui->simpleOutputPath,     EDIT_CHANGED,   OUTPUTS_CHANGED);
 	HookWidget(ui->simpleNoSpace,        CHECK_CHANGED,  OUTPUTS_CHANGED);
@@ -384,6 +466,12 @@ OBSBasicSettings::OBSBasicSettings(QWidget *parent)
 	HookWidget(ui->advOutRecTrack4,      CHECK_CHANGED,  OUTPUTS_CHANGED);
 	HookWidget(ui->advOutRecTrack5,      CHECK_CHANGED,  OUTPUTS_CHANGED);
 	HookWidget(ui->advOutRecTrack6,      CHECK_CHANGED,  OUTPUTS_CHANGED);
+	HookWidget(ui->flvTrack1,            CHECK_CHANGED,  OUTPUTS_CHANGED);
+	HookWidget(ui->flvTrack2,            CHECK_CHANGED,  OUTPUTS_CHANGED);
+	HookWidget(ui->flvTrack3,            CHECK_CHANGED,  OUTPUTS_CHANGED);
+	HookWidget(ui->flvTrack4,            CHECK_CHANGED,  OUTPUTS_CHANGED);
+	HookWidget(ui->flvTrack5,            CHECK_CHANGED,  OUTPUTS_CHANGED);
+	HookWidget(ui->flvTrack6,            CHECK_CHANGED,  OUTPUTS_CHANGED);
 	HookWidget(ui->advOutFFType,         COMBO_CHANGED,  OUTPUTS_CHANGED);
 	HookWidget(ui->advOutFFRecPath,      EDIT_CHANGED,   OUTPUTS_CHANGED);
 	HookWidget(ui->advOutFFNoSpace,      CHECK_CHANGED,  OUTPUTS_CHANGED);
@@ -467,9 +555,20 @@ OBSBasicSettings::OBSBasicSettings(QWidget *parent)
 	HookWidget(ui->bindToIP,             COMBO_CHANGED,  ADV_CHANGED);
 	HookWidget(ui->enableNewSocketLoop,  CHECK_CHANGED,  ADV_CHANGED);
 	HookWidget(ui->enableLowLatencyMode, CHECK_CHANGED,  ADV_CHANGED);
-	HookWidget(ui->disableFocusHotkeys,  CHECK_CHANGED,  ADV_CHANGED);
+	HookWidget(ui->hotkeyFocusType,      COMBO_CHANGED,  ADV_CHANGED);
 	HookWidget(ui->autoRemux,            CHECK_CHANGED,  ADV_CHANGED);
+	HookWidget(ui->dynBitrate,           CHECK_CHANGED,  ADV_CHANGED);
 	/* clang-format on */
+
+#define ADD_HOTKEY_FOCUS_TYPE(s)      \
+	ui->hotkeyFocusType->addItem( \
+		QTStr("Basic.Settings.Advanced.Hotkeys." s), s)
+
+	ADD_HOTKEY_FOCUS_TYPE("NeverDisableHotkeys");
+	ADD_HOTKEY_FOCUS_TYPE("DisableHotkeysInFocus");
+	ADD_HOTKEY_FOCUS_TYPE("DisableHotkeysOutOfFocus");
+
+#undef ADD_HOTKEY_FOCUS_TYPE
 
 	ui->simpleOutputVBitrate->setSingleStep(50);
 	ui->simpleOutputVBitrate->setSuffix(" Kbps");
@@ -584,7 +683,7 @@ OBSBasicSettings::OBSBasicSettings(QWidget *parent)
 	// Initialize libff library
 	ff_init();
 
-	installEventFilter(CreateShortcutFilter());
+	installEventFilter(new SettingsEventFilter());
 
 	LoadEncoderTypes();
 	LoadColorRanges();
@@ -745,16 +844,23 @@ OBSBasicSettings::OBSBasicSettings(QWidget *parent)
 
 	UpdateAutomaticReplayBufferCheckboxes();
 
-	App()->EnableInFocusHotkeys(false);
+	App()->DisableHotkeys();
+
+	channelIndex = ui->channelSetup->currentIndex();
+	sampleRateIndex = ui->sampleRate->currentIndex();
+
+	QRegExp rx("\\d{1,5}x\\d{1,5}");
+	QValidator *validator = new QRegExpValidator(rx, this);
+	ui->baseResolution->lineEdit()->setValidator(validator);
+	ui->outputResolution->lineEdit()->setValidator(validator);
 }
 
 OBSBasicSettings::~OBSBasicSettings()
 {
-	bool disableHotkeysInFocus = config_get_bool(
-		App()->GlobalConfig(), "General", "DisableHotkeysInFocus");
 	delete ui->filenameFormatting->completer();
 	main->EnableOutputs(true);
-	App()->EnableInFocusHotkeys(!disableHotkeysInFocus);
+
+	App()->UpdateHotkeyFocusSetting();
 
 	EnableThreadedMessageBoxes(false);
 }
@@ -834,7 +940,7 @@ void OBSBasicSettings::LoadEncoderTypes()
 				break;
 			}
 		}
-		if ((caps & OBS_ENCODER_CAP_DEPRECATED) != 0)
+		if ((caps & ENCODER_HIDE_FLAGS) != 0)
 			continue;
 
 		QString qName = QT_UTF8(name);
@@ -879,7 +985,7 @@ void OBSBasicSettings::LoadFormats()
 					audio ? AUDIO_STR : VIDEO_STR);
 
 			ui->advOutFFFormat->addItem(
-				itemText, qVariantFromValue(formatDesc));
+				itemText, QVariant::fromValue(formatDesc));
 		}
 
 		format = ff_format_desc_next(format);
@@ -902,7 +1008,7 @@ static void AddCodec(QComboBox *combo, const ff_codec_desc *codec_desc)
 	CodecDesc cd(ff_codec_desc_name(codec_desc),
 		     ff_codec_desc_id(codec_desc));
 
-	combo->addItem(itemText, qVariantFromValue(cd));
+	combo->addItem(itemText, QVariant::fromValue(cd));
 }
 
 #define AV_ENCODER_DEFAULT_STR \
@@ -918,7 +1024,7 @@ static void AddDefaultCodec(QComboBox *combo, const ff_format_desc *formatDesc,
 		combo->removeItem(existingIdx);
 
 	combo->addItem(QString("%1 (%2)").arg(cd.name, AV_ENCODER_DEFAULT_STR),
-		       qVariantFromValue(cd));
+		       QVariant::fromValue(cd));
 }
 
 #define AV_ENCODER_DISABLE_STR \
@@ -965,7 +1071,7 @@ void OBSBasicSettings::ReloadCodecs(const ff_format_desc *formatDesc)
 	ui->advOutFFAEncoder->model()->sort(0);
 	ui->advOutFFVEncoder->model()->sort(0);
 
-	QVariant disable = qVariantFromValue(CodecDesc());
+	QVariant disable = QVariant::fromValue(CodecDesc());
 
 	ui->advOutFFAEncoder->insertItem(0, AV_ENCODER_DISABLE_STR, disable);
 	ui->advOutFFVEncoder->insertItem(0, AV_ENCODER_DISABLE_STR, disable);
@@ -1003,7 +1109,7 @@ void OBSBasicSettings::LoadThemeList()
 	string themeDir;
 	char userThemeDir[512];
 	int ret = GetConfigPath(userThemeDir, sizeof(userThemeDir),
-				(config_dir + "/themes/").c_str());
+				"obs-studio/themes/");
 	GetDataFilePath("themes/", themeDir);
 
 	/* Check user dir first. */
@@ -1149,6 +1255,10 @@ void OBSBasicSettings::LoadGeneralSettings()
 		GetGlobalConfig(), "BasicWindow", "OverflowSelectionHidden");
 	ui->overflowSelectionHide->setChecked(overflowSelectionHide);
 
+	bool automaticSearch = config_get_bool(GetGlobalConfig(), "General",
+					       "AutomaticCollectionSearch");
+	ui->automaticSearch->setChecked(automaticSearch);
+
 	bool doubleClickSwitch = config_get_bool(
 		GetGlobalConfig(), "BasicWindow", "TransitionOnDoubleClick");
 	ui->doubleClickSwitch->setChecked(doubleClickSwitch);
@@ -1191,6 +1301,11 @@ void OBSBasicSettings::LoadGeneralSettings()
 
 	ui->multiviewLayout->setCurrentIndex(config_get_int(
 		GetGlobalConfig(), "BasicWindow", "MultiviewLayout"));
+
+	prevLangIndex = ui->language->currentIndex();
+
+	if (obs_video_active())
+		ui->language->setEnabled(false);
 
 	loading = false;
 }
@@ -1301,10 +1416,13 @@ void OBSBasicSettings::ResetDownscales(uint32_t cx, uint32_t cy)
 	float outputAspect = float(out_cx) / float(out_cy);
 
 	bool closeAspect = close_float(baseAspect, outputAspect, 0.01f);
-	if (closeAspect)
+	if (closeAspect) {
 		ui->outputResolution->lineEdit()->setText(oldOutputRes);
-	else
+		on_outputResolution_editTextChanged(oldOutputRes);
+	} else {
 		ui->outputResolution->lineEdit()->setText(bestScale.c_str());
+		on_outputResolution_editTextChanged(bestScale.c_str());
+	}
 
 	ui->outputResolution->blockSignals(false);
 
@@ -1331,6 +1449,9 @@ void OBSBasicSettings::LoadDownscaleFilters()
 		QTStr("Basic.Settings.Video.DownscaleFilter.Bilinear"),
 		QT_UTF8("bilinear"));
 	ui->downscaleFilter->addItem(
+		QTStr("Basic.Settings.Video.DownscaleFilter.Area"),
+		QT_UTF8("area"));
+	ui->downscaleFilter->addItem(
 		QTStr("Basic.Settings.Video.DownscaleFilter.Bicubic"),
 		QT_UTF8("bicubic"));
 	ui->downscaleFilter->addItem(
@@ -1343,9 +1464,11 @@ void OBSBasicSettings::LoadDownscaleFilters()
 	if (astrcmpi(scaleType, "bilinear") == 0)
 		ui->downscaleFilter->setCurrentIndex(0);
 	else if (astrcmpi(scaleType, "lanczos") == 0)
-		ui->downscaleFilter->setCurrentIndex(2);
-	else
+		ui->downscaleFilter->setCurrentIndex(3);
+	else if (astrcmpi(scaleType, "area") == 0)
 		ui->downscaleFilter->setCurrentIndex(1);
+	else
+		ui->downscaleFilter->setCurrentIndex(2);
 }
 
 void OBSBasicSettings::LoadResolutionLists()
@@ -1379,6 +1502,13 @@ void OBSBasicSettings::LoadResolutionLists()
 	ResetDownscales(cx, cy);
 
 	ui->outputResolution->lineEdit()->setText(outputResString.c_str());
+
+	std::tuple<int, int> aspect = aspect_ratio(cx, cy);
+
+	ui->baseAspect->setText(
+		QTStr("AspectRatio")
+			.arg(QString::number(std::get<0>(aspect)),
+			     QString::number(std::get<1>(aspect))));
 }
 
 static inline void LoadFPSCommon(OBSBasic *main, Ui::OBSBasicSettings *ui)
@@ -1652,7 +1782,7 @@ void OBSBasicSettings::LoadAdvOutputStreamingEncoderProperties()
 
 	if (!SetComboByValue(ui->advOutEncoder, type)) {
 		uint32_t caps = obs_get_encoder_caps(type);
-		if ((caps & OBS_ENCODER_CAP_DEPRECATED) != 0) {
+		if ((caps & ENCODER_HIDE_FLAGS) != 0) {
 			const char *name = obs_encoder_get_display_name(type);
 
 			ui->advOutEncoder->insertItem(0, QT_UTF8(name),
@@ -1680,6 +1810,7 @@ void OBSBasicSettings::LoadAdvOutputRecordingSettings()
 	const char *muxCustom =
 		config_get_string(main->Config(), "AdvOut", "RecMuxerCustom");
 	int tracks = config_get_int(main->Config(), "AdvOut", "RecTracks");
+	int flvTrack = config_get_int(main->Config(), "AdvOut", "FLVTrack");
 
 	int typeIndex = (astrcmpi(type, "FFmpeg") == 0) ? 1 : 0;
 	ui->advOutRecType->setCurrentIndex(typeIndex);
@@ -1698,6 +1829,30 @@ void OBSBasicSettings::LoadAdvOutputRecordingSettings()
 	ui->advOutRecTrack4->setChecked(tracks & (1 << 3));
 	ui->advOutRecTrack5->setChecked(tracks & (1 << 4));
 	ui->advOutRecTrack6->setChecked(tracks & (1 << 5));
+
+	switch (flvTrack) {
+	case 1:
+		ui->flvTrack1->setChecked(true);
+		break;
+	case 2:
+		ui->flvTrack2->setChecked(true);
+		break;
+	case 3:
+		ui->flvTrack3->setChecked(true);
+		break;
+	case 4:
+		ui->flvTrack4->setChecked(true);
+		break;
+	case 5:
+		ui->flvTrack5->setChecked(true);
+		break;
+	case 6:
+		ui->flvTrack6->setChecked(true);
+		break;
+	default:
+		ui->flvTrack1->setChecked(true);
+		break;
+	}
 }
 
 void OBSBasicSettings::LoadAdvOutputRecordingEncoderProperties()
@@ -1720,7 +1875,7 @@ void OBSBasicSettings::LoadAdvOutputRecordingEncoderProperties()
 
 	if (!SetComboByValue(ui->advOutRecEncoder, type)) {
 		uint32_t caps = obs_get_encoder_caps(type);
-		if ((caps & OBS_ENCODER_CAP_DEPRECATED) != 0) {
+		if ((caps & ENCODER_HIDE_FLAGS) != 0) {
 			const char *name = obs_encoder_get_display_name(type);
 
 			ui->advOutRecEncoder->insertItem(1, QT_UTF8(name),
@@ -1991,6 +2146,8 @@ void OBSBasicSettings::LoadListValues(QComboBox *widget, obs_property_t *prop,
 						 "UnknownAudioDevice"),
 					   var);
 			widget->setCurrentIndex(0);
+			HighlightGroupBoxLabel(ui->audioDevicesGroupBox, widget,
+					       "errorLabel");
 		}
 	}
 
@@ -2025,6 +2182,11 @@ void OBSBasicSettings::LoadAudioDevices()
 		LoadListValues(ui->desktopAudioDevice2, outputs, 2);
 		obs_properties_destroy(output_props);
 	}
+
+	if (obs_video_active()) {
+		ui->sampleRate->setEnabled(false);
+		ui->channelSetup->setEnabled(false);
+	}
 }
 
 #define NBSP "\xC2\xA0"
@@ -2033,7 +2195,7 @@ void OBSBasicSettings::LoadAudioSources()
 {
 	if (ui->audioSourceLayout->rowCount() > 0) {
 		QLayoutItem *forDeletion = ui->audioSourceLayout->takeAt(0);
-		delete forDeletion->widget();
+		forDeletion->widget()->deleteLater();
 		delete forDeletion;
 	}
 	auto layout = new QFormLayout();
@@ -2138,10 +2300,12 @@ void OBSBasicSettings::LoadAudioSources()
 		label->setMinimumSize(QSize(170, 0));
 		label->setAlignment(Qt::AlignRight | Qt::AlignTrailing |
 				    Qt::AlignVCenter);
-		connect(label, &OBSSourceLabel::Removed,
-			[=]() { LoadAudioSources(); });
-		connect(label, &OBSSourceLabel::Destroyed,
-			[=]() { LoadAudioSources(); });
+		connect(label, &OBSSourceLabel::Removed, [=]() {
+			QMetaObject::invokeMethod(this, "ReloadAudioSources");
+		});
+		connect(label, &OBSSourceLabel::Destroyed, [=]() {
+			QMetaObject::invokeMethod(this, "ReloadAudioSources");
+		});
 
 		layout->addRow(label, form);
 		return true;
@@ -2151,7 +2315,8 @@ void OBSBasicSettings::LoadAudioSources()
 	obs_enum_sources(
 		[](void *data, obs_source_t *source) {
 			auto &AddSource = *static_cast<AddSource_t *>(data);
-			AddSource(source);
+			if (!obs_source_removed(source))
+				AddSource(source);
 			return true;
 		},
 		static_cast<void *>(&AddSource));
@@ -2177,9 +2342,9 @@ void OBSBasicSettings::LoadAudioSettings()
 
 	const char *str;
 	if (sampleRate == 48000)
-		str = "48khz";
+		str = "48 kHz";
 	else
-		str = "44.1khz";
+		str = "44.1 kHz";
 
 	int sampleRateIdx = ui->sampleRate->findText(str);
 	if (sampleRateIdx != -1)
@@ -2251,6 +2416,10 @@ void OBSBasicSettings::LoadAdvancedSettings()
 	int rbTime = config_get_int(main->Config(), "AdvOut", "RecRBTime");
 	int rbSize = config_get_int(main->Config(), "AdvOut", "RecRBSize");
 	bool autoRemux = config_get_bool(main->Config(), "Video", "AutoRemux");
+	const char *hotkeyFocusType = config_get_string(
+		App()->GlobalConfig(), "General", "HotkeyFocusType");
+	bool dynBitrate =
+		config_get_bool(main->Config(), "Output", "DynamicBitrate");
 
 	loading = true;
 
@@ -2278,6 +2447,7 @@ void OBSBasicSettings::LoadAdvancedSettings()
 	ui->streamDelayPreserve->setChecked(preserveDelay);
 	ui->streamDelayEnable->setChecked(enableDelay);
 	ui->autoRemux->setChecked(autoRemux);
+	ui->dynBitrate->setChecked(dynBitrate);
 
 	SetComboByName(ui->colorFormat, videoColorFormat);
 	SetComboByName(ui->colorSpace, videoColorSpace);
@@ -2317,15 +2487,16 @@ void OBSBasicSettings::LoadAdvancedSettings()
 
 	ui->enableNewSocketLoop->setChecked(enableNewSocketLoop);
 	ui->enableLowLatencyMode->setChecked(enableLowLatencyMode);
+	ui->enableLowLatencyMode->setToolTip(
+		QTStr("Basic.Settings.Advanced.Network.TCPPacing.Tooltip"));
 
 	bool browserHWAccel = config_get_bool(App()->GlobalConfig(), "General",
 					      "BrowserHWAccel");
 	ui->browserHWAccel->setChecked(browserHWAccel);
+	prevBrowserAccel = ui->browserHWAccel->isChecked();
 #endif
 
-	bool disableFocusHotkeys = config_get_bool(
-		App()->GlobalConfig(), "General", "DisableHotkeysInFocus");
-	ui->disableFocusHotkeys->setChecked(disableFocusHotkeys);
+	SetComboByValue(ui->hotkeyFocusType, hotkeyFocusType);
 
 	loading = false;
 }
@@ -2564,7 +2735,7 @@ void OBSBasicSettings::LoadHotkeySettings(obs_hotkey_id ignoreKey)
 
 		if (obs_scene_from_source(source))
 			scenes.emplace_back(source, label, hw);
-		else
+		else if (obs_source_get_name(source) != NULL)
 			sources.emplace_back(source, label, hw);
 
 		return false;
@@ -2711,7 +2882,7 @@ void OBSBasicSettings::SaveGeneralSettings()
 		themeData = DEFAULT_THEME;
 
 	if (WidgetChanged(ui->theme)) {
-		config_set_string(GetGlobalConfig(), "General", "CurrentTheme",
+		config_set_string(GetGlobalConfig(), "General", "CurrentTheme2",
 				  QT_TO_UTF8(themeData));
 
 		App()->SetTheme(themeData.toUtf8().constData());
@@ -2761,6 +2932,10 @@ void OBSBasicSettings::SaveGeneralSettings()
 		config_set_bool(GetGlobalConfig(), "BasicWindow",
 				"TransitionOnDoubleClick",
 				ui->doubleClickSwitch->isChecked());
+	if (WidgetChanged(ui->automaticSearch))
+		config_set_bool(GetGlobalConfig(), "General",
+				"AutomaticCollectionSearch",
+				ui->automaticSearch->isChecked());
 
 	config_set_bool(GetGlobalConfig(), "BasicWindow",
 			"WarnBeforeStartingStream",
@@ -2772,11 +2947,24 @@ void OBSBasicSettings::SaveGeneralSettings()
 			"WarnBeforeStoppingRecord",
 			ui->warnBeforeRecordStop->isChecked());
 
-	config_set_bool(GetGlobalConfig(), "BasicWindow", "HideProjectorCursor",
-			ui->hideProjectorCursor->isChecked());
-	config_set_bool(GetGlobalConfig(), "BasicWindow",
-			"ProjectorAlwaysOnTop",
+	if (WidgetChanged(ui->hideProjectorCursor)) {
+		config_set_bool(GetGlobalConfig(), "BasicWindow",
+				"HideProjectorCursor",
+				ui->hideProjectorCursor->isChecked());
+		main->UpdateProjectorHideCursor();
+	}
+
+	if (WidgetChanged(ui->projectorAlwaysOnTop)) {
+		config_set_bool(GetGlobalConfig(), "BasicWindow",
+				"ProjectorAlwaysOnTop",
+				ui->projectorAlwaysOnTop->isChecked());
+#if defined(_WIN32) || defined(__APPLE__)
+		main->UpdateProjectorAlwaysOnTop(
 			ui->projectorAlwaysOnTop->isChecked());
+#else
+		main->ResetProjectors();
+#endif
+	}
 
 	if (WidgetChanged(ui->recordWhenStreaming))
 		config_set_bool(GetGlobalConfig(), "BasicWindow",
@@ -2928,9 +3116,11 @@ void OBSBasicSettings::SaveAdvancedSettings()
 			browserHWAccel);
 #endif
 
-	bool disableFocusHotkeys = ui->disableFocusHotkeys->isChecked();
-	config_set_bool(App()->GlobalConfig(), "General",
-			"DisableHotkeysInFocus", disableFocusHotkeys);
+	if (WidgetChanged(ui->hotkeyFocusType)) {
+		QString str = GetComboData(ui->hotkeyFocusType);
+		config_set_string(App()->GlobalConfig(), "General",
+				  "HotkeyFocusType", QT_TO_UTF8(str));
+	}
 
 #ifdef __APPLE__
 	if (WidgetChanged(ui->disableOSXVSync)) {
@@ -2974,6 +3164,7 @@ void OBSBasicSettings::SaveAdvancedSettings()
 	SaveSpinBox(ui->reconnectMaxRetries, "Output", "MaxRetries");
 	SaveComboData(ui->bindToIP, "Output", "BindIP");
 	SaveCheckBox(ui->autoRemux, "Video", "AutoRemux");
+	SaveCheckBox(ui->dynBitrate, "Output", "DynamicBitrate");
 
 #if defined(_WIN32) || defined(__APPLE__) || HAVE_PULSEAUDIO
 	QString newDevice = ui->monitoringDevice->currentData().toString();
@@ -3153,6 +3344,8 @@ void OBSBasicSettings::SaveOutputSettings()
 			(ui->advOutRecTrack5->isChecked() ? (1 << 4) : 0) |
 			(ui->advOutRecTrack6->isChecked() ? (1 << 5) : 0));
 
+	config_set_int(main->Config(), "AdvOut", "FLVTrack", CurrentFLVTrack());
+
 	config_set_bool(main->Config(), "AdvOut", "FFOutputToFile",
 			ui->advOutFFType->currentIndex() == 0 ? true : false);
 	SaveEdit(ui->advOutFFRecPath, "AdvOut", "FFFilePath");
@@ -3235,7 +3428,7 @@ void OBSBasicSettings::SaveAudioSettings()
 	}
 
 	int sampleRate = 44100;
-	if (sampleRateStr == "48khz")
+	if (sampleRateStr == "48 kHz")
 		sampleRate = 48000;
 
 	if (WidgetChanged(ui->sampleRate))
@@ -3404,6 +3597,18 @@ void OBSBasicSettings::SaveSettings()
 		blog(LOG_INFO, "Settings changed (%s)", changed.c_str());
 		blog(LOG_INFO, MINOR_SEPARATOR);
 	}
+
+	bool langChanged = (ui->language->currentIndex() != prevLangIndex);
+	bool audioRestart = (ui->channelSetup->currentIndex() != channelIndex ||
+			     ui->sampleRate->currentIndex() != sampleRateIndex);
+	bool browserHWAccelChanged =
+		(ui->browserHWAccel &&
+		 ui->browserHWAccel->isChecked() != prevBrowserAccel);
+
+	if (langChanged || audioRestart || browserHWAccelChanged)
+		restart = true;
+	else
+		restart = false;
 }
 
 bool OBSBasicSettings::QueryChanges()
@@ -3420,11 +3625,15 @@ bool OBSBasicSettings::QueryChanges()
 	} else if (button == QMessageBox::Yes) {
 		SaveSettings();
 	} else {
+		if (savedTheme != App()->GetTheme())
+			App()->SetTheme(savedTheme);
+
 		LoadSettings(true);
 #ifdef _WIN32
 		if (toggleAero)
 			SetAeroEnabled(!aeroWasDisabled);
 #endif
+		restart = false;
 	}
 
 	ClearChanged();
@@ -3433,8 +3642,14 @@ bool OBSBasicSettings::QueryChanges()
 
 void OBSBasicSettings::closeEvent(QCloseEvent *event)
 {
-	if (Changed() && !QueryChanges())
+	if (!AskIfCanCloseSettings())
 		event->ignore();
+}
+
+void OBSBasicSettings::reject()
+{
+	if (AskIfCanCloseSettings())
+		close();
 }
 
 void OBSBasicSettings::on_theme_activated(int idx)
@@ -3475,7 +3690,8 @@ void OBSBasicSettings::on_buttonBox_clicked(QAbstractButton *button)
 	if (val == QDialogButtonBox::AcceptRole ||
 	    val == QDialogButtonBox::RejectRole) {
 		if (val == QDialogButtonBox::RejectRole) {
-			App()->SetTheme(savedTheme);
+			if (savedTheme != App()->GetTheme())
+				App()->SetTheme(savedTheme);
 #ifdef _WIN32
 			if (toggleAero)
 				SetAeroEnabled(!aeroWasDisabled);
@@ -3488,10 +3704,9 @@ void OBSBasicSettings::on_buttonBox_clicked(QAbstractButton *button)
 
 void OBSBasicSettings::on_simpleOutputBrowse_clicked()
 {
-	QString dir = QFileDialog::getExistingDirectory(
+	QString dir = SelectDirectory(
 		this, QTStr("Basic.Settings.Output.SelectDirectory"),
-		ui->simpleOutputPath->text(),
-		QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
+		ui->simpleOutputPath->text());
 	if (dir.isEmpty())
 		return;
 
@@ -3500,10 +3715,9 @@ void OBSBasicSettings::on_simpleOutputBrowse_clicked()
 
 void OBSBasicSettings::on_advOutRecPathBrowse_clicked()
 {
-	QString dir = QFileDialog::getExistingDirectory(
+	QString dir = SelectDirectory(
 		this, QTStr("Basic.Settings.Output.SelectDirectory"),
-		ui->advOutRecPath->text(),
-		QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
+		ui->advOutRecPath->text());
 	if (dir.isEmpty())
 		return;
 
@@ -3512,10 +3726,9 @@ void OBSBasicSettings::on_advOutRecPathBrowse_clicked()
 
 void OBSBasicSettings::on_advOutFFPathBrowse_clicked()
 {
-	QString dir = QFileDialog::getExistingDirectory(
+	QString dir = SelectDirectory(
 		this, QTStr("Basic.Settings.Output.SelectDirectory"),
-		ui->advOutRecPath->text(),
-		QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
+		ui->advOutRecPath->text());
 	if (dir.isEmpty())
 		return;
 
@@ -3535,16 +3748,8 @@ void OBSBasicSettings::on_advOutEncoder_currentIndexChanged(int idx)
 		ui->advOutputStreamTab->layout()->addWidget(streamEncoderProps);
 	}
 
-	uint32_t caps = obs_get_encoder_caps(QT_TO_UTF8(encoder));
-
-	if (caps & OBS_ENCODER_CAP_PASS_TEXTURE) {
-		ui->advOutUseRescale->setChecked(false);
-		ui->advOutUseRescale->setVisible(false);
-		ui->advOutRescale->setVisible(false);
-	} else {
-		ui->advOutUseRescale->setVisible(true);
-		ui->advOutRescale->setVisible(true);
-	}
+	ui->advOutUseRescale->setVisible(true);
+	ui->advOutRescale->setVisible(true);
 
 	UNUSED_PARAMETER(idx);
 }
@@ -3575,16 +3780,8 @@ void OBSBasicSettings::on_advOutRecEncoder_currentIndexChanged(int idx)
 			SLOT(AdvReplayBufferChanged()));
 	}
 
-	uint32_t caps = obs_get_encoder_caps(QT_TO_UTF8(encoder));
-
-	if (caps & OBS_ENCODER_CAP_PASS_TEXTURE) {
-		ui->advOutRecUseRescale->setChecked(false);
-		ui->advOutRecUseRescale->setVisible(false);
-		ui->advOutRecRescaleContainer->setVisible(false);
-	} else {
-		ui->advOutRecUseRescale->setVisible(true);
-		ui->advOutRecRescaleContainer->setVisible(true);
-	}
+	ui->advOutRecUseRescale->setVisible(true);
+	ui->advOutRecRescaleContainer->setVisible(true);
 }
 
 void OBSBasicSettings::on_advOutFFIgnoreCompat_stateChanged(int)
@@ -3693,7 +3890,30 @@ void OBSBasicSettings::RecalcOutputResPixels(const char *resText)
 	if (newCX && newCY) {
 		outputCX = newCX;
 		outputCY = newCY;
+
+		std::tuple<int, int> aspect = aspect_ratio(outputCX, outputCY);
+
+		ui->scaledAspect->setText(
+			QTStr("AspectRatio")
+				.arg(QString::number(std::get<0>(aspect)),
+				     QString::number(std::get<1>(aspect))));
 	}
+}
+
+bool OBSBasicSettings::AskIfCanCloseSettings()
+{
+	bool canCloseSettings = false;
+
+	if (!Changed() || QueryChanges())
+		canCloseSettings = true;
+
+	if (forceAuthReload) {
+		main->auth->Save();
+		main->auth->Load();
+		forceAuthReload = false;
+	}
+
+	return canCloseSettings;
 }
 
 void OBSBasicSettings::on_filenameFormatting_textEdited(const QString &text)
@@ -3724,6 +3944,14 @@ void OBSBasicSettings::on_baseResolution_editTextChanged(const QString &text)
 		uint32_t cx, cy;
 
 		ConvertResText(QT_TO_UTF8(baseResolution), cx, cy);
+
+		std::tuple<int, int> aspect = aspect_ratio(cx, cy);
+
+		ui->baseAspect->setText(
+			QTStr("AspectRatio")
+				.arg(QString::number(std::get<0>(aspect)),
+				     QString::number(std::get<1>(aspect))));
+
 		ResetDownscales(cx, cy);
 	}
 }
@@ -3767,10 +3995,22 @@ void OBSBasicSettings::AudioChanged()
 void OBSBasicSettings::AudioChangedRestart()
 {
 	if (!loading) {
-		audioChanged = true;
-		ui->audioMsg->setText(QTStr("Basic.Settings.ProgramRestart"));
-		sender()->setProperty("changed", QVariant(true));
-		EnableApplyButton(true);
+		int currentChannelIndex = ui->channelSetup->currentIndex();
+		int currentSampleRateIndex = ui->sampleRate->currentIndex();
+
+		if (currentChannelIndex != channelIndex ||
+		    currentSampleRateIndex != sampleRateIndex) {
+			audioChanged = true;
+			ui->audioMsg->setText(
+				QTStr("Basic.Settings.ProgramRestart"));
+			sender()->setProperty("changed", QVariant(true));
+			EnableApplyButton(true);
+		} else {
+			audioChanged = false;
+			ui->audioMsg->setText("");
+			sender()->setProperty("changed", QVariant(false));
+			EnableApplyButton(false);
+		}
 	}
 }
 
@@ -3935,18 +4175,20 @@ void OBSBasicSettings::AdvOutRecCheckWarnings()
 		Checked(ui->advOutRecTrack3) + Checked(ui->advOutRecTrack4) +
 		Checked(ui->advOutRecTrack5) + Checked(ui->advOutRecTrack6);
 
-	if (tracks == 0) {
-		errorMsg = QTStr("OutputWarnings.NoTracksSelected");
-
-	} else if (tracks > 1) {
-		warningMsg = QTStr("OutputWarnings.MultiTrackRecording");
-	}
-
 	bool useStreamEncoder = ui->advOutRecEncoder->currentIndex() == 0;
 	if (useStreamEncoder) {
 		if (!warningMsg.isEmpty())
 			warningMsg += "\n\n";
 		warningMsg += QTStr("OutputWarnings.CannotPause");
+	}
+
+	if (ui->advOutRecFormat->currentText().compare("flv") == 0) {
+		ui->advRecTrackWidget->setCurrentWidget(ui->flvTracks);
+	} else {
+		ui->advRecTrackWidget->setCurrentWidget(ui->recTracks);
+
+		if (tracks == 0)
+			errorMsg = QTStr("OutputWarnings.NoTracksSelected");
 	}
 
 	if (ui->advOutRecFormat->currentText().compare("mp4") == 0 ||
@@ -4522,6 +4764,41 @@ void OBSBasicSettings::on_disableOSXVSync_clicked()
 #endif
 }
 
+QIcon OBSBasicSettings::GetGeneralIcon() const
+{
+	return generalIcon;
+}
+
+QIcon OBSBasicSettings::GetStreamIcon() const
+{
+	return streamIcon;
+}
+
+QIcon OBSBasicSettings::GetOutputIcon() const
+{
+	return outputIcon;
+}
+
+QIcon OBSBasicSettings::GetAudioIcon() const
+{
+	return audioIcon;
+}
+
+QIcon OBSBasicSettings::GetVideoIcon() const
+{
+	return videoIcon;
+}
+
+QIcon OBSBasicSettings::GetHotkeysIcon() const
+{
+	return hotkeysIcon;
+}
+
+QIcon OBSBasicSettings::GetAdvancedIcon() const
+{
+	return advancedIcon;
+}
+
 void OBSBasicSettings::SetGeneralIcon(const QIcon &icon)
 {
 	ui->listWidget->item(0)->setIcon(icon);
@@ -4555,4 +4832,22 @@ void OBSBasicSettings::SetHotkeysIcon(const QIcon &icon)
 void OBSBasicSettings::SetAdvancedIcon(const QIcon &icon)
 {
 	ui->listWidget->item(6)->setIcon(icon);
+}
+
+int OBSBasicSettings::CurrentFLVTrack()
+{
+	if (ui->flvTrack1->isChecked())
+		return 1;
+	else if (ui->flvTrack2->isChecked())
+		return 2;
+	else if (ui->flvTrack3->isChecked())
+		return 3;
+	else if (ui->flvTrack4->isChecked())
+		return 4;
+	else if (ui->flvTrack5->isChecked())
+		return 5;
+	else if (ui->flvTrack6->isChecked())
+		return 6;
+
+	return 0;
 }

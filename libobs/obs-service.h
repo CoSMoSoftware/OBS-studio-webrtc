@@ -52,7 +52,7 @@ struct obs_service_info {
 	 *
 	 * @param  data    Internal service data
 	 * @param  output  Output context
-	 * @eturn          true to allow the output to start up,
+	 * @return         true to allow the output to start up,
 	 *                 false to prevent output from starting up
 	 */
 	bool (*initialize)(void *data, obs_output_t *output);
@@ -60,12 +60,10 @@ struct obs_service_info {
 	const char *(*get_url)(void *data);
 	const char *(*get_key)(void *data);
 
-	const char *(*get_room)(void *data);
-
 	const char *(*get_username)(void *data);
 	const char *(*get_password)(void *data);
 
-	bool (*supports_multitrack)(void *data);
+	bool (*deprecated_1)();
 
 	void (*apply_encoder_settings)(void *data,
 				       obs_data_t *video_encoder_settings,
@@ -73,9 +71,6 @@ struct obs_service_info {
 
 	void *type_data;
 	void (*free_type_data)(void *type_data);
-
-	const char *(*get_codec)(void *data);
-	const char *(*get_protocol)(void *data);
 
 	const char *(*get_output_type)(void *data);
 

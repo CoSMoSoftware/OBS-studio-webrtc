@@ -31,6 +31,8 @@ set(win-decklink_HEADERS
 	../util.hpp
 	)
 
+set(MODULE_DESCRIPTION "OBS DeckLink Windows module")
+configure_file(${CMAKE_SOURCE_DIR}/cmake/winrc/obs-module.rc.in win-decklink.rc)
 set(win-decklink_SOURCES
 	../plugin-main.cpp
 	../decklink-devices.cpp
@@ -46,7 +48,7 @@ set(win-decklink_SOURCES
 	../audio-repack.c
 	platform.cpp
 	../util.cpp
-	)
+	win-decklink.rc)
 
 add_idl_files(win-decklink-sdk_GENERATED_FILES
 	${win-decklink-sdk_IDLS}
@@ -65,5 +67,6 @@ add_library(win-decklink MODULE
 
 target_link_libraries(win-decklink
 	libobs)
+set_target_properties(win-decklink PROPERTIES FOLDER "plugins")
 
 install_obs_plugin_with_data(win-decklink ../data)

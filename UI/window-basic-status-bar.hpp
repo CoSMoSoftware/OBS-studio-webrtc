@@ -15,8 +15,10 @@ class OBSBasicStatusBar : public QStatusBar {
 private:
 	QLabel *delayInfo;
 	QLabel *droppedFrames;
+	QLabel *streamIcon;
 	QLabel *streamTime;
 	QLabel *recordTime;
+	QLabel *recordIcon;
 	QLabel *cpuUsage;
 	QLabel *kbps;
 	QLabel *statusSquare;
@@ -27,6 +29,7 @@ private:
 	obs_output_t *recordOutput = nullptr;
 	bool active = false;
 	bool overloadedNotify = true;
+	bool streamPauseIconToggle = false;
 
 	int retries = 0;
 	int totalStreamSeconds = 0;
@@ -52,6 +55,13 @@ private:
 	QPixmap greenPixmap;
 	QPixmap grayPixmap;
 	QPixmap redPixmap;
+
+	QPixmap recordingActivePixmap;
+	QPixmap recordingPausePixmap;
+	QPixmap recordingPauseInactivePixmap;
+	QPixmap recordingInactivePixmap;
+	QPixmap streamingActivePixmap;
+	QPixmap streamingInactivePixmap;
 
 	float lastCongestion = 0.0f;
 
@@ -88,6 +98,8 @@ public:
 	void StreamStopped();
 	void RecordingStarted(obs_output_t *output);
 	void RecordingStopped();
+	void RecordingPaused();
+	void RecordingUnpaused();
 
 	void ReconnectClear();
 };

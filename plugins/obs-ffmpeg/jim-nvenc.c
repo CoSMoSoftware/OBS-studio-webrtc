@@ -81,18 +81,7 @@ struct nv_bitstream {
 	HANDLE event;
 };
 
-static inline bool nv_failed(struct nvenc_data *enc, NVENCSTATUS err,
-			     const char *func, const char *call)
-{
-	if (err == NV_ENC_SUCCESS)
-		return false;
-
-	error("%s: %s failed: %d (%s)", func, call, (int)err,
-	      nv_error_name(err));
-	return true;
-}
-
-#define NV_FAILED(x) nv_failed(enc, x, __FUNCTION__, #x)
+#define NV_FAILED(x) nv_failed(enc->encoder, x, __FUNCTION__, #x)
 
 static bool nv_bitstream_init(struct nvenc_data *enc, struct nv_bitstream *bs)
 {
@@ -240,8 +229,11 @@ static bool nvenc_update(void *data, obs_data_t *settings)
 		NV_ENC_RECONFIGURE_PARAMS params = {0};
 		params.version = NV_ENC_RECONFIGURE_PARAMS_VER;
 		params.reInitEncodeParams = enc->params;
+		params.resetEncoder = 1;
+		params.forceIDR = 1;
 
-		if (FAILED(nv.nvEncReconfigureEncoder(enc->session, &params))) {
+		if (NV_FAILED(nv.nvEncReconfigureEncoder(enc->session,
+							 &params))) {
 			return false;
 		}
 	}
@@ -397,7 +389,8 @@ static bool init_encoder(struct nvenc_data *enc, obs_data_t *settings)
 	err = nv.nvEncGetEncodePresetConfig(enc->session,
 					    NV_ENC_CODEC_H264_GUID, nv_preset,
 					    &preset_config);
-	if (nv_failed(enc, err, __FUNCTION__, "nvEncGetEncodePresetConfig")) {
+	if (nv_failed(enc->encoder, err, __FUNCTION__,
+		      "nvEncGetEncodePresetConfig")) {
 		return false;
 	}
 
@@ -436,9 +429,25 @@ static bool init_encoder(struct nvenc_data *enc, obs_data_t *settings)
 	vui_params->videoSignalTypePresentFlag = 1;
 	vui_params->videoFullRangeFlag = (voi->range == VIDEO_RANGE_FULL);
 	vui_params->colourDescriptionPresentFlag = 1;
-	vui_params->colourMatrix = (voi->colorspace == VIDEO_CS_709) ? 1 : 5;
-	vui_params->colourPrimaries = 1;
-	vui_params->transferCharacteristics = 1;
+
+	switch (voi->colorspace) {
+	case VIDEO_CS_601:
+		vui_params->colourPrimaries = 6;
+		vui_params->transferCharacteristics = 6;
+		vui_params->colourMatrix = 6;
+		break;
+	case VIDEO_CS_DEFAULT:
+	case VIDEO_CS_709:
+		vui_params->colourPrimaries = 1;
+		vui_params->transferCharacteristics = 1;
+		vui_params->colourMatrix = 1;
+		break;
+	case VIDEO_CS_SRGB:
+		vui_params->colourPrimaries = 1;
+		vui_params->transferCharacteristics = 13;
+		vui_params->colourMatrix = 1;
+		break;
+	}
 
 	enc->bframes = bf > 0;
 
@@ -446,6 +455,8 @@ static bool init_encoder(struct nvenc_data *enc, obs_data_t *settings)
 	if (lookahead && nv_get_cap(enc, NV_ENC_CAPS_SUPPORT_LOOKAHEAD)) {
 		config->rcParams.lookaheadDepth = 8;
 		config->rcParams.enableLookahead = 1;
+	} else {
+		lookahead = false;
 	}
 
 	/* psycho aq */
@@ -458,7 +469,8 @@ static bool init_encoder(struct nvenc_data *enc, obs_data_t *settings)
 	/* rate control               */
 
 	enc->can_change_bitrate =
-		nv_get_cap(enc, NV_ENC_CAPS_SUPPORT_DYN_BITRATE_CHANGE);
+		nv_get_cap(enc, NV_ENC_CAPS_SUPPORT_DYN_BITRATE_CHANGE) &&
+		!lookahead;
 
 	config->rcParams.rateControlMode = twopass ? NV_ENC_PARAMS_RC_VBR_HQ
 						   : NV_ENC_PARAMS_RC_VBR;
@@ -572,13 +584,19 @@ static void *nvenc_create(obs_data_t *settings, obs_encoder_t *encoder)
 	 * gpu other than the one OBS is currently running on. */
 	int gpu = (int)obs_data_get_int(settings, "gpu");
 	if (gpu != 0) {
+		info("different GPU selected by user, falling back to ffmpeg");
 		goto fail;
 	}
 
-	if (!obs_nv12_tex_active()) {
+	if (obs_encoder_scaling_enabled(encoder)) {
+		info("scaling enabled, falling back to ffmpeg");
 		goto fail;
 	}
-	if (!init_nvenc()) {
+	if (!obs_nv12_tex_active()) {
+		info("nv12 not active, falling back to ffmpeg");
+		goto fail;
+	}
+	if (!init_nvenc(encoder)) {
 		goto fail;
 	}
 	if (NV_FAILED(nv_create_instance(&init))) {
@@ -757,7 +775,8 @@ static bool get_encoded_packet(struct nvenc_data *enc, bool finalize)
 		if (nvtex->mapped_res) {
 			NVENCSTATUS err;
 			err = nv.nvEncUnmapInputResource(s, nvtex->mapped_res);
-			if (nv_failed(enc, err, __FUNCTION__, "unmap")) {
+			if (nv_failed(enc->encoder, err, __FUNCTION__,
+				      "unmap")) {
 				return false;
 			}
 			nvtex->mapped_res = NULL;
@@ -850,7 +869,8 @@ static bool nvenc_encode_tex(void *data, uint32_t handle, int64_t pts,
 
 	err = nv.nvEncEncodePicture(enc->session, &params);
 	if (err != NV_ENC_SUCCESS && err != NV_ENC_ERR_NEED_MORE_INPUT) {
-		nv_failed(enc, err, __FUNCTION__, "nvEncEncodePicture");
+		nv_failed(enc->encoder, err, __FUNCTION__,
+			  "nvEncEncodePicture");
 		return false;
 	}
 
@@ -926,7 +946,7 @@ struct obs_encoder_info nvenc_info = {
 	.id = "jim_nvenc",
 	.codec = "h264",
 	.type = OBS_ENCODER_VIDEO,
-	.caps = OBS_ENCODER_CAP_PASS_TEXTURE,
+	.caps = OBS_ENCODER_CAP_PASS_TEXTURE | OBS_ENCODER_CAP_DYN_BITRATE,
 	.get_name = nvenc_get_name,
 	.create = nvenc_create,
 	.destroy = nvenc_destroy,

@@ -13,6 +13,7 @@ endif()
 
 if(UNIX)
 	if (NOT APPLE)
+		find_package(X11 REQUIRED)
 		find_package(X11_XCB REQUIRED)
 		find_package(XCB OPTIONAL_COMPONENTS XINPUT)
 		if (XCB_XINPUT_FOUND)
@@ -74,19 +75,29 @@ endif()
 
 find_package(ZLIB REQUIRED)
 
-include_directories(SYSTEM ${ZLIB_INCLUDE_DIR})
+include_directories(SYSTEM ${ZLIB_INCLUDE_DIRS})
 
 add_definitions(-DLIBOBS_EXPORTS)
 
 include_directories(${OBS_JANSSON_INCLUDE_DIRS})
 
 if(WIN32)
+	set(MODULE_DESCRIPTION "OBS Library")
+	file(STRINGS obs-config.h _version_parse REGEX "^.*(MAJOR|MINOR|PATCH)_VER[ \t]+[0-9]+[ \t]*$")
+
+	string(REGEX REPLACE ".*MAJOR_VER[ \t]+([0-9]+).*" "\\1" UI_VERSION_MAJOR "${_version_parse}")
+	string(REGEX REPLACE ".*MINOR_VER[ \t]+([0-9]+).*" "\\1" UI_VERSION_MINOR "${_version_parse}")
+	string(REGEX REPLACE ".*PATCH_VER[ \t]+([0-9]+).*" "\\1" UI_VERSION_PATCH "${_version_parse}")
+	set(UI_VERSION "${UI_VERSION_MAJOR}.${UI_VERSION_MINOR}.${UI_VERSION_PATCH}")
+
+	configure_file(${CMAKE_SOURCE_DIR}/cmake/winrc/obs-module.rc.in libobs.rc)
 	set(libobs_PLATFORM_SOURCES
 		obs-win-crash-handler.c
 		obs-windows.c
 		util/threading-windows.c
 		util/pipe-windows.c
-		util/platform-windows.c)
+		util/platform-windows.c
+		libobs.rc)
 	set(libobs_PLATFORM_HEADERS
 		util/threading-windows.h
 		util/windows/win-registry.h
@@ -174,8 +185,20 @@ elseif(UNIX)
 		util/pipe-posix.c
 		util/platform-nix.c)
 
-	set(libobs_PLATFORM_HEADERS
-		util/threading-posix.h)
+	if(NEEDS_SIMDE)
+		set(libobs_PLATFORM_HEADERS
+			util/simde/check.h
+			util/simde/hedley.h
+			util/simde/mmx.h
+			util/simde/simde-arch.h
+			util/simde/simde-common.h
+			util/simde/sse.h
+			util/simde/sse2.h
+			util/threading-posix.h)
+	else()
+		set(libobs_PLATFORM_HEADERS
+			util/threading-posix.h)
+	endif()
 
 	if(HAVE_PULSEAUDIO)
 		set(libobs_audio_monitoring_HEADERS
@@ -199,11 +222,13 @@ elseif(UNIX)
 	endif()
 
 	include_directories(
+		${X11_X11_INCLUDE_PATH}
 		${X11_XCB_INCLUDE_DIRS})
 	add_definitions(
 		${X11_XCB_DEFINITIONS})
 	set(libobs_PLATFORM_DEPS
 		${libobs_PLATFORM_DEPS}
+		${X11_X11_LIB}
 		${X11_XCB_LIBRARIES})
 
 	if(USE_XINPUT)
@@ -278,6 +303,7 @@ set(libobs_graphics_SOURCES
 	graphics/math-extra.c
 	graphics/graphics-imports.c)
 set(libobs_graphics_HEADERS
+	graphics/half.h
 	graphics/plane.h
 	graphics/quat.h
 	graphics/input.h
@@ -337,17 +363,18 @@ set(libobs_util_SOURCES
 	util/cf-parser.c
 	util/profiler.c)
 set(libobs_util_HEADERS
+	util/curl/curl-helper.h
+	util/sse-intrin.h
+	util/sse2neon.h
 	util/array-serializer.h
 	util/file-serializer.h
 	util/utf8.h
 	util/crc32.h
 	util/base.h
 	util/text-lookup.h
-	util/vc/vc_inttypes.h
-	util/vc/vc_stdbool.h
-	util/vc/vc_stdint.h
 	util/bmem.h
 	util/c99defs.h
+	util/util_uint64.h
 	util/util_uint128.h
 	util/cf-parser.h
 	util/threading.h
@@ -453,11 +480,15 @@ if(UNIX AND NOT APPLE)
 	foreach(LIB "obs" "rt")
 		set(PRIVATE_LIBS "${PRIVATE_LIBS} -l${LIB}")
 	endforeach()
+	if(LOWERCASE_CMAKE_SYSTEM_PROCESSOR MATCHES "^(powerpc|ppc)64(le)?")
+		set(PPC64_CFLAGS "-DNO_WARN_X86_INTRINSICS -mvsx")
+	endif()
 	CONFIGURE_FILE("libobs.pc.in" "libobs.pc" @ONLY)
 	install(FILES "${CMAKE_CURRENT_BINARY_DIR}/libobs.pc" DESTINATION "${CMAKE_INSTALL_LIBDIR}/pkgconfig")
 endif()
 
 set_target_properties(libobs PROPERTIES
+	FOLDER "core"
 	OUTPUT_NAME obs
 	VERSION "0"
 	SOVERSION "0")
@@ -465,19 +496,9 @@ target_compile_definitions(libobs
 	PUBLIC
 		HAVE_OBSCONFIG_H)
 
-if(CMAKE_SYSTEM_PROCESSOR MATCHES "^(powerpc|ppc)64le")
-	target_compile_options(libobs
-		PUBLIC
-			-mvsx)
-	add_compile_definitions(NO_WARN_X86_INTRINSICS)
-elseif(NOT MSVC)
-	target_compile_options(libobs
-		PUBLIC
-			-mmmx
-			-msse
-			-msse2)
-endif()
-
+target_compile_options(libobs
+	PUBLIC
+	${ARCH_SIMD_FLAGS})
 
 target_compile_options(libobs
 	PUBLIC

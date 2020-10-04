@@ -114,8 +114,6 @@ void OBSPropertiesView::RefreshProperties()
 	widget->setLayout(layout);
 
 	QSizePolicy mainPolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-	QSizePolicy policy(QSizePolicy::Preferred, QSizePolicy::Preferred);
-	//widget->setSizePolicy(policy);
 
 	layout->setLabelAlignment(Qt::AlignRight);
 
@@ -235,10 +233,21 @@ QWidget *OBSPropertiesView::AddText(obs_property_t *prop, QFormLayout *layout,
 {
 	const char *name = obs_property_name(prop);
 	const char *val = obs_data_get_string(settings, name);
+	const bool monospace = obs_property_text_monospace(prop);
 	obs_text_type type = obs_property_text_type(prop);
 
 	if (type == OBS_TEXT_MULTILINE) {
 		QPlainTextEdit *edit = new QPlainTextEdit(QT_UTF8(val));
+#if QT_VERSION >= QT_VERSION_CHECK(5, 10, 0)
+		edit->setTabStopDistance(40);
+#else
+		edit->setTabStopWidth(40);
+#endif
+		if (monospace) {
+			QFont f("Courier");
+			f.setStyleHint(QFont::Monospace);
+			edit->setFont(f);
+		}
 		return NewWidget(prop, edit, SIGNAL(textChanged()));
 
 	} else if (type == OBS_TEXT_PASSWORD) {
@@ -577,14 +586,20 @@ void OBSPropertiesView::AddEditableList(obs_property_t *prop,
 	for (size_t i = 0; i < count; i++) {
 		obs_data_t *item = obs_data_array_item(array, i);
 		list->addItem(QT_UTF8(obs_data_get_string(item, "value")));
-		list->setItemSelected(list->item((int)i),
-				      obs_data_get_bool(item, "selected"));
-		list->setItemHidden(list->item((int)i),
-				    obs_data_get_bool(item, "hidden"));
+		QListWidgetItem *const list_item = list->item((int)i);
+		list_item->setSelected(obs_data_get_bool(item, "selected"));
+		list_item->setHidden(obs_data_get_bool(item, "hidden"));
 		obs_data_release(item);
 	}
 
 	WidgetInfo *info = new WidgetInfo(this, prop, list);
+
+	list->setDragDropMode(QAbstractItemView::InternalMove);
+	connect(list->model(),
+		SIGNAL(rowsMoved(QModelIndex, int, int, QModelIndex, int)),
+		info,
+		SLOT(EditListReordered(const QModelIndex &, int, int,
+				       const QModelIndex &, int)));
 
 	QVBoxLayout *sideLayout = new QVBoxLayout();
 	NewButton(sideLayout, info, "addIconSmall", &WidgetInfo::EditListAdd);
@@ -642,14 +657,15 @@ void OBSPropertiesView::AddColor(obs_property_t *prop, QFormLayout *layout,
 
 	QPalette palette = QPalette(color);
 	colorLabel->setFrameStyle(QFrame::Sunken | QFrame::Panel);
-	colorLabel->setText(color.name(QColor::HexArgb));
+	// The picker doesn't have an alpha option, show only RGB
+	colorLabel->setText(color.name(QColor::HexRgb));
 	colorLabel->setPalette(palette);
 	colorLabel->setStyleSheet(
 		QString("background-color :%1; color: %2;")
 			.arg(palette.color(QPalette::Window)
-				     .name(QColor::HexArgb))
+				     .name(QColor::HexRgb))
 			.arg(palette.color(QPalette::WindowText)
-				     .name(QColor::HexArgb)));
+				     .name(QColor::HexRgb)));
 	colorLabel->setAutoFillBackground(true);
 	colorLabel->setAlignment(Qt::AlignCenter);
 	colorLabel->setToolTip(QT_UTF8(obs_property_long_description(prop)));
@@ -668,7 +684,7 @@ void OBSPropertiesView::AddColor(obs_property_t *prop, QFormLayout *layout,
 	layout->addRow(label, subLayout);
 }
 
-static void MakeQFont(obs_data_t *font_obj, QFont &font, bool limit = false)
+void MakeQFont(obs_data_t *font_obj, QFont &font, bool limit = false)
 {
 	const char *face = obs_data_get_string(font_obj, "face");
 	const char *style = obs_data_get_string(font_obj, "style");
@@ -1426,6 +1442,49 @@ void OBSPropertiesView::AddProperty(obs_property_t *property,
 	if (!widget)
 		return;
 
+	if (obs_property_long_description(property)) {
+		bool lightTheme = palette().text().color().redF() < 0.5;
+		QString file = lightTheme ? ":/res/images/help.svg"
+					  : ":/res/images/help_light.svg";
+		if (label) {
+			QString lStr = "<html>%1 <img src='%2' style=' \
+				vertical-align: bottom;  \
+				' /></html>";
+
+			label->setText(lStr.arg(label->text(), file));
+			label->setToolTip(
+				obs_property_long_description(property));
+		} else if (type == OBS_PROPERTY_BOOL) {
+
+			QString bStr = "<html> <img src='%1' style=' \
+				vertical-align: bottom;  \
+				' /></html>";
+
+			const char *desc = obs_property_description(property);
+
+			QWidget *newWidget = new QWidget();
+
+			QHBoxLayout *boxLayout = new QHBoxLayout(newWidget);
+			boxLayout->setContentsMargins(0, 0, 0, 0);
+			boxLayout->setAlignment(Qt::AlignLeft);
+			boxLayout->setSpacing(0);
+
+			QCheckBox *check = qobject_cast<QCheckBox *>(widget);
+			check->setText(desc);
+			check->setToolTip(
+				obs_property_long_description(property));
+
+			QLabel *help = new QLabel(check);
+			help->setText(bStr.arg(file));
+			help->setToolTip(
+				obs_property_long_description(property));
+
+			boxLayout->addWidget(check);
+			boxLayout->addWidget(help);
+			widget = newWidget;
+		}
+	}
+
 	layout->addRow(label, widget);
 
 	if (!lastFocused.empty())
@@ -1586,18 +1645,14 @@ bool WidgetInfo::PathChanged(const char *setting)
 	QString path;
 
 	if (type == OBS_PATH_DIRECTORY)
-		path = QFileDialog::getExistingDirectory(
-			view, QT_UTF8(desc), QT_UTF8(default_path),
-			QFileDialog::ShowDirsOnly |
-				QFileDialog::DontResolveSymlinks);
+		path = SelectDirectory(view, QT_UTF8(desc),
+				       QT_UTF8(default_path));
 	else if (type == OBS_PATH_FILE)
-		path = QFileDialog::getOpenFileName(view, QT_UTF8(desc),
-						    QT_UTF8(default_path),
-						    QT_UTF8(filter));
+		path = OpenFile(view, QT_UTF8(desc), QT_UTF8(default_path),
+				QT_UTF8(filter));
 	else if (type == OBS_PATH_FILE_SAVE)
-		path = QFileDialog::getSaveFileName(view, QT_UTF8(desc),
-						    QT_UTF8(default_path),
-						    QT_UTF8(filter));
+		path = SaveFile(view, QT_UTF8(desc), QT_UTF8(default_path),
+				QT_UTF8(filter));
 
 	if (path.isEmpty())
 		return false;
@@ -1649,13 +1704,13 @@ bool WidgetInfo::ColorChanged(const char *setting)
 	long long val = obs_data_get_int(view->settings, setting);
 	QColor color = color_from_int(val);
 
-	QColorDialog::ColorDialogOptions options = 0;
+	QColorDialog::ColorDialogOptions options;
 
 	/* The native dialog on OSX has all kinds of problems, like closing
 	 * other open QDialogs on exit, and
 	 * https://bugreports.qt-project.org/browse/QTBUG-34532
 	 */
-#ifdef __APPLE__
+#ifndef _WIN32
 	options |= QColorDialog::DontUseNativeDialog;
 #endif
 
@@ -1666,14 +1721,14 @@ bool WidgetInfo::ColorChanged(const char *setting)
 		return false;
 
 	QLabel *label = static_cast<QLabel *>(widget);
-	label->setText(color.name(QColor::HexArgb));
+	label->setText(color.name(QColor::HexRgb));
 	QPalette palette = QPalette(color);
 	label->setPalette(palette);
 	label->setStyleSheet(QString("background-color :%1; color: %2;")
 				     .arg(palette.color(QPalette::Window)
-						  .name(QColor::HexArgb))
+						  .name(QColor::HexRgb))
 				     .arg(palette.color(QPalette::WindowText)
-						  .name(QColor::HexArgb)));
+						  .name(QColor::HexRgb)));
 
 	obs_data_set_int(view->settings, setting, color_to_int(color));
 
@@ -1689,7 +1744,7 @@ bool WidgetInfo::FontChanged(const char *setting)
 
 	QFontDialog::FontDialogOptions options;
 
-#ifdef __APPLE__
+#ifndef _WIN32
 	options = QFontDialog::DontUseNativeDialog;
 #endif
 
@@ -1735,6 +1790,19 @@ void WidgetInfo::GroupChanged(const char *setting)
 	obs_data_set_bool(view->settings, setting,
 			  groupbox->isCheckable() ? groupbox->isChecked()
 						  : true);
+}
+
+void WidgetInfo::EditListReordered(const QModelIndex &parent, int start,
+				   int end, const QModelIndex &destination,
+				   int row)
+{
+	UNUSED_PARAMETER(parent);
+	UNUSED_PARAMETER(start);
+	UNUSED_PARAMETER(end);
+	UNUSED_PARAMETER(destination);
+	UNUSED_PARAMETER(row);
+
+	EditableListChanged();
 }
 
 void WidgetInfo::EditableListChanged()
@@ -1820,7 +1888,7 @@ void WidgetInfo::ControlChanged()
 		break;
 	case OBS_PROPERTY_GROUP:
 		GroupChanged(setting);
-		return;
+		break;
 	}
 
 	if (view->callback && !view->deferUpdate)
@@ -1847,9 +1915,8 @@ class EditableItemDialog : public QDialog {
 		if (curPath.isEmpty())
 			curPath = default_path;
 
-		QString path = QFileDialog::getOpenFileName(
-			App()->GetMainWindow(), QTStr("Browse"), curPath,
-			filter);
+		QString path = OpenFile(App()->GetMainWindow(), QTStr("Browse"),
+					curPath, filter);
 		if (path.isEmpty())
 			return;
 
@@ -1968,9 +2035,8 @@ void WidgetInfo::EditListAddFiles()
 	QString title = QTStr("Basic.PropertiesWindow.AddEditableListFiles")
 				.arg(QT_UTF8(desc));
 
-	QStringList files = QFileDialog::getOpenFileNames(
-		App()->GetMainWindow(), title, QT_UTF8(default_path),
-		QT_UTF8(filter));
+	QStringList files = OpenFiles(App()->GetMainWindow(), title,
+				      QT_UTF8(default_path), QT_UTF8(filter));
 
 	if (files.count() == 0)
 		return;
@@ -1989,8 +2055,8 @@ void WidgetInfo::EditListAddDir()
 	QString title = QTStr("Basic.PropertiesWindow.AddEditableListDir")
 				.arg(QT_UTF8(desc));
 
-	QString dir = QFileDialog::getExistingDirectory(
-		App()->GetMainWindow(), title, QT_UTF8(default_path));
+	QString dir = SelectDirectory(App()->GetMainWindow(), title,
+				      QT_UTF8(default_path));
 
 	if (dir.isEmpty())
 		return;
@@ -2028,15 +2094,11 @@ void WidgetInfo::EditListEdit()
 		QString path;
 
 		if (pathDir.exists())
-			path = QFileDialog::getExistingDirectory(
-				App()->GetMainWindow(), QTStr("Browse"),
-				item->text(),
-				QFileDialog::ShowDirsOnly |
-					QFileDialog::DontResolveSymlinks);
+			path = SelectDirectory(App()->GetMainWindow(),
+					       QTStr("Browse"), item->text());
 		else
-			path = QFileDialog::getOpenFileName(
-				App()->GetMainWindow(), QTStr("Browse"),
-				item->text(), QT_UTF8(filter));
+			path = OpenFile(App()->GetMainWindow(), QTStr("Browse"),
+					item->text(), QT_UTF8(filter));
 
 		if (path.isEmpty())
 			return;

@@ -17,6 +17,7 @@
 
 #include <inttypes.h>
 #include "util/platform.h"
+#include "util/util_uint64.h"
 #include "obs.h"
 #include "obs-internal.h"
 
@@ -541,10 +542,21 @@ static inline void end_pause(struct pause_data *pause, uint64_t ts)
 static inline uint64_t get_closest_v_ts(struct pause_data *pause)
 {
 	uint64_t interval = obs->video.video_frame_interval_ns;
+	uint64_t i2 = interval * 2;
 	uint64_t ts = os_gettime_ns();
 
 	return pause->last_video_ts +
-	       ((ts - pause->last_video_ts + interval) / interval) * interval;
+	       ((ts - pause->last_video_ts + i2) / interval) * interval;
+}
+
+static inline bool pause_can_start(struct pause_data *pause)
+{
+	return !pause->ts_start && !pause->ts_end;
+}
+
+static inline bool pause_can_stop(struct pause_data *pause)
+{
+	return !!pause->ts_start && !pause->ts_end;
 }
 
 static bool obs_encoded_output_pause(obs_output_t *output, bool pause)
@@ -552,6 +564,7 @@ static bool obs_encoded_output_pause(obs_output_t *output, bool pause)
 	obs_encoder_t *venc;
 	obs_encoder_t *aenc[MAX_AUDIO_MIXES];
 	uint64_t closest_v_ts;
+	bool success = false;
 
 	venc = output->video_encoder;
 	for (size_t i = 0; i < MAX_AUDIO_MIXES; i++)
@@ -569,6 +582,15 @@ static bool obs_encoded_output_pause(obs_output_t *output, bool pause)
 	closest_v_ts = get_closest_v_ts(&venc->pause);
 
 	if (pause) {
+		if (!pause_can_start(&venc->pause)) {
+			goto fail;
+		}
+		for (size_t i = 0; i < MAX_AUDIO_MIXES; i++) {
+			if (aenc[i] && !pause_can_start(&aenc[i]->pause)) {
+				goto fail;
+			}
+		}
+
 		os_atomic_set_bool(&venc->paused, true);
 		venc->pause.ts_start = closest_v_ts;
 
@@ -579,6 +601,15 @@ static bool obs_encoded_output_pause(obs_output_t *output, bool pause)
 			}
 		}
 	} else {
+		if (!pause_can_stop(&venc->pause)) {
+			goto fail;
+		}
+		for (size_t i = 0; i < MAX_AUDIO_MIXES; i++) {
+			if (aenc[i] && !pause_can_stop(&aenc[i]->pause)) {
+				goto fail;
+			}
+		}
+
 		os_atomic_set_bool(&venc->paused, false);
 		end_pause(&venc->pause, closest_v_ts);
 
@@ -592,6 +623,9 @@ static bool obs_encoded_output_pause(obs_output_t *output, bool pause)
 
 	/* ---------------------------- */
 
+	success = true;
+
+fail:
 	for (size_t i = MAX_AUDIO_MIXES; i > 0; i--) {
 		if (aenc[i - 1]) {
 			pthread_mutex_unlock(&aenc[i - 1]->pause.mutex);
@@ -599,7 +633,7 @@ static bool obs_encoded_output_pause(obs_output_t *output, bool pause)
 	}
 	pthread_mutex_unlock(&venc->pause.mutex);
 
-	return true;
+	return success;
 }
 
 static bool obs_raw_output_pause(obs_output_t *output, bool pause)
@@ -610,11 +644,11 @@ static bool obs_raw_output_pause(obs_output_t *output, bool pause)
 	pthread_mutex_lock(&output->pause.mutex);
 	closest_v_ts = get_closest_v_ts(&output->pause);
 	if (pause) {
-		success = !output->pause.ts_start;
+		success = pause_can_start(&output->pause);
 		if (success)
 			output->pause.ts_start = closest_v_ts;
 	} else {
-		success = !!output->pause.ts_start;
+		success = pause_can_stop(&output->pause);
 		if (success)
 			end_pause(&output->pause, closest_v_ts);
 	}
@@ -773,6 +807,13 @@ void obs_output_set_video_encoder(obs_output_t *output, obs_encoder_t *encoder)
 				  "encoder passed is not a video encoder");
 		return;
 	}
+	if (active(output)) {
+		blog(LOG_WARNING,
+		     "%s: tried to set video encoder on output \"%s\" "
+		     "while the output is still active!",
+		     __FUNCTION__, output->context.name);
+		return;
+	}
 
 	if (output->video_encoder == encoder)
 		return;
@@ -796,6 +837,13 @@ void obs_output_set_audio_encoder(obs_output_t *output, obs_encoder_t *encoder,
 	if (encoder && encoder->info.type != OBS_ENCODER_AUDIO) {
 		blog(LOG_WARNING, "obs_output_set_audio_encoder: "
 				  "encoder passed is not an audio encoder");
+		return;
+	}
+	if (active(output)) {
+		blog(LOG_WARNING,
+		     "%s: tried to set audio encoder %d on output \"%s\" "
+		     "while the output is still active!",
+		     __FUNCTION__, (int)idx, output->context.name);
 		return;
 	}
 
@@ -872,30 +920,6 @@ void obs_output_set_reconnect_settings(obs_output_t *output, int retry_count,
 
 	output->reconnect_retry_max = retry_count;
 	output->reconnect_retry_sec = retry_sec;
-}
-
-// NOTE LUDO: #80 add getStats
-void obs_output_get_stats(const obs_output_t *output)
-{
-  if (!obs_output_valid(output, "obs_output_get_stats"))
-    return;
-  if (!output->info.get_stats)
-    return;
-
-  if (delay_active(output) && !delay_capturing(output))
-    return;
-
-  output->info.get_stats(output->context.data);
-}
-
-const char *obs_output_get_stats_list(const obs_output_t *output)
-{
-  if (!obs_output_valid(output, "obs_output_get_stats_list"))
-    return NULL;
-  if (!output->info.get_stats_list)
-    return NULL;
-
-  return output->info.get_stats_list(output->context.data);
 }
 
 uint64_t obs_output_get_total_bytes(const obs_output_t *output)
@@ -1008,26 +1032,9 @@ void obs_output_set_audio_conversion(
 	output->audio_conversion_set = true;
 }
 
-static inline bool service_supports_multitrack(const struct obs_output *output)
-{
-	const struct obs_service *service = output->service;
-
-	if (!service || !service->info.supports_multitrack) {
-		return false;
-	}
-
-	return service->info.supports_multitrack(service->context.data);
-}
-
 static inline size_t num_audio_mixes(const struct obs_output *output)
 {
 	size_t mix_count = 1;
-
-	if ((output->info.flags & OBS_OUTPUT_SERVICE) != 0) {
-		if (!service_supports_multitrack(output)) {
-			return 1;
-		}
-	}
 
 	if ((output->info.flags & OBS_OUTPUT_MULTI_TRACK) != 0) {
 		mix_count = 0;
@@ -1722,8 +1729,8 @@ static bool prepare_audio(struct obs_output *output,
 	*new = *old;
 
 	if (old->timestamp < output->video_start_ts) {
-		uint64_t duration = (uint64_t)old->frames * 1000000000 /
-				    (uint64_t)output->sample_rate;
+		uint64_t duration = util_mul_div64(old->frames, 1000000000ULL,
+						   output->sample_rate);
 		uint64_t end_ts = (old->timestamp + duration);
 		uint64_t cutoff;
 
@@ -1733,7 +1740,8 @@ static bool prepare_audio(struct obs_output *output,
 		cutoff = output->video_start_ts - old->timestamp;
 		new->timestamp += cutoff;
 
-		cutoff = cutoff * (uint64_t)output->sample_rate / 1000000000;
+		cutoff = util_mul_div64(cutoff, output->sample_rate,
+					1000000000ULL);
 
 		for (size_t i = 0; i < output->planes; i++)
 			new->data[i] += output->audio_size *(uint32_t)cutoff;
@@ -1970,6 +1978,9 @@ static inline bool initialize_audio_encoders(obs_output_t *output,
 {
 	for (size_t i = 0; i < num_mixes; i++) {
 		if (!obs_encoder_initialize(output->audio_encoders[i])) {
+			obs_output_set_last_error(
+				output, obs_encoder_get_last_error(
+						output->audio_encoders[i]));
 			return false;
 		}
 	}
@@ -2029,8 +2040,12 @@ bool obs_output_initialize_encoders(obs_output_t *output, uint32_t flags)
 
 	if (!encoded)
 		return false;
-	if (has_video && !obs_encoder_initialize(output->video_encoder))
+	if (has_video && !obs_encoder_initialize(output->video_encoder)) {
+		obs_output_set_last_error(
+			output,
+			obs_encoder_get_last_error(output->video_encoder));
 		return false;
+	}
 	if (has_audio && !initialize_audio_encoders(output, num_mixes))
 		return false;
 
@@ -2059,32 +2074,36 @@ static bool begin_delayed_capture(obs_output_t *output)
 
 static void reset_raw_output(obs_output_t *output)
 {
-	const struct audio_output_info *aoi =
-		audio_output_get_info(output->audio);
-	struct audio_convert_info conv = output->audio_conversion;
-	struct audio_convert_info info = {
-		aoi->samples_per_sec,
-		aoi->format,
-		aoi->speakers,
-	};
-
 	clear_audio_buffers(output);
 
-	if (output->audio_conversion_set) {
-		if (conv.samples_per_sec)
-			info.samples_per_sec = conv.samples_per_sec;
-		if (conv.format != AUDIO_FORMAT_UNKNOWN)
-			info.format = conv.format;
-		if (conv.speakers != SPEAKERS_UNKNOWN)
-			info.speakers = conv.speakers;
+	if (output->audio) {
+		const struct audio_output_info *aoi =
+			audio_output_get_info(output->audio);
+		struct audio_convert_info conv = output->audio_conversion;
+		struct audio_convert_info info = {
+			aoi->samples_per_sec,
+			aoi->format,
+			aoi->speakers,
+		};
+
+		if (output->audio_conversion_set) {
+			if (conv.samples_per_sec)
+				info.samples_per_sec = conv.samples_per_sec;
+			if (conv.format != AUDIO_FORMAT_UNKNOWN)
+				info.format = conv.format;
+			if (conv.speakers != SPEAKERS_UNKNOWN)
+				info.speakers = conv.speakers;
+		}
+
+		output->sample_rate = info.samples_per_sec;
+		output->planes = get_audio_planes(info.format, info.speakers);
+		output->total_audio_frames = 0;
+		output->audio_size =
+			get_audio_size(info.format, info.speakers, 1);
 	}
 
 	output->audio_start_ts = 0;
 	output->video_start_ts = 0;
-	output->sample_rate = info.samples_per_sec;
-	output->planes = get_audio_planes(info.format, info.speakers);
-	output->total_audio_frames = 0;
-	output->audio_size = get_audio_size(info.format, info.speakers, 1);
 
 	pause_reset(&output->pause);
 }

@@ -178,10 +178,13 @@ void gs_vertex_shader::Rebuild(ID3D11Device *dev)
 	if (FAILED(hr))
 		throw HRError("Failed to create vertex shader", hr);
 
-	hr = dev->CreateInputLayout(layoutData.data(), (UINT)layoutData.size(),
-				    data.data(), data.size(), &layout);
-	if (FAILED(hr))
-		throw HRError("Failed to create input layout", hr);
+	const UINT layoutSize = (UINT)layoutData.size();
+	if (layoutSize > 0) {
+		hr = dev->CreateInputLayout(layoutData.data(), layoutSize,
+					    data.data(), data.size(), &layout);
+		if (FAILED(hr))
+			throw HRError("Failed to create input layout", hr);
+	}
 
 	if (constantSize) {
 		hr = dev->CreateBuffer(&bd, NULL, &constants);
@@ -299,9 +302,6 @@ void gs_texture_3d::Rebuild(ID3D11Device *dev)
 	if (FAILED(hr))
 		throw HRError("Failed to create resource view", hr);
 
-	if (isRenderTarget)
-		InitRenderTargets();
-
 	acquired = false;
 
 	if ((td.MiscFlags & D3D11_RESOURCE_MISC_SHARED_KEYEDMUTEX) != 0) {
@@ -337,7 +337,6 @@ const static D3D_FEATURE_LEVEL featureLevels[] = {
 	D3D_FEATURE_LEVEL_11_0,
 	D3D_FEATURE_LEVEL_10_1,
 	D3D_FEATURE_LEVEL_10_0,
-	D3D_FEATURE_LEVEL_9_3,
 };
 
 void gs_device::RebuildDevice()
@@ -348,6 +347,9 @@ try {
 	blog(LOG_WARNING, "Device Remove/Reset!  Rebuilding all assets...");
 
 	/* ----------------------------------------------------------------- */
+
+	for (gs_device_loss &callback : loss_callbacks)
+		callback.device_loss_release(callback.data);
 
 	gs_obj *obj = first_obj;
 
@@ -405,6 +407,7 @@ try {
 		state.Release();
 
 	context->ClearState();
+	context->Flush();
 
 	context.Release();
 	device.Release();
@@ -507,9 +510,12 @@ try {
 	for (auto &state : blendStates)
 		state.Rebuild(dev);
 
+	for (gs_device_loss &callback : loss_callbacks)
+		callback.device_loss_rebuild(device.Get(), callback.data);
+
 } catch (const char *error) {
 	bcrash("Failed to recreate D3D11: %s", error);
 
-} catch (HRError error) {
+} catch (const HRError &error) {
 	bcrash("Failed to recreate D3D11: %s (%08lX)", error.str, error.hr);
 }

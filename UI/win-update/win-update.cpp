@@ -20,7 +20,14 @@
 #include <winhttp.h>
 #include <shellapi.h>
 
+#ifdef BROWSER_AVAILABLE
+#include <browser-panel.hpp>
+#endif
+
 using namespace std;
+
+struct QCef;
+extern QCef *cef;
 
 /* ------------------------------------------------------------------------ */
 
@@ -146,7 +153,7 @@ try {
 
 	return true;
 
-} catch (string text) {
+} catch (string &text) {
 	blog(LOG_WARNING, "%s: %s", __FUNCTION__, text.c_str());
 	return false;
 }
@@ -174,7 +181,7 @@ try {
 
 	return true;
 
-} catch (string text) {
+} catch (string &text) {
 	blog(LOG_WARNING, "%s: %s", __FUNCTION__, text.c_str());
 	return false;
 }
@@ -229,7 +236,7 @@ try {
 
 	return true;
 
-} catch (string text) {
+} catch (string &text) {
 	blog(LOG_DEBUG, "%s: %s", __FUNCTION__, text.c_str());
 	return false;
 }
@@ -267,14 +274,14 @@ static bool VerifyDigitalSignature(uint8_t *buf, size_t len, uint8_t *sig,
 
 	if (!CryptDecodeObjectEx(X509_ASN_ENCODING, X509_PUBLIC_KEY_INFO,
 				 binaryKey, binaryKeyLen,
-				 CRYPT_ENCODE_ALLOC_FLAG, nullptr, &publicPBLOB,
+				 CRYPT_DECODE_ALLOC_FLAG, nullptr, &publicPBLOB,
 				 &iPBLOBSize))
 		return false;
 
 	if (!CryptDecodeObjectEx(X509_ASN_ENCODING, RSA_CSP_PUBLICKEYBLOB,
 				 publicPBLOB->PublicKey.pbData,
 				 publicPBLOB->PublicKey.cbData,
-				 CRYPT_ENCODE_ALLOC_FLAG, nullptr,
+				 CRYPT_DECODE_ALLOC_FLAG, nullptr,
 				 &rsaPublicBLOB, &rsaPublicBLOBSize))
 		return false;
 
@@ -332,7 +339,7 @@ try {
 
 	return true;
 
-} catch (string text) {
+} catch (string &text) {
 	blog(LOG_WARNING, "%s: %s", __FUNCTION__, text.c_str());
 	return false;
 }
@@ -346,7 +353,7 @@ try {
 	vector<string> extraHeaders;
 
 	BPtr<char> updateFilePath =
-		GetConfigPathPtr(((std::string)CONFIG_DIR + "\\updates\\updater.exe").c_str());
+		GetConfigPathPtr("obs-webrtc\\updates\\updater.exe");
 
 	if (CalculateFileHash(updateFilePath, updateFileHash)) {
 		char hashString[BLAKE2_HASH_STR_LENGTH];
@@ -384,7 +391,7 @@ try {
 
 	return true;
 
-} catch (string text) {
+} catch (string &text) {
 	blog(LOG_WARNING, "%s: %s", __FUNCTION__, text.c_str());
 	return false;
 }
@@ -430,7 +437,7 @@ try {
 
 	return true;
 
-} catch (string text) {
+} catch (string &text) {
 	blog(LOG_WARNING, "%s: %s", __FUNCTION__, text.c_str());
 	return false;
 }
@@ -503,26 +510,6 @@ int AutoUpdateThread::queryUpdate(bool localManualUpdate, const char *text_utf8)
 	return ret;
 }
 
-static bool IsFileInUse(const wstring &file)
-{
-	WinHandle f = CreateFile(file.c_str(), GENERIC_WRITE, 0, nullptr,
-				 OPEN_EXISTING, 0, nullptr);
-	if (!f.Valid()) {
-		int err = GetLastError();
-		if (err == ERROR_SHARING_VIOLATION ||
-		    err == ERROR_LOCK_VIOLATION)
-			return true;
-	}
-
-	return false;
-}
-
-static bool IsGameCaptureInUse()
-{
-	wstring path = L"..\\..\\data\\obs-plugins\\win-capture\\graphics-hook";
-	return IsFileInUse(path + L"32.dll") || IsFileInUse(path + L"64.dll");
-}
-
 void AutoUpdateThread::run()
 try {
 	long responseCode;
@@ -544,30 +531,7 @@ try {
 	} finishedTrigger;
 
 	BPtr<char> manifestPath =
-		GetConfigPathPtr(((std::string)CONFIG_DIR + "\\updates\\manifest.json").c_str());
-
-	auto ActiveOrGameCaptureLocked = [this]() {
-		if (obs_video_active()) {
-			if (manualUpdate)
-				info(QTStr("Updater.Running.Title"),
-				     QTStr("Updater.Running.Text"));
-			return true;
-		}
-		if (IsGameCaptureInUse()) {
-			if (manualUpdate)
-				info(QTStr("Updater.GameCaptureActive.Title"),
-				     QTStr("Updater.GameCaptureActive.Text"));
-			return true;
-		}
-
-		return false;
-	};
-
-	/* ----------------------------------- *
-	 * warn if running or gc locked        */
-
-	if (ActiveOrGameCaptureLocked())
-		return;
+		GetConfigPathPtr("obs-studio\\updates\\manifest.json");
 
 	/* ----------------------------------- *
 	 * create signature provider           */
@@ -666,12 +630,6 @@ try {
 		return;
 
 	/* ----------------------------------- *
-	 * warn again if running or gc locked  */
-
-	if (ActiveOrGameCaptureLocked())
-		return;
-
-	/* ----------------------------------- *
 	 * fetch updater module                */
 
 	if (!FetchUpdaterModule(WIN_UPDATER_URL))
@@ -709,7 +667,7 @@ try {
 	 * execute updater                     */
 
 	BPtr<char> updateFilePath =
-		GetConfigPathPtr(((std::string)CONFIG_DIR + "\\updates\\updater.exe").c_str());
+		GetConfigPathPtr("obs-studio\\updates\\updater.exe");
 	BPtr<wchar_t> wUpdateFilePath;
 
 	size_t size = os_utf8_to_wcs_ptr(updateFilePath, 0, &wUpdateFilePath);
@@ -750,7 +708,7 @@ try {
 
 	QMetaObject::invokeMethod(App()->GetMainWindow(), "close");
 
-} catch (string text) {
+} catch (string &text) {
 	blog(LOG_WARNING, "%s: %s", __FUNCTION__, text.c_str());
 }
 
@@ -768,7 +726,7 @@ try {
 	bool success;
 
 	BPtr<char> whatsnewPath =
-		GetConfigPathPtr(((std::string)CONFIG_DIR + "\\updates\\whatsnew.json").c_str());
+		GetConfigPathPtr("obs-studio\\updates\\whatsnew.json");
 
 	/* ----------------------------------- *
 	 * create signature provider           */
@@ -845,6 +803,16 @@ try {
 
 	emit Result(QString::fromUtf8(text.c_str()));
 
-} catch (string text) {
+} catch (string &text) {
 	blog(LOG_WARNING, "%s: %s", __FUNCTION__, text.c_str());
+}
+
+/* ------------------------------------------------------------------------ */
+
+void WhatsNewBrowserInitThread::run()
+{
+#ifdef BROWSER_AVAILABLE
+	cef->wait_for_browser_init();
+#endif
+	emit Result(url);
 }

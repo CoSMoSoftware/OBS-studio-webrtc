@@ -15,8 +15,6 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ******************************************************************************/
 
-/* Copyright Dr. Alex. Gouaillard (2015, 2020) */
-
 #include "util/bmem.h"
 #include "util/darray.h"
 #include "obs-internal.h"
@@ -57,6 +55,7 @@ struct path_data {
 
 struct text_data {
 	enum obs_text_type type;
+	bool monospace;
 };
 
 struct list_data {
@@ -95,13 +94,6 @@ struct group_data {
 	obs_properties_t *content;
 };
 
-// NOTE LUDO: #172 codecs list of radio buttons
-struct button_group_data {
-        DARRAY(struct list_item) items;
-        enum obs_button_group_type      type;
-        enum obs_button_group_format    format;
-};
-
 static inline void path_data_free(struct path_data *data)
 {
 	bfree(data->default_path);
@@ -113,24 +105,6 @@ static inline void editable_list_data_free(struct editable_list_data *data)
 {
 	bfree(data->default_path);
 	bfree(data->filter);
-}
-
-// NOTE LUDO: Clickable items replacement
-static inline void button_group_item_free(struct button_group_data *data,
-                struct list_item *item)
-{
-        bfree(item->name);
-        if (data->format == OBS_BUTTON_GROUP_FORMAT_STRING)
-                bfree(item->str);
-}
-
-// NOTE LUDO: Clickable items replacement
-static inline void button_group_data_free(struct button_group_data *data)
-{
-        for (size_t i = 0; i < data->items.num; i++)
-                button_group_item_free(data, data->items.array+i);
-
-        da_free(data->items);
 }
 
 static inline void list_item_free(struct list_data *data,
@@ -269,10 +243,7 @@ static void obs_property_destroy(struct obs_property *property)
 {
 	if (property->type == OBS_PROPERTY_LIST)
 		list_data_free(get_property_data(property));
-        // NOTE LUDO: Clickable items replacement
-        else if (property->type == OBS_PROPERTY_BUTTON_GROUP)
-                button_group_data_free(get_property_data(property));
-        else if (property->type == OBS_PROPERTY_PATH)
+	else if (property->type == OBS_PROPERTY_PATH)
 		path_data_free(get_property_data(property));
 	else if (property->type == OBS_PROPERTY_EDITABLE_LIST)
 		editable_list_data_free(get_property_data(property));
@@ -360,10 +331,38 @@ void obs_properties_remove_by_name(obs_properties_t *props, const char *name)
 
 	while (cur) {
 		if (strcmp(cur->name, name) == 0) {
+			// Fix props->last pointer.
+			if (props->last == &cur->next) {
+				if (cur == prev) {
+					// If we are the last entry and there
+					// is no previous entry, reset.
+					props->last = &props->first_property;
+				} else {
+					// If we are the last entry and there
+					// is a previous entry, update.
+					props->last = &prev->next;
+				}
+			}
+
+			// Fix props->first_property.
+			if (props->first_property == cur)
+				props->first_property = cur->next;
+
+			// Update the previous element next pointer with our
+			// next pointer. This is an automatic no-op if both
+			// elements alias the same memory.
 			prev->next = cur->next;
-			cur->next = 0;
+
+			// Finally clear our own next pointer and destroy.
+			cur->next = NULL;
 			obs_property_destroy(cur);
+
 			break;
+		}
+
+		if (cur->type == OBS_PROPERTY_GROUP) {
+			obs_properties_remove_by_name(
+				obs_property_group_content(cur), name);
 		}
 
 		prev = cur;
@@ -371,22 +370,34 @@ void obs_properties_remove_by_name(obs_properties_t *props, const char *name)
 	}
 }
 
-void obs_properties_apply_settings(obs_properties_t *props,
-				   obs_data_t *settings)
+void obs_properties_apply_settings_internal(obs_properties_t *props,
+					    obs_data_t *settings,
+					    obs_properties_t *realprops)
 {
 	struct obs_property *p;
 
+	p = props->first_property;
+	while (p) {
+		if (p->type == OBS_PROPERTY_GROUP) {
+			obs_properties_apply_settings_internal(
+				obs_property_group_content(p), settings,
+				realprops);
+		}
+		if (p->modified)
+			p->modified(realprops, p, settings);
+		else if (p->modified2)
+			p->modified2(p->priv, realprops, p, settings);
+		p = p->next;
+	}
+}
+
+void obs_properties_apply_settings(obs_properties_t *props,
+				   obs_data_t *settings)
+{
 	if (!props)
 		return;
 
-	p = props->first_property;
-	while (p) {
-		if (p->modified)
-			p->modified(props, p, settings);
-		else if (p->modified2)
-			p->modified2(p->priv, props, p, settings);
-		p = p->next;
-	}
+	obs_properties_apply_settings_internal(props, settings, props);
 }
 
 /* ------------------------------------------------------------------------- */
@@ -415,9 +426,6 @@ static inline size_t get_property_size(enum obs_property_type type)
 		return sizeof(struct path_data);
 	case OBS_PROPERTY_LIST:
 		return sizeof(struct list_data);
-        // NOTE LUDO: Clickable items replacement
-        case OBS_PROPERTY_BUTTON_GROUP:
-                return sizeof(struct button_group_data);
 	case OBS_PROPERTY_COLOR:
 		return 0;
 	case OBS_PROPERTY_BUTTON:
@@ -636,22 +644,6 @@ obs_property_t *obs_properties_add_list(obs_properties_t *props,
 	return p;
 }
 
-// NOTE LUDO: Clickable items replacement
-obs_property_t *obs_properties_add_button_group(obs_properties_t *props,
-                const char *name, const char *desc,
-                enum obs_button_group_type type,
-                enum obs_button_group_format format)
-{
-        if (!props || has_prop(props, name)) return NULL;
-
-        struct obs_property *p = new_prop(props, name, desc, OBS_PROPERTY_BUTTON_GROUP);
-        struct button_group_data *data = get_property_data(p);
-        data->format = format;
-        data->type   = type;
-
-        return p;
-}
-
 obs_property_t *obs_properties_add_color(obs_properties_t *props,
 					 const char *name, const char *desc)
 {
@@ -809,12 +801,6 @@ static inline bool is_combo(struct obs_property *p)
 	return p->type == OBS_PROPERTY_LIST;
 }
 
-// NOTE LUDO: Clickable items replacement
-static inline bool is_button_group(struct obs_property *p)
-{
-        return p->type == OBS_PROPERTY_BUTTON_GROUP;
-}
-
 static inline struct list_data *get_list_data(struct obs_property *p)
 {
 	if (!p || !is_combo(p))
@@ -823,27 +809,10 @@ static inline struct list_data *get_list_data(struct obs_property *p)
 	return get_property_data(p);
 }
 
-// NOTE LUDO: #172 codecs list of radio buttons
-static inline struct button_group_data *get_button_group_data(struct obs_property *p)
-{
-        if (!p || !is_button_group(p))
-                return NULL;
-
-        return get_property_data(p);
-}
-
 static inline struct list_data *get_list_fmt_data(struct obs_property *p,
 						  enum obs_combo_format format)
 {
 	struct list_data *data = get_list_data(p);
-	return (data && data->format == format) ? data : NULL;
-}
-
-// NOTE LUDO: #172 codecs list of radio buttons
-static inline struct button_group_data *get_button_group_fmt_data(struct obs_property *p,
-		enum obs_button_group_format format)
-{
-	struct button_group_data *data = get_button_group_data(p);
 	return (data && data->format == format) ? data : NULL;
 }
 
@@ -1033,6 +1002,12 @@ enum obs_text_type obs_property_text_type(obs_property_t *p)
 	return data ? data->type : OBS_TEXT_DEFAULT;
 }
 
+enum obs_text_type obs_property_text_monospace(obs_property_t *p)
+{
+	struct text_data *data = get_type_data(p, OBS_PROPERTY_TEXT);
+	return data ? data->monospace : false;
+}
+
 enum obs_path_type obs_property_path_type(obs_property_t *p)
 {
 	struct path_data *data = get_type_data(p, OBS_PROPERTY_PATH);
@@ -1055,20 +1030,6 @@ enum obs_combo_type obs_property_list_type(obs_property_t *p)
 {
 	struct list_data *data = get_list_data(p);
 	return data ? data->type : OBS_COMBO_TYPE_INVALID;
-}
-
-// NOTE LUDO: Clickable items replacement
-enum obs_button_group_type obs_property_button_group_type(obs_property_t *p)
-{
-        struct button_group_data *data = get_button_group_data(p);
-        return data ? data->type : OBS_BUTTON_GROUP_TYPE_INVALID;
-}
-
-// NOTE LUDO: Clickable items replacement
-enum obs_button_group_format obs_property_button_group_format(obs_property_t *p)
-{
-        struct button_group_data *data = get_button_group_data(p);
-        return data ? data->format : OBS_BUTTON_GROUP_FORMAT_INVALID;
 }
 
 enum obs_combo_format obs_property_list_format(obs_property_t *p)
@@ -1120,6 +1081,15 @@ void obs_property_float_set_suffix(obs_property_t *p, const char *suffix)
 	data->suffix = bstrdup(suffix);
 }
 
+void obs_property_text_set_monospace(obs_property_t *p, bool monospace)
+{
+	struct text_data *data = get_type_data(p, OBS_PROPERTY_TEXT);
+	if (!data)
+		return;
+
+	data->monospace = monospace;
+}
+
 void obs_property_list_clear(obs_property_t *p)
 {
 	struct list_data *data = get_list_data(p);
@@ -1141,19 +1111,6 @@ static size_t add_item(struct list_data *data, const char *name,
 		item.str = bstrdup(val);
 
 	return da_push_back(data->items, &item);
-}
-
-// NOTE LUDO: Clickable items replacement
-static size_t add_radio_button(struct button_group_data *data, const char *name,
-                const void *val)
-{
-        struct list_item item = { NULL };
-        item.name  = bstrdup(name);
-
-  // only string format is supported
-  item.str = bstrdup(val);
-
-        return da_push_back(data->items, &item);
 }
 
 static void insert_item(struct list_data *data, size_t idx, const char *name,
@@ -1179,16 +1136,6 @@ size_t obs_property_list_add_string(obs_property_t *p, const char *name,
 	if (data && data->format == OBS_COMBO_FORMAT_STRING)
 		return add_item(data, name, val);
 	return 0;
-}
-
-// NOTE LUDO: Clickable items replacement
-size_t obs_property_button_group_add_string(obs_property_t *p,
-                const char *name, const char *val)
-{
-        struct button_group_data *data = get_button_group_data(p);
-        if (data && data->format == OBS_BUTTON_GROUP_FORMAT_STRING)
-                return add_radio_button(data, name, val);
-        return 0;
 }
 
 size_t obs_property_list_add_int(obs_property_t *p, const char *name,
@@ -1248,13 +1195,6 @@ size_t obs_property_list_item_count(obs_property_t *p)
 	return data ? data->items.num : 0;
 }
 
-// NOTE LUDO: #172 codecs list of radio buttons
-size_t obs_property_button_group_item_count(obs_property_t *p)
-{
-	struct button_group_data *data = get_button_group_data(p);
-	return data ? data->items.num : 0;
-}
-
 bool obs_property_list_item_disabled(obs_property_t *p, size_t idx)
 {
 	struct list_data *data = get_list_data(p);
@@ -1278,27 +1218,11 @@ const char *obs_property_list_item_name(obs_property_t *p, size_t idx)
 					       : NULL;
 }
 
-// NOTE LUDO: #172 codecs list of radio buttons
-const char *obs_property_button_group_item_name(obs_property_t *p, size_t idx)
-{
-	struct button_group_data *data = get_button_group_data(p);
-	return (data && idx < data->items.num) ?
-		data->items.array[idx].name : NULL;
-}
-
 const char *obs_property_list_item_string(obs_property_t *p, size_t idx)
 {
 	struct list_data *data = get_list_fmt_data(p, OBS_COMBO_FORMAT_STRING);
 	return (data && idx < data->items.num) ? data->items.array[idx].str
 					       : NULL;
-}
-
-// NOTE LUDO: #172 codecs list of radio buttons
-const char *obs_property_button_group_item_string(obs_property_t *p, size_t idx)
-{
-	struct button_group_data *data = get_button_group_fmt_data(p, OBS_BUTTON_GROUP_FORMAT_STRING);
-	return (data && idx < data->items.num) ?
-		data->items.array[idx].str : NULL;
 }
 
 long long obs_property_list_item_int(obs_property_t *p, size_t idx)

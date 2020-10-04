@@ -12,6 +12,7 @@
 /*   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the            */
 /*   GNU General Public License for more details.                             */
 /*                                                                            */
+/*                                                                            */
 /*   You should have received a copy of the GNU General Public License        */
 /*   along with this program.  If not, see <http://www.gnu.org/licenses/>.    */
 /******************************************************************************/
@@ -118,6 +119,11 @@ SourceTree QLineEdit {
 
 /* Dock Widget */
 
+QDockWidget {
+	titlebar-close-icon: url('./Dark/close.svg');
+	titlebar-normal-icon: url('./Dark/popout.svg');
+}
+
 QDockWidget::title {
     text-align: center;
     background-color: rgb(70,69,70);
@@ -214,6 +220,19 @@ QScrollBar::left-arrow:horizontal, QScrollBar::right-arrow:horizontal, QScrollBa
     color: none;
 }
 
+/* Source Context */
+#contextContainer QPushButton[themeID2=contextBarButton] {
+    padding: 3px;
+    margin: 0px;
+}
+
+#contextContainer QPushButton#sourcePropertiesButton {
+    qproperty-icon: url(./Dark/settings/general.svg);
+}
+
+#contextContainer QPushButton#sourceFiltersButton {
+    qproperty-icon: url(./Dark/filter.svg);
+}
 
 /* Scenes and Sources toolbar */
 
@@ -528,8 +547,9 @@ QSlider::add-page:vertical:disabled {
     border-radius: 2px;
 }
 
-QSlider::handle:hover {
-    background-color: rgb(200,199,200); /* veryLight */
+QSlider::add-page:vertical:disabled {
+    background-color: rgb(50, 49, 50); /* dark */
+    border-radius: 2px;
 }
 
 QSlider::handle:disabled {
@@ -715,7 +735,7 @@ LockedCheckBox::indicator:unchecked {
     image: url(:res/images/unlocked.svg);
 }
 
-/* Visibilty CheckBox */
+/* Visibility CheckBox */
 
 VisibilityCheckBox {
     outline: none;
@@ -736,4 +756,126 @@ VisibilityCheckBox::indicator:unchecked {
 
 * [themeID="revertIcon"] {
     qproperty-icon: url(./Dark/revert.svg);
+}
+
+QPushButton#extraPanelDelete {
+    background-color: rgb(31, 30, 31);
+}
+
+QPushButton#extraPanelDelete:hover {
+    background-color: rgb(122,121,122);
+}
+
+QPushButton#extraPanelDelete:pressed {
+    background-color: rgb(31,30,31);
+}
+
+/* Source Icons */
+
+OBSBasic {
+    qproperty-imageIcon: url(./Dark/sources/image.svg);
+    qproperty-colorIcon: url(./Dark/sources/brush.svg);
+    qproperty-slideshowIcon: url(./Dark/sources/slideshow.svg);
+    qproperty-audioInputIcon: url(./Dark/sources/microphone.svg);
+    qproperty-audioOutputIcon: url(./Dark/settings/audio.svg);
+    qproperty-desktopCapIcon: url(./Dark/settings/video.svg);
+    qproperty-windowCapIcon: url(./Dark/sources/window.svg);
+    qproperty-gameCapIcon: url(./Dark/sources/gamepad.svg);
+    qproperty-cameraIcon: url(./Dark/sources/camera.svg);
+    qproperty-textIcon: url(./Dark/sources/text.svg);
+    qproperty-mediaIcon: url(./Dark/sources/media.svg);
+    qproperty-browserIcon: url(./Dark/sources/globe.svg);
+    qproperty-groupIcon: url(./Dark/sources/group.svg);
+    qproperty-sceneIcon: url(./Dark/sources/scene.svg);
+    qproperty-defaultIcon: url(./Dark/sources/default.svg);
+}
+
+/* Scene Tree */
+
+SceneTree {
+    qproperty-gridItemWidth: 150;
+	qproperty-gridItemHeight: 27;
+}
+
+*[gridMode="true"] SceneTree::item {
+    color: rgb(225,224,225); /* veryLight */
+    background-color: rgb(76,76,76);
+    border: none;
+    border-radius: 3px;
+    padding: 4px;
+	padding-left: 10px;
+	padding-right: 10px;
+	margin: 1px;
+}
+
+*[gridMode="true"] SceneTree::item:selected {
+    background-color: rgb(122,121,122); /* light */
+}
+
+*[gridMode="true"] SceneTree::item:hover {
+    background-color: rgb(122,121,122); /* light */
+}
+
+*[gridMode="true"] SceneTree::item:pressed {
+    background-color: rgb(31,30,31); /* veryDark */
+}
+
+*[gridMode="true"] SceneTree::item:checked {
+    background-color: rgb(122,121,122); /* light */
+}
+
+/* Save icon */
+
+* [themeID="replayIconSmall"] {
+    qproperty-icon: url(./Dark/save.svg);
+}
+
+/* Studio Mode T-Bar */
+
+QSlider[themeID="tBarSlider"] {
+	height: 24px;
+}
+
+QSlider::groove:horizontal[themeID="tBarSlider"] {
+	border: 1px solid #4c4c4c;
+	height: 5px;
+	background: rgb(31,30,31);
+}
+
+QSlider::sub-page:horizontal[themeID="tBarSlider"] {
+	background: rgb(31,30,31);;
+	border: 1px solid #4c4c4c;
+}
+
+QSlider::handle:horizontal[themeID="tBarSlider"] {
+	background-color: #d2d2d2;
+	width: 12px;
+	height: 24px;
+	margin: -24px 0px;
+}
+
+/* Media icons */
+
+* [themeID="playIcon"] {
+    qproperty-icon: url(./Dark/media/media_play.svg);
+}
+
+* [themeID="pauseIcon"] {
+    qproperty-icon: url(./Dark/media/media_pause.svg);
+}
+
+* [themeID="restartIcon"] {
+    qproperty-icon: url(./Dark/media/media_restart.svg);
+}
+
+* [themeID="stopIcon"] {
+    qproperty-icon: url(./Dark/media/media_stop.svg);
+}
+
+* [themeID="nextIcon"] {
+    qproperty-icon: url(./Dark/media/media_next.svg);
+}
+
+* [themeID="previousIcon"] {
+    qproperty-icon: url(./Dark/media/media_previous.svg);
 }

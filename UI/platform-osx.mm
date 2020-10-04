@@ -41,13 +41,13 @@ bool GetDataFilePath(const char *data, string &output)
 			[NSRunningApplication currentApplication];
 		NSURL *bundleURL = [app bundleURL];
 		NSString *path = [NSString
-			stringWithFormat:@"Contents/Resources/data/%@/%@",
-					 [NSString stringWithUTF8String:config_dir.c_str()], [NSString stringWithUTF8String:data]];
+			stringWithFormat:@"Contents/Resources/data/obs-studio/%@",
+					 [NSString stringWithUTF8String:data]];
 		NSURL *dataURL = [bundleURL URLByAppendingPathComponent:path];
 		output = [[dataURL path] UTF8String];
 	} else {
 		stringstream str;
-		str << OBS_DATA_PATH "/" << config_dir << "/" << data;
+		str << OBS_DATA_PATH "/obs-studio/" << data;
 		output = str.str();
 	}
 
@@ -148,10 +148,18 @@ void SetAlwaysOnTop(QWidget *window, bool enable)
 {
 	Qt::WindowFlags flags = window->windowFlags();
 
-	if (enable)
+	if (enable) {
+		/* Force the level of the window high so it sits on top of
+		 * full-screen applications like Keynote */
+		NSView *nsv = (__bridge NSView *)reinterpret_cast<void *>(
+			window->winId());
+		NSWindow *nsw = nsv.window;
+		[nsw setLevel:1024];
+
 		flags |= Qt::WindowStaysOnTopHint;
-	else
+	} else {
 		flags &= ~Qt::WindowStaysOnTopHint;
+	}
 
 	window->setWindowFlags(flags);
 	window->show();
@@ -195,4 +203,33 @@ void EnableOSXDockIcon(bool enable)
 	else
 		[NSApp setActivationPolicy:
 				NSApplicationActivationPolicyProhibited];
+}
+
+/*
+ * This custom NSApplication subclass makes the app compatible with CEF. Qt
+ * also has an NSApplication subclass, but it doesn't conflict thanks to Qt
+ * using arcane magic to hook into the NSApplication superclass itself if the
+ * program has its own NSApplication subclass.
+ */
+
+@protocol CrAppProtocol
+- (BOOL)isHandlingSendEvent;
+@end
+
+@interface OBSApplication : NSApplication <CrAppProtocol>
+@property (nonatomic, getter=isHandlingSendEvent) BOOL handlingSendEvent;
+@end
+
+@implementation OBSApplication
+- (void)sendEvent:(NSEvent *)event
+{
+	_handlingSendEvent = YES;
+	[super sendEvent:event];
+	_handlingSendEvent = NO;
+}
+@end
+
+void InstallNSApplicationSubclass()
+{
+	[OBSApplication sharedApplication];
 }

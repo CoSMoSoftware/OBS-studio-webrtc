@@ -21,7 +21,6 @@
 
 #include <QCloseEvent>
 #include <QDirIterator>
-#include <QFileDialog>
 #include <QItemDelegate>
 #include <QLineEdit>
 #include <QMessageBox>
@@ -112,6 +111,9 @@ QWidget *RemuxEntryPathItemDelegate::createEditor(
 				    QSizePolicy::ControlType::LineEdit));
 		layout->addWidget(text);
 
+		QObject::connect(text, SIGNAL(editingFinished()), this,
+				 SLOT(updateText()));
+
 		QToolButton *browseButton = new QToolButton();
 		browseButton->setText("...");
 		browseButton->setSizePolicy(buttonSizePolicy);
@@ -143,8 +145,6 @@ void RemuxEntryPathItemDelegate::setEditorData(QWidget *editor,
 {
 	QLineEdit *text = editor->findChild<QLineEdit *>();
 	text->setText(index.data().toString());
-	QObject::connect(text, SIGNAL(textEdited(QString)), this,
-			 SLOT(updateText()));
 	editor->setProperty(PATH_LIST_PROP, QVariant());
 }
 
@@ -192,7 +192,7 @@ void RemuxEntryPathItemDelegate::paint(QPainter *painter,
 		if (state != Ready) {
 			QColor background = localOption.palette.color(
 				QPalette::ColorGroup::Disabled,
-				QPalette::ColorRole::Background);
+				QPalette::ColorRole::Window);
 
 			localOption.backgroundBrush = QBrush(background);
 		}
@@ -215,9 +215,9 @@ void RemuxEntryPathItemDelegate::handleBrowse(QWidget *container)
 
 	bool isSet = false;
 	if (isOutput) {
-		QString newPath = QFileDialog::getSaveFileName(
-			container, QTStr("Remux.SelectTarget"), currentPath,
-			OutputPattern);
+		QString newPath = SaveFile(container,
+					   QTStr("Remux.SelectTarget"),
+					   currentPath, OutputPattern);
 
 		if (!newPath.isEmpty()) {
 			container->setProperty(PATH_LIST_PROP,
@@ -225,7 +225,7 @@ void RemuxEntryPathItemDelegate::handleBrowse(QWidget *container)
 			isSet = true;
 		}
 	} else {
-		QStringList paths = QFileDialog::getOpenFileNames(
+		QStringList paths = OpenFiles(
 			container, QTStr("Remux.SelectRecording"), currentPath,
 			QTStr("Remux.OBSRecording") + QString(" ") +
 				InputPattern);
@@ -461,6 +461,7 @@ void RemuxQueueModel::checkInputPath(int row)
 	if (entry.sourcePath.isEmpty()) {
 		entry.state = RemuxEntryState::Empty;
 	} else {
+		entry.sourcePath = QDir::toNativeSeparators(entry.sourcePath);
 		QFileInfo fileInfo(entry.sourcePath);
 		if (fileInfo.exists())
 			entry.state = RemuxEntryState::Ready;
@@ -468,8 +469,9 @@ void RemuxQueueModel::checkInputPath(int row)
 			entry.state = RemuxEntryState::InvalidPath;
 
 		if (entry.state == RemuxEntryState::Ready)
-			entry.targetPath = fileInfo.path() + QDir::separator() +
-					   fileInfo.completeBaseName() + ".mp4";
+			entry.targetPath = QDir::toNativeSeparators(
+				fileInfo.path() + QDir::separator() +
+				fileInfo.completeBaseName() + ".mp4");
 	}
 
 	if (entry.state == RemuxEntryState::Ready && isProcessing)

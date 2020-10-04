@@ -4,6 +4,10 @@ set(coreaudio-encoder_SOURCES
 	encoder.cpp)
 
 if (WIN32)
+	set(MODULE_DESCRIPTION "OBS Core Audio encoder")
+	configure_file(${CMAKE_SOURCE_DIR}/cmake/winrc/obs-module.rc.in coreaudio-encoder.rc)
+	list(APPEND coreaudio-encoder_SOURCES
+		coreaudio-encoder.rc)
 	set(coreaudio-encoder_HEADERS windows-imports.h)
 	set(coreaudio-encoder_LIBS )
 
@@ -33,5 +37,6 @@ add_library(coreaudio-encoder MODULE
 target_link_libraries(coreaudio-encoder
 	libobs
 	${coreaudio-encoder_LIBS})
+set_target_properties(coreaudio-encoder PROPERTIES FOLDER "plugins")
 
 install_obs_plugin_with_data(coreaudio-encoder data)

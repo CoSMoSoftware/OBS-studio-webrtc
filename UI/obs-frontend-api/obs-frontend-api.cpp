@@ -142,6 +142,18 @@ void obs_frontend_set_transition_duration(int duration)
 		c->obs_frontend_set_transition_duration(duration);
 }
 
+void obs_frontend_release_tbar(void)
+{
+	if (callbacks_valid())
+		c->obs_frontend_release_tbar();
+}
+
+void obs_frontend_set_tbar_position(int position)
+{
+	if (callbacks_valid())
+		c->obs_frontend_set_tbar_position(position);
+}
+
 char **obs_frontend_get_scene_collections(void)
 {
 	if (!callbacks_valid())
@@ -327,6 +339,13 @@ config_t *obs_frontend_get_global_config(void)
 				   : nullptr;
 }
 
+void obs_frontend_open_projector(const char *type, int monitor,
+				 const char *geometry, const char *name)
+{
+	if (callbacks_valid())
+		c->obs_frontend_open_projector(type, monitor, geometry, name);
+}
+
 void obs_frontend_save(void)
 {
 	if (callbacks_valid())
@@ -443,4 +462,16 @@ void obs_frontend_set_current_preview_scene(obs_source_t *scene)
 {
 	if (callbacks_valid())
 		c->obs_frontend_set_current_preview_scene(scene);
+}
+
+void obs_frontend_take_screenshot(void)
+{
+	if (callbacks_valid())
+		c->obs_frontend_take_screenshot();
+}
+
+void obs_frontend_take_source_screenshot(obs_source_t *source)
+{
+	if (callbacks_valid())
+		c->obs_frontend_take_source_screenshot(source);
 }

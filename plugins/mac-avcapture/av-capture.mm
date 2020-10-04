@@ -442,11 +442,11 @@ static inline video_colorspace get_colorspace(CMFormatDescriptionRef desc)
 		return VIDEO_CS_DEFAULT;
 
 	if (CFStringCompare(static_cast<CFStringRef>(matrix),
-			    kCVImageBufferYCbCrMatrix_ITU_R_709_2,
+			    kCVImageBufferYCbCrMatrix_ITU_R_601_4,
 			    0) == kCFCompareEqualTo)
-		return VIDEO_CS_709;
+		return VIDEO_CS_601;
 
-	return VIDEO_CS_601;
+	return VIDEO_CS_709;
 }
 
 static inline bool update_colorspace(av_capture *capture,
@@ -2194,6 +2194,7 @@ bool obs_module_load(void)
 		.get_defaults = av_capture_defaults,
 		.get_properties = av_capture_properties,
 		.update = av_capture_update,
+		.icon_type = OBS_ICON_TYPE_CAMERA,
 	};
 
 	obs_register_source(&av_capture_info);

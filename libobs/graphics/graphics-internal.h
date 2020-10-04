@@ -34,6 +34,7 @@ struct gs_exports {
 	void (*device_destroy)(gs_device_t *device);
 	void (*device_enter_context)(gs_device_t *device);
 	void (*device_leave_context)(gs_device_t *device);
+	void *(*device_get_device_obj)(gs_device_t *device);
 	gs_swapchain_t *(*device_swapchain_create)(
 		gs_device_t *device, const struct gs_init_data *data);
 	void (*device_resize)(gs_device_t *device, uint32_t x, uint32_t y);
@@ -310,6 +311,10 @@ struct gs_exports {
 	gs_stagesurf_t *(*device_stagesurface_create_nv12)(gs_device_t *device,
 							   uint32_t width,
 							   uint32_t height);
+	void (*device_register_loss_callbacks)(
+		gs_device_t *device, const struct gs_device_loss *callbacks);
+	void (*device_unregister_loss_callbacks)(gs_device_t *device,
+						 void *data);
 #endif
 };
 

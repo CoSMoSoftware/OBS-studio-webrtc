@@ -78,7 +78,7 @@ void VolControl::updateText()
 	float db = obs_fader_get_db(obs_fader);
 
 	if (db < -96.0f)
-		text = "-" + QT_UTF8("\u221E") + " dB";
+		text = "-inf dB";
 	else
 		text = QString::number(db, 'f', 1).append(" dB");
 
@@ -274,6 +274,11 @@ VolControl::VolControl(OBSSource source_, bool showConfig, bool vertical)
 
 	/* Call volume changed once to init the slider position and label */
 	VolumeChanged();
+}
+
+void VolControl::EnableSlider(bool enable)
+{
+	slider->setEnabled(enable);
 }
 
 VolControl::~VolControl()
@@ -488,7 +493,7 @@ void VolumeMeter::setPeakMeterType(enum obs_peak_meter_type peakMeterType)
 		// processing required by lossy audio compression.
 		//
 		// The alignment level was not specified, but I've adjusted
-		// it compared to a sample-peak meter. Incidently Youtube
+		// it compared to a sample-peak meter. Incidentally Youtube
 		// uses this new Alignment Level as the maximum integrated
 		// loudness of a video.
 		//
@@ -514,6 +519,7 @@ void VolumeMeter::setPeakMeterType(enum obs_peak_meter_type peakMeterType)
 void VolumeMeter::mousePressEvent(QMouseEvent *event)
 {
 	setFocus(Qt::MouseFocusReason);
+	event->accept();
 }
 
 void VolumeMeter::wheelEvent(QWheelEvent *event)
@@ -556,7 +562,8 @@ VolumeMeter::VolumeMeter(QWidget *parent, obs_volmeter_t *obs_volmeter,
 	updateTimerRef = updateTimer.toStrongRef();
 	if (!updateTimerRef) {
 		updateTimerRef = QSharedPointer<VolumeMeterTimer>::create();
-		updateTimerRef->start(34);
+		updateTimerRef->setTimerType(Qt::PreciseTimer);
+		updateTimerRef->start(16);
 		updateTimer = updateTimerRef;
 	}
 
@@ -869,7 +876,7 @@ void VolumeMeter::paintHMeter(QPainter &painter, int x, int y, int width,
 		painter.fillRect(peakPosition, y,
 				 maximumPosition - peakPosition, height,
 				 backgroundErrorColor);
-	} else {
+	} else if (int(magnitude) != 0) {
 		if (!clipping) {
 			QTimer::singleShot(CLIP_FLASH_DURATION_MS, this,
 					   SLOT(ClipEnding()));

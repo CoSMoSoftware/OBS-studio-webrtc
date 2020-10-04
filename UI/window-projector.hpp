@@ -34,10 +34,11 @@ private:
 
 	void mousePressEvent(QMouseEvent *event) override;
 	void mouseDoubleClickEvent(QMouseEvent *event) override;
+	void closeEvent(QCloseEvent *event) override;
 
-	int savedMonitor;
-	bool isWindow;
-	QString projectorTitle;
+	bool isAlwaysOnTop;
+	bool isAlwaysOnTopOverridden = false;
+	int savedMonitor = -1;
 	ProjectorType type = ProjectorType::Source;
 	std::vector<OBSWeakSource> multiviewScenes;
 	std::vector<OBSSource> multiviewLabels;
@@ -73,17 +74,32 @@ private:
 	void UpdateMultiview();
 	void UpdateProjectorTitle(QString name);
 
+	QRect prevGeometry;
+	void SetMonitor(int monitor);
+
+	QScreen *screen = nullptr;
+
 private slots:
 	void EscapeTriggered();
+	void OpenFullScreenProjector();
+	void ResizeToContent();
+	void OpenWindowedProjector();
+	void AlwaysOnTopToggled(bool alwaysOnTop);
+	void ScreenRemoved(QScreen *screen_);
 
 public:
 	OBSProjector(QWidget *widget, obs_source_t *source_, int monitor,
-		     QString title, ProjectorType type_);
+		     ProjectorType type_);
 	~OBSProjector();
 
 	OBSSource GetSource();
 	ProjectorType GetProjectorType();
 	int GetMonitor();
 	static void UpdateMultiviewProjectors();
-	static void RenameProjector(QString oldName, QString newName);
+	void RenameProjector(QString oldName, QString newName);
+	void SetHideCursor();
+
+	bool IsAlwaysOnTop() const;
+	bool IsAlwaysOnTopOverridden() const;
+	void SetIsAlwaysOnTop(bool isAlwaysOnTop, bool isOverridden);
 };

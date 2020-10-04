@@ -11,9 +11,12 @@ set(glad_SOURCES
 	include/glad/glad.h)
 
 if(WIN32)
+	set(MODULE_DESCRIPTION "Glad OpenGL Loading Library")
+	configure_file(${CMAKE_SOURCE_DIR}/cmake/winrc/obs-module.rc.in obsglad.rc)
 	set(glad_PLATFORM_SOURCES
 		src/glad_wgl.c
-		include/glad/glad_wgl.h)
+		include/glad/glad_wgl.h
+		obsglad.rc)
 elseif(NOT APPLE)
 	set(glad_PLATFORM_SOURCES
 		src/glad_glx.c
@@ -32,9 +35,11 @@ add_library(glad SHARED
 	${glad_SOURCES}
 	${glad_PLATFORM_SOURCES})
 set_target_properties(glad PROPERTIES
+	FOLDER "deps"
 	OUTPUT_NAME obsglad
 	VERSION "0"
-	SOVERSION "0")
+	SOVERSION "0"
+	POSITION_INDEPENDENT_CODE ON)
 target_include_directories(glad
 	PUBLIC include
 	${glad_include_dirs})
@@ -44,9 +49,6 @@ target_compile_definitions(glad
 if(NOT MSVC)
 	target_compile_options(glad
 		PRIVATE -DPIC -fvisibility=hidden)
-	if(NOT MINGW)
-		target_compile_options(glad PRIVATE -fPIC)
-	endif()
 endif()
 
 if(NOT WIN32 AND NOT APPLE)

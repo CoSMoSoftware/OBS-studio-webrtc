@@ -65,7 +65,7 @@ void add_default_module_paths(void)
 			[NSRunningApplication currentApplication];
 		NSURL *bundleURL = [app bundleURL];
 		NSURL *pluginsURL = [bundleURL
-			URLByAppendingPathComponent:@"Contents/Plugins"];
+			URLByAppendingPathComponent:@"Contents/PlugIns"];
 		NSURL *dataURL = [bundleURL
 			URLByAppendingPathComponent:
 				@"Contents/Resources/data/obs-plugins/%module%"];
@@ -155,17 +155,17 @@ static void log_available_memory(void)
 static void log_os_name(id pi, SEL UTF8StringSel)
 {
 	typedef int (*os_func)(id, SEL);
- 	os_func operatingSystem = (os_func)objc_msgSend;
- 	unsigned long os_id = (unsigned long)operatingSystem(
+	os_func operatingSystem = (os_func)objc_msgSend;
+	unsigned long os_id = (unsigned long)operatingSystem(
 		pi, sel_registerName("operatingSystem"));
 
-        typedef id (*os_name_func)(id, SEL);
- 	os_name_func operatingSystemName = (os_name_func)objc_msgSend;
- 	id os = operatingSystemName(pi,
- 				    sel_registerName("operatingSystemName"));
- 	typedef const char *(*utf8_func)(id, SEL);
- 	utf8_func UTF8String = (utf8_func)objc_msgSend;
- 	const char *name = UTF8String(os, UTF8StringSel);
+	typedef id (*os_name_func)(id, SEL);
+	os_name_func operatingSystemName = (os_name_func)objc_msgSend;
+	id os = operatingSystemName(pi,
+				    sel_registerName("operatingSystemName"));
+	typedef const char *(*utf8_func)(id, SEL);
+	utf8_func UTF8String = (utf8_func)objc_msgSend;
+	const char *name = UTF8String(os, UTF8StringSel);
 
 	if (os_id == 5 /*NSMACHOperatingSystem*/) {
 		blog(LOG_INFO, "OS Name: Mac OS X (%s)", name);
@@ -175,26 +175,37 @@ static void log_os_name(id pi, SEL UTF8StringSel)
 	blog(LOG_INFO, "OS Name: %s", name ? name : "Unknown");
 }
 
+static bool using_10_15_or_above = true;
+
 static void log_os_version(id pi, SEL UTF8StringSel)
 {
-        typedef id (*version_func)(id, SEL);
-        version_func operatingSystemVersionString = (version_func)objc_msgSend;
-        id vs = operatingSystemVersionString(
-	       	pi, sel_registerName("operatingSystemVersionString"));
- 	typedef const char *(*utf8_func)(id, SEL);
- 	utf8_func UTF8String = (utf8_func)objc_msgSend;
- 	const char *version = UTF8String(vs, UTF8StringSel);
+	typedef id (*version_func)(id, SEL);
+	version_func operatingSystemVersionString = (version_func)objc_msgSend;
+	id vs = operatingSystemVersionString(
+		pi, sel_registerName("operatingSystemVersionString"));
+	typedef const char *(*utf8_func)(id, SEL);
+	utf8_func UTF8String = (utf8_func)objc_msgSend;
+	const char *version = UTF8String(vs, UTF8StringSel);
 
 	blog(LOG_INFO, "OS Version: %s", version ? version : "Unknown");
+
+	if (version) {
+		int major;
+		int minor;
+
+		int count = sscanf(version, "Version %d.%d", &major, &minor);
+		if (count == 2 && major == 10) {
+			using_10_15_or_above = minor >= 15;
+		}
+	}
 }
 
 static void log_os(void)
 {
 	Class NSProcessInfo = objc_getClass("NSProcessInfo");
-
-        typedef id (*func)(id, SEL);
- 	func processInfo = (func)objc_msgSend;
- 	id pi = processInfo((id)NSProcessInfo, sel_registerName("processInfo"));
+	typedef id (*func)(id, SEL);
+	func processInfo = (func)objc_msgSend;
+	id pi = processInfo((id)NSProcessInfo, sel_registerName("processInfo"));
 
 	SEL UTF8String = sel_registerName("UTF8String");
 
@@ -240,6 +251,7 @@ static bool dstr_from_cfstring(struct dstr *str, CFStringRef ref)
 
 struct obs_hotkeys_platform {
 	volatile long refs;
+	bool secure_input_activated;
 	TISInputSourceRef tis;
 	CFDataRef layout_data;
 	UCKeyboardLayout *layout;
@@ -1728,10 +1740,10 @@ static bool mouse_button_pressed(obs_key_t key, bool *pressed)
 
 	Class NSEvent = objc_getClass("NSEvent");
 	SEL pressedMouseButtonsSel = sel_registerName("pressedMouseButtons");
-        typedef int (*func)(id, SEL);
-        func pressedMouseButtons = (func)objc_msgSend;
+	typedef int (*func)(id, SEL);
+	func pressedMouseButtons = (func)objc_msgSend;
 	NSUInteger buttons = (NSUInteger)pressedMouseButtons(
-                 (id)NSEvent, pressedMouseButtonsSel);
+		(id)NSEvent, pressedMouseButtonsSel);
 
 	*pressed = (buttons & (1 << button)) != 0;
 	return true;
@@ -1750,10 +1762,27 @@ bool obs_hotkeys_platform_is_pressed(obs_hotkeys_platform_t *plat,
 	if (key >= OBS_KEY_LAST_VALUE)
 		return false;
 
+	/* if secure input is activated, kill hotkeys.
+	 *
+	 * TODO: rewrite all mac hotkey code, suspect there's a bug in 10.15
+	 * causing the crash internally.  */
+	if (plat->secure_input_activated) {
+		return false;
+	}
+
 	for (size_t i = 0; i < plat->keys[key].num;) {
 		IOHIDElementRef element = plat->keys[key].array[i];
 		IOHIDValueRef value = 0;
 		IOHIDDeviceRef device = IOHIDElementGetDevice(element);
+
+		if (device == NULL) {
+			continue;
+		}
+
+		if (using_10_15_or_above && IsSecureEventInputEnabled()) {
+			plat->secure_input_activated = true;
+			return false;
+		}
 
 		if (IOHIDDeviceGetValue(device, element, &value) !=
 		    kIOReturnSuccess) {
@@ -1774,4 +1803,18 @@ bool obs_hotkeys_platform_is_pressed(obs_hotkeys_platform_t *plat,
 	}
 
 	return false;
+}
+
+void *obs_graphics_thread_autorelease(void *param)
+{
+	@autoreleasepool {
+		return obs_graphics_thread(param);
+	}
+}
+
+bool obs_graphics_thread_loop_autorelease(struct obs_graphics_context *context)
+{
+	@autoreleasepool {
+		return obs_graphics_thread_loop(context);
+	}
 }
