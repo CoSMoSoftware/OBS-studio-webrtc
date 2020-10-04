@@ -7,6 +7,7 @@ include_directories(${LIBCURL_INCLUDE_DIRS})
 include_directories(${OBS_JANSSON_INCLUDE_DIRS})
 
 set(rtmp-services_SOURCES
+	rtmp-services-main.c
 	twitch.c
 	younow.c
 	nimotv.c

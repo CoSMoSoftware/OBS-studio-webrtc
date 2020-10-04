@@ -1859,6 +1859,8 @@ EXPORT obs_service_t *obs_output_get_service(const obs_output_t *output);
 EXPORT void obs_output_set_reconnect_settings(obs_output_t *output,
 					      int retry_count, int retry_sec);
 
+EXPORT void obs_output_get_stats(const obs_output_t *output);
+EXPORT const char *obs_output_get_stats_list(const obs_output_t *output);
 EXPORT uint64_t obs_output_get_total_bytes(const obs_output_t *output);
 EXPORT int obs_output_get_frames_dropped(const obs_output_t *output);
 EXPORT int obs_output_get_total_frames(const obs_output_t *output);
@@ -2188,11 +2190,20 @@ EXPORT const char *obs_service_get_url(const obs_service_t *service);
 /** Returns the stream key (if any) for this service context */
 EXPORT const char *obs_service_get_key(const obs_service_t *service);
 
+/** Returns the room name (if any) for this service context */
+EXPORT const char *obs_service_get_room(const obs_service_t *service);
+
 /** Returns the username (if any) for this service context */
 EXPORT const char *obs_service_get_username(const obs_service_t *service);
 
 /** Returns the password (if any) for this service context */
 EXPORT const char *obs_service_get_password(const obs_service_t *service);
+
+/** Returns the video codec name for this service context */
+EXPORT const char *obs_service_get_codec(const obs_service_t *service);
+
+/** Returns the protocol for this service context */
+EXPORT const char *obs_service_get_protocol(const obs_service_t *service);
 
 /**
  * Applies service-specific video encoder settings.
