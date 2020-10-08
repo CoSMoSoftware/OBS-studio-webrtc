@@ -180,6 +180,12 @@ static const char *webrtc_wowza_codec(void *data)
 	return service->codec;
 }
 
+static bool webrtc_wowza_simulcast(void *data)
+{
+  struct webrtc_wowza *service = data;
+  return service->codec;
+}
+
 static const char *webrtc_wowza_protocol(void *data)
 {
 	struct webrtc_wowza *service = data;
@@ -207,6 +213,7 @@ struct obs_service_info webrtc_wowza_service = {
 	.get_username   = webrtc_wowza_username,
 	.get_password   = webrtc_wowza_password,
 	.get_codec      = webrtc_wowza_codec,
+  .get_simulcast  = webrtc_wowza_simulcast,
 	.get_protocol   = webrtc_wowza_protocol,
 	.get_output_type = webrtc_wowza_get_output_type
 };

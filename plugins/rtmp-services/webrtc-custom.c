@@ -153,6 +153,12 @@ static const char *webrtc_custom_codec(void *data)
 	return service->codec;
 }
 
+static bool webrtc_custom_simulcast(void *data)
+{
+  struct webrtc_custom *service = data;
+  return service->codec;
+}
+
 static const char *webrtc_custom_protocol(void *data)
 {
 	UNUSED_PARAMETER(data);
@@ -178,6 +184,7 @@ struct obs_service_info webrtc_custom_service = {
 	.get_username    = webrtc_custom_username,
 	.get_password    = webrtc_custom_password,
 	.get_codec       = webrtc_custom_codec,
+  .get_simulcast   = webrtc_custom_simulcast,
 	.get_protocol    = webrtc_custom_protocol,
 	.get_output_type = webrtc_custom_get_output_type
 };

@@ -161,6 +161,12 @@ static const char *webrtc_millicast_codec(void *data)
 	return service->codec;
 }
 
+static bool webrtc_millicast_simulcast(void *data)
+{
+  struct webrtc_millicast *service = data;
+  return service->codec;
+}
+
 static const char *webrtc_millicast_protocol(void *data)
 {
 	UNUSED_PARAMETER(data);
@@ -186,6 +192,7 @@ struct obs_service_info webrtc_millicast_service = {
 	.get_username    = webrtc_millicast_username,
 	.get_password    = webrtc_millicast_password,
 	.get_codec       = webrtc_millicast_codec,
+  .get_simulcast   = webrtc_millicast_simulcast,
 	.get_protocol    = webrtc_millicast_protocol,
 	.get_output_type = webrtc_millicast_get_output_type
 };

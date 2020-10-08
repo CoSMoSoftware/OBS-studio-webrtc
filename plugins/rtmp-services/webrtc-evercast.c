@@ -164,6 +164,12 @@ static const char *webrtc_evercast_codec(void *data)
   return service->codec;
 }
 
+static bool webrtc_evercast_simulcast(void *data)
+{
+  struct webrtc_evercast *service = data;
+  return service->codec;
+}
+
 static const char *webrtc_evercast_protocol(void *data)
 {
   // struct webrtc_evercast *service = data;
@@ -193,6 +199,7 @@ struct obs_service_info webrtc_evercast_service = {
   .get_room       = webrtc_evercast_room,
   .get_password   = webrtc_evercast_password,
   .get_codec      = webrtc_evercast_codec,
+  .get_simulcast  = webrtc_evercast_simulcast,
   .get_protocol   = webrtc_evercast_protocol,
   .get_output_type = webrtc_evercast_get_output_type
 };

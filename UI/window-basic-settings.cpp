@@ -342,6 +342,7 @@ OBSBasicSettings::OBSBasicSettings(QWidget *parent)
 	HookWidget(ui->authUsername,         EDIT_CHANGED,   STREAM1_CHANGED);
 	HookWidget(ui->authPw,               EDIT_CHANGED,   STREAM1_CHANGED);
 	HookWidget(ui->codec,                COMBO_CHANGED,  STREAM1_CHANGED);
+  HookWidget(ui->simulcastEnable,      CHECK_CHANGED,  STREAM1_CHANGED);
 	HookWidget(ui->streamProtocol,       COMBO_CHANGED,  STREAM1_CHANGED);
 	HookWidget(ui->outputMode,           COMBO_CHANGED,  OUTPUTS_CHANGED);
 	HookWidget(ui->simpleOutputPath,     EDIT_CHANGED,   OUTPUTS_CHANGED);
