@@ -129,6 +129,7 @@ private:
     std::string protocol;
     std::string audio_codec;
     std::string video_codec;
+    bool simulcast;
     int channel_count;
 
     void resetStats();

@@ -162,14 +162,16 @@ bool WebRTCStream::start(WebRTCStream::Type type)
 
     // Extract setting from service
 
-    url      = obs_service_get_url(service)      ? obs_service_get_url(service)      : "";
-    room     = obs_service_get_room(service)     ? obs_service_get_room(service)     : "";
-    username = obs_service_get_username(service) ? obs_service_get_username(service) : "";
-    password = obs_service_get_password(service) ? obs_service_get_password(service) : "";
-    video_codec = obs_service_get_codec(service) ? obs_service_get_codec(service)    : "";
-    protocol = obs_service_get_protocol(service) ? obs_service_get_protocol(service) : "";
+    url         = obs_service_get_url(service)       ? obs_service_get_url(service)       : "";
+    room        = obs_service_get_room(service)      ? obs_service_get_room(service)      : "";
+    username    = obs_service_get_username(service)  ? obs_service_get_username(service)  : "";
+    password    = obs_service_get_password(service)  ? obs_service_get_password(service)  : "";
+    video_codec = obs_service_get_codec(service)     ? obs_service_get_codec(service)     : "";
+    simulcast   = obs_service_get_simulcast(service) ? obs_service_get_simulcast(service) : false;
+    protocol    = obs_service_get_protocol(service)  ? obs_service_get_protocol(service)  : "";
     // Some extra log
     info("Video codec: %s", video_codec.empty() ? "Automatic" : video_codec.c_str());
+    info("Simulcast: %s", simulcast ? "true" : "false");
     info("Protocol:    %s", protocol.empty()    ? "Automatic" : protocol.c_str());
 
     // Stream setting sanity check

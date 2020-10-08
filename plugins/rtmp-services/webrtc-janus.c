@@ -164,6 +164,12 @@ static const char *webrtc_janus_codec(void *data)
 	return service->codec;
 }
 
+static bool webrtc_janus_simulcast(void *data)
+{
+  struct webrtc_janus *service = data;
+  return service->codec;
+}
+
 static const char *webrtc_janus_protocol(void *data)
 {
 	// struct webrtc_janus *service = data;
@@ -194,6 +200,7 @@ struct obs_service_info webrtc_janus_service = {
 	.get_username   = webrtc_janus_username,
 	.get_password   = webrtc_janus_password,
 	.get_codec      = webrtc_janus_codec,
+  .get_simulcast  = webrtc_janus_simulcast,
 	.get_protocol   = webrtc_janus_protocol,
 	.get_output_type = webrtc_janus_get_output_type
 };
