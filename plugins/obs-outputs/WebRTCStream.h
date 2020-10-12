@@ -130,6 +130,7 @@ private:
     std::string audio_codec;
     std::string video_codec;
     bool simulcast;
+    std::string publishApiUrl;
     int channel_count;
 
     void resetStats();

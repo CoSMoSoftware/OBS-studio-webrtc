@@ -162,36 +162,30 @@ bool WebRTCStream::start(WebRTCStream::Type type)
 
     // Extract setting from service
 
-    url         = obs_service_get_url(service)       ? obs_service_get_url(service)       : "";
-    room        = obs_service_get_room(service)      ? obs_service_get_room(service)      : "";
-    username    = obs_service_get_username(service)  ? obs_service_get_username(service)  : "";
-    password    = obs_service_get_password(service)  ? obs_service_get_password(service)  : "";
-    video_codec = obs_service_get_codec(service)     ? obs_service_get_codec(service)     : "";
-    simulcast   = obs_service_get_simulcast(service) ? obs_service_get_simulcast(service) : false;
-    protocol    = obs_service_get_protocol(service)  ? obs_service_get_protocol(service)  : "";
+    url           = obs_service_get_url(service)           ? obs_service_get_url(service)           : "";
+    room          = obs_service_get_room(service)          ? obs_service_get_room(service)          : "";
+    username      = obs_service_get_username(service)      ? obs_service_get_username(service)      : "";
+    password      = obs_service_get_password(service)      ? obs_service_get_password(service)      : "";
+    video_codec   = obs_service_get_codec(service)         ? obs_service_get_codec(service)         : "";
+    protocol      = obs_service_get_protocol(service)      ? obs_service_get_protocol(service)      : "";
+    simulcast     = obs_service_get_simulcast(service)     ? obs_service_get_simulcast(service)     : false;
+    publishApiUrl = obs_service_get_publishApiUrl(service) ? obs_service_get_publishApiUrl(service) : "";
+
     // Some extra log
+
     info("Video codec: %s", video_codec.empty() ? "Automatic" : video_codec.c_str());
     info("Simulcast: %s", simulcast ? "true" : "false");
+    info("Publish API URL: %s", publishApiUrl.c_str());
     info("Protocol:    %s", protocol.empty()    ? "Automatic" : protocol.c_str());
 
     // Stream setting sanity check
 
     bool isServiceValid = true;
     if (type != WebRTCStream::Type::Millicast) {
-        if (url.empty()) {
-            warn("Invalid url");
-            isServiceValid = false;
-        }
-        if (type != WebRTCStream::Type::CustomWebrtc) {
-            if (room.empty()) {
-                warn("Missing room ID");
-                isServiceValid = false;
-            }
-            if (password.empty()) {
-                warn("Missing Password");
-                isServiceValid = false;
-            }
-        }
+      if (publishApiUrl.empty()) {
+        warn("Invalid publish API URL");
+        isServiceValid = false;
+      }
     }
     
     if (!isServiceValid) {
@@ -219,7 +213,7 @@ bool WebRTCStream::start(WebRTCStream::Type type)
 
     struct obs_audio_info audio_info;
     if (!obs_get_audio_info(&audio_info)) {
-	      warn("Failed to load audio settings.  Defaulting to opus.");
+        warn("Failed to load audio settings.  Defaulting to opus.");
         audio_codec = "opus";
     } else {
         // NOTE ALEX: if input # channel > output we should down mix
@@ -230,7 +224,7 @@ bool WebRTCStream::start(WebRTCStream::Type type)
 
     // Shutdown websocket connection and close Peer Connection (just in case)
     if (close(false))
-        obs_output_signal_stop(output, OBS_OUTPUT_ERROR);
+      obs_output_signal_stop(output, OBS_OUTPUT_ERROR);
 
     webrtc::PeerConnectionInterface::RTCConfiguration config;
     webrtc::PeerConnectionInterface::IceServer server;
@@ -331,8 +325,7 @@ bool WebRTCStream::start(WebRTCStream::Type type)
     } else if (type == WebRTCStream::Type::Millicast) {
         info("Stream Name:      %s\nPublishing Token: %s\n",
                 username.c_str(), password.c_str());
-        // Note alex: What~~?
-        url = "Millicast";
+        url = publishApiUrl;
     }
     info("CONNECTING TO %s", url.c_str());
 

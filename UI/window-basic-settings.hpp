@@ -336,6 +336,8 @@ private slots:
 
 	void SimpleStreamingEncoderChanged();
 
+  void AdvancedStreamingSettingsChanged();
+
 	OBSService SpawnTempService();
 
 	void SetGeneralIcon(const QIcon &icon);

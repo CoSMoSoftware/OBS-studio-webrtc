@@ -2119,6 +2119,9 @@ EXPORT const char *obs_service_get_codec(const obs_service_t *service);
 /** Returns the simulcast setting for this service context */
 EXPORT bool obs_service_get_simulcast(const obs_service_t *service);
 
+/** Returns the URL for WebRTC service */
+EXPORT const char *obs_service_get_publishApiUrl(const obs_service_t *service);
+
 /** Returns the protocol for this service context */
 EXPORT const char *obs_service_get_protocol(const obs_service_t *service);
 
