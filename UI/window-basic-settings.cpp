@@ -275,6 +275,7 @@ void OBSBasicSettings::HookWidget(QWidget *widget, const char *signal,
 #define VIDEO_CHANGED   SLOT(VideoChanged())
 #define ADV_CHANGED     SLOT(AdvancedChanged())
 #define ADV_RESTART     SLOT(AdvancedChangedRestart())
+#define ADV_STREAMING_SETTINGS_CHANGED SLOT(AdvancedStreamingSettingsChanged())
 /* clang-format on */
 
 OBSBasicSettings::OBSBasicSettings(QWidget *parent)
@@ -301,7 +302,7 @@ OBSBasicSettings::OBSBasicSettings(QWidget *parent)
 
 	/* clang-format off */
 	HookWidget(ui->language,             COMBO_CHANGED,  GENERAL_CHANGED);
-	HookWidget(ui->theme, 		     COMBO_CHANGED,  GENERAL_CHANGED);
+	HookWidget(ui->theme,                COMBO_CHANGED,  GENERAL_CHANGED);
 	HookWidget(ui->enableAutoUpdates,    CHECK_CHANGED,  GENERAL_CHANGED);
 	HookWidget(ui->openStatsOnStartup,   CHECK_CHANGED,  GENERAL_CHANGED);
 	HookWidget(ui->warnBeforeStreamStart,CHECK_CHANGED,  GENERAL_CHANGED);
@@ -342,8 +343,10 @@ OBSBasicSettings::OBSBasicSettings(QWidget *parent)
 	HookWidget(ui->authUsername,         EDIT_CHANGED,   STREAM1_CHANGED);
 	HookWidget(ui->authPw,               EDIT_CHANGED,   STREAM1_CHANGED);
 	HookWidget(ui->codec,                COMBO_CHANGED,  STREAM1_CHANGED);
-  HookWidget(ui->simulcastEnable,      CHECK_CHANGED,  STREAM1_CHANGED);
 	HookWidget(ui->streamProtocol,       COMBO_CHANGED,  STREAM1_CHANGED);
+  HookWidget(ui->streamingAdvancedSettingsButton, CHECK_CHANGED, ADV_STREAMING_SETTINGS_CHANGED);
+  HookWidget(ui->simulcastEnable,      CHECK_CHANGED,  STREAM1_CHANGED);
+  HookWidget(ui->publishApiUrl,        EDIT_CHANGED,   STREAM1_CHANGED);
 	HookWidget(ui->outputMode,           COMBO_CHANGED,  OUTPUTS_CHANGED);
 	HookWidget(ui->simpleOutputPath,     EDIT_CHANGED,   OUTPUTS_CHANGED);
 	HookWidget(ui->simpleNoSpace,        CHECK_CHANGED,  OUTPUTS_CHANGED);
@@ -4205,6 +4208,17 @@ void OBSBasicSettings::SimpleStreamingEncoderChanged()
 		idx = ui->simpleOutPreset->findData(QVariant(defaultPreset));
 
 	ui->simpleOutPreset->setCurrentIndex(idx);
+}
+
+void OBSBasicSettings::AdvancedStreamingSettingsChanged()
+{
+  bool visible = ui->simulcastEnable->isVisible();
+  ui->simulcastEnable->setVisible(!visible);
+  if (ui->service->currentText() == QString("Millicast WebRTC Streaming Platform")) {
+    // Field publishApiUrl applicable only for Millicast
+    ui->publishApiUrlLabel->setVisible(!visible);
+    ui->publishApiUrl->setVisible(!visible);
+  }
 }
 
 #define ESTIMATE_STR "Basic.Settings.Output.ReplayBuffer.Estimate"

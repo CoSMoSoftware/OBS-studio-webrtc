@@ -130,12 +130,15 @@ void OBSBasicSettings::LoadStream1Settings()
 		const char *codec =
 			strcmp("", tmpString) == 0 ? "Automatic" : tmpString;
 
-    bool simulcast = obs_data_get_bool(settings, "simulcast");
-    ui->simulcastEnable->setChecked(simulcast);
-
 		tmpString = obs_data_get_string(settings, "protocol");
 		const char *protocol =
 			strcmp("", tmpString) == 0 ? "Automatic" : tmpString;
+
+    bool simulcast = obs_data_get_bool(settings, "simulcast");
+    ui->simulcastEnable->setChecked(simulcast);
+
+    const char *publish_api_url =
+      obs_data_get_string(settings, "publish_api_url");
 
 		int idx = 0;
 		for (std::vector<std::string>::size_type i = 0; i < webrtc_count; ++i)
@@ -157,6 +160,8 @@ void OBSBasicSettings::LoadStream1Settings()
 
 		int idxP = ui->streamProtocol->findText(protocol);
 		ui->streamProtocol->setCurrentIndex(idxP);
+
+    ui->publishApiUrl->setText(publish_api_url);
 	}
 
 	UpdateServerList();
@@ -231,10 +236,12 @@ void OBSBasicSettings::SaveStream1Settings()
 				QT_TO_UTF8(ui->authPw->text()));
 		obs_data_set_string(settings, "codec",
 				QT_TO_UTF8(ui->codec->currentText()));
-    obs_data_set_bool(settings, "simulcast",
-        ui->simulcastEnable->isChecked());
 		obs_data_set_string(settings, "protocol",
 				QT_TO_UTF8(ui->streamProtocol->currentText()));
+    obs_data_set_bool(settings, "simulcast",
+        ui->simulcastEnable->isChecked());
+    obs_data_set_string(settings, "publish_api_url",
+        QT_TO_UTF8(ui->publishApiUrl->text()));
 	}
 
 	obs_data_set_bool(settings, "bwtest",
@@ -427,9 +434,12 @@ void OBSBasicSettings::on_service_currentIndexChanged(int)
 		on_useAuth_toggled();
 		ui->codecLabel->setVisible(false);
 		ui->codec->setVisible(false);
-    ui->simulcastEnable->setVisible(false);
 		ui->streamProtocolLabel->setVisible(false);
 		ui->streamProtocol->setVisible(false);
+    ui->streamingAdvancedSettingsButton->setVisible(false);
+    ui->simulcastEnable->setVisible(false);
+    ui->publishApiUrlLabel->setVisible(false);
+    ui->publishApiUrl->setVisible(false);
 	} else if (webrtc > 0) {
 		ui->streamKeyLabel->setVisible(false);
 		ui->streamKeyWidget->setVisible(false);
@@ -442,7 +452,9 @@ void OBSBasicSettings::on_service_currentIndexChanged(int)
 		obs_property_t *username = obs_properties_get(props, "username");
 		obs_property_t *password = obs_properties_get(props, "password");
 		obs_property_t *codec = obs_properties_get(props, "codec");
+    obs_property_t *streamingAdvancedSettings = obs_properties_get(props, "streaming_advanced_settings");
 		obs_property_t *simulcast = obs_properties_get(props, "simulcast");
+    obs_property_t *publishApiUrl = obs_properties_get(props, "publish_api_url");
 		obs_property_t *protocol = obs_properties_get(props, "protocol");
 		ui->serverLabel->setText(obs_property_description(server));
 		ui->roomLabel->setText(obs_property_description(room));
@@ -474,11 +486,6 @@ void OBSBasicSettings::on_service_currentIndexChanged(int)
 							   ui->codec);
 			min_idx++;
 		}
-    if (obs_property_visible(simulcast)) {
-      ui->streamkeyPageLayout->insertRow(min_idx, ui->simulcastLabel,
-                ui->simulcastEnable);
-      min_idx++;
-    }
 		if (obs_property_visible(protocol)) {
 			ui->streamkeyPageLayout->insertRow(min_idx, ui->streamProtocolLabel,
 							   ui->streamProtocol);
@@ -494,10 +501,12 @@ void OBSBasicSettings::on_service_currentIndexChanged(int)
 		ui->authPwWidget->setVisible(obs_property_visible(password));
 		ui->codecLabel->setVisible(obs_property_visible(codec));
 		ui->codec->setVisible(obs_property_visible(codec));
-    // ui->simulcastEnable->setVisible(obs_property_visible(simulcast));
-    ui->simulcastEnable->setVisible(true);
 		ui->streamProtocolLabel->setVisible(obs_property_visible(protocol));
 		ui->streamProtocol->setVisible(obs_property_visible(protocol));
+    ui->streamingAdvancedSettingsButton->setVisible(true);
+    ui->simulcastEnable->setVisible(false);
+    ui->publishApiUrlLabel->setVisible(false);
+    ui->publishApiUrl->setVisible(false);
 		obs_properties_destroy(props);
 	} else if (!custom && webrtc == 0) { // rtmp_common
 		ui->authUsernameLabel->setText("Username");
@@ -527,7 +536,10 @@ void OBSBasicSettings::on_service_currentIndexChanged(int)
 		ui->streamProtocol->setVisible(false);
 		ui->codecLabel->setVisible(false);
 		ui->codec->setVisible(false);
+    ui->streamingAdvancedSettingsButton->setVisible(false);
     ui->simulcastEnable->setVisible(false);
+    ui->publishApiUrlLabel->setVisible(false);
+    ui->publishApiUrl->setVisible(false);
 	}
 
 #ifdef BROWSER_AVAILABLE

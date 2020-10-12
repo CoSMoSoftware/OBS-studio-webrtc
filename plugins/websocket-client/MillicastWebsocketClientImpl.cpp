@@ -35,7 +35,7 @@ MillicastWebsocketClientImpl::~MillicastWebsocketClientImpl()
 }
 
 bool MillicastWebsocketClientImpl::connect(
-        const std::string & /* publish_api_url */,
+        const std::string & publish_api_url,
         const std::string & /* room */,
         const std::string & stream_name,
         const std::string & token,
@@ -50,8 +50,8 @@ bool MillicastWebsocketClientImpl::connect(
     headers["Content-Type"]  = "application/json";
     conn->SetHeaders(headers);
     conn->SetTimeout(5);
-    const std::string publish_api_url =
-            "https://director.millicast.com/api/director/publish";
+    // const std::string publish_api_url =
+    //         "https://director.millicast.com/api/director/publish";
     json data = {{ "streamName", sanitizeString(stream_name) }};
     RestClient::Response r = conn->post(publish_api_url, data.dump());
     delete conn;

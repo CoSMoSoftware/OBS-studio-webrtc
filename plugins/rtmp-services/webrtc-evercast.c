@@ -7,6 +7,7 @@ struct webrtc_evercast {
   char *room;
   char *password;
   char *codec;
+  bool simulcast;
   char *output;
 };
 
@@ -32,6 +33,7 @@ static void webrtc_evercast_update(void *data, obs_data_t *settings)
   service->room = bstrdup(obs_data_get_string(settings, "room"));
   service->password = bstrdup(obs_data_get_string(settings, "password"));
   service->codec = bstrdup(obs_data_get_string(settings, "codec"));
+  service->simulcast = obs_data_get_bool(settings, "simulcast");
   service->output = bstrdup("evercast_output");
 }
 
@@ -80,6 +82,9 @@ static bool use_auth_modified(obs_properties_t *ppts, obs_property_t *p,
   p = obs_properties_get(ppts, "protocol");
   obs_property_set_visible(p, false);
 
+  p = obs_properties_get(ppts, "simulcast");
+  obs_property_set_visible(p, true);
+
   return true;
 }
 
@@ -120,6 +125,9 @@ static obs_properties_t *webrtc_evercast_properties(void *unused)
 
   p = obs_properties_get(ppts, "protocol");
   obs_property_set_visible(p, false);
+
+  p = obs_properties_get(ppts, "simulcast");
+  obs_property_set_visible(p, true);
 
   // obs_property_set_modified_callback(p, use_auth_modified);
 
@@ -167,7 +175,7 @@ static const char *webrtc_evercast_codec(void *data)
 static bool webrtc_evercast_simulcast(void *data)
 {
   struct webrtc_evercast *service = data;
-  return service->codec;
+  return service->simulcast;
 }
 
 static const char *webrtc_evercast_protocol(void *data)

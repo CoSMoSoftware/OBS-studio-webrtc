@@ -9,6 +9,7 @@ struct webrtc_wowza {
 	// char *password;
 	char *codec;
 	char *protocol;
+  bool simulcast;
 	char *output;
 };
 
@@ -35,6 +36,7 @@ static void webrtc_wowza_update(void *data, obs_data_t *settings)
 	service->username = bstrdup(obs_data_get_string(settings, "username"));
 	// service->password = bstrdup(obs_data_get_string(settings, "password"));
 	service->codec = bstrdup(obs_data_get_string(settings, "codec"));
+  service->simulcast = obs_data_get_bool(settings, "simulcast");
 	service->protocol = bstrdup(obs_data_get_string(settings, "protocol"));
 	service->output = bstrdup("wowza_output");
 }
@@ -86,6 +88,9 @@ static bool use_auth_modified(obs_properties_t *ppts, obs_property_t *p,
 	p = obs_properties_get(ppts, "protocol");
 	obs_property_set_visible(p, true);
 
+  p = obs_properties_get(ppts, "simulcast");
+  obs_property_set_visible(p, true);
+
 	return true;
 }
 
@@ -133,6 +138,9 @@ static obs_properties_t *webrtc_wowza_properties(void *unused)
 
 	p = obs_properties_get(ppts, "protocol");
 	obs_property_set_visible(p, true);
+
+  p = obs_properties_get(ppts, "simulcast");
+  obs_property_set_visible(p, true);
 
 	// obs_property_set_modified_callback(p, use_auth_modified);
 
@@ -183,7 +191,7 @@ static const char *webrtc_wowza_codec(void *data)
 static bool webrtc_wowza_simulcast(void *data)
 {
   struct webrtc_wowza *service = data;
-  return service->codec;
+  return service->simulcast;
 }
 
 static const char *webrtc_wowza_protocol(void *data)
@@ -201,19 +209,19 @@ static const char *webrtc_wowza_get_output_type(void *data)
 }
 
 struct obs_service_info webrtc_wowza_service = {
-	.id             = "webrtc_wowza",
-	.get_name       = webrtc_wowza_name,
-	.create         = webrtc_wowza_create,
-	.destroy        = webrtc_wowza_destroy,
-	.update         = webrtc_wowza_update,
-	.get_properties = webrtc_wowza_properties,
-	.get_url        = webrtc_wowza_url,
-	.get_key        = webrtc_wowza_key,
-	.get_room       = webrtc_wowza_room,
-	.get_username   = webrtc_wowza_username,
-	.get_password   = webrtc_wowza_password,
-	.get_codec      = webrtc_wowza_codec,
-  .get_simulcast  = webrtc_wowza_simulcast,
-	.get_protocol   = webrtc_wowza_protocol,
-	.get_output_type = webrtc_wowza_get_output_type
+	.id                = "webrtc_wowza",
+	.get_name          = webrtc_wowza_name,
+	.create            = webrtc_wowza_create,
+	.destroy           = webrtc_wowza_destroy,
+	.update            = webrtc_wowza_update,
+	.get_properties    = webrtc_wowza_properties,
+	.get_url           = webrtc_wowza_url,
+	.get_key           = webrtc_wowza_key,
+	.get_room          = webrtc_wowza_room,
+	.get_username      = webrtc_wowza_username,
+	.get_password      = webrtc_wowza_password,
+	.get_codec         = webrtc_wowza_codec,
+	.get_protocol      = webrtc_wowza_protocol,
+  .get_simulcast     = webrtc_wowza_simulcast,
+	.get_output_type   = webrtc_wowza_get_output_type
 };

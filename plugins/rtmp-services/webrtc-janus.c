@@ -7,6 +7,7 @@ struct webrtc_janus {
 	char *room;
 	char *password;
 	char *codec;
+  bool simulcast;
 	char *output;
 };
 
@@ -30,6 +31,7 @@ static void webrtc_janus_update(void *data, obs_data_t *settings)
 	service->room = bstrdup(obs_data_get_string(settings, "room"));
 	service->password = bstrdup(obs_data_get_string(settings, "password"));
 	service->codec = bstrdup(obs_data_get_string(settings, "codec"));
+  service->simulcast = obs_data_get_bool(settings, "simulcast");
 	service->output = bstrdup("janus_output");
 }
 
@@ -78,6 +80,9 @@ static bool use_auth_modified(obs_properties_t *ppts, obs_property_t *p,
 	p = obs_properties_get(ppts, "protocol");
 	obs_property_set_visible(p, false);
 
+  p = obs_properties_get(ppts, "simulcast");
+  obs_property_set_visible(p, true);
+
 	return true;
 }
 
@@ -120,6 +125,9 @@ static obs_properties_t *webrtc_janus_properties(void *unused)
 
 	p = obs_properties_get(ppts, "protocol");
 	obs_property_set_visible(p, false);
+
+  p = obs_properties_get(ppts, "simulcast");
+  obs_property_set_visible(p, true);
 
 	// obs_property_set_modified_callback(p, use_auth_modified);
 
@@ -167,7 +175,7 @@ static const char *webrtc_janus_codec(void *data)
 static bool webrtc_janus_simulcast(void *data)
 {
   struct webrtc_janus *service = data;
-  return service->codec;
+  return service->simulcast;
 }
 
 static const char *webrtc_janus_protocol(void *data)
@@ -188,19 +196,19 @@ static const char *webrtc_janus_get_output_type(void *data)
 }
 
 struct obs_service_info webrtc_janus_service = {
-	.id             = "webrtc_janus",
-	.get_name       = webrtc_janus_name,
-	.create         = webrtc_janus_create,
-	.destroy        = webrtc_janus_destroy,
-	.update         = webrtc_janus_update,
-	.get_properties = webrtc_janus_properties,
-	.get_url        = webrtc_janus_url,
-	.get_key        = webrtc_janus_key,
-	.get_room       = webrtc_janus_room,
-	.get_username   = webrtc_janus_username,
-	.get_password   = webrtc_janus_password,
-	.get_codec      = webrtc_janus_codec,
-  .get_simulcast  = webrtc_janus_simulcast,
-	.get_protocol   = webrtc_janus_protocol,
-	.get_output_type = webrtc_janus_get_output_type
+	.id                = "webrtc_janus",
+	.get_name          = webrtc_janus_name,
+	.create            = webrtc_janus_create,
+	.destroy           = webrtc_janus_destroy,
+	.update            = webrtc_janus_update,
+	.get_properties    = webrtc_janus_properties,
+	.get_url           = webrtc_janus_url,
+	.get_key           = webrtc_janus_key,
+	.get_room          = webrtc_janus_room,
+	.get_username      = webrtc_janus_username,
+	.get_password      = webrtc_janus_password,
+	.get_codec         = webrtc_janus_codec,
+	.get_protocol      = webrtc_janus_protocol,
+  .get_simulcast     = webrtc_janus_simulcast,
+	.get_output_type   = webrtc_janus_get_output_type
 };

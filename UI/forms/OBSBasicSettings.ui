@@ -152,7 +152,7 @@
               <x>0</x>
               <y>0</y>
               <width>806</width>
-              <height>1225</height>
+              <height>1254</height>
              </rect>
             </property>
             <layout class="QVBoxLayout" name="verticalLayout_19">
@@ -1199,54 +1199,61 @@
                  </item>
                </widget>
              </item>
-             <item row="11" column="0">
-               <widget class="QLabel" name="simulcastLabel">
+             <item row="10" column="0">
+              <widget class="QLabel" name="streamProtocolLabel">
                <property name="text">
-                 <string></string>
+                <string>Protocol</string>
                </property>
                <property name="buddy">
-                 <cstring>simulcastEnable</cstring>
+                <cstring>streamProtocol</cstring>
                </property>
-               </widget>
+              </widget>
              </item>
-             <item row="11" column="1">
-               <widget class="QCheckBox" name="simulcastEnable">
+             <item row="10" column="1">
+              <widget class="QComboBox" name="streamProtocol">
+               <property name="currentIndex">
+                <number>0</number>
+               </property>
+               <item>
+                <property name="text">
+                 <string>Automatic</string>
+                </property>
+               </item>
+               <item>
+                <property name="text">
+                 <string>UDP</string>
+                </property>
+               </item>
+               <item>
+                <property name="text">
+                 <string>TCP</string>
+                </property>
+               </item>
+              </widget>
+             </item>
+             <item row="14" column="1">
+              <widget class="QCheckBox" name="simulcastEnable">
                <property name="text">
-                 <string>Simulcast</string>
+                <string>Simulcast</string>
                </property>
-               </widget>
+              </widget>
              </item>
-             <item row="12" column="0">
-               <widget class="QLabel" name="streamProtocolLabel">
+             <item row="15" column="0">
+              <widget class="QLabel" name="publishApiUrlLabel">
                <property name="text">
-                 <string>Protocol</string>
+                <string>Publish API URL</string>
                </property>
-               <property name="buddy">
-                 <cstring>streamProtocol</cstring>
-               </property>
-               </widget>
+              </widget>
              </item>
-             <item row="12" column="1">
-               <widget class="QComboBox" name="streamProtocol">
-                 <property name="currentIndex">
-                   <number>0</number>
-                 </property>
-                 <item>
-                   <property name="text">
-                     <string>Automatic</string>
-                   </property>
-                 </item>
-                 <item>
-                   <property name="text">
-                     <string>UDP</string>
-                   </property>
-                 </item>
-                 <item>
-                   <property name="text">
-                     <string>TCP</string>
-                   </property>
-                 </item>
-               </widget>
+             <item row="15" column="1">
+              <widget class="QLineEdit" name="publishApiUrl"/>
+             </item>
+             <item row="13" column="0">
+              <widget class="QPushButton" name="streamingAdvancedSettingsButton">
+               <property name="text">
+                <string>Advanced Settings</string>
+               </property>
+              </widget>
              </item>
             </layout>
            </widget>
@@ -4548,7 +4555,7 @@
              <rect>
               <x>0</x>
               <y>0</y>
-              <width>806</width>
+              <width>791</width>
               <height>933</height>
              </rect>
             </property>

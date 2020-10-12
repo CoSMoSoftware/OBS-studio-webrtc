@@ -75,8 +75,10 @@ struct obs_service_info {
 	void (*free_type_data)(void *type_data);
 
 	const char *(*get_codec)(void *data);
-  bool (*get_simulcast)(void *data);
 	const char *(*get_protocol)(void *data);
+
+  bool (*get_simulcast)(void *data);
+  const char *(*get_publishApiUrl)(void *data);
 
 	const char *(*get_output_type)(void *data);
 
