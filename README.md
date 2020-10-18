@@ -11,11 +11,18 @@ For the time being the following services and sites are supported:
 
 Do not forget to share the love with the original OBS-Studio project and its fantastic team [there](https://obsproject.com/blog/progress-report-february-2019).
 
-## Binaries
+# Janus support
+
+No support for Janus will be provided by default. Bruden of proof (that there is a bug on the OS Side) is on the one(s) opening the tickets.
+There is no commercial support for this fork of OBS.
+Janus support will only be done through the WHIP protocol.
+Commercial uspport for Janus server side is available [here](https://janus.conf.meetecho.com/support).
+
+# Binaries
 
 Pre-built and tested Binaries are available [here](https://github.com/CoSMoSoftware/OBS-studio-webrtc/releases).
 
-### Compilation, Installation and Packaging
+# Compilation, Installation and Packaging
 
 Follow the original compilation, Installation and packaging guide https://github.com/obsproject/obs-studio
 
