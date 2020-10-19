@@ -52,6 +52,8 @@ enum obs_property_type {
 	OBS_PROPERTY_LIST,
 	OBS_PROPERTY_COLOR,
 	OBS_PROPERTY_BUTTON,
+	// transform drop down menus into clickable button list for KITE testing
+	OBS_PROPERTY_BUTTON_GROUP,
 	OBS_PROPERTY_FONT,
 	OBS_PROPERTY_EDITABLE_LIST,
 	OBS_PROPERTY_FRAME_RATE,
@@ -69,6 +71,18 @@ enum obs_combo_type {
 	OBS_COMBO_TYPE_INVALID,
 	OBS_COMBO_TYPE_EDITABLE,
 	OBS_COMBO_TYPE_LIST,
+};
+
+enum obs_button_group_format {
+	OBS_BUTTON_GROUP_FORMAT_INVALID,
+	OBS_BUTTON_GROUP_FORMAT_INT,
+	OBS_BUTTON_GROUP_FORMAT_FLOAT,
+	OBS_BUTTON_GROUP_FORMAT_STRING
+};
+
+enum obs_button_group_type {
+	OBS_BUTTON_GROUP_TYPE_INVALID,
+	OBS_BUTTON_GROUP_TYPE_LIST
 };
 
 enum obs_editable_list_type {
@@ -233,6 +247,13 @@ obs_properties_add_button2(obs_properties_t *props, const char *name,
 			   const char *text, obs_property_clicked_t callback,
 			   void *priv);
 
+// transform drop down menus into clickable button list for KITE testing
+EXPORT obs_property_t*
+obs_properties_add_button_group(obs_properties_t *props,
+						const char *name, const char *description,
+						enum obs_button_group_type type,
+						enum obs_button_group_format format);
+
 /**
  * Adds a font selection property.
  *
@@ -319,6 +340,17 @@ EXPORT const char *obs_property_path_filter(obs_property_t *p);
 EXPORT const char *obs_property_path_default_path(obs_property_t *p);
 EXPORT enum obs_combo_type obs_property_list_type(obs_property_t *p);
 EXPORT enum obs_combo_format obs_property_list_format(obs_property_t *p);
+
+//--- transform drop down menus into clickable button list for KITE testing
+EXPORT enum obs_button_group_type   obs_property_button_group_type(   obs_property_t *p);
+EXPORT enum obs_button_group_format obs_property_button_group_format( obs_property_t *p);
+EXPORT size_t obs_property_button_group_add_string(obs_property_t *p,
+									const char* name, const char *val);
+EXPORT size_t obs_property_button_group_item_count(       obs_property_t *p);
+EXPORT const char *obs_property_button_group_item_name(   obs_property_t *p,
+														  size_t idx);
+EXPORT const char *obs_property_button_group_item_string( obs_property_t *p, size_t idx);
+//-------------------------------------------------------------------------
 
 EXPORT void obs_property_int_set_limits(obs_property_t *p, int min, int max,
 					int step);
