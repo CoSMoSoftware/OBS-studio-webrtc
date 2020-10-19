@@ -30,6 +30,8 @@ private:
 	void TextChanged(const char *setting);
 	bool PathChanged(const char *setting);
 	void ListChanged(const char *setting);
+	// NOTE LUDO: #172 codecs list of radio buttons
+	void ButtonGroupChanged(const char *setting);
 	bool ColorChanged(const char *setting);
 	bool FontChanged(const char *setting);
 	void GroupChanged(const char *setting);
@@ -100,6 +102,8 @@ private:
 	QWidget *AddList(obs_property_t *prop, bool &warning);
 	void AddEditableList(obs_property_t *prop, QFormLayout *layout,
 			     QLabel *&label);
+	// NOTE LUDO: #172 codecs list of radio buttons
+	QWidget *AddButtonGroup(obs_property_t *prop, bool &warning);
 	QWidget *AddButton(obs_property_t *prop);
 	void AddColor(obs_property_t *prop, QFormLayout *layout,
 		      QLabel *&label);

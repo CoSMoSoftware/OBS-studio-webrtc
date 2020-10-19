@@ -19,7 +19,10 @@
 #include <QMenu>
 #include <QStackedWidget>
 #include <QDir>
+#include <QButtonGroup>
 #include <QGroupBox>
+#include <QVBoxLayout>
+#include <QRadioButton>
 #include "double-slider.hpp"
 #include "slider-ignorewheel.hpp"
 #include "spinbox-ignorewheel.hpp"
@@ -487,6 +490,86 @@ static string from_obs_data_autoselect(obs_data_t *data, const char *name,
 			     obs_data_get_autoselect_double,
 			     obs_data_get_autoselect_string>(data, name,
 							     format);
+}
+
+static void AddButtonGroupItem(QButtonGroup *buttongroup, QVBoxLayout *vbox, obs_property_t *prop,
+	obs_button_group_format format, size_t idx)
+{
+	const char *name = obs_property_button_group_item_name(prop, idx);
+	QVariant var;
+
+	if (format == OBS_BUTTON_GROUP_FORMAT_STRING) {
+		var = QByteArray(obs_property_button_group_item_string(prop, idx))
+	}
+
+	QRadioButton *radioButton = new QRadioButton(QT_UTF8(name));
+	if (idx == 1)
+		radioButton->setChecked(true);
+
+	vbox->addWidget(radiobutton);
+	buttongroup->addButton(radiobutton, idx);
+}
+
+QWidget *OBSPropertiesView::AddButtonGroup(obs_property_t *prop, bool &warning)
+{
+	const char *name = obs_property_name(prop);
+	QButtonGroup *buttongroup = new QButtonGroup();
+	QVBoxLayout *vbox = new QVBoxLayout();
+	QGroupBox *groupbox = new QGroupBox();
+	obs_button_group_type type = obs_property_button_group_type(prop);
+	obs_button_group_format format = obs_property_button_group_format(prop);
+	size_t count = obs_property_button_group_item_count(prop);
+	int idx = -1;
+
+	for (size_t i = 0; i < count; i++)
+		AddButtonGroupItem(buttongroup, vbox, prop, format, i);
+
+	groupbox->setLayout(vbox);
+
+	// The QRadioButton selected is the one having the same text as "value"
+	string value = from_obs_data(settings, name, format);
+	QRadioButton *radiobutton;
+	for (int i = 0; i < vbox->count(); ++i) {
+		radiobutton = (QRadioButton*)vbox->itemAt(i)->widget();
+		string buttonText = (radiobutton != nullptr) ? radiobutton->text().toStdString() : "";
+		if (buttonText == value) {
+			radioButton->setChecked(true);
+			idx = buttongroup->id(radiobutton);
+			break;
+		}
+	}
+
+	if (obs_data_has_autoselect_value(settings, name)) {
+		string autoselect = from_obs_data_autoselect(settings, name, format);
+		int id = -1;
+		QRadioButton *rb;
+		for (int i = 0; i < vbox->count(); ++i) {
+			rb = (QRadioButton*)vbox->itemAt(i)->widget();
+			string buttonText = (rb != nullptr) ? rb->text().toStdString() : "";
+			if (buttonText == autoselect) {
+				id = buttongroup->id(rb);
+				break;
+			}
+		}
+
+		if (id != -1 && id != idx) {
+			QString actual = rb->text();
+			QString selected = radiobutton->text();
+			QString combined = QTStr("Basic.PropertiesWindow.AutoSelectFormat");
+			radiobutton->setText(combined.arg(selected).arg(actual));
+		}
+	}
+
+	WidgetInfo *info = new WidgetInfo(this, prop, buttongroup);
+	connect(buttongroup, SIGNAL(buttonClicked(int)),
+			info, SLOT(ControlChanged()));
+	children.emplace_back(info);
+
+	/* trigger a settings update if the index was not found */
+	// if (idx == -1)
+	// 	info->ControlChanged();
+
+	return groupbox;
 }
 
 QWidget *OBSPropertiesView::AddList(obs_property_t *prop, bool &warning)
@@ -1402,6 +1485,9 @@ void OBSPropertiesView::AddProperty(obs_property_t *property,
 	case OBS_PROPERTY_LIST:
 		widget = AddList(property, warning);
 		break;
+	case OBS_PROPERTY_BUTTON_GROUP:
+		widget = AddButtonGroup(property, warning);
+		break;
 	case OBS_PROPERTY_COLOR:
 		AddColor(property, layout, label);
 		break;
@@ -1698,6 +1784,14 @@ void WidgetInfo::ListChanged(const char *setting)
 	}
 }
 
+// NOTE LUDO: #172 codecs list of radio buttons
+void WidgetInfo::ButtonGroupChanged(const char *setting)
+{
+	QButtonGroup *buttongroup = reinterpret_cast<QButtonGroup*>(object);
+	obs_data_set_string(view->settings, setting,
+		buttongroup->checkedButton()->text().toStdString().c_str());
+}
+
 bool WidgetInfo::ColorChanged(const char *setting)
 {
 	const char *desc = obs_property_description(property);
@@ -1864,6 +1958,9 @@ void WidgetInfo::ControlChanged()
 		break;
 	case OBS_PROPERTY_LIST:
 		ListChanged(setting);
+		break;
+	case OBS_PROPERTY_BUTTON_GROUP:
+		ButtonGroupChanged(setting);
 		break;
 	case OBS_PROPERTY_BUTTON:
 		ButtonClicked();
