@@ -51,9 +51,7 @@ bool GetDataFilePath(const char *data, string &output)
 			return true;
 	}
 
-	string config_path = string(OBS_DATA_PATH) + string("/") + config_dir + string("/");
-
-	if (check_path(data, config_path.c_str(), output))
+	if (check_path(data, OBS_DATA_PATH "/" CONFIG_DIR "/", output))
 		return true;
 	if (check_path(data, INSTALL_DATA_PATH, output))
 		return true;
