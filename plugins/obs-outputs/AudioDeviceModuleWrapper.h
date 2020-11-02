@@ -3,7 +3,6 @@
 #ifndef _AUDIO_DEVICE_MODULE_WRAPPER_H_
 #define _AUDIO_DEVICE_MODULE_WRAPPER_H_
 
-#include <api/scoped_refptr.h>
 #include <modules/audio_device/include/audio_device_default.h>
 #include <rtc_base/checks.h>
 #include <rtc_base/critical_section.h>
