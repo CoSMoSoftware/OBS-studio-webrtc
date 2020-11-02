@@ -492,6 +492,36 @@ static string from_obs_data_autoselect(obs_data_t *data, const char *name,
 							     format);
 }
 
+template<long long get_int(obs_data_t *, const char *),
+	 double get_double(obs_data_t *, const char *),
+	 const char *get_string(obs_data_t *, const char *)>
+static string from_obs_data(obs_data_t *data, const char *name,
+			    obs_button_group_format format)
+{
+	switch (format) {
+	case OBS_BUTTON_GROUP_FORMAT_STRING:
+		return get_string(data, name);
+	default:
+		return "";
+	}
+}
+
+static string from_obs_data(obs_data_t *data, const char *name,
+			    obs_button_group_format format)
+{
+	return from_obs_data<obs_data_get_int, obs_data_get_double,
+			     obs_data_get_string>(data, name, format);
+}
+
+static string from_obs_data_autoselect(obs_data_t *data, const char *name,
+				       obs_button_group_format format)
+{
+	return from_obs_data<obs_data_get_autoselect_int,
+			     obs_data_get_autoselect_double,
+			     obs_data_get_autoselect_string>(data, name,
+							     format);
+}
+
 static void AddButtonGroupItem(QButtonGroup *buttongroup, QVBoxLayout *vbox, obs_property_t *prop,
 	obs_button_group_format format, size_t idx)
 {
@@ -499,12 +529,13 @@ static void AddButtonGroupItem(QButtonGroup *buttongroup, QVBoxLayout *vbox, obs
 	QVariant var;
 
 	if (format == OBS_BUTTON_GROUP_FORMAT_STRING) {
-		var = QByteArray(obs_property_button_group_item_string(prop, idx))
+		var = QByteArray(
+			obs_property_button_group_item_string(prop, idx));
 	}
 
-	QRadioButton *radioButton = new QRadioButton(QT_UTF8(name));
+	QRadioButton *radiobutton = new QRadioButton(QT_UTF8(name));
 	if (idx == 1)
-		radioButton->setChecked(true);
+		radiobutton->setChecked(true);
 
 	vbox->addWidget(radiobutton);
 	buttongroup->addButton(radiobutton, idx);
@@ -533,7 +564,7 @@ QWidget *OBSPropertiesView::AddButtonGroup(obs_property_t *prop, bool &warning)
 		radiobutton = (QRadioButton*)vbox->itemAt(i)->widget();
 		string buttonText = (radiobutton != nullptr) ? radiobutton->text().toStdString() : "";
 		if (buttonText == value) {
-			radioButton->setChecked(true);
+			radiobutton->setChecked(true);
 			idx = buttongroup->id(radiobutton);
 			break;
 		}
@@ -1787,7 +1818,7 @@ void WidgetInfo::ListChanged(const char *setting)
 // NOTE LUDO: #172 codecs list of radio buttons
 void WidgetInfo::ButtonGroupChanged(const char *setting)
 {
-	QButtonGroup *buttongroup = reinterpret_cast<QButtonGroup*>(object);
+	QButtonGroup *buttongroup = reinterpret_cast<QButtonGroup*>(widget);
 	obs_data_set_string(view->settings, setting,
 		buttongroup->checkedButton()->text().toStdString().c_str());
 }
