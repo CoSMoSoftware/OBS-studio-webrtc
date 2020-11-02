@@ -279,6 +279,7 @@ configure_obs_build() {
         -DCEF_ROOT_DIR="${DEPS_BUILD_DIR}/cef_binary_${CEF_BUILD_VERSION:-${CI_CEF_VERSION}}_macosx64" \
 	-DWEBRTC_INCLUDE_DIR="${DEPS_BUILD_DIR}/libwebrtc/include" \
 	-DWEBRTC_LIB="${DEPS_BUILD_DIR}/libwebrtc/lib/libwebrtc.a" \
+	-DOPENSSL_ROOT_DIR="/usr/local/opt/openssl@1.1" \
         ..
 
 }
