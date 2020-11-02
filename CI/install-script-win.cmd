@@ -8,7 +8,7 @@ if exist openssl-1.1.tgz (curl -kLO https://libwebrtc-community-builds.s3.amazon
 7z x vlc.zip -ovlc
 7z x cef_binary_%CEF_VERSION%_windows32_minimal.zip -oCEF_32
 7z x cef_binary_%CEF_VERSION%_windows64_minimal.zip -oCEF_64
-libWebRTC-%LIBWEBRTC_VERSION%-x64-RelComm.exe /sp- /silent /norestart /dir="%CD%\libwebrtc"
+"libWebRTC-%LIBWEBRTC_VERSION%-x64-RelComm.exe" /S /SD /D="%CD%\libwebrtc"
 tar -xzf openssl-1.1.tgz
 set DepsPath32=%CD%\dependencies2017\win32
 set DepsPath64=%CD%\dependencies2017\win64

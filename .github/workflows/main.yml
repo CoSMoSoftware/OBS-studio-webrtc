@@ -537,7 +537,7 @@ jobs:
       - name: 'Install prerequisite: LibWebRTC'
         run: |
 	  curl -kL https://www.palakis.fr/obs/obs-studio-webrtc/libWebRTC-${{ env.LIBWEBRTC_VERSION }}-x64-RelComm.exe -f --retry 5 -o libWebRTC.exe
-	  ./libWebRTC.exe /sp- /silent /norestart /dir="${{ github.workspace }}/libwebrtc"
+	  libWebRTC.exe /S /SD /D="${{ github.workspace }}/libwebrtc"
       - name: 'Configure'
         run: |
           mkdir ./build
