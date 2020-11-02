@@ -1660,7 +1660,7 @@ static bool FrameRateChangedRational(OBSFrameRatePropertyWidget *w,
 	return true;
 }
 
-static bool FrameRateChanged(QWidget *widget, const char *name,
+static bool FrameRateChanged(QObject *widget, const char *name,
 			     OBSData &settings)
 {
 	auto w = qobject_cast<OBSFrameRatePropertyWidget *>(widget);
@@ -2137,7 +2137,9 @@ void WidgetInfo::EditListAddText()
 	QListWidget *list = reinterpret_cast<QListWidget *>(widget);
 	const char *desc = obs_property_description(property);
 
-	EditableItemDialog dialog(widget->window(), QString(), false);
+	// NOTE LUDO: #172 codecs list of radio buttons
+	// EditableItemDialog dialog(widget->window(), QString(), false);
+	EditableItemDialog dialog(((QWidget*)widget)->window(), QString(), false);
 	auto title = QTStr("Basic.PropertiesWindow.AddEditableListEntry")
 			     .arg(QT_UTF8(desc));
 	dialog.setWindowTitle(title);
@@ -2236,7 +2238,11 @@ void WidgetInfo::EditListEdit()
 		return;
 	}
 
-	EditableItemDialog dialog(widget->window(), item->text(),
+	// NOTE LUDO: #172 codecs list of radio buttons
+	// EditableItemDialog dialog(widget->window(), item->text(),
+	//			  type != OBS_EDITABLE_LIST_TYPE_STRINGS,
+	//			  filter);
+	EditableItemDialog dialog(((QWidget*)widget)->window(), item->text(),
 				  type != OBS_EDITABLE_LIST_TYPE_STRINGS,
 				  filter);
 	auto title = QTStr("Basic.PropertiesWindow.EditEditableListEntry")
