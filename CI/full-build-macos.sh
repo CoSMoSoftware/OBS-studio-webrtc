@@ -221,7 +221,7 @@ install_libwebrtc() {
     step "Unpack..."
     hdiutil convert -quiet libWebRTC.dmg -format UDTO -o libWebRTC
     hdiutil attach -quiet -nobrowse -noverify -noautopen libWebRTC.cdr
-    cp -r /Volumes/libWebRTC-${{ env.LIBWEBRTC_VERSION }}-x64-Release/libwebrtc ./
+    cp -r /Volumes/libWebRTC-${1}-x64-Release/libwebrtc ./
 }
 
 ## CHECK AND INSTALL PACKAGING DEPENDENCIES ##
