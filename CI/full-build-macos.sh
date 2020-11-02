@@ -218,9 +218,11 @@ install_libwebrtc() {
     ensure_dir ${DEPS_BUILD_DIR}
     step "Download..."
     ${CURLCMD} --progress-bar -L -C - -o libWebRTC.dmg https://www.palakis.fr/obs/obs-studio-webrtc/libWebRTC-${1}-x64-RelComm.dmg
-    step "Unpack..."
+    step "Bypass the EULA by converting the DMG download to a CDR image"
     hdiutil convert -quiet libWebRTC.dmg -format UDTO -o libWebRTC
+    step "Mount the CDR image"
     hdiutil attach -quiet -nobrowse -noverify -noautopen libWebRTC.cdr
+    step "Copy to destination..."
     cp -r /Volumes/libWebRTC-${1}-x64-Release/libwebrtc ./
 }
 
