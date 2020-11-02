@@ -533,7 +533,12 @@ jobs:
         if: steps.cef-cache.outputs.cache-hit != 'true'
         run: |
           curl -kL https://cdn-fastly.obsproject.com/downloads/cef_binary_${{ env.CEF_VERSION }}_windows64_minimal.zip -f --retry 5 -o cef.zip
-          7z x cef.zip -o"${{ github.workspace }}/cmbuild"
+	  7z x cef.zip -o"${{ github.workspace }}/cmbuild"
+      - name: 'Install prerequisite: OpenSSL'
+	run: |
+	  cd "${{ github.workspace }}"
+	  curl -kL https://libwebrtc-community-builds.s3.amazonaws.com/openssl-1.1.tgz -f --retry 5 -o openssl-1.1.tgz
+          tar -xzf openssl-1.1.tgz
       - name: 'Install prerequisite: LibWebRTC'
         run: |
 	  curl -kL https://www.palakis.fr/obs/obs-studio-webrtc/libWebRTC-${{ env.LIBWEBRTC_VERSION }}-x64-RelComm.exe -f --retry 5 -o libWebRTC.exe
@@ -543,7 +548,7 @@ jobs:
           mkdir ./build
           mkdir ./build64
           cd ./build64
-          cmake -G"${{ env.CMAKE_GENERATOR }}" -A"x64" -DCMAKE_SYSTEM_VERSION="${{ env.CMAKE_SYSTEM_VERSION }}" -DBUILD_BROWSER=true -DBUILD_CAPTIONS=true -DCOMPILE_D3D12_HOOK=true -DVLCPath="${{ github.workspace }}/cmbuild/vlc" -DDepsPath="${{ github.workspace }}/cmbuild/deps/win64" -DQTDIR="${{ github.workspace }}/cmbuild/QT/${{ env.QT_VERSION }}/msvc2017_64" -DENABLE_VLC=ON -DCEF_ROOT_DIR="${{ github.workspace }}/cmbuild/cef_binary_${{ env.CEF_VERSION }}_windows64_minimal" -DWEBRTC_INCLUDE_DIR="${{ github.workspace }}/libwebrtc/include" -DWEBRTC_LIB="${{ github.workspace }}/libwebrtc/lib/webrtc.lib" -DCOPIED_DEPENDENCIES=FALSE -DCOPY_DEPENDENCIES=TRUE ..
+          cmake -G"${{ env.CMAKE_GENERATOR }}" -A"x64" -DCMAKE_SYSTEM_VERSION="${{ env.CMAKE_SYSTEM_VERSION }}" -DBUILD_BROWSER=true -DBUILD_CAPTIONS=true -DCOMPILE_D3D12_HOOK=true -DVLCPath="${{ github.workspace }}/cmbuild/vlc" -DDepsPath="${{ github.workspace }}/cmbuild/deps/win64" -DQTDIR="${{ github.workspace }}/cmbuild/QT/${{ env.QT_VERSION }}/msvc2017_64" -DENABLE_VLC=ON -DCEF_ROOT_DIR="${{ github.workspace }}/cmbuild/cef_binary_${{ env.CEF_VERSION }}_windows64_minimal" -DWEBRTC_INCLUDE_DIR="${{ github.workspace }}/libwebrtc/include" -DWEBRTC_LIB="${{ github.workspace }}/libwebrtc/lib/webrtc.lib" -DOPENSSL_ROOT_DIR="${{ github.workspace}}/openssl-1.1" -DCOPIED_DEPENDENCIES=FALSE -DCOPY_DEPENDENCIES=TRUE ..
       - name: 'Build'
         run: msbuild /m /p:Configuration=RelWithDebInfo .\build64\obs-studio.sln
       - name: 'Package'
