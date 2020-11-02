@@ -373,10 +373,12 @@ jobs:
            libva-dev \
            libvlc-dev \
            libx11-dev \
+           libx11-xcb-dev \
            libx264-dev \
            libxcb-randr0-dev \
            libxcb-shm0-dev \
            libxcb-xinerama0-dev \
+           libxcb-xfixes0-dev \
            libxcomposite-dev \
            libxinerama-dev \
            libmbedtls-dev \
@@ -385,7 +387,8 @@ jobs:
            qtbase5-dev \
            libqt5svg5-dev \
            swig \
-           libcmocka-dev
+           libcmocka-dev \
+           libssl-dev
       - name: 'Restore Chromium Embedded Framework from cache'
         id: cef-cache
         uses: actions/cache@v1

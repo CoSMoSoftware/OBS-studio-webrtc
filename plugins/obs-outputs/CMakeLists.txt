@@ -118,8 +118,6 @@ if( WEBRTC_ADVERTISE_MULTIOPUS_CODEC )
         message( STATUS "This libwebrtc package was build with built-in multiopus codec." )
 endif()
 
-include_directories("${WEBRTC_INCLUDE_DIR}")
-
 if(WIN32)
 	set(obs-outputs_PLATFORM_DEPS
 		ws2_32
@@ -236,6 +234,7 @@ add_library(obs-outputs MODULE
 	${obs-outputs_webrtc_HEADERS})
 
 target_include_directories(obs-outputs
+	PUBLIC ${WEBRTC_INCLUDE_DIRS}
 	PUBLIC ${websocketclient_SOURCE_DIR}
 	PUBLIC "${CMAKE_CURRENT_LIST_DIR}/../websocket-client") # for WebsocketClient.h
 
