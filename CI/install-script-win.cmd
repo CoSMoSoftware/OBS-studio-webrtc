@@ -22,10 +22,10 @@ set opensslPath=%CD%\openssl-1.1\x64
 set build_config=Release
 mkdir build build32 build64
 if "%TWITCH-CLIENTID%"=="$(twitch_clientid)" (
-cd ../build64
+cd build64
 cmake -G "Visual Studio 16 2019" -A x64 -DCMAKE_SYSTEM_VERSION=10.0 -DCOPIED_DEPENDENCIES=false -DCOPY_DEPENDENCIES=true -DENABLE_VLC=ON -DBUILD_CAPTIONS=true -DCOMPILE_D3D12_HOOK=true -DBUILD_BROWSER=true -DCEF_ROOT_DIR=%CEF_64% -DWEBRTC_INCLUDE_DIR="%CD%\libwebrtc\include" -DWEBRTC_LIB="%CD%\libwebrtc\lib\webrtc.lib" ..
 ) else (
-cd ../build64
+cd build64
 cmake -G "Visual Studio 16 2019" -A x64 -DCMAKE_SYSTEM_VERSION=10.0 -DCOPIED_DEPENDENCIES=false -DCOPY_DEPENDENCIES=true -DENABLE_VLC=ON -DBUILD_CAPTIONS=true -DCOMPILE_D3D12_HOOK=true -DBUILD_BROWSER=true -DCEF_ROOT_DIR=%CEF_64% -DWEBRTC_INCLUDE_DIR="%CD%\libwebrtc\include" -DWEBRTC_LIB="%CD%\libwebrtc\lib\webrtc.lib" -DTWITCH_CLIENTID="%TWITCH-CLIENTID%" -DTWITCH_HASH="%TWITCH-HASH%"  -DRESTREAM_CLIENTID="%RESTREAM-CLIENTID%" -DRESTREAM_HASH="%RESTREAM-HASH%" ..
 )
 cd ..
