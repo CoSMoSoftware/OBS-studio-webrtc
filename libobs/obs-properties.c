@@ -1240,7 +1240,7 @@ size_t obs_property_button_group_add_string(obs_property_t *p,
 	const char *name, const char *val)
 {
 	struct button_group_data *data = get_button_group_data(p);
-	if (data & data->format == OBS_BUTTON_GROUP_FORMAT_STRING)
+	if (data && data->format == OBS_BUTTON_GROUP_FORMAT_STRING)
 		return add_radio_button(data, name, val);
 	return 0;
 }

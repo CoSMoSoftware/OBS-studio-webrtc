@@ -22,7 +22,8 @@ class WidgetInfo : public QObject {
 private:
 	OBSPropertiesView *view;
 	obs_property_t *property;
-	QWidget *widget;
+	// NOTE LUDO: #172 codecs list of radio buttons
+	QObject *widget;
 
 	void BoolChanged(const char *setting);
 	void IntChanged(const char *setting);
@@ -41,8 +42,11 @@ private:
 	void TogglePasswordText(bool checked);
 
 public:
+	// NOTE LUDO: #172 codecs list of radio buttons
+	// inline WidgetInfo(OBSPropertiesView *view_, obs_property_t *prop,
+	// 		  QWidget *widget_)
 	inline WidgetInfo(OBSPropertiesView *view_, obs_property_t *prop,
-			  QWidget *widget_)
+	 		  QObject *widget_)
 		: view(view_), property(prop), widget(widget_)
 	{
 	}
