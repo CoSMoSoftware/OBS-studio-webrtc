@@ -17,6 +17,7 @@ on:
 env:
   CEF_BUILD_VERSION: '3770'
   CEF_VERSION: '75.1.16+g16a67c4+chromium-75.0.3770.100'
+  LIBWEBRTC_VERSION: '84.0'
 
 jobs:
   macos64:
@@ -139,12 +140,19 @@ jobs:
           make -j4
           mkdir libcef_dll
           cd ../../
+      - name: 'Install prerequisite: LibWebRTC'
+	shell: bash
+	run: |
+	  curl -L https://www.palakis.fr/obs/obs-studio-webrtc/libWebRTC-${{ env.LIBWEBRTC_VERSION }}-x64-RelComm.dmg -f --retry 5 -o libWebRTC.dmg
+	  hdiutil convert -quiet libWebRTC.dmg -format UDTO -o libWebRTC
+	  hdiutil attach -quiet -nobrowse -noverify -noautopen libWebRTC.cdr
+	  cp -r /Volumes/libWebRTC-${{ env.LIBWEBRTC_VERSION }}-x64-Release/libwebrtc "${{ github.workspace }}"
       - name: 'Configure'
         shell: bash
         run: |
           mkdir ./build
           cd ./build
-          cmake -DENABLE_UNIT_TESTS=YES -DENABLE_SPARKLE_UPDATER=ON -DDISABLE_PYTHON=ON -DCMAKE_OSX_DEPLOYMENT_TARGET=10.11 -DQTDIR="/tmp/obsdeps" -DSWIGDIR="/tmp/obsdeps" -DDepsPath="/tmp/obsdeps" -DVLCPath="${{ github.workspace }}/cmbuild/vlc-${{ env.VLC_VERSION }}" -DENABLE_VLC=ON -DBUILD_BROWSER=ON -DBROWSER_DEPLOY=ON -DBUILD_CAPTIONS=ON -DWITH_RTMPS=ON -DCEF_ROOT_DIR="${{ github.workspace }}/cmbuild/cef_binary_${{ env.CEF_BUILD_VERSION }}_macosx64" ..
+          cmake -DENABLE_UNIT_TESTS=YES -DENABLE_SPARKLE_UPDATER=ON -DDISABLE_PYTHON=ON -DCMAKE_OSX_DEPLOYMENT_TARGET=10.11 -DQTDIR="/tmp/obsdeps" -DSWIGDIR="/tmp/obsdeps" -DDepsPath="/tmp/obsdeps" -DVLCPath="${{ github.workspace }}/cmbuild/vlc-${{ env.VLC_VERSION }}" -DENABLE_VLC=ON -DBUILD_BROWSER=ON -DBROWSER_DEPLOY=ON -DBUILD_CAPTIONS=ON -DWITH_RTMPS=ON -DCEF_ROOT_DIR="${{ github.workspace }}/cmbuild/cef_binary_${{ env.CEF_BUILD_VERSION }}_macosx64" -DWEBRTC_INCLUDE_DIR="${{ github.workspace }}/libwebrtc/include" -DWEBRTC_LIB="${{ github.workspace }}/libwebrtc/lib/libwebrtc.a" ..
       - name: 'Build'
         shell: bash
         working-directory: ${{ github.workspace }}/build
@@ -393,12 +401,18 @@ jobs:
           curl -kL https://cdn-fastly.obsproject.com/downloads/cef_binary_${{ env.CEF_BUILD_VERSION }}_linux64.tar.bz2 -f --retry 5 -o cef.tar.bz2
           if [ ! -d "${{ github.workspace }}/cmbuild" ]; then mkdir "${{ github.workspace }}/cmbuild"; fi
           tar -C"${{ github.workspace }}/cmbuild" -xjf cef.tar.bz2
+      - name: 'Install prerequisite: LibWebRTC'
+        shell: bash
+	run: |
+	  curl -kL https://www.palakis.fr/obs/obs-studio-webrtc/libWebRTC-${{ env.LIBWEBRTC_VERSION }}-x64-Release-Community.sh -f --retry 5 -o libWebRTC.sh
+	  chmod +x libWebRTC.sh
+	  ./libWebRTC.sh --prefix="${{ github.workspace }}/libwebrtc"
       - name: 'Configure'
         shell: bash
         run: |
           mkdir ./build
           cd ./build
-          cmake -DUNIX_STRUCTURE=0 -DCMAKE_INSTALL_PREFIX="${{ github.workspace }}/obs-studio-portable" -DENABLE_UNIT_TESTS=ON -DENABLE_VLC=ON -DBUILD_CAPTIONS=ON -DWITH_RTMPS=ON -DBUILD_BROWSER=ON -DCEF_ROOT_DIR="${{ github.workspace }}/cmbuild/cef_binary_${{ env.CEF_BUILD_VERSION }}_linux64" ..
+          cmake -DUNIX_STRUCTURE=0 -DCMAKE_INSTALL_PREFIX="${{ github.workspace }}/obs-studio-portable" -DENABLE_UNIT_TESTS=ON -DENABLE_VLC=ON -DBUILD_CAPTIONS=ON -DWITH_RTMPS=ON -DBUILD_BROWSER=ON -DCEF_ROOT_DIR="${{ github.workspace }}/cmbuild/cef_binary_${{ env.CEF_BUILD_VERSION }}_linux64" -DWEBRTC_INCLUDE_DIR="${{ github.workspace }}/libwebrtc/include" -DWEBRTC_LIB="${{ github.workspace }}/libwebrtc/lib/libwebrtc.a" ..
       - name: 'Build'
         shell: bash
         working-directory: ${{ github.workspace }}/build
@@ -516,12 +530,16 @@ jobs:
         run: |
           curl -kL https://cdn-fastly.obsproject.com/downloads/cef_binary_${{ env.CEF_VERSION }}_windows64_minimal.zip -f --retry 5 -o cef.zip
           7z x cef.zip -o"${{ github.workspace }}/cmbuild"
+      - name: 'Install prerequisite: LibWebRTC'
+        run: |
+	  curl -kL https://www.palakis.fr/obs/obs-studio-webrtc/libWebRTC-${{ env.LIBWEBRTC_VERSION }}-x64-RelComm.exe -f --retry 5 -o libWebRTC.exe
+	  ./libWebRTC.exe /sp- /silent /norestart /dir="${{ github.workspace }}/libwebrtc"
       - name: 'Configure'
         run: |
           mkdir ./build
           mkdir ./build64
           cd ./build64
-          cmake -G"${{ env.CMAKE_GENERATOR }}" -A"x64" -DCMAKE_SYSTEM_VERSION="${{ env.CMAKE_SYSTEM_VERSION }}" -DBUILD_BROWSER=true -DBUILD_CAPTIONS=true -DCOMPILE_D3D12_HOOK=true -DVLCPath="${{ github.workspace }}/cmbuild/vlc" -DDepsPath="${{ github.workspace }}/cmbuild/deps/win64" -DQTDIR="${{ github.workspace }}/cmbuild/QT/${{ env.QT_VERSION }}/msvc2017_64" -DENABLE_VLC=ON -DCEF_ROOT_DIR="${{ github.workspace }}/cmbuild/cef_binary_${{ env.CEF_VERSION }}_windows64_minimal" -DCOPIED_DEPENDENCIES=FALSE -DCOPY_DEPENDENCIES=TRUE ..
+          cmake -G"${{ env.CMAKE_GENERATOR }}" -A"x64" -DCMAKE_SYSTEM_VERSION="${{ env.CMAKE_SYSTEM_VERSION }}" -DBUILD_BROWSER=true -DBUILD_CAPTIONS=true -DCOMPILE_D3D12_HOOK=true -DVLCPath="${{ github.workspace }}/cmbuild/vlc" -DDepsPath="${{ github.workspace }}/cmbuild/deps/win64" -DQTDIR="${{ github.workspace }}/cmbuild/QT/${{ env.QT_VERSION }}/msvc2017_64" -DENABLE_VLC=ON -DCEF_ROOT_DIR="${{ github.workspace }}/cmbuild/cef_binary_${{ env.CEF_VERSION }}_windows64_minimal" -DWEBRTC_INCLUDE_DIR="${{ github.workspace }}/libwebrtc/include" -DWEBRTC_LIB="${{ github.workspace }}/libwebrtc/lib/webrtc.lib" -DCOPIED_DEPENDENCIES=FALSE -DCOPY_DEPENDENCIES=TRUE ..
       - name: 'Build'
         run: msbuild /m /p:Configuration=RelWithDebInfo .\build64\obs-studio.sln
       - name: 'Package'
@@ -538,115 +556,3 @@ jobs:
         with:
           name: '${{ env.FILE_NAME }}'
           path: '*-win64.zip'
-
-  win32:
-    name: 'Windows 32-bit'
-    runs-on: [windows-latest]
-    env:
-      QT_VERSION: '5.10.1'
-      CMAKE_GENERATOR: "Visual Studio 16 2019"
-      CMAKE_SYSTEM_VERSION: "10.0.18363.657"
-      WINDOWS_DEPS_VERSION: '2017'
-      TWITCH-CLIENTID: ${{ secrets.TWITCH_CLIENTID }}
-      TWITCH-HASH: ${{ secrets.TWITCH_HASH }}
-      RESTREAM-CLIENTID: ${{ secrets.RESTREAM-CLIENTID }}
-      RESTREAM-HASH: ${{ secrets.RESTREAM-HASH }}
-    steps:
-      - name: 'Add msbuild to PATH'
-        uses: microsoft/setup-msbuild@v1.0.0
-      - name: 'Checkout'
-        uses: actions/checkout@v2
-        with:
-          submodules: 'recursive'
-      - name: 'Fetch Git Tags'
-        shell: bash
-        run: |
-          git fetch --prune --unshallow
-          echo ::set-env name=OBS_GIT_BRANCH::$(git rev-parse --abbrev-ref HEAD)
-          echo ::set-env name=OBS_GIT_HASH::$(git rev-parse --short HEAD)
-          echo ::set-env name=OBS_GIT_TAG::$(git describe --tags --abbrev=0)
-      - name: 'Check for Github Labels'
-        if: github.event_name == 'pull_request'
-        shell: bash
-        run: |
-          LABELS_URL="$(echo ${{ github.event.pull_request.url }} | sed s'/pulls/issues/')"
-          LABEL_FOUND="$(curl -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" "${LABELS_URL}/labels" | sed -n 's/.*"name": "\(.*\)",/\1/p' | grep 'Seeking Testers' || true)"
-          if [ "${LABEL_FOUND}" = "Seeking Testers" ]; then
-            echo ::set-env name=SEEKING_TESTERS::1
-          else
-            echo ::set-env name=SEEKING_TESTERS::0
-          fi
-      - name: 'Restore QT dependency from cache'
-        id: qt-cache
-        uses: actions/cache@v1
-        env:
-          CACHE_NAME: 'qt-cache'
-        with:
-          path: ${{ github.workspace }}/cmbuild/QT
-          key: ${{ runner.os }}-pr-${{ env.CACHE_NAME }}-${{ env.QT_VERSION }}
-      - name: 'Restore pre-built dependencies from cache'
-        id: deps-cache
-        uses: actions/cache@v1
-        env:
-          CACHE_NAME: 'deps-cache'
-        with:
-          path: ${{ github.workspace }}/cmbuild/deps
-          key: ${{ runner.os }}-pr-${{ env.CACHE_NAME }}-${{ env.WINDOWS_DEPS_VERSION }}
-      - name: 'Restore VLC dependency from cache'
-        id: vlc-cache
-        uses: actions/cache@v1
-        env:
-          CACHE_NAME: 'vlc-cache'
-        with:
-          path: ${{ github.workspace }}/cmbuild/vlc
-          key: ${{ runner.os }}-pr-${{ env.CACHE_NAME }}-${{ env.WINDOWS_VLC_VERSION }}
-      - name: 'Restore CEF dependency from cache (32 bit)'
-        id: cef-cache
-        uses: actions/cache@v1
-        env:
-          CACHE_NAME: 'cef-32-cache'
-        with:
-          path: ${{ github.workspace }}/cmbuild/cef_binary_${{ env.CEF_VERSION }}_windows32_minimal
-          key: ${{ runner.os }}-pr-${{ env.CACHE_NAME }}-${{ env.CEF_BUILD_VERSION }}
-      - name: 'Install prerequisite: QT'
-        if: steps.qt-cache.outputs.cache-hit != 'true'
-        run: |
-          curl -kLO https://cdn-fastly.obsproject.com/downloads/Qt_${{ env.QT_VERSION }}.7z -f --retry 5 -C -
-          7z x Qt_${{ env.QT_VERSION }}.7z -o"${{ github.workspace }}/cmbuild/QT"
-      - name: 'Install prerequisite: Pre-built dependencies'
-        if: steps.deps-cache.outputs.cache-hit != 'true'
-        run: |
-          curl -kLO https://cdn-fastly.obsproject.com/downloads/dependencies${{ env.WINDOWS_DEPS_VERSION }}.zip -f --retry 5 -C -
-          7z x dependencies${{ env.WINDOWS_DEPS_VERSION }}.zip -o"${{ github.workspace }}/cmbuild/deps"
-      - name: 'Install prerequisite: VLC'
-        if: steps.vlc-cache.outputs.cache-hit != 'true'
-        run: |
-          curl -kL https://cdn-fastly.obsproject.com/downloads/vlc.zip -f --retry 5 -o vlc.zip
-          7z x vlc.zip -o"${{ github.workspace }}/cmbuild/vlc"
-      - name: 'Install prerequisite: Chromium Embedded Framework'
-        if: steps.cef-cache.outputs.cache-hit != 'true'
-        run: |
-          curl -kL https://cdn-fastly.obsproject.com/downloads/cef_binary_${{ env.CEF_VERSION }}_windows32_minimal.zip -f --retry 5 -o cef.zip
-          7z x cef.zip -o"${{ github.workspace }}/cmbuild"
-      - name: 'Configure'
-        run: |
-          mkdir ./build
-          mkdir ./build32
-          cd ./build32
-          cmake -G"${{ env.CMAKE_GENERATOR }}" -A"Win32" -DCMAKE_SYSTEM_VERSION="${{ env.CMAKE_SYSTEM_VERSION }}" -DENABLE_VLC=ON -DBUILD_BROWSER=true -DBUILD_CAPTIONS=true -DCOMPILE_D3D12_HOOK=true -DVLCPath="${{ github.workspace }}/cmbuild/vlc" -DDepsPath="${{ github.workspace }}/cmbuild/deps/win32" -DQTDIR="${{ github.workspace }}/cmbuild/QT/${{ env.QT_VERSION }}/msvc2017" -DCEF_ROOT_DIR="${{ github.workspace }}/cmbuild/cef_binary_${{ env.CEF_VERSION }}_windows32_minimal" -DCOPIED_DEPENDENCIES=FALSE -DCOPY_DEPENDENCIES=TRUE ..
-      - name: 'Build'
-        run: msbuild /m /p:Configuration=RelWithDebInfo .\build32\obs-studio.sln
-      - name: 'Package'
-        if: success() && (github.event_name != 'pull_request' || env.SEEKING_TESTERS == '1')
-        run: |
-          $env:FILE_DATE=(Get-Date -UFormat "%F")
-          $env:FILE_NAME="${env:FILE_DATE}-${{ env.OBS_GIT_HASH }}-${{ env.OBS_GIT_TAG }}-win32.zip"
-          echo "::set-env name=FILE_NAME::${env:FILE_NAME}"
-          robocopy .\build32\rundir\RelWithDebInfo .\build\ /E /XF .gitignore
-          7z a ${env:FILE_NAME} .\build\*
-      - name: 'Publish'
-        if: success() && (github.event_name != 'pull_request' || env.SEEKING_TESTERS == '1')
-        uses: actions/upload-artifact@v2-preview
-        with:
-          name: '${{ env.FILE_NAME }}'
-          path: '*-win32.zip'

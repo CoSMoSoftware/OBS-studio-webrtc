@@ -45,6 +45,7 @@ CI_DEPS_VERSION=$(cat ${CI_WORKFLOW} | sed -En "s/[ ]+MACOS_DEPS_VERSION: '([0-9
 CI_VLC_VERSION=$(cat ${CI_WORKFLOW} | sed -En "s/[ ]+VLC_VERSION: '([0-9\.]+)'/\1/p")
 CI_SPARKLE_VERSION=$(cat ${CI_WORKFLOW} | sed -En "s/[ ]+SPARKLE_VERSION: '([0-9\.]+)'/\1/p")
 CI_QT_VERSION=$(cat ${CI_WORKFLOW} | sed -En "s/[ ]+QT_VERSION: '([0-9\.]+)'/\1/p" | head -1)
+CI_LIBWEBRTC_VERSION=$(cat ${CI_WORKFLOW} | sed -En "s/[ ]+LIBWEBRTC_VERSION: '([0-9\.]+)'/\1/p" | head -1)
 
 BUILD_DEPS=(
     "obs-deps ${MACOS_DEPS_VERSION:-${CI_DEPS_VERSION}}"
@@ -52,6 +53,7 @@ BUILD_DEPS=(
     "cef ${CEF_BUILD_VERSION:-${CI_CEF_VERSION}}"
     "vlc ${VLC_VERSION:-${CI_VLC_VERSION}}"
     "sparkle ${SPARKLE_VERSION:-${CI_SPARKLE_VERSION}}"
+    "libwebrtc ${LIBWEBRTC_VERSION:-${CI_LIBWEBRTC_VERSION}}"
 )
 
 if [ -n "${TERM-}" ]; then
@@ -211,6 +213,17 @@ install_cef() {
     if [ ! -d libcef_dll ]; then mkdir libcef_dll; fi
 }
 
+install_libwebrtc() {
+    hr "Installing LibWebRTC v${1}"
+    ensure_dir ${DEPS_BUILD_DIR}
+    step "Download..."
+    ${CURLCMD} --progress-bar -L -C - -o libWebRTC.dmg https://www.palakis.fr/obs/obs-studio-webrtc/libWebRTC-${1}-x64-RelComm.dmg
+    step "Unpack..."
+    hdiutil convert -quiet libWebRTC.dmg -format UDTO -o libWebRTC
+    hdiutil attach -quiet -nobrowse -noverify -noautopen libWebRTC.cdr
+    cp -r /Volumes/libWebRTC-${{ env.LIBWEBRTC_VERSION }}-x64-Release/libwebrtc ./
+}
+
 ## CHECK AND INSTALL PACKAGING DEPENDENCIES ##
 install_dmgbuild() {
     if ! exists dmgbuild; then
@@ -262,6 +275,8 @@ configure_obs_build() {
         -DBUILD_CAPTIONS=ON \
         -DWITH_RTMPS=ON \
         -DCEF_ROOT_DIR="${DEPS_BUILD_DIR}/cef_binary_${CEF_BUILD_VERSION:-${CI_CEF_VERSION}}_macosx64" \
+	-DWEBRTC_INCLUDE_DIR="${DEPS_BUILD_DIR}/libwebrtc/include" \
+	-DWEBRTC_LIB="${DEPS_BUILD_DIR}/libwebrtc/lib/libwebrtc.a" \
         ..
 
 }

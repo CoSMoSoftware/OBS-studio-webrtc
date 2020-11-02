@@ -4,6 +4,7 @@ variables:
   CMAKE_PREFIX_PATH: /usr/local/opt/qt5/lib/cmake
   CEF_BUILD_VERSION: 3770
   CEF_VERSION: 75.1.16+g16a67c4+chromium-75.0.3770.100
+  LIBWEBRTC_VERSION: 84.0
   TWITCH-CLIENTID: $(twitch_clientid)
   TWITCH-HASH: $(twitch_hash)
   RESTREAM-CLIENTID: $(restream_clientid)
@@ -46,33 +47,6 @@ jobs:
     inputs:
       pathtoPublish: './nightly'
       artifactName: macbuild
-
-- job: 'Build_Windows32'
-  dependsOn: Prebuild
-  variables:
-    prHasCILabel: $[ dependencies.Prebuild.outputs['checkPrLabel.prHasCILabel'] ]
-  pool:
-    vmImage: 'windows-2019'
-  steps:
-  - script: git submodule update --init --recursive
-    displayName: 'Checkout Submodules'
-  - script: ./CI/install-qt-win.cmd
-    displayName: 'Install QT'
-  - script: ./CI/install-script-win.cmd
-    displayName: 'Download / Setup Deps / Run CMake'
-  - task: MSBuild@1
-    displayName: 'Build 32-bit'
-    inputs:
-      msbuildArguments: '/m /p:Configuration=RelWithDebInfo'
-      solution: .\build32\obs-studio.sln
-  - script: ./CI/before-deploy-win.cmd
-    condition: or(ne(variables['Build.Reason'], 'PullRequest'), eq(variables['prHasCILabel'], true))
-    displayName: 'Before deploy'
-  - task: PublishBuildArtifacts@1
-    condition: or(ne(variables['Build.Reason'], 'PullRequest'), eq(variables['prHasCILabel'], true))
-    inputs:
-      pathtoPublish: './build'
-      artifactName: winbuild
 
 - job: 'Build_Windows64'
   dependsOn: Prebuild
