@@ -52,4 +52,5 @@ tar -xjf ./cef_binary_${CEF_BUILD_VERSION}_linux64.tar.bz2
 # libwebrtc
 wget --quiet --retry-connrefused --waitretry=1 https://www.palakis.fr/obs/obs-studio-webrtc/libWebRTC-${LIBWEBRTC_VERSION}-x64-Release-Community.sh -o libWebRTC.sh
 chmod +x libWebRTC.sh
-./libWebRTC.sh --prefix="./libwebrtc"
+mkdir libwebrtc
+./libWebRTC.sh --prefix="./libwebrtc" --skip-license
