@@ -145,7 +145,7 @@ jobs:
 	run: |
 	  curl -L https://www.palakis.fr/obs/obs-studio-webrtc/libWebRTC-${{ env.LIBWEBRTC_VERSION }}-x64-RelComm.dmg -f --retry 5 -o libWebRTC.dmg
 	  hdiutil convert -quiet libWebRTC.dmg -format UDTO -o libWebRTC
-	  hdiutil attach -quiet -nobrowse -noverify -noautopen libWebRTC.cdr
+	  hdiutil attach -quiet -nobrowse -noverify libWebRTC.cdr
 	  cp -r /Volumes/libWebRTC-${{ env.LIBWEBRTC_VERSION }}-x64-Release/libwebrtc "${{ github.workspace }}"
       - name: 'Configure'
         shell: bash

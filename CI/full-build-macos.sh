@@ -221,7 +221,7 @@ install_libwebrtc() {
     step "Bypass the EULA by converting the DMG download to a CDR image"
     hdiutil convert -quiet libWebRTC.dmg -format UDTO -o libWebRTC
     step "Mount the CDR image"
-    hdiutil attach -quiet -nobrowse -noverify -noautopen libWebRTC.cdr
+    hdiutil attach -quiet -nobrowse -noverify libWebRTC.cdr
     step "Copy to destination..."
     cp -r /Volumes/libWebRTC-${1}-x64-Release/libwebrtc ./
 }
