@@ -766,6 +766,10 @@
                     "url": "rtmp://rtmp-wsu.afreecatv.com/app"
                 },
                 {
+                    "name": "Europe : UK",
+                    "url": "rtmp://rtmp-uk.afreecatv.com/app"
+                },
+                {
                     "name": "Asia : Singapore",
                     "url": "rtmp://rtmp-sgp.afreecatv.com/app"
                 }
@@ -1730,32 +1734,6 @@
                 "profile": "high",
                 "max video bitrate": 3500,
                 "max audio bitrate": 160
-            }
-        },
-        {
-            "name": "weabook.live",
-            "servers": [
-                {
-                    "name": "N.Virgina, US",
-                    "url": "rtmp://us-api.weabook.live/live"
-                },
-                {
-                    "name": "Singapore, SG",
-                    "url": "rtmp://sg-api.weabook.live/live"
-                },
-                {
-                    "name": "Tokyo, JP",
-                    "url": "rtmp://jp-api.weabook.live/live"
-                },
-                {
-                    "name": "Premium Streaming",
-                    "url": "rtmp://premium.rtmp.weabook.live/live"
-                }
-            ],
-            "recommended": {
-                "keyint": 2,
-                "max audio bitrate": 256,
-                "max video bitrate": 20480
             }
         },
         {

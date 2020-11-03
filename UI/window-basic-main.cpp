@@ -326,6 +326,10 @@ OBSBasic::OBSBasic(QWidget *parent)
 	renameSource->setShortcut({Qt::Key_F2});
 #endif
 
+#ifdef __linux__
+	ui->actionE_xit->setShortcut(Qt::CTRL + Qt::Key_Q);
+#endif
+
 	auto addNudge = [this](const QKeySequence &seq, const char *s) {
 		QAction *nudge = new QAction(ui->preview);
 		nudge->setShortcut(seq);
@@ -1554,6 +1558,8 @@ void OBSBasic::AddVCamButton()
 
 	vcamButton->setProperty("themeID", "vcamButton");
 	ui->buttonsVLayout->insertWidget(2, vcamButton);
+	setTabOrder(ui->recordButton, vcamButton);
+	setTabOrder(vcamButton, ui->modeSwitch);
 }
 
 void OBSBasic::ResetOutputs()
@@ -1588,6 +1594,9 @@ void OBSBasic::ResetOutputs()
 			replayBufferButton->setProperty("themeID",
 							"replayBufferButton");
 			ui->buttonsVLayout->insertLayout(2, replayLayout);
+			setTabOrder(ui->recordButton, replayBufferButton);
+			setTabOrder(replayBufferButton,
+				    ui->buttonsVLayout->itemAt(3)->widget());
 		}
 
 		if (sysTrayReplayBuffer)
@@ -1865,6 +1874,10 @@ void OBSBasic::OBSInit()
 
 #ifndef __APPLE__
 	SystemTray(true);
+#endif
+
+#ifdef __APPLE__
+	disableColorSpaceConversion(this);
 #endif
 
 	bool has_last_version = config_has_user_value(App()->GlobalConfig(),
@@ -7035,15 +7048,6 @@ OBSProjector *OBSBasic::OpenProjector(obs_source_t *source, int monitor,
 	if (monitor > 9 || monitor > QGuiApplication::screens().size() - 1)
 		return nullptr;
 
-	if (monitor > -1) {
-		for (size_t i = 0; i < projectors.size(); i++) {
-			if (projectors[i]->GetMonitor() == monitor) {
-				DeleteProjector(projectors[i]);
-				break;
-			}
-		}
-	}
-
 	OBSProjector *projector =
 		new OBSProjector(nullptr, source, monitor, type);
 
@@ -8211,6 +8215,10 @@ void OBSBasic::UpdateReplayBuffer(bool activate)
 	connect(replay.data(), &QAbstractButton::clicked, this,
 		&OBSBasic::ReplayBufferSave);
 	replayLayout->addWidget(replay.data());
+	setTabOrder(replayLayout->itemAt(0)->widget(),
+		    replayLayout->itemAt(1)->widget());
+	setTabOrder(replayLayout->itemAt(1)->widget(),
+		    ui->buttonsVLayout->itemAt(3)->widget());
 }
 
 #define MBYTE (1024ULL * 1024ULL)
