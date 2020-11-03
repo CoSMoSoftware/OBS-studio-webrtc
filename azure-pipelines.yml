@@ -64,7 +64,7 @@ jobs:
   - task: MSBuild@1
     displayName: 'Build 64-bit'
     inputs:
-      msbuildArguments: '/m /p:Configuration=RelWithDebInfo'
+      msbuildArguments: '/m /p:Configuration=Release'
       solution: .\build64\obs-studio.sln
   - script: ./CI/before-deploy-win.cmd
     condition: or(ne(variables['Build.Reason'], 'PullRequest'), eq(variables['prHasCILabel'], true))
