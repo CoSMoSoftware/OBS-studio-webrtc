@@ -133,6 +133,8 @@ private:
     std::string video_codec;
     int channel_count;
 
+    void resetStats();
+
     // NOTE LUDO: #80 add getStats
     std::string stats_list;
     uint16_t frame_id;

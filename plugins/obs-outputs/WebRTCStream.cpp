@@ -61,11 +61,7 @@ WebRTCStream::WebRTCStream(obs_output_t *output)
     rtc::LogMessage::RemoveLogToStream(&logger);
     rtc::LogMessage::AddLogToStream(&logger, rtc::LoggingSeverity::LS_VERBOSE);
 
-    frame_id = 0;
-    pli_received = 0;
-    audio_bytes_sent = 0;
-    video_bytes_sent = 0;
-    total_bytes_sent = 0;
+    resetStats();
 
     audio_bitrate = 128;
     video_bitrate = 2500;
@@ -135,10 +131,23 @@ WebRTCStream::~WebRTCStream()
     signaling.release();
 }
 
+void WebRTCStream::resetStats()
+{
+    stats_list           = "";
+    frame_id             = 0;
+    pli_received         = 0;
+    audio_bytes_sent     = 0;
+    video_bytes_sent     = 0;
+    total_bytes_sent     = 0;
+    previous_frames_sent = 0;
+}
+
 bool WebRTCStream::start(WebRTCStream::Type type)
 {
     info("WebRTCStream::start");
     this->type = type;
+
+    resetStats();
 
     // Access service if started, or fail
 
