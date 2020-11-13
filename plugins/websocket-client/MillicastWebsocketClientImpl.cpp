@@ -194,6 +194,13 @@ bool MillicastWebsocketClientImpl::open(
         const std::string & stream_name)
 {
     info("WS-OPEN: stream_name: %s", stream_name.c_str());
+
+    // Make sure video_codec is not empty
+    if (video_codec.empty()) {
+        warn("Error: opening stream with video codec not selected (Automatic)");
+        return false;
+    }
+
     try {
         json data_without_codec = {
             { "name", sanitizeString(stream_name) },

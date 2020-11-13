@@ -368,9 +368,9 @@ void WebRTCStream::OnSuccess(webrtc::SessionDescriptionInterface *desc)
     std::string sdpCopy = sdp;
     std::vector<int> audio_payloads;
     std::vector<int> video_payloads;
-    // If codec setting is Automatic
+    // If codec setting is Automatic, set it to h264 by default
     if(video_codec.empty()) {
-        video_codec = "";
+        video_codec = "h264"; // h264 must be in lowercase (Firefox)
     }
     // Force specific video/audio payload
     SDPModif::forcePayload(
