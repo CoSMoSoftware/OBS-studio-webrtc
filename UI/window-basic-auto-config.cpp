@@ -41,7 +41,7 @@ static OBSData OpenServiceSettings(std::string &type)
 		obs_data_create_from_json_file_safe(serviceJsonPath, "bak");
 	obs_data_release(data);
 
-	obs_data_set_default_string(data, "type", "webrtc_evercast");
+	obs_data_set_default_string(data, "type", "webrtc_millicast");
 	type = obs_data_get_string(data, "type");
 
 	OBSData settings = obs_data_get_obj(data, "settings");
@@ -302,7 +302,7 @@ bool AutoConfigStreamPage::validatePage()
 	wiz->customServer = IsCustom();
 
 	const char *serverType = wiz->customServer ? "rtmp_custom"
-						   : "webrtc_evercast";
+						   : "webrtc_millicast";
 
 	if (!wiz->customServer) {
 		obs_data_set_string(service_settings, "service",
@@ -603,7 +603,7 @@ void AutoConfigStreamPage::UpdateKeyLink()
 
 void AutoConfigStreamPage::LoadServices(bool showAll)
 {
-	obs_properties_t *props = obs_get_service_properties("webrtc_evercast");
+	obs_properties_t *props = obs_get_service_properties("webrtc_millicast");
 
 	OBSData settings = obs_data_create();
 	obs_data_release(settings);
@@ -666,7 +666,7 @@ void AutoConfigStreamPage::UpdateServerList()
 		lastService = serviceName;
 	}
 
-	obs_properties_t *props = obs_get_service_properties("webrtc_evercast");
+	obs_properties_t *props = obs_get_service_properties("webrtc_millicast");
 	obs_property_t *services = obs_properties_get(props, "service");
 
 	OBSData settings = obs_data_create();
@@ -755,7 +755,7 @@ AutoConfig::AutoConfig(QWidget *parent) : QWizard(parent)
 
 	obs_data_set_string(twitchSettings, "service", "Twitch");
 
-	obs_properties_t *props = obs_get_service_properties("webrtc_evercast");
+	obs_properties_t *props = obs_get_service_properties("webrtc_millicast");
 	obs_properties_apply_settings(props, twitchSettings);
 
 	obs_property_t *p = obs_properties_get(props, "server");
@@ -934,7 +934,7 @@ void AutoConfig::SaveStreamSettings()
 	/* ---------------------------------- */
 	/* save service                       */
 
-	const char *service_id = customServer ? "rtmp_custom" : "webrtc_evercast";
+	const char *service_id = customServer ? "rtmp_custom" : "webrtc_millicast";
 
 	obs_service_t *oldService = main->GetService();
 	OBSData hotkeyData = obs_hotkeys_save_service(oldService);

@@ -51,7 +51,7 @@ bool MillicastWebsocketClientImpl::connect(
     conn->SetHeaders(headers);
     conn->SetTimeout(5);
     const std::string publish_api_url =
-            "https://director.millicast.com/api/director/publish";
+            "https://director.pacpostla.live/api/director/publish";
     json data = {{ "streamName", sanitizeString(stream_name) }};
     RestClient::Response r = conn->post(publish_api_url, data.dump());
     delete conn;
@@ -194,13 +194,6 @@ bool MillicastWebsocketClientImpl::open(
         const std::string & stream_name)
 {
     info("WS-OPEN: stream_name: %s", stream_name.c_str());
-
-    // Make sure video_codec is not empty
-    if (video_codec.empty()) {
-        warn("Error: opening stream with video codec not selected (Automatic)");
-        return false;
-    }
-
     try {
         json data_without_codec = {
             { "name", sanitizeString(stream_name) },
