@@ -10,7 +10,7 @@ set(rtmp-services_SOURCES
 	webrtc-janus.c
 	webrtc-millicast.c
 	webrtc-custom.c
-	)
+)
 
 set(rtmp-services_HEADERS
 	twitch.h

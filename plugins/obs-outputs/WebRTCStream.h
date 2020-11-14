@@ -52,7 +52,7 @@ public:
     enum Type {
         Janus     = 0,
         Millicast = 1,
-	CustomWebrtc = 2 
+        CustomWebrtc = 2 
     };
 
     WebRTCStream(obs_output_t *output);

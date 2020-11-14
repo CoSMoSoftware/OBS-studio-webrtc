@@ -30,7 +30,6 @@ bool obs_module_load(void)
 	WSADATA wsad;
 	WSAStartup(MAKEWORD(2, 2), &wsad);
 #endif
-
 	obs_register_output(&rtmp_output_info);
 	obs_register_output(&null_output_info);
 	obs_register_output(&flv_output_info);
