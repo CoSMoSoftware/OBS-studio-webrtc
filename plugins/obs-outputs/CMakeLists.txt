@@ -10,6 +10,20 @@ if (WITH_RTMPS OR (WITH_RTMPS STREQUAL "AUTO"))
 	find_package(ZLIB QUIET)
 endif()
 
+if (LIBMBEDTLS_FOUND AND ZLIB_FOUND)
+	add_definitions(-DCRYPTO -DUSE_MBEDTLS)
+	include_directories(${LIBMBEDTLS_INCLUDE_DIRS} ${ZLIB_INCLUDE_DIRS})
+else()
+	if(WITH_RTMPS STREQUAL "AUTO")
+		message(WARNING "mbedTLS was not found, RTMPS will be auto-disabled")
+	elseif (WITH_RTMPS)
+		message(FATAL_ERROR "RTMPS enabled by user, but mbedTLS was not found")
+	endif()
+	unset(LIBMBEDTLS_LIBRARIES)
+	unset(ZLIB_LIBRARIES)
+	add_definitions(-DNO_CRYPTO)
+endif()
+
 # --- Find libwebrtc or fail early
 if( WIN32 )
   # NOTE ALEX: David claims that it does not work.
@@ -71,15 +85,6 @@ if (EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/ftl-sdk/CMakeLists.txt")
   include_directories(ftl-sdk/libftl)
 
   set(COMPILE_FTL TRUE)
-else()
-	if(WITH_RTMPS STREQUAL "AUTO")
-		message(WARNING "mbedTLS was not found, RTMPS will be auto-disabled")
-	elseif (WITH_RTMPS)
-		message(FATAL_ERROR "RTMPS enabled by user, but mbedTLS was not found")
-	endif()
-	unset(LIBMBEDTLS_LIBRARIES)
-	unset(ZLIB_LIBRARIES)
-	add_definitions(-DNO_CRYPTO)
 endif()
 
 #------------------------------------------------------------------------

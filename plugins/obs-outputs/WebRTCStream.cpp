@@ -180,17 +180,17 @@ bool WebRTCStream::start(WebRTCStream::Type type)
             warn("Invalid url");
             isServiceValid = false;
         }
+        if (type != WebRTCStream::Type::CustomWebrtc) {
+            if (room.empty()) {
+                warn("Missing room ID");
+                isServiceValid = false;
+            }
+            if (password.empty()) {
+                warn("Missing Password");
+                isServiceValid = false;
+            }
+        }
     }
-	  if (type != WebRTCStream::Type::CustomWebrtc) {
-		    if (room.empty()) {
-			      warn("Missing room ID");
-			      isServiceValid = false;
-		    }
-		    if (password.empty()) {
-			      warn("Missing Password");
-			      isServiceValid = false;
-		    }
-    } 
     
     if (!isServiceValid) {
         obs_output_set_last_error(
