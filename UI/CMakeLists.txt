@@ -404,4 +404,4 @@ if(WIN32)
 	add_subdirectory(win-update/updater)
 endif()
 
-configure_file(${CMAKE_CURRENT_SOURCE_DIR}/webrtcVersion.in ${CMAKE_CURRENT_SOURCE_DIR}/webrtcVersion.h)
+#configure_file(${CMAKE_CURRENT_SOURCE_DIR}/webrtcVersion.in ${CMAKE_CURRENT_SOURCE_DIR}/webrtcVersion.h)
