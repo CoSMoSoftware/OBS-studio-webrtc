@@ -248,10 +248,10 @@ configure_obs_build() {
     NIGHTLY_DIR="${CHECKOUT_DIR}/nightly-${CUR_DATE}"
     PACKAGE_NAME=$(find . -name "*.dmg")
 
-    if [ -d ./OBS.app ]; then
+    if [ -d ./OBS-WebRTC.app ]; then
         ensure_dir "${NIGHTLY_DIR}"
-        mv ../${BUILD_DIR}/OBS.app .
-        info "You can find OBS.app in ${NIGHTLY_DIR}"
+        mv ../${BUILD_DIR}/OBS-WebRTC.app .
+        info "You can find OBS-WebRTC.app in ${NIGHTLY_DIR}"
     fi
     ensure_dir "${CHECKOUT_DIR}/${BUILD_DIR}"
     if ([ -n "${PACKAGE_NAME}" ] && [ -f ${PACKAGE_NAME} ]); then
@@ -290,65 +290,65 @@ run_obs_build() {
 bundle_dylibs() {
     ensure_dir "${CHECKOUT_DIR}/${BUILD_DIR}"
 
-    if [ ! -d ./OBS.app ]; then
-        error "No OBS.app bundle found"
+    if [ ! -d ./OBS-WebRTC.app ]; then
+        error "No OBS-WebRTC.app bundle found"
         exit 1
     fi
 
     hr "Bundle dylibs for macOS application"
 
     step "Run dylibBundler.."
-    ${CI_SCRIPTS}/app/dylibbundler -cd -of -a ./OBS.app -q -f \
-        -s ./OBS.app/Contents/MacOS \
+    ${CI_SCRIPTS}/app/dylibbundler -cd -of -a ./OBS-WebRTC.app -q -f \
+        -s ./OBS-WebRTC.app/Contents/MacOS \
         -s ./rundir/RelWithDebInfo/bin/ \
-        -x ./OBS.app/Contents/PlugIns/coreaudio-encoder.so \
-        -x ./OBS.app/Contents/PlugIns/decklink-ouput-ui.so \
-        -x ./OBS.app/Contents/PlugIns/frontend-tools.so \
-        -x ./OBS.app/Contents/PlugIns/image-source.so \
-        -x ./OBS.app/Contents/PlugIns/linux-jack.so \
-        -x ./OBS.app/Contents/PlugIns/mac-avcapture.so \
-        -x ./OBS.app/Contents/PlugIns/mac-capture.so \
-        -x ./OBS.app/Contents/PlugIns/mac-decklink.so \
-        -x ./OBS.app/Contents/PlugIns/mac-syphon.so \
-        -x ./OBS.app/Contents/PlugIns/mac-vth264.so \
-        -x ./OBS.app/Contents/PlugIns/obs-browser.so \
-        -x ./OBS.app/Contents/PlugIns/obs-browser-page \
-        -x ./OBS.app/Contents/PlugIns/obs-ffmpeg.so \
-        -x ./OBS.app/Contents/PlugIns/obs-filters.so \
-        -x ./OBS.app/Contents/PlugIns/obs-transitions.so \
-        -x ./OBS.app/Contents/PlugIns/obs-vst.so \
-        -x ./OBS.app/Contents/PlugIns/rtmp-services.so \
-        -x ./OBS.app/Contents/MacOS/obs-ffmpeg-mux \
-        -x ./OBS.app/Contents/MacOS/obslua.so \
-        -x ./OBS.app/Contents/PlugIns/obs-x264.so \
-        -x ./OBS.app/Contents/PlugIns/text-freetype2.so \
-        -x ./OBS.app/Contents/PlugIns/obs-libfdk.so \
-        -x ./OBS.app/Contents/PlugIns/obs-outputs.so
+        -x ./OBS-WebRTC.app/Contents/PlugIns/coreaudio-encoder.so \
+        -x ./OBS-WebRTC.app/Contents/PlugIns/decklink-ouput-ui.so \
+        -x ./OBS-WebRTC.app/Contents/PlugIns/frontend-tools.so \
+        -x ./OBS-WebRTC.app/Contents/PlugIns/image-source.so \
+        -x ./OBS-WebRTC.app/Contents/PlugIns/linux-jack.so \
+        -x ./OBS-WebRTC.app/Contents/PlugIns/mac-avcapture.so \
+        -x ./OBS-WebRTC.app/Contents/PlugIns/mac-capture.so \
+        -x ./OBS-WebRTC.app/Contents/PlugIns/mac-decklink.so \
+        -x ./OBS-WebRTC.app/Contents/PlugIns/mac-syphon.so \
+        -x ./OBS-WebRTC.app/Contents/PlugIns/mac-vth264.so \
+        -x ./OBS-WebRTC.app/Contents/PlugIns/obs-browser.so \
+        -x ./OBS-WebRTC.app/Contents/PlugIns/obs-browser-page \
+        -x ./OBS-WebRTC.app/Contents/PlugIns/obs-ffmpeg.so \
+        -x ./OBS-WebRTC.app/Contents/PlugIns/obs-filters.so \
+        -x ./OBS-WebRTC.app/Contents/PlugIns/obs-transitions.so \
+        -x ./OBS-WebRTC.app/Contents/PlugIns/obs-vst.so \
+        -x ./OBS-WebRTC.app/Contents/PlugIns/rtmp-services.so \
+        -x ./OBS-WebRTC.app/Contents/MacOS/obs-ffmpeg-mux \
+        -x ./OBS-WebRTC.app/Contents/MacOS/obslua.so \
+        -x ./OBS-WebRTC.app/Contents/PlugIns/obs-x264.so \
+        -x ./OBS-WebRTC.app/Contents/PlugIns/text-freetype2.so \
+        -x ./OBS-WebRTC.app/Contents/PlugIns/obs-libfdk.so \
+        -x ./OBS-WebRTC.app/Contents/PlugIns/obs-outputs.so
     step "Move libobs-opengl to final destination"
-    cp ./libobs-opengl/libobs-opengl.so ./OBS.app/Contents/Frameworks
+    cp ./libobs-opengl/libobs-opengl.so ./OBS-WebRTC.app/Contents/Frameworks
 
     step "Copy QtNetwork for plugin support"
-    cp -R /tmp/obsdeps/lib/QtNetwork.framework ./OBS.app/Contents/Frameworks
-    chmod -R +w ./OBS.app/Contents/Frameworks/QtNetwork.framework
-    rm -r ./OBS.app/Contents/Frameworks/QtNetwork.framework/Headers
-    rm -r ./OBS.app/Contents/Frameworks/QtNetwork.framework/Versions/5/Headers/
-    chmod 644 ./OBS.app/Contents/Frameworks/QtNetwork.framework/Versions/5/Resources/Info.plist
-    install_name_tool -id @executable_path/../Frameworks/QtNetwork.framework/Versions/5/QtNetwork ./OBS.app/Contents/Frameworks/QtNetwork.framework/Versions/5/QtNetwork
-    install_name_tool -change /tmp/obsdeps/lib/QtCore.framework/Versions/5/QtCore @executable_path/../Frameworks/QtCore.framework/Versions/5/QtCore ./OBS.app/Contents/Frameworks/QtNetwork.framework/Versions/5/QtNetwork
+    cp -R /tmp/obsdeps/lib/QtNetwork.framework ./OBS-WebRTC.app/Contents/Frameworks
+    chmod -R +w ./OBS-WebRTC.app/Contents/Frameworks/QtNetwork.framework
+    rm -r ./OBS-WebRTC.app/Contents/Frameworks/QtNetwork.framework/Headers
+    rm -r ./OBS-WebRTC.app/Contents/Frameworks/QtNetwork.framework/Versions/5/Headers/
+    chmod 644 ./OBS-WebRTC.app/Contents/Frameworks/QtNetwork.framework/Versions/5/Resources/Info.plist
+    install_name_tool -id @executable_path/../Frameworks/QtNetwork.framework/Versions/5/QtNetwork ./OBS-WebRTC.app/Contents/Frameworks/QtNetwork.framework/Versions/5/QtNetwork
+    install_name_tool -change /tmp/obsdeps/lib/QtCore.framework/Versions/5/QtCore @executable_path/../Frameworks/QtCore.framework/Versions/5/QtCore ./OBS-WebRTC.app/Contents/Frameworks/QtNetwork.framework/Versions/5/QtNetwork
 }
 
 install_frameworks() {
     ensure_dir "${CHECKOUT_DIR}/${BUILD_DIR}"
 
-    if [ ! -d ./OBS.app ]; then
-        error "No OBS.app bundle found"
+    if [ ! -d ./OBS-WebRTC.app ]; then
+        error "No OBS-WebRTC.app bundle found"
         exit 1
     fi
 
     hr "Adding Chromium Embedded Framework"
     step "Copy Framework..."
-    sudo cp -R "${DEPS_BUILD_DIR}/cef_binary_${CEF_BUILD_VERSION:-${CI_CEF_VERSION}}_macosx64/Release/Chromium Embedded Framework.framework" ./OBS.app/Contents/Frameworks/
-    sudo chown -R $(whoami) ./OBS.app/Contents/Frameworks/
+    sudo cp -R "${DEPS_BUILD_DIR}/cef_binary_${CEF_BUILD_VERSION:-${CI_CEF_VERSION}}_macosx64/Release/Chromium Embedded Framework.framework" ./OBS-WebRTC.app/Contents/Frameworks/
+    sudo chown -R $(whoami) ./OBS-WebRTC.app/Contents/Frameworks/
 }
 
 prepare_macos_bundle() {
@@ -359,48 +359,48 @@ prepare_macos_bundle() {
         return
     fi
 
-    if [ -d ./OBS.app ]; then rm -rf ./OBS.app; fi
+    if [ -d ./OBS-WebRTC.app ]; then rm -rf ./OBS-WebRTC.app; fi
 
-    hr "Preparing OBS.app bundle"
+    hr "Preparing OBS-WebRTC.app bundle"
     step "Copy binary and plugins..."
-    mkdir -p OBS.app/Contents/MacOS
-    mkdir OBS.app/Contents/PlugIns
-    mkdir OBS.app/Contents/Resources
+    mkdir -p OBS-WebRTC.app/Contents/MacOS
+    mkdir OBS-WebRTC.app/Contents/PlugIns
+    mkdir OBS-WebRTC.app/Contents/Resources
 
-    cp rundir/RelWithDebInfo/bin/obs ./OBS.app/Contents/MacOS
-    cp rundir/RelWithDebInfo/bin/obs-ffmpeg-mux ./OBS.app/Contents/MacOS
-    cp rundir/RelWithDebInfo/bin/libobsglad.0.dylib ./OBS.app/Contents/MacOS
-    cp -R rundir/RelWithDebInfo/data ./OBS.app/Contents/Resources
-    cp ${CI_SCRIPTS}/app/obs.icns ./OBS.app/Contents/Resources
-    cp -R rundir/RelWithDebInfo/obs-plugins/ ./OBS.app/Contents/PlugIns
-    cp ${CI_SCRIPTS}/app/Info.plist ./OBS.app/Contents
+    cp rundir/RelWithDebInfo/bin/obs ./OBS-WebRTC.app/Contents/MacOS
+    cp rundir/RelWithDebInfo/bin/obs-ffmpeg-mux ./OBS-WebRTC.app/Contents/MacOS
+    cp rundir/RelWithDebInfo/bin/libobsglad.0.dylib ./OBS-WebRTC.app/Contents/MacOS
+    cp -R rundir/RelWithDebInfo/data ./OBS-WebRTC.app/Contents/Resources
+    cp ${CI_SCRIPTS}/app/obs.icns ./OBS-WebRTC.app/Contents/Resources
+    cp -R rundir/RelWithDebInfo/obs-plugins/ ./OBS-WebRTC.app/Contents/PlugIns
+    cp ${CI_SCRIPTS}/app/Info.plist ./OBS-WebRTC.app/Contents
     # Scripting plugins are required to be placed in same directory as binary
-    if [ -d ./OBS.app/Contents/Resources/data/obs-scripting ]; then
-        mv ./OBS.app/Contents/Resources/data/obs-scripting/obslua.so ./OBS.app/Contents/MacOS/
-        # mv ./OBS.app/Contents/Resources/data/obs-scripting/_obspython.so ./OBS.app/Contents/MacOS/
-        # mv ./OBS.app/Contents/Resources/data/obs-scripting/obspython.py ./OBS.app/Contents/MacOS/
-        rm -rf ./OBS.app/Contents/Resources/data/obs-scripting/
+    if [ -d ./OBS-WebRTC.app/Contents/Resources/data/obs-scripting ]; then
+        mv ./OBS-WebRTC.app/Contents/Resources/data/obs-scripting/obslua.so ./OBS-WebRTC.app/Contents/MacOS/
+        # mv ./OBS-WebRTC.app/Contents/Resources/data/obs-scripting/_obspython.so ./OBS-WebRTC.app/Contents/MacOS/
+        # mv ./OBS-WebRTC.app/Contents/Resources/data/obs-scripting/obspython.py ./OBS-WebRTC.app/Contents/MacOS/
+        rm -rf ./OBS-WebRTC.app/Contents/Resources/data/obs-scripting/
     fi
 
     bundle_dylibs
     install_frameworks
 
-    cp ${CI_SCRIPTS}/app/OBSPublicDSAKey.pem ./OBS.app/Contents/Resources
+    cp ${CI_SCRIPTS}/app/OBSPublicDSAKey.pem ./OBS-WebRTC.app/Contents/Resources
 
     step "Set bundle meta information..."
-    plutil -insert CFBundleVersion -string ${GIT_TAG}-${GIT_HASH} ./OBS.app/Contents/Info.plist
-    plutil -insert CFBundleShortVersionString -string ${GIT_TAG}-${GIT_HASH} ./OBS.app/Contents/Info.plist
-    plutil -insert OBSFeedsURL -string https://obsproject.com/osx_update/feeds.xml ./OBS.app/Contents/Info.plist
-    plutil -insert SUFeedURL -string https://obsproject.com/osx_update/stable/updates.xml ./OBS.app/Contents/Info.plist
-    plutil -insert SUPublicDSAKeyFile -string OBSPublicDSAKey.pem ./OBS.app/Contents/Info.plist
+    plutil -insert CFBundleVersion -string ${GIT_TAG}-${GIT_HASH} ./OBS-WebRTC.app/Contents/Info.plist
+    plutil -insert CFBundleShortVersionString -string ${GIT_TAG}-${GIT_HASH} ./OBS-WebRTC.app/Contents/Info.plist
+    plutil -insert OBSFeedsURL -string https://obsproject.com/osx_update/feeds.xml ./OBS-WebRTC.app/Contents/Info.plist
+    plutil -insert SUFeedURL -string https://obsproject.com/osx_update/stable/updates.xml ./OBS-WebRTC.app/Contents/Info.plist
+    plutil -insert SUPublicDSAKeyFile -string OBSPublicDSAKey.pem ./OBS-WebRTC.app/Contents/Info.plist
 }
 
 ## CREATE MACOS DISTRIBUTION AND INSTALLER IMAGE ##
 prepare_macos_image() {
     ensure_dir "${CHECKOUT_DIR}/${BUILD_DIR}"
 
-    if [ ! -d ./OBS.app ]; then
-        error "No OBS.app bundle found"
+    if [ ! -d ./OBS-WebRTC.app ]; then
+        error "No OBS-WebRTC.app bundle found"
         return
     fi
 
@@ -470,39 +470,39 @@ codesign_bundle() {
     ensure_dir "${CHECKOUT_DIR}/${BUILD_DIR}"
     trap "caught_error 'code-signing app'" ERR
 
-    if [ ! -d ./OBS.app ]; then
-        error "No OBS.app bundle found"
+    if [ ! -d ./OBS-WebRTC.app ]; then
+        error "No OBS-WebRTC.app bundle found"
         return
     fi
 
     hr "Code-signing application bundle"
 
-    xattr -crs ./OBS.app
+    xattr -crs ./OBS-WebRTC.app
 
     read_codesign_ident
 
     # step "Code-sign Sparkle framework..."
     # echo -n "${COLOR_ORANGE}"
-    # codesign --force --options runtime --sign "${CODESIGN_IDENT}" "./OBS.app/Contents/Frameworks/Sparkle.framework/Versions/A/Resources/Autoupdate.app/Contents/MacOS/fileop"
-    # codesign --force --options runtime --sign "${CODESIGN_IDENT}" "./OBS.app/Contents/Frameworks/Sparkle.framework/Versions/A/Resources/Autoupdate.app/Contents/MacOS/Autoupdate"
-    # codesign --force --options runtime --sign "${CODESIGN_IDENT}" --deep ./OBS.app/Contents/Frameworks/Sparkle.framework
+    # codesign --force --options runtime --sign "${CODESIGN_IDENT}" "./OBS-WebRTC.app/Contents/Frameworks/Sparkle.framework/Versions/A/Resources/Autoupdate.app/Contents/MacOS/fileop"
+    # codesign --force --options runtime --sign "${CODESIGN_IDENT}" "./OBS-WebRTC.app/Contents/Frameworks/Sparkle.framework/Versions/A/Resources/Autoupdate.app/Contents/MacOS/Autoupdate"
+    # codesign --force --options runtime --sign "${CODESIGN_IDENT}" --deep ./OBS-WebRTC.app/Contents/Frameworks/Sparkle.framework
     # echo -n "${COLOR_RESET}"
 
     step "Code-sign CEF framework..."
     echo -n "${COLOR_ORANGE}"
-    codesign --force --options runtime --sign "${CODESIGN_IDENT}" "./OBS.app/Contents/Frameworks/Chromium Embedded Framework.framework/Libraries/libEGL.dylib"
-    codesign --force --options runtime --sign "${CODESIGN_IDENT}" "./OBS.app/Contents/Frameworks/Chromium Embedded Framework.framework/Libraries/libswiftshader_libEGL.dylib"
-    codesign --force --options runtime --sign "${CODESIGN_IDENT}" "./OBS.app/Contents/Frameworks/Chromium Embedded Framework.framework/Libraries/libGLESv2.dylib"
-    codesign --force --options runtime --sign "${CODESIGN_IDENT}" "./OBS.app/Contents/Frameworks/Chromium Embedded Framework.framework/Libraries/libswiftshader_libGLESv2.dylib"
-    codesign --force --options runtime --sign "${CODESIGN_IDENT}" --deep "./OBS.app/Contents/Frameworks/Chromium Embedded Framework.framework"
+    codesign --force --options runtime --sign "${CODESIGN_IDENT}" "./OBS-WebRTC.app/Contents/Frameworks/Chromium Embedded Framework.framework/Libraries/libEGL.dylib"
+    codesign --force --options runtime --sign "${CODESIGN_IDENT}" "./OBS-WebRTC.app/Contents/Frameworks/Chromium Embedded Framework.framework/Libraries/libswiftshader_libEGL.dylib"
+    codesign --force --options runtime --sign "${CODESIGN_IDENT}" "./OBS-WebRTC.app/Contents/Frameworks/Chromium Embedded Framework.framework/Libraries/libGLESv2.dylib"
+    codesign --force --options runtime --sign "${CODESIGN_IDENT}" "./OBS-WebRTC.app/Contents/Frameworks/Chromium Embedded Framework.framework/Libraries/libswiftshader_libGLESv2.dylib"
+    codesign --force --options runtime --sign "${CODESIGN_IDENT}" --deep "./OBS-WebRTC.app/Contents/Frameworks/Chromium Embedded Framework.framework"
     echo -n "${COLOR_RESET}"
 
     step "Code-sign OBS code..."
     echo -n "${COLOR_ORANGE}"
-    codesign --force --options runtime --entitlements "${CI_SCRIPTS}/app/entitlements.plist" --sign "${CODESIGN_IDENT}" --deep ./OBS.app
+    codesign --force --options runtime --entitlements "${CI_SCRIPTS}/app/entitlements.plist" --sign "${CODESIGN_IDENT}" --deep ./OBS-WebRTC.app
     echo -n "${COLOR_RESET}"
     step "Check code-sign result..."
-    codesign -dvv ./OBS.app
+    codesign -dvv ./OBS-WebRTC.app
 }
 
 codesign_image() {
@@ -584,11 +584,11 @@ notarize_macos() {
 
     if [ -f "${FILE_NAME}" ]; then
         NOTARIZE_TARGET="${FILE_NAME}"
-        xcnotary precheck "./OBS.app"
-    elif [ -d "OBS.app" ]; then
-        NOTARIZE_TARGET="./OBS.app"
+        xcnotary precheck "./OBS-WebRTC.app"
+    elif [ -d "OBS-WebRTC.app" ]; then
+        NOTARIZE_TARGET="./OBS-WebRTC.app"
     else
-        error "No notarization app bundle ('OBS.app') or disk image ('${FILE_NAME}') found"
+        error "No notarization app bundle ('OBS-WebRTC.app') or disk image ('${FILE_NAME}') found"
         return
     fi
 
