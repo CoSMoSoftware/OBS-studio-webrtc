@@ -43,7 +43,6 @@ CI_WORKFLOW="${CHECKOUT_DIR}/.github/workflows/main.yml"
 CI_CEF_VERSION=$(cat ${CI_WORKFLOW} | sed -En "s/[ ]+CEF_BUILD_VERSION: '([0-9]+)'/\1/p")
 CI_DEPS_VERSION=$(cat ${CI_WORKFLOW} | sed -En "s/[ ]+MACOS_DEPS_VERSION: '([0-9\-]+)'/\1/p")
 CI_VLC_VERSION=$(cat ${CI_WORKFLOW} | sed -En "s/[ ]+VLC_VERSION: '([0-9\.]+)'/\1/p")
-CI_SPARKLE_VERSION=$(cat ${CI_WORKFLOW} | sed -En "s/[ ]+SPARKLE_VERSION: '([0-9\.]+)'/\1/p")
 CI_QT_VERSION=$(cat ${CI_WORKFLOW} | sed -En "s/[ ]+QT_VERSION: '([0-9\.]+)'/\1/p" | head -1)
 CI_LIBWEBRTC_VERSION=$(cat ${CI_WORKFLOW} | sed -En "s/[ ]+LIBWEBRTC_VERSION: '([0-9\.]+)'/\1/p" | head -1)
 
@@ -52,7 +51,6 @@ BUILD_DEPS=(
     "qt-deps ${QT_VERSION:-${CI_QT_VERSION}} ${MACOS_DEPS_VERSION:-${CI_DEPS_VERSION}}"
     "cef ${CEF_BUILD_VERSION:-${CI_CEF_VERSION}}"
     "vlc ${VLC_VERSION:-${CI_VLC_VERSION}}"
-    "sparkle ${SPARKLE_VERSION:-${CI_SPARKLE_VERSION}}"
     "libwebrtc ${LIBWEBRTC_VERSION:-${CI_LIBWEBRTC_VERSION}}"
 )
 
@@ -173,20 +171,20 @@ install_vlc() {
     tar -xf vlc-${1}.tar.xz
 }
 
-install_sparkle() {
-    hr "Setting up dependency Sparkle v${1} (might prompt for password)"
-    ensure_dir ${DEPS_BUILD_DIR}/sparkle
-    step "Download..."
-    ${CURLCMD} --progress-bar -L -C - -o sparkle.tar.bz2 https://github.com/sparkle-project/Sparkle/releases/download/${1}/Sparkle-${1}.tar.bz2
-    step "Unpack..."
-    tar -xf ./sparkle.tar.bz2
-    step "Copy to destination..."
-    if [ -d /Library/Frameworks/Sparkle.framework/ ]; then
-        info "Warning - Sparkle framework already found in /Library/Frameworks"
-    else
-        sudo cp -R ./Sparkle.framework/ /Library/Frameworks/Sparkle.framework/
-    fi
-}
+# install_sparkle() {
+#     hr "Setting up dependency Sparkle v${1} (might prompt for password)"
+#     ensure_dir ${DEPS_BUILD_DIR}/sparkle
+#     step "Download..."
+#     ${CURLCMD} --progress-bar -L -C - -o sparkle.tar.bz2 https://github.com/sparkle-project/Sparkle/releases/download/${1}/Sparkle-${1}.tar.bz2
+#     step "Unpack..."
+#     tar -xf ./sparkle.tar.bz2
+#     step "Copy to destination..."
+#     if [ -d /Library/Frameworks/Sparkle.framework/ ]; then
+#         info "Warning - Sparkle framework already found in /Library/Frameworks"
+#     else
+#         sudo cp -R ./Sparkle.framework/ /Library/Frameworks/Sparkle.framework/
+#     fi
+# }
 
 install_cef() {
     hr "Building dependency CEF v${1}"
@@ -265,8 +263,7 @@ configure_obs_build() {
     ensure_dir "${CHECKOUT_DIR}/${BUILD_DIR}"
 
     hr "Run CMAKE for OBS..."
-    cmake -DENABLE_SPARKLE_UPDATER=ON \
-        -DCMAKE_OSX_DEPLOYMENT_TARGET=10.13 \
+    cmake -DCMAKE_OSX_DEPLOYMENT_TARGET=10.13 \
         -DDISABLE_PYTHON=ON  \
         -DQTDIR="/tmp/obsdeps" \
         -DSWIGDIR="/tmp/obsdeps" \
@@ -303,7 +300,6 @@ bundle_dylibs() {
     step "Run dylibBundler.."
     ${CI_SCRIPTS}/app/dylibbundler -cd -of -a ./OBS.app -q -f \
         -s ./OBS.app/Contents/MacOS \
-        -s "${DEPS_BUILD_DIR}/sparkle/Sparkle.framework" \
         -s ./rundir/RelWithDebInfo/bin/ \
         -x ./OBS.app/Contents/PlugIns/coreaudio-encoder.so \
         -x ./OBS.app/Contents/PlugIns/decklink-ouput-ui.so \
@@ -484,12 +480,13 @@ codesign_bundle() {
     xattr -crs ./OBS.app
 
     read_codesign_ident
-    step "Code-sign Sparkle framework..."
-    echo -n "${COLOR_ORANGE}"
-    codesign --force --options runtime --sign "${CODESIGN_IDENT}" "./OBS.app/Contents/Frameworks/Sparkle.framework/Versions/A/Resources/Autoupdate.app/Contents/MacOS/fileop"
-    codesign --force --options runtime --sign "${CODESIGN_IDENT}" "./OBS.app/Contents/Frameworks/Sparkle.framework/Versions/A/Resources/Autoupdate.app/Contents/MacOS/Autoupdate"
-    codesign --force --options runtime --sign "${CODESIGN_IDENT}" --deep ./OBS.app/Contents/Frameworks/Sparkle.framework
-    echo -n "${COLOR_RESET}"
+
+    # step "Code-sign Sparkle framework..."
+    # echo -n "${COLOR_ORANGE}"
+    # codesign --force --options runtime --sign "${CODESIGN_IDENT}" "./OBS.app/Contents/Frameworks/Sparkle.framework/Versions/A/Resources/Autoupdate.app/Contents/MacOS/fileop"
+    # codesign --force --options runtime --sign "${CODESIGN_IDENT}" "./OBS.app/Contents/Frameworks/Sparkle.framework/Versions/A/Resources/Autoupdate.app/Contents/MacOS/Autoupdate"
+    # codesign --force --options runtime --sign "${CODESIGN_IDENT}" --deep ./OBS.app/Contents/Frameworks/Sparkle.framework
+    # echo -n "${COLOR_RESET}"
 
     step "Code-sign CEF framework..."
     echo -n "${COLOR_ORANGE}"
