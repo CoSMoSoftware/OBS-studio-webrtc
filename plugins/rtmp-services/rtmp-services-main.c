@@ -21,6 +21,10 @@ MODULE_EXPORT const char *obs_module_description(void)
 
 extern struct obs_service_info rtmp_common_service;
 extern struct obs_service_info rtmp_custom_service;
+extern struct obs_service_info webrtc_janus_service;
+extern struct obs_service_info webrtc_wowza_service;
+extern struct obs_service_info webrtc_millicast_service;
+extern struct obs_service_info webrtc_evercast_service;
 
 static update_info_t *update_info = NULL;
 static struct dstr module_name = {0};
@@ -101,6 +105,10 @@ bool obs_module_load(void)
 
 	obs_register_service(&rtmp_common_service);
 	obs_register_service(&rtmp_custom_service);
+	obs_register_service(&webrtc_janus_service);
+	obs_register_service(&webrtc_wowza_service);
+	obs_register_service(&webrtc_millicast_service);
+	obs_register_service(&webrtc_evercast_service);
 	return true;
 }
 
