@@ -1,5 +1,5 @@
 {
-    "title": "OBS-Studio $$VERSION$$",
+    "title": "Millicast OBS-Studio-WebRTC $$VERSION$$",
     "background": "$$CI_PATH$$/package/background.tiff",
     "icon": "$$CI_PATH$$/app/obs.icns",
     "format": "ULFO",
@@ -18,7 +18,7 @@
         "x": 124,
         "y": 180,
         "type": "file",
-        "path": "$$BUNDLE_PATH$$/OBS.app"
+        "path": "$$BUNDLE_PATH$$/OBS-WebRTC.app"
     }, {
         "x": 416,
         "y": 180,
