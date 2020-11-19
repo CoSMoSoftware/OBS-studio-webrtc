@@ -7,7 +7,7 @@
                 "size": { "width": 540, "height": 380 } },
     "contents": [
         { "x": 120, "y": 180, "type": "file",
-          "path": "./OBS.app" },
+          "path": "./OBS-WebRTC.app" },
         { "x": 420, "y": 180, "type": "link", "path": "/Applications" }
     ]
 }

@@ -416,7 +416,7 @@ prepare_macos_image() {
     sed -i '' 's#\$\$CI_PATH\$\$#'"${CI_SCRIPTS}"'#g' ./settings.json
     sed -i '' 's#\$\$BUNDLE_PATH\$\$#'"${CHECKOUT_DIR}"'/build#g' ./settings.json
     echo -n "${COLOR_ORANGE}"
-    dmgbuild "OBS-Studio ${GIT_TAG}" "${FILE_NAME}" -s ./settings.json
+    dmgbuild "OBS-Studio-WebRTC ${GIT_TAG}" "${FILE_NAME}" -s ./settings.json
     echo -n "${COLOR_RESET}"
 
     if [ -n "${CODESIGN_OBS}" ]; then
