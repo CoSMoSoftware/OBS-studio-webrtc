@@ -383,7 +383,7 @@ void WebRTCStream::OnSuccess(webrtc::SessionDescriptionInterface *desc)
     // Force specific video/audio payload
     SDPModif::forcePayload(
         sdpCopy, audio_payloads, video_payloads,
-        audio_codec, video_codec, 0, "42e01f", 0);
+        audio_codec, video_codec, 1, "42e01f", 0);
     // Constrain video bitrate
     SDPModif::bitrateMaxMinSDP(sdpCopy, video_bitrate, video_payloads);
     // Enable stereo & constrain audio bitrate
