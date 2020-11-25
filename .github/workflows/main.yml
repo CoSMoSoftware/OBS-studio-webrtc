@@ -422,7 +422,7 @@ jobs:
         run: |
           mkdir ./build
           cd ./build
-          cmake -DUNIX_STRUCTURE=0 -DCMAKE_INSTALL_PREFIX="${{ github.workspace }}/obs-studio-portable" -DENABLE_UNIT_TESTS=ON -DENABLE_VLC=ON -DBUILD_CAPTIONS=ON -DWITH_RTMPS=ON -DBUILD_BROWSER=ON -DCEF_ROOT_DIR="${{ github.workspace }}/cmbuild/cef_binary_${{ env.CEF_BUILD_VERSION }}_linux64" -Dlibwebrtc_DIR="${{ github.workspace }}/libwebrtc/cmake" ..
+          cmake -DUNIX_STRUCTURE=0 -DCMAKE_INSTALL_PREFIX="${{ github.workspace }}/obs-studio-portable" -DENABLE_UNIT_TESTS=ON -DENABLE_VLC=ON -DBUILD_CAPTIONS=ON -DWITH_RTMPS=ON -DBUILD_BROWSER=ON -DCEF_ROOT_DIR="${{ github.workspace }}/cmbuild/cef_binary_${{ env.CEF_BUILD_VERSION }}_linux64" -DLibWebRTC_DIR="${{ github.workspace }}/libwebrtc/cmake" -DWEBRTC_INCLUDE_DIR="${{ github.workspace }}/libwebrtc/include" -DWEBRTC_LIB="${{ github.workspace }}/libwebrtc/lib/libwebrtc.a" ..
       - name: 'Build'
         shell: bash
         working-directory: ${{ github.workspace }}/build
