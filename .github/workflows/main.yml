@@ -413,7 +413,7 @@ jobs:
       - name: 'Install prerequisite: LibWebRTC'
         shell: bash
 	run: |
-	  curl -kL https://www.palakis.fr/obs/obs-studio-webrtc/libWebRTC-${{ env.LIBWEBRTC_VERSION }}-x64-Release-Community.sh -f --retry 5 -o libWebRTC.sh
+	  curl -kL https://www.palakis.fr/obs/obs-studio-webrtc/libWebRTC-${{ env.LIBWEBRTC_VERSION }}-x64-Release-Community.sh -f --retry 5 -O libWebRTC.sh
 	  chmod +x libWebRTC.sh
 	  mkdir libwebrtc
 	  ./libWebRTC.sh --prefix="${{ github.workspace }}/libwebrtc" --skip-license
