@@ -27,16 +27,10 @@ add_subdirectory(nlohmann_json)
 # OpenSSL
 #
 find_package(OpenSSL 1.1 REQUIRED)
-
-if(NOT ${OPENSSL_FOUND})
-	message(FATAL_ERROR "OpenSSL not found")
-endif()
-
 message(STATUS "OPENSSL_INCLUDE_DIR: ${OPENSSL_INCLUDE_DIR}")
 message(STATUS "OPENSSL_CRYPTO_LIBRARY: ${OPENSSL_CRYPTO_LIBRARY}")
 message(STATUS "OPENSSL_SSL_LIBRARY: ${OPENSSL_SSL_LIBRARY}")
 message(STATUS "OPENSSL_VERSION: ${OPENSSL_VERSION}")
-
 include_directories(${OPENSSL_INCLUDE_DIR})
 
 #------------------------------------------------------------------------
@@ -50,11 +44,8 @@ include_directories(${CURL_INCLUDE_DIR})
 #
 set(websocketclient_SOURCES
 	WebsocketClient.cpp
-	JanusWebsocketClientImpl.cpp
-	WowzaWebsocketClientImpl.cpp
 	MillicastWebsocketClientImpl.cpp
 	CustomWebrtcImpl.cpp
-	EvercastWebsocketClientImpl.cpp
 	restclient-cpp/source/connection.cc
 	restclient-cpp/source/helpers.cc
 	restclient-cpp/source/restclient.cc)
@@ -66,11 +57,8 @@ add_definitions(-DWEBSOCKETCLIENT_EXPORTS)
 
 set(websocketclient_HEADERS
 	WebsocketClient.h
-	JanusWebsocketClientImpl.h
-	WowzaWebsocketClientImpl.h
 	MillicastWebsocketClientImpl.h
-	CustomWebrtcImpl.h
-	EvercastWebsocketClientImpl.h)
+	CustomWebrtcImpl.h)
 
 add_library(websocketclient SHARED
 	${websocketclient_SOURCES}

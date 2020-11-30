@@ -10,6 +10,6 @@ cmake ^
   -DOPENSSL_ROOT_DIR=%opensslPath% ^
   -DQt5_DIR=%QTDIR64%\lib\cmake\Qt5 ^
   -DCMAKE_BUILD_TYPE=%build_config% ^
-  -DOBS_WEBRTC_VENDOR_NAME=Evercast ^
+  -DOBS_WEBRTC_VENDOR_NAME=Millicast ^
   -DOBS_VERSION_OVERRIDE=23.2.0 ^
   ..

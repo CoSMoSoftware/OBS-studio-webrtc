@@ -20,11 +20,8 @@
 #include <string>
 
 enum Type {
-    Janus     = 0,
-    Wowza     = 1,
-    Millicast = 2,
-    Evercast  = 3,
-    CustomWebrtc = 4
+    Millicast = 0,
+    CustomWebrtc = 1
 };
 
 class WEBSOCKETCLIENT_API WebsocketClient {

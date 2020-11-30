@@ -50,11 +50,8 @@ class WebRTCStreamInterface :
 class WebRTCStream : public rtc::RefCountedObject<WebRTCStreamInterface> {
 public:
     enum Type {
-        Janus     = 0,
-        Wowza     = 1,
-        Millicast = 2,
-        Evercast  = 3,
-	CustomWebrtc = 4
+        Millicast = 0,
+        CustomWebrtc = 1
     };
 
     WebRTCStream(obs_output_t *output);
@@ -131,7 +128,11 @@ private:
     std::string protocol;
     std::string audio_codec;
     std::string video_codec;
+    bool simulcast;
+    std::string publishApiUrl;
     int channel_count;
+
+    void resetStats();
 
     // NOTE LUDO: #80 add getStats
     std::string stats_list;

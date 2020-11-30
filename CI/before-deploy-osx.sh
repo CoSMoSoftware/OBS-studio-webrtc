@@ -10,10 +10,11 @@ set -e
 # Generate file name variables
 export APP_NAME=OBS
 export LIBWEBRTC_REV=84
+export DEPLOY_VERSION=26
 export GIT_TAG=$(git describe --abbrev=0)
 export GIT_HASH=$(git rev-parse --short HEAD)
 export FILE_DATE=$(date +%Y-%m-%d.%H-%M-%S)
-export FILENAME=$APP_NAME-m$LIBWEBRTC_REV-$FILE_DATE-$GIT_HASH-$TRAVIS_BRANCH-osx.dmg
+export FILENAME=$APP_NAME-m$LIBWEBRTC_REVv$DEPLOY_VERSION-$FILE_DATE-$GIT_HASH-$TRAVIS_BRANCH-osx.dmg
 
 # NOTE ALEX: from command line or ENV please
 export BUILD_CONFIG=Release
@@ -44,27 +45,27 @@ fi
 
 # fix obs outputs plugin it doesn't play nicely with dylibBundler at the moment
 if [ -f /usr/local/opt/mbedtls/lib/libmbedtls.12.dylib ]; then
-    cp /usr/local/opt/mbedtls/lib/libmbedtls.12.dylib ./OBS.app/Contents/Frameworks/
-    cp /usr/local/opt/mbedtls/lib/libmbedcrypto.3.dylib ./OBS.app/Contents/Frameworks/
-    cp /usr/local/opt/mbedtls/lib/libmbedx509.0.dylib ./OBS.app/Contents/Frameworks/
+    cp /usr/local/opt/mbedtls/lib/libmbedtls.12.dylib ./$APP_NAME.app/Contents/Frameworks/
+    cp /usr/local/opt/mbedtls/lib/libmbedcrypto.3.dylib ./$APP_NAME.app/Contents/Frameworks/
+    cp /usr/local/opt/mbedtls/lib/libmbedx509.0.dylib ./$APP_NAME.app/Contents/Frameworks/
     chmod +w ./OBS.app/Contents/Frameworks/*.dylib
-    install_name_tool -id @executable_path/../Frameworks/libmbedtls.12.dylib ./OBS.app/Contents/Frameworks/libmbedtls.12.dylib
-    install_name_tool -id @executable_path/../Frameworks/libmbedcrypto.3.dylib ./OBS.app/Contents/Frameworks/libmbedcrypto.3.dylib
-    install_name_tool -id @executable_path/../Frameworks/libmbedx509.0.dylib ./OBS.app/Contents/Frameworks/libmbedx509.0.dylib
-    install_name_tool -change libmbedtls.12.dylib @executable_path/../Frameworks/libmbedtls.12.dylib ./OBS.app/Contents/Plugins/obs-outputs.so
-    install_name_tool -change libmbedcrypto.3.dylib @executable_path/../Frameworks/libmbedcrypto.3.dylib ./OBS.app/Contents/Plugins/obs-outputs.so
-    install_name_tool -change libmbedx509.0.dylib @executable_path/../Frameworks/libmbedx509.0.dylib ./OBS.app/Contents/Plugins/obs-outputs.so
+    install_name_tool -id @executable_path/../Frameworks/libmbedtls.12.dylib ./$APP_NAME.app/Contents/Frameworks/libmbedtls.12.dylib
+    install_name_tool -id @executable_path/../Frameworks/libmbedcrypto.3.dylib ./$APP_NAME.app/Contents/Frameworks/libmbedcrypto.3.dylib
+    install_name_tool -id @executable_path/../Frameworks/libmbedx509.0.dylib ./$APP_NAME.app/Contents/Frameworks/libmbedx509.0.dylib
+    install_name_tool -change libmbedtls.12.dylib @executable_path/../Frameworks/libmbedtls.12.dylib ./$APP_NAME.app/Contents/Plugins/obs-outputs.so
+    install_name_tool -change libmbedcrypto.3.dylib @executable_path/../Frameworks/libmbedcrypto.3.dylib ./$APP_NAME.app/Contents/Plugins/obs-outputs.so
+    install_name_tool -change libmbedx509.0.dylib @executable_path/../Frameworks/libmbedx509.0.dylib ./$APP_NAME.app/Contents/Plugins/obs-outputs.so
 elif [ -f /usr/local/opt/mbedtls/lib/libmbedtls.13.dylib ]; then
-    cp /usr/local/opt/mbedtls/lib/libmbedtls.13.dylib ./OBS.app/Contents/Frameworks/
-    cp /usr/local/opt/mbedtls/lib/libmbedcrypto.5.dylib ./OBS.app/Contents/Frameworks/
-    cp /usr/local/opt/mbedtls/lib/libmbedx509.1.dylib ./OBS.app/Contents/Frameworks/
+    cp /usr/local/opt/mbedtls/lib/libmbedtls.13.dylib ./$APP_NAME.app/Contents/Frameworks/
+    cp /usr/local/opt/mbedtls/lib/libmbedcrypto.5.dylib ./$APP_NAME.app/Contents/Frameworks/
+    cp /usr/local/opt/mbedtls/lib/libmbedx509.1.dylib ./$APP_NAME.app/Contents/Frameworks/
     chmod +w ./OBS.app/Contents/Frameworks/*.dylib
-    install_name_tool -id @executable_path/../Frameworks/libmbedtls.13.dylib ./OBS.app/Contents/Frameworks/libmbedtls.13.dylib
-    install_name_tool -id @executable_path/../Frameworks/libmbedcrypto.5.dylib ./OBS.app/Contents/Frameworks/libmbedcrypto.5.dylib
-    install_name_tool -id @executable_path/../Frameworks/libmbedx509.1.dylib ./OBS.app/Contents/Frameworks/libmbedx509.1.dylib
-    install_name_tool -change libmbedtls.13.dylib @executable_path/../Frameworks/libmbedtls.13.dylib ./OBS.app/Contents/Plugins/obs-outputs.so
-    install_name_tool -change libmbedcrypto.5.dylib @executable_path/../Frameworks/libmbedcrypto.5.dylib ./OBS.app/Contents/Plugins/obs-outputs.so
-    install_name_tool -change libmbedx509.1.dylib @executable_path/../Frameworks/libmbedx509.1.dylib ./OBS.app/Contents/Plugins/obs-outputs.so
+    install_name_tool -id @executable_path/../Frameworks/libmbedtls.13.dylib ./$APP_NAME.app/Contents/Frameworks/libmbedtls.13.dylib
+    install_name_tool -id @executable_path/../Frameworks/libmbedcrypto.5.dylib ./$APP_NAME.app/Contents/Frameworks/libmbedcrypto.5.dylib
+    install_name_tool -id @executable_path/../Frameworks/libmbedx509.1.dylib ./$APP_NAME.app/Contents/Frameworks/libmbedx509.1.dylib
+    install_name_tool -change libmbedtls.13.dylib @executable_path/../Frameworks/libmbedtls.13.dylib ./$APP_NAME.app/Contents/Plugins/obs-outputs.so
+    install_name_tool -change libmbedcrypto.5.dylib @executable_path/../Frameworks/libmbedcrypto.5.dylib ./$APP_NAME.app/Contents/Plugins/obs-outputs.so
+    install_name_tool -change libmbedx509.1.dylib @executable_path/../Frameworks/libmbedx509.1.dylib ./$APP_NAME.app/Contents/Plugins/obs-outputs.so
 fi
 
 install_name_tool -change /usr/local/opt/curl/lib/libcurl.4.dylib @executable_path/../Frameworks/libcurl.4.dylib ./OBS.app/Contents/Plugins/obs-outputs.so
@@ -77,26 +78,26 @@ install_name_tool -change /usr/local/opt/openssl@1.1/lib/libcrypto.1.1.dylib @ex
 
 # no sparkle: auto updates are disabled
 # hr "Copying Sparkle.framework"
-# cp -R ../../sparkle/Sparkle.framework ./OBS.app/Contents/Frameworks/
+# cp -R ../../sparkle/Sparkle.framework ./$APP_NAME.app/Contents/Frameworks/
 # install_name_tool -change @rpath/Sparkle.framework/Versions/A/Sparkle @executable_path/../Frameworks/Sparkle.framework/Versions/A/Sparkle ./OBS.app/Contents/MacOS/obs
 
 # Copy Chromium embedded framework to app Frameworks directory
 hr "Copying Chromium Embedded Framework.framework"
-sudo mkdir -p OBS.app/Contents/Frameworks
-sudo cp -R ../../cef_binary_${CEF_BUILD_VERSION}_macosx64/Release/Chromium\ Embedded\ Framework.framework OBS.app/Contents/Frameworks/
+sudo mkdir -p $APP_NAME.app/Contents/Frameworks
+sudo cp -R ../../cef_binary_${CEF_BUILD_VERSION}_macosx64/Release/Chromium\ Embedded\ Framework.framework $APP_NAME.app/Contents/Frameworks/
 
-install_name_tool -change /usr/local/opt/qt/lib/QtGui.framework/Versions/5/QtGui @executable_path/../Frameworks/QtGui.framework/Versions/5/QtGui ./OBS.app/Contents/Plugins/obs-browser.so
-install_name_tool -change /usr/local/opt/qt/lib/QtCore.framework/Versions/5/QtCore @executable_path/../Frameworks/QtCore.framework/Versions/5/QtCore ./OBS.app/Contents/Plugins/obs-browser.so
-install_name_tool -change /usr/local/opt/qt/lib/QtWidgets.framework/Versions/5/QtWidgets @executable_path/../Frameworks/QtWidgets.framework/Versions/5/QtWidgets ./OBS.app/Contents/Plugins/obs-browser.so
+install_name_tool -change /usr/local/opt/qt/lib/QtGui.framework/Versions/5/QtGui @executable_path/../Frameworks/QtGui.framework/Versions/5/QtGui ./$APP_NAME.app/Contents/Plugins/obs-browser.so
+install_name_tool -change /usr/local/opt/qt/lib/QtCore.framework/Versions/5/QtCore @executable_path/../Frameworks/QtCore.framework/Versions/5/QtCore ./$APP_NAME.app/Contents/Plugins/obs-browser.so
+install_name_tool -change /usr/local/opt/qt/lib/QtWidgets.framework/Versions/5/QtWidgets @executable_path/../Frameworks/QtWidgets.framework/Versions/5/QtWidgets ./$APP_NAME.app/Contents/Plugins/obs-browser.so
 
 cp ../CI/install/osx/OBSPublicDSAKey.pem OBS.app/Contents/Resources
 
 # edit plist
-plutil -insert CFBundleVersion -string $GIT_TAG ./OBS.app/Contents/Info.plist
-plutil -insert CFBundleShortVersionString -string $GIT_TAG ./OBS.app/Contents/Info.plist
-plutil -insert OBSFeedsURL -string https://obsproject.com/osx_update/feeds.xml ./OBS.app/Contents/Info.plist
-plutil -insert SUFeedURL -string https://obsproject.com/osx_update/stable/updates.xml ./OBS.app/Contents/Info.plist
-plutil -insert SUPublicDSAKeyFile -string OBSPublicDSAKey.pem ./OBS.app/Contents/Info.plist
+plutil -insert CFBundleVersion -string $GIT_TAG ./$APP_NAME.app/Contents/Info.plist
+plutil -insert CFBundleShortVersionString -string $GIT_TAG ./$APP_NAME.app/Contents/Info.plist
+plutil -insert OBSFeedsURL -string https://obsproject.com/osx_update/feeds.xml ./$APP_NAME.app/Contents/Info.plist
+plutil -insert SUFeedURL -string https://obsproject.com/osx_update/stable/updates.xml ./$APP_NAME.app/Contents/Info.plist
+plutil -insert SUPublicDSAKeyFile -string OBSPublicDSAKey.pem ./$APP_NAME.app/Contents/Info.plist
 
 dmgbuild -s ../CI/install/osx/settings.json "OBS" obs.dmg
 
@@ -115,7 +116,7 @@ if [ -v "$TRAVIS" ]; then
 	security set-key-partition-list -S apple-tool:,apple: -s -k mysecretpassword build.keychain
 fi
 
-cp ./OBS.dmg ./$FILENAME
+cp ./$APP_NAME.dmg ./$FILENAME
 
 # Move to the folder that travis uses to upload artifacts from
 hr "Moving package to nightly folder for distribution"

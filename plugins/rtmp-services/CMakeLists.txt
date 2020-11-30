@@ -14,11 +14,9 @@ set(rtmp-services_SOURCES
 	showroom.c
 	rtmp-common.c
 	rtmp-custom.c
-	webrtc-janus.c
-	webrtc-wowza.c
 	webrtc-millicast.c
 	webrtc-custom.c
-	webrtc-evercast.c)
+	)
 
 if(WIN32)
 	set(MODULE_DESCRIPTION "OBS RTMP Services")

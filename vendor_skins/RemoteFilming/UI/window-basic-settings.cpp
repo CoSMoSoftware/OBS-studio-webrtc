@@ -303,22 +303,17 @@ OBSBasicSettings::OBSBasicSettings(QWidget *parent)
 	// ui->listWidget->setAttribute(Qt::WA_MacShowFocusRect, false);
 
 	/* clang-format off */
+	HookWidget(ui->RFRadioButton,        CHECK_CHANGED,  STREAM1_CHANGED);
+        ui->serviceButtonGroup->setId(ui->RFRadioButton, 1);
+
 	HookWidget(ui->language,             COMBO_CHANGED,  GENERAL_CHANGED);
-	HookWidget(ui->theme, 		     COMBO_CHANGED,  GENERAL_CHANGED);
+	HookWidget(ui->theme, 	       COMBO_CHANGED,  GENERAL_CHANGED);
 	HookWidget(ui->enableAutoUpdates,    CHECK_CHANGED,  GENERAL_CHANGED);
 	HookWidget(ui->openStatsOnStartup,   CHECK_CHANGED,  GENERAL_CHANGED);
 	HookWidget(ui->warnBeforeStreamStart,CHECK_CHANGED,  GENERAL_CHANGED);
 	HookWidget(ui->warnBeforeStreamStop, CHECK_CHANGED,  GENERAL_CHANGED);
-  // NOTE LUDO: #165 Remove button recording
-	// HookWidget(ui->warnBeforeRecordStop, CHECK_CHANGED,  GENERAL_CHANGED);
 	HookWidget(ui->hideProjectorCursor,  CHECK_CHANGED,  GENERAL_CHANGED);
 	HookWidget(ui->projectorAlwaysOnTop, CHECK_CHANGED,  GENERAL_CHANGED);
-  // NOTE LUDO: #165 Remove button recording
-	// HookWidget(ui->recordWhenStreaming,  CHECK_CHANGED,  GENERAL_CHANGED);
-	// HookWidget(ui->keepRecordStreamStops,CHECK_CHANGED,  GENERAL_CHANGED);
-  // NOTE LUDO: #166 Remove replay
-	// HookWidget(ui->replayWhileStreaming, CHECK_CHANGED,  GENERAL_CHANGED);
-	// HookWidget(ui->keepReplayStreamStops,CHECK_CHANGED,  GENERAL_CHANGED);
 	HookWidget(ui->systemTrayEnabled,    CHECK_CHANGED,  GENERAL_CHANGED);
 	HookWidget(ui->systemTrayWhenStarted,CHECK_CHANGED,  GENERAL_CHANGED);
 	HookWidget(ui->systemTrayAlways,     CHECK_CHANGED,  GENERAL_CHANGED);
@@ -338,33 +333,18 @@ OBSBasicSettings::OBSBasicSettings(QWidget *parent)
 	HookWidget(ui->multiviewDrawNames,   CHECK_CHANGED,  GENERAL_CHANGED);
 	HookWidget(ui->multiviewDrawAreas,   CHECK_CHANGED,  GENERAL_CHANGED);
 	HookWidget(ui->multiviewLayout,      COMBO_CHANGED,  GENERAL_CHANGED);
-  // NOTE LUDO: #173 replace Settings/Stream service Evercast combo box by a radio button
-	// HookWidget(ui->service,              COMBO_CHANGED,  STREAM1_CHANGED);
-	HookWidget(ui->evercastRadioButton,  CHECK_CHANGED,  STREAM1_CHANGED);
-  // NOTE LUDO: #185 Settings/Stream replace server name QStackedWidget by a QLineEdit
-	// HookWidget(ui->server,               COMBO_CHANGED,  STREAM1_CHANGED);
 	HookWidget(ui->serverName,           EDIT_CHANGED,   STREAM1_CHANGED);
-	// HookWidget(ui->customServer,         EDIT_CHANGED,   STREAM1_CHANGED);
 	HookWidget(ui->key,                  EDIT_CHANGED,   STREAM1_CHANGED);
 	HookWidget(ui->bandwidthTestEnable,  CHECK_CHANGED,  STREAM1_CHANGED);
 	HookWidget(ui->room,                 EDIT_CHANGED,   STREAM1_CHANGED);
 	HookWidget(ui->useAuth,              CHECK_CHANGED,  STREAM1_CHANGED);
 	HookWidget(ui->authUsername,         EDIT_CHANGED,   STREAM1_CHANGED);
 	HookWidget(ui->authPw,               EDIT_CHANGED,   STREAM1_CHANGED);
-  // NOTE LUDO: #172 codecs list of radio buttons
-	// HookWidget(ui->codec,                COMBO_CHANGED,  STREAM1_CHANGED);
 	HookWidget(ui->h264RadioButton,      CHECK_CHANGED,  STREAM1_CHANGED);
 	HookWidget(ui->vp8RadioButton,       CHECK_CHANGED,  STREAM1_CHANGED);
 	HookWidget(ui->vp9RadioButton,       CHECK_CHANGED,  STREAM1_CHANGED);
 	HookWidget(ui->streamProtocol,       COMBO_CHANGED,  STREAM1_CHANGED);
-  // NOTE LUDO: #181 replace Settings/Output output mode Simple combo box by a radio button
-	// HookWidget(ui->outputMode,           COMBO_CHANGED,  OUTPUTS_CHANGED);
 	HookWidget(ui->simpleModeRadioButton,CHECK_CHANGED,  OUTPUTS_CHANGED);
-  // NOTE LUDO: #165 Remove button recording
-	// HookWidget(ui->simpleOutputPath,     EDIT_CHANGED,   OUTPUTS_CHANGED);
-	// HookWidget(ui->simpleNoSpace,        CHECK_CHANGED,  OUTPUTS_CHANGED);
-	// HookWidget(ui->simpleOutRecFormat,   COMBO_CHANGED,  OUTPUTS_CHANGED);
-  // NOTE LUDO: #194 replace Settings/Output video bitrate QSpinBox by QLineEdit
 	HookWidget(ui->simpleOutputVBitrate, EDIT_CHANGED,   OUTPUTS_CHANGED);
 	HookWidget(ui->simpleOutStrEncoder,  COMBO_CHANGED,  OUTPUTS_CHANGED);
 	HookWidget(ui->simpleOutputABitrate, COMBO_CHANGED,  OUTPUTS_CHANGED);
@@ -372,14 +352,6 @@ OBSBasicSettings::OBSBasicSettings(QWidget *parent)
 	HookWidget(ui->simpleOutEnforce,     CHECK_CHANGED,  OUTPUTS_CHANGED);
 	HookWidget(ui->simpleOutPreset,      COMBO_CHANGED,  OUTPUTS_CHANGED);
 	HookWidget(ui->simpleOutCustom,      EDIT_CHANGED,   OUTPUTS_CHANGED);
-  // NOTE LUDO: #165 Remove button recording
-	// HookWidget(ui->simpleOutRecQuality,  COMBO_CHANGED,  OUTPUTS_CHANGED);
-	// HookWidget(ui->simpleOutRecEncoder,  COMBO_CHANGED,  OUTPUTS_CHANGED);
-	// HookWidget(ui->simpleOutMuxCustom,   EDIT_CHANGED,   OUTPUTS_CHANGED);
-	// HookWidget(ui->simpleReplayBuf,      CHECK_CHANGED,  OUTPUTS_CHANGED);
-  // NOTE LUDO: #166 Remove replay
-	// HookWidget(ui->simpleRBSecMax,       SCROLL_CHANGED, OUTPUTS_CHANGED);
-	// HookWidget(ui->simpleRBMegsMax,      SCROLL_CHANGED, OUTPUTS_CHANGED);
 	HookWidget(ui->advOutEncoder,        COMBO_CHANGED,  OUTPUTS_CHANGED);
 	HookWidget(ui->advOutUseRescale,     CHECK_CHANGED,  OUTPUTS_CHANGED);
 	HookWidget(ui->advOutRescale,        CBEDIT_CHANGED, OUTPUTS_CHANGED);
@@ -473,11 +445,6 @@ OBSBasicSettings::OBSBasicSettings(QWidget *parent)
 	HookWidget(ui->disableAudioDucking,  CHECK_CHANGED,  ADV_CHANGED);
 	HookWidget(ui->browserHWAccel,       CHECK_CHANGED,  ADV_RESTART);
 #endif
-  // NOTE LUDO: #165 Remove button recording
-	// HookWidget(ui->filenameFormatting,   EDIT_CHANGED,   ADV_CHANGED);
-	// HookWidget(ui->overwriteIfExists,    CHECK_CHANGED,  ADV_CHANGED);
-	// HookWidget(ui->simpleRBPrefix,       EDIT_CHANGED,   ADV_CHANGED);
-	// HookWidget(ui->simpleRBSuffix,       EDIT_CHANGED,   ADV_CHANGED);
 	HookWidget(ui->streamDelayEnable,    CHECK_CHANGED,  ADV_CHANGED);
 	HookWidget(ui->streamDelaySec,       SCROLL_CHANGED, ADV_CHANGED);
 	HookWidget(ui->streamDelayPreserve,  CHECK_CHANGED,  ADV_CHANGED);
@@ -489,13 +456,8 @@ OBSBasicSettings::OBSBasicSettings(QWidget *parent)
 	HookWidget(ui->enableNewSocketLoop,  CHECK_CHANGED,  ADV_CHANGED);
 	HookWidget(ui->enableLowLatencyMode, CHECK_CHANGED,  ADV_CHANGED);
 	HookWidget(ui->disableFocusHotkeys,  CHECK_CHANGED,  ADV_CHANGED);
-  // NOTE LUDO: #165 Remove button recording
-	// HookWidget(ui->autoRemux,            CHECK_CHANGED,  ADV_CHANGED);
 	/* clang-format on */
 
-  // NOTE LUDO: #194 replace Settings/Output video bitrate QSpinBox by QLineEdit
-	// ui->simpleOutputVBitrate->setSingleStep(50);
-	// ui->simpleOutputVBitrate->setSuffix(" Kbps");
 	ui->advOutFFVBitrate->setSingleStep(50);
 	ui->advOutFFVBitrate->setSuffix(" Kbps");
 	ui->advOutFFABitrate->setSuffix(" Kbps");
@@ -582,11 +544,8 @@ OBSBasicSettings::OBSBasicSettings(QWidget *parent)
 
 	connect(ui->streamDelaySec, SIGNAL(valueChanged(int)), this,
 		SLOT(UpdateStreamDelayEstimate()));
-  // NOTE LUDO: #181 replace Settings/Output output mode Simple combo box by a radio button
-	// connect(ui->outputMode, SIGNAL(currentIndexChanged(int)), this,
 	connect(ui->outputModeButtonGroup, SIGNAL(buttonClicked(int)), this,
 		SLOT(UpdateStreamDelayEstimate()));
-  // NOTE LUDO: #194 replace Settings/Output video bitrate QSpinBox by QLineEdit
 	connect(ui->simpleOutputVBitrate, SIGNAL(textChanged(const QString &)), this,
 		SLOT(UpdateStreamDelayEstimate()));
 	connect(ui->simpleOutputABitrate, SIGNAL(currentIndexChanged(int)),
@@ -751,12 +710,6 @@ OBSBasicSettings::OBSBasicSettings(QWidget *parent)
   ui->codecButtonGroup->setId(ui->vp8RadioButton,  1);
   ui->codecButtonGroup->setId(ui->vp9RadioButton,  2);
 
-  // NOTE LUDO: #173 replace Settings/Stream service Evercast combo box by a radio button
-  ui->serviceButtonGroup->setId(ui->evercastRadioButton, 1);
-
-  // NOTE LUDO: #181 replace Settings/Output output mode Simple combo box by a radio button
-  // simple mode = ID 0
-  // advanced mode = ID 1
   ui->outputModeButtonGroup->setId(ui->simpleModeRadioButton, 0);
 
 	// Get Bind to IP Addresses

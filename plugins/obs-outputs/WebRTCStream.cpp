@@ -61,11 +61,7 @@ WebRTCStream::WebRTCStream(obs_output_t *output)
     rtc::LogMessage::RemoveLogToStream(&logger);
     rtc::LogMessage::AddLogToStream(&logger, rtc::LoggingSeverity::LS_VERBOSE);
 
-    frame_id = 0;
-    pli_received = 0;
-    audio_bytes_sent = 0;
-    video_bytes_sent = 0;
-    total_bytes_sent = 0;
+    resetStats();
 
     audio_bitrate = 128;
     video_bitrate = 2500;
@@ -135,10 +131,23 @@ WebRTCStream::~WebRTCStream()
     signaling.release();
 }
 
+void WebRTCStream::resetStats()
+{
+    stats_list           = "";
+    frame_id             = 0;
+    pli_received         = 0;
+    audio_bytes_sent     = 0;
+    video_bytes_sent     = 0;
+    total_bytes_sent     = 0;
+    previous_frames_sent = 0;
+}
+
 bool WebRTCStream::start(WebRTCStream::Type type)
 {
     info("WebRTCStream::start");
     this->type = type;
+
+    resetStats();
 
     // Access service if started, or fail
 
@@ -159,16 +168,22 @@ bool WebRTCStream::start(WebRTCStream::Type type)
     password = obs_service_get_password(service) ? obs_service_get_password(service) : "";
     video_codec = obs_service_get_codec(service) ? obs_service_get_codec(service)    : "";
     protocol = obs_service_get_protocol(service) ? obs_service_get_protocol(service) : "";
+    simulcast     = obs_service_get_simulcast(service)     ? obs_service_get_simulcast(service)     : false;
+    publishApiUrl = obs_service_get_publishApiUrl(service) ? obs_service_get_publishApiUrl(service) : "";
+
     // Some extra log
+
     info("Video codec: %s", video_codec.empty() ? "Automatic" : video_codec.c_str());
+    info("Simulcast: %s", simulcast ? "true" : "false");
+    info("Publish API URL: %s", publishApiUrl.c_str());
     info("Protocol:    %s", protocol.empty()    ? "Automatic" : protocol.c_str());
 
     // Stream setting sanity check
 
     bool isServiceValid = true;
     if (type != WebRTCStream::Type::Millicast) {
-        if (url.empty()) {
-            warn("Invalid url");
+      if (publishApiUrl.empty()) {
+        warn("Invalid publish API URL");
             isServiceValid = false;
         }
 	if (type != WebRTCStream::Type::CustomWebrtc) {
@@ -177,8 +192,7 @@ bool WebRTCStream::start(WebRTCStream::Type type)
 			isServiceValid = false;
 		}
 	}
-	if (type != WebRTCStream::Type::Wowza &&
-	    type != WebRTCStream::Type::CustomWebrtc) {
+	if (type != WebRTCStream::Type::CustomWebrtc) {
 		if (password.empty()) {
 			warn("Missing Password");
 			isServiceValid = false;
@@ -231,7 +245,7 @@ bool WebRTCStream::start(WebRTCStream::Type type)
     // config.bundle_policy = webrtc::PeerConnectionInterface::kBundlePolicyMaxBundle;
     // config.disable_ipv6 = true;
     // config.rtcp_mux_policy = webrtc::PeerConnectionInterface::kRtcpMuxPolicyRequire;
-    // config.sdp_semantics = webrtc::SdpSemantics::kUnifiedPlan;
+    config.sdp_semantics = webrtc::SdpSemantics::kUnifiedPlan;
     // config.set_cpu_adaptation(false);
     // config.set_suspend_below_min_bitrate(false);
 
@@ -274,17 +288,34 @@ bool WebRTCStream::start(WebRTCStream::Type type)
     // pc->AddTrack(video_track, {"obs"});
     stream->AddTrack(video_track);
 
-    // Add the stream to the peer connection
-    if (!pc->AddStream(stream)) {
-        warn("Adding stream to PeerConnection failed");
-        // Close Peer Connection
-        close(false);
-        // Disconnect, this will call stop on main thread
-        obs_output_set_last_error(output,
-            "There was a problem connecting your source(s) to the webrtc stream. Do your sources appear to be working correctly?");
-        obs_output_signal_stop(output, OBS_OUTPUT_CONNECT_FAILED);
-        return false;
+    //Add audio track
+    webrtc::RtpTransceiverInit audio_init;
+    audio_init.stream_ids.push_back(stream->id());
+    audio_init.direction = webrtc::RtpTransceiverDirection::kSendOnly;
+    pc->AddTransceiver(audio_track, audio_init);
+
+    bool simulcast = false;
+
+    //Add video track
+    webrtc::RtpTransceiverInit video_init;
+    video_init.stream_ids.push_back(stream->id());
+    video_init.direction = webrtc::RtpTransceiverDirection::kSendOnly;
+    if (simulcast) {
+	      webrtc::RtpEncodingParameters large;
+	      webrtc::RtpEncodingParameters medium;
+	      webrtc::RtpEncodingParameters small;
+	      large.rid = "L";
+	      large.scale_resolution_down_by = 1;
+	      medium.rid = "M";
+	      medium.scale_resolution_down_by = 2;
+	      small.rid = "S";
+	      small.scale_resolution_down_by = 4;
+	      //In reverse order so large is dropped first on low network condition
+	      video_init.send_encodings.push_back(small);
+	      video_init.send_encodings.push_back(medium);
+	      video_init.send_encodings.push_back(large);
     }
+    pc->AddTransceiver(video_track, video_init);
 
     client = createWebsocketClient(type);
     if (!client) {
@@ -303,17 +334,10 @@ bool WebRTCStream::start(WebRTCStream::Type type)
     if (type == WebRTCStream::Type::Janus) {
         info("Server Room:      %s\nStream Key:       %s\n",
                 room.c_str(), password.c_str());
-    } else if (type == WebRTCStream::Type::Wowza) {
-        info("Application Name: %s\nStream Name:      %s\n",
-                room.c_str(), username.c_str());
-    } else if (type == WebRTCStream::Type::Millicast) {
+        } else if (type == WebRTCStream::Type::Millicast) {
         info("Stream Name:      %s\nPublishing Token: %s\n",
                 username.c_str(), password.c_str());
-        // Note alex: What~~?
-        url = "Millicast";
-    } else if (type == WebRTCStream::Type::Evercast) {
-        info("Server Room:      %s\nStream Key:       %s\n",
-                room.c_str(), password.c_str());
+        url = publishApiUrl;
     }
     info("CONNECTING TO %s", url.c_str());
 
@@ -359,14 +383,15 @@ void WebRTCStream::OnSuccess(webrtc::SessionDescriptionInterface *desc)
     std::string sdpCopy = sdp;
     std::vector<int> audio_payloads;
     std::vector<int> video_payloads;
-    // If codec setting is Automatic
+    // If codec setting is Automatic, set it to h264 by default
     if(video_codec.empty()) {
-        video_codec = "";
+        video_codec = "h264"; // h264 must be in lowercase (Firefox)
     }
     // Force specific video/audio payload
     SDPModif::forcePayload(
         sdpCopy, audio_payloads, video_payloads,
-        audio_codec, video_codec, 0, "42e01f", 0);
+        // the packaging mode needs to be 1
+        audio_codec, video_codec, 1, "42e01f", 0);
     // Constrain video bitrate
     SDPModif::bitrateMaxMinSDP(sdpCopy, video_bitrate, video_payloads);
     // Enable stereo & constrain audio bitrate
@@ -492,12 +517,10 @@ void WebRTCStream::onOpened(const std::string &sdp)
 
     std::string sdpCopy = sdp;
 
-    if (type != WebRTCStream::Type::Wowza) {
-        // Constrain video bitrate
-        SDPModif::bitrateSDP(sdpCopy, video_bitrate);
-        // Enable stereo & constrain audio bitrate
-        SDPModif::stereoSDP(sdpCopy, audio_bitrate);
-    }
+    // Constrain video bitrate
+    SDPModif::bitrateSDP(sdpCopy, video_bitrate);
+    // Enable stereo & constrain audio bitrate
+    SDPModif::stereoSDP(sdpCopy, audio_bitrate);
 
     // SetRemoteDescription observer
     srd_observer = make_scoped_refptr(this);
