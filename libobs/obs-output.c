@@ -507,6 +507,8 @@ void obs_output_update(obs_output_t *output, obs_data_t *settings)
 	if (!obs_output_valid(output, "obs_output_update"))
 		return;
 
+        output->video = obs_get_video();
+
 	obs_data_apply(output->context.settings, settings);
 
 	if (output->info.update)
