@@ -15,8 +15,6 @@ bool obs_module_load(void)
 
 WEBSOCKETCLIENT_API WebsocketClient * createWebsocketClient(int type)
 {
-    if (type == Type::Janus)
-        return new JanusWebsocketClientImpl();
     if (type == Type::Millicast)
         return new MillicastWebsocketClientImpl();
     if (type == Type::CustomWebrtc)
