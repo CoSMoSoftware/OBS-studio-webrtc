@@ -2117,6 +2117,12 @@ OBS_DEPRECATED
 EXPORT void obs_free_encoder_packet(struct encoder_packet *packet);
 #endif
 
+/** Returns the simulcast setting for this service context */
+EXPORT bool obs_service_get_simulcast(const obs_service_t *service);
+
+/** Returns the URL for WebRTC service */
+EXPORT const char *obs_service_get_publishApiUrl(const obs_service_t *service);
+
 EXPORT void obs_encoder_packet_ref(struct encoder_packet *dst,
 				   struct encoder_packet *src);
 EXPORT void obs_encoder_packet_release(struct encoder_packet *packet);

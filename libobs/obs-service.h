@@ -65,7 +65,8 @@ struct obs_service_info {
 	const char *(*get_username)(void *data);
 	const char *(*get_password)(void *data);
 
-	bool (*deprecated_1)();
+	bool (*supports_multitrack)(void *data);
+        bool (*deprecated_1)();
 
 	void (*apply_encoder_settings)(void *data,
 				       obs_data_t *video_encoder_settings,
@@ -76,6 +77,9 @@ struct obs_service_info {
 
 	const char *(*get_codec)(void *data);
 	const char *(*get_protocol)(void *data);
+
+	bool (*get_simulcast)(void *data);
+	const char *(*get_publishApiUrl)(void *data);
 
 	const char *(*get_output_type)(void *data);
 
