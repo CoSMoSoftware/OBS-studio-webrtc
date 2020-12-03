@@ -35,7 +35,7 @@ MillicastWebsocketClientImpl::~MillicastWebsocketClientImpl()
 }
 
 bool MillicastWebsocketClientImpl::connect(
-        const std::string & /* publish_api_url */,
+        const std::string & publish_api_url,
         const std::string & /* room */,
         const std::string & stream_name,
         const std::string & token,
