@@ -331,12 +331,9 @@ bool WebRTCStream::start(WebRTCStream::Type type)
 
     // Extra logging
 
-    if (type == WebRTCStream::Type::Janus) {
-        info("Server Room:      %s\nStream Key:       %s\n",
-                room.c_str(), password.c_str());
-        } else if (type == WebRTCStream::Type::Millicast) {
-        info("Stream Name:      %s\nPublishing Token: %s\n",
-                username.c_str(), password.c_str());
+    if (type == WebRTCStream::Type::Millicast) {
+    	info("Stream Name:      %s\nPublishing Token: %s\n",
+        	username.c_str(), password.c_str());
         url = publishApiUrl;
     }
     info("CONNECTING TO %s", url.c_str());
