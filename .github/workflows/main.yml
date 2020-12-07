@@ -141,12 +141,12 @@ jobs:
           mkdir libcef_dll
           cd ../../
       - name: 'Install prerequisite: LibWebRTC'
-	shell: bash
-	run: |
-	  curl -L https://www.palakis.fr/obs/obs-studio-webrtc/libWebRTC-${{ env.LIBWEBRTC_VERSION }}-x64-RelComm.dmg -f --retry 5 -o libWebRTC.dmg
-	  hdiutil convert -quiet libWebRTC.dmg -format UDTO -o libWebRTC
-	  hdiutil attach -quiet -nobrowse -noverify libWebRTC.cdr
-	  cp -r /Volumes/libWebRTC-${{ env.LIBWEBRTC_VERSION }}-x64-Release/libwebrtc "${{ github.workspace }}"
+        shell: bash
+        run: |
+          curl -L https://www.palakis.fr/obs/obs-studio-webrtc/libWebRTC-${{ env.LIBWEBRTC_VERSION }}-x64-RelComm.dmg -f --retry 5 -o libWebRTC.dmg
+          hdiutil convert -quiet libWebRTC.dmg -format UDTO -o libWebRTC
+          hdiutil attach -quiet -nobrowse -noverify libWebRTC.cdr
+          cp -r /Volumes/libWebRTC-${{ env.LIBWEBRTC_VERSION }}-x64-Release/libwebrtc "${{ github.workspace }}"
       - name: 'Configure'
         shell: bash
         run: |
@@ -412,11 +412,11 @@ jobs:
           tar -C"${{ github.workspace }}/cmbuild" -xjf cef.tar.bz2
       - name: 'Install prerequisite: LibWebRTC'
         shell: bash
-	run: |
-	  curl -kL https://www.palakis.fr/obs/obs-studio-webrtc/libWebRTC-${{ env.LIBWEBRTC_VERSION }}-x64-Release-Community.sh -f --retry 5 -O libWebRTC.sh
-	  chmod +x libWebRTC.sh
-	  mkdir libwebrtc
-	  ./libWebRTC.sh --prefix="${{ github.workspace }}/libwebrtc" --skip-license
+        run: |
+          curl -kL https://www.palakis.fr/obs/obs-studio-webrtc/libWebRTC-${{ env.LIBWEBRTC_VERSION }}-x64-Release-Community.sh -f --retry 5 -O libWebRTC.sh
+          chmod +x libWebRTC.sh
+          mkdir libwebrtc
+          ./libWebRTC.sh --prefix="${{ github.workspace }}/libwebrtc" --skip-license
       - name: 'Configure'
         shell: bash
         run: |
@@ -539,16 +539,16 @@ jobs:
         if: steps.cef-cache.outputs.cache-hit != 'true'
         run: |
           curl -kL https://cdn-fastly.obsproject.com/downloads/cef_binary_${{ env.CEF_VERSION }}_windows64_minimal.zip -f --retry 5 -o cef.zip
-	  7z x cef.zip -o"${{ github.workspace }}/cmbuild"
+          7z x cef.zip -o"${{ github.workspace }}/cmbuild"
       - name: 'Install prerequisite: OpenSSL'
-	run: |
-	  cd "${{ github.workspace }}"
-	  curl -kL https://libwebrtc-community-builds.s3.amazonaws.com/openssl-1.1.tgz -f --retry 5 -o openssl-1.1.tgz
+        run: |
+          cd "${{ github.workspace }}"
+          curl -kL https://libwebrtc-community-builds.s3.amazonaws.com/openssl-1.1.tgz -f --retry 5 -o openssl-1.1.tgz
           tar -xzf openssl-1.1.tgz
       - name: 'Install prerequisite: LibWebRTC'
         run: |
-	  curl -kL https://www.palakis.fr/obs/obs-studio-webrtc/libWebRTC-${{ env.LIBWEBRTC_VERSION }}-x64-RelComm.exe -f --retry 5 -o libWebRTC.exe
-	  libWebRTC.exe /S /SD /D="${{ github.workspace }}/libwebrtc"
+          curl -kL https://www.palakis.fr/obs/obs-studio-webrtc/libWebRTC-${{ env.LIBWEBRTC_VERSION }}-x64-RelComm.exe -f --retry 5 -o libWebRTC.exe
+          libWebRTC.exe /S /SD /D="${{ github.workspace }}/libwebrtc"
       - name: 'Configure'
         run: |
           mkdir ./build
