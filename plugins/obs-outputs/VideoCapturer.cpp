@@ -6,7 +6,7 @@ VideoCapturer::VideoCapturer() {}
 
 VideoCapturer::~VideoCapturer() = default;
 
-void VideoCapturer::OnFrameCaptured(const webrtc::VideoFrame & frame)
+void VideoCapturer::OnFrameCaptured(const webrtc::VideoFrame &frame)
 {
-    rtc::AdaptedVideoTrackSource::OnFrame(frame);
+	rtc::AdaptedVideoTrackSource::OnFrame(frame);
 }

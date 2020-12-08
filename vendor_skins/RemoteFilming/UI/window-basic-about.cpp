@@ -42,7 +42,7 @@ OBSAbout::OBSAbout(QWidget *parent) : QDialog(parent), ui(new Ui::OBSAbout)
 	ui->authors->setProperty("themeID", "aboutHLayout");
 	ui->license->setProperty("themeID", "aboutHLayout");
 
-	connect(ui->about,   SIGNAL(clicked()), this, SLOT(ShowAbout()));
+	connect(ui->about, SIGNAL(clicked()), this, SLOT(ShowAbout()));
 	connect(ui->authors, SIGNAL(clicked()), this, SLOT(ShowAuthors()));
 	connect(ui->license, SIGNAL(clicked()), this, SLOT(ShowLicense()));
 
@@ -69,7 +69,7 @@ OBSAbout::OBSAbout(QWidget *parent) : QDialog(parent), ui(new Ui::OBSAbout)
 void OBSAbout::ShowAbout()
 {
 	OBSBasic *main = OBSBasic::Get();
-        QString text;
+	QString text;
 	text += "<h3>Remote Filming Studio is for live single and multi camera film shoot streaming</h3>";
 	ui->textBrowser->setHtml(text);
 }

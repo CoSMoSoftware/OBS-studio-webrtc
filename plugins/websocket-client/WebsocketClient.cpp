@@ -9,15 +9,15 @@ OBS_DECLARE_MODULE()
 
 bool obs_module_load(void)
 {
-    OPENSSL_init_ssl(0, NULL);
-    return true;
+	OPENSSL_init_ssl(0, NULL);
+	return true;
 }
 
-WEBSOCKETCLIENT_API WebsocketClient * createWebsocketClient(int type)
+WEBSOCKETCLIENT_API WebsocketClient *createWebsocketClient(int type)
 {
-    if (type == Type::Millicast)
-        return new MillicastWebsocketClientImpl();
-    if (type == Type::CustomWebrtc)
-	    return new CustomWebrtcImpl();
-    return nullptr;
+	if (type == Type::Millicast)
+		return new MillicastWebsocketClientImpl();
+	if (type == Type::CustomWebrtc)
+		return new CustomWebrtcImpl();
+	return nullptr;
 }

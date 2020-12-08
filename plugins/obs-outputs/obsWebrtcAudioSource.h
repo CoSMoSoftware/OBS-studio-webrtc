@@ -17,35 +17,37 @@
 // Glue class to use OBS audio capturer and proxy the audio data through to
 // webrtc pipeline. Allows to fully control the audio capturing, and to reuse
 // OBS settings, unlike the previous Audio Device Module Design.
-class obsWebrtcAudioSource : public webrtc::Notifier<webrtc::AudioSourceInterface> {
+class obsWebrtcAudioSource
+	: public webrtc::Notifier<webrtc::AudioSourceInterface> {
 public:
-        static rtc::scoped_refptr<obsWebrtcAudioSource> Create(cricket::AudioOptions *options);
+	static rtc::scoped_refptr<obsWebrtcAudioSource>
+	Create(cricket::AudioOptions *options);
 
-        // NOTE ALEX: FIXME
-	SourceState state()  const override { return kLive; }
-        bool        remote() const override { return false; }
+	// NOTE ALEX: FIXME
+	SourceState state() const override { return kLive; }
+	bool remote() const override { return false; }
 
 	const cricket::AudioOptions options() const override
-        { 
-	  return options_;
-        }
+	{
+		return options_;
+	}
 
 	~obsWebrtcAudioSource();
 
 	void AddSink(webrtc::AudioTrackSinkInterface *sink) override;
-        void RemoveSink(webrtc::AudioTrackSinkInterface *sink) override;
-        void OnAudioData(audio_data *frame);
+	void RemoveSink(webrtc::AudioTrackSinkInterface *sink) override;
+	void OnAudioData(audio_data *frame);
 
 protected:
-        audio_t *audio_;
-        uint16_t pending_remainder;
-        uint8_t *pending;
+	audio_t *audio_;
+	uint16_t pending_remainder;
+	uint8_t *pending;
 
-        // webrtc
-        cricket::AudioOptions options_;
-        webrtc::AudioTrackSinkInterface *sink_;
-        obsWebrtcAudioSource();
-        void Initialize(audio_t *audio, cricket::AudioOptions *options);
+	// webrtc
+	cricket::AudioOptions options_;
+	webrtc::AudioTrackSinkInterface *sink_;
+	obsWebrtcAudioSource();
+	void Initialize(audio_t *audio, cricket::AudioOptions *options);
 };
 
 #endif

@@ -117,7 +117,7 @@ static inline void editable_list_data_free(struct editable_list_data *data)
 }
 
 static inline void button_group_item_free(struct button_group_data *data,
-										  struct list_item *item)
+					  struct list_item *item)
 {
 	bfree(item->name);
 	if (data->format == OBS_BUTTON_GROUP_FORMAT_STRING)
@@ -127,7 +127,7 @@ static inline void button_group_item_free(struct button_group_data *data,
 static inline void button_group_data_free(struct button_group_data *data)
 {
 	for (size_t i = 0; i < data->items.num; i++)
-		button_group_item_free(data, data->items.array+i);
+		button_group_item_free(data, data->items.array + i);
 
 	da_free(data->items);
 }
@@ -675,14 +675,15 @@ obs_property_t *obs_properties_add_list(obs_properties_t *props,
 	return p;
 }
 
-obs_property_t *obs_properties_add_button_group(obs_properties_t *props,
-	const char *name, const char *desc,
-	enum obs_button_group_type type,
-	enum obs_button_group_format format)
+obs_property_t *obs_properties_add_button_group(
+	obs_properties_t *props, const char *name, const char *desc,
+	enum obs_button_group_type type, enum obs_button_group_format format)
 {
-	if (!props || has_prop(props, name)) return NULL;
+	if (!props || has_prop(props, name))
+		return NULL;
 
-	struct obs_property *p = new_prop(props, name, desc, OBS_PROPERTY_BUTTON_GROUP);
+	struct obs_property *p =
+		new_prop(props, name, desc, OBS_PROPERTY_BUTTON_GROUP);
 	struct button_group_data *data = get_property_data(p);
 	data->format = format;
 	data->type = type;
@@ -862,7 +863,8 @@ static inline struct list_data *get_list_data(struct obs_property *p)
 }
 
 // NOTE LUDO: #172 codecs list of radio buttons
-static inline struct button_group_data *get_button_group_data(struct obs_property *p)
+static inline struct button_group_data *
+get_button_group_data(struct obs_property *p)
 {
 	if (!p || !is_button_group(p))
 		return NULL;
@@ -878,13 +880,13 @@ static inline struct list_data *get_list_fmt_data(struct obs_property *p,
 }
 
 // NOTE LUDO: #172 codecs list of radio buttons
-static inline struct button_group_data *get_button_group_fmt_data(struct obs_property *p,
-	enum obs_button_group_format format)
+static inline struct button_group_data *
+get_button_group_fmt_data(struct obs_property *p,
+			  enum obs_button_group_format format)
 {
 	struct button_group_data *data = get_button_group_data(p);
 	return (data && data->format == format) ? data : NULL;
 }
-
 
 /* ------------------------------------------------------------------------- */
 
@@ -1199,9 +1201,9 @@ static size_t add_item(struct list_data *data, const char *name,
 
 // NOTE LUDO: Clickable items replacement
 static size_t add_radio_button(struct button_group_data *data, const char *name,
-							   const void *val)
+			       const void *val)
 {
-	struct list_item item = { NULL };
+	struct list_item item = {NULL};
 	item.name = bstrdup(name);
 
 	// only string format is supported
@@ -1236,8 +1238,8 @@ size_t obs_property_list_add_string(obs_property_t *p, const char *name,
 }
 
 // NOTE LUDO: Clickable items replacement
-size_t obs_property_button_group_add_string(obs_property_t *p,
-	const char *name, const char *val)
+size_t obs_property_button_group_add_string(obs_property_t *p, const char *name,
+					    const char *val)
 {
 	struct button_group_data *data = get_button_group_data(p);
 	if (data && data->format == OBS_BUTTON_GROUP_FORMAT_STRING)
@@ -1336,8 +1338,8 @@ const char *obs_property_list_item_name(obs_property_t *p, size_t idx)
 const char *obs_property_button_group_item_name(obs_property_t *p, size_t idx)
 {
 	struct button_group_data *data = get_button_group_data(p);
-	return (data && idx < data->items.num) ?
-		data->items.array[idx].name : NULL;
+	return (data && idx < data->items.num) ? data->items.array[idx].name
+					       : NULL;
 }
 
 const char *obs_property_list_item_string(obs_property_t *p, size_t idx)
@@ -1349,9 +1351,10 @@ const char *obs_property_list_item_string(obs_property_t *p, size_t idx)
 
 const char *obs_property_button_group_item_string(obs_property_t *p, size_t idx)
 {
-	struct button_group_data *data = get_button_group_fmt_data(p, OBS_BUTTON_GROUP_FORMAT_STRING);
-	return (data && idx < data->items.num) ?
-		data->items.array[idx].str : NULL;
+	struct button_group_data *data =
+		get_button_group_fmt_data(p, OBS_BUTTON_GROUP_FORMAT_STRING);
+	return (data && idx < data->items.num) ? data->items.array[idx].str
+					       : NULL;
 }
 
 long long obs_property_list_item_int(obs_property_t *p, size_t idx)

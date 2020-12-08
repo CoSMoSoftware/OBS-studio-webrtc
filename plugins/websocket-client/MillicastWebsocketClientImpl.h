@@ -18,34 +18,28 @@ typedef websocketpp::client<websocketpp::config::asio_tls_client> Client;
 
 class MillicastWebsocketClientImpl : public WebsocketClient {
 public:
-    MillicastWebsocketClientImpl();
-    ~MillicastWebsocketClientImpl();
+	MillicastWebsocketClientImpl();
+	~MillicastWebsocketClientImpl();
 
-    // WebsocketClient::Listener implementation
-    bool connect(
-            const std::string & /* publish_api_url */,
-            const std::string & /* room */,
-            const std::string & stream_name,
-            const std::string & token,
-            WebsocketClient::Listener * listener) override;
-    bool open(
-            const std::string & sdp,
-            const std::string & video_codec,
-            const std::string & audio_codec,
-            const std::string & stream_name) override;
-    bool trickle(
-            const std::string & /* mid */,
-            int /* index */,
-            const std::string & /* candidate */,
-            bool /* last */) override;
-    bool disconnect(bool /* wait */) override;
+	// WebsocketClient::Listener implementation
+	bool connect(const std::string & /* publish_api_url */,
+		     const std::string & /* room */,
+		     const std::string &stream_name, const std::string &token,
+		     WebsocketClient::Listener *listener) override;
+	bool open(const std::string &sdp, const std::string &video_codec,
+		  const std::string &audio_codec,
+		  const std::string &stream_name) override;
+	bool trickle(const std::string & /* mid */, int /* index */,
+		     const std::string & /* candidate */,
+		     bool /* last */) override;
+	bool disconnect(bool /* wait */) override;
 
 private:
-    std::string token;
+	std::string token;
 
-    Client client;
-    Client::connection_ptr connection;
-    std::thread thread;
+	Client client;
+	Client::connection_ptr connection;
+	std::thread thread;
 
-    std::string sanitizeString(const std::string & s);
+	std::string sanitizeString(const std::string &s);
 };

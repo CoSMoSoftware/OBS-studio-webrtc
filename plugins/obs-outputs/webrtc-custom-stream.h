@@ -18,13 +18,13 @@
 #include <sys/ioctl.h>
 #endif
 
-#define do_log(level, format, ...) \
-  blog(level, "[webrtc custom stream: '%s'] " format, \
-      obs_output_get_name(stream->output), ##__VA_ARGS__)
+#define do_log(level, format, ...)                          \
+	blog(level, "[webrtc custom stream: '%s'] " format, \
+	     obs_output_get_name(stream->output), ##__VA_ARGS__)
 
-#define warn(format, ...)  do_log(LOG_WARNING, format, ##__VA_ARGS__)
-#define info(format, ...)  do_log(LOG_INFO,    format, ##__VA_ARGS__)
-#define debug(format, ...) do_log(LOG_DEBUG,   format, ##__VA_ARGS__)
+#define warn(format, ...) do_log(LOG_WARNING, format, ##__VA_ARGS__)
+#define info(format, ...) do_log(LOG_INFO, format, ##__VA_ARGS__)
+#define debug(format, ...) do_log(LOG_DEBUG, format, ##__VA_ARGS__)
 
 // #define warn(format, ...)  blog(LOG_WARNING, format, ##__VA_ARGS__)
 // #define info(format, ...)  blog(LOG_INFO,    format, ##__VA_ARGS__)
@@ -45,73 +45,72 @@
 #define DROPTEST_MAX_BYTES (DROPTEST_MAX_KBPS * 1000 / 8)
 
 struct droptest_info {
-  uint64_t ts;
-  size_t size;
+	uint64_t ts;
+	size_t size;
 };
 #endif
 
 struct webrtc_custom_stream {
-  obs_output_t     *output;
+	obs_output_t *output;
 
-  pthread_mutex_t  packets_mutex;
-  struct circlebuf packets;
-  bool             sent_headers;
+	pthread_mutex_t packets_mutex;
+	struct circlebuf packets;
+	bool sent_headers;
 
-  volatile bool    connecting;
-  pthread_t        connect_thread;
+	volatile bool connecting;
+	pthread_t connect_thread;
 
-  volatile bool    active;
-  volatile bool    disconnected;
-  pthread_t        send_thread;
+	volatile bool active;
+	volatile bool disconnected;
+	pthread_t send_thread;
 
-  int              max_shutdown_time_sec;
+	int max_shutdown_time_sec;
 
-  os_sem_t         *send_sem;
-  os_event_t       *stop_event;
-  uint64_t         stop_ts;
-  uint64_t         shutdown_timeout_ts;
+	os_sem_t *send_sem;
+	os_event_t *stop_event;
+	uint64_t stop_ts;
+	uint64_t shutdown_timeout_ts;
 
-  struct dstr      path, key;
-  struct dstr      username, password;
-  struct dstr      encoder_name;
-  struct dstr      bind_ip;
+	struct dstr path, key;
+	struct dstr username, password;
+	struct dstr encoder_name;
+	struct dstr bind_ip;
 
-  /* frame drop variables */
-  int64_t          drop_threshold_usec;
-  int64_t          min_drop_dts_usec;
-  int64_t          pframe_drop_threshold_usec;
-  int64_t          pframe_min_drop_dts_usec;
-  int              min_priority;
-  float            congestion;
+	/* frame drop variables */
+	int64_t drop_threshold_usec;
+	int64_t min_drop_dts_usec;
+	int64_t pframe_drop_threshold_usec;
+	int64_t pframe_min_drop_dts_usec;
+	int min_priority;
+	float congestion;
 
-  int64_t          last_dts_usec;
+	int64_t last_dts_usec;
 
-  uint64_t         total_bytes_sent;
-  int              dropped_frames;
+	uint64_t total_bytes_sent;
+	int dropped_frames;
 
 #ifdef TEST_FRAMEDROPS
-  struct circlebuf droptest_info;
-  size_t           droptest_size;
+	struct circlebuf droptest_info;
+	size_t droptest_size;
 #endif
 
-  RTMP             rtmp;
+	RTMP rtmp;
 
-  bool             new_socket_loop;
-  bool             low_latency_mode;
-  bool             disable_send_window_optimization;
-  bool             socket_thread_active;
-  pthread_t        socket_thread;
-  uint8_t          *write_buf;
-  size_t           write_buf_len;
-  size_t           write_buf_size;
-  pthread_mutex_t  write_buf_mutex;
-  os_event_t       *buffer_space_available_event;
-  os_event_t       *buffer_has_data_event;
-  os_event_t       *socket_available_event;
-  os_event_t       *send_thread_signaled_exit;
+	bool new_socket_loop;
+	bool low_latency_mode;
+	bool disable_send_window_optimization;
+	bool socket_thread_active;
+	pthread_t socket_thread;
+	uint8_t *write_buf;
+	size_t write_buf_len;
+	size_t write_buf_size;
+	pthread_mutex_t write_buf_mutex;
+	os_event_t *buffer_space_available_event;
+	os_event_t *buffer_has_data_event;
+	os_event_t *socket_available_event;
+	os_event_t *send_thread_signaled_exit;
 };
 
 #ifdef _WIN32
 void *socket_thread_windows(void *data);
 #endif
-

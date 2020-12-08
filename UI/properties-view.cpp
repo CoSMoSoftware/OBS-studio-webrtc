@@ -522,8 +522,9 @@ static string from_obs_data_autoselect(obs_data_t *data, const char *name,
 							     format);
 }
 
-static void AddButtonGroupItem(QButtonGroup *buttongroup, QVBoxLayout *vbox, obs_property_t *prop,
-	obs_button_group_format format, size_t idx)
+static void AddButtonGroupItem(QButtonGroup *buttongroup, QVBoxLayout *vbox,
+			       obs_property_t *prop,
+			       obs_button_group_format format, size_t idx)
 {
 	const char *name = obs_property_button_group_item_name(prop, idx);
 	QVariant var;
@@ -561,8 +562,10 @@ QWidget *OBSPropertiesView::AddButtonGroup(obs_property_t *prop, bool &warning)
 	string value = from_obs_data(settings, name, format);
 	QRadioButton *radiobutton;
 	for (int i = 0; i < vbox->count(); ++i) {
-		radiobutton = (QRadioButton*)vbox->itemAt(i)->widget();
-		string buttonText = (radiobutton != nullptr) ? radiobutton->text().toStdString() : "";
+		radiobutton = (QRadioButton *)vbox->itemAt(i)->widget();
+		string buttonText = (radiobutton != nullptr)
+					    ? radiobutton->text().toStdString()
+					    : "";
 		if (buttonText == value) {
 			radiobutton->setChecked(true);
 			idx = buttongroup->id(radiobutton);
@@ -571,12 +574,14 @@ QWidget *OBSPropertiesView::AddButtonGroup(obs_property_t *prop, bool &warning)
 	}
 
 	if (obs_data_has_autoselect_value(settings, name)) {
-		string autoselect = from_obs_data_autoselect(settings, name, format);
+		string autoselect =
+			from_obs_data_autoselect(settings, name, format);
 		int id = -1;
 		QRadioButton *rb;
 		for (int i = 0; i < vbox->count(); ++i) {
-			rb = (QRadioButton*)vbox->itemAt(i)->widget();
-			string buttonText = (rb != nullptr) ? rb->text().toStdString() : "";
+			rb = (QRadioButton *)vbox->itemAt(i)->widget();
+			string buttonText =
+				(rb != nullptr) ? rb->text().toStdString() : "";
 			if (buttonText == autoselect) {
 				id = buttongroup->id(rb);
 				break;
@@ -586,14 +591,16 @@ QWidget *OBSPropertiesView::AddButtonGroup(obs_property_t *prop, bool &warning)
 		if (id != -1 && id != idx) {
 			QString actual = rb->text();
 			QString selected = radiobutton->text();
-			QString combined = QTStr("Basic.PropertiesWindow.AutoSelectFormat");
-			radiobutton->setText(combined.arg(selected).arg(actual));
+			QString combined = QTStr(
+				"Basic.PropertiesWindow.AutoSelectFormat");
+			radiobutton->setText(
+				combined.arg(selected).arg(actual));
 		}
 	}
 
 	WidgetInfo *info = new WidgetInfo(this, prop, buttongroup);
-	connect(buttongroup, SIGNAL(buttonClicked(int)),
-			info, SLOT(ControlChanged()));
+	connect(buttongroup, SIGNAL(buttonClicked(int)), info,
+		SLOT(ControlChanged()));
 	children.emplace_back(info);
 
 	/* trigger a settings update if the index was not found */
@@ -1818,8 +1825,9 @@ void WidgetInfo::ListChanged(const char *setting)
 // NOTE LUDO: #172 codecs list of radio buttons
 void WidgetInfo::ButtonGroupChanged(const char *setting)
 {
-	QButtonGroup *buttongroup = reinterpret_cast<QButtonGroup*>(widget);
-	obs_data_set_string(view->settings, setting,
+	QButtonGroup *buttongroup = reinterpret_cast<QButtonGroup *>(widget);
+	obs_data_set_string(
+		view->settings, setting,
 		buttongroup->checkedButton()->text().toStdString().c_str());
 }
 
@@ -2139,7 +2147,8 @@ void WidgetInfo::EditListAddText()
 
 	// NOTE LUDO: #172 codecs list of radio buttons
 	// EditableItemDialog dialog(widget->window(), QString(), false);
-	EditableItemDialog dialog(((QWidget*)widget)->window(), QString(), false);
+	EditableItemDialog dialog(((QWidget *)widget)->window(), QString(),
+				  false);
 	auto title = QTStr("Basic.PropertiesWindow.AddEditableListEntry")
 			     .arg(QT_UTF8(desc));
 	dialog.setWindowTitle(title);
@@ -2242,7 +2251,7 @@ void WidgetInfo::EditListEdit()
 	// EditableItemDialog dialog(widget->window(), item->text(),
 	//			  type != OBS_EDITABLE_LIST_TYPE_STRINGS,
 	//			  filter);
-	EditableItemDialog dialog(((QWidget*)widget)->window(), item->text(),
+	EditableItemDialog dialog(((QWidget *)widget)->window(), item->text(),
 				  type != OBS_EDITABLE_LIST_TYPE_STRINGS,
 				  filter);
 	auto title = QTStr("Basic.PropertiesWindow.EditEditableListEntry")

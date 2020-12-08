@@ -248,11 +248,9 @@ obs_properties_add_button2(obs_properties_t *props, const char *name,
 			   void *priv);
 
 // transform drop down menus into clickable button list for KITE testing
-EXPORT obs_property_t*
-obs_properties_add_button_group(obs_properties_t *props,
-						const char *name, const char *description,
-						enum obs_button_group_type type,
-						enum obs_button_group_format format);
+EXPORT obs_property_t *obs_properties_add_button_group(
+	obs_properties_t *props, const char *name, const char *description,
+	enum obs_button_group_type type, enum obs_button_group_format format);
 
 /**
  * Adds a font selection property.
@@ -342,14 +340,18 @@ EXPORT enum obs_combo_type obs_property_list_type(obs_property_t *p);
 EXPORT enum obs_combo_format obs_property_list_format(obs_property_t *p);
 
 //--- transform drop down menus into clickable button list for KITE testing
-EXPORT enum obs_button_group_type   obs_property_button_group_type(   obs_property_t *p);
-EXPORT enum obs_button_group_format obs_property_button_group_format( obs_property_t *p);
+EXPORT enum obs_button_group_type
+obs_property_button_group_type(obs_property_t *p);
+EXPORT enum obs_button_group_format
+obs_property_button_group_format(obs_property_t *p);
 EXPORT size_t obs_property_button_group_add_string(obs_property_t *p,
-									const char* name, const char *val);
-EXPORT size_t obs_property_button_group_item_count(       obs_property_t *p);
-EXPORT const char *obs_property_button_group_item_name(   obs_property_t *p,
-														  size_t idx);
-EXPORT const char *obs_property_button_group_item_string( obs_property_t *p, size_t idx);
+						   const char *name,
+						   const char *val);
+EXPORT size_t obs_property_button_group_item_count(obs_property_t *p);
+EXPORT const char *obs_property_button_group_item_name(obs_property_t *p,
+						       size_t idx);
+EXPORT const char *obs_property_button_group_item_string(obs_property_t *p,
+							 size_t idx);
 //-------------------------------------------------------------------------
 
 EXPORT void obs_property_int_set_limits(obs_property_t *p, int min, int max,

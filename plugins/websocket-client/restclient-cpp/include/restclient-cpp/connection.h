@@ -26,8 +26,8 @@ namespace RestClient {
   * @brief Connection object for advanced usage
   */
 class Connection {
- public:
-    /**
+public:
+	/**
       *  @struct RequestInfo
       *  @brief holds some diagnostics information
       *  about a request
@@ -57,17 +57,17 @@ class Connection {
       *  Member 'redirectCount' contains the number of redirects followed. See
       *  CURLINFO_REDIRECT_COUNT
       */
-    typedef struct {
-        double totalTime;
-        double nameLookupTime;
-        double connectTime;
-        double appConnectTime;
-        double preTransferTime;
-        double startTransferTime;
-        double redirectTime;
-        int redirectCount;
-      } RequestInfo;
-    /**
+	typedef struct {
+		double totalTime;
+		double nameLookupTime;
+		double connectTime;
+		double appConnectTime;
+		double preTransferTime;
+		double startTransferTime;
+		double redirectTime;
+		int redirectCount;
+	} RequestInfo;
+	/**
       *  @struct Info
       *  @brief holds some diagnostics information
       *  about the connection object it came from
@@ -102,117 +102,114 @@ class Connection {
       *  @var Info::lastRequest
       *  Member 'lastRequest' contains metrics about the last request
       */
-    typedef struct {
-      std::string baseUrl;
-      RestClient::HeaderFields headers;
-      int timeout;
-      bool followRedirects;
-      int maxRedirects;
-      bool noSignal;
-      struct {
-        std::string username;
-        std::string password;
-      } basicAuth;
+	typedef struct {
+		std::string baseUrl;
+		RestClient::HeaderFields headers;
+		int timeout;
+		bool followRedirects;
+		int maxRedirects;
+		bool noSignal;
+		struct {
+			std::string username;
+			std::string password;
+		} basicAuth;
 
-      std::string certPath;
-      std::string certType;
-      std::string keyPath;
-      std::string keyPassword;
-      std::string customUserAgent;
-      std::string uriProxy;
-      RequestInfo lastRequest;
-    } Info;
+		std::string certPath;
+		std::string certType;
+		std::string keyPath;
+		std::string keyPassword;
+		std::string customUserAgent;
+		std::string uriProxy;
+		RequestInfo lastRequest;
+	} Info;
 
+	explicit Connection(const std::string &baseUrl);
+	~Connection();
 
-    explicit Connection(const std::string& baseUrl);
-    ~Connection();
+	// Instance configuration methods
+	// configure basic auth
+	void SetBasicAuth(const std::string &username,
+			  const std::string &password);
 
-    // Instance configuration methods
-    // configure basic auth
-    void SetBasicAuth(const std::string& username,
-                      const std::string& password);
+	// set connection timeout to seconds
+	void SetTimeout(int seconds);
 
-    // set connection timeout to seconds
-    void SetTimeout(int seconds);
+	// set to not use signals
+	void SetNoSignal(bool no);
 
-    // set to not use signals
-    void SetNoSignal(bool no);
+	// set whether to follow redirects
+	void FollowRedirects(bool follow);
 
-    // set whether to follow redirects
-    void FollowRedirects(bool follow);
+	// set whether to follow redirects (-1 for unlimited)
+	void FollowRedirects(bool follow, int maxRedirects);
 
-    // set whether to follow redirects (-1 for unlimited)
-    void FollowRedirects(bool follow, int maxRedirects);
+	// set custom user agent
+	// (this will result in the UA "foo/cool restclient-cpp/VERSION")
+	void SetUserAgent(const std::string &userAgent);
 
-    // set custom user agent
-    // (this will result in the UA "foo/cool restclient-cpp/VERSION")
-    void SetUserAgent(const std::string& userAgent);
+	// set the Certificate Authority (CA) Info which is the path to file holding
+	// certificates to be used to verify peers. See CURLOPT_CAINFO
+	void SetCAInfoFilePath(const std::string &caInfoFilePath);
 
-    // set the Certificate Authority (CA) Info which is the path to file holding
-    // certificates to be used to verify peers. See CURLOPT_CAINFO
-    void SetCAInfoFilePath(const std::string& caInfoFilePath);
+	// set CURLOPT_SSLCERT
+	void SetCertPath(const std::string &cert);
 
-    // set CURLOPT_SSLCERT
-    void SetCertPath(const std::string& cert);
+	// set CURLOPT_SSLCERTTYPE
+	void SetCertType(const std::string &type);
 
-    // set CURLOPT_SSLCERTTYPE
-    void SetCertType(const std::string& type);
+	// set CURLOPT_SSLKEY. Default format is PEM
+	void SetKeyPath(const std::string &keyPath);
 
-    // set CURLOPT_SSLKEY. Default format is PEM
-    void SetKeyPath(const std::string& keyPath);
+	// set CURLOPT_KEYPASSWD.
+	void SetKeyPassword(const std::string &keyPassword);
 
-    // set CURLOPT_KEYPASSWD.
-    void SetKeyPassword(const std::string& keyPassword);
+	// set CURLOPT_PROXY
+	void SetProxy(const std::string &uriProxy);
 
-    // set CURLOPT_PROXY
-    void SetProxy(const std::string& uriProxy);
+	std::string GetUserAgent();
 
-    std::string GetUserAgent();
+	RestClient::Connection::Info GetInfo();
 
-    RestClient::Connection::Info GetInfo();
+	// set headers
+	void SetHeaders(RestClient::HeaderFields headers);
 
-    // set headers
-    void SetHeaders(RestClient::HeaderFields headers);
+	// get headers
+	RestClient::HeaderFields GetHeaders();
 
-    // get headers
-    RestClient::HeaderFields GetHeaders();
+	// append additional headers
+	void AppendHeader(const std::string &key, const std::string &value);
 
-    // append additional headers
-    void AppendHeader(const std::string& key,
-                      const std::string& value);
+	// Basic HTTP verb methods
+	RestClient::Response get(const std::string &uri);
+	RestClient::Response post(const std::string &uri,
+				  const std::string &data);
+	RestClient::Response put(const std::string &uri,
+				 const std::string &data);
+	RestClient::Response del(const std::string &uri);
+	RestClient::Response head(const std::string &uri);
 
-
-    // Basic HTTP verb methods
-    RestClient::Response get(const std::string& uri);
-    RestClient::Response post(const std::string& uri,
-                              const std::string& data);
-    RestClient::Response put(const std::string& uri,
-                             const std::string& data);
-    RestClient::Response del(const std::string& uri);
-    RestClient::Response head(const std::string& uri);
-
- private:
-    CURL* curlHandle;
-    std::string baseUrl;
-    RestClient::HeaderFields headerFields;
-    int timeout;
-    bool followRedirects;
-    int maxRedirects;
-    bool noSignal;
-    struct {
-      std::string username;
-      std::string password;
-    } basicAuth;
-    std::string customUserAgent;
-    std::string caInfoFilePath;
-    RequestInfo lastRequest;
-    std::string certPath;
-    std::string certType;
-    std::string keyPath;
-    std::string keyPassword;
-    std::string uriProxy;
-    RestClient::Response performCurlRequest(const std::string& uri);
+private:
+	CURL *curlHandle;
+	std::string baseUrl;
+	RestClient::HeaderFields headerFields;
+	int timeout;
+	bool followRedirects;
+	int maxRedirects;
+	bool noSignal;
+	struct {
+		std::string username;
+		std::string password;
+	} basicAuth;
+	std::string customUserAgent;
+	std::string caInfoFilePath;
+	RequestInfo lastRequest;
+	std::string certPath;
+	std::string certType;
+	std::string keyPath;
+	std::string keyPassword;
+	std::string uriProxy;
+	RestClient::Response performCurlRequest(const std::string &uri);
 };
-};  // namespace RestClient
+}; // namespace RestClient
 
-#endif  // INCLUDE_RESTCLIENT_CPP_CONNECTION_H_
+#endif // INCLUDE_RESTCLIENT_CPP_CONNECTION_H_

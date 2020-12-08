@@ -63,18 +63,18 @@ bool CustomWebrtcImpl::open(const std::string &sdp,
 	delete conn;
 	RestClient::disable();
 
-	if (r.code<200 || r.code >= 300) {
+	if (r.code < 200 || r.code >= 300) {
 		error("Error querying publishing websocket url");
 		error("code: %d", r.code);
 		error("body: %s", r.body.c_str());
 		return false;
 	}
-		
-	std::string answer = r.body + std::string("a=x-google-flag:conference\r\n");
 
-	
+	std::string answer =
+		r.body + std::string("a=x-google-flag:conference\r\n");
+
 	listener->onOpened(answer);
-	
+
 	// OK
 	return true;
 }

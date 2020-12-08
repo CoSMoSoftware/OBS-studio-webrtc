@@ -18,74 +18,75 @@ using webrtc::kAdmMaxGuidSize;
 using webrtc::kAdmMaxFileNameSize;
 using webrtc::webrtc_impl::AudioDeviceModuleDefault;
 
-class AudioDeviceModuleWrapper : public AudioDeviceModuleDefault<AudioDeviceModule> {
+class AudioDeviceModuleWrapper
+	: public AudioDeviceModuleDefault<AudioDeviceModule> {
 public:
-    AudioDeviceModuleWrapper();
-    ~AudioDeviceModuleWrapper() override;
+	AudioDeviceModuleWrapper();
+	~AudioDeviceModuleWrapper() override;
 
-    rtc::scoped_refptr<AudioDeviceModuleWrapper> CreateAudioDeviceModule();
+	rtc::scoped_refptr<AudioDeviceModuleWrapper> CreateAudioDeviceModule();
 
-    // Main initialization and termination
-    int32_t Init() override;
-    int32_t Terminate() override;
-    bool Initialized() const override;
+	// Main initialization and termination
+	int32_t Init() override;
+	int32_t Terminate() override;
+	bool Initialized() const override;
 
-    void onIncomingData(uint8_t* data, size_t samples_per_channel);
+	void onIncomingData(uint8_t *data, size_t samples_per_channel);
 
-    virtual int64_t TimeUntilNextProcess() { return 1000; }
-    virtual void Process() {}
+	virtual int64_t TimeUntilNextProcess() { return 1000; }
+	virtual void Process() {}
 
-    // Retrieve the currently utilized audio layer
-    int32_t ActiveAudioLayer(AudioLayer* audioLayer) const override
-    {
-        *audioLayer = AudioLayer::kDummyAudio;
-        return 0;
-    }
+	// Retrieve the currently utilized audio layer
+	int32_t ActiveAudioLayer(AudioLayer *audioLayer) const override
+	{
+		*audioLayer = AudioLayer::kDummyAudio;
+		return 0;
+	}
 
-    // Full-duplex transportation of PCM audio
-    int32_t RegisterAudioCallback(AudioTransport* audioCallback) override
-    {
-        this->audioTransport = audioCallback;
-        return 0;
-    }
+	// Full-duplex transportation of PCM audio
+	int32_t RegisterAudioCallback(AudioTransport *audioCallback) override
+	{
+		this->audioTransport = audioCallback;
+		return 0;
+	}
 
-    // Device enumeration
-    int32_t PlayoutDeviceName(uint16_t index,
-                              char name[kAdmMaxDeviceNameSize],
-                              char guid[kAdmMaxGuidSize]) override
-    {
-        sprintf(name, "rtmp_stream");
-        sprintf(name, "obs");
-        sprintf(guid, "guid");
-        return 0;
-    }
+	// Device enumeration
+	int32_t PlayoutDeviceName(uint16_t index,
+				  char name[kAdmMaxDeviceNameSize],
+				  char guid[kAdmMaxGuidSize]) override
+	{
+		sprintf(name, "rtmp_stream");
+		sprintf(name, "obs");
+		sprintf(guid, "guid");
+		return 0;
+	}
 
-    int32_t RecordingDeviceName(uint16_t index,
-                                char name[kAdmMaxDeviceNameSize],
-                                char guid[kAdmMaxGuidSize]) override
-    {
-        sprintf(name, "rtmp_stream");
-        sprintf(name, "obs");
-        sprintf(guid, "guid");
-        return 0;
-    }
+	int32_t RecordingDeviceName(uint16_t index,
+				    char name[kAdmMaxDeviceNameSize],
+				    char guid[kAdmMaxGuidSize]) override
+	{
+		sprintf(name, "rtmp_stream");
+		sprintf(name, "obs");
+		sprintf(guid, "guid");
+		return 0;
+	}
 
-    // Audio transport control
-    bool Recording() const override { return true; }
+	// Audio transport control
+	bool Recording() const override { return true; }
 
-    // Stereo support
-    int32_t StereoRecordingIsAvailable(bool* available) const override
-    {
-        *available = true;
-        return 0;
-    }
+	// Stereo support
+	int32_t StereoRecordingIsAvailable(bool *available) const override
+	{
+		*available = true;
+		return 0;
+	}
 
 public:
-    bool                 _initialized;
-    rtc::CriticalSection _critSect;
-    AudioTransport*      audioTransport;
-    uint8_t              pending[640 * 2 * 2];
-    size_t               pendingLength;
+	bool _initialized;
+	rtc::CriticalSection _critSect;
+	AudioTransport *audioTransport;
+	uint8_t pending[640 * 2 * 2];
+	size_t pendingLength;
 };
 
 #endif

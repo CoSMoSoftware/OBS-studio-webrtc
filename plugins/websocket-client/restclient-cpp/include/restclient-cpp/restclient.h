@@ -35,9 +35,9 @@ typedef std::map<std::string, std::string> HeaderFields;
   *  Member 'headers' contains the HTTP response headers
   */
 typedef struct {
-  int code;
-  std::string body;
-  HeaderFields headers;
+	int code;
+	std::string body;
+	HeaderFields headers;
 } Response;
 
 // init and disable functions
@@ -49,16 +49,14 @@ void disable();
   * configuration but are meant for simple HTTP calls.
   *
   */
-Response get(const std::string& url);
-Response post(const std::string& url,
-              const std::string& content_type,
-              const std::string& data);
-Response put(const std::string& url,
-              const std::string& content_type,
-              const std::string& data);
-Response del(const std::string& url);
-Response head(const std::string& url);
+Response get(const std::string &url);
+Response post(const std::string &url, const std::string &content_type,
+	      const std::string &data);
+Response put(const std::string &url, const std::string &content_type,
+	     const std::string &data);
+Response del(const std::string &url);
+Response head(const std::string &url);
 
-}  // namespace RestClient
+} // namespace RestClient
 
-#endif  // INCLUDE_RESTCLIENT_CPP_RESTCLIENT_H_
+#endif // INCLUDE_RESTCLIENT_CPP_RESTCLIENT_H_

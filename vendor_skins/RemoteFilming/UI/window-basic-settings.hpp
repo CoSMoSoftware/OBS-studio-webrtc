@@ -284,9 +284,9 @@ private:
 private slots:
 	void on_theme_activated(int idx);
 
-        // NOTE LUDO #170: Settings: replace QListWidget by QPushButtons
+	// NOTE LUDO #170: Settings: replace QListWidget by QPushButtons
 	void on_listWidget_itemSelectionChanged();
-        void on_basicSettingsButtonGroup_buttonClicked(int row);
+	void on_basicSettingsButtonGroup_buttonClicked(int row);
 	void on_buttonBox_clicked(QAbstractButton *button);
 
 	void on_service_currentIndexChanged(int idx);

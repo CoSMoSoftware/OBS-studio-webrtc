@@ -46,7 +46,7 @@ public:
 	// inline WidgetInfo(OBSPropertiesView *view_, obs_property_t *prop,
 	// 		  QWidget *widget_)
 	inline WidgetInfo(OBSPropertiesView *view_, obs_property_t *prop,
-	 		  QObject *widget_)
+			  QObject *widget_)
 		: view(view_), property(prop), widget(widget_)
 	{
 	}

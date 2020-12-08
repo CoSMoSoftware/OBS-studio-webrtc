@@ -120,8 +120,9 @@ static void AddExtraModulePaths()
 {
 	char base_module_dir[512];
 #if defined(_WIN32) || defined(__APPLE__)
-	int ret = GetProgramDataPath(base_module_dir, sizeof(base_module_dir),
-				     (config_dir + "/plugins/%module%").c_str());
+	int ret =
+		GetProgramDataPath(base_module_dir, sizeof(base_module_dir),
+				   (config_dir + "/plugins/%module%").c_str());
 #else
 	int ret = GetConfigPath(base_module_dir, sizeof(base_module_dir),
 				(config_dir + "/plugins/%module%").c_str());
@@ -134,10 +135,10 @@ static void AddExtraModulePaths()
 #if defined(__APPLE__)
 	obs_add_module_path((path + "/bin").c_str(), (path + "/data").c_str());
 
-	BPtr<char> config_bin =
-		os_get_config_path_ptr((config_dir + "/plugins/%module%/bin").c_str());
-	BPtr<char> config_data =
-		os_get_config_path_ptr((config_dir + "/plugins/%module%/data").c_str());
+	BPtr<char> config_bin = os_get_config_path_ptr(
+		(config_dir + "/plugins/%module%/bin").c_str());
+	BPtr<char> config_data = os_get_config_path_ptr(
+		(config_dir + "/plugins/%module%/data").c_str());
 	obs_add_module_path(config_bin, config_data);
 
 #elif ARCH_BITS == 64
@@ -1095,7 +1096,7 @@ bool OBSBasic::LoadService()
 	obs_data_t *data =
 		obs_data_create_from_json_file_safe(serviceJsonPath, "bak");
 
-        // NOTE ALEX: make millicast the default
+	// NOTE ALEX: make millicast the default
 	obs_data_set_default_string(data, "type", "webrtc_millicast");
 	type = obs_data_get_string(data, "type");
 
@@ -1120,9 +1121,9 @@ bool OBSBasic::InitService()
 	if (LoadService())
 		return true;
 
-        // NOTE ALEX: make millicast the default
-	service = obs_service_create("webrtc_millicast", "default_service", nullptr,
-				     nullptr);
+	// NOTE ALEX: make millicast the default
+	service = obs_service_create("webrtc_millicast", "default_service",
+				     nullptr, nullptr);
 	if (!service)
 		return false;
 	obs_service_release(service);
@@ -1529,7 +1530,8 @@ void OBSBasic::OBSInit()
 	if (!sceneCollection)
 		throw "Failed to get scene collection name";
 
-	ret = snprintf(fileName, 512, (config_dir + "/basic/scenes/%s.json").c_str(),
+	ret = snprintf(fileName, 512,
+		       (config_dir + "/basic/scenes/%s.json").c_str(),
 		       sceneCollection);
 	if (ret <= 0)
 		throw "Failed to create scene collection file name";
@@ -2374,7 +2376,8 @@ void OBSBasic::SaveProjectDeferred()
 	if (!sceneCollection)
 		return;
 
-	ret = snprintf(fileName, 512, (config_dir + "/basic/scenes/%s.json").c_str(),
+	ret = snprintf(fileName, 512,
+		       (config_dir + "/basic/scenes/%s.json").c_str(),
 		       sceneCollection);
 	if (ret <= 0)
 		return;
@@ -3398,10 +3401,10 @@ void OBSBasic::RenderMain(void *data, uint32_t cx, uint32_t cy)
 
 obs_service_t *OBSBasic::GetService()
 {
-        // NOTE ALEX: make millicast the default
+	// NOTE ALEX: make millicast the default
 	if (!service) {
-		service =
-			obs_service_create("webrtc_millicast", NULL, NULL, nullptr);
+		service = obs_service_create("webrtc_millicast", NULL, NULL,
+					     nullptr);
 		obs_service_release(service);
 	}
 	return service;
@@ -4796,7 +4799,8 @@ void OBSBasic::UploadLog(const char *subdir, const char *file)
 void OBSBasic::on_actionShowLogs_triggered()
 {
 	char logDir[512];
-	if (GetConfigPath(logDir, sizeof(logDir), (config_dir + "/logs").c_str()) <= 0)
+	if (GetConfigPath(logDir, sizeof(logDir),
+			  (config_dir + "/logs").c_str()) <= 0)
 		return;
 
 	QUrl url = QUrl::fromLocalFile(QT_UTF8(logDir));
@@ -4816,7 +4820,8 @@ void OBSBasic::on_actionUploadLastLog_triggered()
 void OBSBasic::on_actionViewCurrentLog_triggered()
 {
 	char logDir[512];
-	if (GetConfigPath(logDir, sizeof(logDir), (config_dir + "/logs").c_str()) <= 0)
+	if (GetConfigPath(logDir, sizeof(logDir),
+			  (config_dir + "/logs").c_str()) <= 0)
 		return;
 
 	const char *log = App()->GetCurrentLog();
@@ -4832,7 +4837,8 @@ void OBSBasic::on_actionViewCurrentLog_triggered()
 void OBSBasic::on_actionShowCrashLogs_triggered()
 {
 	char logDir[512];
-	if (GetConfigPath(logDir, sizeof(logDir), (config_dir + "/crashes").c_str()) <= 0)
+	if (GetConfigPath(logDir, sizeof(logDir),
+			  (config_dir + "/crashes").c_str()) <= 0)
 		return;
 
 	QUrl url = QUrl::fromLocalFile(QT_UTF8(logDir));
@@ -5258,14 +5264,14 @@ void OBSBasic::StreamingStop(int code, QString last_error)
 
 	} else if (code != OBS_OUTPUT_SUCCESS && isVisible()) {
 		OBSMessageBox::information(this,
-			QTStr("Output.ConnectFail.Title"),
-			QT_UTF8(errorMessage)); //,
-                        // NOTE ALEX: stay closer to OBS 25, no rich text
-                        // use_last_error);
+					   QTStr("Output.ConnectFail.Title"),
+					   QT_UTF8(errorMessage)); //,
+		// NOTE ALEX: stay closer to OBS 25, no rich text
+		// use_last_error);
 
 	} else if (code != OBS_OUTPUT_SUCCESS && !isVisible()) {
 		SysTrayNotify(QT_UTF8(errorDescription),
-			QSystemTrayIcon::Warning);
+			      QSystemTrayIcon::Warning);
 	}
 
 	if (!startStreamMenu.isNull()) {
@@ -6594,7 +6600,8 @@ int OBSBasic::GetProfilePath(char *path, size_t size, const char *file) const
 	if (!file)
 		file = "";
 
-	ret = GetConfigPath(profiles_path, 512, (config_dir + "/basic/profiles").c_str());
+	ret = GetConfigPath(profiles_path, 512,
+			    (config_dir + "/basic/profiles").c_str());
 	if (ret <= 0)
 		return ret;
 
