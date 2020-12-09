@@ -73,7 +73,7 @@ jobs:
 
   - bash: |
       cd ./build
-      sudo checkinstall --default --install=no --pkgname=obs-studio-webrtc --fstrans=yes --backup=no --pkgversion="$(date +%Y%m%d)-git" --deldoc=yes
+      cpack -G DEB
       mkdir ../package
       mv *.deb ../package/
       cd -
