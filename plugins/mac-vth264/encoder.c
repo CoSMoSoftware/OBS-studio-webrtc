@@ -27,8 +27,7 @@ extern const double NSAppKitVersionNumber;
 #define APPLE_H264_ENC_ID_SW "com.apple.videotoolbox.videoencoder.h264"
 
 // Get around missing symbol on 10.8 during compilation
-enum {
-	kCMFormatDescriptionBridgeError_InvalidParameter_ = -12712,
+enum { kCMFormatDescriptionBridgeError_InvalidParameter_ = -12712,
 };
 
 static bool is_appkit10_9_or_greater()
