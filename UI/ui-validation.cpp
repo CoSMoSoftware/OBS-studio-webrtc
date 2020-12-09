@@ -63,6 +63,11 @@ UIValidation::StreamSettingsConfirmation(QWidget *parent, OBSService service)
 	// So only check there is a URL
 	char const *serviceType = obs_service_get_type(service);
 	bool isCustomUrlService = (strcmp(serviceType, "rtmp_custom") == 0);
+	bool isWebrtcService = (strncmp(serviceType, "webrtc", 6) == 0);
+
+	if (isWebrtcService) {
+		return StreamSettingsAction::ContinueStream;
+	}
 
 	char const *streamUrl = obs_service_get_url(service);
 	char const *streamKey = obs_service_get_key(service);
