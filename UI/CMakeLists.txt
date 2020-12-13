@@ -376,7 +376,7 @@ set(obs_QRC
 qt5_wrap_ui(obs_UI_HEADERS ${obs_UI})
 qt5_add_resources(obs_QRC_SOURCES ${obs_QRC})
 
-add_executable(obs WIN32
+add_executable( ${_gui_name} WIN32
 	obs.manifest
 	${obs_SOURCES}
 	${obs_HEADERS}
@@ -410,17 +410,17 @@ target_link_libraries(${_gui_name}
 	${obs_PLATFORM_LIBRARIES})
 
 if (APPLE)
-	target_link_libraries(obs
+	target_link_libraries( ${_gui_name}
 			Qt5::MacExtras)
-	set_target_properties(obs PROPERTIES LINK_FLAGS "-pagezero_size 10000 -image_base 100000000")
+	set_target_properties( ${_gui_name} PROPERTIES LINK_FLAGS "-pagezero_size 10000 -image_base 100000000")
 endif()
-set_target_properties(obs PROPERTIES FOLDER "frontend")
+set_target_properties( ${_gui_name} PROPERTIES FOLDER "frontend")
 
-define_graphic_modules(obs)
+define_graphic_modules( ${_gui_name} )
 
-install_obs_core(obs)
-install_obs_data(obs data obs-studio)
-install_obs_data_file(obs ../AUTHORS obs-studio/authors)
+install_obs_core( ${_gui_name} )
+install_obs_data( ${_gui_name} data ${CONFIG_DIR})
+install_obs_data_file( ${_gui_name} ../AUTHORS obs-studio/authors)
 
 if (UNIX AND UNIX_STRUCTURE AND NOT APPLE)
 	add_subdirectory(xdg-data)
