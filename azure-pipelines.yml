@@ -5,6 +5,7 @@ variables:
   CEF_BUILD_VERSION: 3770
   CEF_VERSION: 75.1.16+g16a67c4+chromium-75.0.3770.100
   LIBWEBRTC_VERSION: 84.0
+  OBS_VERSION: 26.0
   TWITCH-CLIENTID: $(twitch_clientid)
   TWITCH-HASH: $(twitch_hash)
   RESTREAM-CLIENTID: $(restream_clientid)
@@ -54,7 +55,7 @@ jobs:
 
 - job: 'Build_Linux'
   pool:
-    vmImage: 'ubuntu-18.04'
+    vmImage: 'ubuntu-20.04'
   steps:
   - script: git submodule update --init --recursive
     displayName: 'Checkout Submodules'

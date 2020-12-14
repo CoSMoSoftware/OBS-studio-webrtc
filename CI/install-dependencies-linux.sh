@@ -7,6 +7,7 @@ sudo apt-get -qq update
 sudo apt-get install -y \
         build-essential \
         checkinstall \
+        clang \
         cmake \
         libasound2-dev \
         libavcodec-dev \
