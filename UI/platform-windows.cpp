@@ -21,6 +21,7 @@
 #include "obs-app.hpp"
 #include "qt-wrappers.hpp"
 #include "platform.hpp"
+#include "ui-config.h"
 
 #include <util/windows/win-version.h>
 #include <util/platform.h>
@@ -56,7 +57,7 @@ bool GetDataFilePath(const char *data, string &output)
 	if (check_path(data, "data/obs-studio/", output))
 		return true;
 
-	return check_path(data, OBS_DATA_PATH "/obs-studio/", output);
+	return check_path(data, OBS_DATA_PATH "/" CONFIG_DIR "/", output);
 }
 
 bool InitApplicationBundle()
