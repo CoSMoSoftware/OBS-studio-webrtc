@@ -22,7 +22,7 @@ public:
 	~MillicastWebsocketClientImpl();
 
 	// WebsocketClient::Listener implementation
-	bool connect(const std::string & /* publish_api_url */,
+	bool connect(const std::string &publish_api_url,
 		     const std::string & /* room */,
 		     const std::string &stream_name, const std::string &token,
 		     WebsocketClient::Listener *listener) override;
