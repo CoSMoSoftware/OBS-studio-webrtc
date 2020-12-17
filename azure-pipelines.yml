@@ -10,6 +10,8 @@ variables:
   TWITCH-HASH: $(twitch_hash)
   RESTREAM-CLIENTID: $(restream_clientid)
   RESTREAM-HASH: $(restream_hash)
+  PACPOST_BUILD: true
+  REMOTEFILMING_BUILD: true
 
 jobs:
 - job: 'Build_macOS'
@@ -70,6 +72,18 @@ jobs:
       cd ./build
       make -j4
       cd -
+      if $PACPOST_BUILD
+      then
+        cd ./build_pacpost
+        make -j4
+        cd ..
+      fi
+      if $REMOTEFILMING_BUILD
+      then
+        cd ./build_remotefilming
+        make -j4
+        cd ..
+      fi
     displayName: 'Build'
 
   - bash: |
@@ -78,6 +92,20 @@ jobs:
       mkdir ../package
       mv *.deb ../package/
       cd -
+      if $PACPOST_BUILD
+      then
+        cd ./build_pacpost
+        cpack -G DEB
+        mv *.deb ../package/
+        cd ..
+      fi
+      if $REMOTEFILMING_BUILD
+      then
+        cd ./build_remotefilming
+        cpack -G DEB
+        mv *.deb ../package/
+        cd ..
+      fi
     displayName: 'Package'
 
   - task: PublishBuildArtifacts@1
