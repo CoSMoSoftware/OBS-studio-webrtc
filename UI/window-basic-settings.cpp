@@ -426,6 +426,7 @@ OBSBasicSettings::OBSBasicSettings(QWidget *parent)
 	HookWidget(ui->useAuth,              CHECK_CHANGED,  STREAM1_CHANGED);
 	HookWidget(ui->authUsername,         EDIT_CHANGED,   STREAM1_CHANGED);
 	HookWidget(ui->authPw,               EDIT_CHANGED,   STREAM1_CHANGED);
+	HookWidget(ui->codec,                COMBO_CHANGED,  STREAM1_CHANGED);
   HookWidget(ui->streamingAdvancedSettingsButton, CHECK_CHANGED, ADV_STREAMING_SETTINGS_CHANGED);
   HookWidget(ui->simulcastEnable,      CHECK_CHANGED,  STREAM1_CHANGED);
   HookWidget(ui->publishApiUrl,        EDIT_CHANGED,   STREAM1_CHANGED);
