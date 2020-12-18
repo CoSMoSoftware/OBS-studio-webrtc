@@ -50,8 +50,12 @@ sudo apt-get install -y \
         libssl-dev
 
 # build cef
-wget --quiet --retry-connrefused --waitretry=1 https://cef-builds.spotifycdn.com/cef_binary_87.1.12%2Bg03f9336%2Bchromium-87.0.4280.88_linux64.tar.bz2
-tar -xjf ./cef_binary_87.1.12+g03f9336+chromium-87.0.4280.88_linux64.tar.bz2
+wget --quiet --retry-connrefused --waitretry=1 https://cef-builds.spotifycdn.com/cef_binary_75.1.14%2Bgc81164e%2Bchromium-75.0.3770.100_linux64.tar.bz2
+tar -xjf ./cef_binary_75.1.14+gc81164e+chromium-75.0.3770.100_linux64.tar.bz2
+cd cef_binary_75.1.14+gc81164e+chromium-75.0.3770.100_linux64
+mkdir build
+cd build
+cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_FLAGS="-stdlib=libc++"
 
 # libwebrtc
 wget --quiet --retry-connrefused --waitretry=1 https://www.palakis.fr/obs/obs-studio-webrtc/libWebRTC-${LIBWEBRTC_VERSION}-x64-Release-Community.sh -O libWebRTC.sh
