@@ -47,7 +47,9 @@ sudo apt-get install -y \
         qtbase5-dev \
         libqt5svg5-dev \
         swig \
-        libssl-dev
+        libssl-dev \
+        libgtkglext1-dev \
+        libxi-dev
 
 # build cef
 export CC=clang
@@ -58,6 +60,7 @@ cd cef_binary_75.1.14+gc81164e+chromium-75.0.3770.100_linux64
 mkdir build
 cd build
 cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_FLAGS="-stdlib=libc++"
+make -j4
 
 # libwebrtc
 wget --quiet --retry-connrefused --waitretry=1 https://www.palakis.fr/obs/obs-studio-webrtc/libWebRTC-${LIBWEBRTC_VERSION}-x64-Release-Community.sh -O libWebRTC.sh
