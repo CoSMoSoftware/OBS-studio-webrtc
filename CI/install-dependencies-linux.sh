@@ -54,9 +54,9 @@ sudo apt-get install -y \
 # build cef
 export CC=clang
 export CXX=clang++
-wget --quiet --retry-connrefused --waitretry=1 https://cef-builds.spotifycdn.com/cef_binary_85.3.12%2Bg3e94ebf%2Bchromium-85.0.4183.121_linux64.tar.bz2
-tar -xjf ./cef_binary_85.3.12+g3e94ebf+chromium-85.0.4183.121_linux64.tar.bz2
-cd cef_binary_85.3.12+g3e94ebf+chromium-85.0.4183.121_linux64
+wget --quiet --retry-connrefused --waitretry=1 https://cef-builds.spotifycdn.com/cef_binary_75.1.14%2Bgc81164e%2Bchromium-75.0.3770.100_linux64.tar.bz2
+tar -xjf ./cef_binary_75.1.14+gc81164e+chromium-75.0.3770.100_linux64.tar.bz2
+cd cef_binary_75.1.14+gc81164e+chromium-75.0.3770.100_linux64
 # Rename "tests" directory to avoid error when compiling tests
 mv tests tests.renamed
 mkdir build
