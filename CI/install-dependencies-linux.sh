@@ -50,6 +50,8 @@ sudo apt-get install -y \
         libssl-dev
 
 # build cef
+export CC=clang
+export CXX=clang++
 wget --quiet --retry-connrefused --waitretry=1 https://cef-builds.spotifycdn.com/cef_binary_75.1.14%2Bgc81164e%2Bchromium-75.0.3770.100_linux64.tar.bz2
 tar -xjf ./cef_binary_75.1.14+gc81164e+chromium-75.0.3770.100_linux64.tar.bz2
 cd cef_binary_75.1.14+gc81164e+chromium-75.0.3770.100_linux64
