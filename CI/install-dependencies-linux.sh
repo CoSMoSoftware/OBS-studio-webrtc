@@ -61,6 +61,7 @@ mkdir build
 cd build
 cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_FLAGS="-stdlib=libc++"
 make -j4
+cd ..
 
 # libwebrtc
 wget --quiet --retry-connrefused --waitretry=1 https://www.palakis.fr/obs/obs-studio-webrtc/libWebRTC-${LIBWEBRTC_VERSION}-x64-Release-Community.sh -O libWebRTC.sh
