@@ -62,7 +62,9 @@ configure_file(
 set(CMAKE_INCLUDE_CURRENT_DIR TRUE)
 set(CMAKE_AUTOMOC TRUE)
 
+find_package(Qt5Widgets ${FIND_MODE})
 find_package(Qt5Svg ${FIND_MODE})
+find_package(Qt5Xml ${FIND_MODE})
 
 find_package(FFmpeg REQUIRED COMPONENTS avcodec avutil avformat)
 
@@ -152,11 +154,13 @@ if(BROWSER_AVAILABLE_INTERNAL)
 	list(APPEND obs_PLATFORM_SOURCES
 		obf.c
 		auth-oauth.cpp
+		window-dock-browser.cpp
 		window-extra-browsers.cpp
 		)
 	list(APPEND obs_PLATFORM_HEADERS
 		obf.h
 		auth-oauth.hpp
+		window-dock-browser.hpp
 		window-extra-browsers.hpp
 		)
 
@@ -200,6 +204,9 @@ if(MSVC)
 		../deps/libff/libff/ff-util.c
 		PROPERTIES COMPILE_FLAGS -Dinline=__inline
 		)
+	set(obs_PLATFORM_LIBRARIES
+		${obs_PLATFORM_LIBRARIES}
+		w32-pthreads)
 endif()
 
 set(obs_SOURCES
@@ -219,23 +226,28 @@ set(obs_SOURCES
 	window-basic-main-outputs.cpp
 	window-basic-source-select.cpp
 	window-basic-settings-stream.cpp
+	window-basic-main-screenshot.cpp
 	window-basic-auto-config-test.cpp
 	window-basic-main-scene-collections.cpp
 	window-basic-main-transitions.cpp
 	window-basic-main-dropfiles.cpp
 	window-basic-main-profiles.cpp
 	window-basic-main-browser.cpp
+	window-basic-main-icons.cpp
 	window-basic-status-bar.cpp
 	window-basic-adv-audio.cpp
 	window-basic-transform.cpp
 	window-basic-preview.cpp
 	window-basic-about.cpp
+	window-importer.cpp
+	media-controls.cpp
 	window-namedialog.cpp
 	window-log-reply.cpp
 	window-projector.cpp
 	window-remux.cpp
 	auth-base.cpp
 	source-tree.cpp
+	scene-tree.cpp
 	properties-view.cpp
 	focus-list.cpp
 	menu-button.cpp
@@ -244,9 +256,12 @@ set(obs_SOURCES
 	combobox-ignorewheel.cpp
 	spinbox-ignorewheel.cpp
 	record-button.cpp
+	ui-validation.cpp
+	url-push-button.cpp
 	volume-control.cpp
 	adv-audio-control.cpp
 	item-widget-helpers.cpp
+	context-bar-controls.cpp
 	horizontal-scroll-area.cpp
 	vertical-scroll-area.cpp
 	visibility-item-widget.cpp
@@ -257,7 +272,12 @@ set(obs_SOURCES
 	source-label.cpp
 	remote-text.cpp
 	audio-encoders.cpp
-	qt-wrappers.cpp)
+	qt-wrappers.cpp
+	log-viewer.cpp
+	obs-proxy-style.cpp
+	locked-checkbox.cpp
+	visibility-checkbox.cpp
+	media-slider.cpp)
 
 set(obs_HEADERS
 	${obs_PLATFORM_HEADERS}
@@ -281,12 +301,15 @@ set(obs_HEADERS
 	window-basic-adv-audio.hpp
 	window-basic-transform.hpp
 	window-basic-preview.hpp
+	window-importer.hpp
+	media-controls.hpp
 	window-namedialog.hpp
 	window-log-reply.hpp
 	window-projector.hpp
 	window-remux.hpp
 	auth-base.hpp
 	source-tree.hpp
+	scene-tree.hpp
 	properties-view.hpp
 	properties-view.moc.hpp
 	display-helpers.hpp
@@ -299,10 +322,14 @@ set(obs_HEADERS
 	menu-button.hpp
 	mute-checkbox.hpp
 	record-button.hpp
+	ui-validation.hpp
+	screenshot-obj.hpp
+	url-push-button.hpp
 	volume-control.hpp
 	adv-audio-control.hpp
 	item-widget-helpers.hpp
 	visibility-checkbox.hpp
+	context-bar-controls.hpp
 	locked-checkbox.hpp
 	horizontal-scroll-area.hpp
 	expand-checkbox.hpp
@@ -316,9 +343,33 @@ set(obs_HEADERS
 	remote-text.hpp
 	audio-encoders.hpp
 	qt-wrappers.hpp
-	clickable-label.hpp)
+	clickable-label.hpp
+	log-viewer.hpp
+	obs-proxy-style.hpp
+	obs-proxy-style.hpp
+	media-slider.hpp)
+
+set(obs_importers_HEADERS
+	importers/importers.hpp)
+
+set(obs_importers_SOURCES
+	importers/importers.cpp
+	importers/classic.cpp
+	importers/sl.cpp
+	importers/studio.cpp
+	importers/xsplit.cpp)
+
+source_group("importers\\Source Files" FILES ${obs_importers_SOURCES})
+source_group("importers\\Header Files" FILES ${obs_importers_HEADERS})
 
 set(obs_UI
+	forms/source-toolbar/browser-source-toolbar.ui
+	forms/source-toolbar/device-select-toolbar.ui
+	forms/source-toolbar/game-capture-toolbar.ui
+	forms/source-toolbar/image-source-toolbar.ui
+	forms/source-toolbar/color-source-toolbar.ui
+	forms/source-toolbar/text-source-toolbar.ui
+	forms/source-toolbar/media-controls.ui
 	forms/NameDialog.ui
 	forms/AutoConfigStartPage.ui
 	forms/AutoConfigVideoPage.ui
@@ -335,6 +386,7 @@ set(obs_UI
 	forms/OBSExtraBrowsers.ui
 	forms/OBSUpdate.ui
 	forms/OBSRemux.ui
+	forms/OBSImporter.ui
 	forms/OBSAbout.ui)
 
 set(obs_QRC
@@ -346,8 +398,11 @@ qt5_add_resources(obs_QRC_SOURCES ${obs_QRC})
 message( STATUS "rc file: ${obs_QRC_SOURCES}." )
 
 add_executable( ${_gui_name} WIN32
+	obs.manifest
 	${obs_SOURCES}
 	${obs_HEADERS}
+	${obs_importers_SOURCES}
+	${obs_importers_HEADERS}
 	${obs_UI_HEADERS}
 	${obs_QRC_SOURCES}
 )
@@ -369,13 +424,14 @@ target_link_libraries(${_gui_name}
 	libobs
 	Qt5::Widgets
 	Qt5::Svg
+	Qt5::Xml
 	obs-frontend-api
 	${FFMPEG_LIBRARIES}
 	${LIBCURL_LIBRARIES}
 	${obs_PLATFORM_LIBRARIES})
 
 if (APPLE)
-	target_link_libraries(${_gui_name}
+	target_link_libraries( ${_gui_name}
 			Qt5::MacExtras)
 	set_target_properties(${_gui_name} PROPERTIES LINK_FLAGS "-pagezero_size 10000 -image_base 100000000")
 	set_property(
@@ -387,12 +443,13 @@ if (APPLE)
 		"/opt/local/Library/Frameworks/Python.framework/Versions/3.6/lib/"
 	)
 endif()
+set_target_properties( ${_gui_name} PROPERTIES FOLDER "frontend")
 
-define_graphic_modules(${_gui_name})
+define_graphic_modules( ${_gui_name} )
 
-install_obs_core(${_gui_name})
-install_obs_data(${_gui_name} data ${CONFIG_DIR})
-install_obs_data_file(${_gui_name} ../AUTHORS ${CONFIG_DIR}/authors)
+install_obs_core( ${_gui_name} )
+install_obs_data( ${_gui_name} data ${CONFIG_DIR})
+install_obs_data_file( ${_gui_name} ../AUTHORS ${CONFIG_DIR}/authors)
 
 if (UNIX AND UNIX_STRUCTURE AND NOT APPLE)
 	add_subdirectory(xdg-data)
