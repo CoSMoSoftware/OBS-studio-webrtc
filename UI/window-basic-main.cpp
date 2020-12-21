@@ -2200,10 +2200,10 @@ void OBSBasic::InitHotkeys()
 void OBSBasic::ProcessHotkey(obs_hotkey_id id, bool pressed)
 {
 	// Intercept keyboard event when OBS is not the window being focussed
-	if( QApplication::activeWindow() == nullptr )
- 		return;
+	if (QApplication::activeWindow() == nullptr)
+		return;
 
-        // we're focussed, dispatch the keyboard/hotkey event
+	// we're focussed, dispatch the keyboard/hotkey event
 	obs_hotkey_trigger_routed_callback(id, pressed);
 }
 

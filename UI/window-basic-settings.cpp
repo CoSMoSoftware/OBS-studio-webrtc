@@ -4455,13 +4455,14 @@ void OBSBasicSettings::SimpleStreamingEncoderChanged()
 
 void OBSBasicSettings::AdvancedStreamingSettingsChanged()
 {
-  bool visible = ui->simulcastEnable->isVisible();
-  ui->simulcastEnable->setVisible(!visible);
-  if (ui->service->currentText() == QString("Millicast WebRTC Streaming Platform")) {
-    // Field publishApiUrl applicable only for Millicast
-    ui->publishApiUrlLabel->setVisible(!visible);
-    ui->publishApiUrl->setVisible(!visible);
-  }
+	bool visible = ui->simulcastEnable->isVisible();
+	ui->simulcastEnable->setVisible(!visible);
+	if (ui->service->currentText() ==
+	    QString("Millicast WebRTC Streaming Platform")) {
+		// Field publishApiUrl applicable only for Millicast
+		ui->publishApiUrlLabel->setVisible(!visible);
+		ui->publishApiUrl->setVisible(!visible);
+	}
 }
 
 #define ESTIMATE_STR "Basic.Settings.Output.ReplayBuffer.Estimate"

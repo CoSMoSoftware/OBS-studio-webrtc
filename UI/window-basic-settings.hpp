@@ -366,7 +366,7 @@ private slots:
 	void AdvReplayBufferChanged();
 
 	void SimpleStreamingEncoderChanged();
-  void AdvancedStreamingSettingsChanged();
+	void AdvancedStreamingSettingsChanged();
 
 	OBSService SpawnTempService();
 

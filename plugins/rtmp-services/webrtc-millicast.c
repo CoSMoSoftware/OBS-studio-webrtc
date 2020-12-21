@@ -122,9 +122,9 @@ static obs_properties_t *webrtc_millicast_properties(void *unused)
 	p = obs_properties_get(ppts, "server");
 	obs_property_set_visible(p, false);
 
-	obs_property_list_add_string(obs_properties_get(ppts, "server"),
-				     "Auto (Recommended)",
-				     "https://director.millicast.com/api/director/publish");
+	obs_property_list_add_string(
+		obs_properties_get(ppts, "server"), "Auto (Recommended)",
+		"https://director.millicast.com/api/director/publish");
 	// NOTE ALEX: the default version of libwebrtc does not include support for H264 in software.
 	obs_property_list_add_string(obs_properties_get(ppts, "codec"), "h264",
 				     "h264");
@@ -206,9 +206,9 @@ static bool webrtc_millicast_simulcast(void *data)
 static const char *webrtc_millicast_publishApiUrl(void *data)
 {
 	struct webrtc_millicast *service = data;
-  if (strlen(service->publishApiUrl) == 0) {
-    return "https://director.millicast.com/api/director/publish";
-  }
+	if (strlen(service->publishApiUrl) == 0) {
+		return "https://director.millicast.com/api/director/publish";
+	}
 
 	return service->publishApiUrl;
 }
