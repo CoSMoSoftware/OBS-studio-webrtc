@@ -14,7 +14,7 @@ variables:
   #   Millicast
   #   PacPost
   #   RemoteFilming
-  VENDOR_BUILD: Millicast
+  VENDOR_BUILD: PacPost
 
 jobs:
 - job: 'Build_macOS'
