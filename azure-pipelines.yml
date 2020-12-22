@@ -45,8 +45,6 @@ jobs:
   steps:
   - script: git submodule update --init --recursive
     displayName: 'Checkout Submodules'
-  - script: ./CI/install-qt-win.cmd
-    displayName: 'Install QT'
   - script: ./CI/install-dependencies-win.cmd
     displayName: 'Download / Setup Dependencies'
   - ${{ each vendor in parameters.vendors }}:
