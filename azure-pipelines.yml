@@ -10,11 +10,6 @@ variables:
   TWITCH-HASH: $(twitch_hash)
   RESTREAM-CLIENTID: $(restream_clientid)
   RESTREAM-HASH: $(restream_hash)
-  # VENDOR_BUILD possible values (select one only):
-  #   Millicast
-  #   PacPost
-  #   RemoteFilming
-  VENDOR_BUILD: PacPost
 
 parameters:
   - name: vendors
@@ -22,7 +17,7 @@ parameters:
     default:
     - Millicast
     - PacPost
-    - RemoteFilming
+#    - RemoteFilming
 
 jobs:
 - job: 'Build_macOS'
@@ -52,19 +47,22 @@ jobs:
     displayName: 'Checkout Submodules'
   - script: ./CI/install-qt-win.cmd
     displayName: 'Install QT'
-  - script: ./CI/install-script-win.cmd
-    displayName: 'Download / Setup Deps / Run CMake'
-  - task: MSBuild@1
-    displayName: 'Build 64-bit'
-    inputs:
-      msbuildArguments: '/m /p:Configuration=Release'
-      solution: .\build64\obs-studio.sln
-  - script: ./CI/before-deploy-win.cmd
-    displayName: 'Before deploy'
-  - task: PublishBuildArtifacts@1
-    inputs:
-      pathtoPublish: './build'
-      artifactName: winbuild
+  - script: ./CI/install-dependencies-win.cmd
+    displayName: 'Download / Setup Dependencies'
+  - ${{ each vendor in parameters.vendors }}:
+    - script: ./CI/install-script-win.cmd ${{ vendor }}
+      displayName: '${{ vendor }} Run CMake'
+    - task: MSBuild@1
+      displayName: '${{ vendor }} Build 64-bit'
+      inputs:
+        msbuildArguments: '/m /p:Configuration=Release'
+        solution: .\build64_${{ vendor }}\${{ vendor }}.sln
+    - script: ./CI/before-deploy-win.cmd ${{ vendor }}
+      displayName: '${{ vendor }} Before deploy'
+    - task: PublishBuildArtifacts@1
+      inputs:
+        pathtoPublish: './build_${{ vendor }}'
+        artifactName: winbuild
 
 - job: 'Build_Linux'
   pool:
