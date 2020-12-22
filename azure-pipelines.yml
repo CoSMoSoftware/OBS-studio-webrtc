@@ -70,24 +70,26 @@ jobs:
   pool:
     vmImage: 'ubuntu-20.04'
   steps:
+  - bash: |
+      git submodule update --init --recursive
+      ./CI/install-dependencies-linux.sh
+    displayName: 'checkout and dependencies'
   - ${{ each vendor in parameters.vendors }}:
     - bash: |
-        mkdir ${{ vendor }}
-        cd ${{ vendor }}
-        git submodule update --init --recursive
-        ./CI/install-dependencies-linux.sh
-        ./CI/before-script-linux.sh ${{ vendor }}
         set -e
-        cd build
+        git stash
+        mkdir build_${{ vendor }}
+        ./CI/before-script-linux.sh ${{ vendor }}
+        cd build_${{ vendor }}
         make -j4
         cd ..
-        mkdir package
-        cd build
+        mkdir -p package/${{ vendor }}
+        cd build_${{ vendor }}
         cpack -G DEB
-        mv *.deb ../package/
+        mv *.deb ../package/${{ vendor }}
         cd ..
-      displayName: 'Checkout, dependencies, cmake, build, package'
+      displayName: '${{ vendor }} cmake, build, package'
     - task: PublishBuildArtifacts@1
       inputs:
-        pathtoPublish: '${{ vendor }}/package'
+        pathtoPublish: './package'
         artifactName: 'debbuild'
