@@ -60,7 +60,7 @@ jobs:
     - task: PublishBuildArtifacts@1
       inputs:
         pathtoPublish: './build_${{ vendor }}'
-        artifactName: winbuild
+        artifactName: winbuild_${{ vendor }}
 
 - job: 'Build_Linux'
   pool:
