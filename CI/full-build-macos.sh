@@ -315,7 +315,6 @@ bundle_dylibs() {
         -x ./OBS-WebRTC.app/Contents/PlugIns/obs-ffmpeg.so \
         -x ./OBS-WebRTC.app/Contents/PlugIns/obs-filters.so \
         -x ./OBS-WebRTC.app/Contents/PlugIns/obs-transitions.so \
-        -x ./OBS-WebRTC.app/Contents/PlugIns/obs-vst.so \
         -x ./OBS-WebRTC.app/Contents/PlugIns/rtmp-services.so \
         -x ./OBS-WebRTC.app/Contents/MacOS/obs-ffmpeg-mux \
         -x ./OBS-WebRTC.app/Contents/MacOS/obslua.so \
@@ -323,6 +322,8 @@ bundle_dylibs() {
         -x ./OBS-WebRTC.app/Contents/PlugIns/text-freetype2.so \
         -x ./OBS-WebRTC.app/Contents/PlugIns/obs-libfdk.so \
         -x ./OBS-WebRTC.app/Contents/PlugIns/obs-outputs.so
+#        -x ./OBS-WebRTC.app/Contents/PlugIns/linux-jack.so \
+#        -x ./OBS-WebRTC.app/Contents/PlugIns/obs-vst.so \
     step "Move libobs-opengl to final destination"
     cp ./libobs-opengl/libobs-opengl.so ./OBS-WebRTC.app/Contents/Frameworks
 
