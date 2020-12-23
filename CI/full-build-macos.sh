@@ -190,9 +190,9 @@ install_cef() {
     hr "Building dependency CEF v${1}"
     ensure_dir ${DEPS_BUILD_DIR}
     step "Download..."
-    ${CURLCMD} --progress-bar -L -C - -O https://obs-nightly.s3-us-west-2.amazonaws.com/cef_binary_${1}_macosx64.tar.bz2
+    ${CURLCMD} --progress-bar -L -C - -O https://cef-builds.spotifycdn.com/cef_binary_75.1.14%2Bgc81164e%2Bchromium-75.0.3770.100_macosx64.tar.bz2
     step "Unpack..."
-    tar -xf ./cef_binary_${1}_macosx64.tar.bz2
+    tar -xf ./cef_binary_75.1.14%2Bgc81164e%2Bchromium-75.0.3770.100_macosx64.tar.bz2
     cd ./cef_binary_${1}_macosx64
     step "Fix tests..."
     # remove a broken test
