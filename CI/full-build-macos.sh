@@ -305,7 +305,6 @@ bundle_dylibs() {
         -x ./OBS-WebRTC.app/Contents/PlugIns/decklink-ouput-ui.so \
         -x ./OBS-WebRTC.app/Contents/PlugIns/frontend-tools.so \
         -x ./OBS-WebRTC.app/Contents/PlugIns/image-source.so \
-        -x ./OBS-WebRTC.app/Contents/PlugIns/linux-jack.so \
         -x ./OBS-WebRTC.app/Contents/PlugIns/mac-avcapture.so \
         -x ./OBS-WebRTC.app/Contents/PlugIns/mac-capture.so \
         -x ./OBS-WebRTC.app/Contents/PlugIns/mac-decklink.so \
