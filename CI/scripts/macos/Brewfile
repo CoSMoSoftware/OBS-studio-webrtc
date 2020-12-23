@@ -1,5 +1,4 @@
 tap "akeru-inc/tap"
-brew "jack"
 brew "speexdsp"
 brew "cmake"
 brew "freetype"
