@@ -21,6 +21,7 @@
 #include <obs-config.h>
 #include "platform.hpp"
 #include "obs-app.hpp"
+#include "ui-config.h"
 
 #include <unistd.h>
 
@@ -41,13 +42,14 @@ bool GetDataFilePath(const char *data, string &output)
 			[NSRunningApplication currentApplication];
 		NSURL *bundleURL = [app bundleURL];
 		NSString *path = [NSString
-			stringWithFormat:@"Contents/Resources/data/obs-studio/%@",
+			stringWithFormat:@"Contents/Resources/data/%@/%@",
+					 [NSString stringWithUTF8String:CONFIG_DIR],
 					 [NSString stringWithUTF8String:data]];
 		NSURL *dataURL = [bundleURL URLByAppendingPathComponent:path];
 		output = [[dataURL path] UTF8String];
 	} else {
 		stringstream str;
-		str << OBS_DATA_PATH "/obs-studio/" << data;
+		str << OBS_DATA_PATH "/" CONFIG_DIR "/" << data;
 		output = str.str();
 	}
 
