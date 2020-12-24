@@ -212,6 +212,10 @@ install_cef() {
 }
 
 install_libwebrtc() {
+    if [ -d ${DEPS_BUILD_DIR}/libwebrtc ]; then
+        ## libwebrtc has already been retrieved and installed
+        return
+    fi
     hr "Installing LibWebRTC v${1}"
     ensure_dir ${DEPS_BUILD_DIR}
     step "Download..."
@@ -655,7 +659,7 @@ obs-build-main() {
             n) CODESIGN_OBS=1; NOTARIZE_OBS=1 ;;
             p) PACKAGE_OBS=1 ;;
             c) CODESIGN_OBS=1 ;;
-            v) VENDOR="${OPTARG}"
+            v) VENDOR="${OPTARG}" ;;
             \?) ;;
         esac
     done
