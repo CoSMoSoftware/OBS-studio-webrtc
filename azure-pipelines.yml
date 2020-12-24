@@ -26,18 +26,19 @@ jobs:
   steps:
   - script: git submodule update --init --recursive
     displayName: 'Checkout Submodules'
-  - script: TERM="" ./CI/full-build-macos.sh
-    displayName: 'Install dependencies and build'
-  - script: TERM="" ./CI/full-build-macos.sh -s -d -b -p
-    displayName: 'Before Deploy'
-  - bash: |
-      mkdir -p ./nightly
-      find ./build -name \*.dmg -exec cp -PR \{\} ./nightly/ \;
-    displayName: 'Copy disk image'
-  - task: PublishBuildArtifacts@1
-    inputs:
-      pathtoPublish: './nightly'
-      artifactName: macbuild
+  - ${{ each vendor in parameters.vendors }}:
+    - script: TERM="" ./CI/full-build-macos.sh -v ${{ vendor }}
+      displayName: '${{ vendor }} Install dependencies and build'
+    - script: TERM="" ./CI/full-build-macos.sh -s -d -b -p -v ${{ vendor }}
+      displayName: '${{ vendor }} Before Deploy'
+    - bash: |
+        mkdir -p ./nightly_${{ vendor }}
+        find ./build_${{ vendor }} -name \*.dmg -exec cp -PR \{\} ./nightly_${{ vendor }}/ \;
+      displayName: '${{ vendor }} Copy disk image'
+    - task: PublishBuildArtifacts@1
+      inputs:
+        pathtoPublish: './nightly${{ vendor }}'
+        artifactName: macbuild_${{ vendor }}
 
 - job: 'Build_Windows64'
   pool:
@@ -81,13 +82,13 @@ jobs:
         cd build_${{ vendor }}
         make -j4
         cd ..
-        mkdir -p package/${{ vendor }}
+        mkdir package_${{ vendor }}
         cd build_${{ vendor }}
         cpack -G DEB
-        mv *.deb ../package/${{ vendor }}
+        mv *.deb ../package_s${{ vendor }}
         cd ..
       displayName: '${{ vendor }} cmake, build, package'
     - task: PublishBuildArtifacts@1
       inputs:
-        pathtoPublish: './package'
-        artifactName: 'debbuild'
+        pathtoPublish: './package_${{ vendor }}'
+        artifactName: 'debbuild_${{ vendor }}'
