@@ -37,7 +37,7 @@ jobs:
       displayName: '${{ vendor }} Copy disk image'
     - task: PublishBuildArtifacts@1
       inputs:
-        pathtoPublish: './nightly${{ vendor }}'
+        pathtoPublish: './nightly_${{ vendor }}'
         artifactName: macbuild_${{ vendor }}
 
 - job: 'Build_Windows64'
