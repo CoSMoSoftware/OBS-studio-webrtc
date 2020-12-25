@@ -45,6 +45,7 @@ CI_DEPS_VERSION=$(cat ${CI_WORKFLOW} | sed -En "s/[ ]+MACOS_DEPS_VERSION: '([0-9
 CI_VLC_VERSION=$(cat ${CI_WORKFLOW} | sed -En "s/[ ]+VLC_VERSION: '([0-9\.]+)'/\1/p")
 CI_QT_VERSION=$(cat ${CI_WORKFLOW} | sed -En "s/[ ]+QT_VERSION: '([0-9\.]+)'/\1/p" | head -1)
 CI_LIBWEBRTC_VERSION=$(cat ${CI_WORKFLOW} | sed -En "s/[ ]+LIBWEBRTC_VERSION: '([0-9\.]+)'/\1/p" | head -1)
+VENDOR="${VENDOR:-toto}"
 
 BUILD_DEPS=(
     "obs-deps ${MACOS_DEPS_VERSION:-${CI_DEPS_VERSION}}"
@@ -426,7 +427,7 @@ prepare_macos_image() {
     cp "${CI_SCRIPTS}/package/settings.json.template" ./settings.json
     sed -i '' 's#\$\$VERSION\$\$#'"${GIT_TAG}"'#g' ./settings.json
     sed -i '' 's#\$\$CI_PATH\$\$#'"${CI_SCRIPTS}"'#g' ./settings.json
-    sed -i '' 's#\$\$BUNDLE_PATH\$\$#'"${CHECKOUT_DIR}"'/build#g' ./settings.json
+    sed -i '' 's#\$\$BUNDLE_PATH\$\$#'"${CHECKOUT_DIR}"'/build_${VENDOR}#g' ./settings.json
     echo -n "${COLOR_ORANGE}"
     dmgbuild "OBS-Studio-WebRTC ${GIT_TAG}" "${FILE_NAME}" -s ./settings.json
     echo -n "${COLOR_RESET}"
@@ -650,7 +651,7 @@ obs-build-main() {
     #
     ##########################################################################
 
-    while getopts ":hdsbnpcv" OPTION; do
+    while getopts ":hdsbnpcv:" OPTION; do
         case ${OPTION} in
             h) print_usage ;;
             d) SKIP_DEPS=1 ;;
