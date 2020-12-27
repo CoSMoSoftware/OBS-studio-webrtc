@@ -43,7 +43,8 @@ bool GetDataFilePath(const char *data, string &output)
 		NSURL *bundleURL = [app bundleURL];
 		NSString *path = [NSString
 			stringWithFormat:@"Contents/Resources/data/%@/%@",
-					 [NSString stringWithUTF8String:CONFIG_DIR],
+					 [NSString
+						 stringWithUTF8String:CONFIG_DIR],
 					 [NSString stringWithUTF8String:data]];
 		NSURL *dataURL = [bundleURL URLByAppendingPathComponent:path];
 		output = [[dataURL path] UTF8String];
