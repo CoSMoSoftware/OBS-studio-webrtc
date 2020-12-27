@@ -624,6 +624,7 @@ print_usage() {
         "-p: Package macOS app into disk image\n" \
         "-n: Notarize macOS app and disk image (implies -b)\n" \
         "-s: Skip build process (useful for bundling/packaging only)\n" \
+        "-v <vendor_name>: Specify name of vendor for OBS" \
         "-h: Print this help"
     exit 0
 }
