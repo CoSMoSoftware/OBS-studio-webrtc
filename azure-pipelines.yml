@@ -85,7 +85,7 @@ jobs:
         mkdir package_${{ vendor }}
         cd build_${{ vendor }}
         cpack -G DEB
-        mv *.deb ../package_s${{ vendor }}
+        mv *.deb ../package_${{ vendor }}
         cd ..
       displayName: '${{ vendor }} cmake, build, package'
     - task: PublishBuildArtifacts@1
