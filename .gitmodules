@@ -28,3 +28,6 @@
 [submodule "plugins/obs-ndi"]
 	path = plugins/obs-ndi
 	url = https://github.com/Palakis/obs-ndi.git
+[submodule "plugins/obs-websocket"]
+	path = plugins/obs-websocket
+	url = https://github.com/Palakis/obs-websocket.git
