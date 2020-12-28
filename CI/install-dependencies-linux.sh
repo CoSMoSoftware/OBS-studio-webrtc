@@ -76,7 +76,7 @@ echo "" >> plugins/obs-ndi/CMakeLists.txt
 echo "install_obs_plugin_with_data(obs-ndi data)" >> plugins/obs-ndi/CMakeLists.txt
 
 # Patch CMakeLists.txt of plugin obs-websocket
-sed -i 's#\${CMAKE_SOURCE_DIR}/depss/#\${CMAKE_SOURCE_DIR}/plugins/obs-websocket/deps/#g' plugins/obs-websocket/CMakeLists.txt
+sed -i 's#\${CMAKE_SOURCE_DIR}/deps/#\${CMAKE_SOURCE_DIR}/plugins/obs-websocket/deps/#g' plugins/obs-websocket/CMakeLists.txt
 echo "" >> plugins/obs-websocket/CMakeLists.txt
 echo "install_obs_plugin_with_data(obs-websocket data)" >> plugins/obs-websocket/CMakeLists.txt
 
