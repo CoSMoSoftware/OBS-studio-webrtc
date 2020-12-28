@@ -70,3 +70,12 @@ wget --quiet --retry-connrefused --waitretry=1 https://www.palakis.fr/obs/obs-st
 chmod +x libWebRTC.sh
 mkdir libwebrtc
 ./libWebRTC.sh --prefix="./libwebrtc" --skip-license
+
+# Patch CMakeLists.txt of plugin obs-ndi
+echo "" >> plugins/obs-ndi/CMakeLists.txt
+echo "install_obs_plugin_with_data(obs-ndi data)" >> plugins/obs-ndi/CMakeLists.txt
+
+# Patch CMakeLists.txt of plugin obs-websocket
+echo "" >> plugins/obs-websocket/CMakeLists.txt
+echo "install_obs_plugin_with_data(obs-websocket data)" >> plugins/obs-websocket/CMakeLists.txt
+
