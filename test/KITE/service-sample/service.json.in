@@ -1,0 +1,26 @@
+[
+  {
+    "settings": {
+      "bwtest": false,
+      "key": "@MC_STREAM_ID@?token=@MC_RTMP_TOKEN@",
+      "password": "",
+      "server": "rtmp://live-rtmp-pub.millicast.com:1935/v2/pub/",
+      "use_auth": false,
+      "username": ""
+    },
+    "type": "rtmp_custom"
+  },
+  {
+    "settings": {
+      "bwtest": false,
+      "codec": "H264",
+      "key": "",
+      "password": "@MC_RTMP_TOKEN@",
+      "protocol": "Automatic",
+      "room": "",
+      "server": "",
+      "username": ""
+    },
+    "type": "webrtc_millicast"
+  }
+]

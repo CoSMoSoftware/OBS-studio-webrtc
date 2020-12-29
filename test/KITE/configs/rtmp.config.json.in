@@ -1,0 +1,60 @@
+{
+  "name": "Interop obs WebRTC Test",
+  "grids": [
+    {
+      "type": "local",
+      "url": "http://localhost:4444/wd/hub"
+    }
+  ],
+  "matrix": [
+    [1]
+  ],
+  "tests": [
+    {
+      "name": "rtmp obs Test %ts",
+      "description": "rtmp obs Test",
+      "tupleSize": 2,
+      "testImpl": "io.cosmosoftware.kite.obs.tests.OBSRtmpTest",
+      "payload": {
+        "url": "https://viewer.millicast.com/v2?streamId=@MC_ACCOUNT_ID@/@MC_STREAM_ID@",
+        "publishingInfo": {
+          "rtmpPublishPath" : "rtmp://live-rtmp-pub.millicast.com:1935/v2/pub/",
+          "rtmpPublishStreamName" : "@MC_STREAM_ID@?token=@MC_RTMP_TOKEN@"
+        },
+        "codec": ["h264","vp8","vp9"],
+        "meetingDuration": 60000,
+        "getStats" : {
+          "enabled": true,
+          "statsCollectionTime": 10000,
+          "statsCollectionInterval": 1000,
+          "peerConnections": ["peer"],
+          "selectedStats" : ["inbound-rtp", "outbound-rtp", "track", "codec"]
+        }
+      }
+    }
+  ],
+  "clients": [
+    {
+      "browserName": "app",
+      "platform": "WINDOWS",
+      "deviceName": "WINDOWS",
+      "app": {
+        "appName": "@MC_OBS_PATH@\\obs64.exe",
+        "appWorkingDir": "@MC_OBS_PATH@"
+      }
+    },
+    {
+      "browserName": "app",
+      "platform": "MAC",
+      "deviceName": "MAC",
+      "app": {
+        "appName": "OBS"
+      }
+    },
+    {
+      "browserName": "chrome",
+      "version": "87",
+      "headless": false
+    }
+  ]
+}

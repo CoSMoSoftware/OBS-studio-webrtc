@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns="http://maven.apache.org/POM/4.0.0"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+  <parent>
+    <groupId>org.webrtc.kite</groupId>
+    <artifactId>kite-base</artifactId>
+    <version>2.0.8</version>
+  </parent>
+
+  <modelVersion>4.0.0</modelVersion>
+  <artifactId>obs-studio-webrtc-test</artifactId>
+  <name>obs-studio-webrtc-test</name>
+  <version>0.0.1</version>
+
+  <build>
+    <plugins>
+      <plugin>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <configuration>
+          <source>${kite.java.version}</source>
+          <target>${kite.java.version}</target>
+        </configuration>
+        <groupId>org.apache.maven.plugins</groupId>
+        <version>${kite.test.mvn.compiler.version}</version>
+      </plugin>
+    </plugins>
+  </build>
+
+  <dependencies>
+    <dependency>
+      <artifactId>kite-extras</artifactId>
+      <groupId>${kite.extras.repo}</groupId>
+      <version>${kite.extras.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.webrtc.kite</groupId>
+      <artifactId>kite-framework</artifactId>
+      <version>${kite.framework.version}</version>
+    </dependency>
+  </dependencies>
+
+
+</project>
