@@ -275,7 +275,7 @@ configure_obs_build() {
     fi
 
     hr "Run CMAKE for OBS..."
-    cmake -DCMAKE_OSX_DEPLOYMENT_TARGET=10.13 \
+    cmake -DCMAKE_OSX_DEPLOYMENT_TARGET=10.15 \
         -DDISABLE_PYTHON=ON  \
         -DQTDIR="/tmp/obsdeps" \
         -DSWIGDIR="/tmp/obsdeps" \
@@ -286,10 +286,15 @@ configure_obs_build() {
         -DBUILD_CAPTIONS=ON \
         -DWITH_RTMPS=ON \
         -DCEF_ROOT_DIR="${DEPS_BUILD_DIR}/cef_binary_75.1.14+gc81164e+chromium-75.0.3770.100_macosx64" \
-	-DWEBRTC_ROOT_DIR="${DEPS_BUILD_DIR}/libwebrtc" \
-	-DOPENSSL_ROOT_DIR="/usr/local/opt/openssl@1.1" \
+        -DWEBRTC_ROOT_DIR="${DEPS_BUILD_DIR}/libwebrtc" \
+        -DOPENSSL_ROOT_DIR="/usr/local/opt/openssl@1.1" \
         .. \
-        ${vendor_option}
+        ${vendor_option} \
+        -DBUILD_NDI=ON \
+        -DBUILD_WEBSOCKET=ON \
+        -DLIBOBS_INCLUDE_DIR=../libobs \
+        -DLIBOBS_LIB=`pwd`/libobs/libobs.0.dylib \
+        -DOBS_FRONTEND_LIB=`pwd`/UI/obs-frontend-api/libobs-frontend-api.dylib
 
 }
 
