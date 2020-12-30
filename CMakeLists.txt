@@ -318,13 +318,13 @@ if(NOT INSTALLER_RUN)
 	endif()
 
 	add_subdirectory(deps)
+	add_subdirectory(UI)
 
 	if(WIN32)
 		add_subdirectory(libobs-d3d11)
 		add_subdirectory(libobs-winrt)
 	endif()
 
-	add_subdirectory(UI)
 	add_subdirectory(libobs-opengl)
 	add_subdirectory(libobs)
 	add_subdirectory(plugins)
