@@ -1,0 +1,143 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 6b6f255..f829d02 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -72,8 +72,8 @@ include_directories(
+ 	"${LIBOBS_INCLUDE_DIR}/../UI/obs-frontend-api"
+ 	${Qt5Core_INCLUDES}
+ 	${Qt5Widgets_INCLUDES}
+-	"${CMAKE_SOURCE_DIR}/deps/asio/asio/include"
+-	"${CMAKE_SOURCE_DIR}/deps/websocketpp")
++	"${CMAKE_SOURCE_DIR}/plugins/obs-websocket/deps/asio/asio/include"
++	"${CMAKE_SOURCE_DIR}/plugins/obs-websocket/deps/websocketpp")
+ 
+ target_link_libraries(obs-websocket
+ 	libobs
+@@ -115,69 +115,69 @@ if(WIN32)
+ 	# The "release" folder has a structure similar OBS' one on Windows
+ 	set(RELEASE_DIR "${PROJECT_SOURCE_DIR}/release")
+ 
+-	add_custom_command(TARGET obs-websocket POST_BUILD
++#	add_custom_command(TARGET obs-websocket POST_BUILD
+ 		# If config is Release, package release files
+-		COMMAND if $<CONFIG:Release>==1 (
+-			"${CMAKE_COMMAND}" -E make_directory
+-			"${RELEASE_DIR}/data/obs-plugins/obs-websocket"
+-			"${RELEASE_DIR}/obs-plugins/${ARCH_NAME}")
++#		COMMAND if $<CONFIG:Release>==1 (
++#			"${CMAKE_COMMAND}" -E make_directory
++#			"${RELEASE_DIR}/data/obs-plugins/obs-websocket"
++#			"${RELEASE_DIR}/obs-plugins/${ARCH_NAME}")
+ 
+-		COMMAND if $<CONFIG:Release>==1 ("${CMAKE_COMMAND}" -E copy_directory
+-			"${PROJECT_SOURCE_DIR}/data"
+-			"${RELEASE_DIR}/data/obs-plugins/obs-websocket")
++#		COMMAND if $<CONFIG:Release>==1 ("${CMAKE_COMMAND}" -E copy_directory
++#			"${PROJECT_SOURCE_DIR}/data"
++#			"${RELEASE_DIR}/data/obs-plugins/obs-websocket")
+ 
+-		COMMAND if $<CONFIG:Release>==1 ("${CMAKE_COMMAND}" -E copy
+-			"$<TARGET_FILE:obs-websocket>"
+-			"${RELEASE_DIR}/obs-plugins/${ARCH_NAME}")
++#		COMMAND if $<CONFIG:Release>==1 ("${CMAKE_COMMAND}" -E copy
++#			"$<TARGET_FILE:obs-websocket>"
++#			"${RELEASE_DIR}/obs-plugins/${ARCH_NAME}")
+ 
+ 		# In Release mode, copy Qt image format plugins
+-		COMMAND if $<CONFIG:Release>==1 (
+-			"${CMAKE_COMMAND}" -E copy
+-			"${QTDIR}/plugins/imageformats/qjpeg.dll"
+-			"${RELEASE_DIR}/bin/${ARCH_NAME}/imageformats/qjpeg.dll")
+-		COMMAND if $<CONFIG:RelWithDebInfo>==1 (
+-			"${CMAKE_COMMAND}" -E copy
+-			"${QTDIR}/plugins/imageformats/qjpeg.dll"
+-			"${RELEASE_DIR}/bin/${ARCH_NAME}/imageformats/qjpeg.dll")
++#		COMMAND if $<CONFIG:Release>==1 (
++#			"${CMAKE_COMMAND}" -E copy
++#			"${QTDIR}/plugins/imageformats/qjpeg.dll"
++#			"${RELEASE_DIR}/bin/${ARCH_NAME}/imageformats/qjpeg.dll")
++#		COMMAND if $<CONFIG:RelWithDebInfo>==1 (
++#			"${CMAKE_COMMAND}" -E copy
++#			"${QTDIR}/plugins/imageformats/qjpeg.dll"
++#			"${RELEASE_DIR}/bin/${ARCH_NAME}/imageformats/qjpeg.dll")
+ 
+ 		# If config is RelWithDebInfo, package release files
+-		COMMAND if $<CONFIG:RelWithDebInfo>==1 (
+-			"${CMAKE_COMMAND}" -E make_directory
+-			"${RELEASE_DIR}/data/obs-plugins/obs-websocket"
+-			"${RELEASE_DIR}/obs-plugins/${ARCH_NAME}")
++#		COMMAND if $<CONFIG:RelWithDebInfo>==1 (
++#			"${CMAKE_COMMAND}" -E make_directory
++#			"${RELEASE_DIR}/data/obs-plugins/obs-websocket"
++#			"${RELEASE_DIR}/obs-plugins/${ARCH_NAME}")
+ 
+-		COMMAND if $<CONFIG:RelWithDebInfo>==1 ("${CMAKE_COMMAND}" -E copy_directory
+-			"${PROJECT_SOURCE_DIR}/data"
+-			"${RELEASE_DIR}/data/obs-plugins/obs-websocket")
++#		COMMAND if $<CONFIG:RelWithDebInfo>==1 ("${CMAKE_COMMAND}" -E copy_directory
++#			"${PROJECT_SOURCE_DIR}/data"
++#			"${RELEASE_DIR}/data/obs-plugins/obs-websocket")
+ 
+-		COMMAND if $<CONFIG:RelWithDebInfo>==1 ("${CMAKE_COMMAND}" -E copy
+-			"$<TARGET_FILE:obs-websocket>"
+-			"${RELEASE_DIR}/obs-plugins/${ARCH_NAME}")
++#		COMMAND if $<CONFIG:RelWithDebInfo>==1 ("${CMAKE_COMMAND}" -E copy
++#			"$<TARGET_FILE:obs-websocket>"
++#			"${RELEASE_DIR}/obs-plugins/${ARCH_NAME}")
+ 
+-		COMMAND if $<CONFIG:RelWithDebInfo>==1 ("${CMAKE_COMMAND}" -E copy
+-			"$<TARGET_PDB_FILE:obs-websocket>"
+-			"${RELEASE_DIR}/obs-plugins/${ARCH_NAME}")
++#		COMMAND if $<CONFIG:RelWithDebInfo>==1 ("${CMAKE_COMMAND}" -E copy
++#			"$<TARGET_PDB_FILE:obs-websocket>"
++#			"${RELEASE_DIR}/obs-plugins/${ARCH_NAME}")
+ 
+ 		# Copy to obs-studio dev environment for immediate testing
+-		COMMAND if $<CONFIG:Debug>==1 (
+-			"${CMAKE_COMMAND}" -E copy
+-				"$<TARGET_FILE:obs-websocket>"
+-				"${LIBOBS_INCLUDE_DIR}/../${OBS_BUILDDIR_ARCH}/rundir/$<CONFIG>/obs-plugins/${ARCH_NAME}")
+-
+-		COMMAND if $<CONFIG:Debug>==1 (
+-			"${CMAKE_COMMAND}" -E copy
+-				"$<TARGET_PDB_FILE:obs-websocket>"
+-				"${LIBOBS_INCLUDE_DIR}/../${OBS_BUILDDIR_ARCH}/rundir/$<CONFIG>/obs-plugins/${ARCH_NAME}")
+-
+-		COMMAND if $<CONFIG:Debug>==1 (
+-			"${CMAKE_COMMAND}" -E make_directory
+-				"${LIBOBS_INCLUDE_DIR}/../${OBS_BUILDDIR_ARCH}/rundir/$<CONFIG>/data/obs-plugins/obs-websocket")
+-
+-		COMMAND if $<CONFIG:Debug>==1 (
+-			"${CMAKE_COMMAND}" -E copy_directory
+-				"${PROJECT_SOURCE_DIR}/data"
+-				"${LIBOBS_INCLUDE_DIR}/../${OBS_BUILDDIR_ARCH}/rundir/$<CONFIG>/data/obs-plugins/obs-websocket")
+-	)
++#		COMMAND if $<CONFIG:Debug>==1 (
++#			"${CMAKE_COMMAND}" -E copy
++#				"$<TARGET_FILE:obs-websocket>"
++#				"${LIBOBS_INCLUDE_DIR}/../${OBS_BUILDDIR_ARCH}/rundir/$<CONFIG>/obs-plugins/${ARCH_NAME}")
++
++#		COMMAND if $<CONFIG:Debug>==1 (
++#			"${CMAKE_COMMAND}" -E copy
++#				"$<TARGET_PDB_FILE:obs-websocket>"
++#				"${LIBOBS_INCLUDE_DIR}/../${OBS_BUILDDIR_ARCH}/rundir/$<CONFIG>/obs-plugins/${ARCH_NAME}")
++
++#		COMMAND if $<CONFIG:Debug>==1 (
++#			"${CMAKE_COMMAND}" -E make_directory
++#				"${LIBOBS_INCLUDE_DIR}/../${OBS_BUILDDIR_ARCH}/rundir/$<CONFIG>/data/obs-plugins/obs-websocket")
++
++#		COMMAND if $<CONFIG:Debug>==1 (
++#			"${CMAKE_COMMAND}" -E copy_directory
++#				"${PROJECT_SOURCE_DIR}/data"
++#				"${LIBOBS_INCLUDE_DIR}/../${OBS_BUILDDIR_ARCH}/rundir/$<CONFIG>/data/obs-plugins/obs-websocket")
++#	)
+ 	# --- End of sub-section ---
+ 
+ endif()
+@@ -218,3 +218,5 @@ if(APPLE)
+ 	target_link_libraries(obs-websocket "${OBS_FRONTEND_LIB}")
+ endif()
+ # -- End of section --
++
++install_obs_plugin_with_data(obs-websocket data)
+\ No newline at end of file
