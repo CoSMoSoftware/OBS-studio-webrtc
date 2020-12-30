@@ -324,9 +324,9 @@ if(NOT INSTALLER_RUN)
 		add_subdirectory(libobs-winrt)
 	endif()
 
+	add_subdirectory(UI)
 	add_subdirectory(libobs-opengl)
 	add_subdirectory(libobs)
-	add_subdirectory(UI)
 	add_subdirectory(plugins)
 
 	if (ENABLE_UNIT_TESTS)
