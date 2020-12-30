@@ -8,3 +8,13 @@ if exist openssl-1.1.tgz (curl -kLO https://libwebrtc-community-builds.s3.amazon
 7z x cef_binary_%CEF_VERSION%_windows64_minimal.zip -oCEF_64
 "libWebRTC-%LIBWEBRTC_VERSION%-x64-RelComm.exe" /S /SD /D="%CD%\libwebrtc"
 tar -xzf openssl-1.1.tgz
+
+# Patch obs-ndi
+cp patches\windows\patch-obs-ndi.diff plugins\obs-ndi
+cd plugins\obs-ndi
+git apply --ignore-space-change --ignore-whitespace --whitespace=nowarn patch-obs-ndi.diff
+
+# Patch obs-websocket
+cp patches\windows\patch-obs-websocket.diff plugins\obs-websocket
+cd plugins\obs-websocket
+git apply --ignore-space-change --ignore-whitespace --whitespace=nowarn patch-obs-websocket.diff
