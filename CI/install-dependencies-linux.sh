@@ -80,3 +80,8 @@ sed -i 's#\${CMAKE_SOURCE_DIR}/deps/#\${CMAKE_SOURCE_DIR}/plugins/obs-websocket/
 echo "" >> plugins/obs-websocket/CMakeLists.txt
 echo "install_obs_plugin_with_data(obs-websocket data)" >> plugins/obs-websocket/CMakeLists.txt
 
+# Patch plugin obs-vst
+cp patches/linux/patch-obs-vst.diff plugins/obs-vst
+cd plugins/obs-vst
+git apply --ignore-space-change --ignore-whitespace --whitespace=nowarn patch-obs-vst.diff
+cd ../..
