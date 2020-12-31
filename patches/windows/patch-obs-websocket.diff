@@ -1,8 +1,14 @@
 diff --git a/CMakeLists.txt b/CMakeLists.txt
-index 6b6f255..f829d02 100644
+index 6b6f255..4d82db8 100644
 --- a/CMakeLists.txt
 +++ b/CMakeLists.txt
-@@ -72,8 +72,8 @@ include_directories(
+@@ -68,12 +68,14 @@ add_library(obs-websocket MODULE
+ 	${obs-websocket_SOURCES}
+ 	${obs-websocket_HEADERS})
+ 
++add_dependencies(obs-websocket obs-frontend-api)
++
+ include_directories(
  	"${LIBOBS_INCLUDE_DIR}/../UI/obs-frontend-api"
  	${Qt5Core_INCLUDES}
  	${Qt5Widgets_INCLUDES}
@@ -13,7 +19,7 @@ index 6b6f255..f829d02 100644
  
  target_link_libraries(obs-websocket
  	libobs
-@@ -115,69 +115,69 @@ if(WIN32)
+@@ -115,69 +117,69 @@ if(WIN32)
  	# The "release" folder has a structure similar OBS' one on Windows
  	set(RELEASE_DIR "${PROJECT_SOURCE_DIR}/release")
  
@@ -134,7 +140,7 @@ index 6b6f255..f829d02 100644
  	# --- End of sub-section ---
  
  endif()
-@@ -218,3 +218,5 @@ if(APPLE)
+@@ -218,3 +220,5 @@ if(APPLE)
  	target_link_libraries(obs-websocket "${OBS_FRONTEND_LIB}")
  endif()
  # -- End of section --

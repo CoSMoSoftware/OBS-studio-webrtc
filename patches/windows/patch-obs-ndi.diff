@@ -1,8 +1,17 @@
 diff --git a/CMakeLists.txt b/CMakeLists.txt
-index 5c2ff5e..634ded1 100644
+index 5c2ff5e..4a5e319 100644
 --- a/CMakeLists.txt
 +++ b/CMakeLists.txt
-@@ -178,3 +178,5 @@ if(UNIX AND NOT APPLE)
+@@ -48,6 +48,8 @@ add_library(obs-ndi MODULE
+ 	${obs-ndi_SOURCES}
+ 	${obs-ndi_HEADERS})
+ 
++add_dependencies(obs-ndi obs-frontend-api)
++
+ include_directories(
+ 	"lib/ndi"
+ 	"${LIBOBS_INCLUDE_DIR}/../UI/obs-frontend-api"
+@@ -178,3 +180,5 @@ if(UNIX AND NOT APPLE)
  	install(FILES ${locale_files}
  		DESTINATION "${CMAKE_INSTALL_FULL_DATAROOTDIR}/obs/obs-plugins/obs-ndi/locale")
  endif()
