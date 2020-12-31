@@ -72,13 +72,16 @@ mkdir libwebrtc
 ./libWebRTC.sh --prefix="./libwebrtc" --skip-license
 
 # Patch CMakeLists.txt of plugin obs-ndi
-echo "" >> plugins/obs-ndi/CMakeLists.txt
-echo "install_obs_plugin_with_data(obs-ndi data)" >> plugins/obs-ndi/CMakeLists.txt
+cp patches/patch-obs-ndi.diff plugins/obs-ndi
+cd plugins/obs-ndi
+git apply --ignore-space-change --ignore-whitespace --whitespace=nowarn patch-obs-ndi.diff
+cd ../..
 
 # Patch CMakeLists.txt of plugin obs-websocket
-sed -i 's#\${CMAKE_SOURCE_DIR}/deps/#\${CMAKE_SOURCE_DIR}/plugins/obs-websocket/deps/#g' plugins/obs-websocket/CMakeLists.txt
-echo "" >> plugins/obs-websocket/CMakeLists.txt
-echo "install_obs_plugin_with_data(obs-websocket data)" >> plugins/obs-websocket/CMakeLists.txt
+cp patches/patch-obs-websocket.diff plugins/obs-websocket
+cd plugins/obs-websocket
+git apply --ignore-space-change --ignore-whitespace --whitespace=nowarn patch-obs-websocket.diff
+cd ../..
 
 # Patch plugin obs-vst
 cp patches/linux/patch-obs-vst.diff plugins/obs-vst
