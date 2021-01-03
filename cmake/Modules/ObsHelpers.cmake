@@ -592,3 +592,55 @@ function(define_graphic_modules target)
 		endif()
 	endforeach()
 endfunction()
+
+# Apply patches to submodules
+function(apply_patches)
+	file(GLOB PATCHES_ALL "${CMAKE_SOURCE_DIR}/patches/*.diff")
+	file(GLOB PATCHES_MAC "${CMAKE_SOURCE_DIR}/patches/mac/*.diff")
+	file(GLOB PATCHES_WIN "${CMAKE_SOURCE_DIR}/patches/win/*.diff")
+	file(GLOB PATCHES_LINUX "${CMAKE_SOURCE_DIR}/patches/linux/*.diff")
+	set(PATCHES ${PATCHES_ALL})
+	if(APPLE)
+		set(PATCHES ${PATCHES_ALL} ${PATCHES_MAC})
+	elseif(WIN32)
+		set(PATCHES ${PATCHES_ALL} ${PATCHES_WIN})
+	elseif("${CMAKE_SYSTEM_NAME}" MATCHES "Linux")
+		set(PATCHES ${PATCHES_ALL} ${PATCHES_LINUX})
+	endif()
+	if (PATCHES)
+		set(PATCHES_NAMES "")
+		foreach(PATCH ${PATCHES})
+			get_filename_component(PATCH_NAME ${PATCH} NAME_WE)
+			list(APPEND PATCHES_NAMES ${PATCH_NAME})
+		endforeach()
+		message(STATUS "Patches: ${PATCHES_NAMES}")
+		foreach(PATCH ${PATCHES})
+			get_filename_component(PATCH_NAME ${PATCH} NAME_WE)
+			message(STATUS "Applying patch ${PATCH_NAME}")
+			execute_process(
+				COMMAND git apply -p1 --ignore-space-change --ignore-whitespace --whitespace=nowarn
+				WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
+				INPUT_FILE "${PATCH}"
+				OUTPUT_VARIABLE OUTPUT
+				RESULT_VARIABLE RESULT
+			)
+			if (RESULT EQUAL 0)
+				message(STATUS "Applying patch ${PATCH_NAME} - success")
+			else()
+				# Check if patch is already applied
+				execute_process(
+					COMMAND git apply -p1 -R --check --ignore-space-change --ignore-whitespace --whitespace=nowarn
+					WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
+					INPUT_FILE "${PATCH}"
+					OUTPUT_VARIABLE OUTPUT_R
+					RESULT_VARIABLE RESULT_R
+				)
+				if (RESULT_R EQUAL 0)
+					message(STATUS "Applying patch ${PATCH_NAME} - already applied")
+				else()
+					message(STATUS "Applying patch ${PATCH_NAME} - error")
+				endif()
+			endif()
+		endforeach()
+	endif()
+endfunction()
