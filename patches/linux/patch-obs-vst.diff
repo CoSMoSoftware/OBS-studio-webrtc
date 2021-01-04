@@ -1,7 +1,7 @@
-diff --git a/linux/VSTPlugin-linux.cpp b/linux/VSTPlugin-linux.cpp
+diff --git a/plugins/obs-vst/linux/VSTPlugin-linux.cpp b/plugins/obs-vst/linux/VSTPlugin-linux.cpp
 index d9a9bf0..f948579 100644
---- a/linux/VSTPlugin-linux.cpp
-+++ b/linux/VSTPlugin-linux.cpp
+--- a/plugins/obs-vst/linux/VSTPlugin-linux.cpp
++++ b/plugins/obs-vst/linux/VSTPlugin-linux.cpp
 @@ -16,6 +16,7 @@ You should have received a copy of the GNU General Public License
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *****************************************************************************/

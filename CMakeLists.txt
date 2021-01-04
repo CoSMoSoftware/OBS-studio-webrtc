@@ -110,6 +110,8 @@ include(GNUInstallDirs)
 include(CheckCCompilerFlag)
 include(CheckCXXCompilerFlag)
 
+apply_patches()
+
 # Must be a string in the format of "x.x.x-rcx"
 if(DEFINED RELEASE_CANDIDATE)
 	set(OBS_VERSION "${RELEASE_CANDIDATE}")

@@ -1,7 +1,7 @@
-diff --git a/CMakeLists.txt b/CMakeLists.txt
+diff --git a/plugins/obs-websocket/CMakeLists.txt b/plugins/obs-websocket/CMakeLists.txt
 index 6b6f255..4d82db8 100644
---- a/CMakeLists.txt
-+++ b/CMakeLists.txt
+--- a/plugins/obs-websocket/CMakeLists.txt
++++ b/plugins/obs-websocket/CMakeLists.txt
 @@ -68,12 +68,14 @@ add_library(obs-websocket MODULE
  	${obs-websocket_SOURCES}
  	${obs-websocket_HEADERS})
