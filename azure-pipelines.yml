@@ -26,16 +26,6 @@ jobs:
   steps:
   - script: git submodule update --init --recursive
     displayName: 'Checkout Submodules'
-  - bash: |
-      cp patches/patch-obs-ndi.diff plugins/obs-ndi
-      cd plugins/obs-ndi
-      git apply --ignore-space-change --ignore-whitespace --whitespace=nowarn patch-obs-ndi.diff
-      cd ../..
-      cp patches/patch-obs-websocket.diff plugins/obs-websocket
-      cd plugins/obs-websocket
-      git apply --ignore-space-change --ignore-whitespace --whitespace=nowarn patch-obs-websocket.diff
-      cd ../..
-    displayName: 'Patch obs-ndi and obs-websocket'
   - ${{ each vendor in parameters.vendors }}:
     - script: TERM="" ./CI/full-build-macos.sh -v ${{ vendor }}
       displayName: '${{ vendor }} Install dependencies and build'
