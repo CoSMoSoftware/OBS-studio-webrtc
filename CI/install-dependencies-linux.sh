@@ -70,21 +70,3 @@ wget --quiet --retry-connrefused --waitretry=1 https://www.palakis.fr/obs/obs-st
 chmod +x libWebRTC.sh
 mkdir libwebrtc
 ./libWebRTC.sh --prefix="./libwebrtc" --skip-license
-
-# Patch CMakeLists.txt of plugin obs-ndi
-cp patches/patch-obs-ndi.diff plugins/obs-ndi
-cd plugins/obs-ndi
-git apply --ignore-space-change --ignore-whitespace --whitespace=nowarn patch-obs-ndi.diff
-cd ../..
-
-# Patch CMakeLists.txt of plugin obs-websocket
-cp patches/patch-obs-websocket.diff plugins/obs-websocket
-cd plugins/obs-websocket
-git apply --ignore-space-change --ignore-whitespace --whitespace=nowarn patch-obs-websocket.diff
-cd ../..
-
-# Patch plugin obs-vst
-cp patches/linux/patch-obs-vst.diff plugins/obs-vst
-cd plugins/obs-vst
-git apply --ignore-space-change --ignore-whitespace --whitespace=nowarn patch-obs-vst.diff
-cd ../..
