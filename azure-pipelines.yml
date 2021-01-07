@@ -32,7 +32,7 @@ jobs:
     - script: TERM="" ./CI/full-build-macos.sh -s -d -b -p -n -v ${{ vendor }}
       displayName: '${{ vendor }} Before Deploy'
       env:
-        CODESIGN_IDENT=$(secrets.macOS.codeSigningIdentity)
+        CODESIGN_IDENT: $(secrets.macOS.codeSigningIdentity)
     - bash: |
         mkdir -p ./nightly_${{ vendor }}
         find ./build_${{ vendor }} -name \*.dmg -exec cp -PR \{\} ./nightly_${{ vendor }}/ \;
