@@ -24,6 +24,10 @@ jobs:
   pool:
     vmImage: 'macOS-10.15'
   steps:
+  - task: AzureKeyVault@1
+    inputs:
+      azureSubscription: azure-key-vault
+      keyVaultName: cosmo-secrets
   - script: git submodule update --init --recursive
     displayName: 'Checkout Submodules'
   - ${{ each vendor in parameters.vendors }}:
