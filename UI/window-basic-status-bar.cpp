@@ -308,18 +308,19 @@ void OBSBasicStatusBar::UpdateDroppedFrames()
 	if (!streamOutput)
 		return;
 
-	int totalDropped = obs_output_get_frames_dropped(streamOutput);
-	int totalFrames = obs_output_get_total_frames(streamOutput);
-	double percent = (double)totalDropped / (double)totalFrames * 100.0;
+	// Note LUDO: #258 Remove dropped frames stats on webrtc
+	// int totalDropped = obs_output_get_frames_dropped(streamOutput);
+	// int totalFrames = obs_output_get_total_frames(streamOutput);
+	// double percent = (double)totalDropped / (double)totalFrames * 100.0;
 
-	if (!totalFrames)
-		return;
+	// if (!totalFrames)
+	// 	return;
 
-	QString text = QTStr("DroppedFrames");
-	text = text.arg(QString::number(totalDropped),
-			QString::number(percent, 'f', 1));
-	droppedFrames->setText(text);
-	droppedFrames->setMinimumWidth(droppedFrames->width());
+	// QString text = QTStr("DroppedFrames");
+	// text = text.arg(QString::number(totalDropped),
+	// 		QString::number(percent, 'f', 1));
+	// droppedFrames->setText(text);
+	// droppedFrames->setMinimumWidth(droppedFrames->width());
 
 	/* ----------------------------------- *
 	 * calculate congestion color          */
