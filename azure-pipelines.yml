@@ -1,15 +1,25 @@
 # https://aka.ms/yaml
 
 variables:
-  CMAKE_PREFIX_PATH: /usr/local/opt/qt5/lib/cmake
-  CEF_BUILD_VERSION: 3770
-  CEF_VERSION: 75.1.16+g16a67c4+chromium-75.0.3770.100
-  LIBWEBRTC_VERSION: 84.0
-  OBS_VERSION: 26.0
-  TWITCH-CLIENTID: $(twitch_clientid)
-  TWITCH-HASH: $(twitch_hash)
-  RESTREAM-CLIENTID: $(restream_clientid)
-  RESTREAM-HASH: $(restream_hash)
+  - group: obs-pipeline
+  - name: CMAKE_PREFIX_PATH
+    value: /usr/local/opt/qt5/lib/cmake
+  - name: CEF_BUILD_VERSION
+    value: 3770
+  - name: CEF_VERSION
+    value: 75.1.16+g16a67c4+chromium-75.0.3770.100
+  - name: LIBWEBRTC_VERSION
+    value: 84.0
+  - name: OBS_VERSION
+    value: 26.0
+  - name: TWITCH-CLIENTID
+    value: $(twitch_clientid)
+  - name: TWITCH-HASH
+    value: $(twitch_hash)
+  - name: RESTREAM-CLIENTID
+    value: $(restream_clientid)
+  - name: RESTREAM-HASH
+    value: $(restream_hash)
 
 parameters:
   - name: vendors
@@ -31,9 +41,7 @@ jobs:
   - task: InstallAppleCertificate@1
     inputs:
       certSecureFile: Certificates-ludo.p12
-      certPwd: $(CERT_LUDO_PASSWORD)
-      env:
-        CERT_LUDO_PASSWORD: $(secrets.macOS.certificatesLudoPassword)
+      certPwd: $(obs-pipeline.macOS.certificatesLudoPassword)
   - script: git submodule update --init --recursive
     displayName: 'Checkout Submodules'
   - ${{ each vendor in parameters.vendors }}:
