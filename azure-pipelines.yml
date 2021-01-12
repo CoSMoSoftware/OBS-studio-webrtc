@@ -31,7 +31,9 @@ jobs:
   - task: InstallAppleCertificate@1
     inputs:
       certSecureFile: Certificates-ludo.p12
-      certPwd: $(secrets.macOS.certificatesLudoPassword)
+      certPwd: $(CERT_LUDO_PASSWORD)
+      env:
+        CERT_LUDO_PASSWORD: $(secrets.macOS.certificatesLudoPassword)
   - script: git submodule update --init --recursive
     displayName: 'Checkout Submodules'
   - ${{ each vendor in parameters.vendors }}:
