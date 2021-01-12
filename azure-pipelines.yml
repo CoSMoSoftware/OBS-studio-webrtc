@@ -26,7 +26,7 @@ jobs:
   steps:
   - task: AzureKeyVault@1
     inputs:
-      azureSubscription: 'Azure subscription 1'
+      azureSubscription: azure-cosmo
       keyVaultName: cosmo-secrets
   - script: git submodule update --init --recursive
     displayName: 'Checkout Submodules'
