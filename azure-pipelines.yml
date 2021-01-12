@@ -2,6 +2,8 @@
 
 variables:
   - group: obs-pipeline
+  - name: certificates-ludo-password
+    value: $[variables.certificatesLudoPassword]
   - name: CMAKE_PREFIX_PATH
     value: /usr/local/opt/qt5/lib/cmake
   - name: CEF_BUILD_VERSION
@@ -41,7 +43,7 @@ jobs:
   - task: InstallAppleCertificate@1
     inputs:
       certSecureFile: Certificates-ludo.p12
-      certPwd: $(obs-pipeline.certificatesLudoPassword)
+      certPwd: $(certificatesLudoPassword)
   - script: git submodule update --init --recursive
     displayName: 'Checkout Submodules'
   - ${{ each vendor in parameters.vendors }}:
