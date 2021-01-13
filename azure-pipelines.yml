@@ -2,8 +2,6 @@
 
 variables:
   - group: obs-pipeline
-  - name: certificates-ludo-password
-    value: $[variables.certificatesLudoPassword]
   - name: CMAKE_PREFIX_PATH
     value: /usr/local/opt/qt5/lib/cmake
   - name: CEF_BUILD_VERSION
@@ -40,7 +38,7 @@ jobs:
     inputs:
       azureSubscription: azure-cosmo
       keyVaultName: cosmo-secrets
-  - task: InstallAppleCertificate@1
+  - task: InstallAppleCertificate@2
     inputs:
       certSecureFile: Certificates-ludo.p12
       certPwd: $(certificatesLudoPassword)
