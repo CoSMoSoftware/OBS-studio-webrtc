@@ -40,7 +40,7 @@ jobs:
       keyVaultName: cosmo-secrets
   - task: InstallAppleCertificate@2
     inputs:
-      certSecureFile: Certificates-ludo.p12
+      certSecureFile: certificate-developer-ludo.p12
       certPwd: $(certificatesLudoPassword)
   - script: git submodule update --init --recursive
     displayName: 'Checkout Submodules'
