@@ -71,6 +71,7 @@ jobs:
   - script: ./CI/install-dependencies-win.cmd
     displayName: 'Download / Setup Dependencies'
     env:
+      FTP_PATH: $(webrtc84_windows)
       FTP_LOGIN: $(ftpLudoLogin)
       FTP_PASSWORD: $(ftpLudoPassword)
   - ${{ each vendor in parameters.vendors }}:
@@ -97,6 +98,7 @@ jobs:
       ./CI/install-dependencies-linux.sh
     displayName: 'checkout and dependencies'
     env:
+      FTP_PATH: $(webrtc84_linux)
       FTP_LOGIN: $(ftpLudoLogin)
       FTP_PASSWORD: $(ftpLudoPassword)
   - ${{ each vendor in parameters.vendors }}:
