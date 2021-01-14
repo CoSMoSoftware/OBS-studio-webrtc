@@ -66,7 +66,7 @@ make -j4
 cd ../..
 
 # libwebrtc
-wget --quiet --retry-connrefused --waitretry=1 https://www.palakis.fr/obs/obs-studio-webrtc/libWebRTC-${LIBWEBRTC_VERSION}-x64-Release-Community.sh -O libWebRTC.sh
+wget --quiet --retry-connrefused --waitretry=1 --user ${FTP_LOGIN} --password ${FTP_PASSWORD} ftp://ftpperso.free.fr/libwebrtc/linux/libWebRTC-84.0-x64-Release-H264.sh -O libWebRTC.sh
 chmod +x libWebRTC.sh
 mkdir libwebrtc
 ./libWebRTC.sh --prefix="./libwebrtc" --skip-license

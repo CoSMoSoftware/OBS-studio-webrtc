@@ -2,6 +2,10 @@
 
 variables:
   - group: obs-pipeline
+  - name: FTP_LOGIN
+    value: $(ftpLudoLogin)
+  -name: FTP_PASSWORD
+    value: $(ftpLudoPassword)
   - name: CMAKE_PREFIX_PATH
     value: /usr/local/opt/qt5/lib/cmake
   - name: CEF_BUILD_VERSION
