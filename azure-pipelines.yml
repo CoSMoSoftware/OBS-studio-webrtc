@@ -43,7 +43,8 @@ jobs:
   - ${{ each vendor in parameters.vendors }}:
     - script: TERM="" ./CI/full-build-macos.sh -v ${{ vendor }}
       displayName: '${{ vendor }} Install dependencies and build'
-    - script: TERM="" ./CI/full-build-macos.sh -s -d -b -p -n -v ${{ vendor }}
+    - bash: |
+        ./CI/full-build-macos.sh -s -d -b -p -n -v ${{ vendor }}
       displayName: '${{ vendor }} Before Deploy'
       env:
         FTP_PATH_PREFIX: $(webrtc_path_prefix)
