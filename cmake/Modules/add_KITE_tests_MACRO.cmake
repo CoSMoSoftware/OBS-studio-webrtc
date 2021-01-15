@@ -9,15 +9,17 @@
 # rotate the targets at every call of the macro
 set( _last_target InstallInBuildTree )
 
-macro( add_KITE_tests _app_name )
+# the argument is the full path to the app bundle on mac,
+# or the path of the executable on linux or on windows
+macro( add_KITE_tests _app_name_or_exe_path )
 
-  # note alex: this is not the OBS way, TODO
-  set( APP_WORKING_DIR "${CMAKE_BINARY_DIR}/install_dir" )
+  set( APP_EXE "${_app_name}" )
+  # TODO: extract the working directory from the input variable
+  set( APP_WORKING_DIR "" )
 
   # --- Define OS specific KITE Variables
   if( WIN32 )
     set( OS WINDOWS )
-    set( APP_EXE         ${APP_WORKING_DIR}/${_app_name}.exe )
     set( _appium_start_CMD ./${_app_name}-launchAppiumNode.bat )
     set( _appium_stop_CMD  taskkill /F /IM appium.exe /T )
     configure_file( 
@@ -25,7 +27,6 @@ macro( add_KITE_tests _app_name )
       ${CMAKE_CURRENT_BINARY_DIR}/${_app_name}-launchAppiumNode.bat )
   elseif( APPLE )
     set( OS MAC )
-    set( APP_EXE         "${APP_WORKING_DIR}/${_app_name}.app" )
     set( _appium_start_CMD ./${_app_name}-launchAppiumNode.sh )
     set( _appium_stop_CMD  pkill -9 -f appium )
     configure_file( 
@@ -33,6 +34,7 @@ macro( add_KITE_tests _app_name )
       ${CMAKE_CURRENT_BINARY_DIR}/${_app_name}-launchAppiumNode.sh )
   elseif( UNIX AND NOT APPLE )
     set( OS LINUX )
+    message( WARNING "Linux is not fully supported yet." )
   endif()
 
   # --- Start Appium Node
@@ -95,7 +97,7 @@ macro( add_KITE_tests _app_name )
     ${_app_name}-KiteRun
     ${_app_name}-killAppiumNode
     PROPERTIES RESOURCE_LOCK appium_lock
-  )
+    )
 
   set( _last_target ${_app_name}-killAppiumNode ) 
 
