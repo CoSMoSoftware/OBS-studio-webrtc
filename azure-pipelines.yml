@@ -34,10 +34,6 @@ jobs:
   pool:
     vmImage: 'macOS-10.15'
   steps:
-  - task: AzureKeyVault@1
-    inputs:
-      azureSubscription: azure-cosmo
-      keyVaultName: cosmo-secrets
   - task: InstallAppleCertificate@2
     inputs:
       certSecureFile: Certificates.p12
