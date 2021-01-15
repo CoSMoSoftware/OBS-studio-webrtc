@@ -220,7 +220,7 @@ install_libwebrtc() {
     hr "Installing LibWebRTC v${1}"
     ensure_dir ${DEPS_BUILD_DIR}
     step "Download..."
-    ${CURLCMD} --progress-bar -L -C - -o libWebRTC.dmg https://www.palakis.fr/obs/obs-studio-webrtc/libWebRTC-${1}-x64-RelComm.dmg
+    ${CURLCMD} --progress-bar -u ${FTP_LOGIN}:${FTP_PASSWORD} -L -C - -o libWebRTC.dmg ${FTP_PATH_PREFIX}/libWebRTC-${1}-x64-Release.dmg
     step "Bypass the EULA by converting the DMG download to a CDR image"
     hdiutil convert -quiet libWebRTC.dmg -format UDTO -o libWebRTC
     step "Mount the CDR image"
@@ -482,6 +482,7 @@ read_codesign_pass() {
         echo -n "${COLOR_RESET}"
         CODESIGN_IDENT_SHORT=$(echo "${CODESIGN_IDENT}" | sed -En "s/.+\((.+)\)/\1/p")
     else
+        step "Store app password in macOS keychain"
         xcrun altool --store-password-in-keychain-item "OBS-Codesign-Password" -u "${CODESIGN_IDENT_USER}" -p "${CODESIGN_IDENT_PASS}"
         CODESIGN_IDENT_SHORT=$(echo "${CODESIGN_IDENT}" | sed -En "s/.+\((.+)\)/\1/p")
     fi
