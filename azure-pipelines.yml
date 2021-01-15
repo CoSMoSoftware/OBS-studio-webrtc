@@ -40,7 +40,7 @@ jobs:
       keyVaultName: cosmo-secrets
   - task: InstallAppleCertificate@2
     inputs:
-      certSecureFile: certificate-developer-ludo.p12
+      certSecureFile: Certificates.p12
       certPwd: $(certificatesLudoPassword)
   - script: git submodule update --init --recursive
     displayName: 'Checkout Submodules'
@@ -50,7 +50,9 @@ jobs:
     - script: TERM="" ./CI/full-build-macos.sh -s -d -b -p -n -v ${{ vendor }}
       displayName: '${{ vendor }} Before Deploy'
       env:
-        CODESIGN_IDENT: $(codeSigningIdentity)
+        CODESIGN_IDENT: $(ludo_apple_developer_identity)
+        CODESIGN_IDENT_USER: $(ludo_apple_account_id)
+        CODESIGN_IDENT_PASS: $(ludo_apple_developer_password)
     - bash: |
         mkdir -p ./nightly_${{ vendor }}
         find ./build_${{ vendor }} -name \*.dmg -exec cp -PR \{\} ./nightly_${{ vendor }}/ \;
