@@ -276,7 +276,7 @@ configure_obs_build() {
     fi
 
     hr "Run CMAKE for OBS..."
-    cmake -DCMAKE_OSX_DEPLOYMENT_TARGET=10.15 \
+    cmake -DCMAKE_OSX_DEPLOYMENT_TARGET=10.12 \
         -DDISABLE_PYTHON=ON  \
         -DQTDIR="/tmp/obsdeps" \
         -DSWIGDIR="/tmp/obsdeps" \
