@@ -2,6 +2,18 @@
 
 variables:
   - group: obs-pipeline
+  - name: FTP_PATH_PREFIX
+    value: $(webrtc_path_prefix)
+  - name: FTP_LOGIN
+    value: $(ftpLudoLogin)
+  - name: FTP_PASSWORD
+    value: $(ftpLudoPassword)
+  - name: CODESIGN_IDENT
+    value: : $(ludo_apple_developer_identity)
+  - name: CODESIGN_IDENT_USER
+    value: $(ludo_apple_account_id)
+  - name: CODESIGN_IDENT_PASS
+    value: $(ludo_apple_developer_password)
   - name: CMAKE_PREFIX_PATH
     value: /usr/local/opt/qt5/lib/cmake
   - name: CEF_BUILD_VERSION
@@ -46,13 +58,6 @@ jobs:
     - bash: |
         ./CI/full-build-macos.sh -s -d -b -p -n -v ${{ vendor }}
       displayName: '${{ vendor }} Before Deploy'
-      env:
-        FTP_PATH_PREFIX: $(webrtc_path_prefix)
-        FTP_LOGIN: $(ftpLudoLogin)
-        FTP_PASSWORD: $(ftpLudoPassword)
-        CODESIGN_IDENT: $(ludo_apple_developer_identity)
-        CODESIGN_IDENT_USER: $(ludo_apple_account_id)
-        CODESIGN_IDENT_PASS: $(ludo_apple_developer_password)
     - bash: |
         mkdir -p ./nightly_${{ vendor }}
         find ./build_${{ vendor }} -name \*.dmg -exec cp -PR \{\} ./nightly_${{ vendor }}/ \;
