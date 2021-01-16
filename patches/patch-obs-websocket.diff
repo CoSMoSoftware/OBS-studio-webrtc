@@ -147,3 +147,23 @@ index 6b6f255..4d82db8 100644
 +
 +install_obs_plugin_with_data(obs-websocket data)
 \ No newline at end of file
+diff --git a/plugins/obs-websocket/src/protocol/OBSRemoteProtocol.cpp b/plugins/obs-websocket/src/protocol/OBSRemoteProtocol.cpp
+index a7555b6..3e1ad4b 100644
+--- a/plugins/obs-websocket/src/protocol/OBSRemoteProtocol.cpp
++++ b/plugins/obs-websocket/src/protocol/OBSRemoteProtocol.cpp
+@@ -69,13 +69,13 @@ std::string OBSRemoteProtocol::encodeEvent(const RpcEvent& event)
+ 
+ 	std::optional<uint64_t> streamTime = event.streamTime();
+ 	if (streamTime.has_value()) {
+-		QString streamingTimecode = Utils::nsToTimestamp(streamTime.value());
++		QString streamingTimecode = Utils::nsToTimestamp(*streamTime);
+ 		obs_data_set_string(eventData, "stream-timecode", streamingTimecode.toUtf8().constData());
+ 	}
+ 
+ 	std::optional<uint64_t> recordingTime = event.recordingTime();
+ 	if (recordingTime.has_value()) {
+-		QString recordingTimecode = Utils::nsToTimestamp(recordingTime.value());
++		QString recordingTimecode = Utils::nsToTimestamp(*recordingTime);
+ 		obs_data_set_string(eventData, "rec-timecode", recordingTimecode.toUtf8().constData());
+ 	}
+ 
