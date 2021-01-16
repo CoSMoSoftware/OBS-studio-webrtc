@@ -1,0 +1,45 @@
+{ 
+   "capabilities":[ 
+      {
+         "app": "@APP_EXE@",
+         "appWorkingDir": "@APP_WORKING_DIR@",
+         "browserName" : "app",
+         "deviceName":"@OS@",
+         "platform":"@OS@",
+         "platformName":"@OS@",
+         "newCommandTimeout":300000
+      }
+   ],
+   "configuration":{ 
+      "custom":{  },
+      "downPollingLimit":2,
+      "enablePassThrough":true,
+      "jettyThreads":200,
+      "jettyMaxThreads":200,
+      "nodePolling":5000,
+      "nodeStatusCheckTimeout":5000,
+      "proxy":"org.openqa.grid.selenium.proxy.DefaultRemoteProxy",
+      "register":true,
+      "registerCycle":5000,
+      "servlet":[  ],
+      "servlets":[  ],
+      "timeout":180,
+      "sessionTimeout":180,
+      "unregisterIfStillDownAfter":60000,
+      "withoutServlet":[  ],
+      "withoutServlets":[  ],
+ 
+      "browserTimeout":180,
+      "cleanUpCycle":5000,
+      "debug":true,
+      "maxSession":1,
+      "role":"node",
+ 
+      "host":"localhost",
+      "port":4728,
+ 
+      "hubHost":"localhost",
+      "hubPort":4444,
+      "hub":"http://localhost:4444"
+   }
+}

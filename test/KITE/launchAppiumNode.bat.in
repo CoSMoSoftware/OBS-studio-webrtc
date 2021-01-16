@@ -1,0 +1,1 @@
+START /B "" appium --node @CMAKE_CURRENT_BINARY_DIR@/@_app_name@-node.json

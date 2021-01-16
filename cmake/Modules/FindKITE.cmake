@@ -10,9 +10,6 @@
 #   KITE_C_CMD
 #
 # Does not support yet, but should eventually
-#   COMPONENTS
-#   REQUIRED
-#   QUIET
 #   KITE_DIR
 #   VERSIONS
 #
@@ -41,7 +38,7 @@ endif()
 
 # NOTE ALEX: Should check that files exists at least ...
 if( WIN32 )
-  set( KITE_PATH   "${KITE_HOME}scripts\\windows\\path" )
+  set( KITE_PATH   "${KITE_HOME}\\scripts\\windows\\path" )
   set( KITE_R_CMD  "${KITE_PATH}\\r.bat" )
   set( KITE_C_CMD  "${KITE_PATH}\\c.bat" )
 elseif( UNIX AND NOT APPLE )
@@ -56,18 +53,30 @@ endif()
 #-------------------------------------------------------------------------------
 # --- Find Components
 
-find_program( __my_appium NAMES Appium appium )
+find_program( __my_appium
+  NAMES
+    Appium
+    appium
+  )
 if( NOT __my_appium )
   message( STATUS "Appium application was not found." )
 else()
   if( APPLE )
     # if mac, also check for appium-for-mac
     # do we need something for ios ?
-    find_program( __my_os_appium NAMES AppiumForMac )
+    find_program( __my_os_appium
+      NAMES
+        AppiumForMac
+    )
   elseif( LINUX )
     # TODO
   elseif( WIN32 )
-    # TODO
+    find_program( __my_os_appium
+      NAMES
+        WinAppDriver.exe
+      PATHS
+        "C:/Program\ Files\ \(x86\)/Windows\ Application\ Driver"
+      )
   endif()
   if( NOT __my_os_appium )
     set( KITE_Appium_FOUND 0 )
