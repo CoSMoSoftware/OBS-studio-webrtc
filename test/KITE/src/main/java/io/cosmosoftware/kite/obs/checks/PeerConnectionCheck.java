@@ -39,7 +39,7 @@ public class PeerConnectionCheck extends TestStep {
     logger.info("Waiting for stream confirmation");
     for (int wait = 0; wait < DEFAULT_TIMEOUT + ONE_SECOND_INTERVAL * 60;
         wait += ONE_SECOND_INTERVAL) {
-      if (coordinator.isObsCrashed()) {
+      if (coordinator.hasObsCrashed()) {
         this.setOptional(false);
         throw new KiteTestException("OBS has crashed while chrome is waiting for stream",
             Status.FAILED);

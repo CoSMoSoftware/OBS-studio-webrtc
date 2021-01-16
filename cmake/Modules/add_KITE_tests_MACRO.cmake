@@ -1,9 +1,9 @@
-# Copyright 2019 ~ 2020 Alex Gouaillard @ CoSMo Software
+# Copyright 2019 ~ 2021 Alex Gouaillard @ CoSMo Software
 # ----------------------------------------------------------------
 # only tests for desktop clients for now
 # "InstallInBuildTree" target need to exists
 # This needs to be called in a CMakeLists.txt at the root of the
-#   KITE tests dir.
+# KITE tests dir.
 # ----------------------------------------------------------------
 
 # rotate the targets at every call of the macro
@@ -13,9 +13,9 @@ set( _last_target InstallInBuildTree )
 # or the path of the executable on linux or on windows
 macro( add_KITE_tests _app_name_or_exe_path )
 
-  set( APP_EXE "${_app_name}" )
-  # TODO: extract the working directory from the input variable
-  set( APP_WORKING_DIR "" )
+  # should check it exists
+  set( APP_EXE "${_app_name_or_exe_path}" )
+  get_filename_component( APP_WORKING_DIR ${_app_name_or_exe_path} DIRECTORY )
 
   # --- Define OS specific KITE Variables
   if( WIN32 )
@@ -53,11 +53,9 @@ macro( add_KITE_tests _app_name_or_exe_path )
     )
 
   # --- Compile KITE Tests
-  # note alex: this is not the OBS way, TODO
   set( _my_test_file
-    ${CMAKE_CURRENT_SOURCE_DIR}/configs/xxxxxx.config.json )
+    ${CMAKE_CURRENT_SOURCE_DIR}/configs/rtmp.config.json )
   configure_file( ${_my_test_file}.in ${_my_test_file} )
-
   add_test(
     NAME              ${_app_name}-KiteCompile
     COMMAND           ${KITE_C_CMD}
@@ -102,3 +100,4 @@ macro( add_KITE_tests _app_name_or_exe_path )
   set( _last_target ${_app_name}-killAppiumNode ) 
 
 endmacro()
+

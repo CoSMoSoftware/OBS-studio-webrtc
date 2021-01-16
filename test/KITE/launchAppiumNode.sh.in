@@ -1,0 +1,1 @@
+osascript -e "tell application \"Terminal\" to do script \"appium --node @CMAKE_CURRENT_BINARY_DIR@/@app_name@-node.json;exit\" "

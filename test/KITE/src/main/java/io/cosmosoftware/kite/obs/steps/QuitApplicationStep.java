@@ -20,7 +20,7 @@ public class QuitApplicationStep extends TestStep {
 
   @Override
   protected void step() throws KiteTestException {
-    if (!coordinator.isObsCrashed()) {
+    if (!coordinator.hasObsCrashed()) {
       mainPage.quitApplication();
     } else {
       logger.info("OBS crashed, quit step is skipped");
