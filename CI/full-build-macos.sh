@@ -31,11 +31,6 @@
 
 # Halt on errors
 set -eE
-set -x
-
-echo "************************************** env"
-env
-echo "************************************** env"
 
 ## SET UP ENVIRONMENT ##
 PRODUCT_NAME="OBS-Studio"

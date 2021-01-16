@@ -77,10 +77,6 @@ jobs:
     displayName: 'Install QT'
   - script: ./CI/install-dependencies-win.cmd
     displayName: 'Download / Setup Dependencies'
-    env:
-      FTP_PATH_PREFIX: $(webrtc_path_prefix)
-      FTP_LOGIN: $(ftpLudoLogin)
-      FTP_PASSWORD: $(ftpLudoPassword)
   - ${{ each vendor in parameters.vendors }}:
     - script: ./CI/install-script-win.cmd ${{ vendor }}
       displayName: '${{ vendor }} Run CMake'
@@ -104,10 +100,6 @@ jobs:
       git submodule update --init --recursive
       ./CI/install-dependencies-linux.sh
     displayName: 'checkout and dependencies'
-    env:
-      FTP_PATH_PREFIX: $(webrtc_path_prefix)
-      FTP_LOGIN: $(ftpLudoLogin)
-      FTP_PASSWORD: $(ftpLudoPassword)
   - ${{ each vendor in parameters.vendors }}:
     - bash: |
         set -e
