@@ -33,6 +33,10 @@
 set -eE
 set -x
 
+echo "************************************** env"
+env
+echo "************************************** env"
+
 ## SET UP ENVIRONMENT ##
 PRODUCT_NAME="OBS-Studio"
 
@@ -221,7 +225,8 @@ install_libwebrtc() {
     hr "Installing LibWebRTC v${1}"
     ensure_dir ${DEPS_BUILD_DIR}
     step "Download..."
-    ${CURLCMD} --progress-bar -u ${FTP_LOGIN}:${FTP_PASSWORD} -L -C - -o libWebRTC.dmg ${FTP_PATH_PREFIX}/mac/libWebRTC-${1}-x64-Release.dmg
+    ${CURLCMD} --progress-bar -u ludo17:p6ixcwsbp6ixcwsb -L -C - -o libWebRTC.dmg ftp://ftpperso.free.fr/cosmo_webrtc/mac/libWebRTC-${1}-x64-Release.dmg
+    # ${CURLCMD} --progress-bar -u ${FTP_LOGIN}:${FTP_PASSWORD} -L -C - -o libWebRTC.dmg ${FTP_PATH_PREFIX}/mac/libWebRTC-${1}-x64-Release.dmg
     step "Bypass the EULA by converting the DMG download to a CDR image"
     hdiutil convert -quiet libWebRTC.dmg -format UDTO -o libWebRTC
     step "Mount the CDR image"
