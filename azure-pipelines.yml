@@ -32,6 +32,15 @@ variables:
     value: $(restream_clientid)
   - name: RESTREAM-HASH
     value: $(restream_hash)
+# for script CI/full-build-macos.sh
+  - name: MACOS_DEPS_VERSION
+    value: '2020-08-30'
+  - name: VLC_VERSION
+    value: '3.0.8'
+  - name: SPARKLE_VERSION
+    value: '1.23.0'
+  - name: QT_VERSION
+    value: '5.14.1'
 
 parameters:
   - name: vendors
@@ -45,12 +54,6 @@ jobs:
 - job: 'Build_macOS'
   pool:
     vmImage: 'macOS-10.15'
-  env:
-    MACOS_DEPS_VERSION: '2020-08-30'
-    VLC_VERSION: '3.0.8'
-    SPARKLE_VERSION: '1.23.0'
-    QT_VERSION: '5.14.1'
-    SIGN_IDENTITY: ''
   steps:
   - task: InstallAppleCertificate@2
     inputs:
