@@ -274,7 +274,7 @@ configure_obs_build() {
         -DQTDIR="/tmp/obsdeps" \
         -DSWIGDIR="/tmp/obsdeps" \
         -DDepsPath="/tmp/obsdeps" \
-        -DVLCPath="${DEPS_BUILD_DIR}/vlc-${VLC_VERSION:-${CI_VLC_VERSION}}" \
+        -DVLCPath="${DEPS_BUILD_DIR}/vlc-${VLC_VERSION}" \
         -DBUILD_BROWSER=ON \
         -DBROWSER_DEPLOY=ON \
         -DBUILD_CAPTIONS=ON \
