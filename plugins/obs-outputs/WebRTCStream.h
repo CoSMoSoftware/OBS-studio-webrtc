@@ -27,7 +27,7 @@
 #include "api/scoped_refptr.h"
 #include "api/set_remote_description_observer_interface.h"
 #include "modules/audio_processing/include/audio_processing.h"
-#include "rtc_base/critical_section.h"
+#include "rtc_base/synchronization/mutex.h"
 #include "rtc_base/ref_counted_object.h"
 #include "rtc_base/thread.h"
 #include "rtc_base/timestamp_aligner.h"
@@ -176,7 +176,7 @@ private:
 
 	std::thread thread_closeAsync;
 
-	rtc::CriticalSection crit_;
+	webrtc::Mutex crit_;
 
 	// Audio Wrapper
 	rtc::scoped_refptr<AudioDeviceModuleWrapper> adm;
