@@ -68,6 +68,10 @@ jobs:
       displayName: '${{ vendor }} Install dependencies and build'
     - script: TERM="" ./CI/full-build-macos.sh -s -d -b -p -n -v ${{ vendor }}
       displayName: '${{ vendor }} Before Deploy'
+      env:
+        CODESIGN_IDENT: $(ludo_apple_developer_identity)
+        CODESIGN_IDENT_USER: $(ludo_apple_account_id)
+        CODESIGN_IDENT_PASS: $(ludo_apple_developer_password)
     - bash: |
         mkdir -p ./nightly_${{ vendor }}
         find ./build_${{ vendor }} -name \*.dmg -exec cp -PR \{\} ./nightly_${{ vendor }}/ \;
