@@ -32,6 +32,10 @@
 # Halt on errors
 set -eE
 
+set -x
+env
+
+
 ## SET UP ENVIRONMENT ##
 PRODUCT_NAME="OBS-Studio"
 
