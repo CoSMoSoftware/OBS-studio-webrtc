@@ -21,7 +21,7 @@ variables:
   - name: CEF_VERSION
     value: 75.1.16+g16a67c4+chromium-75.0.3770.100
   - name: LIBWEBRTC_VERSION
-    value: 84.0
+    value: 86.0
   - name: OBS_VERSION
     value: 26.0
   - name: TWITCH-CLIENTID
