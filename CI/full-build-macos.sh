@@ -39,20 +39,14 @@ CHECKOUT_DIR="$(git rev-parse --show-toplevel)"
 DEPS_BUILD_DIR="${CHECKOUT_DIR}/../obs-build-dependencies"
 BUILD_DIR="${BUILD_DIR:-build}"
 CI_SCRIPTS="${CHECKOUT_DIR}/CI/scripts/macos"
-CI_WORKFLOW="${CHECKOUT_DIR}/.github/workflows/main.yml"
-CI_CEF_VERSION=$(cat ${CI_WORKFLOW} | sed -En "s/[ ]+CEF_BUILD_VERSION: '([0-9]+)'/\1/p")
-CI_DEPS_VERSION=$(cat ${CI_WORKFLOW} | sed -En "s/[ ]+MACOS_DEPS_VERSION: '([0-9\-]+)'/\1/p")
-CI_VLC_VERSION=$(cat ${CI_WORKFLOW} | sed -En "s/[ ]+VLC_VERSION: '([0-9\.]+)'/\1/p")
-CI_QT_VERSION=$(cat ${CI_WORKFLOW} | sed -En "s/[ ]+QT_VERSION: '([0-9\.]+)'/\1/p" | head -1)
-CI_LIBWEBRTC_VERSION=$(cat ${CI_WORKFLOW} | sed -En "s/[ ]+LIBWEBRTC_VERSION: '([0-9\.]+)'/\1/p" | head -1)
-VENDOR="${VENDOR:-toto}"
+VENDOR="${VENDOR:-vendorNameMissing}"
 
 BUILD_DEPS=(
-    "obs-deps ${MACOS_DEPS_VERSION:-${CI_DEPS_VERSION}}"
-    "qt-deps ${QT_VERSION:-${CI_QT_VERSION}} ${MACOS_DEPS_VERSION:-${CI_DEPS_VERSION}}"
-    "cef ${CEF_BUILD_VERSION:-${CI_CEF_VERSION}}"
-    "vlc ${VLC_VERSION:-${CI_VLC_VERSION}}"
-    "libwebrtc ${LIBWEBRTC_VERSION:-${CI_LIBWEBRTC_VERSION}}"
+    "obs-deps ${MACOS_DEPS_VERSION}"
+    "qt-deps ${QT_VERSION} ${MACOS_DEPS_VERSION}"
+    "cef ${CEF_BUILD_VERSION:-${CEF_VERSION}}"
+    "vlc ${VLC_VERSION}"
+    "libwebrtc ${LIBWEBRTC_VERSION}"
 )
 
 if [ -n "${TERM-}" ]; then

@@ -2,6 +2,18 @@
 
 variables:
   - group: obs-pipeline
+  - name: FTP_PATH_PREFIX
+    value: $(webrtc_path_prefix)
+  - name: FTP_LOGIN
+    value: $(ftpLudoLogin)
+  - name: FTP_PASSWORD
+    value: $(ftpLudoPassword)
+  - name: CODESIGN_IDENT
+    value: $(ludo_apple_developer_identity)
+  - name: CODESIGN_IDENT_USER
+    value: $(ludo_apple_account_id)
+  - name: CODESIGN_IDENT_PASS
+    value: $(ludo_apple_developer_password)
   - name: CMAKE_PREFIX_PATH
     value: /usr/local/opt/qt5/lib/cmake
   - name: CEF_BUILD_VERSION
@@ -20,6 +32,17 @@ variables:
     value: $(restream_clientid)
   - name: RESTREAM-HASH
     value: $(restream_hash)
+# for script CI/full-build-macos.sh
+  - name: MACOS_DEPS_VERSION
+    value: '2020-08-30'
+  - name: VLC_VERSION
+    value: '3.0.8'
+  - name: SPARKLE_VERSION
+    value: '1.23.0'
+  - name: QT_VERSION
+    value: '5.14.1'
+  - name: SIGN_IDENTITY
+    value: ''
 
 parameters:
   - name: vendors
