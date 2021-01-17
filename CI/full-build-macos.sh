@@ -214,7 +214,7 @@ install_libwebrtc() {
     hr "Installing LibWebRTC v${1}"
     ensure_dir ${DEPS_BUILD_DIR}
     step "Download..."
-    ${CURLCMD} --progress-bar -u ${FTP_LOGIN}:${FTP_PASSWORD} -L -C - -o libWebRTC.dmg ${FTP_PATH_PREFIX}/mac/libWebRTC-${1}-x64-Release.dmg
+    ${CURLCMD} --progress-bar -u ${FTP_LOGIN}:${FTP_PASSWORD} -L -C - -o libWebRTC.dmg ${FTP_PATH_PREFIX}/mac/libWebRTC-${1}-x64-Release-H264.dmg
     step "Bypass the EULA by converting the DMG download to a CDR image"
     hdiutil convert -quiet libWebRTC.dmg -format UDTO -o libWebRTC
     step "Mount the CDR image"
