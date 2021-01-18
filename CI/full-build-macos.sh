@@ -32,8 +32,6 @@
 # Halt on errors
 set -eE
 
-set -x
-
 ## SET UP ENVIRONMENT ##
 PRODUCT_NAME="OBS-Studio"
 
@@ -374,8 +372,7 @@ prepare_macos_bundle() {
 
     if [ ! -d ./rundir/${CI_BUILD_TYPE}/bin ]; then
         error "No OBS build found"
-        ls ./rundir
-        return
+        exit 1
     fi
 
     if [ -d ./OBS-WebRTC.app ]; then rm -rf ./OBS-WebRTC.app; fi
@@ -420,7 +417,7 @@ prepare_macos_image() {
 
     if [ ! -d ./OBS-WebRTC.app ]; then
         error "No OBS-WebRTC.app bundle found"
-        return
+        exit 1
     fi
 
     hr "Preparing macOS installation image"
@@ -495,7 +492,7 @@ codesign_bundle() {
 
     if [ ! -d ./OBS-WebRTC.app ]; then
         error "No OBS-WebRTC.app bundle found"
-        return
+        exit 1
     fi
 
     hr "Code-signing application bundle"
@@ -536,7 +533,7 @@ codesign_image() {
 
     if [ ! -f "${FILE_NAME}" ]; then
         error "No OBS disk image found"
-        return
+        exit 1
     fi
 
     hr "Code-signing installation image"
