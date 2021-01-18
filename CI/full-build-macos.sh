@@ -316,7 +316,7 @@ bundle_dylibs() {
     step "Run dylibBundler.."
     ${CI_SCRIPTS}/app/dylibbundler -cd -of -a ./OBS-WebRTC.app -q -f \
         -s ./OBS-WebRTC.app/Contents/MacOS \
-        -s ./rundir/RelWithDebInfo/bin/ \
+        -s ./rundir/${CI_BUILD_TYPE}/bin/ \
         -x ./OBS-WebRTC.app/Contents/PlugIns/coreaudio-encoder.so \
         -x ./OBS-WebRTC.app/Contents/PlugIns/decklink-ouput-ui.so \
         -x ./OBS-WebRTC.app/Contents/PlugIns/frontend-tools.so \
@@ -372,8 +372,9 @@ install_frameworks() {
 prepare_macos_bundle() {
     ensure_dir "${CHECKOUT_DIR}/${BUILD_DIR}_${VENDOR}"
 
-    if [ ! -d ./rundir/RelWithDebInfo/bin ]; then
+    if [ ! -d ./rundir/${CI_BUILD_TYPE}/bin ]; then
         error "No OBS build found"
+        ls ./rundir
         return
     fi
 
@@ -385,12 +386,12 @@ prepare_macos_bundle() {
     mkdir OBS-WebRTC.app/Contents/PlugIns
     mkdir OBS-WebRTC.app/Contents/Resources
 
-    cp rundir/RelWithDebInfo/bin/obs ./OBS-WebRTC.app/Contents/MacOS
-    cp rundir/RelWithDebInfo/bin/obs-ffmpeg-mux ./OBS-WebRTC.app/Contents/MacOS
-    cp rundir/RelWithDebInfo/bin/libobsglad.0.dylib ./OBS-WebRTC.app/Contents/MacOS
-    cp -R rundir/RelWithDebInfo/data ./OBS-WebRTC.app/Contents/Resources
+    cp rundir/${CI_BUILD_TYPE}/bin/obs ./OBS-WebRTC.app/Contents/MacOS
+    cp rundir/${CI_BUILD_TYPE}/bin/obs-ffmpeg-mux ./OBS-WebRTC.app/Contents/MacOS
+    cp rundir/${CI_BUILD_TYPE}/bin/libobsglad.0.dylib ./OBS-WebRTC.app/Contents/MacOS
+    cp -R rundir/${CI_BUILD_TYPE}/data ./OBS-WebRTC.app/Contents/Resources
     cp ${CI_SCRIPTS}/app/obs.icns ./OBS-WebRTC.app/Contents/Resources
-    cp -R rundir/RelWithDebInfo/obs-plugins/ ./OBS-WebRTC.app/Contents/PlugIns
+    cp -R rundir/${CI_BUILD_TYPE}/obs-plugins/ ./OBS-WebRTC.app/Contents/PlugIns
     cp ${CI_SCRIPTS}/app/Info.plist ./OBS-WebRTC.app/Contents
     # Scripting plugins are required to be placed in same directory as binary
     if [ -d ./OBS-WebRTC.app/Contents/Resources/data/obs-scripting ]; then
