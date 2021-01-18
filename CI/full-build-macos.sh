@@ -197,6 +197,7 @@ install_cef() {
     ensure_dir ./build
     step "Run CMAKE..."
     cmake \
+        -DCMAKE_BUILD_TYPE=${CI_BUILD_TYPE} \
         -DCMAKE_CXX_FLAGS="-std=c++11 -stdlib=libc++"\
         -DCMAKE_EXE_LINKER_FLAGS="-std=c++11 -stdlib=libc++"\
         -DCMAKE_OSX_DEPLOYMENT_TARGET=10.11 \
@@ -269,7 +270,8 @@ configure_obs_build() {
     fi
 
     hr "Run CMAKE for OBS..."
-    cmake -DCMAKE_OSX_DEPLOYMENT_TARGET=10.12 \
+    cmake -DCMAKE_BUILD_TYPE=${CI_BUILD_TYPE} \
+        -DCMAKE_OSX_DEPLOYMENT_TARGET=10.12 \
         -DDISABLE_PYTHON=ON  \
         -DQTDIR="/tmp/obsdeps" \
         -DSWIGDIR="/tmp/obsdeps" \

@@ -14,6 +14,8 @@ variables:
     value: $(ludo_apple_account_id)
   - name: CODESIGN_IDENT_PASS
     value: $(ludo_apple_developer_password)
+  - name: BUILD_TYPE
+    value: Release
   - name: CMAKE_PREFIX_PATH
     value: /usr/local/opt/qt5/lib/cmake
   - name: CEF_BUILD_VERSION
@@ -70,6 +72,7 @@ jobs:
         FTP_PATH_PREFIX: $(webrtc_path_prefix)
         FTP_LOGIN: $(ftpLudoLogin)
         FTP_PASSWORD: $(ftpLudoPassword)
+        CI_BUILD_TYPE: $(BUILD_TYPE)
     - script: TERM="" ./CI/full-build-macos.sh -s -d -b -p -n -v ${{ vendor }}
       displayName: '${{ vendor }} Before Deploy'
       env:
@@ -105,7 +108,7 @@ jobs:
     - task: MSBuild@1
       displayName: '${{ vendor }} Build 64-bit'
       inputs:
-        msbuildArguments: '/m /p:Configuration=Release'
+        msbuildArguments: '/m /p:Configuration=$(BUILD_TYPE)'
         solution: .\build64_${{ vendor }}\${{ vendor }}.sln
     - script: ./CI/before-deploy-win.cmd ${{ vendor }}
       displayName: '${{ vendor }} Before deploy'
@@ -141,6 +144,8 @@ jobs:
         mv *.deb ../package_${{ vendor }}
         cd ..
       displayName: '${{ vendor }} cmake, build, package'
+      env:
+        CI_BUILD_TYPE: $(BUILD_TYPE)
     - task: PublishBuildArtifacts@1
       inputs:
         pathtoPublish: './package_${{ vendor }}'
