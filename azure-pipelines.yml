@@ -64,16 +64,13 @@ jobs:
   - script: git submodule update --init --recursive
     displayName: 'Checkout Submodules'
   - ${{ each vendor in parameters.vendors }}:
-    - script: TERM="" ./CI/full-build-macos.sh -v ${{ vendor }}
+    - script: TERM="" ./CI/full-build-macos.sh -b -p -n -v ${{ vendor }}
       displayName: '${{ vendor }} Install dependencies and build'
       env:
+        CI_BUILD_TYPE: $(BUILD_TYPE)
         FTP_PATH_PREFIX: $(webrtc_path_prefix)
         FTP_LOGIN: $(ftpLudoLogin)
         FTP_PASSWORD: $(ftpLudoPassword)
-        CI_BUILD_TYPE: $(BUILD_TYPE)
-    - script: TERM="" ./CI/full-build-macos.sh -s -d -b -p -n -v ${{ vendor }}
-      displayName: '${{ vendor }} Before Deploy'
-      env:
         CODESIGN_IDENT: $(ludo_apple_developer_identity)
         CODESIGN_IDENT_USER: $(ludo_apple_account_id)
         CODESIGN_IDENT_PASS: $(ludo_apple_developer_password)
