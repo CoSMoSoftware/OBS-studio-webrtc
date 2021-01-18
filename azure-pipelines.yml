@@ -43,8 +43,6 @@ variables:
     value: '1.23.0'
   - name: QT_VERSION
     value: '5.14.1'
-  - name: SIGN_IDENTITY
-    value: ''
 
 parameters:
   - name: vendors

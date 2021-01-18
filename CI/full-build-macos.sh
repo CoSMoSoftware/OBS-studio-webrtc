@@ -32,6 +32,8 @@
 # Halt on errors
 set -eE
 
+set -x
+
 ## SET UP ENVIRONMENT ##
 PRODUCT_NAME="OBS-Studio"
 
@@ -197,7 +199,7 @@ install_cef() {
     ensure_dir ./build
     step "Run CMAKE..."
     cmake \
-        -DCMAKE_BUILD_TYPE=${CI_BUILD_TYPE} \
+        -DCMAKE_BUILD_TYPE=Release \
         -DCMAKE_CXX_FLAGS="-std=c++11 -stdlib=libc++"\
         -DCMAKE_EXE_LINKER_FLAGS="-std=c++11 -stdlib=libc++"\
         -DCMAKE_OSX_DEPLOYMENT_TARGET=10.11 \
