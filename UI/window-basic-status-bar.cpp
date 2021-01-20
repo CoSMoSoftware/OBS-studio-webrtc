@@ -16,6 +16,8 @@ OBSBasicStatusBar::OBSBasicStatusBar(QWidget *parent)
 	  recordTime(new QLabel),
 	  recordIcon(new QLabel),
 	  cpuUsage(new QLabel),
+	  // NOTE LUDO: #80 add getStats
+	  getstatsTextBox(new QPlainTextEdit),
 	  transparentPixmap(20, 20),
 	  greenPixmap(20, 20),
 	  grayPixmap(20, 20),
@@ -50,6 +52,10 @@ OBSBasicStatusBar::OBSBasicStatusBar(QWidget *parent)
 
 	kbps = new QLabel(brWidget);
 	brLayout->addWidget(kbps);
+
+	// NOTE LUDO: #80 add getStats
+	getstatsTextBox->setFixedSize(1, 1);
+	brLayout->addWidget(getstatsTextBox);
 
 	brWidget->setLayout(brLayout);
 
@@ -151,6 +157,8 @@ void OBSBasicStatusBar::Deactivate()
 		delayInfo->setText("");
 		droppedFrames->setText("");
 		kbps->setText("");
+		// NOTE LUDO: #80 add getStats
+		getstatsTextBox->setPlainText("");
 
 		delaySecTotal = 0;
 		delaySecStarting = 0;
@@ -187,6 +195,25 @@ void OBSBasicStatusBar::UpdateDelayMsg()
 	}
 
 	delayInfo->setText(msg);
+}
+
+// NOTE LUDO: #80 add getStats
+#define STATS_UPDATE_SECONDS 2
+
+void OBSBasicStatusBar::UpdateStats()
+{
+	if (!streamOutput)
+		return;
+
+	if (++statsUpdateSeconds < STATS_UPDATE_SECONDS)
+		return;
+
+	statsUpdateSeconds = 0;
+
+	obs_output_get_stats(streamOutput);
+	QString msg = "";
+	msg.append(streamOutput ? obs_output_get_stats_list(streamOutput) : "");
+	getstatsTextBox->setPlainText(msg);
 }
 
 #define BITRATE_UPDATE_SECONDS 2
@@ -424,6 +451,9 @@ void OBSBasicStatusBar::ReconnectSuccess()
 void OBSBasicStatusBar::UpdateStatusBar()
 {
 	OBSBasic *main = qobject_cast<OBSBasic *>(parent());
+
+	// NOTE LUDO: #80 add getStats
+	UpdateStats();
 
 	UpdateBandwidth();
 
