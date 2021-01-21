@@ -1266,9 +1266,6 @@
        <property name="text">
         <string>Basic.Main.StartStreaming</string>
        </property>
-       <property name="checkable">
-        <bool>true</bool>
-       </property>
       </widget>
      </item>
      <item>
@@ -1308,9 +1305,6 @@
          <property name="text">
           <string>Basic.Main.StartRecording</string>
          </property>
-         <property name="checkable">
-          <bool>true</bool>
-         </property>
         </widget>
        </item>
       </layout>
@@ -1331,9 +1325,6 @@
        </property>
        <property name="text">
         <string>Basic.TogglePreviewProgramMode</string>
-       </property>
-       <property name="checkable">
-        <bool>true</bool>
        </property>
       </widget>
      </item>
