@@ -1822,7 +1822,6 @@ void WidgetInfo::ListChanged(const char *setting)
 	}
 }
 
-// NOTE LUDO: #172 codecs list of radio buttons
 void WidgetInfo::ButtonGroupChanged(const char *setting)
 {
 	QButtonGroup *buttongroup = reinterpret_cast<QButtonGroup *>(widget);
@@ -2145,8 +2144,6 @@ void WidgetInfo::EditListAddText()
 	QListWidget *list = reinterpret_cast<QListWidget *>(widget);
 	const char *desc = obs_property_description(property);
 
-	// NOTE LUDO: #172 codecs list of radio buttons
-	// EditableItemDialog dialog(widget->window(), QString(), false);
 	EditableItemDialog dialog(((QWidget *)widget)->window(), QString(),
 				  false);
 	auto title = QTStr("Basic.PropertiesWindow.AddEditableListEntry")
@@ -2247,10 +2244,6 @@ void WidgetInfo::EditListEdit()
 		return;
 	}
 
-	// NOTE LUDO: #172 codecs list of radio buttons
-	// EditableItemDialog dialog(widget->window(), item->text(),
-	//			  type != OBS_EDITABLE_LIST_TYPE_STRINGS,
-	//			  filter);
 	EditableItemDialog dialog(((QWidget *)widget)->window(), item->text(),
 				  type != OBS_EDITABLE_LIST_TYPE_STRINGS,
 				  filter);
