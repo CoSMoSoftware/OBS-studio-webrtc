@@ -29,92 +29,119 @@
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout">
      <item>
-      <widget class="QListWidget" name="listWidget">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Minimum" vsizetype="Expanding">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="maximumSize">
-        <size>
-         <width>135</width>
-         <height>16777215</height>
-        </size>
-       </property>
-       <property name="iconSize">
-        <size>
-         <width>32</width>
-         <height>32</height>
-        </size>
-       </property>
-       <property name="currentRow">
-        <number>0</number>
-       </property>
+      <layout class="QVBoxLayout" name="verticalLayout_6">
        <item>
-        <property name="text">
-         <string>Basic.Settings.General</string>
-        </property>
-        <property name="icon">
-         <iconset resource="obs.qrc">
-          <normaloff>:/settings/images/settings/general.svg</normaloff>:/settings/images/settings/general.svg</iconset>
-        </property>
+        <widget class="QPushButton" name="SettingsGeneralButton">
+         <property name="text">
+          <string>Basic.Settings.General</string>
+         </property>
+         <property name="icon">
+          <iconset resource="obs.qrc">
+           <normaloff>:/settings/images/settings/general.svg</normaloff>:/settings/images/settings/general.svg</iconset>
+         </property>
+         <attribute name="buttonGroup">
+          <string notr="true">basicSettingsButtonGroup</string>
+         </attribute>
+        </widget>
        </item>
        <item>
-        <property name="text">
-         <string>Basic.Settings.Stream</string>
-        </property>
-        <property name="icon">
-         <iconset resource="obs.qrc">
-          <normaloff>:/settings/images/settings/stream.svg</normaloff>:/settings/images/settings/stream.svg</iconset>
-        </property>
+        <widget class="QPushButton" name="SettingsStreamButton">
+         <property name="text">
+          <string>Basic.Settings.Stream</string>
+         </property>
+         <property name="icon">
+          <iconset resource="obs.qrc">
+           <normaloff>:/settings/images/settings/stream.svg</normaloff>:/settings/images/settings/stream.svg</iconset>
+         </property>
+         <attribute name="buttonGroup">
+          <string notr="true">basicSettingsButtonGroup</string>
+         </attribute>
+        </widget>
        </item>
        <item>
-        <property name="text">
-         <string>Basic.Settings.Output</string>
-        </property>
-        <property name="icon">
-         <iconset resource="obs.qrc">
-          <normaloff>:/settings/images/settings/output.svg</normaloff>:/settings/images/settings/output.svg</iconset>
-        </property>
+        <widget class="QPushButton" name="SettingsOutputButton">
+         <property name="text">
+          <string>Basic.Settings.Output</string>
+         </property>
+         <property name="icon">
+          <iconset resource="obs.qrc">
+           <normaloff>:/settings/images/settings/output.svg</normaloff>:/settings/images/settings/output.svg</iconset>
+         </property>
+         <attribute name="buttonGroup">
+          <string notr="true">basicSettingsButtonGroup</string>
+         </attribute>
+        </widget>
        </item>
        <item>
-        <property name="text">
-         <string>Basic.Settings.Audio</string>
-        </property>
-        <property name="icon">
-         <iconset resource="obs.qrc">
-          <normaloff>:/settings/images/settings/audio.svg</normaloff>:/settings/images/settings/audio.svg</iconset>
-        </property>
+        <widget class="QPushButton" name="SettingsAudioButton">
+         <property name="text">
+          <string>Basic.Settings.Audio</string>
+         </property>
+         <property name="icon">
+          <iconset resource="obs.qrc">
+           <normaloff>:/settings/images/settings/audio.svg</normaloff>:/settings/images/settings/audio.svg</iconset>
+         </property>
+         <attribute name="buttonGroup">
+          <string notr="true">basicSettingsButtonGroup</string>
+         </attribute>
+        </widget>
        </item>
        <item>
-        <property name="text">
-         <string>Basic.Settings.Video</string>
-        </property>
-        <property name="icon">
-         <iconset resource="obs.qrc">
-          <normaloff>:/settings/images/settings/video.svg</normaloff>:/settings/images/settings/video.svg</iconset>
-        </property>
+        <widget class="QPushButton" name="SettingsVideoButton">
+         <property name="text">
+          <string>Basic.Settings.Video</string>
+         </property>
+         <property name="icon">
+          <iconset resource="obs.qrc">
+           <normaloff>:/settings/images/settings/video.svg</normaloff>:/settings/images/settings/video.svg</iconset>
+         </property>
+         <attribute name="buttonGroup">
+          <string notr="true">basicSettingsButtonGroup</string>
+         </attribute>
+        </widget>
        </item>
        <item>
-        <property name="text">
-         <string>Basic.Settings.Hotkeys</string>
-        </property>
-        <property name="icon">
-         <iconset resource="obs.qrc">
-          <normaloff>:/settings/images/settings/hotkeys.svg</normaloff>:/settings/images/settings/hotkeys.svg</iconset>
-        </property>
+        <widget class="QPushButton" name="SettingsHotkeysButton">
+         <property name="text">
+          <string>Basic.Settings.Hotkeys</string>
+         </property>
+         <property name="icon">
+          <iconset resource="obs.qrc">
+           <normaloff>:/settings/images/settings/hotkeys.svg</normaloff>:/settings/images/settings/hotkeys.svg</iconset>
+         </property>
+         <attribute name="buttonGroup">
+          <string notr="true">basicSettingsButtonGroup</string>
+         </attribute>
+        </widget>
        </item>
        <item>
-        <property name="text">
-         <string>Basic.Settings.Advanced</string>
-        </property>
-        <property name="icon">
-         <iconset resource="obs.qrc">
-          <normaloff>:/settings/images/settings/advanced.svg</normaloff>:/settings/images/settings/advanced.svg</iconset>
-        </property>
+        <widget class="QPushButton" name="SettingsAdvancedButton">
+         <property name="text">
+          <string>Basic.Settings.Advanced</string>
+         </property>
+         <property name="icon">
+          <iconset resource="obs.qrc">
+           <normaloff>:/settings/images/settings/advanced.svg</normaloff>:/settings/images/settings/advanced.svg</iconset>
+         </property>
+         <attribute name="buttonGroup">
+          <string notr="true">basicSettingsButtonGroup</string>
+         </attribute>
+        </widget>
        </item>
-      </widget>
+       <item>
+        <spacer name="verticalSpacer_3">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>40</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+      </layout>
      </item>
      <item>
       <widget class="QStackedWidget" name="settingsPages">
@@ -5525,7 +5552,6 @@
   </customwidget>
  </customwidgets>
  <tabstops>
-  <tabstop>listWidget</tabstop>
   <tabstop>scrollArea_2</tabstop>
   <tabstop>language</tabstop>
   <tabstop>theme</tabstop>
@@ -5720,22 +5746,6 @@
   <include location="obs.qrc"/>
  </resources>
  <connections>
-  <connection>
-   <sender>listWidget</sender>
-   <signal>currentRowChanged(int)</signal>
-   <receiver>settingsPages</receiver>
-   <slot>setCurrentIndex(int)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>75</x>
-     <y>35</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>199</x>
-     <y>50</y>
-    </hint>
-   </hints>
-  </connection>
   <connection>
    <sender>fpsType</sender>
    <signal>currentIndexChanged(int)</signal>
@@ -6168,5 +6178,24 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>basicSettingsButtonGroup</sender>
+   <signal>buttonClicked(int)</signal>
+   <receiver>settingsPages</receiver>
+   <slot>setCurrentIndex(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
+ <buttongroups>
+  <buttongroup name="basicSettingsButtonGroup"/>
+ </buttongroups>
 </ui>
