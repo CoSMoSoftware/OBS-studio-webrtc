@@ -1,5 +1,5 @@
 {
-    "format_version": 2,
+    "format_version": 3,
     "services": [
         {
             "name": "Twitch",
@@ -193,13 +193,37 @@
             "recommended": {
                 "keyint": 2,
                 "max video bitrate": 6000,
-                "max audio bitrate": 160,
+                "max audio bitrate": 320,
                 "x264opts": "scenecut=0"
             }
         },
         {
-            "name": "YouTube / YouTube Gaming",
+            "name": "YouTube - HLS",
+            "common": false,
+            "more_info_link": "https://developers.google.com/youtube/v3/live/guides/ingestion-protocol-comparison",
+            "servers": [
+                {
+                    "name": "Primary YouTube ingest server",
+                    "url": "https://a.upload.youtube.com/http_upload_hls?cid={stream_key}&copy=0&file=out.m3u8"
+                },
+                {
+                    "name": "Backup YouTube ingest server",
+                    "url": "https://b.upload.youtube.com/http_upload_hls?cid={stream_key}&copy=1&file=out.m3u8"
+                }
+            ],
+            "recommended": {
+                "keyint": 2,
+                "output": "ffmpeg_hls_muxer",
+                "max video bitrate": 51000,
+                "max audio bitrate": 160
+            }
+        },
+        {
+            "name": "YouTube - RTMP",
             "common": true,
+            "alt_names": [
+                "YouTube / YouTube Gaming"
+            ],
             "servers": [
                 {
                     "name": "Primary YouTube ingest server",
@@ -214,6 +238,59 @@
                 "keyint": 2,
                 "max video bitrate": 51000,
                 "max audio bitrate": 160
+            }
+        },
+        {
+            "name": "YouTube - RTMPS (Beta)",
+            "common": true,
+            "servers": [
+                {
+                    "name": "Primary YouTube ingest server",
+                    "url": "rtmps://a.rtmps.youtube.com:443/live2"
+                },
+                {
+                    "name": "Backup YouTube ingest server",
+                    "url": "rtmps://b.rtmps.youtube.com:443/live2"
+                }
+            ],
+            "recommended": {
+                "keyint": 2,
+                "max video bitrate": 51000,
+                "max audio bitrate": 160
+            }
+        },
+        {
+            "name": "Loola.tv",
+            "common": false,
+            "servers": [
+                {
+                    "name": "US East: Virginia",
+                    "url": "rtmp://rtmp.loola.tv/push"
+                },
+                {
+                    "name": "EU Central: Germany",
+                    "url": "rtmp://rtmp-eu.loola.tv/push"
+                },
+                {
+                    "name": "South America: Brazil",
+                    "url": "rtmp://rtmp-sa.loola.tv/push"
+                },
+                {
+                    "name": "Asia/Pacific: Singapore",
+                    "url": "rtmp://rtmp-sg.loola.tv/push"
+                },
+                {
+                    "name": "Middle East: Bahrain",
+                    "url": "rtmp://rtmp-me.loola.tv/push"
+                }
+            ],
+            "recommended": {
+                "keyint": 2,
+                "profile": "high",
+                "max video bitrate": 2500,
+                "max audio bitrate": 160,
+                "bframes": 2,
+                "x264opts": "scenecut=0"
             }
         },
         {
@@ -233,61 +310,6 @@
                 "max video bitrate": 8000,
                 "max audio bitrate": 320,
                 "x264opts": "scenecut=0"
-            }
-        },
-        {
-            "name": "Smashcast",
-            "servers": [
-                {
-                    "name": "Default",
-                    "url": "rtmp://live.hitbox.tv/push"
-                },
-                {
-                    "name": "EU-North: Amsterdam, Netherlands",
-                    "url": "rtmp://live.ams.hitbox.tv/push"
-                },
-                {
-                    "name": "EU-West: Paris, France",
-                    "url": "rtmp://live.cdg.hitbox.tv/push"
-                },
-                {
-                    "name": "EU-South: Milan, Italia",
-                    "url": "rtmp://live.mxp.hitbox.tv/push"
-                },
-                {
-                    "name": "Russia: Moscow",
-                    "url": "rtmp://live.dme.hitbox.tv/push"
-                },
-                {
-                    "name": "US-East: New York",
-                    "url": "rtmp://live.jfk.hitbox.tv/push"
-                },
-                {
-                    "name": "US-West: San Francisco",
-                    "url": "rtmp://live.sfo.hitbox.tv/push"
-                },
-                {
-                    "name": "US-West: Los Angeles",
-                    "url": "rtmp://live.lax.hitbox.tv/push"
-                },
-                {
-                    "name": "South America: Sao Paulo, Brazil",
-                    "url": "rtmp://live.gru.hitbox.tv/push"
-                },
-                {
-                    "name": "Asia: Singapore",
-                    "url": "rtmp://live.sin.hitbox.tv/push"
-                },
-                {
-                    "name": "Oceania: Sydney, Australia",
-                    "url": "rtmp://live.syd.hitbox.tv/push"
-                }
-            ],
-            "recommended": {
-                "keyint": 2,
-                "profile": "high",
-                "max video bitrate": 3500,
-                "max audio bitrate": 320
             }
         },
         {
@@ -324,16 +346,10 @@
             "name": "GoodGame.ru",
             "servers": [
                 {
-                    "name": "Primary",
-                    "url": "rtmp://live.mobcrush.net/mob"
+                    "name": "Моscow",
+                    "url": "rtmp://msk.goodgame.ru:1940/live"
                 }
-            ],
-            "recommended": {
-                "keyint": 2,
-                "profile": "main",
-                "max video bitrate": 6000,
-                "max audio bitrate": 160
-            }
+            ]
         },
         {
             "name": "YouStreamer",
@@ -440,6 +456,12 @@
             "recommended": {
                 "keyint": 2,
                 "profile": "main",
+                "supported resolutions": [
+                    "1280x720",
+                    "852x480",
+                    "480x360"
+                ],
+                "max fps": 30,
                 "max video bitrate": 6000,
                 "max audio bitrate": 128
             }
@@ -864,6 +886,43 @@
                 "bframes": 0,
                 "max video bitrate": 6000,
                 "max audio bitrate": 128,
+                "x264opts": "tune=zerolatency"
+            }
+        },
+        {
+            "name": "CamSoda",
+            "servers": [
+                {
+                    "name": "North America",
+                    "url": "rtmp://obs-ingest-na.camsoda.com/cam_obs"
+                },
+                {
+                    "name": "South America",
+                    "url": "rtmp://obs-ingest-sa.camsoda.com/cam_obs"
+                },
+                {
+                    "name": "Asia",
+                    "url": "rtmp://obs-ingest-as.camsoda.com/cam_obs"
+                },
+                {
+                    "name": "Europe",
+                    "url": "rtmp://obs-ingest-eu.camsoda.com/cam_obs"
+                },
+                {
+                    "name": "Oceania",
+                    "url": "rtmp://obs-ingest-oc.camsoda.com/cam_obs"
+                }
+            ],
+            "recommended": {
+                "supported resolutions": [
+                    "1920x1080",
+                    "1280x720",
+                    "852x480",
+                    "480x360"
+                ],
+                "max fps": 30,
+                "max video bitrate": 6000,
+                "max audio bitrate": 160,
                 "x264opts": "tune=zerolatency"
             }
         },
@@ -1415,52 +1474,8 @@
             "common": false,
             "servers": [
                 {
-                    "name": "Chicago, US",
-                    "url": "rtmp://ingest-any-ord1.broadcast.steamcontent.com/app"
-                },
-                {
-                    "name": "Seattle, US",
-                    "url": "rtmp://ingest-any-sea1.broadcast.steamcontent.com/app"
-                },
-                {
-                    "name": "Los Angeles, US",
-                    "url": "rtmp://ingest-any-lax1.broadcast.steamcontent.com/app"
-                },
-                {
-                    "name": "Washington DC, US",
-                    "url": "rtmp://ingest-any-iad1.broadcast.steamcontent.com/app"
-                },
-                {
-                    "name": "Frankfurt, DE",
-                    "url": "rtmp://ingest-any-fra1.broadcast.steamcontent.com/app"
-                },
-                {
-                    "name": "London, UK",
-                    "url": "rtmp://ingest-any-lhr1.broadcast.steamcontent.com/app"
-                },
-                {
-                    "name": "Stockholm, SE",
-                    "url": "rtmp://ingest-any-sto1.broadcast.steamcontent.com/app"
-                },
-                {
-                    "name": "Tokyo, JP",
-                    "url": "rtmp://ingest-any-tyo1.broadcast.steamcontent.com/app"
-                },
-                {
-                    "name": "Hong Kong, HK",
-                    "url": "rtmp://ingest-any-hkg1.broadcast.steamcontent.com/app"
-                },
-                {
-                    "name": "Singapore, SG",
-                    "url": "rtmp://ingest-any-sgp1.broadcast.steamcontent.com/app"
-                },
-                {
-                    "name": "Sydney, AU",
-                    "url": "rtmp://ingest-any-syd1.broadcast.steamcontent.com/app"
-                },
-                {
-                    "name": "São Paulo, BR",
-                    "url": "rtmp://ingest-any-gru1.broadcast.steamcontent.com/app"
+                    "name": "Default",
+                    "url": "rtmp://ingest-rtmp.broadcast.steamcontent.com/app"
                 }
             ],
             "recommended": {
@@ -1780,7 +1795,7 @@
                 "max audio bitrate": 160,
                 "x264opts": "tune=zerolatency"
             }
-	},
+        },
         {
             "name": "Mux",
             "servers": [
@@ -1797,6 +1812,71 @@
                 "keyint": 2,
                 "max video bitrate": 5000,
                 "max audio bitrate": 160
+            }
+        },
+        {
+            "name": "Viloud",
+            "servers": [
+                {
+                    "name": "Default",
+                    "url": "rtmp://live.viloud.tv:5222/app"
+                }
+            ],
+            "recommended": {
+                "keyint": 2,
+                "max video bitrate": 5000,
+                "max audio bitrate": 160
+            }
+        },
+        {
+            "name": "MyFreeCams",
+            "servers": [
+                {
+                    "name": "Automatic",
+                    "url": "rtmp://publish.myfreecams.com/NxServer"
+                },
+                {
+                    "name": "Australia",
+                    "url": "rtmp://publish-syd.myfreecams.com/NxServer"
+                },
+                {
+                    "name": "East Asia",
+                    "url": "rtmp://publish-tyo.myfreecams.com/NxServer"
+                },
+                {
+                    "name": "Europe (East)",
+                    "url": "rtmp://publish-buh.myfreecams.com/NxServer"
+                },
+                {
+                    "name": "Europe (West)",
+                    "url": "rtmp://publish-ams.myfreecams.com/NxServer"
+                },
+                {
+                    "name": "North America (East Coast)",
+                    "url": "rtmp://publish-ord.myfreecams.com/NxServer"
+                },
+                {
+                    "name": "North America (West Coast)",
+                    "url": "rtmp://publish-tuk.myfreecams.com/NxServer"
+                },
+                {
+                    "name": "South America",
+                    "url": "rtmp://publish-sao.myfreecams.com/NxServer"
+                }
+            ],
+            "recommended": {
+                "keyint": 2,
+                "profile": "high",
+                "supported resolutions": [
+                    "1920x1080",
+                    "1280x720",
+                    "960x540",
+                    "640x360"
+                ],
+                "max fps": 60,
+                "max video bitrate": 6000,
+                "max audio bitrate": 192,
+                "x264opts": "tune=zerolatency scenecut=0"
             }
         }
     ]

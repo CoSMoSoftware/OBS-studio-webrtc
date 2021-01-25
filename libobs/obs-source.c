@@ -31,6 +31,8 @@
 #include "obs.h"
 #include "obs-internal.h"
 
+static bool filter_compatible(obs_source_t *source, obs_source_t *filter);
+
 static inline bool data_valid(const struct obs_source *source, const char *f)
 {
 	return obs_source_valid(source, f) && source->context.data;
@@ -182,6 +184,7 @@ static bool obs_source_init(struct obs_source *source)
 	pthread_mutex_init_value(&source->audio_mutex);
 	pthread_mutex_init_value(&source->audio_buf_mutex);
 	pthread_mutex_init_value(&source->audio_cb_mutex);
+	pthread_mutex_init_value(&source->caption_cb_mutex);
 
 	if (pthread_mutexattr_init(&attr) != 0)
 		return false;
@@ -198,6 +201,8 @@ static bool obs_source_init(struct obs_source *source)
 	if (pthread_mutex_init(&source->audio_mutex, NULL) != 0)
 		return false;
 	if (pthread_mutex_init(&source->async_mutex, NULL) != 0)
+		return false;
+	if (pthread_mutex_init(&source->caption_cb_mutex, NULL) != 0)
 		return false;
 
 	if (is_audio_source(source) || is_composite_source(source))
@@ -493,6 +498,32 @@ void obs_source_copy_filters(obs_source_t *dst, obs_source_t *src)
 	duplicate_filters(dst, src, dst->context.private);
 }
 
+static void duplicate_filter(obs_source_t *dst, obs_source_t *filter)
+{
+	if (!filter_compatible(dst, filter))
+		return;
+
+	char *new_name = get_new_filter_name(dst, filter->context.name);
+	bool enabled = obs_source_enabled(filter);
+
+	obs_source_t *dst_filter = obs_source_duplicate(filter, new_name, true);
+	obs_source_set_enabled(dst_filter, enabled);
+
+	bfree(new_name);
+	obs_source_filter_add(dst, dst_filter);
+	obs_source_release(dst_filter);
+}
+
+void obs_source_copy_single_filter(obs_source_t *dst, obs_source_t *filter)
+{
+	if (!obs_source_valid(dst, "obs_source_copy_single_filter"))
+		return;
+	if (!obs_source_valid(filter, "obs_source_copy_single_filter"))
+		return;
+
+	duplicate_filter(dst, filter);
+}
+
 obs_source_t *obs_source_duplicate(obs_source_t *source, const char *new_name,
 				   bool create_private)
 {
@@ -655,6 +686,7 @@ void obs_source_destroy(struct obs_source *source)
 
 	da_free(source->audio_actions);
 	da_free(source->audio_cb_list);
+	da_free(source->caption_cb_list);
 	da_free(source->async_cache);
 	da_free(source->async_frames);
 	da_free(source->filters);
@@ -663,6 +695,7 @@ void obs_source_destroy(struct obs_source *source)
 	pthread_mutex_destroy(&source->audio_buf_mutex);
 	pthread_mutex_destroy(&source->audio_cb_mutex);
 	pthread_mutex_destroy(&source->audio_mutex);
+	pthread_mutex_destroy(&source->caption_cb_mutex);
 	pthread_mutex_destroy(&source->async_mutex);
 	obs_data_release(source->private_settings);
 	obs_context_data_free(&source->context);
@@ -2870,6 +2903,51 @@ void obs_source_set_async_rotation(obs_source_t *source, long rotation)
 		source->async_rotation = rotation;
 }
 
+void obs_source_output_cea708(obs_source_t *source,
+			      const struct obs_source_cea_708 *captions)
+{
+	if (!captions) {
+		return;
+	}
+
+	pthread_mutex_lock(&source->caption_cb_mutex);
+
+	for (size_t i = source->caption_cb_list.num; i > 0; i--) {
+		struct caption_cb_info info =
+			source->caption_cb_list.array[i - 1];
+		info.callback(info.param, source, captions);
+	}
+
+	pthread_mutex_unlock(&source->caption_cb_mutex);
+}
+
+void obs_source_add_caption_callback(obs_source_t *source,
+				     obs_source_caption_t callback, void *param)
+{
+	struct caption_cb_info info = {callback, param};
+
+	if (!obs_source_valid(source, "obs_source_add_caption_callback"))
+		return;
+
+	pthread_mutex_lock(&source->caption_cb_mutex);
+	da_push_back(source->caption_cb_list, &info);
+	pthread_mutex_unlock(&source->caption_cb_mutex);
+}
+
+void obs_source_remove_caption_callback(obs_source_t *source,
+					obs_source_caption_t callback,
+					void *param)
+{
+	struct caption_cb_info info = {callback, param};
+
+	if (!obs_source_valid(source, "obs_source_remove_caption_callback"))
+		return;
+
+	pthread_mutex_lock(&source->caption_cb_mutex);
+	da_erase_item(source->caption_cb_list, &info);
+	pthread_mutex_unlock(&source->caption_cb_mutex);
+}
+
 static inline bool preload_frame_changed(obs_source_t *source,
 					 const struct obs_source_frame *in)
 {
@@ -4454,7 +4532,7 @@ static inline void apply_audio_action(obs_source_t *source,
 static void apply_audio_actions(obs_source_t *source, size_t channels,
 				size_t sample_rate)
 {
-	float *vol_data = malloc(sizeof(float) * AUDIO_OUTPUT_FRAMES);
+	float vol_data[AUDIO_OUTPUT_FRAMES];
 	float cur_vol = get_source_volume(source, source->audio_ts);
 	size_t frame_num = 0;
 
@@ -4495,8 +4573,6 @@ static void apply_audio_actions(obs_source_t *source, size_t channels,
 		if ((source->audio_mixers & (1 << mix)) != 0)
 			multiply_vol_data(source, mix, channels, vol_data);
 	}
-
-	free(vol_data);
 }
 
 static void apply_audio_volume(obs_source_t *source, uint32_t mixers,

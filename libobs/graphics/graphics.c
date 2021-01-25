@@ -2756,6 +2756,26 @@ bool gs_texture_rebind_iosurface(gs_texture_t *texture, void *iosurf)
 	return graphics->exports.gs_texture_rebind_iosurface(texture, iosurf);
 }
 
+bool gs_shared_texture_available(void)
+{
+	if (!gs_valid("gs_shared_texture_available"))
+		return false;
+
+	return thread_graphics->exports.device_shared_texture_available();
+}
+
+gs_texture_t *gs_texture_open_shared(uint32_t handle)
+{
+	graphics_t *graphics = thread_graphics;
+	if (!gs_valid("gs_texture_open_shared"))
+		return NULL;
+
+	if (graphics->exports.device_texture_open_shared)
+		return graphics->exports.device_texture_open_shared(
+			graphics->device, handle);
+	return NULL;
+}
+
 #elif _WIN32
 
 bool gs_gdi_texture_available(void)
@@ -2883,6 +2903,18 @@ uint32_t gs_texture_get_shared_handle(gs_texture_t *tex)
 	if (graphics->exports.device_texture_get_shared_handle)
 		return graphics->exports.device_texture_get_shared_handle(tex);
 	return GS_INVALID_HANDLE;
+}
+
+gs_texture_t *gs_texture_wrap_obj(void *obj)
+{
+	graphics_t *graphics = thread_graphics;
+	if (!gs_valid("gs_texture_wrap_obj"))
+		return NULL;
+
+	if (graphics->exports.device_texture_wrap_obj)
+		return graphics->exports.device_texture_wrap_obj(
+			graphics->device, obj);
+	return NULL;
 }
 
 int gs_texture_acquire_sync(gs_texture_t *tex, uint64_t key, uint32_t ms)

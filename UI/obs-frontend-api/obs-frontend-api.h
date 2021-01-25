@@ -49,6 +49,7 @@ enum obs_frontend_event {
 	OBS_FRONTEND_EVENT_RECORDING_UNPAUSED,
 
 	OBS_FRONTEND_EVENT_TRANSITION_DURATION_CHANGED,
+	OBS_FRONTEND_EVENT_REPLAY_BUFFER_SAVED,
 };
 
 /* ------------------------------------------------------------------------- */

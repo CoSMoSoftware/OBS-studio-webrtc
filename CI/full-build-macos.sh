@@ -185,10 +185,10 @@ install_cef() {
     hr "Building dependency CEF v${1}"
     ensure_dir ${DEPS_BUILD_DIR}
     step "Download..."
-    ${CURLCMD} --progress-bar -L -C - -O https://cef-builds.spotifycdn.com/cef_binary_75.1.14%2Bgc81164e%2Bchromium-75.0.3770.100_macosx64.tar.bz2
+    ${CURLCMD} --progress-bar -L -C - -O https://cef-builds.spotifycdn.com/cef_binary_85.3.13%2Bgcd6cbe0%2Bchromium-85.0.4183.121_macosx64.tar.bz2
     step "Unpack..."
-    tar -xf ./cef_binary_75.1.14%2Bgc81164e%2Bchromium-75.0.3770.100_macosx64.tar.bz2
-    cd ./cef_binary_75.1.14+gc81164e+chromium-75.0.3770.100_macosx64
+    tar -xf ./cef_binary_85.3.13%2Bgcd6cbe0%2Bchromium-85.0.4183.121_macosx64.tar.bz2
+    cd ./cef_binary_85.3.13+gcd6cbe0+chromium-85.0.4283.121_macosx64
     step "Fix tests..."
     # remove a broken test
     sed -i '.orig' '/add_subdirectory(tests\/ceftests)/d' ./CMakeLists.txt

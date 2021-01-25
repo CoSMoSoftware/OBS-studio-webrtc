@@ -20,6 +20,9 @@ if(NOT LIBRNNOISE_FOUND)
 		"rnnoise/src/*.h"
 		"rnnoise/include/*.h")
 	add_definitions(-DCOMPILE_OPUS)
+	if("${CMAKE_SYSTEM_NAME}" MATCHES "Linux")
+		set_property(SOURCE ${rnnoise_SOURCES} PROPERTY COMPILE_FLAGS "-fvisibility=protected")
+	endif()
 	include_directories("rnnoise/include")
 	source_group("rnnoise" FILES ${rnnoise_SOURCES})
 	set(LIBRNNOISE_FOUND TRUE)
@@ -86,5 +89,9 @@ target_link_libraries(obs-filters
 	${obs-filters_PLATFORM_DEPS}
 	${obs-filters_NOISEREDUCTION_LIBRARIES})
 set_target_properties(obs-filters PROPERTIES FOLDER "plugins")
+if(UNIX AND NOT APPLE)
+  # Fix linker error about global variable "CommonState common;" defined in plugins/obs-filters/rnnois/src/denoise.c
+  target_link_options(obs-filters PUBLIC "LINKER:--version-script,${CMAKE_SOURCE_DIR}/plugins/obs-filters/linux_linker_script")
+endif()
 
 install_obs_plugin_with_data(obs-filters data)

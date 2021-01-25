@@ -547,9 +547,8 @@ QSlider::add-page:vertical:disabled {
     border-radius: 2px;
 }
 
-QSlider::add-page:vertical:disabled {
-    background-color: rgb(50, 49, 50); /* dark */
-    border-radius: 2px;
+QSlider::handle:hover {
+    background-color: rgb(200,199,200); /* veryLight */
 }
 
 QSlider::handle:disabled {

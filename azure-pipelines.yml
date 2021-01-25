@@ -36,20 +36,20 @@ variables:
     value: $(restream_hash)
 # for script CI/full-build-macos.sh
   - name: MACOS_DEPS_VERSION
-    value: '2020-08-30'
+    value: '2020-12-22'
   - name: VLC_VERSION
     value: '3.0.8'
   - name: SPARKLE_VERSION
     value: '1.23.0'
   - name: QT_VERSION
-    value: '5.14.1'
+    value: '5.15.2'
 
 parameters:
   - name: vendors
     type: object
     default:
     - Millicast
-    - PacPost
+#    - PacPost
 #    - RemoteFilming
 
 jobs:

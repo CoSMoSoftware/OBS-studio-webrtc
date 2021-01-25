@@ -1,4 +1,5 @@
 #include <obs-module.h>
+
 #include "obs-outputs-config.h"
 
 #ifdef _WIN32

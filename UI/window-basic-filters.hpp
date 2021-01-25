@@ -67,6 +67,7 @@ private:
 
 	void CustomContextMenu(const QPoint &pos, bool async);
 	void EditItem(QListWidgetItem *item, bool async);
+	void DuplicateItem(QListWidgetItem *item);
 
 	void FilterNameEdited(QWidget *editor, QListWidget *list);
 
@@ -77,11 +78,13 @@ private:
 	bool editActive = false;
 
 private slots:
-	void AddFilter(OBSSource filter);
+	void AddFilter(OBSSource filter, bool focus = true);
 	void RemoveFilter(OBSSource filter);
 	void ReorderFilters();
 	void RenameAsyncFilter();
 	void RenameEffectFilter();
+	void DuplicateAsyncFilter();
+	void DuplicateEffectFilter();
 	void ResetFilters();
 
 	void AddFilterFromAction();
@@ -110,6 +113,9 @@ private slots:
 				   QAbstractItemDelegate::EndEditHint endHint);
 	void EffectFilterNameEdited(QWidget *editor,
 				    QAbstractItemDelegate::EndEditHint endHint);
+
+	void CopyFilter();
+	void PasteFilter();
 
 public:
 	OBSBasicFilters(QWidget *parent, OBSSource source_);
