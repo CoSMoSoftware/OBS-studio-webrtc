@@ -188,7 +188,7 @@ install_cef() {
     ${CURLCMD} --progress-bar -L -C - -O https://cef-builds.spotifycdn.com/cef_binary_85.3.13%2Bgcd6cbe0%2Bchromium-85.0.4183.121_macosx64.tar.bz2
     step "Unpack..."
     tar -xf ./cef_binary_85.3.13%2Bgcd6cbe0%2Bchromium-85.0.4183.121_macosx64.tar.bz2
-    cd ./cef_binary_85.3.13+gcd6cbe0+chromium-85.0.4283.121_macosx64
+    cd ./cef_binary_85.3.13+gcd6cbe0+chromium-85.0.4183.121_macosx64
     step "Fix tests..."
     # remove a broken test
     sed -i '.orig' '/add_subdirectory(tests\/ceftests)/d' ./CMakeLists.txt
@@ -272,6 +272,7 @@ configure_obs_build() {
     hr "Run CMAKE for OBS..."
     cmake -DCMAKE_BUILD_TYPE=${CI_BUILD_TYPE} \
         -DCMAKE_OSX_DEPLOYMENT_TARGET=10.12 \
+        -DOBS_VERSION_OVERRIDE=${OBS_VERSION} \
         -DDISABLE_PYTHON=ON  \
         -DQTDIR="/tmp/obsdeps" \
         -DSWIGDIR="/tmp/obsdeps" \
@@ -291,7 +292,6 @@ configure_obs_build() {
         -DLIBOBS_INCLUDE_DIR=../libobs \
         -DLIBOBS_LIB=`pwd`/libobs/libobs.0.dylib \
         -DOBS_FRONTEND_LIB=`pwd`/UI/obs-frontend-api/libobs-frontend-api.dylib
-
 }
 
 run_obs_build() {
