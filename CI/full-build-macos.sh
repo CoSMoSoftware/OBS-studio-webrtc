@@ -21,11 +21,11 @@
 #   -h: Print usage help
 #
 # Environment Variables (optional):
-#   MACOS_DEPS_VERSION  : Pre-compiled macOS dependencies version
-#   CEF_BUILD_VERSION   : Chromium Embedded Framework version
-#   VLC_VERISON         : VLC version
-#   SPARKLE_VERSION     : Sparke Framework version
-#   BUILD_DIR           : Alternative directory to build OBS in
+#   MACOS_DEPS_VERSION      : Pre-compiled macOS dependencies version
+#   MACOS_CEF_BUILD_VERSION : Chromium Embedded Framework version
+#   VLC_VERISON             : VLC version
+#   SPARKLE_VERSION         : Sparke Framework version
+#   BUILD_DIR               : Alternative directory to build OBS in
 #
 ##############################################################################
 
