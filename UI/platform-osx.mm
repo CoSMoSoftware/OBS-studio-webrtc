@@ -21,6 +21,7 @@
 #include <obs-config.h>
 #include "platform.hpp"
 #include "obs-app.hpp"
+#include "ui-config.h"
 
 #include <unistd.h>
 
