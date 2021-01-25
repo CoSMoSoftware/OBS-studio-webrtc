@@ -35,6 +35,8 @@ variables:
   - name: RESTREAM-HASH
     value: $(restream_hash)
 # for script CI/full-build-macos.sh
+  - name: MIN_MACOS_VERSION
+    value: 10.13
   - name: MACOS_DEPS_VERSION
     value: '2020-12-22'
   - name: VLC_VERSION
