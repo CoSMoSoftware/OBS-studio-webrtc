@@ -21,6 +21,7 @@
 #include "obs-app.hpp"
 #include "qt-wrappers.hpp"
 #include "platform.hpp"
+#include "ui-config.h"
 
 #include <util/windows/win-version.h>
 #include <util/platform.h>
