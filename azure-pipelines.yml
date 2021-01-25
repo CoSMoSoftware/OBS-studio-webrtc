@@ -18,7 +18,7 @@ variables:
     value: Release
   - name: CMAKE_PREFIX_PATH
     value: /usr/local/opt/qt5/lib/cmake
-  - name: CEF_BUILD_VERSION
+  - name: LINUX_CEF_BUILD_VERSION
     value: 3770
   - name: CEF_VERSION
     value: 75.1.16+g16a67c4+chromium-75.0.3770.100
@@ -37,6 +37,10 @@ variables:
 # for script CI/full-build-macos.sh
   - name: MIN_MACOS_VERSION
     value: 10.13
+  - name: MACOS_CEF_BUILD_VERSION
+    value: 4183
+  - name: MACOS_CEF_VERSION
+    value: 85.3.13+gcd6cbe0+chromium-85.0.4183.121
   - name: MACOS_DEPS_VERSION
     value: '2020-12-22'
   - name: VLC_VERSION
@@ -69,6 +73,10 @@ jobs:
     - script: TERM="" ./CI/full-build-macos.sh -b -p -n -v ${{ vendor }}
       displayName: '${{ vendor }} Install dependencies and build'
       env:
+        MIN_MACOS_VERSION: $(MIN_MACOS_VERSION)
+        MACOS_CEF_BUILD_VERSION: $(MACOS_CEF_BUILD_VERSION)
+        MACOS_DEPS_VERSION: $(MACOS_DEPS_VERSION)
+        QT_VERSION: $(QT_VERSION)
         CI_BUILD_TYPE: $(BUILD_TYPE)
         FTP_PATH_PREFIX: $(webrtc_path_prefix)
         FTP_LOGIN: $(ftpLudoLogin)

@@ -44,7 +44,7 @@ VENDOR="${VENDOR:-vendorNameMissing}"
 BUILD_DEPS=(
     "obs-deps ${MACOS_DEPS_VERSION}"
     "qt-deps ${QT_VERSION} ${MACOS_DEPS_VERSION}"
-    "cef ${CEF_BUILD_VERSION:-${CEF_VERSION}}"
+    "cef ${MACOS_CEF_BUILD_VERSION:-${MACOS_CEF_VERSION}}"
     "vlc ${VLC_VERSION}"
     "libwebrtc ${LIBWEBRTC_VERSION}"
 )
@@ -188,7 +188,7 @@ install_cef() {
     ${CURLCMD} --progress-bar -L -C - -O https://cef-builds.spotifycdn.com/cef_binary_85.3.13%2Bgcd6cbe0%2Bchromium-85.0.4183.121_macosx64.tar.bz2
     step "Unpack..."
     tar -xf ./cef_binary_85.3.13%2Bgcd6cbe0%2Bchromium-85.0.4183.121_macosx64.tar.bz2
-    cd ./cef_binary_85.3.13+gcd6cbe0+chromium-85.0.4183.121_macosx64
+    cd ./cef_binary_${MACOS_CEF_VERSION}_macosx64
     step "Fix tests..."
     # remove a broken test
     sed -i '.orig' '/add_subdirectory(tests\/ceftests)/d' ./CMakeLists.txt
@@ -282,7 +282,7 @@ configure_obs_build() {
         -DBROWSER_DEPLOY=ON \
         -DBUILD_CAPTIONS=ON \
         -DWITH_RTMPS=ON \
-        -DCEF_ROOT_DIR="${DEPS_BUILD_DIR}/cef_binary_75.1.14+gc81164e+chromium-75.0.3770.100_macosx64" \
+        -DCEF_ROOT_DIR="${DEPS_BUILD_DIR}/cef_binary_${MACOS_CEF_VERSION}_macosx64" \
         -DWEBRTC_ROOT_DIR="${DEPS_BUILD_DIR}/libwebrtc" \
         -DOPENSSL_ROOT_DIR="/usr/local/opt/openssl@1.1" \
         .. \
@@ -363,7 +363,7 @@ install_frameworks() {
 
     hr "Adding Chromium Embedded Framework"
     step "Copy Framework..."
-    sudo cp -R "${DEPS_BUILD_DIR}/cef_binary_75.1.14+gc81164e+chromium-75.0.3770.100_macosx64/Release/Chromium Embedded Framework.framework" ./OBS-WebRTC.app/Contents/Frameworks/
+    sudo cp -R "${DEPS_BUILD_DIR}/cef_binary_${MACOS_CEF_VERSION}_macosx64/Release/Chromium Embedded Framework.framework" ./OBS-WebRTC.app/Contents/Frameworks/
     sudo chown -R $(whoami) ./OBS-WebRTC.app/Contents/Frameworks/
 }
 

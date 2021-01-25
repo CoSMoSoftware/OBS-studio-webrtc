@@ -84,7 +84,7 @@ install_name_tool -change /usr/local/opt/openssl@1.1/lib/libcrypto.1.1.dylib @ex
 # Copy Chromium embedded framework to app Frameworks directory
 hr "Copying Chromium Embedded Framework.framework"
 sudo mkdir -p $APP_NAME.app/Contents/Frameworks
-sudo cp -R ../../cef_binary_${CEF_BUILD_VERSION}_macosx64/Release/Chromium\ Embedded\ Framework.framework $APP_NAME.app/Contents/Frameworks/
+sudo cp -R ../../cef_binary_${MACOS_CEF_BUILD_VERSION}_macosx64/Release/Chromium\ Embedded\ Framework.framework $APP_NAME.app/Contents/Frameworks/
 
 install_name_tool -change /usr/local/opt/qt/lib/QtGui.framework/Versions/5/QtGui @executable_path/../Frameworks/QtGui.framework/Versions/5/QtGui ./$APP_NAME.app/Contents/Plugins/obs-browser.so
 install_name_tool -change /usr/local/opt/qt/lib/QtCore.framework/Versions/5/QtCore @executable_path/../Frameworks/QtCore.framework/Versions/5/QtCore ./$APP_NAME.app/Contents/Plugins/obs-browser.so
