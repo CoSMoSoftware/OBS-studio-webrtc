@@ -193,14 +193,14 @@ install_cef() {
     # remove a broken test
     sed -i '.orig' '/add_subdirectory(tests\/ceftests)/d' ./CMakeLists.txt
     # target 10.11
-    sed -i '.orig' s/\"10.9\"/\"10.11\"/ ./cmake/cef_variables.cmake
+    sed -i '.orig' s/\"10.9\"/\"${MIN_MACOS_VERSION}\"/ ./cmake/cef_variables.cmake
     ensure_dir ./build
     step "Run CMAKE..."
     cmake \
         -DCMAKE_BUILD_TYPE=Release \
-        -DCMAKE_CXX_FLAGS="-std=c++11 -stdlib=libc++"\
+        -DCMAKE_CXX_FLAGS="-std=c++11 -stdlib=libc++ -Wno-deprecated-declarations"\
         -DCMAKE_EXE_LINKER_FLAGS="-std=c++11 -stdlib=libc++"\
-        -DCMAKE_OSX_DEPLOYMENT_TARGET=10.11 \
+        -DCMAKE_OSX_DEPLOYMENT_TARGET=${MIN_MACOS_VERSION} \
         ..
     step "Build..."
     make -j4
@@ -279,7 +279,7 @@ configure_obs_build() {
         -DDepsPath="/tmp/obsdeps" \
         -DVLCPath="${DEPS_BUILD_DIR}/vlc-${VLC_VERSION}" \
         -DBUILD_BROWSER=ON \
-        -DBROWSER_DEPLOY=ON \
+        -DBROWSER_LEGACY=OFF \
         -DBUILD_CAPTIONS=ON \
         -DWITH_RTMPS=ON \
         -DCEF_ROOT_DIR="${DEPS_BUILD_DIR}/cef_binary_${MACOS_CEF_VERSION}_macosx64" \
@@ -339,6 +339,8 @@ bundle_dylibs() {
         -x ./OBS-WebRTC.app/Contents/PlugIns/obs-outputs.so \
         -x ./OBS-WebRTC.app/Contents/PlugIns/obs-ndi.so \
         -x ./OBS-WebRTC.app/Contents/PlugIns/obs-websocket.so
+#        -x ./OBS-WebRTC.app/Contents/PlugIns/obs-browser-page \
+
     step "Move libobs-opengl to final destination"
     cp ./libobs-opengl/libobs-opengl.so ./OBS-WebRTC.app/Contents/Frameworks
 
@@ -381,6 +383,7 @@ prepare_macos_bundle() {
     mkdir -p OBS-WebRTC.app/Contents/MacOS
     mkdir OBS-WebRTC.app/Contents/PlugIns
     mkdir OBS-WebRTC.app/Contents/Resources
+    mkdir OBS-WebRTC.app/Contents/Frameworks
 
     cp rundir/${CI_BUILD_TYPE}/bin/obs ./OBS-WebRTC.app/Contents/MacOS
     cp rundir/${CI_BUILD_TYPE}/bin/obs-ffmpeg-mux ./OBS-WebRTC.app/Contents/MacOS
