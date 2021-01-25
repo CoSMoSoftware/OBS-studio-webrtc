@@ -317,6 +317,7 @@ bundle_dylibs() {
         -s ./rundir/${CI_BUILD_TYPE}/bin/ \
         -x ./OBS-WebRTC.app/Contents/PlugIns/coreaudio-encoder.so \
         -x ./OBS-WebRTC.app/Contents/PlugIns/decklink-ouput-ui.so \
+        -x ./OBS-WebRTC.app/Contents/PlugIns/decklink-captions.so \
         -x ./OBS-WebRTC.app/Contents/PlugIns/frontend-tools.so \
         -x ./OBS-WebRTC.app/Contents/PlugIns/image-source.so \
         -x ./OBS-WebRTC.app/Contents/PlugIns/mac-avcapture.so \
@@ -324,8 +325,8 @@ bundle_dylibs() {
         -x ./OBS-WebRTC.app/Contents/PlugIns/mac-decklink.so \
         -x ./OBS-WebRTC.app/Contents/PlugIns/mac-syphon.so \
         -x ./OBS-WebRTC.app/Contents/PlugIns/mac-vth264.so \
+        -x ./OBS-WebRTC.app/Contents/PlugIns/mac-virtualcam.so \
         -x ./OBS-WebRTC.app/Contents/PlugIns/obs-browser.so \
-        -x ./OBS-WebRTC.app/Contents/PlugIns/obs-browser-page \
         -x ./OBS-WebRTC.app/Contents/PlugIns/obs-ffmpeg.so \
         -x ./OBS-WebRTC.app/Contents/PlugIns/obs-filters.so \
         -x ./OBS-WebRTC.app/Contents/PlugIns/obs-transitions.so \
@@ -335,11 +336,9 @@ bundle_dylibs() {
         -x ./OBS-WebRTC.app/Contents/MacOS/obslua.so \
         -x ./OBS-WebRTC.app/Contents/PlugIns/obs-x264.so \
         -x ./OBS-WebRTC.app/Contents/PlugIns/text-freetype2.so \
-        -x ./OBS-WebRTC.app/Contents/PlugIns/obs-libfdk.so \
         -x ./OBS-WebRTC.app/Contents/PlugIns/obs-outputs.so \
         -x ./OBS-WebRTC.app/Contents/PlugIns/obs-ndi.so \
         -x ./OBS-WebRTC.app/Contents/PlugIns/obs-websocket.so
-#        -x ./OBS-WebRTC.app/Contents/PlugIns/linux-jack.so \
     step "Move libobs-opengl to final destination"
     cp ./libobs-opengl/libobs-opengl.so ./OBS-WebRTC.app/Contents/Frameworks
 
