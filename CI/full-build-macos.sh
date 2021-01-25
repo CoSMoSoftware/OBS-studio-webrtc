@@ -510,14 +510,16 @@ codesign_bundle() {
     step "Code-sign CEF framework..."
     echo -n "${COLOR_ORANGE}"
     codesign --force --timestamp --options runtime --sign "${CODESIGN_IDENT}" "./OBS-WebRTC.app/Contents/Frameworks/Chromium Embedded Framework.framework/Libraries/libEGL.dylib"
-    codesign --force --timestamp --options runtime --sign "${CODESIGN_IDENT}" "./OBS-WebRTC.app/Contents/Frameworks/Chromium Embedded Framework.framework/Libraries/libswiftshader_libEGL.dylib"
     codesign --force --timestamp --options runtime --sign "${CODESIGN_IDENT}" "./OBS-WebRTC.app/Contents/Frameworks/Chromium Embedded Framework.framework/Libraries/libGLESv2.dylib"
+    codesign --force --timestamp --options runtime --sign "${CODESIGN_IDENT}" "./OBS-WebRTC.app/Contents/Frameworks/Chromium Embedded Framework.framework/Libraries/libswiftshader_libEGL.dylib"
     codesign --force --timestamp --options runtime --sign "${CODESIGN_IDENT}" "./OBS-WebRTC.app/Contents/Frameworks/Chromium Embedded Framework.framework/Libraries/libswiftshader_libGLESv2.dylib"
+    codesign --force --timestamp --options runtime --sign "${CODESIGN_IDENT}" "./OBS-WebRTC.app/Contents/Frameworks/Chromium Embedded Framework.framework/Libraries/libvk_swiftshader.dylib"
     codesign --force --timestamp --options runtime --sign "${CODESIGN_IDENT}" --deep "./OBS-WebRTC.app/Contents/Frameworks/Chromium Embedded Framework.framework"
     echo -n "${COLOR_RESET}"
 
     step "Code-sign OBS code..."
     echo -n "${COLOR_ORANGE}"
+    codesign --force --timestamp --options runtime --sign "${CODESIGN_IDENT}" "./OBS-WebRTC.app/Contents/Resources/data/obs-mac-virtualcam.plugin/Contents/MacOS/obs-mac-virtualcam"
     codesign --force --timestamp --options runtime --entitlements "${CI_SCRIPTS}/app/entitlements.plist" --sign "${CODESIGN_IDENT}" --deep ./OBS-WebRTC.app
     echo -n "${COLOR_RESET}"
     step "Check code-sign result..."
