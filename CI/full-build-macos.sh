@@ -339,7 +339,6 @@ bundle_dylibs() {
         -x ./OBS-WebRTC.app/Contents/PlugIns/obs-outputs.so \
         -x ./OBS-WebRTC.app/Contents/PlugIns/obs-ndi.so \
         -x ./OBS-WebRTC.app/Contents/PlugIns/obs-websocket.so
-#        -x ./OBS-WebRTC.app/Contents/PlugIns/obs-browser-page \
 
     step "Move libobs-opengl to final destination"
     cp ./libobs-opengl/libobs-opengl.so ./OBS-WebRTC.app/Contents/Frameworks
@@ -364,8 +363,8 @@ install_frameworks() {
 
     hr "Adding Chromium Embedded Framework"
     step "Copy Framework..."
-    sudo cp -R "${DEPS_BUILD_DIR}/cef_binary_${MACOS_CEF_VERSION}_macosx64/Release/Chromium Embedded Framework.framework" ./OBS-WebRTC.app/Contents/Frameworks/
-    sudo chown -R $(whoami) ./OBS-WebRTC.app/Contents/Frameworks/
+    cp -R "${DEPS_BUILD_DIR}/cef_binary_${MACOS_CEF_VERSION}_macosx64/Release/Chromium Embedded Framework.framework" ./OBS-WebRTC.app/Contents/Frameworks/
+    chown -R $(whoami) ./OBS-WebRTC.app/Contents/Frameworks/
 }
 
 prepare_macos_bundle() {
@@ -388,6 +387,10 @@ prepare_macos_bundle() {
     cp rundir/${CI_BUILD_TYPE}/bin/obs ./OBS-WebRTC.app/Contents/MacOS
     cp rundir/${CI_BUILD_TYPE}/bin/obs-ffmpeg-mux ./OBS-WebRTC.app/Contents/MacOS
     cp rundir/${CI_BUILD_TYPE}/bin/libobsglad.0.dylib ./OBS-WebRTC.app/Contents/MacOS
+    cp -R "rundir/${CI_BUILD_TYPE}/bin/OBS Helper.app" "./OBS-WebRTC.app/Contents/Frameworks/OBS Helper.app"
+    cp -R "rundir/${CI_BUILD_TYPE}/bin/OBS Helper (GPU).app" "./OBS-WebRTC.app/Contents/Frameworks/OBS Helper (GPU).app"
+    cp -R "rundir/${CI_BUILD_TYPE}/bin/OBS Helper (Plugin).app" "./OBS-WebRTC.app/Contents/Frameworks/OBS Helper (Plugin).app"
+    cp -R "rundir/${CI_BUILD_TYPE}/bin/OBS Helper (Renderer).app" "./OBS-WebRTC.app/Contents/Frameworks/OBS Helper (Renderer).app"
     cp -R rundir/${CI_BUILD_TYPE}/data ./OBS-WebRTC.app/Contents/Resources
     cp ${CI_SCRIPTS}/app/obs.icns ./OBS-WebRTC.app/Contents/Resources
     cp -R rundir/${CI_BUILD_TYPE}/obs-plugins/ ./OBS-WebRTC.app/Contents/PlugIns
