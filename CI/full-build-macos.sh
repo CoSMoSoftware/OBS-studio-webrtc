@@ -527,8 +527,8 @@ codesign_bundle() {
     codesign --force --timestamp --options runtime --sign "${CODESIGN_IDENT}" "./OBS-WebRTC.app/Contents/Resources/data/obs-mac-virtualcam.plugin/Contents/MacOS/obs-mac-virtualcam"
     codesign --force --timestamp --options runtime --entitlements "${CI_SCRIPTS}/app/entitlements.plist" --sign "${CODESIGN_IDENT}" --deep ./OBS-WebRTC.app
     codesign --force --timestamp --options runtime --sign "${CODESIGN_IDENT}" --deep "./OBS-WebRTC.app/Contents/Frameworks/OBS Helper.app"
-    codesign --force --timestamp --options runtime --entitlements "${CI_SCRIPTS}/helpers/helper-gpu-entitlements.plist" --sign "${CODESIGN_IDENT}" --deep "./OBS.app/Contents/Frameworks/OBS Helper (GPU).app"
-    codesign --force --timestamp --options runtime --entitlements "${CI_SCRIPTS}/helpers/helper-plugin-entitlements.plist" --sign "${CODESIGN_IDENT}" --deep "./OBS.app/Contents/Frameworks/OBS Helper (Plugin).app"
+    codesign --force --timestamp --options runtime --entitlements "${CI_SCRIPTS}/helpers/helper-gpu-entitlements.plist" --sign "${CODESIGN_IDENT}" --deep "./OBS-WebRTC.app/Contents/Frameworks/OBS Helper (GPU).app"
+    codesign --force --timestamp --options runtime --entitlements "${CI_SCRIPTS}/helpers/helper-plugin-entitlements.plist" --sign "${CODESIGN_IDENT}" --deep "./OBS-WebRTC.app/Contents/Frameworks/OBS Helper (Plugin).app"
     echo -n "${COLOR_RESET}"
     step "Check code-sign result..."
     codesign -dvv ./OBS-WebRTC.app
