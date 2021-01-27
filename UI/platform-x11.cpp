@@ -74,7 +74,7 @@ void RunningInstanceCheck(bool &already_running)
 	free(abstactSockName);
 
 	int bindErr = ::bind(uniq, (struct sockaddr *)&bindInfo,
-			   sizeof(struct sockaddr_un));
+			     sizeof(struct sockaddr_un));
 	already_running = bindErr == 0 ? 0 : 1;
 
 	if (already_running) {
