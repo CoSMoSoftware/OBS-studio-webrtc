@@ -1579,7 +1579,8 @@ void OBSBasic::AddVCamButton()
 {
 	vcamButton = new ReplayBufferButton(QTStr("Basic.Main.StartVirtualCam"),
 					    this);
-	vcamButton->setCheckable(true);
+	// #289: virtual camera button: replaced checkbox by plain button
+	// vcamButton->setCheckable(true);
 	connect(vcamButton.data(), &QPushButton::clicked, this,
 		&OBSBasic::VCamButtonClicked);
 
@@ -1607,7 +1608,8 @@ void OBSBasic::ResetOutputs()
 		if (outputHandler->replayBuffer) {
 			replayBufferButton = new ReplayBufferButton(
 				QTStr("Basic.Main.StartReplayBuffer"), this);
-			replayBufferButton->setCheckable(true);
+			// #289: virtual camera button: replaced checkbox by plain button
+			// replayBufferButton->setCheckable(true);
 			connect(replayBufferButton.data(),
 				&QPushButton::clicked, this,
 				&OBSBasic::ReplayBufferClicked);
