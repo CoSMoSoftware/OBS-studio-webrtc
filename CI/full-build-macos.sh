@@ -192,8 +192,7 @@ install_cef() {
     step "Fix tests..."
     # remove a broken test
     sed -i '.orig' '/add_subdirectory(tests\/ceftests)/d' ./CMakeLists.txt
-    # target 10.11
-    sed -i '.orig' s/\"10.9\"/\"${MIN_MACOS_VERSION}\"/ ./cmake/cef_variables.cmake
+    sed -i '.orig' s/\"10.10\"/\"${MIN_MACOS_VERSION}\"/ ./cmake/cef_variables.cmake
     ensure_dir ./build
     step "Run CMAKE..."
     cmake \
@@ -527,6 +526,9 @@ codesign_bundle() {
     echo -n "${COLOR_ORANGE}"
     codesign --force --timestamp --options runtime --sign "${CODESIGN_IDENT}" "./OBS-WebRTC.app/Contents/Resources/data/obs-mac-virtualcam.plugin/Contents/MacOS/obs-mac-virtualcam"
     codesign --force --timestamp --options runtime --entitlements "${CI_SCRIPTS}/app/entitlements.plist" --sign "${CODESIGN_IDENT}" --deep ./OBS-WebRTC.app
+    codesign --force --timestamp --options runtime --sign "${CODESIGN_IDENT}" --deep "./OBS-WebRTC.app/Contents/Frameworks/OBS Helper.app"
+    codesign --force --timestamp --options runtime --entitlements "${CI_SCRIPTS}/helpers/helper-gpu-entitlements.plist" --sign "${CODESIGN_IDENT}" --deep "./OBS.app/Contents/Frameworks/OBS Helper (GPU).app"
+    codesign --force --timestamp --options runtime --entitlements "${CI_SCRIPTS}/helpers/helper-plugin-entitlements.plist" --sign "${CODESIGN_IDENT}" --deep "./OBS.app/Contents/Frameworks/OBS Helper (Plugin).app"
     echo -n "${COLOR_RESET}"
     step "Check code-sign result..."
     codesign -dvv ./OBS-WebRTC.app
