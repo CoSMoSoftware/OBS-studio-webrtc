@@ -114,6 +114,16 @@ install_homebrew_deps() {
         exit 1
     fi
 
+    if [ -d /usr/local/opt/openssl@1.0.2t ]; then
+        brew uninstall openssl@1.0.2t
+        brew untap local/openssl
+    fi
+
+    if [ -d /usr/local/opt/python@2.7.17 ]; then
+        brew uninstall python@2.7.17
+        brew untap local/python2
+    fi
+
     brew update
     brew bundle --file ${CI_SCRIPTS}/Brewfile
 
@@ -185,10 +195,13 @@ install_cef() {
     hr "Building dependency CEF v${1}"
     ensure_dir ${DEPS_BUILD_DIR}
     step "Download..."
-    ${CURLCMD} --progress-bar -L -C - -O https://cef-builds.spotifycdn.com/cef_binary_85.3.13%2Bgcd6cbe0%2Bchromium-85.0.4183.121_macosx64.tar.bz2
+    # ${CURLCMD} --progress-bar -L -C - -O https://cef-builds.spotifycdn.com/cef_binary_85.3.13%2Bgcd6cbe0%2Bchromium-85.0.4183.121_macosx64.tar.bz2
+    ${CURLCMD} --progress-bar -L -C - -O https://cdn-fastly.obsproject.com/downloads/cef_binary_${1}_macosx64.tar.bz2
     step "Unpack..."
-    tar -xf ./cef_binary_85.3.13%2Bgcd6cbe0%2Bchromium-85.0.4183.121_macosx64.tar.bz2
-    cd ./cef_binary_${MACOS_CEF_VERSION}_macosx64
+    # tar -xf ./cef_binary_85.3.13%2Bgcd6cbe0%2Bchromium-85.0.4183.121_macosx64.tar.bz2
+    # cd ./cef_binary_${MACOS_CEF_VERSION}_macosx64
+    tar -xf ./cef_binary_${1}_macosx64.tar.bz2
+    cd ./cef_binary_${1}_macosx64
     step "Fix tests..."
     # remove a broken test
     sed -i '.orig' '/add_subdirectory(tests\/ceftests)/d' ./CMakeLists.txt
@@ -279,9 +292,8 @@ configure_obs_build() {
         -DVLCPath="${DEPS_BUILD_DIR}/vlc-${VLC_VERSION}" \
         -DBUILD_BROWSER=ON \
         -DBROWSER_LEGACY=OFF \
-        -DBUILD_CAPTIONS=ON \
         -DWITH_RTMPS=ON \
-        -DCEF_ROOT_DIR="${DEPS_BUILD_DIR}/cef_binary_${MACOS_CEF_VERSION}_macosx64" \
+        -DCEF_ROOT_DIR="${DEPS_BUILD_DIR}/cef_binary_${MACOS_CEF_BUILD_VERSION}_macosx64" \
         -DWEBRTC_ROOT_DIR="${DEPS_BUILD_DIR}/libwebrtc" \
         -DOPENSSL_ROOT_DIR="/usr/local/opt/openssl@1.1" \
         .. \
@@ -291,6 +303,8 @@ configure_obs_build() {
         -DLIBOBS_INCLUDE_DIR=../libobs \
         -DLIBOBS_LIB=`pwd`/libobs/libobs.0.dylib \
         -DOBS_FRONTEND_LIB=`pwd`/UI/obs-frontend-api/libobs-frontend-api.dylib
+
+        # -DCEF_ROOT_DIR="${DEPS_BUILD_DIR}/cef_binary_${MACOS_CEF_VERSION}_macosx64" \
 }
 
 run_obs_build() {
@@ -362,7 +376,8 @@ install_frameworks() {
 
     hr "Adding Chromium Embedded Framework"
     step "Copy Framework..."
-    cp -R "${DEPS_BUILD_DIR}/cef_binary_${MACOS_CEF_VERSION}_macosx64/Release/Chromium Embedded Framework.framework" ./OBS-WebRTC.app/Contents/Frameworks/
+    # cp -R "${DEPS_BUILD_DIR}/cef_binary_${MACOS_CEF_VERSION}_macosx64/Release/Chromium Embedded Framework.framework" ./OBS-WebRTC.app/Contents/Frameworks/
+    cp -R "${DEPS_BUILD_DIR}/cef_binary_${MACOS_CEF_BUILD_VERSION}_macosx64/Release/Chromium Embedded Framework.framework" ./OBS-WebRTC.app/Contents/Frameworks/
     chown -R $(whoami) ./OBS-WebRTC.app/Contents/Frameworks/
 }
 
