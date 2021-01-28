@@ -406,7 +406,7 @@ prepare_macos_bundle() {
     cp -R "rundir/${CI_BUILD_TYPE}/bin/OBS Helper (Plugin).app" "./OBS-WebRTC.app/Contents/Frameworks/OBS Helper (Plugin).app"
     cp -R "rundir/${CI_BUILD_TYPE}/bin/OBS Helper (Renderer).app" "./OBS-WebRTC.app/Contents/Frameworks/OBS Helper (Renderer).app"
     cp -R rundir/${CI_BUILD_TYPE}/data ./OBS-WebRTC.app/Contents/Resources
-    cp ${CI_SCRIPTS}/app/obs.icns ./OBS-WebRTC.app/Contents/Resources
+    cp ${CI_SCRIPTS}/app/AppIcon.icns ./OBS.app/Contents/Resources
     cp -R rundir/${CI_BUILD_TYPE}/obs-plugins/ ./OBS-WebRTC.app/Contents/PlugIns
     cp ${CI_SCRIPTS}/app/Info.plist ./OBS-WebRTC.app/Contents
     # Scripting plugins are required to be placed in same directory as binary
