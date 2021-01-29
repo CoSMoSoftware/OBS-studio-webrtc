@@ -31,16 +31,9 @@ if(NOT DEFINED CONFIG_DIR OR "${CONFIG_DIR}" STREQUAL "")
 	endif()
 endif()
 
-set_property(GLOBAL PROPERTY USE_FOLDERS ON)
+option(DEBUG_FFMPEG_MUX "Debug FFmpeg muxer subprocess" FALSE)
 
-# --- Handle Project Dependencies
-#
-# supposes that the super build, or the user uses QTDIR (CLI or ENV), QTDIR32 and or QTDIR64 (ENV only)
-# and not the more standard Qt5_DIR variable. Brittle.
-#
-# supposes that the DepsPath variable exists and point to the obs precompile dependencies.
-# Could be improved thourgh a superbuild script to make it fully deterministic.
-#
+set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
 if(WIN32)
 	cmake_minimum_required(VERSION 3.16)
