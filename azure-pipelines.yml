@@ -101,6 +101,10 @@ jobs:
     displayName: 'Checkout Submodules'
   - script: ./CI/install-qt-win.cmd
     displayName: 'Install QT'
+    env:
+      FTP_PATH_PREFIX: $(webrtc_path_prefix)
+      FTP_LOGIN: $(ftpLudoLogin)
+      FTP_PASSWORD: $(ftpLudoPassword)
   - script: ./CI/install-dependencies-win.cmd
     displayName: 'Download / Setup Dependencies'
     env:
