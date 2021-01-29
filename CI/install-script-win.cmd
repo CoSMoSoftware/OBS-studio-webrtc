@@ -1,6 +1,6 @@
 set DepsPath64=%CD%\dependencies2019\win64
 set VLCPath=%CD%\vlc
-set QTDIR64=C:\QtDep\5.15.2\msvc2019_64
+set QTDIR64=C:\QtDep\Qt\5.15.2\msvc2019_64
 set CEF_64=%CD%\CEF_64\cef_binary_%CEF_VERSION%_windows64_minimal
 set libwebrtcPath=%CD%\libwebrtc\cmake
 set opensslPath=%CD%\openssl-1.1\x64
