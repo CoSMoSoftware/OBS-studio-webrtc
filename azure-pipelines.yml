@@ -25,7 +25,7 @@ variables:
   - name: LIBWEBRTC_VERSION
     value: 88.0
   - name: OBS_VERSION
-    value: 26.1.2
+    value: 26.1.2-m88
   - name: TWITCH-CLIENTID
     value: $(twitch_clientid)
   - name: TWITCH-HASH
