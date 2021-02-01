@@ -72,11 +72,14 @@ if(NOT Qt5Widgets_FOUND)
 endif()
 
 # #271 do not list video codec H264 if it is not available in libwebrtc
-find_package(LibWebRTC 84 QUIET COMPONENTS H264 )
+# WARNING: find_package(LibWebRTC) may modify the value of CMAKE_CXX_STANDARD
+set( _remember_cmake_cxx_standard ${CMAKE_CXX_STANDARD} )
+find_package(LibWebRTC 88 QUIET COMPONENTS H264 )
 if( NOT libwebrtc_FOUND )
   # A FindLibWebRTC package is also provided in the repository for self-compiled libwebrtc
   find_package(LibWebRTC REQUIRED)
 endif()
+set( CMAKE_CXX_STANDARD ${_remember_cmake_cxx_standard} )
 if( NOT WEBRTC_H264_FOUND )
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DDISABLE_WEBRTC_H264")
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DDISABLE_WEBRTC_H264")

@@ -102,7 +102,7 @@ endif()
 
 message( STATUS "Looking for libwebrtc" )
 # CoSMo libwebrtc package has versioning and COMPONENTS
-find_package(LibWebRTC 84 QUIET COMPONENTS H264 )
+find_package(LibWebRTC 88 QUIET COMPONENTS H264 )
   if( NOT libwebrtc_FOUND )
     # A FindLibWebRTC package is also provided in the repository for self-compiled libwebrtc
     find_package(LibWebRTC REQUIRED)
