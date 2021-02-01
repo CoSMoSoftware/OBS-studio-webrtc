@@ -19,11 +19,11 @@
       <plugin>
         <artifactId>maven-compiler-plugin</artifactId>
         <configuration>
-          <source>${kite.java.version}</source>
-          <target>${kite.java.version}</target>
+          <source>1.8</source>
+          <target>1.8</target>
         </configuration>
         <groupId>org.apache.maven.plugins</groupId>
-        <version>${kite.test.mvn.compiler.version}</version>
+        <version>3.6.1</version>
       </plugin>
     </plugins>
   </build>
@@ -31,13 +31,13 @@
   <dependencies>
     <dependency>
       <artifactId>kite-extras</artifactId>
-      <groupId>${kite.extras.repo}</groupId>
-      <version>${kite.extras.version}</version>
+      <groupId>com.github.CoSMoSoftware</groupId>
+      <version>0.1.79</version>
     </dependency>
     <dependency>
       <groupId>org.webrtc.kite</groupId>
       <artifactId>kite-framework</artifactId>
-      <version>${kite.framework.version}</version>
+      <version>1.0.15</version>
     </dependency>
   </dependencies>
 

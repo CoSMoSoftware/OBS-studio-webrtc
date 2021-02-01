@@ -4,28 +4,28 @@ import java.util.HashMap;
 
 public class SettingPageElements extends PageElements {
 
-  // MAC ------------------------------------------------------------------------------------------------
-  String generalSettingMAC = "/AXApplication/AXWindow[0/AXList/AXStaticText[0]";
+
   // WINDOWS ------------------------------------------------------------------------------------------------
-  private String generalSettingWIN = "/Window/Window[1]/List/ListItem[1]"; //
-  private String streamSettingWIN = "/Window/Window[1]/List/ListItem[2]";//
-  private String outputSettingWIN = "/Window/Window[1]/List/ListItem[3]";//
-  private String audioSettingWIN = "/Window/Window[1]/List/ListItem[4]";//
-  private String videoSettingWIN = "/Window/Window[1]/List/ListItem[5]";//
-  private String hotkeysSettingWIN = "/Window/Window[1]/List/ListItem[6]";//
-  private String advancedSettingWIN = "/Window/Window[1]/List/ListItem[7]";//
+  private String generalSettingWIN = "/Window/Window[1]/Button[1]"; //
+  private String streamSettingWIN = "/Window/Window[1]/Button[2]";//
+  private String outputSettingWIN = "/Window/Window[1]/Button[3]";//
+  private String audioSettingWIN = "/Window/Window[1]/Button[4]";//
+  private String videoSettingWIN = "/Window/Window[1]/Button[5]";//
+  private String hotkeysSettingWIN = "/Window/Window[1]/Button[6]";//
+  private String advancedSettingWIN = "/Window/Window[1]/Button[7]";//
 
   private String OKBtnWIN = "/Window/Window[1]/Group/Button[1]"; //
   private String cancelBtnWIN = "/Window/Window[1]/Group/Button[2]";//
   private String applyBtnWIN = "/Window/Window[1]/Group/Button[3]";//
 
-
-  private String streamSettingMAC = "/AXApplication/AXWindow[0/AXList/AXStaticText[1]";
-  private String outputSettingMAC = "/AXApplication/AXWindow[0/AXList/AXStaticText[2]";
-  private String audioSettingMAC = "/AXApplication/AXWindow[0/AXList/AXStaticText[3]";
-  private String videoSettingMAC = "/AXApplication/AXWindow[0/AXList/AXStaticText[4]";
-  private String hotkeysSettingMAC = "/AXApplication/AXWindow[0/AXList/AXStaticText[5]";
-  private String advancedSettingMAC = "/AXApplication/AXWindow[0/AXList/AXStaticText[6]";
+  // MAC ------------------------------------------------------------------------------------------------
+  private String generalSettingMAC = "/AXApplication/AXWindow[0]/AXButton[0]"; //
+  private String streamSettingMAC = "/AXApplication/AXWindow[0]/AXButton[1]";
+  private String outputSettingMAC = "/AXApplication/AXWindow[0]/AXButton[2]";
+  private String audioSettingMAC = "/AXApplication/AXWindow[0]/AXButton[3]";
+  private String videoSettingMAC = "/AXApplication/AXWindow[0]/AXButton[4]";
+  private String hotkeysSettingMAC = "/AXApplication/AXWindow[0]/AXButton[5]";
+  private String advancedSettingMAC = "/AXApplication/AXWindow[0]/AXButton[6]";
 
 
   private String OKBtnMAC = "/AXApplication/AXWindow[0]/AXGroup[1]/AXButton[0]"; //

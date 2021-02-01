@@ -7,10 +7,10 @@ import io.cosmosoftware.kite.obs.pages.elements.PageElements;
 public class VideoSettingPage extends SettingPage {
 
   // WINDOWS ------------------------------------------------------------------------------------------------
-  private static String baseResolutionWIN = "/Window/Window[1]/Custom/Group/ComboBox[1]";
-  private static String outputResolutionWIN = "/Window/Window[1]/Custom/Group/ComboBox[2]";
-  private static String downscaledFilterWIN = "/Window/Window[1]/Custom/Group/ComboBox[3]";
-  private static String FpsWIN = "/Window/Window[1]/Custom/Group/Custom/Group/ComboBox";
+  private static String baseResolutionWIN = "/Window/Window[1]/Pane/Custom/ComboBox[1]";
+  private static String outputResolutionWIN = "/Window/Window[1]/Pane/Custom/ComboBox[4]";
+  private static String downscaledFilterWIN = "/Window/Window[1]/Pane/Custom/Group/ComboBox[2]";
+  private static String FpsWIN = "/Window/Window[1]/Pane/Custom/Pane/Custom/ComboBox";
 
   // MAC ------------------------------------------------------------------------------------------------
   private static String baseResolutionMAC = "/AXApplication/AXWindow[0]/AXGroup[0]/AXPopUpButton[0]";

@@ -13,30 +13,29 @@ import org.openqa.selenium.WebElement;
 public class StreamSettingPage extends SettingPage {
 
   // WINDOWS ------------------------------------------------------------------------------------------------
-  private static String streamTypeOptionWIN = "/Window/Window[1]/Custom/Group/Group/ComboBox";//
-  private static String streamTypeOptionItemWIN = "/Window/Window[1]/Custom/Group/Group/ComboBox/List/ListItem";//
+  private static String streamTypeOptionWIN = "/Window/Window[1]/Pane/Custom/Custom/ComboBox";//
+  private static String streamTypeOptionItemWIN = "/Window/Window[1]/Pane/Custom/Custom/ComboBox/List/ListItem";//
 
-  private static String rtmpServerNameTextFieldWIN = "/Window/Window[1]/Custom/Group/Custom/Group/Custom/Group/Edit";//
-  private static String rtmpStreamKeyTextFieldWIN = "/Window/Window[1]/Custom/Group/Custom/Group/Group/Edit";//
+  private static String rtmpServerNameTextFieldWIN = "/Window/Window[1]/Pane/Custom/Pane/Custom/Pane/Custom/Edit";//
+  private static String rtmpStreamKeyTextFieldWIN = "/Window/Window[1]/Pane/Custom/Pane/Custom/Custom/Edit";
+  private static String streamNameTextEditWIN = "/Window/Window[1]/Pane/Custom/Pane/Custom/Edit";
+  private static String publishingTokenTextEditWIN = "/Window/Window[1]/Pane/Custom/Pane/Custom/Custom/Edit"; //
 
-  private static String streamNameTextEditWIN = "/Window/Window[1]/Custom/Group/Custom/Group/Edit[1]"; //
-  private static String publishingTokenTextEditWIN = "/Window/Window[1]/Custom/Group/Custom/Group/Group/Edit[1]"; //
-
-  private static String codecWIN = "/Window/Window[1]/Custom/Group/Custom/Group/ComboBox"; //
-  private static String codecListItemWIN = "/Window/Window[1]/Custom/Group/Custom/Group/ComboBox/List/ListItem";//
+  private static String codecWIN = "/Window/Window[1]/Pane/Custom/Pane/Custom/Group/Custom"; //
+  private static String codecListItemWIN = "/Window/Window[1]/Pane/Custom/Pane/Custom/Group/Custom/RadioButton";//
 
   // MAC ------------------------------------------------------------------------------------------------
-  private static String streamTypeOptionMAC = "/AXApplication/AXWindow[0]/AXGroup[0]/AXRadioButton";
-  private static String streamTypeOptionItemMAC = "/Window/Window[1]/Pane/Custom/Custom/ComboBox/List/ListItem";
+  private static String streamTypeOptionMAC = "/AXApplication/AXWindow[0]/AXGroup[0]/AXComboBox";
+  private static String streamTypeOptionItemMAC = "/AXApplication/AXWindow[0]/AXList[0]/AXStaticText";
 
-  private static String rtmpServerNameTextFieldMAC = "/AXApplication/AXWindow[0]/AXGroup/AXGroup/AXGroup/AXTextField";
-  private static String rtmpStreamKeyTextFieldMAC = "/AXApplication/AXWindow[0]/AXGroup/AXGroup/AXTextField";
+  private static String rtmpServerNameTextFieldMAC = "/AXApplication/AXWindow[0]/AXGroup[0]/AXGroup[1]/AXTextField[0]";
+  private static String rtmpStreamKeyTextFieldMAC = "/AXApplication/AXWindow[0]/AXGroup[0]/AXGroup[1]/AXTextField[1]";
 
-  private static String streamNameTextEditMAC = "/AXApplication/AXWindow[0]/AXGroup/AXGroup/AXTextField[0]";
-  private static String publishingTokenTextEditMAC = "/AXApplication/AXWindow[0]/AXGroup/AXGroup/AXTextField[1]";
+  private static String streamNameTextEditMAC = "/AXApplication/AXWindow[0]/AXGroup[0]/AXGroup[1]/AXTextField[0]";
+  private static String publishingTokenTextEditMAC = "/AXApplication/AXWindow[0]/AXGroup[0]/AXGroup[1]/AXTextField[1]";
 
-  private static String codecMAC = "/AXApplication/AXWindow[0]/AXGroup[0]/AXGroup[0]/AXGroup[0]/AXRadioButton";
-  private static String codecListItemMAC = "/Window/Window[1]/Pane/Custom/Pane/Custom/ComboBox/List/ListItem";
+  private static String codecMAC = "/AXApplication/AXWindow[0]/AXGroup[0]/AXGroup[1]/AXGroup[0]";
+  private static String codecListItemMAC = "/AXApplication/AXWindow[0]/AXGroup[0]/AXGroup[1]/AXGroup[0]/AXRadioButton";
 
   public StreamSettingPage(Runner runner) {
     super(runner);
@@ -82,15 +81,15 @@ public class StreamSettingPage extends SettingPage {
 
   public void pickCodec(String codec) throws KiteInteractionException {
     // assuming the stream setting is open
-    click(getElement(PageElements.STREAM_CODEC_DROPDOWN));
     List<WebElement> streamTypes;
     logger.info("Choosing codec "  + codec);
     if (this.os.equals("WINDOWS")) {
       streamTypes = webDriver
           .findElements(By.xpath(this.elements.get(PageElements.STREAM_CODEC)));
       for (WebElement type : streamTypes) {
-        logger.info("Found "  + type.getAttribute("Name"));
-        if (type.getAttribute("Name").startsWith(codec)) {
+      	String codecName= type.getAttribute("Name").toUpperCase();
+        logger.info("Found "  + codecName);
+        if (codecName.startsWith(codec)) {
           click(type);
           return;
         }
@@ -98,8 +97,9 @@ public class StreamSettingPage extends SettingPage {
     } else {
       streamTypes = this.getElementByXpath(this.elements.get(PageElements.STREAM_CODEC));
       for (WebElement type : streamTypes) {
-        logger.info("Found "  + type.getAttribute("Name"));
-        if (type.getTagName().startsWith(codec)) {
+	      String codecName= type.getTagName().toUpperCase();
+	      logger.info("Found "  + codecName);
+        if (codecName.startsWith(codec)) {
           click(type);
           return;
         }
@@ -177,7 +177,7 @@ public class StreamSettingPage extends SettingPage {
   }
 
   @Override
-  protected String getSettingOptionName() {
+  protected String getSettingOptionName(){
     return PageElements.STREAM_OPT;
   }
 

@@ -13,9 +13,9 @@ public class DevTest {
 
   public static void main(String[] args) throws MalformedURLException, KiteTestException {
     Client client = new Client(readJsonFile(
-        "C:\\Users\\Nam\\Workspace\\TEST\\KITE-Private-Tests\\KITE-OBS-Test\\configs\\rtmp.config.json")
+        "C:\\GitHub\\OBS-studio-webrtc\\test\\KITE\\configs\\interop.config.json")
         .getJsonArray("clients").getJsonObject(1));
-    client.setPaas(new Paas("http://192.168.1.221:4444/wd/hub"));
+    client.setPaas(new Paas("http://192.168.1.133:4444/wd/hub"));
     WebDriver driver = WebDriverFactory.createWebDriver(client, "", "");
     System.out.println("Created");
     driver.quit();
