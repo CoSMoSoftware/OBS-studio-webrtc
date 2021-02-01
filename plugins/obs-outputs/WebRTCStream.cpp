@@ -184,6 +184,10 @@ bool WebRTCStream::start(WebRTCStream::Type type)
 	publishApiUrl = obs_service_get_publishApiUrl(service)
 				? obs_service_get_publishApiUrl(service)
 				: "";
+	if (type == WebRTCStream::Type::CustomWebrtc &&
+		                publishApiUrl.empty()) {
+		publishApiUrl = url;
+	}
 
 	// Some extra log
 
