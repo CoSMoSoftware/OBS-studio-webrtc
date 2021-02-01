@@ -838,6 +838,11 @@ OBSBasicSettings::OBSBasicSettings(QWidget *parent)
 	ui->codecButtonGroup->setId(ui->vp8RadioButton, 1);
 	ui->codecButtonGroup->setId(ui->vp9RadioButton, 2);
 
+	// #271 do not list video codec H264 if it is not available in libwebrtc
+#ifdef DISABLE_WEBRTC_H264
+	ui->h264RadioButton->setVisible(false);
+#endif
+
 	// Get Bind to IP Addresses
 	obs_properties_t *ppts = obs_get_output_properties("rtmp_output");
 	obs_property_t *p = obs_properties_get(ppts, "bind_ip");

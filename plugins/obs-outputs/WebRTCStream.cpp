@@ -175,6 +175,13 @@ bool WebRTCStream::start(WebRTCStream::Type type)
 	video_codec = obs_service_get_codec(service)
 			      ? obs_service_get_codec(service)
 			      : "";
+	// #271 do not list video codec H264 if it is not available in libwebrtc
+#ifdef DISABLE_WEBRTC_H264
+	if ("h264" == video_codec) {
+		info("No video codec selected and H264 not available: set to VP9 by default");
+		video_codec = "VP9";
+	}
+#endif
 	protocol = obs_service_get_protocol(service)
 			   ? obs_service_get_protocol(service)
 			   : "";
@@ -401,9 +408,14 @@ void WebRTCStream::OnSuccess(webrtc::SessionDescriptionInterface *desc)
 	std::string sdpCopy = sdp;
 	std::vector<int> audio_payloads;
 	std::vector<int> video_payloads;
-	// If codec setting is Automatic, set it to h264 by default
+	// #271 do not list video codec H264 if it is not available in libwebrtc
+	// If codec setting is Automatic, set it to h264 by default if available, else set it to VP9
 	if (video_codec.empty()) {
+#ifdef DISABLE_WEBRTC_H264
+		video_codec = "VP9";
+#else
 		video_codec = "h264"; // h264 must be in lowercase (Firefox)
+#endif
 	}
 	// Force specific video/audio payload
 	SDPModif::forcePayload(sdpCopy, audio_payloads, video_payloads,
