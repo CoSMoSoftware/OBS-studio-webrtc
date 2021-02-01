@@ -311,7 +311,9 @@ bool WebRTCStream::start(WebRTCStream::Type type)
 	audio_init.direction = webrtc::RtpTransceiverDirection::kSendOnly;
 	pc->AddTransceiver(audio_track, audio_init);
 
-	bool simulcast = false;
+	bool simulcast = obs_service_get_simulcast(service)
+				 ? obs_service_get_simulcast(service)
+				 : false;
 
 	//Add video track
 	webrtc::RtpTransceiverInit video_init;
