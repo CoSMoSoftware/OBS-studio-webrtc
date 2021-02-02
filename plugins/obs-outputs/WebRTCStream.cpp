@@ -340,9 +340,9 @@ bool WebRTCStream::start(WebRTCStream::Type type)
 		small.rid = "S";
 		small.scale_resolution_down_by = 4;
 		//In reverse order so large is dropped first on low network condition
-		video_init.send_encodings.push_back(small);
-		video_init.send_encodings.push_back(medium);
 		video_init.send_encodings.push_back(large);
+		video_init.send_encodings.push_back(medium);
+		video_init.send_encodings.push_back(small);
 	}
 	pc->AddTransceiver(video_track, video_init);
 
