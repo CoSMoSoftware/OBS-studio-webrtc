@@ -94,20 +94,32 @@ add_subdirectory(websocket-client)
 
 option(BUILD_NDI "Build obs-ndi plugin" OFF)
 if (BUILD_NDI)
-	if (EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/obs-ndi/CMakeLists.txt")
-		set(LIBOBS_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}")
-		add_subdirectory(obs-ndi)
-	else()
-		message(STATUS "obs-ndi submodule not found! Please fetch/update submodules. obs-ndi plugin disabled.")
-	endif()
+  if (NOT EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/obs-ndi/CMakeLists.txt")
+    execute_process(
+      COMMAND           git submodule update --init --recursive
+      WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+      RESULT_VARIABLE   _res
+      )
+    if(NOT _res EQUAL "0")
+      message(FATAL_ERROR "git submodule update --init failed with ${_res}, please checkout submodules")
+    endif()
+  endif()
+  set(LIBOBS_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}")
+  add_subdirectory(obs-ndi)
 endif()
 
 option(BUILD_WEBSOCKET "Build obs-websocket plugin" OFF)
 if (BUILD_WEBSOCKET)
-	if (EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/obs-websocket/CMakeLists.txt")
-		set(LIBOBS_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}")
-		add_subdirectory(obs-websocket)
-	else()
-		message(STATUS "obs-websocket submodule not found! Please fetch/update submodules. obs-websocket plugin disabled.")
-	endif()
+  if (NOT EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/obs-websocket/CMakeLists.txt")
+    execute_process(
+      COMMAND           git submodule update --init --recursive
+      WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+      RESULT_VARIABLE   _res
+      )
+    if(NOT _res EQUAL "0")
+      message(FATAL_ERROR "git submodule update --init failed with ${_res}, please checkout submodules")
+    endif()
+  endif()
+  set(LIBOBS_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}")
+  add_subdirectory(obs-websocket)
 endif()
