@@ -580,8 +580,13 @@ void WebRTCStream::OnSetRemoteDescriptionComplete(webrtc::RTCError error)
 {
 	if (error.ok())
 		info("Remote Description set\n");
-	else
+	else {
 		warn("Error setting Remote Description: %s\n", error.message());
+		// Shutdown websocket connection and close Peer Connection
+		close(false);
+		// Disconnect, this will call stop on main thread
+		obs_output_signal_stop(output, OBS_OUTPUT_ERROR);
+	}
 }
 
 bool WebRTCStream::close(bool wait)
