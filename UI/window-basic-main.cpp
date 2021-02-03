@@ -1949,6 +1949,11 @@ void OBSBasic::OBSInit()
 
 	ui->sources->UpdateIcons();
 
+// #280 Remove menu entry "Upload Last Crash Report"
+#if defined(_WIN32) || defined(__APPLE__)
+	delete ui->actionUploadLastCrashLog;
+	ui->actionUploadLastCrashLog = nullptr;
+#endif
 #if !defined(_WIN32) && !defined(__APPLE__)
 	delete ui->actionShowCrashLogs;
 	delete ui->actionUploadLastCrashLog;
@@ -5346,18 +5351,9 @@ void OBSBasic::UploadLog(const char *subdir, const char *file, const bool crash)
 		logUploadThread->wait();
 	}
 
-	// #280 Send crash report to CoSMo server
-	string url;
-	if (crash) {
-		// Crash report to CoSMo server
-		url = "https://obs.dashboard.cosmosoftware.io:8443/dash/upload";
-	}
-	else {
-		// Log report to OBS server
-		// url = "https://obsproject.com/logs/upload";
-		url = "https://obs.dashboard.cosmosoftware.io:8443/dash/upload";
-	}
-	RemoteTextThread *thread = new RemoteTextThread(url, "text/plain", ss.str().c_str());
+	RemoteTextThread *thread =
+		new RemoteTextThread("https://obsproject.com/logs/upload",
+				     "text/plain", ss.str().c_str());
 
 	logUploadThread.reset(thread);
 	if (crash) {

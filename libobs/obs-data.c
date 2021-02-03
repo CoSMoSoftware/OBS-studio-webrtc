@@ -634,10 +634,6 @@ obs_data_t *obs_data_create_from_json(const char *json_string)
 {
 	obs_data_t *data = obs_data_create();
 
-	blog(LOG_ERROR,
-			"obs-data.c: [obs_data_create_from_json] "
-			"Failed reading json string : %s",
-			json_string);
 	json_error_t error;
 	json_t *root = json_loads(json_string, JSON_REJECT_DUPLICATES, &error);
 
