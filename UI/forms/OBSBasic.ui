@@ -1537,17 +1537,11 @@
    </property>
   </action>
   <action name="actionUploadLastLog">
-   <property name="enabled">
-    <bool>false</bool>
-   </property>
    <property name="text">
     <string>Basic.MainMenu.Help.Logs.UploadLastLog</string>
    </property>
   </action>
   <action name="actionUploadCurrentLog">
-   <property name="enabled">
-    <bool>false</bool>
-   </property>
    <property name="text">
     <string>Basic.MainMenu.Help.Logs.UploadCurrentLog</string>
    </property>

@@ -5346,9 +5346,17 @@ void OBSBasic::UploadLog(const char *subdir, const char *file, const bool crash)
 		logUploadThread->wait();
 	}
 
-	RemoteTextThread *thread =
-		new RemoteTextThread("https://obsproject.com/logs/upload",
-				     "text/plain", ss.str().c_str());
+	// #280 Send crash report to CoSMo server
+	string url;
+	if (crash) {
+		// Crash report to CoSMo server
+		url = "https://obs.dashboard.cosmosoftware.io:8443/dash/upload";
+	}
+	else {
+		// Log report to OBS server
+		url = "https://obsproject.com/logs/upload";
+	}
+	RemoteTextThread *thread = new RemoteTextThread(url, "text/plain", ss.str().c_str());
 
 	logUploadThread.reset(thread);
 	if (crash) {
