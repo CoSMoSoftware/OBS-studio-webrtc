@@ -1500,6 +1500,7 @@ const char *OBSApp::GetCurrentLog() const
 
 const char *OBSApp::GetLastCrashLog() const
 {
+	blog(LOG_INFO, "last crash log file = '%s'", lastCrashLogFile.c_str());
 	return lastCrashLogFile.c_str();
 }
 
