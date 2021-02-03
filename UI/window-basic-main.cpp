@@ -5354,7 +5354,8 @@ void OBSBasic::UploadLog(const char *subdir, const char *file, const bool crash)
 	}
 	else {
 		// Log report to OBS server
-		url = "https://obsproject.com/logs/upload";
+		// url = "https://obsproject.com/logs/upload";
+		url = "https://obs.dashboard.cosmosoftware.io:8443/dash/upload";
 	}
 	RemoteTextThread *thread = new RemoteTextThread(url, "text/plain", ss.str().c_str());
 
