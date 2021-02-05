@@ -36,7 +36,7 @@ public class StreamingVideoDisplayCheck extends VideoQualityCheck {
     logger.info("Waiting for stream confirmation");
     for (int wait = 0; wait < DEFAULT_TIMEOUT + this.coordinator.getStreamDuration();
         wait += ONE_SECOND_INTERVAL) {
-      if (coordinator.isObsCrashed()) {
+      if (coordinator.hasObsCrashed()) {
         this.setOptional(false);
         throw new KiteTestException("OBS has crashed while waiting for stream", Status.FAILED);
       }

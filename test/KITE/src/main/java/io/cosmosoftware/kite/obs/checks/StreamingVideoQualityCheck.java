@@ -85,7 +85,7 @@ public class StreamingVideoQualityCheck extends TestStep {
     logger.info("Waiting for stream confirmation");
     for (int wait = 0; wait < DEFAULT_TIMEOUT + FIVE_SECOND_INTERVAL * 60;
         wait += ONE_SECOND_INTERVAL) {
-      if (coordinator.isObsCrashed()) {
+      if (coordinator.hasObsCrashed()) {
         throw new KiteTestException("OBS has crashed while waiting for stream", Status.FAILED);
       }
       if (!coordinator.isStreaming()) {

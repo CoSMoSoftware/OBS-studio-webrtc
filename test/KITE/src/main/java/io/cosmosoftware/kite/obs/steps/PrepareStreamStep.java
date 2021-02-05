@@ -28,13 +28,9 @@ public class PrepareStreamStep extends TestStep {
     streamSettingPage.openSettingOption();
     try {
       if (coordinator.getRmptPublishPath()!= null ){
-      // change to custom rtmp
-//        streamSettingPage.chooseStreamService("Custom");
         streamSettingPage.inputRtmpStreamKey(this.coordinator.getRtmpPublishStreamName());
         streamSettingPage.inputRtmpServerName(this.coordinator.getRmptPublishPath());
       } else {
-      // change to millicast
-//        streamSettingPage.chooseStreamService("Millicast");
         streamSettingPage.inputStreamName(this.coordinator.getStreamName());
         streamSettingPage.inputPublishingToken(this.coordinator.getPublishingToken());
       }

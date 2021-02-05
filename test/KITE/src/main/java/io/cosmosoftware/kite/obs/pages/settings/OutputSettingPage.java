@@ -12,10 +12,10 @@ import org.openqa.selenium.WebElement;
 public class OutputSettingPage extends SettingPage {
 
   // WINDOWS ------------------------------------------------------------------------------------------------
-  private static String outputModeOptionWIN = "/Window/Window[1]/Custom/Group/Group/Group/Group/Group/RadioButton";
-  private static String outputGroupElementWIN = "/Window/Window[1]/Custom/Group/Group/Group/Group/Custom/Group/Group";
-  private static String videoBitrateFieldWIN = "/Window/Window[1]/Custom/Group/Group/Group/Group/Custom/Group/Group[1]/Edit[1]";
-  private static String audioBitrateFieldWIN = "/Window/Window[1]/Custom/Group/Group/Group/Group/Custom/Group/Group[1]/ComboBox[1]";
+  private static String outputModeOptionWIN = "/Window/Window[1]/Pane/Custom/Custom/Custom[1]/Custom/Custom/ComboBox";
+  private static String outputGroupElementWIN = "/Window/Window[1]/Pane/Custom/Custom/Custom[1]/Custom/Custom[1]/ComboBox/List";
+  private static String videoBitrateFieldWIN = "/Window/Window[1]/Pane/Custom/Custom/Custom[1]/Custom/Pane/Custom/Group[1]/Text[1]";
+  private static String audioBitrateFieldWIN = "/Window/Window[1]/Pane/Custom/Custom/Custom[1]/Custom/Pane/Custom/Group[1]/ComboBox[1]";
   private static String endcoderFieldWIN = "/Window/Window[1]/Custom/Group/Group/Group/Group/Custom/Group/Group[1]/ComboBox[2]";
 
   // MAC ------------------------------------------------------------------------------------------------
