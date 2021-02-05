@@ -294,7 +294,7 @@ configure_obs_build() {
         -DBROWSER_LEGACY=OFF \
         -DWITH_RTMPS=ON \
         -DCEF_ROOT_DIR="${DEPS_BUILD_DIR}/cef_binary_${MACOS_CEF_BUILD_VERSION}_macosx64" \
-        -DWEBRTC_ROOT_DIR="${DEPS_BUILD_DIR}/libwebrtc" \
+        -Dlibwebrtc_DIR="${DEPS_BUILD_DIR}/libwebrtc/cmake" \
         -DOPENSSL_ROOT_DIR="/usr/local/opt/openssl@1.1" \
         .. \
         ${vendor_option} \
