@@ -2554,24 +2554,24 @@ int main(int argc, char *argv[])
   // to be able to find library websocketclient.so
   std::string ld_library_path = getenv("LD_LIBRARY_PATH");
   if (0 == ld_library_path.length()) {
-    std::cerr << "=======================================" << std::endl;
-    std::cerr << "ERROR: Environment variable LD_LIBRARY_PATH not defined!" << std::endl;
-    std::cerr << "To run " << argv[0] << " please set environment variable LD_LIBRARY_PATH to the path to directory 'obs-plugins'" << std::endl;
-    std::cerr << "Usually directory 'obs-plugins' is to be found at /usr/lib" << std::endl;
-    std::cerr << std::endl;
-    std::cerr << "To set environment variable LD_LIBRARY_PATH to /usr/lib/obs-plugins, use the following command:" << std::endl;
-    std::cerr << "export LD_LIBRARY_PATH=/usr/lib/obs-plugins" << std::endl;
+    fprintf(stderr, "=======================================\n");
+    fprintf(stderr, "ERROR: Environment variable LD_LIBRARY_PATH not defined!\n");
+    fprintf(stderr, "To run %s please set environment variable LD_LIBRARY_PATH to the path to directory 'obs-plugins'\n", argv[0]);
+    fprintf(stderr, "Usually directory 'obs-plugins' is to be found at /usr/lib\n");
+    fprintf(stderr, "\n");
+    fprintf(stderr, "To set environment variable LD_LIBRARY_PATH to /usr/lib/obs-plugins, use the following command:\n");
+    fprintf(stderr, "export LD_LIBRARY_PATH=/usr/lib/obs-plugins\n");
     return 1;
   }
   if (std::string::npos == ld_library_path.find("obs-plugins")) {
-    std::cerr << "=======================================" << std::endl;
-    std::cerr << "ERROR: Path to directory 'obs-plugins' not found!" << std::endl;
-    std::cerr << "Currently your environement variable LD_LIRARY_PATH is set to: " << ld_library_path << std::endl;
-    std::cerr << "To run " << argv[0] << " please add path to directory 'obs-plugins' to your environement variable LD_LIBRARY_PATH" << std::endl;
-    std::cerr << "Usually directory 'obs-plugins' is to be found at /usr/lib" << std::endl;
-    std::cerr << std::endl;
-    std::cerr << "To add /usr/lib/obs-plugins to your environment variable LD_LIBRARY_PATH, use the following command:" << std::endl;
-    std::cerr << "export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:/usr/lib/obs-plugins" << std::endl;
+    fprintf(stderr, "=======================================\n");
+    fprintf(stderr, "ERROR: Path to directory 'obs-plugins' not found!\n");
+    fprintf(stderr, "Currently your environement variable LD_LIRARY_PATH is set to: %s\n", ld_library_path.c_str());
+    fprintf(stderr, "To run %s please add path to directory 'obs-plugins' to your environement variable LD_LIBRARY_PATH\n", argv[0]);
+    fprintf(stderr, "Usually directory 'obs-plugins' is to be found at /usr/lib\n");
+    fprintf(stderr, "\n");
+    fprintf(stderr, "To add /usr/lib/obs-plugins to your environment variable LD_LIBRARY_PATH, use the following command:\n");
+    fprintf(stderr, "export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:/usr/lib/obs-plugins\n");
     return 1;
   }
 #endif
