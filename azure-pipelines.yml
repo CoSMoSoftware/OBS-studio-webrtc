@@ -143,6 +143,8 @@ jobs:
         set -e
         git stash
         mkdir build_${{ vendor }}
+        export CC=clang
+        export CXX=clang++
         ./CI/before-script-linux.sh ${{ vendor }}
         cd build_${{ vendor }}
         make -j4
