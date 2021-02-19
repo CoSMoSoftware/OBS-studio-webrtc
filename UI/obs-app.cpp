@@ -2552,7 +2552,7 @@ int main(int argc, char *argv[])
 #if defined(__gnu_linux__)
   // Make sure LD_LIBRARY_PATH is set and contains a path to "obs-plugins"
   // to be able to find library websocketclient.so
-  std::string ld_library_path = std::string(getenv("LD_LIBRARY_PATH"));
+  const char* ld_library_path = getenv("LD_LIBRARY_PATH");
   // if (0 == ld_library_path.length()) {
   //   fprintf(stderr, "=======================================\n");
   //   fprintf(stderr, "ERROR: Environment variable LD_LIBRARY_PATH not defined!\n");
