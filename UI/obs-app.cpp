@@ -2553,27 +2553,27 @@ int main(int argc, char *argv[])
   // Make sure LD_LIBRARY_PATH is set and contains a path to "obs-plugins"
   // to be able to find library websocketclient.so
   const char* ld_library_path = getenv("LD_LIBRARY_PATH");
-  // if (0 == ld_library_path.length()) {
-  //   fprintf(stderr, "=======================================\n");
-  //   fprintf(stderr, "ERROR: Environment variable LD_LIBRARY_PATH not defined!\n");
-  //   fprintf(stderr, "To run %s please set environment variable LD_LIBRARY_PATH to the path to directory 'obs-plugins'\n", argv[0]);
-  //   fprintf(stderr, "Usually directory 'obs-plugins' is to be found at /usr/lib\n");
-  //   fprintf(stderr, "\n");
-  //   fprintf(stderr, "To set environment variable LD_LIBRARY_PATH to /usr/lib/obs-plugins, use the following command:\n");
-  //   fprintf(stderr, "export LD_LIBRARY_PATH=/usr/lib/obs-plugins\n");
-  //   return 1;
-  // }
-  // if (std::string::npos == ld_library_path.find("obs-plugins")) {
-  //   fprintf(stderr, "=======================================\n");
-  //   fprintf(stderr, "ERROR: Path to directory 'obs-plugins' not found!\n");
-  //   fprintf(stderr, "Currently your environement variable LD_LIRARY_PATH is set to: %s\n", ld_library_path.c_str());
-  //   fprintf(stderr, "To run %s please add path to directory 'obs-plugins' to your environement variable LD_LIBRARY_PATH\n", argv[0]);
-  //   fprintf(stderr, "Usually directory 'obs-plugins' is to be found at /usr/lib\n");
-  //   fprintf(stderr, "\n");
-  //   fprintf(stderr, "To add /usr/lib/obs-plugins to your environment variable LD_LIBRARY_PATH, use the following command:\n");
-  //   fprintf(stderr, "export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:/usr/lib/obs-plugins\n");
-  //   return 1;
-  // }
+  if (0 == strlen(ld_library_path)) {
+    fprintf(stderr, "=======================================\n");
+    fprintf(stderr, "ERROR: Environment variable LD_LIBRARY_PATH not defined!\n");
+    fprintf(stderr, "To run %s please set environment variable LD_LIBRARY_PATH to the path to directory 'obs-plugins'\n", argv[0]);
+    fprintf(stderr, "Usually directory 'obs-plugins' is to be found at /usr/lib\n");
+    fprintf(stderr, "\n");
+    fprintf(stderr, "To set environment variable LD_LIBRARY_PATH to /usr/lib/obs-plugins, use the following command:\n");
+    fprintf(stderr, "export LD_LIBRARY_PATH=/usr/lib/obs-plugins\n");
+    return 1;
+  }
+  if (NULL == strstr(ld_library_path, "obs-plugins")) {
+    fprintf(stderr, "=======================================\n");
+    fprintf(stderr, "ERROR: Path to directory 'obs-plugins' not found!\n");
+    fprintf(stderr, "Currently your environement variable LD_LIRARY_PATH is set to: %s\n", ld_library_path);
+    fprintf(stderr, "To run %s please add path to directory 'obs-plugins' to your environement variable LD_LIBRARY_PATH\n", argv[0]);
+    fprintf(stderr, "Usually directory 'obs-plugins' is to be found at /usr/lib\n");
+    fprintf(stderr, "\n");
+    fprintf(stderr, "To add /usr/lib/obs-plugins to your environment variable LD_LIBRARY_PATH, use the following command:\n");
+    fprintf(stderr, "export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:/usr/lib/obs-plugins\n");
+    return 1;
+  }
 #endif
 
 #ifndef _WIN32
