@@ -1965,7 +1965,7 @@ static int run_program(fstream &logFile, int argc, char *argv[])
   // Make sure LD_LIBRARY_PATH is set and contains a path to "obs-plugins"
   // to be able to find library websocketclient.so
   const char* ld_library_path = getenv("LD_LIBRARY_PATH");
-  if (0 == strlen(ld_library_path)) {
+  if (NULL == ld_library_path) {
     QMessageBox msgBox;
     msgBox.setIcon(QMessageBox::Critical);
     msgBox.setText("ERROR: Environment variable LD_LIBRARY_PATH not defined");
