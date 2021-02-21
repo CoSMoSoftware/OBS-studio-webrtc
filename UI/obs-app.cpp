@@ -1964,7 +1964,7 @@ static int run_program(fstream &logFile, int argc, char *argv[])
 #if defined(__gnu_linux__)
 		// #303 Make sure LD_LIBRARY_PATH is set and contains a path to "obs-plugins"
 		// to be able to find library websocketclient.so
-		char *ld_library_path = getenv("LD_LIBRARY_PATH");
+		const char *ld_library_path = getenv("LD_LIBRARY_PATH");
 		bool abort_start = false;
 		if (NULL == ld_library_path) {
 			QMessageBox msgBox;
@@ -2009,8 +2009,6 @@ static int run_program(fstream &logFile, int argc, char *argv[])
 			msgBox.exec();
 			abort_start = true;
 		}
-		if (ld_library_path)
-			free(ld_library_path);
 		if (abort_start)
 			return 1;
 #endif
