@@ -154,10 +154,15 @@ bool WebRTCStream::start(WebRTCStream::Type type)
 
 	obs_service_t *service = obs_output_get_service(output);
 	if (!service) {
-		obs_output_set_last_error(
-			output,
-			"An unexpected error occurred during stream startup.");
-		obs_output_signal_stop(output, OBS_OUTPUT_CONNECT_FAILED);
+		// #298 Close must be carried out on a separate thread in order to avoid deadlock
+		auto thread = std::thread([=]() {
+			obs_output_set_last_error(
+				output,
+				"An unexpected error occurred during stream startup.");
+			obs_output_signal_stop(output,
+					       OBS_OUTPUT_CONNECT_FAILED);
+		});
+		thread.detach();
 		return false;
 	}
 
@@ -227,10 +232,15 @@ bool WebRTCStream::start(WebRTCStream::Type type)
 	}
 
 	if (!isServiceValid) {
-		obs_output_set_last_error(
-			output,
-			"Your service settings are not complete. Open the settings => stream window and complete them.");
-		obs_output_signal_stop(output, OBS_OUTPUT_CONNECT_FAILED);
+		// #298 Close must be carried out on a separate thread in order to avoid deadlock
+		auto thread = std::thread([=]() {
+			obs_output_set_last_error(
+				output,
+				"Your service settings are not complete. Open the settings => stream window and complete them.");
+			obs_output_signal_stop(output,
+					       OBS_OUTPUT_CONNECT_FAILED);
+		});
+		thread.detach();
 		return false;
 	}
 
@@ -261,8 +271,13 @@ bool WebRTCStream::start(WebRTCStream::Type type)
 	}
 
 	// Shutdown websocket connection and close Peer Connection (just in case)
-	if (close(false))
-		obs_output_signal_stop(output, OBS_OUTPUT_ERROR);
+	if (close(false)) {
+		// #298 Close must be carried out on a separate thread in order to avoid deadlock
+		auto thread = std::thread([=]() {
+			obs_output_signal_stop(output, OBS_OUTPUT_ERROR);
+		});
+		thread.detach();
+	}
 
 	webrtc::PeerConnectionInterface::RTCConfiguration config;
 	webrtc::PeerConnectionInterface::IceServer server;
@@ -281,10 +296,15 @@ bool WebRTCStream::start(WebRTCStream::Type type)
 
 	if (!pc.get()) {
 		error("Error creating Peer Connection");
-		obs_output_set_last_error(
-			output,
-			"There was an error connecting to the server. Are you connected to the internet?");
-		obs_output_signal_stop(output, OBS_OUTPUT_CONNECT_FAILED);
+		// #298 Close must be carried out on a separate thread in order to avoid deadlock
+		auto thread = std::thread([=]() {
+			obs_output_set_last_error(
+				output,
+				"There was an error connecting to the server. Are you connected to the internet?");
+			obs_output_signal_stop(output,
+					       OBS_OUTPUT_CONNECT_FAILED);
+		});
+		thread.detach();
 		return false;
 	} else {
 		info("PEER CONNECTION CREATED\n");
@@ -352,10 +372,15 @@ bool WebRTCStream::start(WebRTCStream::Type type)
 		// Close Peer Connection
 		close(false);
 		// Disconnect, this will call stop on main thread
-		obs_output_set_last_error(
-			output,
-			"There was a problem creating the websocket connection.  Are you behind a firewall?");
-		obs_output_signal_stop(output, OBS_OUTPUT_CONNECT_FAILED);
+		// #298 Close must be carried out on a separate thread in order to avoid deadlock
+		auto thread = std::thread([=]() {
+			obs_output_set_last_error(
+				output,
+				"There was a problem creating the websocket connection.  Are you behind a firewall?");
+			obs_output_signal_stop(output,
+					       OBS_OUTPUT_CONNECT_FAILED);
+		});
+		thread.detach();
 		return false;
 	}
 
@@ -374,9 +399,15 @@ bool WebRTCStream::start(WebRTCStream::Type type)
 		// Shutdown websocket connection and close Peer Connection
 		close(false);
 		// Disconnect, this will call stop on main thread
-		obs_output_set_last_error(
-			output, "There was a problem connecting to your room.");
-		obs_output_signal_stop(output, OBS_OUTPUT_CONNECT_FAILED);
+		// #298 Close must be carried out on a separate thread in order to avoid deadlock
+		auto thread = std::thread([=]() {
+			obs_output_set_last_error(
+				output,
+				"There was a problem connecting to your room.");
+			obs_output_signal_stop(output,
+					       OBS_OUTPUT_CONNECT_FAILED);
+		});
+		thread.detach();
 		return false;
 	}
 	return true;
@@ -439,7 +470,11 @@ void WebRTCStream::OnSuccess(webrtc::SessionDescriptionInterface *desc)
 		// Shutdown websocket connection and close Peer Connection
 		close(false);
 		// Disconnect, this will call stop on main thread
-		obs_output_signal_stop(output, OBS_OUTPUT_ERROR);
+		// #298 Close must be carried out on a separate thread in order to avoid deadlock
+		auto thread = std::thread([=]() {
+			obs_output_signal_stop(output, OBS_OUTPUT_ERROR);
+		});
+		thread.detach();
 	}
 }
 
@@ -481,7 +516,12 @@ void WebRTCStream::OnIceConnectionChange(
 				output,
 				"We found your room, but streaming failed. Are you behind a firewall?\n\n");
 			// Disconnect, this will call stop on main thread
-			obs_output_signal_stop(output, OBS_OUTPUT_ERROR);
+			// #298 Close must be carried out on a separate thread in order to avoid deadlock
+			auto thread = std::thread([=]() {
+				obs_output_signal_stop(output,
+						       OBS_OUTPUT_ERROR);
+			});
+			thread.detach();
 		});
 		thread.detach();
 		break;
@@ -505,7 +545,12 @@ void WebRTCStream::OnConnectionChange(
 			obs_output_set_last_error(output,
 						  "Connection failure\n\n");
 			// Disconnect, this will call stop on main thread
-			obs_output_signal_stop(output, OBS_OUTPUT_ERROR);
+			// #298 Close must be carried out on a separate thread in order to avoid deadlock
+			auto thread = std::thread([=]() {
+				obs_output_signal_stop(output,
+						       OBS_OUTPUT_ERROR);
+			});
+			thread.detach();
 		});
 		//Detach
 		thread.detach();
@@ -585,7 +630,11 @@ void WebRTCStream::OnSetRemoteDescriptionComplete(webrtc::RTCError error)
 		// Shutdown websocket connection and close Peer Connection
 		close(false);
 		// Disconnect, this will call stop on main thread
-		obs_output_signal_stop(output, OBS_OUTPUT_ERROR);
+		// #298 Close must be carried out on a separate thread in order to avoid deadlock
+		auto thread = std::thread([=]() {
+			obs_output_signal_stop(output, OBS_OUTPUT_ERROR);
+		});
+		thread.detach();
 	}
 }
 
@@ -628,7 +677,11 @@ void WebRTCStream::onDisconnected()
 	thread_closeAsync = std::thread([&]() {
 		close(false);
 		// Disconnect, this will call stop on main thread
-		obs_output_signal_stop(output, OBS_OUTPUT_DISCONNECTED);
+		// #298 Close must be carried out on a separate thread in order to avoid deadlock
+		auto thread = std::thread([=]() {
+			obs_output_signal_stop(output, OBS_OUTPUT_DISCONNECTED);
+		});
+		thread.detach();
 	});
 }
 
@@ -638,10 +691,14 @@ void WebRTCStream::onLoggedError(int code)
 	// Shutdown websocket connection and close Peer Connection
 	close(false);
 	// Disconnect, this will call stop on main thread
-	obs_output_set_last_error(
-		output,
-		"We are having trouble connecting to your room. Are you behind a firewall?\n");
-	obs_output_signal_stop(output, OBS_OUTPUT_ERROR);
+	// #298 Close must be carried out on a separate thread in order to avoid deadlock
+	auto thread = std::thread([=]() {
+		obs_output_set_last_error(
+			output,
+			"We are having trouble connecting to your room.  Are you behind a firewall?\n");
+		obs_output_signal_stop(output, OBS_OUTPUT_ERROR);
+	});
+	thread.detach();
 }
 
 void WebRTCStream::onOpenedError(int code)
@@ -650,7 +707,10 @@ void WebRTCStream::onOpenedError(int code)
 	// Shutdown websocket connection and close Peer Connection
 	close(false);
 	// Disconnect, this will call stop on main thread
-	obs_output_signal_stop(output, OBS_OUTPUT_ERROR);
+	// #298 Close must be carried out on a separate thread in order to avoid deadlock
+	auto thread = std::thread(
+		[=]() { obs_output_signal_stop(output, OBS_OUTPUT_ERROR); });
+	thread.detach();
 }
 
 void WebRTCStream::onAudioFrame(audio_data *frame)
