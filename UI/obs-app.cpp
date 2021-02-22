@@ -1985,8 +1985,7 @@ static int run_program(fstream &logFile, int argc, char *argv[])
 			msgBox.setStandardButtons(QMessageBox::Abort);
 			msgBox.exec();
 			abort_start = true;
-		}
-		if (NULL == strstr(ld_library_path, "obs-plugins")) {
+		} else if (NULL == strstr(ld_library_path, "obs-plugins")) {
 			QMessageBox msgBox;
 			msgBox.setIcon(QMessageBox::Critical);
 			msgBox.setText(
