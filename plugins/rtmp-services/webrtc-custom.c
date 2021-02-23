@@ -26,7 +26,6 @@ static void webrtc_custom_update(void *data, obs_data_t *settings)
 	bfree(service->output);
 
 	service->server = bstrdup(obs_data_get_string(settings, "server"));
-	service->password = bstrdup(obs_data_get_string(settings, "password"));
 	service->codec = bstrdup(obs_data_get_string(settings, "codec"));
 	service->simulcast = obs_data_get_bool(settings, "simulcast");
 	service->output = bstrdup("webrtc_custom_output");
@@ -134,8 +133,8 @@ static const char *webrtc_custom_url(void *data)
 
 static const char *webrtc_custom_key(void *data)
 {
-	struct webrtc_custom *service = data;
-	return service->password;
+	UNUSED_PARAMETER(data);
+	return NULL;
 }
 
 static const char *webrtc_custom_room(void *data)
