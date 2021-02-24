@@ -421,6 +421,7 @@ OBSBasicSettings::OBSBasicSettings(QWidget *parent)
   // #289 service list of radio buttons
 	// HookWidget(ui->service,              COMBO_CHANGED,  STREAM1_CHANGED);
   HookWidget(ui->millicastWebrtcRadioButton, CHECK_CHANGED, STREAM1_CHANGED);
+  HookWidget(ui->millicastRtmpRadioButton, CHECK_CHANGED, STREAM1_CHANGED);
 	HookWidget(ui->server,               COMBO_CHANGED,  STREAM1_CHANGED);
 	HookWidget(ui->customServer,         EDIT_CHANGED,   STREAM1_CHANGED);
 	HookWidget(ui->key,                  EDIT_CHANGED,   STREAM1_CHANGED);
@@ -832,6 +833,9 @@ OBSBasicSettings::OBSBasicSettings(QWidget *parent)
 
 	// #289 service list of radio buttons
 	ui->serviceButtonGroup->setId(ui->millicastWebrtcRadioButton, 0);
+	ui->serviceButtonGroup->setId(ui->millicastRtmpRadioButton, 1);
+	connect(ui->serviceButtonGroup, SIGNAL(buttonClicked(int)), this,
+		SLOT(on_service_currentIndexChanged(int)));
 
 	// NOTE LUDO: #172 codecs list of radio buttons
 	ui->codecButtonGroup->setId(ui->h264RadioButton, 0);
@@ -4595,7 +4599,7 @@ void OBSBasicSettings::AdvancedStreamingSettingsChanged()
 		if (radiobutton->isChecked()) {
 			if (radiobutton->text() ==
 			    QString("Millicast-WebRTC")) {
-				// Field publishApiUrl applicable only for Millicast
+				// Field publishApiUrl applicable only for Millicast WebRTTC
 				ui->publishApiUrlLabel->setVisible(!visible);
 				ui->publishApiUrl->setVisible(!visible);
 			}

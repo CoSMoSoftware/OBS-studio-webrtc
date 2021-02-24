@@ -20,7 +20,9 @@ extern QCef *cef;
 extern QCefCookieManager *panel_cookies;
 
 // #289 service list of radio buttons
-enum class ListOpt : int { Millicast = 1, CustomWebrtc, Custom };
+// 0 = Millicast-WebRTC (Millicast)
+// 1 = Millicast-RTMP   (Custom)
+enum class ListOpt : int { Millicast = 0, Custom }; // CustomWebrtc
 
 enum class Section : int {
 	Connect,
@@ -39,8 +41,7 @@ inline bool OBSBasicSettings::IsCustomService() const
 
 inline bool OBSBasicSettings::IsWebRTC() const
 {
-	return ui->serviceButtonGroup->checkedId() < (int)ListOpt::Custom &&
-	       ui->serviceButtonGroup->checkedId() >= 0;
+	return ui->serviceButtonGroup->checkedId() == (int)ListOpt::Millicast;
 }
 
 // #289 service list of radio buttons
@@ -134,9 +135,20 @@ void OBSBasicSettings::LoadStream1Settings()
 
 	if (strcmp(type, "rtmp_custom") == 0) {
 		// #289 service list of radio buttons
-		QRadioButton *radiobutton = reinterpret_cast<QRadioButton *>(
-			ui->serviceButtonGroup->button(0));
-		radiobutton->setChecked(true);
+		QList<QAbstractButton *> listButtons =
+			ui->serviceButtonGroup->buttons();
+		for (QList<QAbstractButton *>::iterator iter =
+			     listButtons.begin();
+		     iter != listButtons.end(); ++iter) {
+			QRadioButton *radiobutton =
+				reinterpret_cast<QRadioButton *>(*iter);
+			if (strcmp(service,
+				   radiobutton->text().toStdString().c_str()) ==
+			    0) {
+				radiobutton->setChecked(true);
+				break;
+			}
+		}
 		ui->customServer->setText(server);
 
 		bool use_auth = obs_data_get_bool(settings, "use_auth");
@@ -147,6 +159,24 @@ void OBSBasicSettings::LoadStream1Settings()
 		ui->authUsername->setText(QT_UTF8(username));
 		ui->authPw->setText(QT_UTF8(password));
 		ui->useAuth->setChecked(use_auth);
+
+		// NOTE LUDO: #172 codecs list of radio buttons
+		tmpString = obs_data_get_string(settings, "codec");
+		const char *codec = strcmp("", tmpString) == 0 ? "vp9"
+							       : tmpString;
+		listButtons = ui->codecButtonGroup->buttons();
+		for (QList<QAbstractButton *>::iterator iter =
+			     listButtons.begin();
+		     iter != listButtons.end(); ++iter) {
+			QRadioButton *radiobutton =
+				reinterpret_cast<QRadioButton *>(*iter);
+			if (strcmp(codec,
+				   radiobutton->text().toStdString().c_str()) ==
+			    0) {
+				radiobutton->setChecked(true);
+				break;
+			}
+		}
 	} else if (strcmp(type, "rtmp_common") == 0) {
 		// #289 service list of radio buttons
 		QList<QAbstractButton *> listButtons =
@@ -292,12 +322,11 @@ void OBSBasicSettings::SaveStream1Settings()
 	OBSData settings = obs_data_create();
 	obs_data_release(settings);
 
+	// #289 service list of radio buttons
+	obs_data_set_string(
+		settings, "service",
+		QT_TO_UTF8(ui->serviceButtonGroup->checkedButton()->text()));
 	if (!customServer && !isWebrtc) {
-		// #289 service list of radio buttons
-		obs_data_set_string(
-			settings, "service",
-			QT_TO_UTF8(ui->serviceButtonGroup->checkedButton()
-					   ->text()));
 		obs_data_set_string(
 			settings, "server",
 			QT_TO_UTF8(ui->server->currentData().toString()));
@@ -323,12 +352,6 @@ void OBSBasicSettings::SaveStream1Settings()
 		obs_data_set_string(settings, "password",
 				    QT_TO_UTF8(ui->authPw->text()));
 		obs_data_set_string(
-			settings, "codec",
-			// NOTE LUDO: #172 codecs list of radio buttons
-			// QT_TO_UTF8(ui->codec->currentText()));
-			QT_TO_UTF8(
-				ui->codecButtonGroup->checkedButton()->text()));
-		obs_data_set_string(
 			settings, "protocol",
 			QT_TO_UTF8(ui->streamProtocol->currentText()));
 		obs_data_set_bool(settings, "simulcast",
@@ -336,6 +359,12 @@ void OBSBasicSettings::SaveStream1Settings()
 		obs_data_set_string(settings, "publish_api_url",
 				    QT_TO_UTF8(ui->publishApiUrl->text()));
 	}
+
+	obs_data_set_string(
+		settings, "codec",
+		// NOTE LUDO: #172 codecs list of radio buttons
+		// QT_TO_UTF8(ui->codec->currentText()));
+		QT_TO_UTF8(ui->codecButtonGroup->checkedButton()->text()));
 
 	if (!!auth && strcmp(auth->service(), "Twitch") == 0) {
 		bool choiceExists = config_has_user_value(
@@ -588,9 +617,18 @@ void OBSBasicSettings::on_service_currentIndexChanged(int)
 		ui->roomLabel->setVisible(false);
 		ui->room->setVisible(false);
 		on_useAuth_toggled();
-		ui->codecLabel->setVisible(false);
+		ui->codecLabel->setVisible(true);
 		// NOTE LUDO: #172 codecs list of radio buttons
-		// ui->codec->setVisible(false);
+		// ui->codec->setVisible(true);
+		QList<QAbstractButton *> listButtons =
+			ui->codecButtonGroup->buttons();
+		for (QList<QAbstractButton *>::iterator iter =
+			     listButtons.begin();
+		     iter != listButtons.end(); ++iter) {
+			QRadioButton *radiobutton =
+				reinterpret_cast<QRadioButton *>(*iter);
+			radiobutton->setVisible(true);
+		}
 		ui->streamProtocolLabel->setVisible(false);
 		ui->streamProtocol->setVisible(false);
 		ui->streamingAdvancedSettingsButton->setVisible(false);
@@ -673,6 +711,15 @@ void OBSBasicSettings::on_service_currentIndexChanged(int)
 		ui->codecLabel->setVisible(obs_property_visible(codec));
 		// NOTE LUDO: #172 codecs list of radio buttons
 		// ui->codec->setVisible(obs_property_visible(codec));
+		QList<QAbstractButton *> listButtons =
+			ui->codecButtonGroup->buttons();
+		for (QList<QAbstractButton *>::iterator iter =
+			     listButtons.begin();
+		     iter != listButtons.end(); ++iter) {
+			QRadioButton *radiobutton =
+				reinterpret_cast<QRadioButton *>(*iter);
+			radiobutton->setVisible(obs_property_visible(codec));
+		}
 		ui->streamProtocolLabel->setVisible(
 			obs_property_visible(protocol));
 		ui->streamProtocol->setVisible(obs_property_visible(protocol));
@@ -710,6 +757,15 @@ void OBSBasicSettings::on_service_currentIndexChanged(int)
 		ui->codecLabel->setVisible(false);
 		// NOTE LUDO: #172 codecs list of radio buttons
 		// ui->codec->setVisible(false);
+		QList<QAbstractButton *> listButtons =
+			ui->codecButtonGroup->buttons();
+		for (QList<QAbstractButton *>::iterator iter =
+			     listButtons.begin();
+		     iter != listButtons.end(); ++iter) {
+			QRadioButton *radiobutton =
+				reinterpret_cast<QRadioButton *>(*iter);
+			radiobutton->setVisible(false);
+		}
 		ui->streamingAdvancedSettingsButton->setVisible(false);
 		ui->simulcastEnable->setVisible(false);
 		ui->publishApiUrlLabel->setVisible(false);
