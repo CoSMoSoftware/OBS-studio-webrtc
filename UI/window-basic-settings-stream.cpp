@@ -177,6 +177,23 @@ void OBSBasicSettings::LoadStream1Settings()
 				break;
 			}
 		}
+
+		const char *room = obs_data_get_string(settings, "room");
+		ui->room->setText(QT_UTF8(room));
+
+		tmpString = obs_data_get_string(settings, "protocol");
+		const char *protocol = strcmp("", tmpString) == 0 ? "Automatic"
+								  : tmpString;
+		int idxP = ui->streamProtocol->findText(protocol);
+		ui->streamProtocol->setCurrentIndex(idxP);
+
+		bool simulcast = obs_data_get_bool(settings, "simulcast");
+		ui->simulcastEnable->setChecked(simulcast);
+
+		const char *publish_api_url =
+			obs_data_get_string(settings, "publish_api_url");
+		ui->publishApiUrl->setText(publish_api_url);
+
 	} else if (strcmp(type, "rtmp_common") == 0) {
 		// #289 service list of radio buttons
 		QList<QAbstractButton *> listButtons =
@@ -202,30 +219,53 @@ void OBSBasicSettings::LoadStream1Settings()
 		ui->twitchAddonDropdown->setCurrentIndex(idx);
 	} else {
 		const char *room = obs_data_get_string(settings, "room");
+		ui->room->setText(QT_UTF8(room));
+
 		const char *username =
 			obs_data_get_string(settings, "username");
+		ui->authUsername->setText(QT_UTF8(username));
+
 		const char *password =
 			obs_data_get_string(settings, "password");
+		ui->authPw->setText(QT_UTF8(password));
 
 		tmpString = obs_data_get_string(settings, "codec");
 		// NOTE LUDO: #172 codecs list of radio buttons
 		// const char *codec = strcmp("", tmpString) == 0 ? "Automatic"
 		const char *codec = strcmp("", tmpString) == 0 ? "vp9"
 							       : tmpString;
+		// int idxC = ui->codec->findText(codec);
+		// ui->codec->setCurrentIndex(idxC);
+		QList<QAbstractButton *> listButtons =
+			ui->codecButtonGroup->buttons();
+		for (QList<QAbstractButton *>::iterator iter =
+			     listButtons.begin();
+		     iter != listButtons.end(); ++iter) {
+			QRadioButton *radiobutton =
+				reinterpret_cast<QRadioButton *>(*iter);
+			if (strcmp(codec,
+				   radiobutton->text().toStdString().c_str()) ==
+			    0) {
+				radiobutton->setChecked(true);
+				break;
+			}
+		}
 
 		tmpString = obs_data_get_string(settings, "protocol");
 		const char *protocol = strcmp("", tmpString) == 0 ? "Automatic"
 								  : tmpString;
+		int idxP = ui->streamProtocol->findText(protocol);
+		ui->streamProtocol->setCurrentIndex(idxP);
 
 		bool simulcast = obs_data_get_bool(settings, "simulcast");
 		ui->simulcastEnable->setChecked(simulcast);
 
 		const char *publish_api_url =
 			obs_data_get_string(settings, "publish_api_url");
+		ui->publishApiUrl->setText(publish_api_url);
 
 		// #289 service list of radio buttons
-		QList<QAbstractButton *> listButtons =
-			ui->serviceButtonGroup->buttons();
+		listButtons = ui->serviceButtonGroup->buttons();
 		for (QList<QAbstractButton *>::iterator iter =
 			     listButtons.begin();
 		     iter != listButtons.end(); ++iter) {
@@ -240,33 +280,8 @@ void OBSBasicSettings::LoadStream1Settings()
 		}
 
 		ui->customServer->setText(server);
-		ui->room->setText(QT_UTF8(room));
-		ui->authUsername->setText(QT_UTF8(username));
-		ui->authPw->setText(QT_UTF8(password));
 		bool use_auth = true;
 		ui->useAuth->setChecked(use_auth);
-
-		// NOTE LUDO: #172 codecs list of radio buttons
-		// int idxC = ui->codec->findText(codec);
-		// ui->codec->setCurrentIndex(idxC);
-		listButtons = ui->codecButtonGroup->buttons();
-		for (QList<QAbstractButton *>::iterator iter =
-			     listButtons.begin();
-		     iter != listButtons.end(); ++iter) {
-			QRadioButton *radiobutton =
-				reinterpret_cast<QRadioButton *>(*iter);
-			if (strcmp(codec,
-				   radiobutton->text().toStdString().c_str()) ==
-			    0) {
-				radiobutton->setChecked(true);
-				break;
-			}
-		}
-
-		int idxP = ui->streamProtocol->findText(protocol);
-		ui->streamProtocol->setCurrentIndex(idxP);
-
-		ui->publishApiUrl->setText(publish_api_url);
 	}
 
 	UpdateServerList();
@@ -335,18 +350,26 @@ void OBSBasicSettings::SaveStream1Settings()
 				    QT_TO_UTF8(ui->customServer->text()));
 		obs_data_set_bool(settings, "use_auth",
 				  ui->useAuth->isChecked());
-		if (ui->useAuth->isChecked()) {
-			obs_data_set_string(
-				settings, "username",
-				QT_TO_UTF8(ui->authUsername->text()));
-			obs_data_set_string(settings, "password",
-					    QT_TO_UTF8(ui->authPw->text()));
-		}
+		obs_data_set_string(settings, "username",
+				    QT_TO_UTF8(ui->authUsername->text()));
+		obs_data_set_string(settings, "password",
+				    QT_TO_UTF8(ui->authPw->text()));
+		obs_data_set_string(settings, "room",
+				    QT_TO_UTF8(ui->room->text()));
+		obs_data_set_string(
+			settings, "protocol",
+			QT_TO_UTF8(ui->streamProtocol->currentText()));
+		obs_data_set_bool(settings, "simulcast",
+				  ui->simulcastEnable->isChecked());
+		obs_data_set_string(settings, "publish_api_url",
+				    QT_TO_UTF8(ui->publishApiUrl->text()));
 	} else if (isWebrtc) {
 		obs_data_set_string(settings, "server",
 				    QT_TO_UTF8(ui->customServer->text()));
 		obs_data_set_string(settings, "room",
 				    QT_TO_UTF8(ui->room->text()));
+		obs_data_set_bool(settings, "use_auth",
+				  ui->useAuth->isChecked());
 		obs_data_set_string(settings, "username",
 				    QT_TO_UTF8(ui->authUsername->text()));
 		obs_data_set_string(settings, "password",
@@ -617,7 +640,7 @@ void OBSBasicSettings::on_service_currentIndexChanged(int)
 		ui->roomLabel->setVisible(false);
 		ui->room->setVisible(false);
 		on_useAuth_toggled();
-		ui->codecLabel->setVisible(true);
+		ui->codecLabel->setVisible(false);
 		// NOTE LUDO: #172 codecs list of radio buttons
 		// ui->codec->setVisible(true);
 		QList<QAbstractButton *> listButtons =
@@ -627,7 +650,7 @@ void OBSBasicSettings::on_service_currentIndexChanged(int)
 		     iter != listButtons.end(); ++iter) {
 			QRadioButton *radiobutton =
 				reinterpret_cast<QRadioButton *>(*iter);
-			radiobutton->setVisible(true);
+			radiobutton->setVisible(false);
 		}
 		ui->streamProtocolLabel->setVisible(false);
 		ui->streamProtocol->setVisible(false);
