@@ -423,7 +423,7 @@ prepare_macos_bundle() {
     cp ${CI_SCRIPTS}/app/OBSPublicDSAKey.pem ./OBS-WebRTC.app/Contents/Resources
 
     step "Set bundle meta information..."
-    plutil -insert CFBundleVersion -string "${MACOSX_BUNDLE_BUNDLE_VERSION}" ./OBS-WebRTC.app/Contents/Info.plist
+    plutil -insert CFBundleVersion -string "${OBS_VERSION}" ./OBS-WebRTC.app/Contents/Info.plist
     plutil -insert CFBundleShortVersionString -string "${MACOSX_BUNDLE_SHORT_VERSION_STRING}" ./OBS-WebRTC.app/Contents/Info.plist
     plutil -insert OBSFeedsURL -string https://obsproject.com/osx_update/feeds.xml ./OBS-WebRTC.app/Contents/Info.plist
     plutil -insert SUFeedURL -string https://obsproject.com/osx_update/stable/updates.xml ./OBS-WebRTC.app/Contents/Info.plist
@@ -447,11 +447,11 @@ prepare_macos_image() {
 
     step "Run dmgbuild..."
     cp "${CI_SCRIPTS}/package/settings.json.template" ./settings.json
-    sed -i '' 's#\$\$VERSION\$\$#'"${MACOSX_BUNDLE_BUNDLE_VERSION}"'#g' ./settings.json
+    sed -i '' 's#\$\$VERSION\$\$#'"${OBS_VERSION}"'#g' ./settings.json
     sed -i '' 's#\$\$CI_PATH\$\$#'"${CI_SCRIPTS}"'#g' ./settings.json
     sed -i '' 's#\$\$BUNDLE_PATH\$\$#'"${CHECKOUT_DIR}"'/build_'"${VENDOR}"'#g' ./settings.json
     echo -n "${COLOR_ORANGE}"
-    dmgbuild "OBS-Studio-WebRTC ${MACOSX_BUNDLE_BUNDLE_VERSION}" "${FILE_NAME}" -s ./settings.json
+    dmgbuild "OBS-Studio-WebRTC ${OBS_VERSION}" "${FILE_NAME}" -s ./settings.json
     echo -n "${COLOR_RESET}"
 
     if [ -n "${CODESIGN_OBS}" ]; then
