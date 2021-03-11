@@ -29,13 +29,13 @@ variables:
   - name: RESTREAM-HASH
     value: $(restream_hash)
 # for Windows code signing
-  -name: WINDOWS_SIGNING_VAULT_URL
+  - name: WINDOWS_SIGNING_VAULT_URL
     value: $(windows_signing_vault_url)
-  -name: WINDOWS_SIGNING_CLIENT_ID
+  - name: WINDOWS_SIGNING_CLIENT_ID
     value: $(windows_signing_client_id)
-  -name: WINDOWS_SIGNING_CLIENT_SECRET
+  - name: WINDOWS_SIGNING_CLIENT_SECRET
     value: $(windows_signing_client_secret)
-  -name: WINDOWS_SIGNING_CERTIFICATE_NAME
+  - name: WINDOWS_SIGNING_CERTIFICATE_NAME
     value: $(windows_signing_certificate_name)
 # for Mac code signing
   - name: CODESIGN_IDENT
