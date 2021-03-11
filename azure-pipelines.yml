@@ -8,12 +8,6 @@ variables:
     value: $(ftpLudoLogin)
   - name: FTP_PASSWORD
     value: $(ftpLudoPassword)
-  - name: CODESIGN_IDENT
-    value: $(ludo_apple_developer_identity)
-  - name: CODESIGN_IDENT_USER
-    value: $(ludo_apple_account_id)
-  - name: CODESIGN_IDENT_PASS
-    value: $(ludo_apple_developer_password)
   - name: BUILD_TYPE
     value: Release
   - name: CMAKE_PREFIX_PATH
@@ -34,6 +28,22 @@ variables:
     value: $(restream_clientid)
   - name: RESTREAM-HASH
     value: $(restream_hash)
+# for Windows code signing
+  -name: WINDOWS_SIGNING_VAULT_URL
+    value: $(windows_signing_vault_url)
+  -name: WINDOWS_SIGNING_CLIENT_ID
+    value: $(windows_signing_client_id)
+  -name: WINDOWS_SIGNING_CLIENT_SECRET
+    value: $(windows_signing_client_secret)
+  -name: WINDOWS_SIGNING_CERTIFICATE_NAME
+    value: $(windows_signing_certificate_name)
+# for Mac code signing
+  - name: CODESIGN_IDENT
+    value: $(ludo_apple_developer_identity)
+  - name: CODESIGN_IDENT_USER
+    value: $(ludo_apple_account_id)
+  - name: CODESIGN_IDENT_PASS
+    value: $(ludo_apple_developer_password)
 # for script CI/full-build-macos.sh
   - name: MIN_MACOS_VERSION
     value: 10.13
@@ -97,6 +107,12 @@ jobs:
   pool:
     vmImage: 'windows-2019'
   steps:
+  - task: DotNetCoreCLI@2
+    inputs:
+      command: 'custom'
+      custom: 'tool'
+      arguments: 'install --global azuresigntool'
+    displayName: Install AzureSignTool
   - script: git submodule update --init --recursive
     displayName: 'Checkout Submodules'
   - script: ./CI/install-qt-win.cmd
@@ -121,6 +137,10 @@ jobs:
         solution: .\build64_${{ vendor }}\${{ vendor }}.sln
     - script: ./CI/before-deploy-win.cmd ${{ vendor }}
       displayName: '${{ vendor }} Before deploy'
+    - task: CmdLine@2
+      inputs:
+        script: AzureSignTool sign -kvu $(WINDOWS_SIGNING_VAULT_URL) -kvc $(WINDOWS_SIGNING_CERTIFICATE_NAME) -kvi $(WINDOWS_SIGNING_CLIENT_ID) -kvs $(WINDOWS_SIGNING_CLIENT_SECRET) -tr http://ts.ssl.com/ -td sha256 ./build_${{ vendor }}/*.msi
+      displayName: 'Sign build_${{ vendor }} with global AzureSignTool'
     - task: PublishBuildArtifacts@1
       inputs:
         pathtoPublish: './build_${{ vendor }}'
