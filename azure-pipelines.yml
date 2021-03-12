@@ -139,7 +139,7 @@ jobs:
       displayName: '${{ vendor }} Before deploy'
     - task: CmdLine@2
       inputs:
-        script: $msi_file_to_sign = Get-ChildItem -Path ./build_${{ vendor }}/*.msi
+        script: set msi_file_to_sign = Get-ChildItem -Path ./build_${{ vendor }}/*.msi
       displayName: 'Get MSI file to be signed'
     - task: CmdLine@2
       inputs:
