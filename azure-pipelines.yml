@@ -143,7 +143,7 @@ jobs:
       displayName: 'Get MSI file to be signed'
     - task: CmdLine@2
       inputs:
-        script: echo $(msi_file_to_sign)
+        script: set
       displayName: 'Display MSI file to be signed'
     - task: CmdLine@2
       inputs:
