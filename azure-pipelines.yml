@@ -138,16 +138,17 @@ jobs:
     - script: ./CI/before-deploy-win.cmd ${{ vendor }}
       displayName: '${{ vendor }} Before deploy'
     - task: CmdLine@2
+      name: TaskGetMSIFileName
       inputs:
-        script: set msi_file_to_sign = Get-ChildItem -Path ./build_${{ vendor }}/*.msi
+        script: set MSI_FILE_TO_SIGN = Get-ChildItem -Path ./build_${{ vendor }}/*.msi
       displayName: 'Get MSI file to be signed'
     - task: CmdLine@2
       inputs:
-        script: set
+        script: echo $(TaskGetMSIFileName.MSI_FILE_TO_SIGN)
       displayName: 'Display MSI file to be signed'
     - task: CmdLine@2
       inputs:
-        script: AzureSignTool sign -kvu $(WINDOWS_SIGNING_VAULT_URL_) -kvc $(WINDOWS_SIGNING_CERTIFICATE_NAME_) -kvi $(WINDOWS_SIGNING_CLIENT_ID_) -kvs $(WINDOWS_SIGNING_CLIENT_SECRET_) -td sha256 $(msi_file_to_sign)
+        script: AzureSignTool sign -kvu $(WINDOWS_SIGNING_VAULT_URL_) -kvc $(WINDOWS_SIGNING_CERTIFICATE_NAME_) -kvi $(WINDOWS_SIGNING_CLIENT_ID_) -kvs $(WINDOWS_SIGNING_CLIENT_SECRET_) -td sha256 $(TaskGetMSIFileName.MSI_FILE_TO_SIGN)
       displayName: 'Sign build_${{ vendor }} with global AzureSignTool'
     - task: PublishBuildArtifacts@1
       inputs:
