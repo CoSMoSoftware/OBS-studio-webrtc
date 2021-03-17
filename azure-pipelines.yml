@@ -103,6 +103,7 @@ jobs:
         pathtoPublish: './nightly_${{ vendor }}'
         artifactName: macbuild_${{ vendor }}
 
+
 - job: 'Build_Windows64'
   pool:
     vmImage: 'windows-2019'
