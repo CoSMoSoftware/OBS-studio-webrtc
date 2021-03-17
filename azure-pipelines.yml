@@ -151,8 +151,10 @@ jobs:
         secureFile: signing_certificate_windows.pfx
     - task: CmdLine@2
       inputs:
-        # script: SignTool sign /f $(windows_signing_certificate_file.secureFilePath) /p $(WINDOWS_SIGNING_CERTIFICATE_SECRET) ./build_${{ vendor }}/obs-webrtc-x64-26.1.2-m88.msi
-        script: AzureSignTool sign -kvu $(WINDOWS_SIGNING_VAULT_URL_) -kvi $(WINDOWS_SIGNING_CLIENT_ID_) -kvs $(WINDOWS_SIGNING_CLIENT_SECRET_) -kvc $(WINDOWS_SIGNING_CERTIFICATE_NAME_) -tr http://timestamp.digicert.com -td sha256 -v ./build_${{ vendor }}/obs-webrtc-x64-26.1.2-m88.msi
+        script: |
+          "C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\VC\\Auxiliary\\Build\\vcvars64.bat"
+          SignTool sign /f $(windows_signing_certificate_file.secureFilePath) /p $(WINDOWS_SIGNING_CERTIFICATE_SECRET) ./build_${{ vendor }}/obs-webrtc-x64-26.1.2-m88.msi
+        # script: AzureSignTool sign -kvu $(WINDOWS_SIGNING_VAULT_URL_) -kvi $(WINDOWS_SIGNING_CLIENT_ID_) -kvs $(WINDOWS_SIGNING_CLIENT_SECRET_) -kvc $(WINDOWS_SIGNING_CERTIFICATE_NAME_) -tr http://timestamp.digicert.com -td sha256 -v ./build_${{ vendor }}/obs-webrtc-x64-26.1.2-m88.msi
       displayName: 'Sign build_${{ vendor }} with global AzureSignTool'
       env:
         WINDOWS_SIGNING_CERTIFICATE_SECRET: $(windows_signing_certificate_secret)
