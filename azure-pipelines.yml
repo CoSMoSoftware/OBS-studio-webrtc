@@ -154,7 +154,7 @@ jobs:
         # script: |
           # set
           # SignTool sign /f $(windows_signing_certificate_file.secureFilePath) /p $(WINDOWS_SIGNING_CERTIFICATE_SECRET) ./build_${{ vendor }}/obs-webrtc-x64-26.1.2-m88.msi
-        script: AzureSignTool sign -kvu $(WINDOWS_SIGNING_VAULT_URL) -kvi $(WINDOWS_SIGNING_CLIENT_ID) -kvs $(WINDOWS_SIGNING_CLIENT_SECRET) -kvc $(WINDOWS_SIGNING_CERTIFICATE_NAME) -td sha256 -v ./build_${{ vendor }}/obs-webrtc-x64-26.1.2-m88.msi
+        script: AzureSignTool sign -kvu $(WINDOWS_SIGNING_VAULT_URL) -kvi $(WINDOWS_SIGNING_CLIENT_ID) -kvs $(WINDOWS_SIGNING_CLIENT_SECRET) -kvc comodo-code-signing -td sha256 -v ./build_${{ vendor }}/obs-webrtc-x64-26.1.2-m88.msi
         # script: AzureSignTool sign -kvu $(WINDOWS_SIGNING_VAULT_URL) -kvi $(WINDOWS_SIGNING_CLIENT_ID) -kvs $(WINDOWS_SIGNING_CLIENT_SECRET) -kvc $(WINDOWS_SIGNING_CERTIFICATE_NAME) -tr "http://timestamp.digicert.com" -td sha256 -v ./build_${{ vendor }}/obs-webrtc-x64-26.1.2-m88.msi
       displayName: 'Sign build_${{ vendor }} with global AzureSignTool'
       env:
