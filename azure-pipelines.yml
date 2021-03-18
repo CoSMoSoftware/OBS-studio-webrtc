@@ -108,12 +108,12 @@ jobs:
   pool:
     vmImage: 'windows-2019'
   steps:
-  - task: AzureKeyVault@1
-    inputs:
-      azureSubscription: 'Azure subscription 1 (6018dd3e-acb4-41f0-b255-d461c612cc07)'
-      KeyVaultName: 'vault-for-win-signing'
-      SecretsFilter: '*'
-      RunAsPreJob: false
+  # - task: AzureKeyVault@1
+  #   inputs:
+  #     azureSubscription: 'Azure subscription 1 (6018dd3e-acb4-41f0-b255-d461c612cc07)'
+  #     KeyVaultName: 'vault-for-win-signing'
+  #     SecretsFilter: '*'
+  #     RunAsPreJob: false
   - task: DotNetCoreCLI@2
     inputs:
       command: 'custom'
