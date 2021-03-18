@@ -29,14 +29,14 @@ variables:
   - name: RESTREAM-HASH
     value: $(restream_hash)
 # for Windows code signing
-  - name: WINDOWS_SIGNING_VAULT_URL_
-    value: $(windows_signing_vault_url)
-  - name: WINDOWS_SIGNING_CLIENT_ID_
-    value: $(windows_signing_client_id)
-  - name: WINDOWS_SIGNING_CLIENT_SECRET_
-    value: $(windows_signing_client_secret)
-  - name: WINDOWS_SIGNING_CERTIFICATE_NAME_
-    value: $(windows_signing_certificate_name)
+  # - name: WINDOWS_SIGNING_VAULT_URL_
+  #   value: $(windows_signing_vault_url)
+  # - name: WINDOWS_SIGNING_CLIENT_ID_
+  #   value: $(windows_signing_client_id)
+  # - name: WINDOWS_SIGNING_CLIENT_SECRET_
+  #   value: $(windows_signing_client_secret)
+  # - name: WINDOWS_SIGNING_CERTIFICATE_NAME_
+  #   value: $(windows_signing_certificate_name)
 # for Mac code signing
   - name: CODESIGN_IDENT
     value: $(ludo_apple_developer_identity)
@@ -151,10 +151,11 @@ jobs:
         secureFile: signing_certificate_windows.pfx
     - task: CmdLine@2
       inputs:
-        script: |
-          set
-          SignTool sign /f $(windows_signing_certificate_file.secureFilePath) /p $(WINDOWS_SIGNING_CERTIFICATE_SECRET) ./build_${{ vendor }}/obs-webrtc-x64-26.1.2-m88.msi
-        # script: AzureSignTool sign -kvu $(WINDOWS_SIGNING_VAULT_URL_) -kvi $(WINDOWS_SIGNING_CLIENT_ID_) -kvs $(WINDOWS_SIGNING_CLIENT_SECRET_) -kvc $(WINDOWS_SIGNING_CERTIFICATE_NAME_) -tr http://timestamp.digicert.com -td sha256 -v ./build_${{ vendor }}/obs-webrtc-x64-26.1.2-m88.msi
+        # script: |
+          # set
+          # SignTool sign /f $(windows_signing_certificate_file.secureFilePath) /p $(WINDOWS_SIGNING_CERTIFICATE_SECRET) ./build_${{ vendor }}/obs-webrtc-x64-26.1.2-m88.msi
+        script: AzureSignTool sign -kvu $(WINDOWS_SIGNING_VAULT_URL) -kvi $(WINDOWS_SIGNING_CLIENT_ID) -kvs $(WINDOWS_SIGNING_CLIENT_SECRET) -kvc $(WINDOWS_SIGNING_CERTIFICATE_NAME) -td sha256 -v ./build_${{ vendor }}/obs-webrtc-x64-26.1.2-m88.msi
+        # script: AzureSignTool sign -kvu $(WINDOWS_SIGNING_VAULT_URL) -kvi $(WINDOWS_SIGNING_CLIENT_ID) -kvs $(WINDOWS_SIGNING_CLIENT_SECRET) -kvc $(WINDOWS_SIGNING_CERTIFICATE_NAME) -tr "http://timestamp.digicert.com" -td sha256 -v ./build_${{ vendor }}/obs-webrtc-x64-26.1.2-m88.msi
       displayName: 'Sign build_${{ vendor }} with global AzureSignTool'
       env:
         WINDOWS_SIGNING_CERTIFICATE_SECRET: $(windows_signing_certificate_secret)
