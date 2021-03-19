@@ -129,13 +129,13 @@ jobs:
         solution: .\build64_${{ vendor }}\${{ vendor }}.sln
     - task: CmdLine@2
       inputs:
-        script: AzureSignTool sign -kvu "$(WINDOWS_SIGNING_VAULT_URL)" -kvi "$(WINDOWS_SIGNING_CLIENT_ID)" -kvs "$(WINDOWS_SIGNING_CLIENT_SECRET)" -kvc "comodo-cosmo-certificate" -tr "http://timestamp.comodoca.com" -td sha256 -v ./build64_${{ vendor }}/rundir/Release/bin/64bit/obs64.exe
+        script: AzureSignTool sign -kvu "$(WINDOWS_SIGNING_VAULT_URL)" -kvi "$(WINDOWS_SIGNING_CLIENT_ID)" -kvs "$(WINDOWS_SIGNING_CLIENT_SECRET)" -kvc "$(WINDOWS_SIGNING_CERTIFICATE_NAME)" -tr "http://timestamp.comodoca.com" -td sha256 -v ./build64_${{ vendor }}/UI/Release/obs64.exe
       displayName: 'Sign obs64.exe with global AzureSignTool'
     - script: ./CI/before-deploy-win.cmd ${{ vendor }}
       displayName: '${{ vendor }} Before deploy'
     - task: CmdLine@2
       inputs:
-        script: AzureSignTool sign -kvu "$(WINDOWS_SIGNING_VAULT_URL)" -kvi "$(WINDOWS_SIGNING_CLIENT_ID)" -kvs "$(WINDOWS_SIGNING_CLIENT_SECRET)" -kvc "comodo-cosmo-certificate" -tr "http://timestamp.comodoca.com" -td sha256 -v ./build_${{ vendor }}/obs-webrtc-x64-$(OBS_VERSION).msi
+        script: AzureSignTool sign -kvu "$(WINDOWS_SIGNING_VAULT_URL)" -kvi "$(WINDOWS_SIGNING_CLIENT_ID)" -kvs "$(WINDOWS_SIGNING_CLIENT_SECRET)" -kvc "$(WINDOWS_SIGNING_CERTIFICATE_NAME)" -tr "http://timestamp.comodoca.com" -td sha256 -v ./build_${{ vendor }}/obs-webrtc-x64-$(OBS_VERSION).msi
       displayName: 'Sign build_${{ vendor }} with global AzureSignTool'
     - task: PublishBuildArtifacts@1
       inputs:
