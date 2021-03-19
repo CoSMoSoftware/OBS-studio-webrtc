@@ -15,6 +15,7 @@ sudo apt-get install -y \
         libavfilter-dev \
         libavformat-dev \
         libavutil-dev \
+        libc++-dev \
         libc++abi-dev \
         libcurl4-openssl-dev \
         libfdk-aac-dev \
