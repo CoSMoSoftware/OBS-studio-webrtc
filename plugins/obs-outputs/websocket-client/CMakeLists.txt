@@ -5,6 +5,7 @@ project(websocketclient)
 #------------------------------------------------------------------------
 # Global setup
 #
+# NOTE ALEX: we should check that we are not overriding thsi setting here
 set(CMAKE_CXX_STANDARD 11)
 
 if(WIN32)
@@ -27,10 +28,10 @@ add_subdirectory(nlohmann_json)
 # OpenSSL
 #
 find_package(OpenSSL 1.1 REQUIRED)
-message(STATUS "OPENSSL_INCLUDE_DIR: ${OPENSSL_INCLUDE_DIR}")
+message(STATUS "OPENSSL_INCLUDE_DIR:    ${OPENSSL_INCLUDE_DIR}"   )
 message(STATUS "OPENSSL_CRYPTO_LIBRARY: ${OPENSSL_CRYPTO_LIBRARY}")
-message(STATUS "OPENSSL_SSL_LIBRARY: ${OPENSSL_SSL_LIBRARY}")
-message(STATUS "OPENSSL_VERSION: ${OPENSSL_VERSION}")
+message(STATUS "OPENSSL_SSL_LIBRARY:    ${OPENSSL_SSL_LIBRARY}"   )
+message(STATUS "OPENSSL_VERSION:        ${OPENSSL_VERSION}"       )
 include_directories(${OPENSSL_INCLUDE_DIR})
 
 #------------------------------------------------------------------------
@@ -60,7 +61,7 @@ set(websocketclient_HEADERS
 	MillicastWebsocketClientImpl.h
 	CustomWebrtcImpl.h)
 
-add_library(websocketclient SHARED
+add_library(websocketclient STATIC
 	${websocketclient_SOURCES}
 	${websocketclient_HEADERS})
 
@@ -69,5 +70,3 @@ target_link_libraries(websocketclient
 	PUBLIC ${CURL_LIB}
 	PUBLIC ${OPENSSL_LIBRARIES}
 	PRIVATE nlohmann_json::nlohmann_json)
-
-install_obs_plugin(websocketclient)
