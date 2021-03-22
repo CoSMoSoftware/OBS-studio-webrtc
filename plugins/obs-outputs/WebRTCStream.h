@@ -130,12 +130,13 @@ public:
 	// NOTE LUDO: #80 add getStats
 	// WebRTC stats
 	void getStats();
-	const char *get_stats_list() { return stats_list.c_str(); }
+	const char *get_stats_list() { return stats_list_.c_str(); }
 	// Bitrate & dropped frames
-	uint64_t getBitrate() { return total_bytes_sent; }
-	int getDroppedFrames() { return pli_received; }
+	uint64_t getBitrate() { return total_bytes_sent_; }
+	int getDroppedFrames() { return pli_received_; }
 	// Synchronously get stats
-	rtc::scoped_refptr<const webrtc::RTCStatsReport> NewGetStats();
+	std::vector<rtc::scoped_refptr<const webrtc::RTCStatsReport>>
+	NewGetStats();
 
 	template<typename T> rtc::scoped_refptr<T> make_scoped_refptr(T *t)
 	{
@@ -161,18 +162,13 @@ private:
 	void resetStats();
 
 	// NOTE LUDO: #80 add getStats
-	std::string stats_list;
-	uint16_t frame_id;
-	uint64_t audio_bytes_sent;
-	uint64_t video_bytes_sent;
-	uint64_t total_bytes_sent;
-	int pli_received;
+	std::string stats_list_;
+	uint16_t frame_id_;
+	uint64_t total_bytes_sent_;
+	int pli_received_;
 	// Used to compute fps
-	// NOTE ALEX: Should be initialized in constructor.
-	std::chrono::system_clock::time_point previous_time =
-		std::chrono::system_clock::time_point(
-			std::chrono::duration<int>(0));
-	uint32_t previous_frames_sent = 0;
+	std::chrono::system_clock::time_point previous_time_;
+	uint32_t previous_frames_sent_ = 0;
 
 	std::thread thread_closeAsync;
 
