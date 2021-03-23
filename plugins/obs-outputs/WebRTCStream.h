@@ -14,7 +14,7 @@
 #include "obs.h"
 
 // obs-webrtc includes
-#include "WebsocketClient.h"
+#include "websocket-client/WebsocketClient.h"
 #include "VideoCapturer.h"
 #include "AudioDeviceModuleWrapper.h"
 #include "obsWebrtcAudioSource.h"
