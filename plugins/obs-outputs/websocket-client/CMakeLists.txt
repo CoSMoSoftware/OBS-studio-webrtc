@@ -50,23 +50,26 @@ set(websocketclient_SOURCES
 	restclient-cpp/source/connection.cc
 	restclient-cpp/source/helpers.cc
 	restclient-cpp/source/restclient.cc)
-if(WIN32)
-	set(websocketclient_SOURCES ${websocketclient_SOURCES} dllmain.cpp)
-endif()
 
-add_definitions(-DWEBSOCKETCLIENT_EXPORTS)
 
 set(websocketclient_HEADERS
 	WebsocketClient.h
 	MillicastWebsocketClientImpl.h
 	CustomWebrtcImpl.h)
 
-add_library(websocketclient STATIC
-	${websocketclient_SOURCES}
-	${websocketclient_HEADERS})
+if(WIN32)
+	set(websocketclient_SOURCES ${websocketclient_SOURCES} dllmain.cpp)
+        add_definitions(-DWEBSOCKETCLIENT_EXPORTS)
+        add_library(websocketclient SHARED
+	        ${websocketclient_SOURCES}
+	        ${websocketclient_HEADERS})
+else()
+        add_library(websocketclient STATIC
+	        ${websocketclient_SOURCES}
+	        ${websocketclient_HEADERS})
+endif()
 
 target_link_libraries(websocketclient
-	PUBLIC libobs
 	PUBLIC ${CURL_LIB}
 	PUBLIC ${OPENSSL_LIBRARIES}
 	PRIVATE nlohmann_json::nlohmann_json)
