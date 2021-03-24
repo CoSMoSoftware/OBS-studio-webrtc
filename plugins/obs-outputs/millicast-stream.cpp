@@ -312,7 +312,7 @@ struct obs_output_info millicast_output_info = {
 	millicast_stream_get_audio_packets_sent,       //get_audio_packets_sent
 	millicast_stream_get_audio_bytes_sent,         //get_audio_bytes_sent
 	millicast_stream_get_track_audio_level,        //get_track_audio_level
-	millicast_stream_get_track_total_audio_energy, //get_trsck_total_audio_energy
+	millicast_stream_get_track_total_audio_energy, //get_track_total_audio_energy
 	millicast_stream_get_track_total_samples_duration, //get_track_total_samples_duration
 	millicast_stream_get_track_frame_width,      //get_track_frame_width
 	millicast_stream_get_track_frame_height,     //get_track_frame_height

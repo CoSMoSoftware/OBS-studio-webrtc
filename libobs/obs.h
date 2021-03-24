@@ -1899,7 +1899,7 @@ EXPORT uint64_t obs_output_get_audio_packets_sent(const obs_output_t *output);
 EXPORT uint64_t obs_output_get_audio_bytes_sent(const obs_output_t *output);
 EXPORT uint32_t obs_output_get_track_audio_level(const obs_output_t *output);
 EXPORT uint32_t
-obs_output_get_trsck_total_audio_energy(const obs_output_t *output);
+obs_output_get_track_total_audio_energy(const obs_output_t *output);
 EXPORT uint32_t
 obs_output_get_track_total_samples_duration(const obs_output_t *output);
 EXPORT uint32_t obs_output_get_track_frame_width(const obs_output_t *output);

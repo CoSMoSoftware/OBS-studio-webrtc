@@ -189,6 +189,13 @@ OBSBasicStats::OBSBasicStats(QWidget *parent, bool closeable)
 	newWebrtcStatBare("Track Frames Sent", trackFramesSent, 4);
 	trackHugeFramesSent = new QLabel(this);
 	newWebrtcStatBare("Track Huge Frames Sent", trackHugeFramesSent, 4);
+	trackAudioLevel = new QLabel(this);
+	newWebrtcStatBare("Track Audio Level", trackAudioLevel, 4);
+	trackTotalAudioEnergy = new QLabel(this);
+	newWebrtcStatBare("Track Total Audio Energy", trackTotalAudioEnergy, 4);
+	trackTotalSamplesDuration = new QLabel(this);
+	newWebrtcStatBare("Track Total Samples Duration",
+			  trackTotalSamplesDuration, 4);
 
 	QVBoxLayout *webrtcStatsContainerLayout = new QVBoxLayout();
 	webrtcStatsContainerLayout->addLayout(webrtcStatsLayout);
@@ -580,6 +587,24 @@ void OBSBasicStats::Update()
 			  : 0;
 	str = QString::number(track_huge_frames_sent);
 	trackHugeFramesSent->setText(str);
+
+	uint64_t track_audio_level =
+		strOutput ? obs_output_get_track_audio_level(strOutput) : 0;
+	str = QString::number(track_audio_level);
+	trackAudioLevel->setText(str);
+
+	uint64_t track_total_audio_energy =
+		strOutput ? obs_output_get_track_total_audio_energy(strOutput)
+			  : 0;
+	str = QString::number(track_total_audio_energy);
+	trackTotalAudioEnergy->setText(str);
+
+	uint64_t track_total_samples_duration =
+		strOutput
+			? obs_output_get_track_total_samples_duration(strOutput)
+			: 0;
+	str = QString::number(track_total_samples_duration);
+	trackTotalSamplesDuration->setText(str);
 }
 
 void OBSBasicStats::StartRecTimeLeft()
