@@ -155,6 +155,126 @@ extern "C" int webrtc_custom_stream_dropped_frames(void *data)
 	return stream->getDroppedFrames();
 }
 
+// #310 webrtc getstats()
+extern "C" uint64_t webrtc_custom_stream_get_transport_bytes_sent(void *data)
+{
+	//Get stream
+	WebRTCStream *stream = (WebRTCStream *)data;
+	return stream->getTransportBytesSent();
+}
+
+extern "C" uint64_t webrtc_custom_stream_get_transport_bytes_received(void *data)
+{
+	//Get stream
+	WebRTCStream *stream = (WebRTCStream *)data;
+	return stream->getTransportBytesReceived();
+}
+
+extern "C" uint64_t webrtc_custom_stream_get_video_packets_sent(void *data)
+{
+	//Get stream
+	WebRTCStream *stream = (WebRTCStream *)data;
+	return stream->getVideoPacketsSent();
+}
+
+extern "C" uint64_t webrtc_custom_stream_get_video_bytes_sent(void *data)
+{
+	//Get stream
+	WebRTCStream *stream = (WebRTCStream *)data;
+	return stream->getVideoBytesSent();
+}
+
+extern "C" uint64_t webrtc_custom_stream_get_video_fir_count(void *data)
+{
+	//Get stream
+	WebRTCStream *stream = (WebRTCStream *)data;
+	return stream->getVideoFirCount();
+}
+
+extern "C" uint32_t webrtc_custom_stream_get_video_pli_count(void *data)
+{
+	//Get stream
+	WebRTCStream *stream = (WebRTCStream *)data;
+	return stream->getVideoPliCount();
+}
+
+extern "C" uint64_t webrtc_custom_stream_get_video_nack_count(void *data)
+{
+	//Get stream
+	WebRTCStream *stream = (WebRTCStream *)data;
+	return stream->getVideoNackCount();
+}
+
+extern "C" uint64_t webrtc_custom_stream_get_video_qp_sum(void *data)
+{
+	//Get stream
+	WebRTCStream *stream = (WebRTCStream *)data;
+	return stream->getVideoQpSum();
+}
+
+extern "C" uint64_t webrtc_custom_stream_get_audio_packets_sent(void *data)
+{
+	//Get stream
+	WebRTCStream *stream = (WebRTCStream *)data;
+	return stream->getAudioPacketsSent();
+}
+
+extern "C" uint64_t webrtc_custom_stream_get_audio_bytes_sent(void *data)
+{
+	//Get stream
+	WebRTCStream *stream = (WebRTCStream *)data;
+	return stream->getAudioBytesSent();
+}
+
+extern "C" uint32_t webrtc_custom_stream_get_track_audio_level(void *data)
+{
+	//Get stream
+	WebRTCStream *stream = (WebRTCStream *)data;
+	return stream->getTrackAudioLevel();
+}
+
+extern "C" uint32_t webrtc_custom_stream_get_track_total_audio_energy(void *data)
+{
+	//Get stream
+	WebRTCStream *stream = (WebRTCStream *)data;
+	return stream->getTrackTotalAudioEnergy();
+}
+
+extern "C" uint32_t webrtc_custom_stream_get_track_total_samples_duration(void *data)
+{
+	//Get stream
+	WebRTCStream *stream = (WebRTCStream *)data;
+	return stream->getTrackTotalSamplesDuration();
+}
+
+extern "C" uint32_t webrtc_custom_stream_get_track_frame_width(void *data)
+{
+	//Get stream
+	WebRTCStream *stream = (WebRTCStream *)data;
+	return stream->getTrackFrameWidth();
+}
+
+extern "C" uint32_t webrtc_custom_stream_get_track_frame_height(void *data)
+{
+	//Get stream
+	WebRTCStream *stream = (WebRTCStream *)data;
+	return stream->getTrackFrameHeight();
+}
+
+extern "C" uint64_t webrtc_custom_stream_get_track_frames_sent(void *data)
+{
+	//Get stream
+	WebRTCStream *stream = (WebRTCStream *)data;
+	return stream->getTrackFramesSent();
+}
+
+extern "C" uint64_t webrtc_custom_stream_get_track_huge_frames_sent(void *data)
+{
+	//Get stream
+	WebRTCStream *stream = (WebRTCStream *)data;
+	return stream->getTrackHugeFramesSent();
+}
+
 extern "C" float webrtc_custom_stream_congestion(void *data)
 {
 	UNUSED_PARAMETER(data);
@@ -182,6 +302,24 @@ struct obs_output_info webrtc_custom_output_info = {
 	webrtc_custom_stream_get_stats, webrtc_custom_stream_get_stats_list,
 	webrtc_custom_stream_total_bytes_sent, //get_total_bytes
 	webrtc_custom_stream_dropped_frames,   //get_dropped_frames
+	// #310 webrtc getstats()
+	webrtc_custom_stream_get_transport_bytes_sent, //get_transport_bytes_sent
+	webrtc_custom_stream_get_transport_bytes_received, //get_transport_bytes_received
+	webrtc_custom_stream_get_video_packets_sent, //get_video_packets_sent
+	webrtc_custom_stream_get_video_bytes_sent, //get_video_bytes_sent
+	webrtc_custom_stream_get_video_fir_count, //get_video_fir_count
+	webrtc_custom_stream_get_video_pli_count, //get_video_pli_count
+	webrtc_custom_stream_get_video_nack_count, //get_video_nack_count
+	webrtc_custom_stream_get_video_qp_sum, //get_video_qp_sum
+	webrtc_custom_stream_get_audio_packets_sent, //get_audio_packets_sent
+	webrtc_custom_stream_get_audio_bytes_sent, //get_audio_bytes_sent
+	webrtc_custom_stream_get_track_audio_level, //get_track_audio_level
+	webrtc_custom_stream_get_track_total_audio_energy, //get_track_total_audio_energy
+	webrtc_custom_stream_get_track_total_samples_duration, //get_track_total_samples_duration
+	webrtc_custom_stream_get_track_frame_width, //get_track_frame_width
+	webrtc_custom_stream_get_track_frame_height, //get_track_frame_height
+	webrtc_custom_stream_get_track_frames_sent, //get_track_frames_sent
+	webrtc_custom_stream_get_track_huge_frames_sent, //get_track_huge_frames_sent
 	nullptr,                               //type_data
 	nullptr,                               //free_type_data
 	webrtc_custom_stream_congestion,       //get_congestion
@@ -211,6 +349,24 @@ struct obs_output_info webrtc_custom_output_info = {
 	.get_stats_list = webrtc_custom_stream_get_stats_list,
 	.get_total_bytes = webrtc_custom_stream_total_bytes_sent,
 	.get_dropped_frames = webrtc_custom_stream_dropped_frames,
+	// #310 webrtc getstats()
+	.get_transport_bytes_sent = webrtc_custom_stream_get_transport_bytes_sent,
+	.get_transport_bytes_received = webrtc_custom_stream_get_transport_bytes_received,
+	.get_video_packets_sent = webrtc_custom_stream_get_video_packets_sent,
+	.get_video_bytes_sent = webrtc_custom_stream_get_video_bytes_sent,
+	.get_video_fir_count = webrtc_custom_stream_get_video_fir_count,
+	.get_video_pli_count = webrtc_custom_stream_get_video_pli_count,
+	.get_video_nack_count = webrtc_custom_stream_get_video_nack_count,
+	.get_video_qp_sum = webrtc_custom_stream_get_video_qp_sum,
+	.get_audio_packets_sent = webrtc_custom_stream_get_audio_packets_sent,
+	.get_audio_bytes_sent = webrtc_custom_stream_get_audio_bytes_sent,
+	.get_track_audio_level = webrtc_custom_stream_get_track_audio_level,
+	.get_track_total_audio_energy = webrtc_custom_stream_get_track_total_audio_energy,
+	.get_track_total_samples_duration = webrtc_custom_stream_get_track_total_samples_duration,
+	.get_track_frame_width = webrtc_custom_stream_get_track_frame_width,
+	.get_track_frame_height = webrtc_custom_stream_get_track_frame_height,
+	.get_track_frames_sent = webrtc_custom_stream_get_track_frames_sent,
+	.get_track_huge_frames_sent = webrtc_custom_stream_get_track_huge_frames_sent,
 	.type_data = nullptr,
 	.free_type_data = nullptr,
 	.get_congestion = webrtc_custom_stream_congestion,
