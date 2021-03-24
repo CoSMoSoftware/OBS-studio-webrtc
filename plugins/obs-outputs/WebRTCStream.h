@@ -133,7 +133,35 @@ public:
 	const char *get_stats_list() { return stats_list_.c_str(); }
 	// Bitrate & dropped frames
 	uint64_t getBitrate() { return total_bytes_sent_; }
-	int getDroppedFrames() { return pli_received_; }
+	uint32_t getDroppedFrames() { return pli_received_; }
+	// #310 webrtc getstats()
+	uint64_t getTransportBytesSent() { return transport_bytes_sent_; }
+	uint64_t getTransportBytesReceived()
+	{
+		return transport_bytes_received_;
+	}
+	uint64_t getVideoPacketsSent() { return video_packets_sent_; }
+	uint64_t getVideoBytesSent() { return video_bytes_sent_; }
+	uint64_t getVideoFirCount() { return video_fir_count_; }
+	uint32_t getVideoPliCount() { return pli_received_; }
+	uint64_t getVideoNackCount() { return video_nack_count_; }
+	uint64_t getVideoQpSum() { return video_qp_sum_; }
+	uint64_t getAudioBytesSent() { return audio_bytes_sent_; }
+	uint64_t getAudioPacketsSent() { return audio_packets_sent_; }
+	uint32_t getTrackAudioLevel() { return track_audio_level_; }
+	uint32_t getTrackTotalAudioEnergy()
+	{
+		return track_total_audio_energy_;
+	}
+	uint32_t getTrackTotalSamplesDuration()
+	{
+		return track_total_samples_duration_;
+	}
+	uint32_t getTrackFrameWidth() { return track_frame_width_; }
+	uint32_t getTrackFrameHeight() { return track_frame_height_; }
+	uint64_t getTrackFramesSent() { return track_frames_sent_; }
+	uint64_t getTrackHugeFramesSent() { return track_huge_frames_sent_; }
+
 	// Synchronously get stats
 	std::vector<rtc::scoped_refptr<const webrtc::RTCStatsReport>>
 	NewGetStats();
@@ -165,7 +193,24 @@ private:
 	std::string stats_list_;
 	uint16_t frame_id_;
 	uint64_t total_bytes_sent_;
-	int pli_received_;
+	uint32_t pli_received_;
+	// #310 webrtc getstats()
+	uint64_t transport_bytes_sent_;
+	uint64_t transport_bytes_received_;
+	uint64_t video_packets_sent_;
+	uint64_t video_bytes_sent_;
+	uint64_t video_fir_count_;
+	uint64_t video_nack_count_;
+	uint64_t video_qp_sum_;
+	uint64_t audio_packets_sent_;
+	uint64_t audio_bytes_sent_;
+	uint32_t track_audio_level_;
+	uint32_t track_total_audio_energy_;
+	uint32_t track_total_samples_duration_;
+	uint32_t track_frame_width_;
+	uint32_t track_frame_height_;
+	uint64_t track_frames_sent_;
+	uint64_t track_huge_frames_sent_;
 	// Used to compute fps
 	std::chrono::system_clock::time_point previous_time_;
 	uint32_t previous_frames_sent_ = 0;

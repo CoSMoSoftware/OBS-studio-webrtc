@@ -1885,6 +1885,28 @@ EXPORT const char *obs_output_get_stats_list(const obs_output_t *output);
 EXPORT uint64_t obs_output_get_total_bytes(const obs_output_t *output);
 EXPORT int obs_output_get_frames_dropped(const obs_output_t *output);
 EXPORT int obs_output_get_total_frames(const obs_output_t *output);
+// #310 webrtc getstats()
+EXPORT uint64_t obs_output_get_transport_bytes_sent(const obs_output_t *output);
+EXPORT uint64_t
+obs_output_get_transport_bytes_received(const obs_output_t *output);
+EXPORT uint64_t obs_output_get_video_packets_sent(const obs_output_t *output);
+EXPORT uint64_t obs_output_get_video_bytes_sent(const obs_output_t *output);
+EXPORT uint64_t obs_output_get_video_fir_count(const obs_output_t *output);
+EXPORT uint32_t obs_output_get_video_pli_count(const obs_output_t *output);
+EXPORT uint64_t obs_output_get_video_nack_count(const obs_output_t *output);
+EXPORT uint64_t obs_output_get_video_qp_sum(const obs_output_t *output);
+EXPORT uint64_t obs_output_get_audio_packets_sent(const obs_output_t *output);
+EXPORT uint64_t obs_output_get_audio_bytes_sent(const obs_output_t *output);
+EXPORT uint32_t obs_output_get_track_audio_level(const obs_output_t *output);
+EXPORT uint32_t
+obs_output_get_trsck_total_audio_energy(const obs_output_t *output);
+EXPORT uint32_t
+obs_output_get_track_total_samples_duration(const obs_output_t *output);
+EXPORT uint32_t obs_output_get_track_frame_width(const obs_output_t *output);
+EXPORT uint32_t obs_output_get_track_frame_height(const obs_output_t *output);
+EXPORT uint64_t obs_output_get_track_frames_sent(const obs_output_t *output);
+EXPORT uint64_t
+obs_output_get_track_huge_frames_sent(const obs_output_t *output);
 
 /**
  * Sets the preferred scaled resolution for this output.  Set width and height

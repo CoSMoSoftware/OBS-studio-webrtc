@@ -152,6 +152,127 @@ extern "C" int millicast_stream_dropped_frames(void *data)
 	return stream->getDroppedFrames();
 }
 
+// #310 webrtc getstats()
+extern "C" uint64_t millicast_stream_get_transport_bytes_sent(void *data)
+{
+	//Get stream
+	WebRTCStream *stream = (WebRTCStream *)data;
+	return stream->getTransportBytesSent();
+}
+
+extern "C" uint64_t millicast_stream_get_transport_bytes_received(void *data)
+{
+	//Get stream
+	WebRTCStream *stream = (WebRTCStream *)data;
+	return stream->getTransportBytesReceived();
+}
+
+extern "C" uint64_t millicast_stream_get_video_packets_sent(void *data)
+{
+	//Get stream
+	WebRTCStream *stream = (WebRTCStream *)data;
+	return stream->getVideoPacketsSent();
+}
+
+extern "C" uint64_t millicast_stream_get_video_bytes_sent(void *data)
+{
+	//Get stream
+	WebRTCStream *stream = (WebRTCStream *)data;
+	return stream->getVideoBytesSent();
+}
+
+extern "C" uint64_t millicast_stream_get_video_fir_count(void *data)
+{
+	//Get stream
+	WebRTCStream *stream = (WebRTCStream *)data;
+	return stream->getVideoFirCount();
+}
+
+extern "C" uint32_t millicast_stream_get_video_pli_count(void *data)
+{
+	//Get stream
+	WebRTCStream *stream = (WebRTCStream *)data;
+	return stream->getVideoPliCount();
+}
+
+extern "C" uint64_t millicast_stream_get_video_nack_count(void *data)
+{
+	//Get stream
+	WebRTCStream *stream = (WebRTCStream *)data;
+	return stream->getVideoNackCount();
+}
+
+extern "C" uint64_t millicast_stream_get_video_qp_sum(void *data)
+{
+	//Get stream
+	WebRTCStream *stream = (WebRTCStream *)data;
+	return stream->getVideoQpSum();
+}
+
+extern "C" uint64_t millicast_stream_get_audio_packets_sent(void *data)
+{
+	//Get stream
+	WebRTCStream *stream = (WebRTCStream *)data;
+	return stream->getAudioPacketsSent();
+}
+
+extern "C" uint64_t millicast_stream_get_audio_bytes_sent(void *data)
+{
+	//Get stream
+	WebRTCStream *stream = (WebRTCStream *)data;
+	return stream->getAudioBytesSent();
+}
+
+extern "C" uint32_t millicast_stream_get_track_audio_level(void *data)
+{
+	//Get stream
+	WebRTCStream *stream = (WebRTCStream *)data;
+	return stream->getTrackAudioLevel();
+}
+
+extern "C" uint32_t millicast_stream_get_track_total_audio_energy(void *data)
+{
+	//Get stream
+	WebRTCStream *stream = (WebRTCStream *)data;
+	return stream->getTrackTotalAudioEnergy();
+}
+
+extern "C" uint32_t
+millicast_stream_get_track_total_samples_duration(void *data)
+{
+	//Get stream
+	WebRTCStream *stream = (WebRTCStream *)data;
+	return stream->getTrackTotalSamplesDuration();
+}
+
+extern "C" uint32_t millicast_stream_get_track_frame_width(void *data)
+{
+	//Get stream
+	WebRTCStream *stream = (WebRTCStream *)data;
+	return stream->getTrackFrameWidth();
+}
+
+extern "C" uint32_t millicast_stream_get_track_frame_height(void *data)
+{
+	//Get stream
+	WebRTCStream *stream = (WebRTCStream *)data;
+	return stream->getTrackFrameHeight();
+}
+
+extern "C" uint64_t millicast_stream_get_track_frames_sent(void *data)
+{
+	//Get stream
+	WebRTCStream *stream = (WebRTCStream *)data;
+	return stream->getTrackFramesSent();
+}
+
+extern "C" uint64_t millicast_stream_get_track_huge_frames_sent(void *data)
+{
+	//Get stream
+	WebRTCStream *stream = (WebRTCStream *)data;
+	return stream->getTrackHugeFramesSent();
+}
+
 extern "C" float millicast_stream_congestion(void *data)
 {
 	UNUSED_PARAMETER(data);
@@ -179,13 +300,31 @@ struct obs_output_info millicast_output_info = {
 	millicast_stream_get_stats, millicast_stream_get_stats_list,
 	millicast_stream_total_bytes_sent, //get_total_bytes
 	millicast_stream_dropped_frames,   //get_dropped_frames
-	nullptr,                           //type_data
-	nullptr,                           //free_type_data
-	millicast_stream_congestion,       //get_congestion
-	nullptr,                           //get_connect_time_ms
-	"vp8",                             //encoded_video_codecs
-	"opus",                            //encoded_audio_codecs
-	nullptr                            //raw_audio2
+	// #310 webrtc getstats()
+	millicast_stream_get_transport_bytes_sent, //get_transport_bytes_sent
+	millicast_stream_get_transport_bytes_received, //get_transport_bytes_received
+	millicast_stream_get_video_packets_sent,       //get_video_packets_sent
+	millicast_stream_get_video_bytes_sent,         //get_video_bytes_sent
+	millicast_stream_get_video_fir_count,          //get_video_fir_count
+	millicast_stream_get_video_pli_count,          //get_video_pli_count
+	millicast_stream_get_video_nack_count,         //get_video_nack_count
+	millicast_stream_get_video_qp_sum,             //get_video_qp_sum
+	millicast_stream_get_audio_packets_sent,       //get_audio_packets_sent
+	millicast_stream_get_audio_bytes_sent,         //get_audio_bytes_sent
+	millicast_stream_get_track_audio_level,        //get_track_audio_level
+	millicast_stream_get_track_total_audio_energy, //get_trsck_total_audio_energy
+	millicast_stream_get_track_total_samples_duration, //get_track_total_samples_duration
+	millicast_stream_get_track_frame_width,      //get_track_frame_width
+	millicast_stream_get_track_frame_height,     //get_track_frame_height
+	millicast_stream_get_track_frames_sent,      //get_track_frames_sent
+	millicast_stream_get_track_huge_frames_sent, //get_track_huge_frames_sent
+	nullptr,                                     //type_data
+	nullptr,                                     //free_type_data
+	millicast_stream_congestion,                 //get_congestion
+	nullptr,                                     //get_connect_time_ms
+	"vp8",                                       //encoded_video_codecs
+	"opus",                                      //encoded_audio_codecs
+	nullptr                                      //raw_audio2
 };
 #else
 struct obs_output_info millicast_output_info = {
@@ -208,6 +347,28 @@ struct obs_output_info millicast_output_info = {
 	.get_stats_list = millicast_stream_get_stats_list,
 	.get_total_bytes = millicast_stream_total_bytes_sent,
 	.get_dropped_frames = millicast_stream_dropped_frames,
+	// #310 webrtc getstats()
+	.get_transport_bytes_sent = millicast_stream_get_transport_bytes_sent,
+	.get_transport_bytes_received =
+		millicast_stream_get_transport_bytes_received,
+	.get_video_packets_sent = millicast_stream_get_video_packets_sent,
+	.get_video_bytes_sent = millicast_stream_get_video_bytes_sent,
+	.get_video_fir_count = millicast_stream_get_video_fir_count,
+	.get_video_pli_count = millicast_stream_get_video_pli_count,
+	.get_video_nack_count = millicast_stream_get_video_nack_count,
+	.get_video_qp_sum = millicast_stream_get_video_qp_sum,
+	.get_audio_packets_sent = millicast_stream_get_audio_packets_sent,
+	.get_audio_bytes_sent = millicast_stream_get_audio_bytes_sent,
+	.get_track_audio_level = millicast_stream_get_track_audio_level,
+	.get_track_total_audio_energy =
+		millicast_stream_get_track_total_audio_energy,
+	.get_track_total_samples_duration =
+		millicast_stream_get_track_total_samples_duration,
+	.get_track_frame_width = millicast_stream_get_track_frame_width,
+	.get_track_frame_height = millicast_stream_get_track_frame_height,
+	.get_track_frames_sent = millicast_stream_get_track_frames_sent,
+	.get_track_huge_frames_sent =
+		millicast_stream_get_track_huge_frames_sent,
 	.type_data = nullptr,
 	.free_type_data = nullptr,
 	.get_congestion = millicast_stream_congestion,

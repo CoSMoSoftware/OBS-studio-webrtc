@@ -57,6 +57,8 @@ OBSBasicStats::OBSBasicStats(QWidget *parent, bool closeable)
 	QVBoxLayout *mainLayout = new QVBoxLayout();
 	QGridLayout *topLayout = new QGridLayout();
 	outputLayout = new QGridLayout();
+	// #310 webrtc getstats()
+	QGridLayout *webrtcStatsLayout = new QGridLayout();
 
 	bitrates.reserve(REC_TIME_LEFT_INTERVAL / TIMER_INTERVAL);
 
@@ -139,6 +141,68 @@ OBSBasicStats::OBSBasicStats(QWidget *parent, bool closeable)
 
 	/* --------------------------------------------- */
 
+	// #310 webrtc getstats()
+	QLabel *webrtcStatsTitleLabel = new QLabel("WebRTC Stats", this);
+	webrtcStatsTitleLabel->setStyleSheet("font-weight: bold");
+	webrtcStatsLayout->addWidget(webrtcStatsTitleLabel, 0, 0);
+
+	auto newWebrtcStatBare = [&](QString name, QLabel *label, int col) {
+		QLabel *typeLabel = new QLabel(name, this);
+		webrtcStatsLayout->addWidget(typeLabel, row, col);
+		label->setAlignment(Qt::AlignRight);
+		webrtcStatsLayout->addWidget(label, row++, col + 1);
+	};
+
+	/* --------------------------------------------- */
+
+	row = 1;
+	transportBytesSent = new QLabel(this);
+	newWebrtcStatBare("Transport Bytes Sent", transportBytesSent, 0);
+	transportBytesReceived = new QLabel(this);
+	newWebrtcStatBare("Transport Bytes Received", transportBytesReceived,
+			  0);
+	audioPacketsSent = new QLabel(this);
+	newWebrtcStatBare("Audio Packets Sent", audioPacketsSent, 0);
+	audioBytesSent = new QLabel(this);
+	newWebrtcStatBare("Audio Bytes Sent", audioBytesSent, 0);
+
+	row = 0;
+	videoPacketsSent = new QLabel(this);
+	newWebrtcStatBare("Video Packets Sent", videoPacketsSent, 2);
+	videoBytesSent = new QLabel(this);
+	newWebrtcStatBare("Video Bytes Sent", videoBytesSent, 2);
+	videoFirCount = new QLabel(this);
+	newWebrtcStatBare("Video FIR Count", videoFirCount, 2);
+	videoPliCount = new QLabel(this);
+	newWebrtcStatBare("Video PLI Count", videoPliCount, 2);
+	videoNackCount = new QLabel(this);
+	newWebrtcStatBare("Video NACK Count", videoNackCount, 2);
+	videoQpSum = new QLabel(this);
+	newWebrtcStatBare("Video QP Sum", videoQpSum, 2);
+
+	row = 0;
+	trackFrameWidth = new QLabel(this);
+	newWebrtcStatBare("Track Frame Width", trackFrameWidth, 4);
+	trackFrameHeight = new QLabel(this);
+	newWebrtcStatBare("Track Frame Height", trackFrameHeight, 4);
+	trackFramesSent = new QLabel(this);
+	newWebrtcStatBare("Track Frames Sent", trackFramesSent, 4);
+	trackHugeFramesSent = new QLabel(this);
+	newWebrtcStatBare("Track Huge Frames Sent", trackHugeFramesSent, 4);
+
+	QVBoxLayout *webrtcStatsContainerLayout = new QVBoxLayout();
+	webrtcStatsContainerLayout->addLayout(webrtcStatsLayout);
+	webrtcStatsContainerLayout->addStretch();
+
+	QWidget *webrtcStatsWidget = new QWidget(this);
+	webrtcStatsWidget->setLayout(webrtcStatsContainerLayout);
+
+	QScrollArea *webrtcStatsScrollArea = new QScrollArea(this);
+	webrtcStatsScrollArea->setWidget(webrtcStatsWidget);
+	webrtcStatsScrollArea->setWidgetResizable(true);
+
+	/* --------------------------------------------- */
+
 	QVBoxLayout *outputContainerLayout = new QVBoxLayout();
 	outputContainerLayout->addLayout(outputLayout);
 	outputContainerLayout->addStretch();
@@ -154,6 +218,8 @@ OBSBasicStats::OBSBasicStats(QWidget *parent, bool closeable)
 
 	mainLayout->addLayout(topLayout);
 	mainLayout->addWidget(scrollArea);
+	// #310 webrtc getstats()
+	mainLayout->addWidget(webrtcStatsScrollArea);
 	mainLayout->addLayout(buttonLayout);
 	setLayout(mainLayout);
 
@@ -438,6 +504,82 @@ void OBSBasicStats::Update()
 		long double kbps = outputLabels[1].kbps;
 		bitrates.push_back(kbps);
 	}
+
+	// #310 webrtc getstats()
+	/* ------------------------------------------- */
+	/* WebRTC stats                                */
+
+	uint64_t transport_bytes_sent =
+		strOutput ? obs_output_get_transport_bytes_sent(strOutput) : 0;
+	str = QString::number(transport_bytes_sent / 1024) + QString(" kB");
+	transportBytesSent->setText(str);
+
+	uint64_t transport_bytes_received =
+		strOutput ? obs_output_get_transport_bytes_received(strOutput)
+			  : 0;
+	str = QString::number(transport_bytes_received / 1024) + QString(" kB");
+	transportBytesReceived->setText(str);
+
+	uint64_t audio_packets_sent =
+		strOutput ? obs_output_get_audio_packets_sent(strOutput) : 0;
+	str = QString::number(audio_packets_sent);
+	audioPacketsSent->setText(str);
+
+	uint64_t audio_bytes_sent =
+		strOutput ? obs_output_get_audio_bytes_sent(strOutput) : 0;
+	str = QString::number(audio_bytes_sent / 1024) + QString(" kB");
+	audioBytesSent->setText(str);
+
+	uint64_t video_packets_sent =
+		strOutput ? obs_output_get_video_packets_sent(strOutput) : 0;
+	str = QString::number(video_packets_sent);
+	videoPacketsSent->setText(str);
+
+	uint64_t video_bytes_sent =
+		strOutput ? obs_output_get_video_bytes_sent(strOutput) : 0;
+	str = QString::number(video_bytes_sent / 1024) + QString(" kB");
+	videoBytesSent->setText(str);
+
+	uint64_t video_fir_count =
+		strOutput ? obs_output_get_video_fir_count(strOutput) : 0;
+	str = QString::number(video_fir_count);
+	videoFirCount->setText(str);
+
+	uint32_t video_pli_count =
+		strOutput ? obs_output_get_video_pli_count(strOutput) : 0;
+	str = QString::number(video_pli_count);
+	videoPliCount->setText(str);
+
+	uint64_t video_nack_count =
+		strOutput ? obs_output_get_video_nack_count(strOutput) : 0;
+	str = QString::number(video_nack_count);
+	videoNackCount->setText(str);
+
+	uint64_t video_qp_sum =
+		strOutput ? obs_output_get_video_qp_sum(strOutput) : 0;
+	str = QString::number(video_qp_sum);
+	videoQpSum->setText(str);
+
+	uint32_t track_frame_width =
+		strOutput ? obs_output_get_track_frame_width(strOutput) : 0;
+	str = QString::number(track_frame_width);
+	trackFrameWidth->setText(str);
+
+	uint32_t track_frame_height =
+		strOutput ? obs_output_get_track_frame_height(strOutput) : 0;
+	str = QString::number(track_frame_height);
+	trackFrameHeight->setText(str);
+
+	uint64_t track_frames_sent =
+		strOutput ? obs_output_get_track_frames_sent(strOutput) : 0;
+	str = QString::number(track_frames_sent);
+	trackFramesSent->setText(str);
+
+	uint64_t track_huge_frames_sent =
+		strOutput ? obs_output_get_track_huge_frames_sent(strOutput)
+			  : 0;
+	str = QString::number(track_huge_frames_sent);
+	trackHugeFramesSent->setText(str);
 }
 
 void OBSBasicStats::StartRecTimeLeft()

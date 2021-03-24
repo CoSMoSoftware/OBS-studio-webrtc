@@ -25,6 +25,25 @@ class OBSBasicStats : public QWidget {
 	QLabel *skippedFrames = nullptr;
 	QLabel *missedFrames = nullptr;
 
+	// #310 webrtc getstats()
+	QLabel *transportBytesSent = nullptr;
+	QLabel *transportBytesReceived = nullptr;
+	QLabel *videoPacketsSent = nullptr;
+	QLabel *videoBytesSent = nullptr;
+	QLabel *videoFirCount = nullptr;
+	QLabel *videoPliCount = nullptr;
+	QLabel *videoNackCount = nullptr;
+	QLabel *videoQpSum = nullptr;
+	QLabel *audioPacketsSent = nullptr;
+	QLabel *audioBytesSent = nullptr;
+	QLabel *trackAudioLevel = nullptr;
+	QLabel *trackTotalAudioEnergy = nullptr;
+	QLabel *trackTotalSamplesDuration = nullptr;
+	QLabel *trackFrameWidth = nullptr;
+	QLabel *trackFrameHeight = nullptr;
+	QLabel *trackFramesSent = nullptr;
+	QLabel *trackHugeFramesSent = nullptr;
+
 	QGridLayout *outputLayout = nullptr;
 
 	os_cpu_usage_info_t *cpu_info = nullptr;

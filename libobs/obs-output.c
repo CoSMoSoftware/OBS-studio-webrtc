@@ -979,6 +979,181 @@ int obs_output_get_total_frames(const obs_output_t *output)
 		       : 0;
 }
 
+// #310 webrtc getstats()
+uint64_t obs_output_get_transport_bytes_sent(const obs_output_t *output)
+{
+	if (!obs_output_valid(output, "obs_output_get_transport_bytes_sent"))
+		return 0;
+	if (!output->info.get_transport_bytes_sent)
+		return 0;
+
+	return output->info.get_transport_bytes_sent(output->context.data);
+}
+
+uint64_t obs_output_get_transport_bytes_received(const obs_output_t *output)
+{
+	if (!obs_output_valid(output,
+			      "obs_output_get_transport_bytes_received"))
+		return 0;
+	if (!output->info.get_transport_bytes_received)
+		return 0;
+
+	return output->info.get_transport_bytes_received(output->context.data);
+}
+
+uint64_t obs_output_get_video_packets_sent(const obs_output_t *output)
+{
+	if (!obs_output_valid(output, "obs_output_get_video_packets_sent"))
+		return 0;
+	if (!output->info.get_video_packets_sent)
+		return 0;
+
+	return output->info.get_video_packets_sent(output->context.data);
+}
+
+uint64_t obs_output_get_video_bytes_sent(const obs_output_t *output)
+{
+	if (!obs_output_valid(output, "obs_output_get_video_bytes_sent"))
+		return 0;
+	if (!output->info.get_video_bytes_sent)
+		return 0;
+
+	return output->info.get_video_bytes_sent(output->context.data);
+}
+
+uint64_t obs_output_get_video_fir_count(const obs_output_t *output)
+{
+	if (!obs_output_valid(output, "obs_output_get_video_fir_count"))
+		return 0;
+	if (!output->info.get_video_fir_count)
+		return 0;
+
+	return output->info.get_video_fir_count(output->context.data);
+}
+
+uint32_t obs_output_get_video_pli_count(const obs_output_t *output)
+{
+	if (!obs_output_valid(output, "obs_output_get_video_pli_count"))
+		return 0;
+	if (!output->info.get_video_pli_count)
+		return 0;
+
+	return output->info.get_video_pli_count(output->context.data);
+}
+
+uint64_t obs_output_get_video_nack_count(const obs_output_t *output)
+{
+	if (!obs_output_valid(output, "obs_output_get_video_nack_count"))
+		return 0;
+	if (!output->info.get_video_nack_count)
+		return 0;
+
+	return output->info.get_video_nack_count(output->context.data);
+}
+
+uint64_t obs_output_get_video_qp_sum(const obs_output_t *output)
+{
+	if (!obs_output_valid(output, "obs_output_get_video_qp_sum"))
+		return 0;
+	if (!output->info.get_video_qp_sum)
+		return 0;
+
+	return output->info.get_video_qp_sum(output->context.data);
+}
+
+uint64_t obs_output_get_audio_packets_sent(const obs_output_t *output)
+{
+	if (!obs_output_valid(output, "obs_output_get_audio_packets_sent"))
+		return 0;
+	if (!output->info.get_audio_packets_sent)
+		return 0;
+
+	return output->info.get_audio_packets_sent(output->context.data);
+}
+
+uint64_t obs_output_get_audio_bytes_sent(const obs_output_t *output)
+{
+	if (!obs_output_valid(output, "obs_output_get_audio_bytes_sent"))
+		return 0;
+	if (!output->info.get_audio_bytes_sent)
+		return 0;
+
+	return output->info.get_audio_bytes_sent(output->context.data);
+}
+
+uint32_t obs_output_get_track_audio_level(const obs_output_t *output)
+{
+	if (!obs_output_valid(output, "obs_output_get_track_audio_level"))
+		return 0;
+	if (!output->info.get_track_audio_level)
+		return 0;
+
+	return output->info.get_track_audio_level(output->context.data);
+}
+
+uint32_t obs_output_get_track_total_audio_energy(const obs_output_t *output)
+{
+	if (!obs_output_valid(output,
+			      "obs_output_get_track_total_audio_energy"))
+		return 0;
+	if (!output->info.get_track_total_audio_energy)
+		return 0;
+
+	return output->info.get_track_total_audio_energy(output->context.data);
+}
+
+uint32_t obs_output_get_track_total_samples_duration(const obs_output_t *output)
+{
+	if (!obs_output_valid(output,
+			      "obs_output_get_track_total_samples_duration"))
+		return 0;
+	if (!output->info.get_track_total_samples_duration)
+		return 0;
+
+	return output->info.get_track_total_samples_duration(
+		output->context.data);
+}
+
+uint32_t obs_output_get_track_frame_width(const obs_output_t *output)
+{
+	if (!obs_output_valid(output, "obs_output_get_track_frame_width"))
+		return 0;
+	if (!output->info.get_track_frame_width)
+		return 0;
+
+	return output->info.get_track_frame_width(output->context.data);
+}
+
+uint32_t obs_output_get_track_frame_height(const obs_output_t *output)
+{
+	if (!obs_output_valid(output, "obs_output_get_track_frame_height"))
+		return 0;
+	if (!output->info.get_track_frame_height)
+		return 0;
+
+	return output->info.get_track_frame_height(output->context.data);
+}
+
+uint64_t obs_output_get_track_frames_sent(const obs_output_t *output)
+{
+	if (!obs_output_valid(output, "obs_output_get_track_frames_sent"))
+		return 0;
+	if (!output->info.get_track_frames_sent)
+		return 0;
+
+	return output->info.get_track_frames_sent(output->context.data);
+}
+
+uint64_t obs_output_get_track_huge_frames_sent(const obs_output_t *output)
+{
+	if (!obs_output_valid(output, "obs_output_get_track_huge_frames_sent"))
+		return 0;
+	if (!output->info.get_track_huge_frames_sent)
+		return 0;
+
+	return output->info.get_track_huge_frames_sent(output->context.data);
+}
+
 void obs_output_set_preferred_size(obs_output_t *output, uint32_t width,
 				   uint32_t height)
 {

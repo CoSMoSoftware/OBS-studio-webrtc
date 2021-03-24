@@ -68,6 +68,25 @@ struct obs_output_info {
 
 	int (*get_dropped_frames)(void *data);
 
+	// #310 webrtc getstats()
+	uint64_t (*get_transport_bytes_sent)(void *data);
+	uint64_t (*get_transport_bytes_received)(void *data);
+	uint64_t (*get_video_packets_sent)(void *data);
+	uint64_t (*get_video_bytes_sent)(void *data);
+	uint64_t (*get_video_fir_count)(void *data);
+	uint32_t (*get_video_pli_count)(void *data);
+	uint64_t (*get_video_nack_count)(void *data);
+	uint64_t (*get_video_qp_sum)(void *data);
+	uint64_t (*get_audio_packets_sent)(void *data);
+	uint64_t (*get_audio_bytes_sent)(void *data);
+	uint32_t (*get_track_audio_level)(void *data);
+	uint32_t (*get_track_total_audio_energy)(void *data);
+	uint32_t (*get_track_total_samples_duration)(void *data);
+	uint32_t (*get_track_frame_width)(void *data);
+	uint32_t (*get_track_frame_height)(void *data);
+	uint64_t (*get_track_frames_sent)(void *data);
+	uint64_t (*get_track_huge_frames_sent)(void *data);
+
 	void *type_data;
 	void (*free_type_data)(void *type_data);
 
