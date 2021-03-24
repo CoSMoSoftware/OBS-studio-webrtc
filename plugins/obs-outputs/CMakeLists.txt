@@ -1,4 +1,92 @@
+#-------------------------------------------------------------------------------
+# - OBS outputs
+#
+# * RTMP output
+# * WEBRTC output (WHIP signalling)
+# * WEBRTC output (Millicast signalling)
+#-------------------------------------------------------------------------------
+
 project(obs-outputs)
+include_directories("${CMAKE_BINARY_DIR}/plugins/obs-outputs/config")
+include_directories("${CMAKE_SOURCE_DIR}/libobs")
+
+#-------------------------------------------------------------------------------
+# - Millicast WS Signalling library
+#-------------------------------------------------------------------------------
+
+set( MC_SIGNAL_LIB_DIR websocket-client )
+add_subdirectory(${MC_SIGNAL_LIB_DIR})
+
+#-------------------------------------------------------------------------------
+# WebRTC
+#-------------------------------------------------------------------------------
+
+if(WIN32)
+	set(WEBRTC_USE_FILE_INCLUDED 0)
+endif()
+
+# --- libwebrtc
+
+message( STATUS "Looking for libwebrtc" )
+
+# CoSMo libwebrtc package has versioning and COMPONENTS
+find_package(LibWebRTC 88 QUIET COMPONENTS H264 )
+  if( NOT libwebrtc_FOUND )
+    message( STATUS "No CoSMo package was found, searching for any webrtc package.")
+    # A FindLibWebRTC package is also provided in the repository for self-compiled libwebrtc
+    # this time we MUST find it, or fail, hence the REQUIRED
+    find_package(LibWebRTC REQUIRED)
+  endif()
+message( STATUS "Looking for libwebrtc - found" )
+
+# CoSMo package components allow for fine feature granularity, and to adjust
+# the application build at configuration time.
+if( WEBRTC_H264_FOUND )
+        message( STATUS "This libwebrtc package was built with H264 support." )
+else()
+        # Pass configuration items to the Code layer so as to e.g. not list
+        # H.264 video codec In the UI if it is not available in libwebrtc
+        # we could use a .h file, but here we are using precompiler instead
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DDISABLE_WEBRTC_H264")
+        set(CMAKE_C_FLAGS   "${CMAKE_C_FLAGS}   -DDISABLE_WEBRTC_H264")
+endif()
+if( WEBRTC_EXT_OPENSSL_FOUND )
+        message( STATUS "This libwebrtc package was built against openssl." )
+endif()
+if( WEBRTC_SFRAME_FOUND )
+        message( STATUS "This libwebrtc package was build with SFrame end-to-end encryption." )
+endif()
+
+# --- Sources
+
+set(obs-outputs_webrtc_HEADERS
+	AudioDeviceModuleWrapper.h
+	millicast-stream.h
+	webrtc-custom-stream.h
+        obsWebrtcAudioSource.h
+	SDPModif.h
+	VideoCapturer.h
+	WebRTCStream.h
+       )
+set(obs-outputs_webrtc_SOURCES
+	AudioDeviceModuleWrapper.cpp
+	millicast-stream.cpp
+	webrtc-custom-stream.cpp
+        obsWebrtcAudioSource.cpp
+	VideoCapturer.cpp
+	WebRTCStream.cpp
+	)
+
+if(NOT WIN32)
+	set_source_files_properties(${obs-outputs_webrtc_SOURCES} PROPERTIES
+		COMPILE_FLAGS "-fvisibility=hidden")
+endif()
+
+#-------------------------------------------------------------------------------
+# - RTMP Support
+#-------------------------------------------------------------------------------
+
+# --- Secure RTMP if SSL implementation available on the build host
 
 set(WITH_RTMPS AUTO CACHE STRING "Enable RTMPS support with mbedTLS")
 set_property(CACHE WITH_RTMPS PROPERTY STRINGS AUTO ON OFF)
@@ -23,110 +111,81 @@ else()
 	add_definitions(-DNO_CRYPTO)
 endif()
 
-# The FTL SDK on Windows can't find struct timeval. FTL is irrelevant to this fork
-# so let's just keep it turned off
+# --- Sources
 
-#------------------------------------------------------------------------
-# FTL-SDK (disabling for now due to compiling error)
-#
-# if (EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/ftl-sdk/CMakeLists.txt")
-# 	find_package(Libcurl REQUIRED)
-# 	message(STATUS "Found ftl-sdk: ftl outputs enabled")
-# 
-# 	add_definitions(-DFTL_STATIC_COMPILE)
-# 
-# 	include_directories(${LIBCURL_INCLUDE_DIRS})
-# 
-# 	set(ftl_SOURCES
-# 		ftl-stream.c
-# 		ftl-sdk/libftl/hmac/hmac.c
-# 		ftl-sdk/libftl/hmac/sha2.c
-# 		ftl-sdk/libftl/ftl-sdk.c
-# 		ftl-sdk/libftl/handshake.c
-# 		ftl-sdk/libftl/ingest.c
-# 		ftl-sdk/libftl/ftl_helpers.c
-# 		ftl-sdk/libftl/media.c
-# 		ftl-sdk/libftl/gettimeofday/gettimeofday.c
-# 		ftl-sdk/libftl/logging.c)
-# 	set(ftl_HEADERS
-# 		ftl-sdk/libftl/hmac/hmac.h
-# 		ftl-sdk/libftl/hmac/sha2.h
-# 		ftl-sdk/libftl/ftl.h
-# 		ftl-sdk/libftl/ftl_private.h)
-# 	set(ftl_IMPORTS
-# 		${OBS_JANSSON_IMPORT}
-# 		${LIBCURL_LIBRARIES})
-# 
-# 	if (WIN32)
-# 		list(APPEND ftl_SOURCES
-# 			ftl-sdk/libftl/win32/socket.c
-# 			ftl-sdk/libftl/gettimeofday/gettimeofday.c
-# 			ftl-sdk/libftl/win32/threads.c)
-# 		list(APPEND ftl_HEADERS
-# 			ftl-sdk/libftl/gettimeofday/gettimeofday.h
-# 			ftl-sdk/libftl/win32/threads.h)
-# 
-# 		include_directories(ftl-sdk/libftl/win32)
-# 	else()
-# 		list(APPEND ftl_SOURCES
-# 			ftl-sdk/libftl/posix/socket.c
-# 			ftl-sdk/libftl/posix/threads.c)
-# 		list(APPEND ftl_HEADERS
-# 			ftl-sdk/libftl/posix/threads.h)
-# 
-# 		include_directories(ftl-sdk/libftl/posix)
-# 	endif()
-# 
-# 	include_directories(ftl-sdk/libftl)
-# 
-# 	set(COMPILE_FTL TRUE)
-# else()
-#	set(COMPILE_FTL FALSE)
-# endif()
+set(obs-outputs_librtmp_HEADERS
+	librtmp/amf.h
+	librtmp/bytes.h
+	librtmp/cencode.h
+	librtmp/dh.h
+	librtmp/dhgroups.h
+	librtmp/handshake.h
+	librtmp/http.h
+	librtmp/log.h
+	librtmp/md5.h
+	librtmp/rtmp.h
+	librtmp/rtmp_sys.h)
+set(obs-outputs_librtmp_SOURCES
+	librtmp/amf.c
+	librtmp/cencode.c
+	librtmp/hashswf.c
+	librtmp/log.c
+	# librtmp/md5.c
+	librtmp/parseurl.c
+	librtmp/rtmp.c)
 
-	set(COMPILE_FTL FALSE)
+if(NOT WIN32)
+	set_source_files_properties(${obs-outputs_librtmp_SOURCES} PROPERTIES
+		COMPILE_FLAGS "-fvisibility=hidden")
+endif()
 
+#-------------------------------------------------------------------------------
+# - Library target definition
+#-------------------------------------------------------------------------------
+
+set(COMPILE_FTL FALSE)
 configure_file(
 	"${CMAKE_CURRENT_SOURCE_DIR}/obs-outputs-config.h.in"
 	"${CMAKE_BINARY_DIR}/plugins/obs-outputs/config/obs-outputs-config.h")
+set(obs-outputs_HEADERS
+	"${CMAKE_BINARY_DIR}/plugins/obs-outputs/config/obs-outputs-config.h"
+	obs-output-ver.h
+	rtmp-helpers.h
+	rtmp-stream.h
+	net-if.h)
+set(obs-outputs_SOURCES
+	obs-outputs.c
+	null-output.c
+	rtmp-stream.c
+	rtmp-windows.c
+	net-if.c
+        flv-output.c
+        flv-mux.c)
 
-include_directories("${CMAKE_BINARY_DIR}/plugins/obs-outputs/config")
-include_directories(${CMAKE_SOURCE_DIR}/libobs)
-
-#------------------------------------------------------------------------
-# WebRTC
-#
 if(WIN32)
-	set(WEBRTC_USE_FILE_INCLUDED 0)
+	set(MODULE_DESCRIPTION "OBS output module")
+	configure_file(
+                ${CMAKE_SOURCE_DIR}/cmake/winrc/obs-module.rc.in
+                obs-outputs.rc)
+	list(APPEND obs-outputs_SOURCES
+		obs-outputs.rc)
 endif()
 
-message( STATUS "Looking for libwebrtc" )
-# CoSMo libwebrtc package has versioning and COMPONENTS
-find_package(LibWebRTC 88 QUIET COMPONENTS H264 )
-  if( NOT libwebrtc_FOUND )
-    # A FindLibWebRTC package is also provided in the repository for self-compiled libwebrtc
-    find_package(LibWebRTC REQUIRED)
-  endif()
-message( STATUS "Looking for libwebrtc - found" )
-if( WEBRTC_H264_FOUND )
-        message( STATUS "This libwebrtc package was built with H264 support." )
-else()
-        # #271 do not list video codec H264 if it is not available in libwebrtc
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DDISABLE_WEBRTC_H264")
-        set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DDISABLE_WEBRTC_H264")
-endif()
-if( WEBRTC_EXT_OPENSSL_FOUND )
-        message( STATUS "This libwebrtc package was built against openssl." )
-endif()
-if( WEBRTC_EXT_LIBSRTP_FOUND )
-        message( STATUS "This libwebrtc package was built with external libsrtp." )
-endif()
-if( WEBRTC_SFRAME_FOUND )
-        message( STATUS "This libwebrtc package was build with SFrame end-to-end encryption." )
-endif()
-if( WEBRTC_ADVERTISE_MULTIOPUS_CODEC )
-        message( STATUS "This libwebrtc package was build with built-in multiopus codec." )
-endif()
+add_library(obs-outputs MODULE
+	${obs-outputs_SOURCES}
+	${obs-outputs_HEADERS}
+	${obs-outputs_librtmp_SOURCES}
+	${obs-outputs_librtmp_HEADERS}
+	${obs-outputs_webrtc_SOURCES}
+	${obs-outputs_webrtc_HEADERS})
+
+target_include_directories(obs-outputs
+	PUBLIC  "${WEBRTC_INCLUDE_DIR}"
+	PUBLIC  "${MC_SIGNAL_LIB_DIR}")
+
+#-------------------------------------------------------------------------------
+# - System Libs and linking
+#-------------------------------------------------------------------------------
 
 if(WIN32)
 	set(obs-outputs_PLATFORM_DEPS
@@ -157,93 +216,6 @@ if(APPLE AND (WITH_RTMPS OR (WITH_RTMPS STREQUAL "AUTO")))
 		${SECURITY_FRAMEWORK})
 endif()
 
-set(obs-outputs_librtmp_HEADERS
-	librtmp/amf.h
-	librtmp/bytes.h
-	librtmp/cencode.h
-	librtmp/dh.h
-	librtmp/dhgroups.h
-	librtmp/handshake.h
-	librtmp/http.h
-	librtmp/log.h
-	librtmp/md5.h
-	librtmp/rtmp.h
-	librtmp/rtmp_sys.h)
-set(obs-outputs_librtmp_SOURCES
-	librtmp/amf.c
-	librtmp/cencode.c
-	librtmp/hashswf.c
-	librtmp/log.c
-	# librtmp/md5.c
-	librtmp/parseurl.c
-	librtmp/rtmp.c)
-
-if(NOT WIN32)
-	set_source_files_properties(${obs-outputs_librtmp_SOURCES} PROPERTIES
-		COMPILE_FLAGS "-fvisibility=hidden")
-endif()
-
-set(obs-outputs_webrtc_HEADERS
-	AudioDeviceModuleWrapper.h
-	millicast-stream.h
-	webrtc-custom-stream.h
-        obsWebrtcAudioSource.h
-	SDPModif.h
-	VideoCapturer.h
-	WebRTCStream.h
-       )
-set(obs-outputs_webrtc_SOURCES
-	AudioDeviceModuleWrapper.cpp
-	millicast-stream.cpp
-	webrtc-custom-stream.cpp
-        obsWebrtcAudioSource.cpp
-	VideoCapturer.cpp
-	WebRTCStream.cpp
-	)
-
-if(NOT WIN32)
-	set_source_files_properties(${obs-outputs_webrtc_SOURCES} PROPERTIES
-		COMPILE_FLAGS "-fvisibility=hidden")
-endif()
-
-set(obs-outputs_HEADERS
-	"${CMAKE_BINARY_DIR}/plugins/obs-outputs/config/obs-outputs-config.h"
-	obs-output-ver.h
-	rtmp-helpers.h
-	rtmp-stream.h
-	net-if.h
-	flv-mux.h)
-set(obs-outputs_SOURCES
-	obs-outputs.c
-	null-output.c
-	rtmp-stream.c
-	rtmp-windows.c
-	flv-output.c
-	flv-mux.c
-	net-if.c)
-
-if(WIN32)
-	set(MODULE_DESCRIPTION "OBS output module")
-	configure_file(${CMAKE_SOURCE_DIR}/cmake/winrc/obs-module.rc.in obs-outputs.rc)
-	list(APPEND obs-outputs_SOURCES
-		obs-outputs.rc)
-endif()
-
-add_library(obs-outputs MODULE
-	${ftl_SOURCES}
-	${ftl_HEADERS}
-	${obs-outputs_SOURCES}
-	${obs-outputs_HEADERS}
-	${obs-outputs_librtmp_SOURCES}
-	${obs-outputs_librtmp_HEADERS}
-	${obs-outputs_webrtc_SOURCES}
-	${obs-outputs_webrtc_HEADERS})
-
-target_include_directories(obs-outputs
-	PUBLIC "${WEBRTC_INCLUDE_DIR}"
-	PUBLIC ${websocketclient_SOURCE_DIR}
-	PUBLIC "${CMAKE_CURRENT_LIST_DIR}/../websocket-client") # for WebsocketClient.h
-
 target_link_libraries(obs-outputs
 	libobs
 	websocketclient
@@ -254,6 +226,8 @@ target_link_libraries(obs-outputs
 	${obs-outputs_PLATFORM_DEPS})
 set_target_properties(obs-outputs PROPERTIES FOLDER "plugins")
 
+# --- Compiler extra settings
+
 if(WIN32 AND MSVC)
 	if(${CMAKE_BUILD_TYPE} STREQUAL "Debug")
 		target_compile_options(obs-outputs PUBLIC "/MTd")
@@ -261,5 +235,7 @@ if(WIN32 AND MSVC)
 		target_compile_options(obs-outputs PUBLIC "/MT")
 	endif()
 endif()
+
+# --- build tree install
 
 install_obs_plugin_with_data(obs-outputs data)

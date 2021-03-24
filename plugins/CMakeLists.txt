@@ -90,7 +90,6 @@ add_subdirectory(obs-transitions)
 add_subdirectory(obs-text)
 add_subdirectory(rtmp-services)
 add_subdirectory(text-freetype2)
-add_subdirectory(websocket-client)
 
 option(BUILD_NDI "Build obs-ndi plugin" OFF)
 if (BUILD_NDI)
