@@ -5,15 +5,8 @@
 #include "restclient-cpp/connection.h"
 #include "restclient-cpp/restclient.h"
 
-#include <util/base.h>
-
 #include <iostream>
 #include <string>
-
-#define warn(format, ...) blog(LOG_WARNING, format, ##__VA_ARGS__)
-#define info(format, ...) blog(LOG_INFO, format, ##__VA_ARGS__)
-#define debug(format, ...) blog(LOG_DEBUG, format, ##__VA_ARGS__)
-#define error(format, ...) blog(LOG_ERROR, format, ##__VA_ARGS__)
 
 using json = nlohmann::json;
 typedef websocketpp::config::asio_client::message_type::ptr message_ptr;
@@ -60,12 +53,12 @@ bool MillicastWebsocketClientImpl::connect(const std::string &publish_api_url,
 		auto wssData = json::parse(r.body);
 		url = wssData["data"]["urls"][0].get<std::string>();
 		jwt = wssData["data"]["jwt"].get<std::string>();
-		info("WSS url:          %s", url.c_str());
-		info("JWT (token):      %s", jwt.c_str());
+		std::cout << "WSS url:          " << url.c_str() << std::endl;
+		std::cout << "JWT (token):      " << jwt.c_str() << std::endl;
 	} else {
-		error("Error querying publishing websocket url");
-		error("code: %d", r.code);
-		error("body: %s", r.body.c_str());
+		std::cerr << "Error querying publishing websocket url" << std::endl;
+		std::cerr << "code: " << r.code << std::endl;
+		std::cerr << "body: " << r.body.c_str() << std::endl;
 		return false;
 	}
 
@@ -86,22 +79,22 @@ bool MillicastWebsocketClientImpl::connect(const std::string &publish_api_url,
 					asio::ssl::context::no_sslv3 |
 					asio::ssl::context::single_dh_use);
 			} catch (std::exception &e) {
-				warn("TLS exception: %s", e.what());
+				std::cerr << "TLS exception: " << e.what() << std::endl;
 			}
 			return ctx;
 		});
 
 		// Create websocket url
 		std::string wss = url + "?token=" + jwt;
-		info("Connection URL:   %s", wss.c_str());
+		std::cout << "Connection URL:   " << wss.c_str() << std::endl;
 
 		connection = client.get_connection(wss, ec);
 		if (!connection)
-			warn("No Connection");
+			std::cerr << "No Connection" << std::endl;
 		connection->set_close_handshake_timeout(5000);
 		if (ec) {
-			error("Error establishing websocket connection: %s",
-			      ec.message().c_str());
+			std::cerr << "Error establishing websocket connection: " <<
+			      ec.message().c_str() << std::endl;
 			return 0;
 		}
 
@@ -110,7 +103,7 @@ bool MillicastWebsocketClientImpl::connect(const std::string &publish_api_url,
 							    connection_hdl /* con */,
 						    message_ptr frame) {
 			const char *x = frame->get_payload().c_str();
-			info("MESSAGE RECEIVED:\n%s\n", x);
+			std::cout << "MESSAGE RECEIVED:" << std::endl << x << std::endl;
 			auto msg = json::parse(frame->get_payload());
 
 			if (msg.find("type") == msg.end())
@@ -153,7 +146,7 @@ bool MillicastWebsocketClientImpl::connect(const std::string &publish_api_url,
 
 		// --- Close handler
 		connection->set_close_handler([=](...) {
-			info("> set_close_handler called");
+			std::cout << "> set_close_handler called" << std::endl;
 			// Don't wait for connection close
 			thread.detach();
 			// Remove connection
@@ -164,13 +157,13 @@ bool MillicastWebsocketClientImpl::connect(const std::string &publish_api_url,
 
 		// -- Failure handler
 		connection->set_fail_handler([=](...) {
-			info("> set_fail_handler called");
+			std::cout <<  "> set_fail_handler called" << std::endl;
 			listener->onDisconnected();
 		});
 
 		// -- HTTP handler
 		connection->set_http_handler(
-			[=](...) { info("> https called"); });
+			[=](...) { std::cout << "> https called" << std::endl; });
 
 		// Note that connect here only requests a connection. No network messages
 		// exchanged until the event loop starts running in the next line.
@@ -182,7 +175,7 @@ bool MillicastWebsocketClientImpl::connect(const std::string &publish_api_url,
 			client.run(); // will exit when this connection is closed
 		});
 	} catch (const websocketpp::exception &e) {
-		warn("connect exception: %s", e.what());
+		std::cerr << "connect exception: " << e.what() << std::endl;
 		return false;
 	}
 	// OK
@@ -194,11 +187,11 @@ bool MillicastWebsocketClientImpl::open(const std::string &sdp,
 					const std::string &audio_codec,
 					const std::string &stream_name)
 {
-	info("WS-OPEN: stream_name: %s", stream_name.c_str());
+	std::cout << "WS-OPEN: stream_name: " << stream_name.c_str() << std::endl;
 
 	// Make sure video_codec is not empty
 	if (video_codec.empty()) {
-		warn("Error: opening stream with video codec not selected (Automatic)");
+		std::cerr << "Error: opening stream with video codec not selected (Automatic)" << std::endl;
 		return false;
 	}
 
@@ -220,11 +213,11 @@ bool MillicastWebsocketClientImpl::open(const std::string &sdp,
 							  : data_with_codec}};
 		// Serialize and send
 		if (connection->send(open.dump())) {
-			warn("Error sending open message");
+			std::cerr << "Error sending open message" << std::endl;
 			return false;
 		}
 	} catch (const websocketpp::exception &e) {
-		warn("open exception: %s", e.what());
+		std::cerr << "open exception: " << e.what() << std::endl;
 		return false;
 	}
 	// OK
@@ -258,8 +251,8 @@ bool MillicastWebsocketClientImpl::disconnect(bool /* wait */)
 				     websocketpp::close::status::normal,
 				     std::string("disconnect"), ec);
 		if (ec)
-			warn("> Error on disconnect close: %s",
-			     ec.message().c_str());
+			std::cerr << "> Error on disconnect close: " <<
+			     ec.message().c_str() << std::endl;
 		// Don't wait for connection close
 		client.stop();
 		// Remove handlers
@@ -270,7 +263,7 @@ bool MillicastWebsocketClientImpl::disconnect(bool /* wait */)
 		if (thread.joinable())
 			thread.detach();
 	} catch (const websocketpp::exception &e) {
-		warn("disconnect exception: %s", e.what());
+		std::cerr << "disconnect exception: " << e.what() << std::endl;
 		return false;
 	}
 	return true;
