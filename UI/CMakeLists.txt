@@ -74,7 +74,7 @@ endif()
 # #271 do not list video codec H264 if it is not available in libwebrtc
 # WARNING: find_package(LibWebRTC) may modify the value of CMAKE_CXX_STANDARD
 set( _remember_cmake_cxx_standard ${CMAKE_CXX_STANDARD} )
-find_package(LibWebRTC 88 QUIET COMPONENTS H264 )
+find_package(LibWebRTC 90 QUIET COMPONENTS H264 )
 if( NOT libwebrtc_FOUND )
   # A FindLibWebRTC package is also provided in the repository for self-compiled libwebrtc
   find_package(LibWebRTC REQUIRED)

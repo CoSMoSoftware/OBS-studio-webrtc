@@ -30,7 +30,7 @@ endif()
 message( STATUS "Looking for libwebrtc" )
 
 # CoSMo libwebrtc package has versioning and COMPONENTS
-find_package(LibWebRTC 88 QUIET COMPONENTS H264 )
+find_package(LibWebRTC 90 QUIET COMPONENTS H264 )
   if( NOT libwebrtc_FOUND )
     message( STATUS "No CoSMo package was found, searching for any webrtc package.")
     # A FindLibWebRTC package is also provided in the repository for self-compiled libwebrtc
@@ -159,8 +159,8 @@ set(obs-outputs_SOURCES
 	rtmp-stream.c
 	rtmp-windows.c
 	net-if.c
-        flv-output.c
-        flv-mux.c)
+	flv-output.c
+	flv-mux.c)
 
 if(WIN32)
 	set(MODULE_DESCRIPTION "OBS output module")

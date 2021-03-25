@@ -7,6 +7,7 @@ project(websocketclient)
 #
 # NOTE ALEX: we should check that we are not overriding thsi setting here
 set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 if(WIN32)
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4503 /wd4267 /wd4244 /wd4996")
