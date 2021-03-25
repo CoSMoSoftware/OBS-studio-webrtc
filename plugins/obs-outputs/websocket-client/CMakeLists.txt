@@ -71,6 +71,7 @@ else()
 endif()
 
 target_link_libraries(websocketclient
+	PUBLIC libobs
 	PUBLIC ${CURL_LIB}
 	PUBLIC ${OPENSSL_LIBRARIES}
 	PRIVATE nlohmann_json::nlohmann_json)
