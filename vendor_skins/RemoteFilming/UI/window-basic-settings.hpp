@@ -34,6 +34,7 @@
 
 class OBSBasic;
 class QAbstractButton;
+class QRadioButton;
 class QComboBox;
 class QCheckBox;
 class QLabel;
@@ -86,14 +87,20 @@ using OBSFFFormatDesc = std::unique_ptr<const ff_format_desc, OBSFFDeleter>;
 
 class OBSBasicSettings : public QDialog {
 	Q_OBJECT
-	Q_PROPERTY(QIcon generalIcon WRITE SetGeneralIcon NOTIFY SetGeneralIcon)
-	Q_PROPERTY(QIcon streamIcon WRITE SetStreamIcon NOTIFY SetStreamIcon)
-	Q_PROPERTY(QIcon outputIcon WRITE SetOutputIcon NOTIFY SetOutputIcon)
-	Q_PROPERTY(QIcon audioIcon WRITE SetAudioIcon NOTIFY SetAudioIcon)
-	Q_PROPERTY(QIcon videoIcon WRITE SetVideoIcon NOTIFY SetVideoIcon)
-	Q_PROPERTY(QIcon hotkeysIcon WRITE SetHotkeysIcon NOTIFY SetHotkeysIcon)
-	Q_PROPERTY(
-		QIcon advancedIcon WRITE SetAdvancedIcon NOTIFY SetAdvancedIcon)
+	Q_PROPERTY(QIcon generalIcon READ GetGeneralIcon WRITE SetGeneralIcon
+			   DESIGNABLE true)
+	Q_PROPERTY(QIcon streamIcon READ GetStreamIcon WRITE SetStreamIcon
+			   DESIGNABLE true)
+	Q_PROPERTY(QIcon outputIcon READ GetOutputIcon WRITE SetOutputIcon
+			   DESIGNABLE true)
+	Q_PROPERTY(QIcon audioIcon READ GetAudioIcon WRITE SetAudioIcon
+			   DESIGNABLE true)
+	Q_PROPERTY(QIcon videoIcon READ GetVideoIcon WRITE SetVideoIcon
+			   DESIGNABLE true)
+	Q_PROPERTY(QIcon hotkeysIcon READ GetHotkeysIcon WRITE SetHotkeysIcon
+			   DESIGNABLE true)
+	Q_PROPERTY(QIcon advancedIcon READ GetAdvancedIcon WRITE SetAdvancedIcon
+			   DESIGNABLE true)
 
 private:
 	OBSBasic *main;
@@ -111,9 +118,14 @@ private:
 	bool advancedChanged = false;
 	int pageIndex = 0;
 	bool loading = true;
+	bool forceAuthReload = false;
 	std::string savedTheme;
+	int sampleRateIndex = 0;
+	int channelIndex = 0;
 
 	int lastSimpleRecQualityIdx = 0;
+	int lastServiceIdx = -1;
+	int lastIgnoreRecommended = -1;
 	int lastChannelSetupIdx = 0;
 
 	OBSFFFormatDesc formats;
@@ -149,6 +161,12 @@ private:
 	uint32_t outputCX = 0;
 	uint32_t outputCY = 0;
 
+	QPointer<QCheckBox> simpleVodTrack;
+
+	QPointer<QCheckBox> vodTrackCheckbox;
+	QPointer<QWidget> vodTrackContainer;
+	QPointer<QRadioButton> vodTrack[MAX_AUDIO_MIXES];
+
 	void SaveCombo(QComboBox *widget, const char *section,
 		       const char *value);
 	void SaveComboData(QComboBox *widget, const char *section,
@@ -162,6 +180,11 @@ private:
 	void SaveFormat(QComboBox *combo);
 	void SaveEncoder(QComboBox *combo, const char *section,
 			 const char *value);
+
+	bool ResFPSValid(obs_service_resolution *res_list, size_t res_count,
+			 int max_fps);
+	void ClosestResFPS(obs_service_resolution *res_list, size_t res_count,
+			   int max_fps, int &new_cx, int &new_cy, int &new_fps);
 
 	inline bool Changed() const
 	{
@@ -223,14 +246,25 @@ private:
 	/* stream */
 	void InitStreamPage();
 	inline bool IsCustomService() const;
-	inline int IsWebRTC() const;
-	void LoadServices(bool showAll);
+	inline bool IsWebRTC() const;
+	inline int GetServiceIndex() const;
+	// #289 service list of radio buttons
+	// void LoadServices(bool showAll);
 	void OnOAuthStreamKeyConnected();
 	void OnAuthConnected();
 	QString lastService;
+	int prevLangIndex;
+	bool prevBrowserAccel;
 private slots:
 	void UpdateServerList();
 	void UpdateKeyLink();
+	void UpdateVodTrackSetting();
+	void UpdateServiceRecommendations();
+	void RecreateOutputResolutionWidget();
+	// #289 service list of radio buttons
+	// void UpdateResFPSLimits();
+	void UpdateMoreInfoLink();
+	void DisplayEnforceWarning(bool checked);
 	void on_show_clicked();
 	void on_authPwShow_clicked();
 	void on_connectAccount_clicked();
@@ -258,7 +292,8 @@ private:
 
 	/* video */
 	void LoadRendererList();
-	void ResetDownscales(uint32_t cx, uint32_t cy);
+	void ResetDownscales(uint32_t cx, uint32_t cy,
+			     bool ignoreAllSignals = false);
 	void LoadDownscaleFilters();
 	void LoadResolutionLists();
 	void LoadFPSData();
@@ -281,11 +316,33 @@ private:
 
 	void RecalcOutputResPixels(const char *resText);
 
+	bool AskIfCanCloseSettings();
+
+	QIcon generalIcon;
+	QIcon streamIcon;
+	QIcon outputIcon;
+	QIcon audioIcon;
+	QIcon videoIcon;
+	QIcon hotkeysIcon;
+	QIcon advancedIcon;
+
+	QIcon GetGeneralIcon() const;
+	QIcon GetStreamIcon() const;
+	QIcon GetOutputIcon() const;
+	QIcon GetAudioIcon() const;
+	QIcon GetVideoIcon() const;
+	QIcon GetHotkeysIcon() const;
+	QIcon GetAdvancedIcon() const;
+
+	int CurrentFLVTrack();
+
+	OBSService GetStream1Service();
+
 private slots:
 	void on_theme_activated(int idx);
 
 	// NOTE LUDO #170: Settings: replace QListWidget by QPushButtons
-	void on_listWidget_itemSelectionChanged();
+	// void on_listWidget_itemSelectionChanged();
 	void on_basicSettingsButtonGroup_buttonClicked(int row);
 	void on_buttonBox_clicked(QAbstractButton *button);
 
@@ -339,6 +396,7 @@ private slots:
 	void AdvReplayBufferChanged();
 
 	void SimpleStreamingEncoderChanged();
+	void AdvancedStreamingSettingsChanged();
 
 	OBSService SpawnTempService();
 
@@ -351,7 +409,8 @@ private slots:
 	void SetAdvancedIcon(const QIcon &icon);
 
 protected:
-	virtual void closeEvent(QCloseEvent *event);
+	virtual void closeEvent(QCloseEvent *event) override;
+	void reject() override;
 
 public:
 	OBSBasicSettings(QWidget *parent);
