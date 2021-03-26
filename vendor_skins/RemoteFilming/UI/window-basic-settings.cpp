@@ -443,7 +443,7 @@ OBSBasicSettings::OBSBasicSettings(QWidget *parent)
 	HookWidget(ui->simpleOutputPath,     EDIT_CHANGED,   OUTPUTS_CHANGED);
 	HookWidget(ui->simpleNoSpace,        CHECK_CHANGED,  OUTPUTS_CHANGED);
 	HookWidget(ui->simpleOutRecFormat,   COMBO_CHANGED,  OUTPUTS_CHANGED);
-	HookWidget(ui->simpleOutputVBitrate, SCROLL_CHANGED, OUTPUTS_CHANGED);
+	HookWidget(ui->simpleOutputVBitrate, EDIT_CHANGED,   OUTPUTS_CHANGED);
 	HookWidget(ui->simpleOutStrEncoder,  COMBO_CHANGED,  OUTPUTS_CHANGED);
 	HookWidget(ui->simpleOutputABitrate, COMBO_CHANGED,  OUTPUTS_CHANGED);
 	HookWidget(ui->simpleOutAdvanced,    CHECK_CHANGED,  OUTPUTS_CHANGED);
@@ -578,8 +578,6 @@ OBSBasicSettings::OBSBasicSettings(QWidget *parent)
 
 #undef ADD_HOTKEY_FOCUS_TYPE
 
-	ui->simpleOutputVBitrate->setSingleStep(50);
-	ui->simpleOutputVBitrate->setSuffix(" Kbps");
 	ui->advOutFFVBitrate->setSingleStep(50);
 	ui->advOutFFVBitrate->setSuffix(" Kbps");
 	ui->advOutFFABitrate->setSuffix(" Kbps");
@@ -672,8 +670,8 @@ OBSBasicSettings::OBSBasicSettings(QWidget *parent)
 		SLOT(UpdateStreamDelayEstimate()));
 	connect(ui->outputMode, SIGNAL(currentIndexChanged(int)), this,
 		SLOT(UpdateStreamDelayEstimate()));
-	connect(ui->simpleOutputVBitrate, SIGNAL(valueChanged(int)), this,
-		SLOT(UpdateStreamDelayEstimate()));
+	connect(ui->simpleOutputVBitrate, SIGNAL(textChanged(const QString &)),
+		this, SLOT(UpdateStreamDelayEstimate()));
 	connect(ui->simpleOutputABitrate, SIGNAL(currentIndexChanged(int)),
 		this, SLOT(UpdateStreamDelayEstimate()));
 	connect(ui->advOutTrack1Bitrate, SIGNAL(currentIndexChanged(int)), this,
@@ -1207,7 +1205,7 @@ void OBSBasicSettings::LoadThemeList()
 	string themeDir;
 	char userThemeDir[512];
 	int ret = GetConfigPath(userThemeDir, sizeof(userThemeDir),
-				(config_dir + "/themes/").c_str());
+				(std::string(CONFIG_DIR) + "/themes/").c_str());
 	GetDataFilePath("themes/", themeDir);
 
 	/* Check user dir first. */
@@ -4656,12 +4654,12 @@ void OBSBasicSettings::AdvancedStreamingSettingsChanged()
 void OBSBasicSettings::UpdateAutomaticReplayBufferCheckboxes()
 {
 	bool state = false;
-	// NOTE LUDO: #181 replace Settings/Output output mode Simple combo box by a radio button
-	// switch (ui->outputMode->currentIndex()) {
-	switch (ui->outputModeButtonGroup->checkedId()) {
+	switch (ui->outputMode->currentIndex()) {
 	case 0:
 		// NOTE LUDO: #165 Remove button recording
 		// state = ui->simpleReplayBuf->isChecked();
+		// ui->simpleReplayBuf->setEnabled(
+		//	!obs_frontend_replay_buffer_active());
 		break;
 	case 1:
 		state = ui->advReplayBuf->isChecked();
