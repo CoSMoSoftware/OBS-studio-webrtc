@@ -57,7 +57,7 @@ parameters:
     default:
     - Millicast
 #    - PacPost
-#    - RemoteFilming
+    - RemoteFilming
 
 jobs:
 - job: 'Build_macOS'
