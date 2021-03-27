@@ -107,7 +107,7 @@ if(WIN32)
 		win-update/update-window.cpp
 		win-update/win-update.cpp
 		win-update/win-update-helpers.cpp
-		${obs-studio_BINARY_DIR}/obs.rc)
+		${${_project_name}_BINARY_DIR}/obs.rc)
 	set(obs_PLATFORM_HEADERS
 		win-update/update-window.hpp
 		win-update/win-update.hpp
