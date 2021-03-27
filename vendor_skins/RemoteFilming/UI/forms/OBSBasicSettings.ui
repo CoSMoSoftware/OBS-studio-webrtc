@@ -39,12 +39,6 @@
           <iconset resource="obs.qrc">
            <normaloff>:/settings/images/settings/general.svg</normaloff>:/settings/images/settings/general.svg</iconset>
          </property>
-         <property name="iconSize">
-          <size>
-           <width>32</width>
-           <height>32</height>
-          </size>
-         </property>
          <attribute name="buttonGroup">
           <string notr="true">basicSettingsButtonGroup</string>
          </attribute>
@@ -58,12 +52,6 @@
          <property name="icon">
           <iconset resource="obs.qrc">
            <normaloff>:/settings/images/settings/stream.svg</normaloff>:/settings/images/settings/stream.svg</iconset>
-         </property>
-         <property name="iconSize">
-          <size>
-           <width>32</width>
-           <height>32</height>
-          </size>
          </property>
          <attribute name="buttonGroup">
           <string notr="true">basicSettingsButtonGroup</string>
@@ -79,12 +67,6 @@
           <iconset resource="obs.qrc">
            <normaloff>:/settings/images/settings/output.svg</normaloff>:/settings/images/settings/output.svg</iconset>
          </property>
-         <property name="iconSize">
-          <size>
-           <width>32</width>
-           <height>32</height>
-          </size>
-         </property>
          <attribute name="buttonGroup">
           <string notr="true">basicSettingsButtonGroup</string>
          </attribute>
@@ -98,12 +80,6 @@
          <property name="icon">
           <iconset resource="obs.qrc">
            <normaloff>:/settings/images/settings/audio.svg</normaloff>:/settings/images/settings/audio.svg</iconset>
-         </property>
-         <property name="iconSize">
-          <size>
-           <width>32</width>
-           <height>32</height>
-          </size>
          </property>
          <attribute name="buttonGroup">
           <string notr="true">basicSettingsButtonGroup</string>
@@ -119,12 +95,6 @@
           <iconset resource="obs.qrc">
            <normaloff>:/settings/images/settings/video.svg</normaloff>:/settings/images/settings/video.svg</iconset>
          </property>
-         <property name="iconSize">
-          <size>
-           <width>32</width>
-           <height>32</height>
-          </size>
-         </property>
          <attribute name="buttonGroup">
           <string notr="true">basicSettingsButtonGroup</string>
          </attribute>
@@ -139,12 +109,6 @@
           <iconset resource="obs.qrc">
            <normaloff>:/settings/images/settings/hotkeys.svg</normaloff>:/settings/images/settings/hotkeys.svg</iconset>
          </property>
-         <property name="iconSize">
-          <size>
-           <width>32</width>
-           <height>32</height>
-          </size>
-         </property>
          <attribute name="buttonGroup">
           <string notr="true">basicSettingsButtonGroup</string>
          </attribute>
@@ -158,15 +122,6 @@
          <property name="icon">
           <iconset resource="obs.qrc">
            <normaloff>:/settings/images/settings/advanced.svg</normaloff>:/settings/images/settings/advanced.svg</iconset>
-         </property>
-         <property name="iconSize">
-          <size>
-           <width>32</width>
-           <height>32</height>
-          </size>
-         </property>
-         <property name="shortcut">
-          <string>Ctrl+S, Ctrl+S, Ctrl+S, Ctrl+S</string>
          </property>
          <attribute name="buttonGroup">
           <string notr="true">basicSettingsButtonGroup</string>
@@ -359,6 +314,47 @@
                     <widget class="QCheckBox" name="warnBeforeStreamStop">
                      <property name="text">
                       <string>Basic.Settings.General.WarnBeforeStoppingStream</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="2" column="1">
+                    <widget class="QCheckBox" name="warnBeforeRecordStop">
+                     <property name="text">
+                      <string>Basic.Settings.General.WarnBeforeStoppingRecord</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="3" column="1">
+                    <widget class="QCheckBox" name="recordWhenStreaming">
+                     <property name="text">
+                      <string>Basic.Settings.General.RecordWhenStreaming</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="4" column="1">
+                    <widget class="QCheckBox" name="keepRecordStreamStops">
+                     <property name="enabled">
+                      <bool>false</bool>
+                     </property>
+                     <property name="text">
+                      <string>Basic.Settings.General.KeepRecordingWhenStreamStops</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="5" column="1">
+                    <widget class="QCheckBox" name="replayWhileStreaming">
+                     <property name="text">
+                      <string>Basic.Settings.General.ReplayBufferWhileStreaming</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="6" column="1">
+                    <widget class="QCheckBox" name="keepReplayStreamStops">
+                     <property name="enabled">
+                      <bool>false</bool>
+                     </property>
+                     <property name="text">
+                      <string>Basic.Settings.General.KeepReplayBufferStreamStops</string>
                      </property>
                     </widget>
                    </item>
@@ -872,7 +868,7 @@
                <item>
                 <widget class="QRadioButton" name="millicastWebrtcRadioButton">
                  <property name="text">
-                  <string>Millicast-WebRTC</string>
+                  <string>Remote Filming WebRTC</string>
                  </property>
                  <attribute name="buttonGroup">
                   <string notr="true">serviceButtonGroup</string>
@@ -882,7 +878,7 @@
                <item>
                 <widget class="QRadioButton" name="millicastRtmpRadioButton">
                  <property name="text">
-                  <string>Millicast-RTMP</string>
+                  <string>Remote Filming RTMP</string>
                  </property>
                  <attribute name="buttonGroup">
                   <string notr="true">serviceButtonGroup</string>
@@ -917,26 +913,6 @@
                </size>
               </property>
              </spacer>
-            </item>
-            <item row="2" column="0">
-             <widget class="QLabel" name="serviceLabel">
-              <property name="text">
-               <string>Basic.AutoConfig.StreamPage.Service</string>
-              </property>
-             </widget>
-            </item>
-            <item row="2" column="1">
-             <widget class="QRadioButton" name="RFRadioButton">
-              <property name="text">
-               <string>Remote Filming</string>
-              </property>
-              <property name="checked">
-               <bool>true</bool>
-              </property>
-              <attribute name="buttonGroup">
-               <string notr="true">serviceButtonGroup</string>
-              </attribute>
-             </widget>
             </item>
            </layout>
           </widget>
@@ -5698,6 +5674,11 @@
   <tabstop>openStatsOnStartup</tabstop>
   <tabstop>warnBeforeStreamStart</tabstop>
   <tabstop>warnBeforeStreamStop</tabstop>
+  <tabstop>warnBeforeRecordStop</tabstop>
+  <tabstop>recordWhenStreaming</tabstop>
+  <tabstop>keepRecordStreamStops</tabstop>
+  <tabstop>replayWhileStreaming</tabstop>
+  <tabstop>keepReplayStreamStops</tabstop>
   <tabstop>snappingEnabled</tabstop>
   <tabstop>snapDistance</tabstop>
   <tabstop>screenSnapping</tabstop>
