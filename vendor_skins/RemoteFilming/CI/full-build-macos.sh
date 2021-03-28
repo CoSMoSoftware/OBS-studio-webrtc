@@ -592,8 +592,6 @@ full-build-macos() {
         trap "caught_error 'cmake'" ERR
     fi
 
-    git stash
-
     configure_obs_build
     run_obs_build
 }

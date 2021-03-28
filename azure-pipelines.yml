@@ -71,6 +71,8 @@ jobs:
   - script: git submodule update --init --recursive
     displayName: 'Checkout Submodules'
   - ${{ each vendor in parameters.vendors }}:
+    - script: git stash
+      displayName: git stash
     - script: TERM="" ./CI/full-build-macos.sh -b -p -n -v ${{ vendor }}
       displayName: '${{ vendor }} Install dependencies and build'
       env:
@@ -120,6 +122,8 @@ jobs:
       FTP_LOGIN: $(ftpLudoLogin)
       FTP_PASSWORD: $(ftpLudoPassword)
   - ${{ each vendor in parameters.vendors }}:
+    - script: git stash
+      displayName: git stash
     - script: ./CI/install-script-win.cmd ${{ vendor }}
       displayName: '${{ vendor }} Run CMake'
     - task: MSBuild@1
