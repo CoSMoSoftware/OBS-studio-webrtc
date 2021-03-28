@@ -73,8 +73,22 @@ jobs:
   - ${{ each vendor in parameters.vendors }}:
     - script: git stash
       displayName: git stash
-    - script: TERM="" ./CI/full-build-macos.sh -b -p -n -v ${{ vendor }}
+    - script: TERM="" ./CI/full-build-macos.sh -v ${{ vendor }}
       displayName: '${{ vendor }} Install dependencies and build'
+      env:
+        MIN_MACOS_VERSION: $(MIN_MACOS_VERSION)
+        MACOS_CEF_BUILD_VERSION: $(MACOS_CEF_BUILD_VERSION)
+        MACOS_DEPS_VERSION: $(MACOS_DEPS_VERSION)
+        QT_VERSION: $(QT_VERSION)
+        CI_BUILD_TYPE: $(BUILD_TYPE)
+        FTP_PATH_PREFIX: $(webrtc_path_prefix)
+        FTP_LOGIN: $(ftpLudoLogin)
+        FTP_PASSWORD: $(ftpLudoPassword)
+        CODESIGN_IDENT: $(ludo_apple_developer_identity)
+        CODESIGN_IDENT_USER: $(ludo_apple_account_id)
+        CODESIGN_IDENT_PASS: $(ludo_apple_developer_password)
+    - script: TERM="" ./CI/full-build-macos.sh -b -d -p -n -s -v ${{ vendor }}
+      displayName: '${{ vendor }} Create bundle and notarize'
       env:
         MIN_MACOS_VERSION: $(MIN_MACOS_VERSION)
         MACOS_CEF_BUILD_VERSION: $(MACOS_CEF_BUILD_VERSION)
