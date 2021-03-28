@@ -1476,7 +1476,8 @@ bool OBSBasic::InitBasicConfig()
 		return false;
 	}
 
-	if (os_mkdir(configPath) == MKDIR_ERROR) {
+	// if (os_mkdir(configPath) == MKDIR_ERROR) {
+	if (!std::filesystem::create_directories(configPath)) {
 		OBSErrorBox(nullptr, "Failed to create profile path");
 		return false;
 	}
