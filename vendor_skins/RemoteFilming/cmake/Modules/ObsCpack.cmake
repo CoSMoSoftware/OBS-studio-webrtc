@@ -6,7 +6,7 @@ elseif(WIN32 AND NOT CPACK_GENERATOR)
 endif()
 
 set(CPACK_PACKAGE_NAME "RemoteFilming")
-set(CPACK_PACKAGE_VENDOR "obsproject.com")
+set(CPACK_PACKAGE_VENDOR "remotefilming.com")
 set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "RemoteFilming - Live video and audio streaming and recording software")
 set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/UI/data/license/gplv2.txt")
 
@@ -32,8 +32,8 @@ MESSAGE(STATUS "OBS_VERSION: ${OBS_VERSION}")
 
 if(INSTALLER_RUN)
 	set(CPACK_PACKAGE_EXECUTABLES
-		"obs32" "OBS WebRTC (32bit)"
-		"obs64" "OBS WebRTC (64bit)")
+		"obs32" "Remote Filming (32bit)"
+		"obs64" "Remote Filming (64bit)")
 	set(CPACK_CREATE_DESKTOP_LINKS
 		"obs32"
 		"obs64")
@@ -48,7 +48,7 @@ else()
 		set(_output_suffix "")
 	endif()
 
-	set(CPACK_PACKAGE_EXECUTABLES "obs${_output_suffix}" "OBS WebRTC")
+	set(CPACK_PACKAGE_EXECUTABLES "obs${_output_suffix}" "Remote Filming")
 	set(CPACK_CREATE_DESKTOP_LINKS "obs${_output_suffix}")
 endif()
 
@@ -60,26 +60,26 @@ set(CPACK_BUNDLE_STARTUP_COMMAND "${CMAKE_SOURCE_DIR}/cmake/osxbundle/obslaunch.
 set(CPACK_WIX_TEMPLATE "${CMAKE_SOURCE_DIR}/cmake/Modules/WIX.template.in")
 
 if(INSTALLER_RUN)
-	set(CPACK_PACKAGE_INSTALL_REGISTRY_KEY "OBSWebRTC")
+	set(CPACK_PACKAGE_INSTALL_REGISTRY_KEY "RemoteFilming")
 	set(CPACK_WIX_UPGRADE_GUID "1f59ff79-2a3c-43c1-b2b2-033a5e6342eb")
 	set(CPACK_WIX_PRODUCT_GUID "0c7bec2a-4f07-41b2-9dff-d64b09c9c384")
-	set(CPACK_PACKAGE_FILE_NAME "obs-webrtc-${OBS_VERSION}")
+	set(CPACK_PACKAGE_FILE_NAME "remote-fliming-${OBS_VERSION}")
 elseif(CMAKE_SIZEOF_VOID_P EQUAL 8)
 	if(WIN32)
-		set(CPACK_PACKAGE_NAME "OBS WebRTC (64bit)")
+		set(CPACK_PACKAGE_NAME "Remote Filming (64bit)")
 	endif()
-	set(CPACK_PACKAGE_INSTALL_REGISTRY_KEY "OBSWebRTC64")
+	set(CPACK_PACKAGE_INSTALL_REGISTRY_KEY "RemoteFilming64")
 	set(CPACK_WIX_UPGRADE_GUID "44c72510-2e8e-489c-8bc0-2011a9631b0b")
 	set(CPACK_WIX_PRODUCT_GUID "ca5bf4fe-7b38-4003-9455-de249d03caac")
-	set(CPACK_PACKAGE_FILE_NAME "obs-webrtc-x64-${OBS_VERSION}")
+	set(CPACK_PACKAGE_FILE_NAME "remote-filming-x64-${OBS_VERSION}")
 else()
 	if(WIN32)
-		set(CPACK_PACKAGE_NAME "OBS WebRTC (32bit)")
+		set(CPACK_PACKAGE_NAME "Remote Filming (32bit)")
 	endif()
-	set(CPACK_PACKAGE_INSTALL_REGISTRY_KEY "OBSWebRTC32")
+	set(CPACK_PACKAGE_INSTALL_REGISTRY_KEY "RemoteFilming32")
 	set(CPACK_WIX_UPGRADE_GUID "a26acea4-6190-4470-9fb9-f6d32f3ba030")
 	set(CPACK_WIX_PRODUCT_GUID "8e24982d-b0ab-4f66-9c90-f726f3b64682")
-	set(CPACK_PACKAGE_FILE_NAME "obs-webrtc-x86-${OBS_VERSION}")
+	set(CPACK_PACKAGE_FILE_NAME "remote-fliming-x86-${OBS_VERSION}")
 endif()
 
 set(CPACK_PACKAGE_INSTALL_DIRECTORY "${CPACK_PACKAGE_NAME}")

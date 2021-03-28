@@ -61,6 +61,7 @@
 #include "media-controls.hpp"
 #include <fstream>
 #include <sstream>
+#include <filesystem>
 
 #ifdef _WIN32
 #include "win-update/win-update.hpp"
