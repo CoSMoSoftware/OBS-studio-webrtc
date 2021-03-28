@@ -260,10 +260,10 @@ configure_obs_build() {
     NIGHTLY_DIR="${CHECKOUT_DIR}/nightly-${CUR_DATE}"
     PACKAGE_NAME=$(find . -name "*.dmg")
 
-    if [ -d ./OBS-WebRTC.app ]; then
+    if [ -d ./RemoteFilming.app ]; then
         ensure_dir "${NIGHTLY_DIR}"
-        mv ../${BUILD_DIR}_${VENDOR}/OBS-WebRTC.app .
-        info "You can find OBS-WebRTC.app in ${NIGHTLY_DIR}"
+        mv ../${BUILD_DIR}_${VENDOR}/RemoteFilming.app .
+        info "You can find RemoteFilming.app in ${NIGHTLY_DIR}"
     fi
     ensure_dir "${CHECKOUT_DIR}/${BUILD_DIR}_${VENDOR}"
     if ([ -n "${PACKAGE_NAME}" ] && [ -f ${PACKAGE_NAME} ]); then
@@ -317,68 +317,68 @@ run_obs_build() {
 bundle_dylibs() {
     ensure_dir "${CHECKOUT_DIR}/${BUILD_DIR}_${VENDOR}"
 
-    if [ ! -d ./OBS-WebRTC.app ]; then
-        error "No OBS-WebRTC.app bundle found"
+    if [ ! -d ./RemoteFilming.app ]; then
+        error "No RemoteFilming.app bundle found"
         exit 1
     fi
 
     hr "Bundle dylibs for macOS application"
 
     step "Run dylibBundler.."
-    ${CI_SCRIPTS}/app/dylibbundler -cd -of -a ./OBS-WebRTC.app -q -f \
-        -s ./OBS-WebRTC.app/Contents/MacOS \
+    ${CI_SCRIPTS}/app/dylibbundler -cd -of -a ./RemoteFilming.app -q -f \
+        -s ./RemoteFilming.app/Contents/MacOS \
         -s ./rundir/${CI_BUILD_TYPE}/bin/ \
-        -x ./OBS-WebRTC.app/Contents/PlugIns/coreaudio-encoder.so \
-        -x ./OBS-WebRTC.app/Contents/PlugIns/decklink-ouput-ui.so \
-        -x ./OBS-WebRTC.app/Contents/PlugIns/decklink-captions.so \
-        -x ./OBS-WebRTC.app/Contents/PlugIns/frontend-tools.so \
-        -x ./OBS-WebRTC.app/Contents/PlugIns/image-source.so \
-        -x ./OBS-WebRTC.app/Contents/PlugIns/mac-avcapture.so \
-        -x ./OBS-WebRTC.app/Contents/PlugIns/mac-capture.so \
-        -x ./OBS-WebRTC.app/Contents/PlugIns/mac-decklink.so \
-        -x ./OBS-WebRTC.app/Contents/PlugIns/mac-syphon.so \
-        -x ./OBS-WebRTC.app/Contents/PlugIns/mac-vth264.so \
-        -x ./OBS-WebRTC.app/Contents/PlugIns/mac-virtualcam.so \
-        -x ./OBS-WebRTC.app/Contents/PlugIns/obs-browser.so \
-        -x ./OBS-WebRTC.app/Contents/PlugIns/obs-ffmpeg.so \
-        -x ./OBS-WebRTC.app/Contents/PlugIns/obs-filters.so \
-        -x ./OBS-WebRTC.app/Contents/PlugIns/obs-transitions.so \
-        -x ./OBS-WebRTC.app/Contents/PlugIns/obs-vst.so \
-        -x ./OBS-WebRTC.app/Contents/PlugIns/rtmp-services.so \
-        -x ./OBS-WebRTC.app/Contents/MacOS/obs-ffmpeg-mux \
-        -x ./OBS-WebRTC.app/Contents/MacOS/obslua.so \
-        -x ./OBS-WebRTC.app/Contents/PlugIns/obs-x264.so \
-        -x ./OBS-WebRTC.app/Contents/PlugIns/text-freetype2.so \
-        -x ./OBS-WebRTC.app/Contents/PlugIns/obs-outputs.so \
-        -x ./OBS-WebRTC.app/Contents/PlugIns/obs-ndi.so \
-        -x ./OBS-WebRTC.app/Contents/PlugIns/obs-websocket.so
+        -x ./RemoteFilming.app/Contents/PlugIns/coreaudio-encoder.so \
+        -x ./RemoteFilming.app/Contents/PlugIns/decklink-ouput-ui.so \
+        -x ./RemoteFilming.app/Contents/PlugIns/decklink-captions.so \
+        -x ./RemoteFilming.app/Contents/PlugIns/frontend-tools.so \
+        -x ./RemoteFilming.app/Contents/PlugIns/image-source.so \
+        -x ./RemoteFilming.app/Contents/PlugIns/mac-avcapture.so \
+        -x ./RemoteFilming.app/Contents/PlugIns/mac-capture.so \
+        -x ./RemoteFilming.app/Contents/PlugIns/mac-decklink.so \
+        -x ./RemoteFilming.app/Contents/PlugIns/mac-syphon.so \
+        -x ./RemoteFilming.app/Contents/PlugIns/mac-vth264.so \
+        -x ./RemoteFilming.app/Contents/PlugIns/mac-virtualcam.so \
+        -x ./RemoteFilming.app/Contents/PlugIns/obs-browser.so \
+        -x ./RemoteFilming.app/Contents/PlugIns/obs-ffmpeg.so \
+        -x ./RemoteFilming.app/Contents/PlugIns/obs-filters.so \
+        -x ./RemoteFilming.app/Contents/PlugIns/obs-transitions.so \
+        -x ./RemoteFilming.app/Contents/PlugIns/obs-vst.so \
+        -x ./RemoteFilming.app/Contents/PlugIns/rtmp-services.so \
+        -x ./RemoteFilming.app/Contents/MacOS/obs-ffmpeg-mux \
+        -x ./RemoteFilming.app/Contents/MacOS/obslua.so \
+        -x ./RemoteFilming.app/Contents/PlugIns/obs-x264.so \
+        -x ./RemoteFilming.app/Contents/PlugIns/text-freetype2.so \
+        -x ./RemoteFilming.app/Contents/PlugIns/obs-outputs.so \
+        -x ./RemoteFilming.app/Contents/PlugIns/obs-ndi.so \
+        -x ./RemoteFilming.app/Contents/PlugIns/obs-websocket.so
 
     step "Move libobs-opengl to final destination"
-    cp ./libobs-opengl/libobs-opengl.so ./OBS-WebRTC.app/Contents/Frameworks
+    cp ./libobs-opengl/libobs-opengl.so ./RemoteFilming.app/Contents/Frameworks
 
     step "Copy QtNetwork for plugin support"
-    cp -R /tmp/obsdeps/lib/QtNetwork.framework ./OBS-WebRTC.app/Contents/Frameworks
-    chmod -R +w ./OBS-WebRTC.app/Contents/Frameworks/QtNetwork.framework
-    rm -r ./OBS-WebRTC.app/Contents/Frameworks/QtNetwork.framework/Headers
-    rm -r ./OBS-WebRTC.app/Contents/Frameworks/QtNetwork.framework/Versions/5/Headers/
-    chmod 644 ./OBS-WebRTC.app/Contents/Frameworks/QtNetwork.framework/Versions/5/Resources/Info.plist
-    install_name_tool -id @executable_path/../Frameworks/QtNetwork.framework/Versions/5/QtNetwork ./OBS-WebRTC.app/Contents/Frameworks/QtNetwork.framework/Versions/5/QtNetwork
-    install_name_tool -change /tmp/obsdeps/lib/QtCore.framework/Versions/5/QtCore @executable_path/../Frameworks/QtCore.framework/Versions/5/QtCore ./OBS-WebRTC.app/Contents/Frameworks/QtNetwork.framework/Versions/5/QtNetwork
+    cp -R /tmp/obsdeps/lib/QtNetwork.framework ./RemoteFilming.app/Contents/Frameworks
+    chmod -R +w ./RemoteFilming.app/Contents/Frameworks/QtNetwork.framework
+    rm -r ./RemoteFilming.app/Contents/Frameworks/QtNetwork.framework/Headers
+    rm -r ./RemoteFilming.app/Contents/Frameworks/QtNetwork.framework/Versions/5/Headers/
+    chmod 644 ./RemoteFilming.app/Contents/Frameworks/QtNetwork.framework/Versions/5/Resources/Info.plist
+    install_name_tool -id @executable_path/../Frameworks/QtNetwork.framework/Versions/5/QtNetwork ./RemoteFilming.app/Contents/Frameworks/QtNetwork.framework/Versions/5/QtNetwork
+    install_name_tool -change /tmp/obsdeps/lib/QtCore.framework/Versions/5/QtCore @executable_path/../Frameworks/QtCore.framework/Versions/5/QtCore ./RemoteFilming.app/Contents/Frameworks/QtNetwork.framework/Versions/5/QtNetwork
 }
 
 install_frameworks() {
     ensure_dir "${CHECKOUT_DIR}/${BUILD_DIR}_${VENDOR}"
 
-    if [ ! -d ./OBS-WebRTC.app ]; then
-        error "No OBS-WebRTC.app bundle found"
+    if [ ! -d ./RemoteFilming.app ]; then
+        error "No RemoteFilming.app bundle found"
         exit 1
     fi
 
     hr "Adding Chromium Embedded Framework"
     step "Copy Framework..."
-    # cp -R "${DEPS_BUILD_DIR}/cef_binary_${MACOS_CEF_VERSION}_macosx64/Release/Chromium Embedded Framework.framework" ./OBS-WebRTC.app/Contents/Frameworks/
-    cp -R "${DEPS_BUILD_DIR}/cef_binary_${MACOS_CEF_BUILD_VERSION}_macosx64/Release/Chromium Embedded Framework.framework" ./OBS-WebRTC.app/Contents/Frameworks/
-    chown -R $(whoami) ./OBS-WebRTC.app/Contents/Frameworks/
+    # cp -R "${DEPS_BUILD_DIR}/cef_binary_${MACOS_CEF_VERSION}_macosx64/Release/Chromium Embedded Framework.framework" ./RemoteFilming.app/Contents/Frameworks/
+    cp -R "${DEPS_BUILD_DIR}/cef_binary_${MACOS_CEF_BUILD_VERSION}_macosx64/Release/Chromium Embedded Framework.framework" ./RemoteFilming.app/Contents/Frameworks/
+    chown -R $(whoami) ./RemoteFilming.app/Contents/Frameworks/
 }
 
 prepare_macos_bundle() {
@@ -389,53 +389,53 @@ prepare_macos_bundle() {
         exit 1
     fi
 
-    if [ -d ./OBS-WebRTC.app ]; then rm -rf ./OBS-WebRTC.app; fi
+    if [ -d ./RemoteFilming.app ]; then rm -rf ./RemoteFilming.app; fi
 
-    hr "Preparing OBS-WebRTC.app bundle"
+    hr "Preparing RemoteFilming.app bundle"
     step "Copy binary and plugins..."
-    mkdir -p OBS-WebRTC.app/Contents/MacOS
-    mkdir OBS-WebRTC.app/Contents/PlugIns
-    mkdir OBS-WebRTC.app/Contents/Resources
-    mkdir OBS-WebRTC.app/Contents/Frameworks
+    mkdir -p RemoteFilming.app/Contents/MacOS
+    mkdir RemoteFilming.app/Contents/PlugIns
+    mkdir RemoteFilming.app/Contents/Resources
+    mkdir RemoteFilming.app/Contents/Frameworks
 
-    cp rundir/${CI_BUILD_TYPE}/bin/rfs ./OBS-WebRTC.app/Contents/MacOS
-    cp rundir/${CI_BUILD_TYPE}/bin/obs-ffmpeg-mux ./OBS-WebRTC.app/Contents/MacOS
-    cp rundir/${CI_BUILD_TYPE}/bin/libobsglad.0.dylib ./OBS-WebRTC.app/Contents/MacOS
-    cp -R "rundir/${CI_BUILD_TYPE}/bin/OBS Helper.app" "./OBS-WebRTC.app/Contents/Frameworks/OBS Helper.app"
-    cp -R "rundir/${CI_BUILD_TYPE}/bin/OBS Helper (GPU).app" "./OBS-WebRTC.app/Contents/Frameworks/OBS Helper (GPU).app"
-    cp -R "rundir/${CI_BUILD_TYPE}/bin/OBS Helper (Plugin).app" "./OBS-WebRTC.app/Contents/Frameworks/OBS Helper (Plugin).app"
-    cp -R "rundir/${CI_BUILD_TYPE}/bin/OBS Helper (Renderer).app" "./OBS-WebRTC.app/Contents/Frameworks/OBS Helper (Renderer).app"
-    cp -R rundir/${CI_BUILD_TYPE}/data ./OBS-WebRTC.app/Contents/Resources
-    cp ${CI_SCRIPTS}/app/AppIcon.icns ./OBS-WebRTC.app/Contents/Resources
-    cp -R rundir/${CI_BUILD_TYPE}/obs-plugins/ ./OBS-WebRTC.app/Contents/PlugIns
-    cp ${CI_SCRIPTS}/app/Info.plist ./OBS-WebRTC.app/Contents
+    cp rundir/${CI_BUILD_TYPE}/bin/rfs ./RemoteFilming.app/Contents/MacOS
+    cp rundir/${CI_BUILD_TYPE}/bin/obs-ffmpeg-mux ./RemoteFilming.app/Contents/MacOS
+    cp rundir/${CI_BUILD_TYPE}/bin/libobsglad.0.dylib ./RemoteFilming.app/Contents/MacOS
+    cp -R "rundir/${CI_BUILD_TYPE}/bin/OBS Helper.app" "./RemoteFilming.app/Contents/Frameworks/OBS Helper.app"
+    cp -R "rundir/${CI_BUILD_TYPE}/bin/OBS Helper (GPU).app" "./RemoteFilming.app/Contents/Frameworks/OBS Helper (GPU).app"
+    cp -R "rundir/${CI_BUILD_TYPE}/bin/OBS Helper (Plugin).app" "./RemoteFilming.app/Contents/Frameworks/OBS Helper (Plugin).app"
+    cp -R "rundir/${CI_BUILD_TYPE}/bin/OBS Helper (Renderer).app" "./RemoteFilming.app/Contents/Frameworks/OBS Helper (Renderer).app"
+    cp -R rundir/${CI_BUILD_TYPE}/data ./RemoteFilming.app/Contents/Resources
+    cp ${CI_SCRIPTS}/app/AppIcon.icns ./RemoteFilming.app/Contents/Resources
+    cp -R rundir/${CI_BUILD_TYPE}/obs-plugins/ ./RemoteFilming.app/Contents/PlugIns
+    cp ${CI_SCRIPTS}/app/Info.plist ./RemoteFilming.app/Contents
     # Scripting plugins are required to be placed in same directory as binary
-    if [ -d ./OBS-WebRTC.app/Contents/Resources/data/obs-scripting ]; then
-        mv ./OBS-WebRTC.app/Contents/Resources/data/obs-scripting/obslua.so ./OBS-WebRTC.app/Contents/MacOS/
-        # mv ./OBS-WebRTC.app/Contents/Resources/data/obs-scripting/_obspython.so ./OBS-WebRTC.app/Contents/MacOS/
-        # mv ./OBS-WebRTC.app/Contents/Resources/data/obs-scripting/obspython.py ./OBS-WebRTC.app/Contents/MacOS/
-        rm -rf ./OBS-WebRTC.app/Contents/Resources/data/obs-scripting/
+    if [ -d ./RemoteFilming.app/Contents/Resources/data/obs-scripting ]; then
+        mv ./RemoteFilming.app/Contents/Resources/data/obs-scripting/obslua.so ./RemoteFilming.app/Contents/MacOS/
+        # mv ./RemoteFilming.app/Contents/Resources/data/obs-scripting/_obspython.so ./RemoteFilming.app/Contents/MacOS/
+        # mv ./RemoteFilming.app/Contents/Resources/data/obs-scripting/obspython.py ./RemoteFilming.app/Contents/MacOS/
+        rm -rf ./RemoteFilming.app/Contents/Resources/data/obs-scripting/
     fi
 
     bundle_dylibs
     install_frameworks
 
-    cp ${CI_SCRIPTS}/app/OBSPublicDSAKey.pem ./OBS-WebRTC.app/Contents/Resources
+    cp ${CI_SCRIPTS}/app/OBSPublicDSAKey.pem ./RemoteFilming.app/Contents/Resources
 
     step "Set bundle meta information..."
-    plutil -insert CFBundleVersion -string "${OBS_VERSION}" ./OBS-WebRTC.app/Contents/Info.plist
-    plutil -insert CFBundleShortVersionString -string "${MACOSX_BUNDLE_SHORT_VERSION_STRING}" ./OBS-WebRTC.app/Contents/Info.plist
-    plutil -insert OBSFeedsURL -string https://obsproject.com/osx_update/feeds.xml ./OBS-WebRTC.app/Contents/Info.plist
-    plutil -insert SUFeedURL -string https://obsproject.com/osx_update/stable/updates.xml ./OBS-WebRTC.app/Contents/Info.plist
-    plutil -insert SUPublicDSAKeyFile -string OBSPublicDSAKey.pem ./OBS-WebRTC.app/Contents/Info.plist
+    plutil -insert CFBundleVersion -string "${OBS_VERSION}" ./RemoteFilming.app/Contents/Info.plist
+    plutil -insert CFBundleShortVersionString -string "${MACOSX_BUNDLE_SHORT_VERSION_STRING}" ./RemoteFilming.app/Contents/Info.plist
+    plutil -insert OBSFeedsURL -string https://obsproject.com/osx_update/feeds.xml ./RemoteFilming.app/Contents/Info.plist
+    plutil -insert SUFeedURL -string https://obsproject.com/osx_update/stable/updates.xml ./RemoteFilming.app/Contents/Info.plist
+    plutil -insert SUPublicDSAKeyFile -string OBSPublicDSAKey.pem ./RemoteFilming.app/Contents/Info.plist
 }
 
 ## CREATE MACOS DISTRIBUTION AND INSTALLER IMAGE ##
 prepare_macos_image() {
     ensure_dir "${CHECKOUT_DIR}/${BUILD_DIR}_${VENDOR}"
 
-    if [ ! -d ./OBS-WebRTC.app ]; then
-        error "No OBS-WebRTC.app bundle found"
+    if [ ! -d ./RemoteFilming.app ]; then
+        error "No RemoteFilming.app bundle found"
         exit 1
     fi
 
@@ -509,44 +509,44 @@ codesign_bundle() {
     ensure_dir "${CHECKOUT_DIR}/${BUILD_DIR}_${VENDOR}"
     trap "caught_error 'code-signing app'" ERR
 
-    if [ ! -d ./OBS-WebRTC.app ]; then
-        error "No OBS-WebRTC.app bundle found"
+    if [ ! -d ./RemoteFilming.app ]; then
+        error "No RemoteFilming.app bundle found"
         exit 1
     fi
 
     hr "Code-signing application bundle"
 
-    xattr -crs ./OBS-WebRTC.app
+    xattr -crs ./RemoteFilming.app
 
     read_codesign_ident
 
     # step "Code-sign Sparkle framework..."
     # echo -n "${COLOR_ORANGE}"
-    # codesign --force --options runtime --sign "${CODESIGN_IDENT}" "./OBS-WebRTC.app/Contents/Frameworks/Sparkle.framework/Versions/A/Resources/Autoupdate.app/Contents/MacOS/fileop"
-    # codesign --force --options runtime --sign "${CODESIGN_IDENT}" "./OBS-WebRTC.app/Contents/Frameworks/Sparkle.framework/Versions/A/Resources/Autoupdate.app/Contents/MacOS/Autoupdate"
-    # codesign --force --options runtime --sign "${CODESIGN_IDENT}" --deep ./OBS-WebRTC.app/Contents/Frameworks/Sparkle.framework
+    # codesign --force --options runtime --sign "${CODESIGN_IDENT}" "./RemoteFilming.app/Contents/Frameworks/Sparkle.framework/Versions/A/Resources/Autoupdate.app/Contents/MacOS/fileop"
+    # codesign --force --options runtime --sign "${CODESIGN_IDENT}" "./RemoteFilming.app/Contents/Frameworks/Sparkle.framework/Versions/A/Resources/Autoupdate.app/Contents/MacOS/Autoupdate"
+    # codesign --force --options runtime --sign "${CODESIGN_IDENT}" --deep ./RemoteFilming.app/Contents/Frameworks/Sparkle.framework
     # echo -n "${COLOR_RESET}"
 
     step "Code-sign CEF framework..."
     echo -n "${COLOR_ORANGE}"
-    codesign --force --timestamp --options runtime --sign "${CODESIGN_IDENT}" "./OBS-WebRTC.app/Contents/Frameworks/Chromium Embedded Framework.framework/Libraries/libEGL.dylib"
-    codesign --force --timestamp --options runtime --sign "${CODESIGN_IDENT}" "./OBS-WebRTC.app/Contents/Frameworks/Chromium Embedded Framework.framework/Libraries/libGLESv2.dylib"
-    codesign --force --timestamp --options runtime --sign "${CODESIGN_IDENT}" "./OBS-WebRTC.app/Contents/Frameworks/Chromium Embedded Framework.framework/Libraries/libswiftshader_libEGL.dylib"
-    codesign --force --timestamp --options runtime --sign "${CODESIGN_IDENT}" "./OBS-WebRTC.app/Contents/Frameworks/Chromium Embedded Framework.framework/Libraries/libswiftshader_libGLESv2.dylib"
-    codesign --force --timestamp --options runtime --sign "${CODESIGN_IDENT}" "./OBS-WebRTC.app/Contents/Frameworks/Chromium Embedded Framework.framework/Libraries/libvk_swiftshader.dylib"
-    codesign --force --timestamp --options runtime --sign "${CODESIGN_IDENT}" --deep "./OBS-WebRTC.app/Contents/Frameworks/Chromium Embedded Framework.framework"
+    codesign --force --timestamp --options runtime --sign "${CODESIGN_IDENT}" "./RemoteFilming.app/Contents/Frameworks/Chromium Embedded Framework.framework/Libraries/libEGL.dylib"
+    codesign --force --timestamp --options runtime --sign "${CODESIGN_IDENT}" "./RemoteFilming.app/Contents/Frameworks/Chromium Embedded Framework.framework/Libraries/libGLESv2.dylib"
+    codesign --force --timestamp --options runtime --sign "${CODESIGN_IDENT}" "./RemoteFilming.app/Contents/Frameworks/Chromium Embedded Framework.framework/Libraries/libswiftshader_libEGL.dylib"
+    codesign --force --timestamp --options runtime --sign "${CODESIGN_IDENT}" "./RemoteFilming.app/Contents/Frameworks/Chromium Embedded Framework.framework/Libraries/libswiftshader_libGLESv2.dylib"
+    codesign --force --timestamp --options runtime --sign "${CODESIGN_IDENT}" "./RemoteFilming.app/Contents/Frameworks/Chromium Embedded Framework.framework/Libraries/libvk_swiftshader.dylib"
+    codesign --force --timestamp --options runtime --sign "${CODESIGN_IDENT}" --deep "./RemoteFilming.app/Contents/Frameworks/Chromium Embedded Framework.framework"
     echo -n "${COLOR_RESET}"
 
     step "Code-sign OBS code..."
     echo -n "${COLOR_ORANGE}"
-    codesign --force --timestamp --options runtime --sign "${CODESIGN_IDENT}" "./OBS-WebRTC.app/Contents/Resources/data/obs-mac-virtualcam.plugin/Contents/MacOS/obs-mac-virtualcam"
-    codesign --force --timestamp --options runtime --entitlements "${CI_SCRIPTS}/app/entitlements.plist" --sign "${CODESIGN_IDENT}" --deep ./OBS-WebRTC.app
-    codesign --force --timestamp --options runtime --sign "${CODESIGN_IDENT}" --deep "./OBS-WebRTC.app/Contents/Frameworks/OBS Helper.app"
-    codesign --force --timestamp --options runtime --entitlements "${CI_SCRIPTS}/helpers/helper-gpu-entitlements.plist" --sign "${CODESIGN_IDENT}" --deep "./OBS-WebRTC.app/Contents/Frameworks/OBS Helper (GPU).app"
-    codesign --force --timestamp --options runtime --entitlements "${CI_SCRIPTS}/helpers/helper-plugin-entitlements.plist" --sign "${CODESIGN_IDENT}" --deep "./OBS-WebRTC.app/Contents/Frameworks/OBS Helper (Plugin).app"
+    codesign --force --timestamp --options runtime --sign "${CODESIGN_IDENT}" "./RemoteFilming.app/Contents/Resources/data/obs-mac-virtualcam.plugin/Contents/MacOS/obs-mac-virtualcam"
+    codesign --force --timestamp --options runtime --entitlements "${CI_SCRIPTS}/app/entitlements.plist" --sign "${CODESIGN_IDENT}" --deep ./RemoteFilming.app
+    codesign --force --timestamp --options runtime --sign "${CODESIGN_IDENT}" --deep "./RemoteFilming.app/Contents/Frameworks/OBS Helper.app"
+    codesign --force --timestamp --options runtime --entitlements "${CI_SCRIPTS}/helpers/helper-gpu-entitlements.plist" --sign "${CODESIGN_IDENT}" --deep "./RemoteFilming.app/Contents/Frameworks/OBS Helper (GPU).app"
+    codesign --force --timestamp --options runtime --entitlements "${CI_SCRIPTS}/helpers/helper-plugin-entitlements.plist" --sign "${CODESIGN_IDENT}" --deep "./RemoteFilming.app/Contents/Frameworks/OBS Helper (Plugin).app"
     echo -n "${COLOR_RESET}"
     step "Check code-sign result..."
-    codesign -dvv ./OBS-WebRTC.app
+    codesign -dvv ./RemoteFilming.app
 }
 
 codesign_image() {
@@ -628,11 +628,11 @@ notarize_macos() {
 
     if [ -f "${FILE_NAME}" ]; then
         NOTARIZE_TARGET="${FILE_NAME}"
-        xcnotary precheck "./OBS-WebRTC.app"
-    elif [ -d "OBS-WebRTC.app" ]; then
-        NOTARIZE_TARGET="./OBS-WebRTC.app"
+        xcnotary precheck "./RemoteFilming.app"
+    elif [ -d "RemoteFilming.app" ]; then
+        NOTARIZE_TARGET="./RemoteFilming.app"
     else
-        error "No notarization app bundle ('OBS-WebRTC.app') or disk image ('${FILE_NAME}') found"
+        error "No notarization app bundle ('RemoteFilming.app') or disk image ('${FILE_NAME}') found"
         return
     fi
 
