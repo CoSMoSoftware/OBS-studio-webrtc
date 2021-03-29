@@ -401,10 +401,10 @@ prepare_macos_bundle() {
     cp rundir/${CI_BUILD_TYPE}/bin/rfs ./RemoteFilming.app/Contents/MacOS
     cp rundir/${CI_BUILD_TYPE}/bin/obs-ffmpeg-mux ./RemoteFilming.app/Contents/MacOS
     cp rundir/${CI_BUILD_TYPE}/bin/libobsglad.0.dylib ./RemoteFilming.app/Contents/MacOS
-    cp -R "rundir/${CI_BUILD_TYPE}/bin/OBS Helper.app" "./RemoteFilming.app/Contents/Frameworks/OBS Helper.app"
-    cp -R "rundir/${CI_BUILD_TYPE}/bin/OBS Helper (GPU).app" "./RemoteFilming.app/Contents/Frameworks/OBS Helper (GPU).app"
-    cp -R "rundir/${CI_BUILD_TYPE}/bin/OBS Helper (Plugin).app" "./RemoteFilming.app/Contents/Frameworks/OBS Helper (Plugin).app"
-    cp -R "rundir/${CI_BUILD_TYPE}/bin/OBS Helper (Renderer).app" "./RemoteFilming.app/Contents/Frameworks/OBS Helper (Renderer).app"
+#    cp -R "rundir/${CI_BUILD_TYPE}/bin/OBS Helper.app" "./RemoteFilming.app/Contents/Frameworks/OBS Helper.app"
+#    cp -R "rundir/${CI_BUILD_TYPE}/bin/OBS Helper (GPU).app" "./RemoteFilming.app/Contents/Frameworks/OBS Helper (GPU).app"
+#    cp -R "rundir/${CI_BUILD_TYPE}/bin/OBS Helper (Plugin).app" "./RemoteFilming.app/Contents/Frameworks/OBS Helper (Plugin).app"
+#    cp -R "rundir/${CI_BUILD_TYPE}/bin/OBS Helper (Renderer).app" "./RemoteFilming.app/Contents/Frameworks/OBS Helper (Renderer).app"
     cp -R rundir/${CI_BUILD_TYPE}/data ./RemoteFilming.app/Contents/Resources
     cp ${CI_SCRIPTS}/app/AppIcon.icns ./RemoteFilming.app/Contents/Resources
     cp -R rundir/${CI_BUILD_TYPE}/obs-plugins/ ./RemoteFilming.app/Contents/PlugIns
@@ -541,9 +541,9 @@ codesign_bundle() {
     echo -n "${COLOR_ORANGE}"
     codesign --force --timestamp --options runtime --sign "${CODESIGN_IDENT}" "./RemoteFilming.app/Contents/Resources/data/obs-mac-virtualcam.plugin/Contents/MacOS/obs-mac-virtualcam"
     codesign --force --timestamp --options runtime --entitlements "${CI_SCRIPTS}/app/entitlements.plist" --sign "${CODESIGN_IDENT}" --deep ./RemoteFilming.app
-    codesign --force --timestamp --options runtime --sign "${CODESIGN_IDENT}" --deep "./RemoteFilming.app/Contents/Frameworks/OBS Helper.app"
-    codesign --force --timestamp --options runtime --entitlements "${CI_SCRIPTS}/helpers/helper-gpu-entitlements.plist" --sign "${CODESIGN_IDENT}" --deep "./RemoteFilming.app/Contents/Frameworks/OBS Helper (GPU).app"
-    codesign --force --timestamp --options runtime --entitlements "${CI_SCRIPTS}/helpers/helper-plugin-entitlements.plist" --sign "${CODESIGN_IDENT}" --deep "./RemoteFilming.app/Contents/Frameworks/OBS Helper (Plugin).app"
+    # codesign --force --timestamp --options runtime --sign "${CODESIGN_IDENT}" --deep "./RemoteFilming.app/Contents/Frameworks/OBS Helper.app"
+    # codesign --force --timestamp --options runtime --entitlements "${CI_SCRIPTS}/helpers/helper-gpu-entitlements.plist" --sign "${CODESIGN_IDENT}" --deep "./RemoteFilming.app/Contents/Frameworks/OBS Helper (GPU).app"
+    # codesign --force --timestamp --options runtime --entitlements "${CI_SCRIPTS}/helpers/helper-plugin-entitlements.plist" --sign "${CODESIGN_IDENT}" --deep "./RemoteFilming.app/Contents/Frameworks/OBS Helper (Plugin).app"
     echo -n "${COLOR_RESET}"
     step "Check code-sign result..."
     codesign -dvv ./RemoteFilming.app
