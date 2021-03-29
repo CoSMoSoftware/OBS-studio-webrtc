@@ -32,11 +32,11 @@ MESSAGE(STATUS "OBS_VERSION: ${OBS_VERSION}")
 
 if(INSTALLER_RUN)
 	set(CPACK_PACKAGE_EXECUTABLES
-		"obs32" "Remote Filming (32bit)"
-		"obs64" "Remote Filming (64bit)")
+		"rfs32" "Remote Filming (32bit)"
+		"rfs64" "Remote Filming (64bit)")
 	set(CPACK_CREATE_DESKTOP_LINKS
-		"obs32"
-		"obs64")
+		"rfs32"
+		"rfs64")
 else()
 	if(WIN32)
 		if(CMAKE_SIZEOF_VOID_P EQUAL 8)
@@ -48,8 +48,8 @@ else()
 		set(_output_suffix "")
 	endif()
 
-	set(CPACK_PACKAGE_EXECUTABLES "obs${_output_suffix}" "Remote Filming")
-	set(CPACK_CREATE_DESKTOP_LINKS "obs${_output_suffix}")
+	set(CPACK_PACKAGE_EXECUTABLES "rfs${_output_suffix}" "Remote Filming")
+	set(CPACK_CREATE_DESKTOP_LINKS "rfs${_output_suffix}")
 endif()
 
 set(CPACK_BUNDLE_NAME "RemoteFilming")
@@ -61,24 +61,24 @@ set(CPACK_WIX_TEMPLATE "${CMAKE_SOURCE_DIR}/cmake/Modules/WIX.template.in")
 
 if(INSTALLER_RUN)
 	set(CPACK_PACKAGE_INSTALL_REGISTRY_KEY "RemoteFilming")
-	set(CPACK_WIX_UPGRADE_GUID "1f59ff79-2a3c-43c1-b2b2-033a5e6342eb")
-	set(CPACK_WIX_PRODUCT_GUID "0c7bec2a-4f07-41b2-9dff-d64b09c9c384")
+	set(CPACK_WIX_UPGRADE_GUID "adf50186-26e5-44d4-95c8-dc219e7c1ff1")
+	set(CPACK_WIX_PRODUCT_GUID "4d9d8ed8-3aac-402b-9b9b-47c8c512140c")
 	set(CPACK_PACKAGE_FILE_NAME "remote-fliming-${OBS_VERSION}")
 elseif(CMAKE_SIZEOF_VOID_P EQUAL 8)
 	if(WIN32)
 		set(CPACK_PACKAGE_NAME "Remote Filming (64bit)")
 	endif()
 	set(CPACK_PACKAGE_INSTALL_REGISTRY_KEY "RemoteFilming64")
-	set(CPACK_WIX_UPGRADE_GUID "44c72510-2e8e-489c-8bc0-2011a9631b0b")
-	set(CPACK_WIX_PRODUCT_GUID "ca5bf4fe-7b38-4003-9455-de249d03caac")
+	set(CPACK_WIX_UPGRADE_GUID "6937b0df-8c71-4a93-9f65-b412625e7c53")
+	set(CPACK_WIX_PRODUCT_GUID "d911790b-b0f1-43da-a0de-65912654f3b5")
 	set(CPACK_PACKAGE_FILE_NAME "remote-filming-x64-${OBS_VERSION}")
 else()
 	if(WIN32)
 		set(CPACK_PACKAGE_NAME "Remote Filming (32bit)")
 	endif()
 	set(CPACK_PACKAGE_INSTALL_REGISTRY_KEY "RemoteFilming32")
-	set(CPACK_WIX_UPGRADE_GUID "a26acea4-6190-4470-9fb9-f6d32f3ba030")
-	set(CPACK_WIX_PRODUCT_GUID "8e24982d-b0ab-4f66-9c90-f726f3b64682")
+	set(CPACK_WIX_UPGRADE_GUID "76ec924d-d8d6-4c79-8092-5c865be297cb")
+	set(CPACK_WIX_PRODUCT_GUID "775fc1fb-8a2e-43d5-87a4-f1cc400ed534")
 	set(CPACK_PACKAGE_FILE_NAME "remote-fliming-x86-${OBS_VERSION}")
 endif()
 

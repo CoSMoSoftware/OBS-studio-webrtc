@@ -76,7 +76,7 @@ RequestExecutionLevel admin
 !define MUI_LICENSEPAGE_BUTTON "&Next >"
 
 !insertmacro MUI_PAGE_WELCOME
-!insertmacro MUI_PAGE_LICENSE "new\core\data\obs-webrtc\license\gplv2.txt"
+!insertmacro MUI_PAGE_LICENSE "new\core\data\RemoteFilming\license\gplv2.txt"
 !insertmacro MUI_PAGE_DIRECTORY
 !insertmacro MUI_PAGE_INSTFILES
 !insertmacro MUI_PAGE_FINISH
@@ -248,13 +248,13 @@ FunctionEnd
 
 Function LaunchOBS
 !ifdef INSTALL64
-	Exec '"$WINDIR\explorer.exe" "$SMPROGRAMS\Remote Filming WebRTC\Remote Filming WebRTC (64bit).lnk"'
+	Exec '"$WINDIR\explorer.exe" "$SMPROGRAMS\Remote Filming\Remote Filming (64bit).lnk"'
 !else
-	Exec '"$WINDIR\explorer.exe" "$SMPROGRAMS\Remote Filming WebRTC\Remote Filming WebRTC (32bit).lnk"'
+	Exec '"$WINDIR\explorer.exe" "$SMPROGRAMS\Remote Filming\Remote Filming (32bit).lnk"'
 !endif
 FunctionEnd
 
-Section "OBS WebRTC" SecCore
+Section "Remote Filming" SecCore
 	SetShellVarContext all
 
 	Call checkFilesInUse
@@ -381,7 +381,7 @@ Section -FinishSection
 	WriteRegStr HKLM "Software\${APPNAME}" "" "$INSTDIR"
 	WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${APPNAME}" "DisplayName" "${APPNAME}"
 	WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${APPNAME}" "UninstallString" "$INSTDIR\uninstall.exe"
-	WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${APPNAME}" "ProductID" "d16d2409-3151-4331-a9b1-dfd8cf3f0d9c"
+	WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${APPNAME}" "ProductID" "9d1e1363-25dd-4c3a-b3c3-b390c1302dff"
 !ifdef INSTALL64
 	WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${APPNAME}" "DisplayIcon" "$INSTDIR\bin\64bit\rfs64.exe"
 !else
