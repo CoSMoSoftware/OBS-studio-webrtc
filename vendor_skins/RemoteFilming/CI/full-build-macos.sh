@@ -290,7 +290,7 @@ configure_obs_build() {
         -DSWIGDIR="/tmp/obsdeps" \
         -DDepsPath="/tmp/obsdeps" \
         -DVLCPath="${DEPS_BUILD_DIR}/vlc-${VLC_VERSION}" \
-        -DBUILD_BROWSER=ON \
+        -DBUILD_BROWSER=OFF \
         -DBROWSER_LEGACY=OFF \
         -DWITH_RTMPS=ON \
         -DCEF_ROOT_DIR="${DEPS_BUILD_DIR}/cef_binary_${MACOS_CEF_BUILD_VERSION}_macosx64" \
