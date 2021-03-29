@@ -61,7 +61,6 @@
 #include "media-controls.hpp"
 #include <fstream>
 #include <sstream>
-#include <filesystem>
 
 #ifdef _WIN32
 #include "win-update/win-update.hpp"
@@ -1477,8 +1476,7 @@ bool OBSBasic::InitBasicConfig()
 		return false;
 	}
 
-	// if (os_mkdir(configPath) == MKDIR_ERROR) {
-	if (!std::filesystem::create_directories(configPath)) {
+	if (os_mkdir(configPath) == MKDIR_ERROR) {
 		OBSErrorBox(nullptr, "Failed to create profile path");
 		return false;
 	}
