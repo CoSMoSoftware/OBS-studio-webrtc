@@ -426,9 +426,9 @@ prepare_macos_bundle() {
     step "Set bundle meta information..."
     plutil -insert CFBundleVersion -string "${OBS_VERSION}" ./RemoteFilming.app/Contents/Info.plist
     plutil -insert CFBundleShortVersionString -string "${MACOSX_BUNDLE_SHORT_VERSION_STRING}" ./RemoteFilming.app/Contents/Info.plist
-    plutil -insert OBSFeedsURL -string https://obsproject.com/osx_update/feeds.xml ./RemoteFilming.app/Contents/Info.plist
-    plutil -insert SUFeedURL -string https://obsproject.com/osx_update/stable/updates.xml ./RemoteFilming.app/Contents/Info.plist
-    plutil -insert SUPublicDSAKeyFile -string OBSPublicDSAKey.pem ./RemoteFilming.app/Contents/Info.plist
+    # plutil -insert OBSFeedsURL -string https://obsproject.com/osx_update/feeds.xml ./RemoteFilming.app/Contents/Info.plist
+    # plutil -insert SUFeedURL -string https://obsproject.com/osx_update/stable/updates.xml ./RemoteFilming.app/Contents/Info.plist
+    # plutil -insert SUPublicDSAKeyFile -string OBSPublicDSAKey.pem ./RemoteFilming.app/Contents/Info.plist
 }
 
 ## CREATE MACOS DISTRIBUTION AND INSTALLER IMAGE ##
