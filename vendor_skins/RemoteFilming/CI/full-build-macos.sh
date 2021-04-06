@@ -195,11 +195,8 @@ install_cef() {
     hr "Building dependency CEF v${1}"
     ensure_dir ${DEPS_BUILD_DIR}
     step "Download..."
-    # ${CURLCMD} --progress-bar -L -C - -O https://cef-builds.spotifycdn.com/cef_binary_85.3.13%2Bgcd6cbe0%2Bchromium-85.0.4183.121_macosx64.tar.bz2
     ${CURLCMD} --progress-bar -L -C - -O https://cdn-fastly.obsproject.com/downloads/cef_binary_${1}_macosx64.tar.bz2
     step "Unpack..."
-    # tar -xf ./cef_binary_85.3.13%2Bgcd6cbe0%2Bchromium-85.0.4183.121_macosx64.tar.bz2
-    # cd ./cef_binary_${MACOS_CEF_VERSION}_macosx64
     tar -xf ./cef_binary_${1}_macosx64.tar.bz2
     cd ./cef_binary_${1}_macosx64
     step "Fix tests..."
@@ -290,7 +287,7 @@ configure_obs_build() {
         -DSWIGDIR="/tmp/obsdeps" \
         -DDepsPath="/tmp/obsdeps" \
         -DVLCPath="${DEPS_BUILD_DIR}/vlc-${VLC_VERSION}" \
-        -DBUILD_BROWSER=OFF \
+        -DBUILD_BROWSER=ON \
         -DBROWSER_LEGACY=OFF \
         -DWITH_RTMPS=ON \
         -DCEF_ROOT_DIR="${DEPS_BUILD_DIR}/cef_binary_${MACOS_CEF_BUILD_VERSION}_macosx64" \
@@ -303,8 +300,6 @@ configure_obs_build() {
         -DLIBOBS_INCLUDE_DIR=../libobs \
         -DLIBOBS_LIB=`pwd`/libobs/libobs.0.dylib \
         -DOBS_FRONTEND_LIB=`pwd`/UI/obs-frontend-api/libobs-frontend-api.dylib
-
-        # -DCEF_ROOT_DIR="${DEPS_BUILD_DIR}/cef_binary_${MACOS_CEF_VERSION}_macosx64" \
 }
 
 run_obs_build() {
@@ -350,9 +345,8 @@ bundle_dylibs() {
         -x ./RemoteFilming.app/Contents/PlugIns/text-freetype2.so \
         -x ./RemoteFilming.app/Contents/PlugIns/obs-outputs.so \
         -x ./RemoteFilming.app/Contents/PlugIns/obs-ndi.so \
-        -x ./RemoteFilming.app/Contents/PlugIns/obs-websocket.so
-
-        # -x ./RemoteFilming.app/Contents/PlugIns/obs-browser.so \
+        -x ./RemoteFilming.app/Contents/PlugIns/obs-websocket.so \
+        -x ./RemoteFilming.app/Contents/PlugIns/obs-browser.so
 
     step "Move libobs-opengl to final destination"
     cp ./libobs-opengl/libobs-opengl.so ./RemoteFilming.app/Contents/Frameworks
@@ -377,7 +371,6 @@ install_frameworks() {
 
     hr "Adding Chromium Embedded Framework"
     step "Copy Framework..."
-    # cp -R "${DEPS_BUILD_DIR}/cef_binary_${MACOS_CEF_VERSION}_macosx64/Release/Chromium Embedded Framework.framework" ./RemoteFilming.app/Contents/Frameworks/
     cp -R "${DEPS_BUILD_DIR}/cef_binary_${MACOS_CEF_BUILD_VERSION}_macosx64/Release/Chromium Embedded Framework.framework" ./RemoteFilming.app/Contents/Frameworks/
     chown -R $(whoami) ./RemoteFilming.app/Contents/Frameworks/
 }
@@ -402,10 +395,10 @@ prepare_macos_bundle() {
     cp rundir/${CI_BUILD_TYPE}/bin/rfs ./RemoteFilming.app/Contents/MacOS
     cp rundir/${CI_BUILD_TYPE}/bin/obs-ffmpeg-mux ./RemoteFilming.app/Contents/MacOS
     cp rundir/${CI_BUILD_TYPE}/bin/libobsglad.0.dylib ./RemoteFilming.app/Contents/MacOS
-#    cp -R "rundir/${CI_BUILD_TYPE}/bin/OBS Helper.app" "./RemoteFilming.app/Contents/Frameworks/OBS Helper.app"
-#    cp -R "rundir/${CI_BUILD_TYPE}/bin/OBS Helper (GPU).app" "./RemoteFilming.app/Contents/Frameworks/OBS Helper (GPU).app"
-#    cp -R "rundir/${CI_BUILD_TYPE}/bin/OBS Helper (Plugin).app" "./RemoteFilming.app/Contents/Frameworks/OBS Helper (Plugin).app"
-#    cp -R "rundir/${CI_BUILD_TYPE}/bin/OBS Helper (Renderer).app" "./RemoteFilming.app/Contents/Frameworks/OBS Helper (Renderer).app"
+    cp -R "rundir/${CI_BUILD_TYPE}/bin/OBS Helper.app" "./RemoteFilming.app/Contents/Frameworks/OBS Helper.app"
+    cp -R "rundir/${CI_BUILD_TYPE}/bin/OBS Helper (GPU).app" "./RemoteFilming.app/Contents/Frameworks/OBS Helper (GPU).app"
+    cp -R "rundir/${CI_BUILD_TYPE}/bin/OBS Helper (Plugin).app" "./RemoteFilming.app/Contents/Frameworks/OBS Helper (Plugin).app"
+    cp -R "rundir/${CI_BUILD_TYPE}/bin/OBS Helper (Renderer).app" "./RemoteFilming.app/Contents/Frameworks/OBS Helper (Renderer).app"
     cp -R rundir/${CI_BUILD_TYPE}/data ./RemoteFilming.app/Contents/Resources
     cp ${CI_SCRIPTS}/app/AppIcon.icns ./RemoteFilming.app/Contents/Resources
     cp -R rundir/${CI_BUILD_TYPE}/obs-plugins/ ./RemoteFilming.app/Contents/PlugIns
@@ -542,9 +535,9 @@ codesign_bundle() {
     echo -n "${COLOR_ORANGE}"
     codesign --force --timestamp --options runtime --sign "${CODESIGN_IDENT}" "./RemoteFilming.app/Contents/Resources/data/obs-mac-virtualcam.plugin/Contents/MacOS/obs-mac-virtualcam"
     codesign --force --timestamp --options runtime --entitlements "${CI_SCRIPTS}/app/entitlements.plist" --sign "${CODESIGN_IDENT}" --deep ./RemoteFilming.app
-    # codesign --force --timestamp --options runtime --sign "${CODESIGN_IDENT}" --deep "./RemoteFilming.app/Contents/Frameworks/OBS Helper.app"
-    # codesign --force --timestamp --options runtime --entitlements "${CI_SCRIPTS}/helpers/helper-gpu-entitlements.plist" --sign "${CODESIGN_IDENT}" --deep "./RemoteFilming.app/Contents/Frameworks/OBS Helper (GPU).app"
-    # codesign --force --timestamp --options runtime --entitlements "${CI_SCRIPTS}/helpers/helper-plugin-entitlements.plist" --sign "${CODESIGN_IDENT}" --deep "./RemoteFilming.app/Contents/Frameworks/OBS Helper (Plugin).app"
+    codesign --force --timestamp --options runtime --sign "${CODESIGN_IDENT}" --deep "./RemoteFilming.app/Contents/Frameworks/OBS Helper.app"
+    codesign --force --timestamp --options runtime --entitlements "${CI_SCRIPTS}/helpers/helper-gpu-entitlements.plist" --sign "${CODESIGN_IDENT}" --deep "./RemoteFilming.app/Contents/Frameworks/OBS Helper (GPU).app"
+    codesign --force --timestamp --options runtime --entitlements "${CI_SCRIPTS}/helpers/helper-plugin-entitlements.plist" --sign "${CODESIGN_IDENT}" --deep "./RemoteFilming.app/Contents/Frameworks/OBS Helper (Plugin).app"
     echo -n "${COLOR_RESET}"
     step "Check code-sign result..."
     codesign -dvv ./RemoteFilming.app
