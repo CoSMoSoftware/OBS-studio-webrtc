@@ -11,13 +11,6 @@ include_directories("${CMAKE_BINARY_DIR}/plugins/obs-outputs/config")
 include_directories("${CMAKE_SOURCE_DIR}/libobs")
 
 #-------------------------------------------------------------------------------
-# - Millicast WS Signalling library
-#-------------------------------------------------------------------------------
-
-set( MC_SIGNAL_LIB_DIR websocket-client )
-add_subdirectory(${MC_SIGNAL_LIB_DIR})
-
-#-------------------------------------------------------------------------------
 # WebRTC
 #-------------------------------------------------------------------------------
 
@@ -81,6 +74,13 @@ if(NOT WIN32)
 	set_source_files_properties(${obs-outputs_webrtc_SOURCES} PROPERTIES
 		COMPILE_FLAGS "-fvisibility=hidden")
 endif()
+
+#-------------------------------------------------------------------------------
+# - Millicast WS Signalling library
+#-------------------------------------------------------------------------------
+
+set( MC_SIGNAL_LIB_DIR websocket-client )
+add_subdirectory(${MC_SIGNAL_LIB_DIR})
 
 #-------------------------------------------------------------------------------
 # - RTMP Support
