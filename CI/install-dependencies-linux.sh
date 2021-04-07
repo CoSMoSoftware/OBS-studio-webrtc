@@ -68,7 +68,7 @@ make -j4
 cd ../..
 
 # libwebrtc
-wget --quiet --retry-connrefused --waitretry=1 --user ${FTP_LOGIN} --password ${FTP_PASSWORD} ${FTP_PATH_PREFIX}/linux/libWebRTC-${LIBWEBRTC_VERSION}-x64-Release-H264.sh -O libWebRTC.sh
+wget --quiet --retry-connrefused --waitretry=1 --user ${FTP_LOGIN} --password ${FTP_PASSWORD} ${FTP_PATH_PREFIX}/linux/libWebRTC-${LIBWEBRTC_VERSION}-x64-Release-H264-OpenSSL_1_1_1a.sh -O libWebRTC.sh
 chmod +x libWebRTC.sh
 mkdir libwebrtc
 ./libWebRTC.sh --prefix="./libwebrtc" --skip-license
