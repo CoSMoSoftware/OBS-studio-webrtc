@@ -145,7 +145,7 @@ bool MillicastWebsocketClientImpl::connect(const std::string &publish_api_url,
 			});
 
 		// --- Close handler
-		connection->set_close_handler([=](...) {
+		connection->set_close_handler([=](websocketpp::connection_hdl /* con */) {
 			std::cout << "> set_close_handler called" << std::endl;
 			// Don't wait for connection close
 			thread.detach();
@@ -156,7 +156,7 @@ bool MillicastWebsocketClientImpl::connect(const std::string &publish_api_url,
 		});
 
 		// -- Failure handler
-		connection->set_fail_handler([=](...) {
+		connection->set_fail_handler([=](websocketpp::connection_hdl /* con */) {
 			std::cout <<  "> set_fail_handler called" << std::endl;
 			listener->onDisconnected();
 		});
