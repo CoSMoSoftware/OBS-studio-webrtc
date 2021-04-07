@@ -74,3 +74,7 @@ target_link_libraries(websocketclient
 	PUBLIC ${CURL_LIB}
 	PUBLIC ${OPENSSL_LIBRARIES}
 	PRIVATE nlohmann_json::nlohmann_json)
+
+if(WIN32)
+	install_obs_plugin(websocketclient)
+endif()
