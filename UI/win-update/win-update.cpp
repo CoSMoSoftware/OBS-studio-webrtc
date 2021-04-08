@@ -4,6 +4,7 @@
 #include "qt-wrappers.hpp"
 #include "win-update.hpp"
 #include "obs-app.hpp"
+#include "ui-config.h"
 
 #include <QMessageBox>
 
