@@ -532,7 +532,7 @@ try {
 	} finishedTrigger;
 
 	BPtr<char> manifestPath =
-		GetConfigPathPtr("obs-studio\\updates\\manifest.json");
+		GetConfigPathPtr((std::string(CONFIG_DIR) + "\\updates\\manifest.json").c_str());
 
 	/* ----------------------------------- *
 	 * create signature provider           */
@@ -668,7 +668,7 @@ try {
 	 * execute updater                     */
 
 	BPtr<char> updateFilePath =
-		GetConfigPathPtr("obs-studio\\updates\\updater.exe");
+		GetConfigPathPtr((std::string(CONFIG_DIR) + "\\updates\\updater.exe").c_str());
 	BPtr<wchar_t> wUpdateFilePath;
 
 	size_t size = os_utf8_to_wcs_ptr(updateFilePath, 0, &wUpdateFilePath);
@@ -727,7 +727,7 @@ try {
 	bool success;
 
 	BPtr<char> whatsnewPath =
-		GetConfigPathPtr("obs-studio\\updates\\whatsnew.json");
+		GetConfigPathPtr((std::string(CONFIG_DIR) + "\\updates\\whatsnew.json").c_str());
 
 	/* ----------------------------------- *
 	 * create signature provider           */
