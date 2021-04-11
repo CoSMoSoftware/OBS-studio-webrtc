@@ -25,6 +25,7 @@
 #include "window-basic-auto-config.hpp"
 #include "window-namedialog.hpp"
 #include "qt-wrappers.hpp"
+#include "ui-config.h"
 
 extern void DestroyPanelCookieManager();
 extern void DuplicateCurrentCookieProfile(ConfigFile &config);

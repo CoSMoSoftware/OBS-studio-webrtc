@@ -2528,7 +2528,7 @@ static void convert_14_2_encoder_setting(const char *encoder, const char *file)
 static void upgrade_settings(void)
 {
 	char path[512];
-	int pathlen = GetConfigPath(path, 512, (std::string(CONFIG_DIR) + "/basic/profiles"_.c_str());
+	int pathlen = GetConfigPath(path, 512, (std::string(CONFIG_DIR) + "/basic/profiles".c_str());
 
 	if (pathlen <= 0)
 		return;

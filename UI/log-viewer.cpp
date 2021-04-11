@@ -11,6 +11,7 @@
 
 #include "log-viewer.hpp"
 #include "qt-wrappers.hpp"
+#include "ui-config.h"
 
 OBSLogViewer::OBSLogViewer(QWidget *parent) : QDialog(parent)
 {

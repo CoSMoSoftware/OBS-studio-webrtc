@@ -29,6 +29,7 @@
 
 #include "qt-wrappers.hpp"
 #include "importers/importers.hpp"
+#include "ui-config.h"
 
 enum ImporterColumn {
 	Selected,
