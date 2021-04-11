@@ -407,7 +407,7 @@ void OBSBasic::on_actionExportSceneCollection_triggered()
 	QString currentFile = QT_UTF8(config_get_string(
 		App()->GlobalConfig(), "Basic", "SceneCollectionFile"));
 
-	int ret = GetConfigPath(path, 512, (std::string(CONFIG_DIR) + "/basic/scenes/"));
+	int ret = GetConfigPath(path, 512, (std::string(CONFIG_DIR) + "/basic/scenes/").c_str());
 	if (ret <= 0) {
 		blog(LOG_WARNING, "Failed to get scene collection config path");
 		return;
