@@ -522,14 +522,14 @@ codesign_bundle() {
     # codesign --force --options runtime --sign "${CODESIGN_IDENT}" --deep ./RemoteFilming.app/Contents/Frameworks/Sparkle.framework
     # echo -n "${COLOR_RESET}"
 
-    step "Code-sign CEF framework..."
-    echo -n "${COLOR_ORANGE}"
-    codesign --force --timestamp --options runtime --sign "${CODESIGN_IDENT}" "./RemoteFilming.app/Contents/Frameworks/Chromium Embedded Framework.framework/Libraries/libEGL.dylib"
-    codesign --force --timestamp --options runtime --sign "${CODESIGN_IDENT}" "./RemoteFilming.app/Contents/Frameworks/Chromium Embedded Framework.framework/Libraries/libGLESv2.dylib"
-    codesign --force --timestamp --options runtime --sign "${CODESIGN_IDENT}" "./RemoteFilming.app/Contents/Frameworks/Chromium Embedded Framework.framework/Libraries/libswiftshader_libEGL.dylib"
-    codesign --force --timestamp --options runtime --sign "${CODESIGN_IDENT}" "./RemoteFilming.app/Contents/Frameworks/Chromium Embedded Framework.framework/Libraries/libswiftshader_libGLESv2.dylib"
-    codesign --force --timestamp --options runtime --sign "${CODESIGN_IDENT}" "./RemoteFilming.app/Contents/Frameworks/Chromium Embedded Framework.framework/Libraries/libvk_swiftshader.dylib"
-    codesign --force --timestamp --options runtime --sign "${CODESIGN_IDENT}" --deep "./RemoteFilming.app/Contents/Frameworks/Chromium Embedded Framework.framework"
+#    step "Code-sign CEF framework..."
+#    echo -n "${COLOR_ORANGE}"
+#    codesign --force --timestamp --options runtime --sign "${CODESIGN_IDENT}" "./RemoteFilming.app/Contents/Frameworks/Chromium Embedded Framework.framework/Libraries/libEGL.dylib"
+#    codesign --force --timestamp --options runtime --sign "${CODESIGN_IDENT}" "./RemoteFilming.app/Contents/Frameworks/Chromium Embedded Framework.framework/Libraries/libGLESv2.dylib"
+#    codesign --force --timestamp --options runtime --sign "${CODESIGN_IDENT}" "./RemoteFilming.app/Contents/Frameworks/Chromium Embedded Framework.framework/Libraries/libswiftshader_libEGL.dylib"
+#    codesign --force --timestamp --options runtime --sign "${CODESIGN_IDENT}" "./RemoteFilming.app/Contents/Frameworks/Chromium Embedded Framework.framework/Libraries/libswiftshader_libGLESv2.dylib"
+#    codesign --force --timestamp --options runtime --sign "${CODESIGN_IDENT}" "./RemoteFilming.app/Contents/Frameworks/Chromium Embedded Framework.framework/Libraries/libvk_swiftshader.dylib"
+#    codesign --force --timestamp --options runtime --sign "${CODESIGN_IDENT}" --deep "./RemoteFilming.app/Contents/Frameworks/Chromium Embedded Framework.framework"
     echo -n "${COLOR_RESET}"
 
     step "Code-sign OBS code..."
