@@ -57,7 +57,7 @@ parameters:
     default:
     - Millicast
 #    - PacPost
-#    - RemoteFilming
+    - RemoteFilming
 
 jobs:
 - job: 'Build_macOS'
@@ -71,8 +71,27 @@ jobs:
   - script: git submodule update --init --recursive
     displayName: 'Checkout Submodules'
   - ${{ each vendor in parameters.vendors }}:
-    - script: TERM="" ./CI/full-build-macos.sh -b -p -n -v ${{ vendor }}
+    - script: git stash
+      displayName: git stash
+    - ${{ if eq( vendor, 'RemoteFilming') }}:
+      - script: cp ./vendor_skins/RemoteFilming/CI/full-build-macos.sh ./CI/full-build-macos.sh
+        displayName: '${{ vendor }} copy full-build-macos.sh'
+    - script: TERM="" ./CI/full-build-macos.sh -v ${{ vendor }}
       displayName: '${{ vendor }} Install dependencies and build'
+      env:
+        MIN_MACOS_VERSION: $(MIN_MACOS_VERSION)
+        MACOS_CEF_BUILD_VERSION: $(MACOS_CEF_BUILD_VERSION)
+        MACOS_DEPS_VERSION: $(MACOS_DEPS_VERSION)
+        QT_VERSION: $(QT_VERSION)
+        CI_BUILD_TYPE: $(BUILD_TYPE)
+        FTP_PATH_PREFIX: $(webrtc_path_prefix)
+        FTP_LOGIN: $(ftpLudoLogin)
+        FTP_PASSWORD: $(ftpLudoPassword)
+        CODESIGN_IDENT: $(ludo_apple_developer_identity)
+        CODESIGN_IDENT_USER: $(ludo_apple_account_id)
+        CODESIGN_IDENT_PASS: $(ludo_apple_developer_password)
+    - script: TERM="" ./CI/full-build-macos.sh -b -d -p -n -s -v ${{ vendor }}
+      displayName: '${{ vendor }} Create bundle and notarize'
       env:
         MIN_MACOS_VERSION: $(MIN_MACOS_VERSION)
         MACOS_CEF_BUILD_VERSION: $(MACOS_CEF_BUILD_VERSION)
@@ -120,6 +139,8 @@ jobs:
       FTP_LOGIN: $(ftpLudoLogin)
       FTP_PASSWORD: $(ftpLudoPassword)
   - ${{ each vendor in parameters.vendors }}:
+    - script: git stash
+      displayName: git stash
     - script: ./CI/install-script-win.cmd ${{ vendor }}
       displayName: '${{ vendor }} Run CMake'
     - task: MSBuild@1
@@ -127,16 +148,28 @@ jobs:
       inputs:
         msbuildArguments: '/m /p:Configuration=$(BUILD_TYPE)'
         solution: .\build64_${{ vendor }}\${{ vendor }}.sln
-    - task: CmdLine@2
-      inputs:
-        script: AzureSignTool sign -kvu "$(WINDOWS_SIGNING_VAULT_URL)" -kvi "$(WINDOWS_SIGNING_CLIENT_ID)" -kvs "$(WINDOWS_SIGNING_CLIENT_SECRET)" -kvc "$(WINDOWS_SIGNING_CERTIFICATE_NAME)" -tr "http://timestamp.comodoca.com" -td sha256 -v ./build64_${{ vendor }}/UI/Release/obs64.exe
-      displayName: 'Sign obs64.exe with global AzureSignTool'
+    - ${{ if eq( vendor, 'Millicast') }}:
+      - task: CmdLine@2
+        inputs:
+          script: AzureSignTool sign -kvu "$(WINDOWS_SIGNING_VAULT_URL)" -kvi "$(WINDOWS_SIGNING_CLIENT_ID)" -kvs "$(WINDOWS_SIGNING_CLIENT_SECRET)" -kvc "$(WINDOWS_SIGNING_CERTIFICATE_NAME)" -tr "http://timestamp.comodoca.com" -td sha256 -v ./build64_${{ vendor }}/UI/Release/obs64.exe
+        displayName: 'Sign obs64.exe with global AzureSignTool'
+    - ${{ if eq( vendor, 'RemoteFilming') }}:
+      - task: CmdLine@2
+        inputs:
+          script: AzureSignTool sign -kvu "$(WINDOWS_SIGNING_VAULT_URL)" -kvi "$(WINDOWS_SIGNING_CLIENT_ID)" -kvs "$(WINDOWS_SIGNING_CLIENT_SECRET)" -kvc "$(WINDOWS_SIGNING_CERTIFICATE_NAME)" -tr "http://timestamp.comodoca.com" -td sha256 -v ./build64_${{ vendor }}/UI/Release/rfs64.exe
+        displayName: 'Sign rfs64.exe with global AzureSignTool'
     - script: ./CI/before-deploy-win.cmd ${{ vendor }}
       displayName: '${{ vendor }} Before deploy'
-    - task: CmdLine@2
-      inputs:
-        script: AzureSignTool sign -kvu "$(WINDOWS_SIGNING_VAULT_URL)" -kvi "$(WINDOWS_SIGNING_CLIENT_ID)" -kvs "$(WINDOWS_SIGNING_CLIENT_SECRET)" -kvc "$(WINDOWS_SIGNING_CERTIFICATE_NAME)" -tr "http://timestamp.comodoca.com" -td sha256 -v ./build_${{ vendor }}/obs-webrtc-x64-$(OBS_VERSION).msi
-      displayName: 'Sign build_${{ vendor }} with global AzureSignTool'
+    - ${{ if eq( vendor, 'Millicast') }}:
+      - task: CmdLine@2
+        inputs:
+          script: AzureSignTool sign -kvu "$(WINDOWS_SIGNING_VAULT_URL)" -kvi "$(WINDOWS_SIGNING_CLIENT_ID)" -kvs "$(WINDOWS_SIGNING_CLIENT_SECRET)" -kvc "$(WINDOWS_SIGNING_CERTIFICATE_NAME)" -tr "http://timestamp.comodoca.com" -td sha256 -v ./build_${{ vendor }}/obs-webrtc-x64-$(OBS_VERSION).msi
+        displayName: 'Sign build_${{ vendor }} with global AzureSignTool'
+    - ${{ if eq( vendor, 'RemoteFilming') }}:
+      - task: CmdLine@2
+        inputs:
+          script: AzureSignTool sign -kvu "$(WINDOWS_SIGNING_VAULT_URL)" -kvi "$(WINDOWS_SIGNING_CLIENT_ID)" -kvs "$(WINDOWS_SIGNING_CLIENT_SECRET)" -kvc "$(WINDOWS_SIGNING_CERTIFICATE_NAME)" -tr "http://timestamp.comodoca.com" -td sha256 -v ./build_${{ vendor }}/remote-filming-x64-$(OBS_VERSION).msi
+        displayName: 'Sign build_${{ vendor }} with global AzureSignTool'
     - task: PublishBuildArtifacts@1
       inputs:
         pathtoPublish: './build_${{ vendor }}'

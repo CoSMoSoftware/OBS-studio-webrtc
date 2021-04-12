@@ -1232,7 +1232,7 @@ static bool Update(wchar_t *cmdLine)
 		}
 	}
 
-	StringCbCat(lpAppDataPath, sizeof(lpAppDataPath), L("\\"+ std::string(CONFIG_DIR)).c_str());
+	StringCbCat(lpAppDataPath, sizeof(lpAppDataPath), L("\\" + (std::string(CONFIG_DIR)).c_str());
 
 	/* ------------------------------------- *
 	 * Get download path                     */
@@ -1614,7 +1614,7 @@ static void LaunchOBS()
 	StringCbCopy(newCwd, sizeof(newCwd), obsPath);
 
 	StringCbCat(obsPath, sizeof(obsPath),
-		    is32bit ? L"\\obs32.exe" : L"\\obs64.exe");
+		    is32bit ? L"\\rfs32.exe" : L"\\rfs64.exe");
 
 	if (!FileExists(obsPath)) {
 		StringCbCopy(obsPath, sizeof(obsPath), cwd);

@@ -35,16 +35,6 @@ else()
 	set(TWITCH_ENABLED TRUE)
 endif()
 
-if(NOT DEFINED MIXER_CLIENTID OR "${MIXER_CLIENTID}" STREQUAL "" OR
-   NOT DEFINED MIXER_HASH     OR "${MIXER_HASH}"     STREQUAL "" OR
-   NOT BROWSER_AVAILABLE_INTERNAL)
-	set(MIXER_ENABLED FALSE)
-	set(MIXER_CLIENTID "")
-	set(MIXER_HASH "0")
-else()
-	set(MIXER_ENABLED TRUE)
-endif()
-
 if(NOT DEFINED RESTREAM_CLIENTID OR "${RESTREAM_CLIENTID}" STREQUAL "" OR
    NOT DEFINED RESTREAM_HASH     OR "${RESTREAM_HASH}"     STREQUAL "" OR
    NOT BROWSER_AVAILABLE_INTERNAL)
@@ -81,6 +71,19 @@ if(NOT Qt5Widgets_FOUND)
 	endif()
 endif()
 
+# #271 do not list video codec H264 if it is not available in libwebrtc
+# WARNING: find_package(LibWebRTC) may modify the value of CMAKE_CXX_STANDARD
+set( _remember_cmake_cxx_standard ${CMAKE_CXX_STANDARD} )
+find_package(LibWebRTC 90 QUIET COMPONENTS H264 )
+if( NOT libwebrtc_FOUND )
+  # A FindLibWebRTC package is also provided in the repository for self-compiled libwebrtc
+  find_package(LibWebRTC REQUIRED)
+endif()
+set( CMAKE_CXX_STANDARD ${_remember_cmake_cxx_standard} )
+if( NOT WEBRTC_H264_FOUND )
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DDISABLE_WEBRTC_H264")
+  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DDISABLE_WEBRTC_H264")
+endif()
 
 include_directories(${FFMPEG_INCLUDE_DIRS})
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
@@ -97,7 +100,6 @@ include_directories(${LIBCURL_INCLUDE_DIRS})
 add_definitions(${LIBCURL_DEFINITIONS})
 
 if(WIN32)
-	include_directories(${OBS_JANSSON_INCLUDE_DIRS})
 	include_directories(${BLAKE2_INCLUDE_DIR})
 
 	set(obs_PLATFORM_SOURCES
@@ -105,15 +107,14 @@ if(WIN32)
 		win-update/update-window.cpp
 		win-update/win-update.cpp
 		win-update/win-update-helpers.cpp
-		${obs.rc_DIR}/obs.rc)
+		${${_project_name}_BINARY_DIR}/obs.rc)
 	set(obs_PLATFORM_HEADERS
 		win-update/update-window.hpp
 		win-update/win-update.hpp
 		win-update/win-update-helpers.hpp)
 	set(obs_PLATFORM_LIBRARIES
 		crypt32
-		blake2
-		${OBS_JANSSON_IMPORT})
+		blake2)
 
 	if(CMAKE_SIZEOF_VOID_P EQUAL 4)
 		set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /LARGEADDRESSAWARE")
@@ -148,6 +149,11 @@ elseif(UNIX)
 
         set(obs_PLATFORM_LIBRARIES
                 Qt5::X11Extras)
+
+	if("${CMAKE_SYSTEM_NAME}" MATCHES "FreeBSD")
+		list(APPEND obs_PLATFORM_LIBRARIES
+			procstat)
+	endif()
 endif()
 
 if(BROWSER_AVAILABLE_INTERNAL)
@@ -170,15 +176,6 @@ if(BROWSER_AVAILABLE_INTERNAL)
 			)
 		list(APPEND obs_PLATFORM_HEADERS
 			auth-twitch.hpp
-			)
-	endif()
-
-	if(MIXER_ENABLED)
-		list(APPEND obs_PLATFORM_SOURCES
-			auth-mixer.cpp
-			)
-		list(APPEND obs_PLATFORM_HEADERS
-			auth-mixer.hpp
 			)
 	endif()
 
@@ -370,7 +367,6 @@ set(obs_UI
 	forms/source-toolbar/color-source-toolbar.ui
 	forms/source-toolbar/text-source-toolbar.ui
 	forms/source-toolbar/media-controls.ui
-	forms/NameDialog.ui
 	forms/AutoConfigStartPage.ui
 	forms/AutoConfigVideoPage.ui
 	forms/AutoConfigStreamPage.ui
@@ -395,8 +391,6 @@ set(obs_QRC
 qt5_wrap_ui(obs_UI_HEADERS ${obs_UI})
 qt5_add_resources(obs_QRC_SOURCES ${obs_QRC})
 
-message( STATUS "rc file: ${obs_QRC_SOURCES}." )
-
 add_executable( ${_gui_name} WIN32
 	obs.manifest
 	${obs_SOURCES}
@@ -404,8 +398,7 @@ add_executable( ${_gui_name} WIN32
 	${obs_importers_SOURCES}
 	${obs_importers_HEADERS}
 	${obs_UI_HEADERS}
-	${obs_QRC_SOURCES}
-)
+	${obs_QRC_SOURCES})
 
 if(WIN32)
 	if(CMAKE_SIZEOF_VOID_P EQUAL 8)
@@ -433,15 +426,10 @@ target_link_libraries(${_gui_name}
 if (APPLE)
 	target_link_libraries( ${_gui_name}
 			Qt5::MacExtras)
-	set_target_properties(${_gui_name} PROPERTIES LINK_FLAGS "-pagezero_size 10000 -image_base 100000000")
-	set_property(
-		TARGET ${_gui_name}
-		APPEND
-		PROPERTY INSTALL_RPATH
-		"/usr/local/Cellar/python3/3.6.4_2/Frameworks/Python.framework/Versions/3.6/lib/"
-		"/Library/Frameworks/Python.framework/Versions/3.6/lib/"
-		"/opt/local/Library/Frameworks/Python.framework/Versions/3.6/lib/"
-	)
+	set_target_properties( ${_gui_name} PROPERTIES
+			LINK_FLAGS "-pagezero_size 10000 -image_base 100000000"
+			MACOSX_BUNDLE_BUNDLE_VERSION "${OBS_VERSION}"
+			MACOSX_BUNDLE_SHORT_VERSION_STRING "${OBS_VERSION}")
 endif()
 set_target_properties( ${_gui_name} PROPERTIES FOLDER "frontend")
 
