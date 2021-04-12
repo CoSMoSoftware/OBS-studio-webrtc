@@ -44,10 +44,10 @@ VENDOR="${VENDOR:-vendorNameMissing}"
 BUILD_DEPS=(
     "obs-deps ${MACOS_DEPS_VERSION}"
     "qt-deps ${QT_VERSION} ${MACOS_DEPS_VERSION}"
-    "cef ${MACOS_CEF_BUILD_VERSION:-${MACOS_CEF_VERSION}}"
     "vlc ${VLC_VERSION}"
     "libwebrtc ${LIBWEBRTC_VERSION}"
 )
+#    "cef ${MACOS_CEF_BUILD_VERSION:-${MACOS_CEF_VERSION}}"
 
 if [ -n "${TERM-}" ]; then
     COLOR_RED=$(tput setaf 1)
@@ -287,10 +287,9 @@ configure_obs_build() {
         -DSWIGDIR="/tmp/obsdeps" \
         -DDepsPath="/tmp/obsdeps" \
         -DVLCPath="${DEPS_BUILD_DIR}/vlc-${VLC_VERSION}" \
-        -DBUILD_BROWSER=ON \
+        -DBUILD_BROWSER=OFF \
         -DBROWSER_LEGACY=OFF \
         -DWITH_RTMPS=ON \
-        -DCEF_ROOT_DIR="${DEPS_BUILD_DIR}/cef_binary_${MACOS_CEF_BUILD_VERSION}_macosx64" \
         -Dlibwebrtc_DIR="${DEPS_BUILD_DIR}/libwebrtc/cmake" \
         -DOPENSSL_ROOT_DIR="/usr/local/opt/openssl@1.1" \
         .. \
@@ -300,6 +299,8 @@ configure_obs_build() {
         -DLIBOBS_INCLUDE_DIR=../libobs \
         -DLIBOBS_LIB=`pwd`/libobs/libobs.0.dylib \
         -DOBS_FRONTEND_LIB=`pwd`/UI/obs-frontend-api/libobs-frontend-api.dylib
+
+#        -DCEF_ROOT_DIR="${DEPS_BUILD_DIR}/cef_binary_${MACOS_CEF_BUILD_VERSION}_macosx64" \
 }
 
 run_obs_build() {
@@ -395,10 +396,10 @@ prepare_macos_bundle() {
     cp rundir/${CI_BUILD_TYPE}/bin/rfs ./RemoteFilming.app/Contents/MacOS
     cp rundir/${CI_BUILD_TYPE}/bin/obs-ffmpeg-mux ./RemoteFilming.app/Contents/MacOS
     cp rundir/${CI_BUILD_TYPE}/bin/libobsglad.0.dylib ./RemoteFilming.app/Contents/MacOS
-    cp -R "rundir/${CI_BUILD_TYPE}/bin/OBS Helper.app" "./RemoteFilming.app/Contents/Frameworks/OBS Helper.app"
-    cp -R "rundir/${CI_BUILD_TYPE}/bin/OBS Helper (GPU).app" "./RemoteFilming.app/Contents/Frameworks/OBS Helper (GPU).app"
-    cp -R "rundir/${CI_BUILD_TYPE}/bin/OBS Helper (Plugin).app" "./RemoteFilming.app/Contents/Frameworks/OBS Helper (Plugin).app"
-    cp -R "rundir/${CI_BUILD_TYPE}/bin/OBS Helper (Renderer).app" "./RemoteFilming.app/Contents/Frameworks/OBS Helper (Renderer).app"
+#    cp -R "rundir/${CI_BUILD_TYPE}/bin/OBS Helper.app" "./RemoteFilming.app/Contents/Frameworks/OBS Helper.app"
+#    cp -R "rundir/${CI_BUILD_TYPE}/bin/OBS Helper (GPU).app" "./RemoteFilming.app/Contents/Frameworks/OBS Helper (GPU).app"
+#    cp -R "rundir/${CI_BUILD_TYPE}/bin/OBS Helper (Plugin).app" "./RemoteFilming.app/Contents/Frameworks/OBS Helper (Plugin).app"
+#    cp -R "rundir/${CI_BUILD_TYPE}/bin/OBS Helper (Renderer).app" "./RemoteFilming.app/Contents/Frameworks/OBS Helper (Renderer).app"
     cp -R rundir/${CI_BUILD_TYPE}/data ./RemoteFilming.app/Contents/Resources
     cp ${CI_SCRIPTS}/app/AppIcon.icns ./RemoteFilming.app/Contents/Resources
     cp -R rundir/${CI_BUILD_TYPE}/obs-plugins/ ./RemoteFilming.app/Contents/PlugIns
@@ -412,7 +413,7 @@ prepare_macos_bundle() {
     fi
 
     bundle_dylibs
-    install_frameworks
+#    install_frameworks
 
     cp ${CI_SCRIPTS}/app/OBSPublicDSAKey.pem ./RemoteFilming.app/Contents/Resources
 
@@ -535,10 +536,10 @@ codesign_bundle() {
     echo -n "${COLOR_ORANGE}"
     codesign --force --timestamp --options runtime --sign "${CODESIGN_IDENT}" "./RemoteFilming.app/Contents/Resources/data/obs-mac-virtualcam.plugin/Contents/MacOS/obs-mac-virtualcam"
     codesign --force --timestamp --options runtime --entitlements "${CI_SCRIPTS}/app/entitlements.plist" --sign "${CODESIGN_IDENT}" --deep ./RemoteFilming.app
-    codesign --force --timestamp --options runtime --sign "${CODESIGN_IDENT}" --deep "./RemoteFilming.app/Contents/Frameworks/OBS Helper.app"
-    codesign --force --timestamp --options runtime --entitlements "${CI_SCRIPTS}/helpers/helper-gpu-entitlements.plist" --sign "${CODESIGN_IDENT}" --deep "./RemoteFilming.app/Contents/Frameworks/OBS Helper (GPU).app"
-    codesign --force --timestamp --options runtime --entitlements "${CI_SCRIPTS}/helpers/helper-plugin-entitlements.plist" --sign "${CODESIGN_IDENT}" --deep "./RemoteFilming.app/Contents/Frameworks/OBS Helper (Plugin).app"
-    codesign --force --timestamp --options runtime --entitlements "${CI_SCRIPTS}/helpers/helper-renderer-entitlements.plist" --sign "${CODESIGN_IDENT}" --deep "./RemoteFilming.app/Contents/Frameworks/OBS Helper (Renderer).app"
+#    codesign --force --timestamp --options runtime --sign "${CODESIGN_IDENT}" --deep "./RemoteFilming.app/Contents/Frameworks/OBS Helper.app"
+#    codesign --force --timestamp --options runtime --entitlements "${CI_SCRIPTS}/helpers/helper-gpu-entitlements.plist" --sign "${CODESIGN_IDENT}" --deep "./RemoteFilming.app/Contents/Frameworks/OBS Helper (GPU).app"
+#    codesign --force --timestamp --options runtime --entitlements "${CI_SCRIPTS}/helpers/helper-plugin-entitlements.plist" --sign "${CODESIGN_IDENT}" --deep "./RemoteFilming.app/Contents/Frameworks/OBS Helper (Plugin).app"
+#    codesign --force --timestamp --options runtime --entitlements "${CI_SCRIPTS}/helpers/helper-renderer-entitlements.plist" --sign "${CODESIGN_IDENT}" --deep "./RemoteFilming.app/Contents/Frameworks/OBS Helper (Renderer).app"
     echo -n "${COLOR_RESET}"
     step "Check code-sign result..."
     codesign -dvv ./RemoteFilming.app
