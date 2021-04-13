@@ -56,7 +56,8 @@ bool MillicastWebsocketClientImpl::connect(const std::string &publish_api_url,
 		std::cout << "WSS url:          " << url.c_str() << std::endl;
 		std::cout << "JWT (token):      " << jwt.c_str() << std::endl;
 	} else {
-		std::cerr << "Error querying publishing websocket url" << std::endl;
+		std::cerr << "Error querying publishing websocket url"
+			  << std::endl;
 		std::cerr << "code: " << r.code << std::endl;
 		std::cerr << "body: " << r.body.c_str() << std::endl;
 		return false;
@@ -79,7 +80,8 @@ bool MillicastWebsocketClientImpl::connect(const std::string &publish_api_url,
 					asio::ssl::context::no_sslv3 |
 					asio::ssl::context::single_dh_use);
 			} catch (std::exception &e) {
-				std::cerr << "TLS exception: " << e.what() << std::endl;
+				std::cerr << "TLS exception: " << e.what()
+					  << std::endl;
 			}
 			return ctx;
 		});
@@ -93,8 +95,8 @@ bool MillicastWebsocketClientImpl::connect(const std::string &publish_api_url,
 			std::cerr << "No Connection" << std::endl;
 		connection->set_close_handshake_timeout(5000);
 		if (ec) {
-			std::cerr << "Error establishing websocket connection: " <<
-			      ec.message().c_str() << std::endl;
+			std::cerr << "Error establishing websocket connection: "
+				  << ec.message().c_str() << std::endl;
 			return 0;
 		}
 
@@ -103,7 +105,8 @@ bool MillicastWebsocketClientImpl::connect(const std::string &publish_api_url,
 							    connection_hdl /* con */,
 						    message_ptr frame) {
 			const char *x = frame->get_payload().c_str();
-			std::cout << "MESSAGE RECEIVED:" << std::endl << x << std::endl;
+			std::cout << "MESSAGE RECEIVED:" << std::endl
+				  << x << std::endl;
 			auto msg = json::parse(frame->get_payload());
 
 			if (msg.find("type") == msg.end())
@@ -145,25 +148,30 @@ bool MillicastWebsocketClientImpl::connect(const std::string &publish_api_url,
 			});
 
 		// --- Close handler
-		connection->set_close_handler([=](websocketpp::connection_hdl /* con */) {
-			std::cout << "> set_close_handler called" << std::endl;
-			// Don't wait for connection close
-			thread.detach();
-			// Remove connection
-			connection = nullptr;
-			// Call listener
-			listener->onDisconnected();
-		});
+		connection->set_close_handler(
+			[=](websocketpp::connection_hdl /* con */) {
+				std::cout << "> set_close_handler called"
+					  << std::endl;
+				// Don't wait for connection close
+				thread.detach();
+				// Remove connection
+				connection = nullptr;
+				// Call listener
+				listener->onDisconnected();
+			});
 
 		// -- Failure handler
-		connection->set_fail_handler([=](websocketpp::connection_hdl /* con */) {
-			std::cout <<  "> set_fail_handler called" << std::endl;
-			listener->onDisconnected();
-		});
+		connection->set_fail_handler(
+			[=](websocketpp::connection_hdl /* con */) {
+				std::cout << "> set_fail_handler called"
+					  << std::endl;
+				listener->onDisconnected();
+			});
 
 		// -- HTTP handler
-		connection->set_http_handler(
-			[=](...) { std::cout << "> https called" << std::endl; });
+		connection->set_http_handler([=](...) {
+			std::cout << "> https called" << std::endl;
+		});
 
 		// Note that connect here only requests a connection. No network messages
 		// exchanged until the event loop starts running in the next line.
@@ -187,11 +195,14 @@ bool MillicastWebsocketClientImpl::open(const std::string &sdp,
 					const std::string &audio_codec,
 					const std::string &stream_name)
 {
-	std::cout << "WS-OPEN: stream_name: " << stream_name.c_str() << std::endl;
+	std::cout << "WS-OPEN: stream_name: " << stream_name.c_str()
+		  << std::endl;
 
 	// Make sure video_codec is not empty
 	if (video_codec.empty()) {
-		std::cerr << "Error: opening stream with video codec not selected (Automatic)" << std::endl;
+		std::cerr
+			<< "Error: opening stream with video codec not selected (Automatic)"
+			<< std::endl;
 		return false;
 	}
 
@@ -251,8 +262,8 @@ bool MillicastWebsocketClientImpl::disconnect(bool /* wait */)
 				     websocketpp::close::status::normal,
 				     std::string("disconnect"), ec);
 		if (ec)
-			std::cerr << "> Error on disconnect close: " <<
-			     ec.message().c_str() << std::endl;
+			std::cerr << "> Error on disconnect close: "
+				  << ec.message().c_str() << std::endl;
 		// Don't wait for connection close
 		client.stop();
 		// Remove handlers

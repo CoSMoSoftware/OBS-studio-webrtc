@@ -532,8 +532,8 @@ try {
 		}
 	} finishedTrigger;
 
-	BPtr<char> manifestPath =
-		GetConfigPathPtr((std::string(CONFIG_DIR) + "\\updates\\manifest.json").c_str());
+	BPtr<char> manifestPath = GetConfigPathPtr(
+		(std::string(CONFIG_DIR) + "\\updates\\manifest.json").c_str());
 
 	/* ----------------------------------- *
 	 * create signature provider           */
@@ -668,8 +668,8 @@ try {
 	/* ----------------------------------- *
 	 * execute updater                     */
 
-	BPtr<char> updateFilePath =
-		GetConfigPathPtr((std::string(CONFIG_DIR) + "\\updates\\updater.exe").c_str());
+	BPtr<char> updateFilePath = GetConfigPathPtr(
+		(std::string(CONFIG_DIR) + "\\updates\\updater.exe").c_str());
 	BPtr<wchar_t> wUpdateFilePath;
 
 	size_t size = os_utf8_to_wcs_ptr(updateFilePath, 0, &wUpdateFilePath);
@@ -727,8 +727,8 @@ try {
 	BYTE whatsnewHash[BLAKE2_HASH_LENGTH];
 	bool success;
 
-	BPtr<char> whatsnewPath =
-		GetConfigPathPtr((std::string(CONFIG_DIR) + "\\updates\\whatsnew.json").c_str());
+	BPtr<char> whatsnewPath = GetConfigPathPtr(
+		(std::string(CONFIG_DIR) + "\\updates\\whatsnew.json").c_str());
 
 	/* ----------------------------------- *
 	 * create signature provider           */

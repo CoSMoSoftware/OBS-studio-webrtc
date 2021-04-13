@@ -551,7 +551,8 @@ void OBSImporter::importCollections()
 	setEnabled(false);
 
 	char dst[512];
-	GetConfigPath(dst, 512, (std::string(CONFIG_DIR) + "/basic/scenes/").c_str());
+	GetConfigPath(dst, 512,
+		      (std::string(CONFIG_DIR) + "/basic/scenes/").c_str());
 
 	for (int i = 0; i < optionsModel->rowCount() - 1; i++) {
 		int selected = optionsModel->index(i, ImporterColumn::Selected)

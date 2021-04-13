@@ -138,11 +138,13 @@ static void AddExtraModulePaths()
 {
 	char base_module_dir[512];
 #if defined(_WIN32) || defined(__APPLE__)
-	int ret = GetProgramDataPath(base_module_dir, sizeof(base_module_dir),
-				     (std::string(CONFIG_DIR) + "/plugins/%module%").c_str());
+	int ret = GetProgramDataPath(
+		base_module_dir, sizeof(base_module_dir),
+		(std::string(CONFIG_DIR) + "/plugins/%module%").c_str());
 #else
-	int ret = GetConfigPath(base_module_dir, sizeof(base_module_dir),
-				(std::string(CONFIG_DIR) + "/plugins/%module%").c_str());
+	int ret = GetConfigPath(
+		base_module_dir, sizeof(base_module_dir),
+		(std::string(CONFIG_DIR) + "/plugins/%module%").c_str());
 #endif
 
 	if (ret <= 0)
@@ -152,10 +154,10 @@ static void AddExtraModulePaths()
 #if defined(__APPLE__)
 	obs_add_module_path((path + "/bin").c_str(), (path + "/data").c_str());
 
-	BPtr<char> config_bin =
-		os_get_config_path_ptr((std::string(CONFIG_DIR) + "/plugins/%module%/bin").c_str());
-	BPtr<char> config_data =
-		os_get_config_path_ptr((std::string(CONFIG_DIR) + "/plugins/%module%/data").c_str());
+	BPtr<char> config_bin = os_get_config_path_ptr(
+		(std::string(CONFIG_DIR) + "/plugins/%module%/bin").c_str());
+	BPtr<char> config_data = os_get_config_path_ptr(
+		(std::string(CONFIG_DIR) + "/plugins/%module%/data").c_str());
 	obs_add_module_path(config_bin, config_data);
 
 #elif ARCH_BITS == 64
@@ -1667,8 +1669,8 @@ void OBSBasic::OBSInit()
 	if (!sceneCollection)
 		throw "Failed to get scene collection name";
 
-	ret = snprintf(fileName, 512, "%s/basic/scenes/%s.json", std::string(CONFIG_DIR).c_str(),
-		       sceneCollection);
+	ret = snprintf(fileName, 512, "%s/basic/scenes/%s.json",
+		       std::string(CONFIG_DIR).c_str(), sceneCollection);
 	if (ret <= 0)
 		throw "Failed to create scene collection file name";
 
@@ -2645,8 +2647,8 @@ void OBSBasic::SaveProjectDeferred()
 	if (!sceneCollection)
 		return;
 
-	ret = snprintf(fileName, 512, "%s/basic/scenes/%s.json", std::string(CONFIG_DIR).c_str(),
-		       sceneCollection);
+	ret = snprintf(fileName, 512, "%s/basic/scenes/%s.json",
+		       std::string(CONFIG_DIR).c_str(), sceneCollection);
 	if (ret <= 0)
 		return;
 
@@ -5372,7 +5374,8 @@ void OBSBasic::UploadLog(const char *subdir, const char *file, const bool crash)
 void OBSBasic::on_actionShowLogs_triggered()
 {
 	char logDir[512];
-	if (GetConfigPath(logDir, sizeof(logDir), (std::string(CONFIG_DIR) + "/logs").c_str()) <= 0)
+	if (GetConfigPath(logDir, sizeof(logDir),
+			  (std::string(CONFIG_DIR) + "/logs").c_str()) <= 0)
 		return;
 
 	QUrl url = QUrl::fromLocalFile(QT_UTF8(logDir));
@@ -5381,12 +5384,14 @@ void OBSBasic::on_actionShowLogs_triggered()
 
 void OBSBasic::on_actionUploadCurrentLog_triggered()
 {
-	UploadLog((std::string(CONFIG_DIR) + "/logs").c_str(), App()->GetCurrentLog(), false);
+	UploadLog((std::string(CONFIG_DIR) + "/logs").c_str(),
+		  App()->GetCurrentLog(), false);
 }
 
 void OBSBasic::on_actionUploadLastLog_triggered()
 {
-	UploadLog((std::string(CONFIG_DIR) + "/logs").c_str(), App()->GetLastLog(), false);
+	UploadLog((std::string(CONFIG_DIR) + "/logs").c_str(),
+		  App()->GetLastLog(), false);
 }
 
 void OBSBasic::on_actionViewCurrentLog_triggered()
@@ -5408,7 +5413,8 @@ void OBSBasic::on_actionViewCurrentLog_triggered()
 void OBSBasic::on_actionShowCrashLogs_triggered()
 {
 	char logDir[512];
-	if (GetConfigPath(logDir, sizeof(logDir), (std::string(CONFIG_DIR) + "/crashes").c_str()) <= 0)
+	if (GetConfigPath(logDir, sizeof(logDir),
+			  (std::string(CONFIG_DIR) + "/crashes").c_str()) <= 0)
 		return;
 
 	QUrl url = QUrl::fromLocalFile(QT_UTF8(logDir));
@@ -5417,7 +5423,8 @@ void OBSBasic::on_actionShowCrashLogs_triggered()
 
 void OBSBasic::on_actionUploadLastCrashLog_triggered()
 {
-	UploadLog((std::string(CONFIG_DIR) + "/crashes").c_str(), App()->GetLastCrashLog(), true);
+	UploadLog((std::string(CONFIG_DIR) + "/crashes").c_str(),
+		  App()->GetLastCrashLog(), true);
 }
 
 void OBSBasic::on_actionCheckForUpdates_triggered()
@@ -7316,7 +7323,9 @@ int OBSBasic::GetProfilePath(char *path, size_t size, const char *file) const
 	if (!file)
 		file = "";
 
-	ret = GetConfigPath(profiles_path, 512, (std::string(CONFIG_DIR) + "/basic/profiles").c_str());
+	ret = GetConfigPath(
+		profiles_path, 512,
+		(std::string(CONFIG_DIR) + "/basic/profiles").c_str());
 	if (ret <= 0)
 		return ret;
 

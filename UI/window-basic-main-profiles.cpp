@@ -37,8 +37,9 @@ void EnumProfiles(std::function<bool(const char *, const char *)> &&cb)
 	char path[512];
 	os_glob_t *glob;
 
-	int ret = GetConfigPath(path, sizeof(path),
-				(std::string(CONFIG_DIR) + "/basic/profiles/*").c_str());
+	int ret = GetConfigPath(
+		path, sizeof(path),
+		(std::string(CONFIG_DIR) + "/basic/profiles/*").c_str());
 	if (ret <= 0) {
 		blog(LOG_WARNING, "Failed to get profiles config path");
 		return;
@@ -138,7 +139,9 @@ static bool GetProfileName(QWidget *parent, std::string &name,
 		return false;
 	}
 
-	ret = GetConfigPath(path, sizeof(path), (std::string(CONFIG_DIR) + "/basic/profiles/").c_str());
+	ret = GetConfigPath(
+		path, sizeof(path),
+		(std::string(CONFIG_DIR) + "/basic/profiles/").c_str());
 	if (ret <= 0) {
 		blog(LOG_WARNING, "Failed to get profiles config path");
 		return false;
@@ -163,7 +166,9 @@ static bool CopyProfile(const char *fromPartial, const char *to)
 	char dir[512];
 	int ret;
 
-	ret = GetConfigPath(dir, sizeof(dir), (std::string(CONFIG_DIR) + "/basic/profiles/").c_str());
+	ret = GetConfigPath(
+		dir, sizeof(dir),
+		(std::string(CONFIG_DIR) + "/basic/profiles/").c_str());
 	if (ret <= 0) {
 		blog(LOG_WARNING, "Failed to get profiles config path");
 		return false;
@@ -222,8 +227,9 @@ bool OBSBasic::AddProfile(bool create_new, const char *title, const char *text,
 		config_get_string(App()->GlobalConfig(), "Basic", "ProfileDir");
 
 	char baseDir[512];
-	int ret = GetConfigPath(baseDir, sizeof(baseDir),
-				(std::string(CONFIG_DIR) + "/basic/profiles/").c_str());
+	int ret = GetConfigPath(
+		baseDir, sizeof(baseDir),
+		(std::string(CONFIG_DIR) + "/basic/profiles/").c_str());
 	if (ret <= 0) {
 		blog(LOG_WARNING, "Failed to get profiles config path");
 		return false;
@@ -301,7 +307,9 @@ void OBSBasic::DeleteProfile(const char *profileName, const char *profileDir)
 	char profilePath[512];
 	char basePath[512];
 
-	int ret = GetConfigPath(basePath, 512, (std::string(CONFIG_DIR) + "/basic/profiles").c_str());
+	int ret = GetConfigPath(
+		basePath, 512,
+		(std::string(CONFIG_DIR) + "/basic/profiles").c_str());
 	if (ret <= 0) {
 		blog(LOG_WARNING, "Failed to get profiles config path");
 		return;
@@ -521,7 +529,9 @@ void OBSBasic::on_actionImportProfile_triggered()
 
 	QString home = QDir::homePath();
 
-	int ret = GetConfigPath(path, 512, (std::string(CONFIG_DIR) + "/basic/profiles/").c_str());
+	int ret = GetConfigPath(
+		path, 512,
+		(std::string(CONFIG_DIR) + "/basic/profiles/").c_str());
 	if (ret <= 0) {
 		blog(LOG_WARNING, "Failed to get profile config path");
 		return;
@@ -567,7 +577,9 @@ void OBSBasic::on_actionExportProfile_triggered()
 	QString currentProfile = QString::fromUtf8(config_get_string(
 		App()->GlobalConfig(), "Basic", "ProfileDir"));
 
-	int ret = GetConfigPath(path, 512, (std::string(CONFIG_DIR) + "/basic/profiles/").c_str());
+	int ret = GetConfigPath(
+		path, 512,
+		(std::string(CONFIG_DIR) + "/basic/profiles/").c_str());
 	if (ret <= 0) {
 		blog(LOG_WARNING, "Failed to get profile config path");
 		return;

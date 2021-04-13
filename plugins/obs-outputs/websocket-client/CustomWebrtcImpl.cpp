@@ -39,7 +39,8 @@ bool CustomWebrtcImpl::open(const std::string &sdp,
 			    const std::string &audio_codec,
 			    const std::string &stream_name)
 {
-	std::cout << "WS-OPEN: stream_name: " << stream_name.c_str() << std::endl;
+	std::cout << "WS-OPEN: stream_name: " << stream_name.c_str()
+		  << std::endl;
 
 	RestClient::Connection *conn = new RestClient::Connection("");
 	RestClient::HeaderFields headers;
@@ -57,7 +58,8 @@ bool CustomWebrtcImpl::open(const std::string &sdp,
 	RestClient::disable();
 
 	if (r.code < 200 || r.code >= 300) {
-		std::cerr << "Error querying publishing websocket url" << std::endl;
+		std::cerr << "Error querying publishing websocket url"
+			  << std::endl;
 		std::cerr << "code: " << r.code << std::endl;
 		std::cerr << "body: " << r.body.c_str() << std::endl;
 		return false;

@@ -307,8 +307,9 @@ void OBSBasic::DeleteProfile(const char *profileName, const char *profileDir)
 	char profilePath[512];
 	char basePath[512];
 
-	int ret = GetConfigPath(basePath, 512,
-				(std::string(CONFIG_DIR) + "/basic/profiles").c_str());
+	int ret = GetConfigPath(
+		basePath, 512,
+		(std::string(CONFIG_DIR) + "/basic/profiles").c_str());
 	if (ret <= 0) {
 		blog(LOG_WARNING, "Failed to get profiles config path");
 		return;
