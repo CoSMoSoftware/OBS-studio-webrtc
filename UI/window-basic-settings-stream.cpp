@@ -1,3 +1,4 @@
+// Copyright Dr. Alex. Gouaillard (2015, 2020)
 #include <QMessageBox>
 #include <QUrl>
 
@@ -632,9 +633,10 @@ void OBSBasicSettings::on_service_currentIndexChanged(int)
 		// ui->streamkeyPageLayout->insertRow(7, ui->streamProtocolLabel,
 		// 				   ui->streamProtocol);
 
+		ui->serverLabel->setVisible(true);
+		ui->serverLabel->setText("Server");
 		ui->serverStackedWidget->setCurrentIndex(1);
 		ui->serverStackedWidget->setVisible(true);
-		ui->serverLabel->setVisible(true);
 		ui->streamKeyLabel->setVisible(true);
 		ui->streamKeyWidget->setVisible(true);
 		ui->roomLabel->setVisible(false);
@@ -652,6 +654,7 @@ void OBSBasicSettings::on_service_currentIndexChanged(int)
 				reinterpret_cast<QRadioButton *>(*iter);
 			radiobutton->setVisible(false);
 		}
+		ui->codecGroupBox->setVisible(false);
 		ui->streamProtocolLabel->setVisible(false);
 		ui->streamProtocol->setVisible(false);
 		ui->streamingAdvancedSettingsButton->setVisible(false);
@@ -743,6 +746,7 @@ void OBSBasicSettings::on_service_currentIndexChanged(int)
 				reinterpret_cast<QRadioButton *>(*iter);
 			radiobutton->setVisible(obs_property_visible(codec));
 		}
+		ui->codecGroupBox->setVisible(true);
 		ui->streamProtocolLabel->setVisible(
 			obs_property_visible(protocol));
 		ui->streamProtocol->setVisible(obs_property_visible(protocol));
@@ -789,6 +793,7 @@ void OBSBasicSettings::on_service_currentIndexChanged(int)
 				reinterpret_cast<QRadioButton *>(*iter);
 			radiobutton->setVisible(false);
 		}
+		ui->codecGroupBox->setVisible(false);
 		ui->streamingAdvancedSettingsButton->setVisible(false);
 		ui->simulcastEnable->setVisible(false);
 		ui->publishApiUrlLabel->setVisible(false);
