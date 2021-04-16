@@ -612,27 +612,27 @@ void OBSBasicSettings::on_service_currentIndexChanged(int)
 #endif
 
 	// #289 service list of radio buttons
-	ui->useAuth->setVisible(custom && !isWebrtc);
-	ui->authUsernameLabel->setVisible(custom || isWebrtc);
-	ui->authUsername->setVisible(custom || isWebrtc);
-	ui->authPwLabel->setVisible(custom);
-	ui->authPwWidget->setVisible(custom);
+	ui->useAuth->setVisible(false);
+	ui->authUsernameLabel->setVisible(isWebrtc);
+	ui->authUsername->setVisible(isWebrtc);
+	ui->authPwLabel->setVisible(false);
+	ui->authPwWidget->setVisible(false);
 
 	if (custom && !isWebrtc) {
 		ui->streamkeyPageLayout->insertRow(1, ui->serverLabel,
 						   ui->serverStackedWidget);
 		ui->streamkeyPageLayout->insertRow(2, ui->streamKeyLabel,
 						   ui->streamKeyWidget);
-		ui->streamkeyPageLayout->insertRow(3, nullptr, ui->useAuth);
-		ui->streamkeyPageLayout->insertRow(4, ui->authUsernameLabel,
-						   ui->authUsername);
-		ui->streamkeyPageLayout->insertRow(5, ui->authPwLabel,
-						   ui->authPwWidget);
+		// ui->streamkeyPageLayout->insertRow(3, nullptr, ui->useAuth);
+		// ui->streamkeyPageLayout->insertRow(4, ui->authUsernameLabel,
+		// 				   ui->authUsername);
+		// ui->streamkeyPageLayout->insertRow(5, ui->authPwLabel,
+		// 				   ui->authPwWidget);
 		// NOTE LUDO: #172 codecs list of radio buttons
 		// ui->streamkeyPageLayout->insertRow(6, ui->codecLabel,
 		//				   ui->codec);
-		ui->streamkeyPageLayout->insertRow(7, ui->streamProtocolLabel,
-						   ui->streamProtocol);
+		// ui->streamkeyPageLayout->insertRow(7, ui->streamProtocolLabel,
+		// 				   ui->streamProtocol);
 
 		ui->serverStackedWidget->setCurrentIndex(1);
 		ui->serverStackedWidget->setVisible(true);
@@ -641,7 +641,7 @@ void OBSBasicSettings::on_service_currentIndexChanged(int)
 		ui->streamKeyWidget->setVisible(true);
 		ui->roomLabel->setVisible(false);
 		ui->room->setVisible(false);
-		on_useAuth_toggled();
+		// on_useAuth_toggled();
 		ui->codecLabel->setVisible(false);
 		// NOTE LUDO: #172 codecs list of radio buttons
 		// ui->codec->setVisible(true);
