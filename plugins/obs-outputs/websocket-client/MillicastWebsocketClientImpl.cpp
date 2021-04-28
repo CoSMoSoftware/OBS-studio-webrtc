@@ -53,8 +53,9 @@ bool MillicastWebsocketClientImpl::connect(const std::string &publish_api_url,
 		auto wssData = json::parse(r.body);
 		url = wssData["data"]["urls"][0].get<std::string>();
 		jwt = wssData["data"]["jwt"].get<std::string>();
-		std::cout << "WSS url:          " << url.c_str() << std::endl;
-		std::cout << "JWT (token):      " << jwt.c_str() << std::endl;
+		// #323: Do not log publishing token
+		// std::cout << "WSS url:          " << url.c_str() << std::endl;
+		// std::cout << "JWT (token):      " << jwt.c_str() << std::endl;
 	} else {
 		std::cerr << "Error querying publishing websocket url"
 			  << std::endl;
@@ -88,7 +89,9 @@ bool MillicastWebsocketClientImpl::connect(const std::string &publish_api_url,
 
 		// Create websocket url
 		std::string wss = url + "?token=" + jwt;
-		std::cout << "Connection URL:   " << wss.c_str() << std::endl;
+		// #323: Do not log publishing token
+		std::cout << "Connection URL:   " << url << "?token=***"
+			  << std::endl;
 
 		connection = client.get_connection(wss, ec);
 		if (!connection)
