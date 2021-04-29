@@ -668,7 +668,7 @@ obs-build-main() {
     GIT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
     GIT_HASH=$(git rev-parse --short HEAD)
     GIT_TAG=$(git describe --tags --abbrev=0)
-    FILE_NAME="obs-webrtc-x64-${OBS_VERSION}-${GIT_TAG}-macOS.dmg"
+    FILE_NAME="obs-webrtc-x64-${OBS_VERSION}-macOS.dmg"
 
     ##########################################################################
     # IMPORTANT:
