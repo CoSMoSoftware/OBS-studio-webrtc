@@ -224,13 +224,13 @@ install_libwebrtc() {
     hr "Installing LibWebRTC v${1}"
     ensure_dir ${DEPS_BUILD_DIR}
     step "Download..."
-    ${CURLCMD} --progress-bar -u ${FTP_LOGIN}:${FTP_PASSWORD} -L -C - -o libWebRTC.dmg ${FTP_PATH_PREFIX}/mac/libWebRTC-${1}-x64-Release-H264.dmg
+    ${CURLCMD} --progress-bar -u ${FTP_LOGIN}:${FTP_PASSWORD} -L -C - -o libWebRTC.dmg ${FTP_PATH_PREFIX}/mac/libWebRTC-${1}-x64-Release-H264-OpenSSL_1_1_1a.dmg
     step "Bypass the EULA by converting the DMG download to a CDR image"
     hdiutil convert -quiet libWebRTC.dmg -format UDTO -o libWebRTC
     step "Mount the CDR image"
     hdiutil attach -quiet -nobrowse -noverify libWebRTC.cdr
     step "Copy to destination..."
-    cp -r /Volumes/libWebRTC-${1}-x64-Release-H264/libwebrtc ./
+    cp -r /Volumes/libWebRTC-${1}-x64-Release-H264-OpenSSL_1_1_1a/libwebrtc ./
 }
 
 ## CHECK AND INSTALL PACKAGING DEPENDENCIES ##
@@ -663,7 +663,7 @@ obs-build-main() {
     GIT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
     GIT_HASH=$(git rev-parse --short HEAD)
     GIT_TAG=$(git describe --tags --abbrev=0)
-    FILE_NAME="remote-filming-${GIT_TAG}-${GIT_HASH}-macOS.dmg"
+    FILE_NAME="remote-filming-${OBS_VERSION}-${GIT_TAG}-macOS.dmg"
 
     ##########################################################################
     # IMPORTANT:

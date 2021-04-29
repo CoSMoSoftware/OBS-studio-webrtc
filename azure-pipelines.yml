@@ -20,6 +20,8 @@ variables:
     value: 90.0
   - name: OBS_VERSION
     value: 26.1.2-m90
+  - name: GIT_TAG
+    value: 2.20
   - name: TWITCH-CLIENTID
     value: $(twitch_clientid)
   - name: TWITCH-HASH
@@ -163,12 +165,12 @@ jobs:
     - ${{ if eq( vendor, 'Millicast') }}:
       - task: CmdLine@2
         inputs:
-          script: AzureSignTool sign -kvu "$(WINDOWS_SIGNING_VAULT_URL)" -kvi "$(WINDOWS_SIGNING_CLIENT_ID)" -kvs "$(WINDOWS_SIGNING_CLIENT_SECRET)" -kvc "$(WINDOWS_SIGNING_CERTIFICATE_NAME)" -tr "http://timestamp.comodoca.com" -td sha256 -v ./build_${{ vendor }}/obs-webrtc-x64-$(OBS_VERSION).msi
+          script: AzureSignTool sign -kvu "$(WINDOWS_SIGNING_VAULT_URL)" -kvi "$(WINDOWS_SIGNING_CLIENT_ID)" -kvs "$(WINDOWS_SIGNING_CLIENT_SECRET)" -kvc "$(WINDOWS_SIGNING_CERTIFICATE_NAME)" -tr "http://timestamp.comodoca.com" -td sha256 -v ./build_${{ vendor }}/obs-webrtc-x64-$(OBS_VERSION)-$(GIT_TAG).msi
         displayName: 'Sign build_${{ vendor }} with global AzureSignTool'
     - ${{ if eq( vendor, 'RemoteFilming') }}:
       - task: CmdLine@2
         inputs:
-          script: AzureSignTool sign -kvu "$(WINDOWS_SIGNING_VAULT_URL)" -kvi "$(WINDOWS_SIGNING_CLIENT_ID)" -kvs "$(WINDOWS_SIGNING_CLIENT_SECRET)" -kvc "$(WINDOWS_SIGNING_CERTIFICATE_NAME)" -tr "http://timestamp.comodoca.com" -td sha256 -v ./build_${{ vendor }}/remote-filming-x64-$(OBS_VERSION).msi
+          script: AzureSignTool sign -kvu "$(WINDOWS_SIGNING_VAULT_URL)" -kvi "$(WINDOWS_SIGNING_CLIENT_ID)" -kvs "$(WINDOWS_SIGNING_CLIENT_SECRET)" -kvc "$(WINDOWS_SIGNING_CERTIFICATE_NAME)" -tr "http://timestamp.comodoca.com" -td sha256 -v ./build_${{ vendor }}/remote-filming-x64-$(OBS_VERSION)-$(GIT_TAG).msi
         displayName: 'Sign build_${{ vendor }} with global AzureSignTool'
     - task: PublishBuildArtifacts@1
       inputs:
