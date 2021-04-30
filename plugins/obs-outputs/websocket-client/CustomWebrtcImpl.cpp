@@ -4,8 +4,15 @@
 #include "restclient-cpp/connection.h"
 #include "restclient-cpp/restclient.h"
 
+#include <util/base.h>
+
 #include <iostream>
 #include <string>
+
+#define warn(format, ...) blog(LOG_WARNING, format, ##__VA_ARGS__)
+#define info(format, ...) blog(LOG_INFO, format, ##__VA_ARGS__)
+#define debug(format, ...) blog(LOG_DEBUG, format, ##__VA_ARGS__)
+#define error(format, ...) blog(LOG_ERROR, format, ##__VA_ARGS__)
 
 CustomWebrtcImpl::CustomWebrtcImpl()
 {
@@ -39,8 +46,7 @@ bool CustomWebrtcImpl::open(const std::string &sdp,
 			    const std::string &audio_codec,
 			    const std::string &stream_name)
 {
-	std::cout << "WS-OPEN: stream_name: " << stream_name.c_str()
-		  << std::endl;
+	info("WS-OPEN: stream_name: %s", stream_name.c_str());
 
 	RestClient::Connection *conn = new RestClient::Connection("");
 	RestClient::HeaderFields headers;
@@ -58,10 +64,9 @@ bool CustomWebrtcImpl::open(const std::string &sdp,
 	RestClient::disable();
 
 	if (r.code < 200 || r.code >= 300) {
-		std::cerr << "Error querying publishing websocket url"
-			  << std::endl;
-		std::cerr << "code: " << r.code << std::endl;
-		std::cerr << "body: " << r.body.c_str() << std::endl;
+		error("Error querying publishing websocket url");
+		error("code: %d", r.code);
+		error("body: %s", r.body.c_str());
 		return false;
 	}
 
