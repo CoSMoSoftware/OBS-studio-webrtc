@@ -1970,8 +1970,11 @@ void OBSBasic::OBSInit()
 	ui->menuCrashLogs = nullptr;
 	ui->actionCheckForUpdates = nullptr;
 #elif _WIN32 || __APPLE__
-	if (App()->IsUpdaterDisabled())
-		ui->actionCheckForUpdates->setEnabled(false);
+// #270 Disable auto-update
+	// if (App()->IsUpdaterDisabled())
+	// 	ui->actionCheckForUpdates->setEnabled(false);
+	delete ui->actionCheckForUpdates;
+	ui->actionCheckForUpdates = nullptr;
 #endif
 
 	OnFirstLoad();
@@ -2491,8 +2494,9 @@ OBSBasic::~OBSBasic()
 	/* clear out UI event queue */
 	QApplication::sendPostedEvents(App());
 
-	if (updateCheckThread && updateCheckThread->isRunning())
-		updateCheckThread->wait();
+	// #270 Disable auto-update
+	// if (updateCheckThread && updateCheckThread->isRunning())
+	// 	updateCheckThread->wait();
 
 	delete screenshotData;
 	delete logView;
@@ -3529,16 +3533,17 @@ void OBSBasic::TimedCheckForUpdates()
 
 void OBSBasic::CheckForUpdates(bool manualUpdate)
 {
+	// #270 Disable auto-update
 #ifdef UPDATE_SPARKLE
-	trigger_sparkle_update();
+	// trigger_sparkle_update();
 #elif _WIN32
-	ui->actionCheckForUpdates->setEnabled(false);
+	// ui->actionCheckForUpdates->setEnabled(false);
 
-	if (updateCheckThread && updateCheckThread->isRunning())
-		return;
+	// if (updateCheckThread && updateCheckThread->isRunning())
+	// 	return;
 
-	updateCheckThread.reset(new AutoUpdateThread(manualUpdate));
-	updateCheckThread->start();
+	// updateCheckThread.reset(new AutoUpdateThread(manualUpdate));
+	// updateCheckThread->start();
 #endif
 
 	UNUSED_PARAMETER(manualUpdate);
@@ -4272,8 +4277,9 @@ void OBSBasic::closeEvent(QCloseEvent *event)
 		introCheckThread->wait();
 	if (whatsNewInitThread)
 		whatsNewInitThread->wait();
-	if (updateCheckThread)
-		updateCheckThread->wait();
+	// #270 Disable auto-update
+	// if (updateCheckThread)
+	// 	updateCheckThread->wait();
 	if (logUploadThread)
 		logUploadThread->wait();
 	if (devicePropertiesThread && devicePropertiesThread->isRunning()) {

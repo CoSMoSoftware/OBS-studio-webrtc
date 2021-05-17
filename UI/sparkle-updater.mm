@@ -138,5 +138,6 @@ void init_sparkle_updater(bool update_to_undeployed)
 
 void trigger_sparkle_update()
 {
-	[updater checkForUpdates:nil];
+	// #270 Disable auto-update
+	// [updater checkForUpdates:nil];
 }
