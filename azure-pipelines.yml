@@ -35,6 +35,8 @@ variables:
     value: $(ludo_apple_account_id)
   - name: CODESIGN_IDENT_PASS
     value: $(ludo_apple_developer_password)
+  - name: NOTARIZE_APP_SPECIFIC_PASSWORD
+    value: $(ludo_apple_app_specific_password)
 # for script CI/full-build-macos.sh
   - name: MIN_MACOS_VERSION
     value: 10.13
@@ -90,6 +92,7 @@ jobs:
         CODESIGN_IDENT: $(ludo_apple_developer_identity)
         CODESIGN_IDENT_USER: $(ludo_apple_account_id)
         CODESIGN_IDENT_PASS: $(ludo_apple_developer_password)
+        NOTARIZE_APP_SPECIFIC_PASSWORD: $(ludo_apple_app_specific_password)
     - script: TERM="" ./CI/full-build-macos.sh -b -d -p -n -s -v ${{ vendor }}
       displayName: '${{ vendor }} Create bundle and notarize'
       env:
@@ -104,6 +107,7 @@ jobs:
         CODESIGN_IDENT: $(ludo_apple_developer_identity)
         CODESIGN_IDENT_USER: $(ludo_apple_account_id)
         CODESIGN_IDENT_PASS: $(ludo_apple_developer_password)
+        NOTARIZE_APP_SPECIFIC_PASSWORD: $(ludo_apple_app_specific_password)
     - bash: |
         mkdir -p ./nightly_${{ vendor }}
         find ./build_${{ vendor }} -name \*.dmg -exec cp -PR \{\} ./nightly_${{ vendor }}/ \;
