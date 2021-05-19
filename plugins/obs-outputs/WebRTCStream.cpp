@@ -404,8 +404,10 @@ bool WebRTCStream::start(WebRTCStream::Type type)
 	// Extra logging
 
 	if (type == WebRTCStream::Type::Millicast) {
-		info("Stream Name:      %s\nPublishing Token: %s\n",
-		     username.c_str(), password.c_str());
+		// #323: Do not log publishing token
+		// info("Stream Name:      %s\nPublishing Token: %s\n",
+		//      username.c_str(), password.c_str());
+		info("Stream Name: %s\n", username.c_str());
 		url = publishApiUrl;
 	}
 	info("CONNECTING TO %s", url.c_str());
