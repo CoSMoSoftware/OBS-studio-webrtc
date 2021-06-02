@@ -17,9 +17,9 @@ variables:
   - name: CEF_VERSION
     value: 75.1.16+g16a67c4+chromium-75.0.3770.100
   - name: LIBWEBRTC_VERSION
-    value: 90.0
+    value: 91.0
   - name: OBS_VERSION
-    value: 26.1.2-m90-2.21
+    value: 26.1.2-m91-2.21
   - name: TWITCH-CLIENTID
     value: $(twitch_clientid)
   - name: TWITCH-HASH
