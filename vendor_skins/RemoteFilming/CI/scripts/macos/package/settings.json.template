@@ -1,5 +1,5 @@
 {
-    "title": "Remote Filming $$VERSION$$",
+    "title": "Remote Filming Studio $$VERSION$$",
     "background": "$$CI_PATH$$/package/background.tiff",
     "icon": "$$CI_PATH$$/app/AppIcon.icns",
     "format": "ULFO",
@@ -18,7 +18,7 @@
         "x": 124,
         "y": 180,
         "type": "file",
-        "path": "$$BUNDLE_PATH$$/RemoteFilming.app"
+        "path": "$$BUNDLE_PATH$$/RemoteFilmingStudio.app"
     }, {
         "x": 416,
         "y": 180,
