@@ -78,7 +78,7 @@ jobs:
     - ${{ if eq( vendor, 'RemoteFilming') }}:
       - script: cp ./vendor_skins/RemoteFilming/CI/full-build-macos.sh ./CI/full-build-macos.sh
         displayName: '${{ vendor }} copy full-build-macos.sh'
-      - script: sed -i toto.txt 's/<pointsize>13/<pointsize>16/' ./vendor_skins/RemoteFilming/UI/forms/OBSBasic.ui
+      - script: sed -i toto.txt 's/<pointsize>12/<pointsize>16/' ./vendor_skins/RemoteFilming/UI/forms/OBSBasic.ui
         displayName: START STREAM font 16
     - script: TERM="" ./CI/full-build-macos.sh -v ${{ vendor }}
       displayName: '${{ vendor }} Install dependencies and build'
