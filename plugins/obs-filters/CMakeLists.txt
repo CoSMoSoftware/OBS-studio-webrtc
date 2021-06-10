@@ -1,5 +1,7 @@
 project(obs-filters)
 
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+
 option(DISABLE_SPEEXDSP "Disable building of the SpeexDSP-based Noise Suppression filter" OFF)
 
 if(DISABLE_SPEEXDSP)
@@ -21,16 +23,34 @@ if(NOT LIBRNNOISE_FOUND)
 		"rnnoise/include/*.h")
 	add_definitions(-DCOMPILE_OPUS)
 	if("${CMAKE_SYSTEM_NAME}" MATCHES "Linux")
-		set_property(SOURCE ${rnnoise_SOURCES} PROPERTY COMPILE_FLAGS "-fvisibility=protected")
+    # NOTE LUDO: option -fvisibility-inlines-hidden to avoid link error "relocation R_X86_64_PC32 against protected symbol"
+		set_property(SOURCE ${rnnoise_SOURCES} PROPERTY COMPILE_FLAGS "-fvisibility-inlines-hidden")
 	endif()
 	include_directories("rnnoise/include")
 	source_group("rnnoise" FILES ${rnnoise_SOURCES})
 	set(LIBRNNOISE_FOUND TRUE)
 endif()
 
-if(LIBSPEEXDSP_FOUND OR LIBRNNOISE_FOUND)
+if (WIN32)
+	if(DISABLE_NVAFX)
+		message(STATUS "NVidia Audio FX support disabled")
+		set(LIBNVAFX_FOUND FALSE)
+	else()
+		message(STATUS "NVidia Audio FX support enabled; requires redist to be installed by end-user")
+		add_definitions(-DLIBNVAFX_ENABLED)
+		set(LIBNVAFX_FOUND TRUE)
+	endif()
+endif()
+
+if(LIBSPEEXDSP_FOUND OR LIBRNNOISE_FOUND OR LIBNVAFX_FOUND)
 	set(obs-filters_NOISEREDUCTION_SOURCES
 		noise-suppress-filter.c)
+	if(LIBNVAFX_FOUND)
+		set(obs-filters_NOISEREDUCTION_HEADERS
+			nvafx-load.h)
+	else()
+		set(obs-filters_NOISEREDUCTION_HEADERS)
+	endif()
 	set(obs-filters_NOISEREDUCTION_LIBRARIES
 		${LIBSPEEXDSP_LIBRARIES} ${LIBRNNOISE_LIBRARIES})
 	set(NOISEREDUCTION_ENABLED TRUE)
@@ -83,15 +103,12 @@ add_library(obs-filters MODULE
 	${rnnoise_SOURCES}
 	${obs-filters_SOURCES}
 	${obs-filters_config_HEADERS}
-	${obs-filters_NOISEREDUCTION_SOURCES})
+	${obs-filters_NOISEREDUCTION_SOURCES}
+	${obs-filters_NOISEREDUCTION_HEADERS})
 target_link_libraries(obs-filters
 	libobs
 	${obs-filters_PLATFORM_DEPS}
 	${obs-filters_NOISEREDUCTION_LIBRARIES})
 set_target_properties(obs-filters PROPERTIES FOLDER "plugins")
-if(UNIX AND NOT APPLE)
-  # Fix linker error about global variable "CommonState common;" defined in plugins/obs-filters/rnnois/src/denoise.c
-  target_link_options(obs-filters PUBLIC "LINKER:--version-script,${CMAKE_SOURCE_DIR}/plugins/obs-filters/linux_linker_script")
-endif()
 
 install_obs_plugin_with_data(obs-filters data)

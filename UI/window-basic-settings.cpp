@@ -358,6 +358,7 @@ void OBSBasicSettings::HookWidget(QWidget *widget, const char *signal,
 #define VIDEO_CHANGED   SLOT(VideoChanged())
 #define ADV_CHANGED     SLOT(AdvancedChanged())
 #define ADV_RESTART     SLOT(AdvancedChangedRestart())
+// note Ludo: Simulcast
 #define ADV_STREAMING_SETTINGS_CHANGED SLOT(AdvancedStreamingSettingsChanged())
 /* clang-format on */
 
@@ -418,10 +419,10 @@ OBSBasicSettings::OBSBasicSettings(QWidget *parent)
 	HookWidget(ui->multiviewDrawNames,   CHECK_CHANGED,  GENERAL_CHANGED);
 	HookWidget(ui->multiviewDrawAreas,   CHECK_CHANGED,  GENERAL_CHANGED);
 	HookWidget(ui->multiviewLayout,      COMBO_CHANGED,  GENERAL_CHANGED);
-  // #289 service list of radio buttons
+	// #289 service list of radio buttons
 	// HookWidget(ui->service,              COMBO_CHANGED,  STREAM1_CHANGED);
-  HookWidget(ui->millicastWebrtcRadioButton, CHECK_CHANGED, STREAM1_CHANGED);
-  HookWidget(ui->millicastRtmpRadioButton, CHECK_CHANGED, STREAM1_CHANGED);
+	HookWidget(ui->millicastWebrtcRadioButton, CHECK_CHANGED, STREAM1_CHANGED);
+	HookWidget(ui->millicastRtmpRadioButton, CHECK_CHANGED, STREAM1_CHANGED);
 	HookWidget(ui->server,               COMBO_CHANGED,  STREAM1_CHANGED);
 	HookWidget(ui->customServer,         EDIT_CHANGED,   STREAM1_CHANGED);
 	HookWidget(ui->key,                  EDIT_CHANGED,   STREAM1_CHANGED);
@@ -431,14 +432,14 @@ OBSBasicSettings::OBSBasicSettings(QWidget *parent)
 	HookWidget(ui->authUsername,         EDIT_CHANGED,   STREAM1_CHANGED);
 	HookWidget(ui->authPw,               EDIT_CHANGED,   STREAM1_CHANGED);
 	HookWidget(ui->ignoreRecommended,    CHECK_CHANGED,  STREAM1_CHANGED);
-  // NOTE LUDO: #172 codecs list of radio buttons
+	// NOTE LUDO: #172 codecs list of radio buttons
 	// HookWidget(ui->codec,                COMBO_CHANGED,  STREAM1_CHANGED);
-  HookWidget(ui->h264RadioButton,      CHECK_CHANGED,  STREAM1_CHANGED);
+	HookWidget(ui->h264RadioButton,      CHECK_CHANGED,  STREAM1_CHANGED);
 	HookWidget(ui->vp8RadioButton,       CHECK_CHANGED,  STREAM1_CHANGED);
 	HookWidget(ui->vp9RadioButton,       CHECK_CHANGED,  STREAM1_CHANGED);
-  HookWidget(ui->streamingAdvancedSettingsButton, CHECK_CHANGED, ADV_STREAMING_SETTINGS_CHANGED);
-  HookWidget(ui->simulcastEnable,      CHECK_CHANGED,  STREAM1_CHANGED);
-  HookWidget(ui->publishApiUrl,        EDIT_CHANGED,   STREAM1_CHANGED);
+	HookWidget(ui->streamingAdvancedSettingsButton, CHECK_CHANGED, ADV_STREAMING_SETTINGS_CHANGED);
+	HookWidget(ui->simulcastEnable,      CHECK_CHANGED,  STREAM1_CHANGED);
+	HookWidget(ui->publishApiUrl,        EDIT_CHANGED,   STREAM1_CHANGED);
 	HookWidget(ui->outputMode,           COMBO_CHANGED,  OUTPUTS_CHANGED);
 	HookWidget(ui->simpleOutputPath,     EDIT_CHANGED,   OUTPUTS_CHANGED);
 	HookWidget(ui->simpleNoSpace,        CHECK_CHANGED,  OUTPUTS_CHANGED);
@@ -946,8 +947,8 @@ OBSBasicSettings::OBSBasicSettings(QWidget *parent)
 	channelIndex = ui->channelSetup->currentIndex();
 	sampleRateIndex = ui->sampleRate->currentIndex();
 
-	QRegExp rx("\\d{1,5}x\\d{1,5}");
-	QValidator *validator = new QRegExpValidator(rx, this);
+	QRegularExpression rx("\\d{1,5}x\\d{1,5}");
+	QValidator *validator = new QRegularExpressionValidator(rx, this);
 	ui->baseResolution->lineEdit()->setValidator(validator);
 	ui->outputResolution->lineEdit()->setValidator(validator);
 }
@@ -1605,7 +1606,15 @@ void OBSBasicSettings::LoadResolutionLists()
 
 	for (QScreen *screen : QGuiApplication::screens()) {
 		QSize as = screen->size();
-		addRes(as.width(), as.height());
+		uint32_t as_width = as.width();
+		uint32_t as_height = as.height();
+
+		// Calculate physical screen resolution based on the virtual screen resolution
+		// They might differ if scaling is enabled, e.g. for HiDPI screens
+		as_width = round(as_width * screen->devicePixelRatio());
+		as_height = round(as_height * screen->devicePixelRatio());
+
+		addRes(as_width, as_height);
 	}
 
 	addRes(1920, 1080);
@@ -2625,8 +2634,9 @@ LayoutHotkey(obs_hotkey_id id, obs_hotkey_t *key, Func &&fun,
 	auto *label = new OBSHotkeyLabel;
 	QString text = QT_UTF8(obs_hotkey_get_description(key));
 
+	label->setProperty("fullName", text);
+
 	if (text.length() > TRUNCATE_TEXT_LENGTH) {
-		label->setProperty("fullName", text);
 		text = text.left(TRUNCATE_TEXT_LENGTH);
 		text += "...'";
 	}
@@ -2764,7 +2774,10 @@ void OBSBasicSettings::LoadHotkeySettings(obs_hotkey_id ignoreKey)
 					qobject_cast<OBSHotkeyLabel *>(
 						label->widget());
 				if (item) {
-					if (item->text().toLower().contains(
+					QString fullname =
+						item->property("fullName")
+							.value<QString>();
+					if (fullname.toLower().contains(
 						    text.toLower()))
 						setRowVisible(i, true, label);
 					else
@@ -4585,6 +4598,7 @@ void OBSBasicSettings::SimpleStreamingEncoderChanged()
 	ui->simpleOutPreset->setCurrentIndex(idx);
 }
 
+// note Ludo: Simulcast
 void OBSBasicSettings::AdvancedStreamingSettingsChanged()
 {
 	bool visible = ui->simulcastEnable->isVisible();

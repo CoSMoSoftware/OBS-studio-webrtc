@@ -16,6 +16,7 @@ volatile bool recording_paused = false;
 volatile bool replaybuf_active = false;
 volatile bool virtualcam_active = false;
 
+#define FTL_PROTOCOL "ftl"
 #define RTMP_PROTOCOL "rtmp"
 
 static void OBSStreamStarting(void *data, calldata_t *params)
@@ -763,7 +764,10 @@ bool SimpleOutput::SetupStreaming(obs_service_t *service)
 		type = "rtmp_output";
 		const char *url = obs_service_get_url(service);
 		if (url != NULL &&
-		    strncmp(url, RTMP_PROTOCOL, strlen(RTMP_PROTOCOL)) != 0) {
+		    strncmp(url, FTL_PROTOCOL, strlen(FTL_PROTOCOL)) == 0) {
+			type = "ftl_output";
+		} else if (url != NULL && strncmp(url, RTMP_PROTOCOL,
+						  strlen(RTMP_PROTOCOL)) != 0) {
 			type = "ffmpeg_mpegts_muxer";
 		}
 	}
@@ -1684,7 +1688,10 @@ bool AdvancedOutput::SetupStreaming(obs_service_t *service)
 		type = "rtmp_output";
 		const char *url = obs_service_get_url(service);
 		if (url != NULL &&
-		    strncmp(url, RTMP_PROTOCOL, strlen(RTMP_PROTOCOL)) != 0) {
+		    strncmp(url, FTL_PROTOCOL, strlen(FTL_PROTOCOL)) == 0) {
+			type = "ftl_output";
+		} else if (url != NULL && strncmp(url, RTMP_PROTOCOL,
+						  strlen(RTMP_PROTOCOL)) != 0) {
 			type = "ffmpeg_mpegts_muxer";
 		}
 	}
@@ -2011,12 +2018,11 @@ bool AdvancedOutput::ReplayBufferActive() const
 
 /* ------------------------------------------------------------------------ */
 
-bool BasicOutputHandler::SetupAutoRemux(const char *&ext)
+void BasicOutputHandler::SetupAutoRemux(const char *&ext)
 {
 	bool autoRemux = config_get_bool(main->Config(), "Video", "AutoRemux");
 	if (autoRemux && strcmp(ext, "mp4") == 0)
 		ext = "mkv";
-	return autoRemux;
 }
 
 std::string
@@ -2024,9 +2030,11 @@ BasicOutputHandler::GetRecordingFilename(const char *path, const char *ext,
 					 bool noSpace, bool overwrite,
 					 const char *format, bool ffmpeg)
 {
-	bool remux = !ffmpeg && SetupAutoRemux(ext);
+	if (!ffmpeg)
+		SetupAutoRemux(ext);
+
 	string dst = GetOutputFilename(path, ext, noSpace, overwrite, format);
-	lastRecordingPath = remux ? dst : "";
+	lastRecordingPath = dst;
 	return dst;
 }
 

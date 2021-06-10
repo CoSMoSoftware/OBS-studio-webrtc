@@ -27,17 +27,17 @@
 
 /* clang-format off */
 
-#define SETTING_MODE             "capture_mode"
-#define SETTING_CAPTURE_WINDOW   "window"
-#define SETTING_ACTIVE_WINDOW    "active_window"
-#define SETTING_WINDOW_PRIORITY  "priority"
-#define SETTING_COMPATIBILITY    "sli_compatibility"
-#define SETTING_CURSOR           "capture_cursor"
-#define SETTING_TRANSPARENCY     "allow_transparency"
-#define SETTING_LIMIT_FRAMERATE  "limit_framerate"
-#define SETTING_CAPTURE_OVERLAYS "capture_overlays"
-#define SETTING_ANTI_CHEAT_HOOK  "anti_cheat_hook"
-#define SETTING_HOOK_RATE        "hook_rate"
+#define SETTING_MODE                 "capture_mode"
+#define SETTING_CAPTURE_WINDOW       "window"
+#define SETTING_ACTIVE_WINDOW        "active_window"
+#define SETTING_WINDOW_PRIORITY      "priority"
+#define SETTING_COMPATIBILITY        "sli_compatibility"
+#define SETTING_CURSOR               "capture_cursor"
+#define SETTING_TRANSPARENCY         "allow_transparency"
+#define SETTING_LIMIT_FRAMERATE      "limit_framerate"
+#define SETTING_CAPTURE_OVERLAYS     "capture_overlays"
+#define SETTING_ANTI_CHEAT_HOOK      "anti_cheat_hook"
+#define SETTING_HOOK_RATE            "hook_rate"
 
 /* deprecated */
 #define SETTING_ANY_FULLSCREEN   "capture_any_fullscreen"
@@ -149,6 +149,7 @@ struct game_capture {
 
 	ipc_pipe_server_t pipe;
 	gs_texture_t *texture;
+	bool supports_srgb;
 	struct hook_info *global_hook_info;
 	HANDLE keepalive_mutex;
 	HANDLE hook_init;
@@ -743,6 +744,7 @@ static inline bool init_hook_info(struct game_capture *gc)
 	gc->global_hook_info->capture_overlay = gc->config.capture_overlays;
 	gc->global_hook_info->force_shmem = gc->config.force_shmem;
 	gc->global_hook_info->UNUSED_use_scale = false;
+	gc->global_hook_info->allow_srgb_alias = true;
 	reset_frame_interval(gc);
 
 	obs_enter_graphics();
@@ -1573,6 +1575,7 @@ static inline bool init_shmem_capture(struct game_capture *gc)
 		return false;
 	}
 
+	gc->supports_srgb = true;
 	gc->copy_texture = copy_shmem_tex;
 	return true;
 }
@@ -1582,6 +1585,8 @@ static inline bool init_shtex_capture(struct game_capture *gc)
 	obs_enter_graphics();
 	gs_texture_destroy(gc->texture);
 	gc->texture = gs_texture_open_shared(gc->shtex_data->tex_handle);
+	enum gs_color_format format = gs_texture_get_color_format(gc->texture);
+	gc->supports_srgb = gs_is_srgb_format(format);
 	obs_leave_graphics();
 
 	if (!gc->texture) {
@@ -1807,6 +1812,9 @@ static void game_capture_render(void *data, gs_effect_t *effect)
 					     ? OBS_EFFECT_DEFAULT
 					     : OBS_EFFECT_OPAQUE);
 
+	const bool linear_srgb = gs_get_linear_srgb() && gc->supports_srgb;
+	const bool previous = gs_set_linear_srgb(linear_srgb);
+
 	while (gs_effect_loop(effect, "Draw")) {
 		obs_source_draw(gc->texture, 0, 0, 0, 0,
 				gc->global_hook_info->flip);
@@ -1816,6 +1824,8 @@ static void game_capture_render(void *data, gs_effect_t *effect)
 			game_capture_render_cursor(gc);
 		}
 	}
+
+	gs_set_linear_srgb(previous);
 
 	if (!gc->config.allow_transparency && gc->config.cursor &&
 	    !gc->cursor_hidden) {
@@ -2055,7 +2065,7 @@ struct obs_source_info game_capture_info = {
 	.id = "game_capture",
 	.type = OBS_SOURCE_TYPE_INPUT,
 	.output_flags = OBS_SOURCE_VIDEO | OBS_SOURCE_CUSTOM_DRAW |
-			OBS_SOURCE_DO_NOT_DUPLICATE,
+			OBS_SOURCE_DO_NOT_DUPLICATE | OBS_SOURCE_SRGB,
 	.get_name = game_capture_name,
 	.create = game_capture_create,
 	.destroy = game_capture_destroy,

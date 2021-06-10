@@ -21,11 +21,11 @@
 #   -h: Print usage help
 #
 # Environment Variables (optional):
-#   MACOS_DEPS_VERSION      : Pre-compiled macOS dependencies version
-#   MACOS_CEF_BUILD_VERSION : Chromium Embedded Framework version
-#   VLC_VERISON             : VLC version
-#   SPARKLE_VERSION         : Sparke Framework version
-#   BUILD_DIR               : Alternative directory to build OBS in
+#   MACOS_DEPS_VERSION        : Pre-compiled macOS dependencies version
+#   MACOS_CEF_BUILD_VERSION   : Chromium Embedded Framework version
+#   VLC_VERISON               : VLC version
+#   SPARKLE_VERSION           : Sparke Framework version
+#   BUILD_DIR                 : Alternative directory to build OBS in
 #
 ##############################################################################
 
@@ -38,7 +38,12 @@ PRODUCT_NAME="OBS-Studio"
 CHECKOUT_DIR="$(git rev-parse --show-toplevel)"
 DEPS_BUILD_DIR="${CHECKOUT_DIR}/../obs-build-dependencies"
 BUILD_DIR="${BUILD_DIR:-build}"
+BUILD_CONFIG=${BUILD_CONFIG:-RelWithDebInfo}
 CI_SCRIPTS="${CHECKOUT_DIR}/CI/scripts/macos"
+CI_WORKFLOW="${CHECKOUT_DIR}/.github/workflows/main.yml"
+CI_SPARKLE_VERSION=$(/bin/cat "${CI_WORKFLOW}" | /usr/bin/sed -En "s/[ ]+SPARKLE_VERSION: '([0-9\.]+)'/\1/p")
+NPROC="${NPROC:-$(sysctl -n hw.ncpu)}"
+CURRENT_ARCH=$(uname -m)
 VENDOR="${VENDOR:-vendorNameMissing}"
 
 BUILD_DEPS=(
@@ -46,6 +51,7 @@ BUILD_DEPS=(
     "qt-deps ${QT_VERSION} ${MACOS_DEPS_VERSION}"
     "cef ${MACOS_CEF_BUILD_VERSION:-${MACOS_CEF_VERSION}}"
     "vlc ${VLC_VERSION}"
+    "sparkle ${SPARKLE_VERSION:-${CI_SPARKLE_VERSION}}"
     "libwebrtc ${LIBWEBRTC_VERSION}"
 )
 
@@ -91,7 +97,7 @@ exists() {
 }
 
 ensure_dir() {
-    [[ -n ${1} ]] && mkdir -p ${1} && builtin cd ${1}
+    [[ -n "${1}" ]] && mkdir -p "${1}" && builtin cd "${1}"
 }
 
 cleanup() {
@@ -108,6 +114,16 @@ caught_error() {
 }
 
 ## CHECK AND INSTALL DEPENDENCIES ##
+check_macos_version() {
+    MIN_VERSION=${MIN_MACOS_VERSION:-${CI_MIN_MACOS_VERSION}}
+    MIN_MAJOR=$(/bin/echo ${MIN_VERSION} | /usr/bin/cut -d '.' -f 1)
+    MIN_MINOR=$(/bin/echo ${MIN_VERSION} | /usr/bin/cut -d '.' -f 2)
+
+    if [ "${MACOS_MAJOR}" -lt "11" ] && [ "${MACOS_MINOR}" -lt "${MIN_MINOR}" ]; then
+        error "WARNING: Minimum required macOS version is ${MIN_VERSION}, but running on ${MACOS_VERSION}"
+    fi
+}
+
 install_homebrew_deps() {
     if ! exists brew; then
         error "Homebrew not found - please install homebrew (https://brew.sh)"
@@ -125,7 +141,7 @@ install_homebrew_deps() {
     fi
 
     brew update
-    brew bundle --file ${CI_SCRIPTS}/Brewfile
+    brew bundle --file "${CI_SCRIPTS}/Brewfile"
 
     check_curl
 }
@@ -143,64 +159,61 @@ check_curl() {
 }
 
 check_ccache() {
-    export PATH=/usr/local/opt/ccache/libexec:${PATH}
+    export PATH="/usr/local/opt/ccache/libexec:${PATH}"
     CCACHE_STATUS=$(ccache -s >/dev/null 2>&1 && echo "CCache available." || echo "CCache is not available.")
     info "${CCACHE_STATUS}"
 }
 
 install_obs-deps() {
     hr "Setting up pre-built macOS OBS dependencies v${1}"
-    ensure_dir ${DEPS_BUILD_DIR}
+    ensure_dir "${DEPS_BUILD_DIR}"
     step "Download..."
-    ${CURLCMD} --progress-bar -L -C - -O https://github.com/obsproject/obs-deps/releases/download/${1}/macos-deps-${1}.tar.gz
+    ${CURLCMD} --progress-bar -L -C - -O https://github.com/obsproject/obs-deps/releases/download/${1}/macos-deps-${CURRENT_ARCH}-${1}.tar.gz
     step "Unpack..."
-    tar -xf ./macos-deps-${1}.tar.gz -C /tmp
+    /usr/bin/tar -xf "./macos-deps-${CURRENT_ARCH}-${1}.tar.gz" -C /tmp
 }
 
 install_qt-deps() {
     hr "Setting up pre-built dependency QT v${1}"
-    ensure_dir ${DEPS_BUILD_DIR}
+    ensure_dir "${DEPS_BUILD_DIR}"
     step "Download..."
-    ${CURLCMD} --progress-bar -L -C - -O https://github.com/obsproject/obs-deps/releases/download/${2}/macos-qt-${1}-${2}.tar.gz
+    ${CURLCMD} --progress-bar -L -C - -O https://github.com/obsproject/obs-deps/releases/download/${2}/macos-qt-${1}-${CURRENT_ARCH}-${2}.tar.gz
     step "Unpack..."
-    tar -xf ./macos-qt-${1}-${2}.tar.gz -C /tmp
-    xattr -r -d com.apple.quarantine /tmp/obsdeps
+    /usr/bin/tar -xf ./macos-qt-${1}-${CURRENT_ARCH}-${2}.tar.gz -C /tmp
+    /usr/bin/xattr -r -d com.apple.quarantine /tmp/obsdeps
 }
 
 install_vlc() {
     hr "Setting up dependency VLC v${1}"
-    ensure_dir ${DEPS_BUILD_DIR}
+    ensure_dir "${DEPS_BUILD_DIR}"
     step "Download..."
     ${CURLCMD} --progress-bar -L -C - -O https://downloads.videolan.org/vlc/${1}/vlc-${1}.tar.xz
     step "Unpack ..."
     tar -xf vlc-${1}.tar.xz
 }
 
-# install_sparkle() {
-#     hr "Setting up dependency Sparkle v${1} (might prompt for password)"
-#     ensure_dir ${DEPS_BUILD_DIR}/sparkle
-#     step "Download..."
-#     ${CURLCMD} --progress-bar -L -C - -o sparkle.tar.bz2 https://github.com/sparkle-project/Sparkle/releases/download/${1}/Sparkle-${1}.tar.bz2
-#     step "Unpack..."
-#     tar -xf ./sparkle.tar.bz2
-#     step "Copy to destination..."
-#     if [ -d /Library/Frameworks/Sparkle.framework/ ]; then
-#         info "Warning - Sparkle framework already found in /Library/Frameworks"
-#     else
-#         sudo cp -R ./Sparkle.framework/ /Library/Frameworks/Sparkle.framework/
-#     fi
-# }
+install_sparkle() {
+    hr "Setting up dependency Sparkle v${1} (might prompt for password)"
+    ensure_dir "${DEPS_BUILD_DIR}/sparkle"
+    step "Download..."
+    ${CURLCMD} --progress-bar -L -C - -o sparkle.tar.bz2 https://github.com/sparkle-project/Sparkle/releases/download/${1}/Sparkle-${1}.tar.bz2
+    step "Unpack..."
+    /usr/bin/tar -xf ./sparkle.tar.bz2
+    step "Copy to destination..."
+    if [ -d /Library/Frameworks/Sparkle.framework/ ]; then
+        info "Warning - Sparkle framework already found in /Library/Frameworks"
+    else
+        sudo /bin/cp -R ./Sparkle.framework/ /Library/Frameworks/Sparkle.framework/
+    fi
+}
 
 install_cef() {
     hr "Building dependency CEF v${1}"
-    ensure_dir ${DEPS_BUILD_DIR}
+    ensure_dir "${DEPS_BUILD_DIR}"
     step "Download..."
-    # ${CURLCMD} --progress-bar -L -C - -O https://cef-builds.spotifycdn.com/cef_binary_85.3.13%2Bgcd6cbe0%2Bchromium-85.0.4183.121_macosx64.tar.bz2
     ${CURLCMD} --progress-bar -L -C - -O https://cdn-fastly.obsproject.com/downloads/cef_binary_${1}_macosx64.tar.bz2
     step "Unpack..."
-    # tar -xf ./cef_binary_85.3.13%2Bgcd6cbe0%2Bchromium-85.0.4183.121_macosx64.tar.bz2
-    # cd ./cef_binary_${MACOS_CEF_VERSION}_macosx64
-    tar -xf ./cef_binary_${1}_macosx64.tar.bz2
+    /usr/bin/tar -xf ./cef_binary_${1}_macosx64.tar.bz2
     cd ./cef_binary_${1}_macosx64
     step "Fix tests..."
     # remove a broken test
@@ -215,7 +228,7 @@ install_cef() {
         -DCMAKE_OSX_DEPLOYMENT_TARGET=${MIN_MACOS_VERSION} \
         ..
     step "Build..."
-    make -j4
+    make -j${NPROC}
     if [ ! -d libcef_dll ]; then mkdir libcef_dll; fi
 }
 
@@ -262,13 +275,13 @@ configure_obs_build() {
 
     if [ -d ./OBS-WebRTC.app ]; then
         ensure_dir "${NIGHTLY_DIR}"
-        mv ../${BUILD_DIR}_${VENDOR}/OBS-WebRTC.app .
+        mv "../${BUILD_DIR}_${VENDOR}/OBS-WebRTC.app" .
         info "You can find OBS-WebRTC.app in ${NIGHTLY_DIR}"
     fi
     ensure_dir "${CHECKOUT_DIR}/${BUILD_DIR}_${VENDOR}"
     if ([ -n "${PACKAGE_NAME}" ] && [ -f ${PACKAGE_NAME} ]); then
         ensure_dir "${NIGHTLY_DIR}"
-        mv ../${BUILD_DIR}_${VENDOR}/$(basename "${PACKAGE_NAME}") .
+        mv "../${BUILD_DIR}_${VENDOR}/$(basename "${PACKAGE_NAME}")" .
         info "You can find ${PACKAGE_NAME} in ${NIGHTLY_DIR}"
     fi
 
@@ -282,7 +295,7 @@ configure_obs_build() {
     fi
 
     hr "Run CMAKE for OBS..."
-    cmake -DCMAKE_BUILD_TYPE=${CI_BUILD_TYPE} \
+    cmake -DENABLE_SPARKLE_UPDATER=ON \
         -DCMAKE_OSX_DEPLOYMENT_TARGET=${MIN_MACOS_VERSION} \
         -DOBS_VERSION_OVERRIDE=${OBS_VERSION} \
         -DDISABLE_PYTHON=ON  \
@@ -294,10 +307,11 @@ configure_obs_build() {
         -DBROWSER_LEGACY=OFF \
         -DWITH_RTMPS=ON \
         -DCEF_ROOT_DIR="${DEPS_BUILD_DIR}/cef_binary_${MACOS_CEF_BUILD_VERSION}_macosx64" \
-        -Dlibwebrtc_DIR="${DEPS_BUILD_DIR}/libwebrtc/cmake" \
-        -DOPENSSL_ROOT_DIR="/usr/local/opt/openssl@1.1" \
+        -DCMAKE_BUILD_TYPE="${BUILD_CONFIG}" \
         .. \
         ${vendor_option} \
+        -Dlibwebrtc_DIR="${DEPS_BUILD_DIR}/libwebrtc/cmake" \
+        -DOPENSSL_ROOT_DIR="/usr/local/opt/openssl@1.1" \
         -DBUILD_NDI=ON \
         -DBUILD_WEBSOCKET=ON \
         -DLIBOBS_INCLUDE_DIR=../libobs \
@@ -327,7 +341,7 @@ bundle_dylibs() {
     step "Run dylibBundler.."
     ${CI_SCRIPTS}/app/dylibbundler -cd -of -a ./OBS-WebRTC.app -q -f \
         -s ./OBS-WebRTC.app/Contents/MacOS \
-        -s ./rundir/${CI_BUILD_TYPE}/bin/ \
+        -s ./rundir/${BUILD_CONFIG}/bin/ \
         -x ./OBS-WebRTC.app/Contents/PlugIns/coreaudio-encoder.so \
         -x ./OBS-WebRTC.app/Contents/PlugIns/decklink-ouput-ui.so \
         -x ./OBS-WebRTC.app/Contents/PlugIns/decklink-captions.so \
@@ -351,7 +365,8 @@ bundle_dylibs() {
         -x ./OBS-WebRTC.app/Contents/PlugIns/text-freetype2.so \
         -x ./OBS-WebRTC.app/Contents/PlugIns/obs-outputs.so \
         -x ./OBS-WebRTC.app/Contents/PlugIns/obs-ndi.so \
-        -x ./OBS-WebRTC.app/Contents/PlugIns/obs-websocket.so
+        -x ./OBS-WebRTC.app/Contents/PlugIns/obs-websocket.so \
+	-x ./OBS-WebRTC.app/Contents/PlugIns/obs-browser-page
 
     step "Move libobs-opengl to final destination"
     cp ./libobs-opengl/libobs-opengl.so ./OBS-WebRTC.app/Contents/Frameworks
@@ -376,7 +391,6 @@ install_frameworks() {
 
     hr "Adding Chromium Embedded Framework"
     step "Copy Framework..."
-    # cp -R "${DEPS_BUILD_DIR}/cef_binary_${MACOS_CEF_VERSION}_macosx64/Release/Chromium Embedded Framework.framework" ./OBS-WebRTC.app/Contents/Frameworks/
     cp -R "${DEPS_BUILD_DIR}/cef_binary_${MACOS_CEF_BUILD_VERSION}_macosx64/Release/Chromium Embedded Framework.framework" ./OBS-WebRTC.app/Contents/Frameworks/
     chown -R $(whoami) ./OBS-WebRTC.app/Contents/Frameworks/
 }
@@ -384,7 +398,7 @@ install_frameworks() {
 prepare_macos_bundle() {
     ensure_dir "${CHECKOUT_DIR}/${BUILD_DIR}_${VENDOR}"
 
-    if [ ! -d ./rundir/${CI_BUILD_TYPE}/bin ]; then
+    if [ ! -d ./rundir/${BUILD_CONFIG}/bin ]; then
         error "No OBS build found"
         exit 1
     fi
@@ -398,17 +412,17 @@ prepare_macos_bundle() {
     mkdir OBS-WebRTC.app/Contents/Resources
     mkdir OBS-WebRTC.app/Contents/Frameworks
 
-    cp rundir/${CI_BUILD_TYPE}/bin/obs ./OBS-WebRTC.app/Contents/MacOS
-    cp rundir/${CI_BUILD_TYPE}/bin/obs-ffmpeg-mux ./OBS-WebRTC.app/Contents/MacOS
-    cp rundir/${CI_BUILD_TYPE}/bin/libobsglad.0.dylib ./OBS-WebRTC.app/Contents/MacOS
-    cp -R "rundir/${CI_BUILD_TYPE}/bin/OBS Helper.app" "./OBS-WebRTC.app/Contents/Frameworks/OBS Helper.app"
-    cp -R "rundir/${CI_BUILD_TYPE}/bin/OBS Helper (GPU).app" "./OBS-WebRTC.app/Contents/Frameworks/OBS Helper (GPU).app"
-    cp -R "rundir/${CI_BUILD_TYPE}/bin/OBS Helper (Plugin).app" "./OBS-WebRTC.app/Contents/Frameworks/OBS Helper (Plugin).app"
-    cp -R "rundir/${CI_BUILD_TYPE}/bin/OBS Helper (Renderer).app" "./OBS-WebRTC.app/Contents/Frameworks/OBS Helper (Renderer).app"
-    cp -R rundir/${CI_BUILD_TYPE}/data ./OBS-WebRTC.app/Contents/Resources
-    cp ${CI_SCRIPTS}/app/AppIcon.icns ./OBS-WebRTC.app/Contents/Resources
-    cp -R rundir/${CI_BUILD_TYPE}/obs-plugins/ ./OBS-WebRTC.app/Contents/PlugIns
-    cp ${CI_SCRIPTS}/app/Info.plist ./OBS-WebRTC.app/Contents
+    cp rundir/${BUILD_CONFIG}/bin/obs ./OBS-WebRTC.app/Contents/MacOS
+    cp rundir/${BUILD_CONFIG}/bin/obs-ffmpeg-mux ./OBS-WebRTC.app/Contents/MacOS
+    cp rundir/${BUILD_CONFIG}/bin/libobsglad.0.dylib ./OBS-WebRTC.app/Contents/MacOS
+    cp -R "rundir/${BUILD_CONFIG}/bin/OBS Helper.app" "./OBS-WebRTC.app/Contents/Frameworks/OBS Helper.app"
+    cp -R "rundir/${BUILD_CONFIG}/bin/OBS Helper (GPU).app" "./OBS-WebRTC.app/Contents/Frameworks/OBS Helper (GPU).app"
+    cp -R "rundir/${BUILD_CONFIG}/bin/OBS Helper (Plugin).app" "./OBS-WebRTC.app/Contents/Frameworks/OBS Helper (Plugin).app"
+    cp -R "rundir/${BUILD_CONFIG}/bin/OBS Helper (Renderer).app" "./OBS-WebRTC.app/Contents/Frameworks/OBS Helper (Renderer).app"
+    cp -R rundir/${BUILD_CONFIG}/data ./OBS-WebRTC.app/Contents/Resources
+    cp "${CI_SCRIPTS}/app/AppIcon.icns" ./OBS-WebRTC.app/Contents/Resources
+    cp -R rundir/${BUILD_CONFIG}/obs-plugins/ ./OBS-WebRTC.app/Contents/PlugIns
+    cp "${CI_SCRIPTS}/app/Info.plist" ./OBS-WebRTC.app/Contents
     # Scripting plugins are required to be placed in same directory as binary
     if [ -d ./OBS-WebRTC.app/Contents/Resources/data/obs-scripting ]; then
         mv ./OBS-WebRTC.app/Contents/Resources/data/obs-scripting/obslua.so ./OBS-WebRTC.app/Contents/MacOS/
@@ -420,7 +434,7 @@ prepare_macos_bundle() {
     bundle_dylibs
     install_frameworks
 
-    cp ${CI_SCRIPTS}/app/OBSPublicDSAKey.pem ./OBS-WebRTC.app/Contents/Resources
+    cp "${CI_SCRIPTS}/app/OBSPublicDSAKey.pem" ./OBS-WebRTC.app/Contents/Resources
 
     step "Set bundle meta information..."
     plutil -insert CFBundleVersion -string "${OBS_VERSION}" ./OBS-WebRTC.app/Contents/Info.plist
@@ -529,22 +543,26 @@ codesign_bundle() {
 
     step "Code-sign CEF framework..."
     echo -n "${COLOR_ORANGE}"
-    codesign --force --timestamp --options runtime --sign "${CODESIGN_IDENT}" "./OBS-WebRTC.app/Contents/Frameworks/Chromium Embedded Framework.framework/Libraries/libEGL.dylib"
-    codesign --force --timestamp --options runtime --sign "${CODESIGN_IDENT}" "./OBS-WebRTC.app/Contents/Frameworks/Chromium Embedded Framework.framework/Libraries/libGLESv2.dylib"
-    codesign --force --timestamp --options runtime --sign "${CODESIGN_IDENT}" "./OBS-WebRTC.app/Contents/Frameworks/Chromium Embedded Framework.framework/Libraries/libswiftshader_libEGL.dylib"
-    codesign --force --timestamp --options runtime --sign "${CODESIGN_IDENT}" "./OBS-WebRTC.app/Contents/Frameworks/Chromium Embedded Framework.framework/Libraries/libswiftshader_libGLESv2.dylib"
-    codesign --force --timestamp --options runtime --sign "${CODESIGN_IDENT}" "./OBS-WebRTC.app/Contents/Frameworks/Chromium Embedded Framework.framework/Libraries/libvk_swiftshader.dylib"
-    codesign --force --timestamp --options runtime --sign "${CODESIGN_IDENT}" --deep "./OBS-WebRTC.app/Contents/Frameworks/Chromium Embedded Framework.framework"
+    codesign --force --timestamp --options runtime --entitlements "${CI_SCRIPTS}/app/entitlements.plist" --sign "${CODESIGN_IDENT}" "./OBS-WebRTC.app/Contents/Frameworks/Chromium Embedded Framework.framework/Libraries/libEGL.dylib"
+    codesign --force --timestamp --options runtime --entitlements "${CI_SCRIPTS}/app/entitlements.plist" --sign "${CODESIGN_IDENT}" "./OBS-WebRTC.app/Contents/Frameworks/Chromium Embedded Framework.framework/Libraries/libswiftshader_libEGL.dylib"
+    codesign --force --timestamp --options runtime --entitlements "${CI_SCRIPTS}/app/entitlements.plist" --sign "${CODESIGN_IDENT}" "./OBS-WebRTC.app/Contents/Frameworks/Chromium Embedded Framework.framework/Libraries/libGLESv2.dylib"
+    codesign --force --timestamp --options runtime --entitlements "${CI_SCRIPTS}/app/entitlements.plist" --sign "${CODESIGN_IDENT}" "./OBS-WebRTC.app/Contents/Frameworks/Chromium Embedded Framework.framework/Libraries/libswiftshader_libGLESv2.dylib"
+    codesign --force --timestamp --options runtime --entitlements "${CI_SCRIPTS}/app/entitlements.plist" --sign "${CODESIGN_IDENT}" "./OBS-WebRTC.app/Contents/Frameworks/Chromium Embedded Framework.framework/Libraries/libvk_swiftshader.dylib"
+    codesign --force --timestamp --options runtime --entitlements "${CI_SCRIPTS}/app/entitlements.plist" --sign "${CODESIGN_IDENT}" --deep "./OBS-WebRTC.app/Contents/Frameworks/Chromium Embedded Framework.framework"
     echo -n "${COLOR_RESET}"
 
-    step "Code-sign OBS code..."
-    echo -n "${COLOR_ORANGE}"
-    codesign --force --timestamp --options runtime --sign "${CODESIGN_IDENT}" "./OBS-WebRTC.app/Contents/Resources/data/obs-mac-virtualcam.plugin/Contents/MacOS/obs-mac-virtualcam"
-    codesign --force --timestamp --options runtime --entitlements "${CI_SCRIPTS}/app/entitlements.plist" --sign "${CODESIGN_IDENT}" --deep ./OBS-WebRTC.app
-    codesign --force --timestamp --options runtime --sign "${CODESIGN_IDENT}" --deep "./OBS-WebRTC.app/Contents/Frameworks/OBS Helper.app"
+    step "Code-sign CEF helper apps..."
+    /bin/echo -n "${COLOR_ORANGE}"
+    codesign --force --timestamp --options runtime --entitlements "${CI_SCRIPTS}/helpers/helper-entitlements.plist" --sign "${CODESIGN_IDENT}" --deep "./OBS-WebRTC.app/Contents/Frameworks/OBS Helper.app"
     codesign --force --timestamp --options runtime --entitlements "${CI_SCRIPTS}/helpers/helper-gpu-entitlements.plist" --sign "${CODESIGN_IDENT}" --deep "./OBS-WebRTC.app/Contents/Frameworks/OBS Helper (GPU).app"
     codesign --force --timestamp --options runtime --entitlements "${CI_SCRIPTS}/helpers/helper-plugin-entitlements.plist" --sign "${CODESIGN_IDENT}" --deep "./OBS-WebRTC.app/Contents/Frameworks/OBS Helper (Plugin).app"
     codesign --force --timestamp --options runtime --entitlements "${CI_SCRIPTS}/helpers/helper-renderer-entitlements.plist" --sign "${CODESIGN_IDENT}" --deep "./OBS-WebRTC.app/Contents/Frameworks/OBS Helper (Renderer).app"
+    /bin/echo -n "${COLOR_RESET}"
+
+    step "Code-sign OBS code..."
+    echo -n "${COLOR_ORANGE}"
+    codesign --force --timestamp --options runtime --deep --sign "${CODESIGN_IDENT}" "./OBS-WebRTC.app/Contents/Resources/data/obs-mac-virtualcam.plugin"
+    codesign --force --timestamp --options runtime --entitlements "${CI_SCRIPTS}/app/entitlements.plist" --sign "${CODESIGN_IDENT}" --deep ./OBS-WebRTC.app
     echo -n "${COLOR_RESET}"
     step "Check code-sign result..."
     codesign -dvv ./OBS-WebRTC.app
@@ -663,6 +681,7 @@ print_usage() {
 
 obs-build-main() {
     ensure_dir ${CHECKOUT_DIR}
+    check_macos_version
     step "Fetching OBS tags..."
     git fetch origin --tags
     GIT_BRANCH=$(git rev-parse --abbrev-ref HEAD)

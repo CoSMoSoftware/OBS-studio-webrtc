@@ -7,13 +7,14 @@ include_directories(${LIBCURL_INCLUDE_DIRS})
 include_directories(${OBS_JANSSON_INCLUDE_DIRS})
 
 set(rtmp-services_SOURCES
-	rtmp-services-main.c
-	twitch.c
-	younow.c
-	nimotv.c
-	showroom.c
+	service-specific/twitch.c
+	service-specific/younow.c
+	service-specific/nimotv.c
+	service-specific/showroom.c
+	service-specific/dacast.c
 	rtmp-common.c
 	rtmp-custom.c
+	rtmp-services-main.c
 	webrtc-millicast.c
 	webrtc-custom.c
 	)
@@ -26,10 +27,11 @@ if(WIN32)
 endif()
 
 set(rtmp-services_HEADERS
-	twitch.h
-	younow.h
-	nimotv.h
-	showroom.h
+	service-specific/twitch.h
+	service-specific/younow.h
+	service-specific/nimotv.h
+	service-specific/showroom.h
+	service-specific/dacast.h
 	rtmp-format-ver.h)
 
 set(RTMP_SERVICES_URL

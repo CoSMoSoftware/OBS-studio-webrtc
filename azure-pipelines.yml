@@ -13,13 +13,13 @@ variables:
   - name: CMAKE_PREFIX_PATH
     value: /usr/local/opt/qt5/lib/cmake
   - name: LINUX_CEF_BUILD_VERSION
-    value: 3770
+    value: 4280
   - name: CEF_VERSION
     value: 75.1.16+g16a67c4+chromium-75.0.3770.100
   - name: LIBWEBRTC_VERSION
     value: 91.0
   - name: OBS_VERSION
-    value: 26.1.2-m91-2.21
+    value: 27.0.0-m91-2.21
   - name: TWITCH-CLIENTID
     value: $(twitch_clientid)
   - name: TWITCH-HASH
@@ -45,7 +45,7 @@ variables:
   - name: MACOS_CEF_VERSION
     value: 85.3.13+gcd6cbe0+chromium-85.0.4183.121
   - name: MACOS_DEPS_VERSION
-    value: '2020-12-22'
+    value: '2021-03-25'
   - name: VLC_VERSION
     value: '3.0.8'
   - name: SPARKLE_VERSION
@@ -87,7 +87,7 @@ jobs:
         MACOS_CEF_BUILD_VERSION: $(MACOS_CEF_BUILD_VERSION)
         MACOS_DEPS_VERSION: $(MACOS_DEPS_VERSION)
         QT_VERSION: $(QT_VERSION)
-        CI_BUILD_TYPE: $(BUILD_TYPE)
+        BUILD_CONFIG: $(BUILD_TYPE)
         FTP_PATH_PREFIX: $(webrtc_path_prefix)
         FTP_LOGIN: $(ftpLudoLogin)
         FTP_PASSWORD: $(ftpLudoPassword)
@@ -102,7 +102,7 @@ jobs:
         MACOS_CEF_BUILD_VERSION: $(MACOS_CEF_BUILD_VERSION)
         MACOS_DEPS_VERSION: $(MACOS_DEPS_VERSION)
         QT_VERSION: $(QT_VERSION)
-        CI_BUILD_TYPE: $(BUILD_TYPE)
+        BUILD_CONFIG: $(BUILD_TYPE)
         FTP_PATH_PREFIX: $(webrtc_path_prefix)
         FTP_LOGIN: $(ftpLudoLogin)
         FTP_PASSWORD: $(ftpLudoPassword)

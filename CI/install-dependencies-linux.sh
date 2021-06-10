@@ -9,19 +9,20 @@ sudo apt-get install -y \
         checkinstall \
         clang \
         cmake \
+        libc++-dev \
+        libc++abi-dev \
+        libmbedtls-dev \
         libasound2-dev \
         libavcodec-dev \
         libavdevice-dev \
         libavfilter-dev \
         libavformat-dev \
         libavutil-dev \
-        libc++-dev \
-        libc++abi-dev \
         libcurl4-openssl-dev \
         libfdk-aac-dev \
         libfontconfig-dev \
         libfreetype6-dev \
-        libgl1-mesa-dev \
+        libglvnd-dev \
         libjack-jackd2-dev \
         libjansson-dev \
         libluajit-5.1-dev \
@@ -32,26 +33,37 @@ sudo apt-get install -y \
         libswscale-dev \
         libudev-dev \
         libv4l-dev \
-        libva-dev \
         libvlc-dev \
+        libwayland-dev \
         libx11-dev \
         libx11-xcb-dev \
         libx264-dev \
-        libxcb-randr0-dev \
         libxcb-shm0-dev \
         libxcb-xinerama0-dev \
-        libxcb-xfixes0-dev \
         libxcomposite-dev \
         libxinerama-dev \
-        libmbedtls-dev \
         pkg-config \
         python3-dev \
         qtbase5-dev \
+        qtbase5-private-dev \
         libqt5svg5-dev \
         swig \
-        libssl-dev \
-        libgtkglext1-dev \
-        libxi-dev
+        libxcb-randr0-dev \
+        libxcb-xfixes0-dev \
+        libx11-xcb-dev \
+        libxcb1-dev \
+        libxss-dev \
+        qtwayland5 \
+        libgles2-mesa \
+        libgles2-mesa-dev \
+        libnss3-dev
+
+#        libcmocka-dev \
+#        libssl-dev \
+#        libgtkglext1-dev \
+#        libxi-dev
+#        libva-dev \
+#        libgl1-mesa-dev \
 
 # build cef
 export CC=clang

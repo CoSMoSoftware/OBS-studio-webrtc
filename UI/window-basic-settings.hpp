@@ -394,6 +394,7 @@ private slots:
 	void AdvReplayBufferChanged();
 
 	void SimpleStreamingEncoderChanged();
+	// note Ludo: Simulcast
 	void AdvancedStreamingSettingsChanged();
 
 	OBSService SpawnTempService();
