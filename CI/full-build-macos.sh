@@ -51,7 +51,6 @@ BUILD_DEPS=(
     "qt-deps ${QT_VERSION} ${MACOS_DEPS_VERSION}"
     "cef ${MACOS_CEF_BUILD_VERSION:-${MACOS_CEF_VERSION}}"
     "vlc ${VLC_VERSION}"
-    "sparkle ${SPARKLE_VERSION:-${CI_SPARKLE_VERSION}}"
     "libwebrtc ${LIBWEBRTC_VERSION}"
 )
 
@@ -192,20 +191,20 @@ install_vlc() {
     tar -xf vlc-${1}.tar.xz
 }
 
-install_sparkle() {
-    hr "Setting up dependency Sparkle v${1} (might prompt for password)"
-    ensure_dir "${DEPS_BUILD_DIR}/sparkle"
-    step "Download..."
-    ${CURLCMD} --progress-bar -L -C - -o sparkle.tar.bz2 https://github.com/sparkle-project/Sparkle/releases/download/${1}/Sparkle-${1}.tar.bz2
-    step "Unpack..."
-    /usr/bin/tar -xf ./sparkle.tar.bz2
-    step "Copy to destination..."
-    if [ -d /Library/Frameworks/Sparkle.framework/ ]; then
-        info "Warning - Sparkle framework already found in /Library/Frameworks"
-    else
-        sudo /bin/cp -R ./Sparkle.framework/ /Library/Frameworks/Sparkle.framework/
-    fi
-}
+# install_sparkle() {
+#     hr "Setting up dependency Sparkle v${1} (might prompt for password)"
+#     ensure_dir "${DEPS_BUILD_DIR}/sparkle"
+#     step "Download..."
+#     ${CURLCMD} --progress-bar -L -C - -o sparkle.tar.bz2 https://github.com/sparkle-project/Sparkle/releases/download/${1}/Sparkle-${1}.tar.bz2
+#     step "Unpack..."
+#     /usr/bin/tar -xf ./sparkle.tar.bz2
+#     step "Copy to destination..."
+#     if [ -d /Library/Frameworks/Sparkle.framework/ ]; then
+#         info "Warning - Sparkle framework already found in /Library/Frameworks"
+#     else
+#         sudo /bin/cp -R ./Sparkle.framework/ /Library/Frameworks/Sparkle.framework/
+#     fi
+# }
 
 install_cef() {
     hr "Building dependency CEF v${1}"
@@ -295,7 +294,7 @@ configure_obs_build() {
     fi
 
     hr "Run CMAKE for OBS..."
-    cmake -DENABLE_SPARKLE_UPDATER=ON \
+    cmake \
         -DCMAKE_OSX_DEPLOYMENT_TARGET=${MIN_MACOS_VERSION} \
         -DOBS_VERSION_OVERRIDE=${OBS_VERSION} \
         -DDISABLE_PYTHON=ON  \
@@ -319,6 +318,7 @@ configure_obs_build() {
         -DLIBOBS_LIB=`pwd`/libobs/libobs.0.dylib \
         -DOBS_FRONTEND_LIB=`pwd`/UI/obs-frontend-api/libobs-frontend-api.dylib
 
+        # -DENABLE_SPARKLE_UPDATER=ON \
         # -DCEF_ROOT_DIR="${DEPS_BUILD_DIR}/cef_binary_${MACOS_CEF_VERSION}_macosx64" \
 }
 
