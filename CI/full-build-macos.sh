@@ -366,8 +366,8 @@ bundle_dylibs() {
         -x ./OBS-WebRTC.app/Contents/PlugIns/text-freetype2.so \
         -x ./OBS-WebRTC.app/Contents/PlugIns/obs-outputs.so \
         -x ./OBS-WebRTC.app/Contents/PlugIns/obs-ndi.so \
-        -x ./OBS-WebRTC.app/Contents/PlugIns/obs-websocket.so \
-	-x ./OBS-WebRTC.app/Contents/PlugIns/obs-browser-page
+        -x ./OBS-WebRTC.app/Contents/PlugIns/obs-websocket.so
+#        -x ./OBS-WebRTC.app/Contents/PlugIns/obs-browser-page
 
     step "Move libobs-opengl to final destination"
     cp ./libobs-opengl/libobs-opengl.so ./OBS-WebRTC.app/Contents/Frameworks
