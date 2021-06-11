@@ -1721,8 +1721,14 @@
    </property>
   </action>
   <action name="actionCheckForUpdates">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
    <property name="text">
     <string>Basic.MainMenu.Help.CheckForUpdates</string>
+   </property>
+   <property name="visible">
+    <bool>false</bool>
    </property>
   </action>
   <action name="actionInteract">

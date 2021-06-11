@@ -319,7 +319,6 @@ configure_obs_build() {
         -DOBS_FRONTEND_LIB=`pwd`/UI/obs-frontend-api/libobs-frontend-api.dylib
 
         # -DENABLE_SPARKLE_UPDATER=ON \
-        # -DCEF_ROOT_DIR="${DEPS_BUILD_DIR}/cef_binary_${MACOS_CEF_VERSION}_macosx64" \
 }
 
 run_obs_build() {
@@ -367,7 +366,7 @@ bundle_dylibs() {
         -x ./OBS-WebRTC.app/Contents/PlugIns/obs-outputs.so \
         -x ./OBS-WebRTC.app/Contents/PlugIns/obs-ndi.so \
         -x ./OBS-WebRTC.app/Contents/PlugIns/obs-websocket.so
-#        -x ./OBS-WebRTC.app/Contents/PlugIns/obs-browser-page
+        -x ./OBS-WebRTC.app/Contents/PlugIns/obs-browser.so
 
     step "Move libobs-opengl to final destination"
     cp ./libobs-opengl/libobs-opengl.so ./OBS-WebRTC.app/Contents/Frameworks

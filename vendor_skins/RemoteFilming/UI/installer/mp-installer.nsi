@@ -18,14 +18,14 @@ Unicode true
 ManifestDPIAware true
 
 ; Define your application name
-!define APPNAME "Remote Filming"
+!define APPNAME "Remote Filming Studio"
 
 !ifndef APPVERSION
 !define APPVERSION "25.0.8"
 !define SHORTVERSION "25.0.8"
 !endif
 
-!define APPNAMEANDVERSION "Remote Filming ${SHORTVERSION}"
+!define APPNAMEANDVERSION "Remote Filming Studio ${SHORTVERSION}"
 
 ; Additional script dependencies
 !include WinVer.nsh
@@ -34,16 +34,16 @@ ManifestDPIAware true
 ; Main Install settings
 Name "${APPNAMEANDVERSION}"
 !ifdef INSTALL64
-InstallDir "$PROGRAMFILES64\remote-filming"
+InstallDir "$PROGRAMFILES64\remote-filming-studio"
 !else
-InstallDir "$PROGRAMFILES32\remote-filming"
+InstallDir "$PROGRAMFILES32\remote-filming-studio"
 !endif
 InstallDirRegKey HKLM "Software\${APPNAME}" ""
 
 !ifdef INSTALL64
- OutFile "Remote-Filming-${SHORTVERSION}-Full-Installer-x64.exe"
+ OutFile "Remote-Filming-Studio-${SHORTVERSION}-Full-Installer-x64.exe"
 !else
- OutFile "Remote-Filming-${SHORTVERSION}-Full-Installer-x86.exe"
+ OutFile "Remote-Filming-Studio-${SHORTVERSION}-Full-Installer-x86.exe"
 !endif
 
 ; Use compression
@@ -61,16 +61,16 @@ RequestExecutionLevel admin
 
 !define MUI_ABORTWARNING
 !define MUI_FINISHPAGE_RUN
-!define MUI_FINISHPAGE_RUN_TEXT "Launch Remote Filming ${SHORTVERSION}"
+!define MUI_FINISHPAGE_RUN_TEXT "Launch Remote Filming Studio ${SHORTVERSION}"
 !define MUI_FINISHPAGE_RUN_FUNCTION "LaunchOBS"
 
-!define MUI_WELCOMEPAGE_TEXT "This setup will guide you through installing Remote Filming.\n\nIt is recommended that you close all other applications before starting, including Remote Filming. This will make it possible to update relevant files without having to reboot your computer.\n\nClick Next to continue."
+!define MUI_WELCOMEPAGE_TEXT "This setup will guide you through installing Remote Filming Studio.\n\nIt is recommended that you close all other applications before starting, including Remote Filming Studio. This will make it possible to update relevant files without having to reboot your computer.\n\nClick Next to continue."
 
 !define MUI_PAGE_CUSTOMFUNCTION_LEAVE PreReqCheck
 
 !define MUI_HEADERIMAGE
 !define MUI_PAGE_HEADER_TEXT "License Information"
-!define MUI_PAGE_HEADER_SUBTEXT "Please review the license terms before installing Remote Filming."
+!define MUI_PAGE_HEADER_SUBTEXT "Please review the license terms before installing Remote Filming Studio."
 !define MUI_LICENSEPAGE_TEXT_TOP "Press Page Down or scroll to see the rest of the license."
 !define MUI_LICENSEPAGE_TEXT_BOTTOM " "
 !define MUI_LICENSEPAGE_BUTTON "&Next >"
@@ -93,12 +93,15 @@ Function PreReqCheck
 !ifdef INSTALL64
 	${if} ${RunningX64}
 	${Else}
-		MessageBox MB_OK|MB_ICONSTOP "This version of Remote Filming is not compatible with your system.  Please use the 32bit (x86) installer."
+		MessageBox MB_OK|MB_ICONSTOP "This version of Remote Filming Studio is not compatible with your system.  Please use the 32bit (x86) installer."
 	${EndIf}
 	; Abort on XP or lower
 !endif
 
 	${If} ${AtMostWinVista}
+		IfSilent +1 +3
+			SetErrorLevel 3
+			Quit
 		MessageBox MB_OK|MB_ICONSTOP "Due to extensive use of DirectX 10 features, ${APPNAME} requires Windows 7 or higher and cannot be installed on this version of Windows."
 		Quit
 	${EndIf}
@@ -112,6 +115,9 @@ Function PreReqCheck
 	Delete "$PLUGINSDIR\check_for_64bit_visual_studio_2019_runtimes.exe"
 	IntCmp $R0 126 vs2019Missing_64 vs2019OK_64
 	vs2019Missing_64:
+		IfSilent +1 +3
+			SetErrorLevel 4
+			Quit
 		MessageBox MB_YESNO|MB_ICONEXCLAMATION "Your system is missing runtime components that ${APPNAME} requires. Would you like to download them?" IDYES vs2019true_64 IDNO vs2019false_64
 		vs2019true_64:
 			ExecShell "open" "https://obsproject.com/visual-studio-2019-runtimes-64-bit"
@@ -127,6 +133,9 @@ Function PreReqCheck
 	GetDLLVersion "msvcp140_1.DLL" $R0 $R1
 	IfErrors vs2019Missing_32 vs2019OK_32
 	vs2019Missing_32:
+		IfSilent +1 +3
+			SetErrorLevel 4
+			Quit
 		MessageBox MB_YESNO|MB_ICONEXCLAMATION "Your system is missing runtime components that ${APPNAME} requires. Would you like to download them?" IDYES vs2019true_32 IDNO vs2019false_32
 		vs2019true_32:
 			ExecShell "open" "https://obsproject.com/visual-studio-2019-runtimes-32-bit"
@@ -189,6 +198,9 @@ Function PreReqCheck
 	GetDLLVersion "D3DCompiler_49.dll" $R0 $R1
 	IfErrors dxMissing49 dxOK
 	dxMissing49:
+	IfSilent +1 +3
+		SetErrorLevel 4
+		Quit
 	MessageBox MB_YESNO|MB_ICONEXCLAMATION "Your system is missing DirectX components that ${APPNAME} requires. Would you like to download them?" IDYES dxtrue IDNO dxfalse
 	dxtrue:
 		ExecShell "open" "https://obsproject.com/go/dxwebsetup"
@@ -201,6 +213,9 @@ Function PreReqCheck
 	check32BitRunning:
 	OBSInstallerUtils::IsProcessRunning "rfs32.exe"
 	IntCmp $R0 1 0 notRunning1
+		IfSilent +1 +3
+			SetErrorLevel 5
+			Quit
 		MessageBox MB_RETRYCANCEL|MB_ICONEXCLAMATION "${APPNAME} is already running. Please close it first before installing a new version." /SD IDCANCEL IDRETRY check32BitRunning
 		Quit
 	notRunning1:
@@ -209,6 +224,9 @@ Function PreReqCheck
 		check64BitRunning:
 		OBSInstallerUtils::IsProcessRunning "rfs64.exe"
 		IntCmp $R0 1 0 notRunning2
+			IfSilent +1 +3
+				SetErrorLevel 5
+				Quit
 			MessageBox MB_RETRYCANCEL|MB_ICONEXCLAMATION "${APPNAME} is already running. Please close it first before installing a new version." /SD IDCANCEL IDRETRY check64BitRunning
 			Quit
 		notRunning2:
@@ -240,7 +258,10 @@ Function checkFilesInUse
 	retryFileChecks:
 	Call checkDLLs
 	StrCmp $dllFilesInUse "" dllsNotInUse
-	MessageBox MB_RETRYCANCEL|MB_ICONEXCLAMATION "Remote Filming files are being used by the following applications:$\r$\n$\r$\n$dllFilesInUse$\r$\nPlease close these applications to continue setup." /SD IDCANCEL IDRETRY retryFileChecks
+	IfSilent +1 +3
+		SetErrorLevel 6
+		Quit
+	MessageBox MB_RETRYCANCEL|MB_ICONEXCLAMATION "Remote Filming Studio files are being used by the following applications:$\r$\n$\r$\n$dllFilesInUse$\r$\nPlease close these applications to continue setup." /SD IDCANCEL IDRETRY retryFileChecks
 	Quit
 
 	dllsNotInUse:
@@ -248,13 +269,13 @@ FunctionEnd
 
 Function LaunchOBS
 !ifdef INSTALL64
-	Exec '"$WINDIR\explorer.exe" "$SMPROGRAMS\Remote Filming\Remote Filming (64bit).lnk"'
+	Exec '"$WINDIR\explorer.exe" "$SMPROGRAMS\Remote Filming Studio\Remote Filming Studio (64bit).lnk"'
 !else
-	Exec '"$WINDIR\explorer.exe" "$SMPROGRAMS\Remote Filming\Remote Filming (32bit).lnk"'
+	Exec '"$WINDIR\explorer.exe" "$SMPROGRAMS\Remote Filming Studio\Remote Filming Studio (32bit).lnk"'
 !endif
 FunctionEnd
 
-Section "Remote Filming" SecCore
+Section "Remote Filming Studio" SecCore
 	SetShellVarContext all
 
 	Call checkFilesInUse
@@ -317,24 +338,24 @@ Section "Remote Filming" SecCore
 
 !ifdef INSTALL64
 	SetOutPath "$INSTDIR\bin\64bit"
-	CreateShortCut "$DESKTOP\Remote Filming.lnk" "$INSTDIR\bin\64bit\rfs64.exe"
+	CreateShortCut "$DESKTOP\Remote Filming Studio.lnk" "$INSTDIR\bin\64bit\rfs64.exe"
 !else
 	SetOutPath "$INSTDIR\bin\32bit"
-	CreateShortCut "$DESKTOP\Remote Filming.lnk" "$INSTDIR\bin\32bit\rfs32.exe"
+	CreateShortCut "$DESKTOP\Remote Filming Studio.lnk" "$INSTDIR\bin\32bit\rfs32.exe"
 !endif
 
-	CreateDirectory "$SMPROGRAMS\Remote Filming"
+	CreateDirectory "$SMPROGRAMS\Remote Filming Studio"
 
 !ifdef INSTALL64
 	SetOutPath "$INSTDIR\bin\64bit"
-	CreateShortCut "$SMPROGRAMS\Remote Filming\Remote Filming (64bit).lnk" "$INSTDIR\bin\64bit\rfs64.exe"
+	CreateShortCut "$SMPROGRAMS\Remote Filming Studio\Remote Filming Studio (64bit).lnk" "$INSTDIR\bin\64bit\rfs64.exe"
 !else
 	SetOutPath "$INSTDIR\bin\32bit"
-	CreateDirectory "$SMPROGRAMS\Remote Filming"
-	CreateShortCut "$SMPROGRAMS\Remote Filming\Remote Filming (32bit).lnk" "$INSTDIR\bin\32bit\rfs32.exe"
+	CreateDirectory "$SMPROGRAMS\Remote Filming Studio"
+	CreateShortCut "$SMPROGRAMS\Remote Filming Studio\Remote Filming Studio (32bit).lnk" "$INSTDIR\bin\32bit\rfs32.exe"
 !endif
 
-	CreateShortCut "$SMPROGRAMS\Remote Filming\Uninstall.lnk" "$INSTDIR\uninstall.exe"
+	CreateShortCut "$SMPROGRAMS\Remote Filming Studio\Uninstall.lnk" "$INSTDIR\uninstall.exe"
 SectionEnd
 
 Section -FinishSection
@@ -387,7 +408,7 @@ Section -FinishSection
 !else
 	WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${APPNAME}" "DisplayIcon" "$INSTDIR\bin\32bit\rfs32.exe"
 !endif
-	WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${APPNAME}" "Publisher" "Remote Filming"
+	WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${APPNAME}" "Publisher" "Remote Filming Studio"
 	WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${APPNAME}" "HelpLink" "https://www.remotefilming.com"
 	WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${APPNAME}" "DisplayVersion" "${APPVERSION}"
 
@@ -395,7 +416,7 @@ SectionEnd
 
 ; Modern install component descriptions
 !insertmacro MUI_FUNCTION_DESCRIPTION_BEGIN
-	!insertmacro MUI_DESCRIPTION_TEXT ${SecCore} "Core Remote Filming files"
+	!insertmacro MUI_DESCRIPTION_TEXT ${SecCore} "Core Remote Filming Studio files"
 !insertmacro MUI_FUNCTION_DESCRIPTION_END
 
 ;Uninstall section
@@ -434,11 +455,11 @@ Section "un.obs-webrtc Program Files" UninstallSection1
 	Delete "$INSTDIR\uninstall.exe"
 
 	; Delete Shortcuts
-	Delete "$DESKTOP\Remote Filming.lnk"
-	Delete "$SMPROGRAMS\Remote Filming\Remote Filming (32bit).lnk"
-	Delete "$SMPROGRAMS\Remote Filming\Uninstall.lnk"
+	Delete "$DESKTOP\Remote Filming Studio.lnk"
+	Delete "$SMPROGRAMS\Remote Filming Studio\Remote Filming Studio (32bit).lnk"
+	Delete "$SMPROGRAMS\Remote Filming Studio\Uninstall.lnk"
 	${if} ${RunningX64}
-		Delete "$SMPROGRAMS\Remote Filming\Remote Filming (64bit).lnk"
+		Delete "$SMPROGRAMS\Remote Filming Studio\Remote Filming Studio (64bit).lnk"
 	${endif}
 
 	IfFileExists "$INSTDIR\data\obs-plugins\win-ivcam\seg_service.exe" UnregisterSegService SkipUnreg
@@ -453,8 +474,8 @@ Section "un.obs-webrtc Program Files" UninstallSection1
 	RMDir "$INSTDIR"
 
 	; Remove remaining directories
-	RMDir "$SMPROGRAMS\Remote Filming"
-	RMDir "$INSTDIR\Remote Filming"
+	RMDir "$SMPROGRAMS\Remote Filming Studio"
+	RMDir "$INSTDIR\Remote Filming Studio"
 SectionEnd
 
 Section /o "un.User Settings" UninstallSection2
@@ -462,17 +483,17 @@ Section /o "un.User Settings" UninstallSection2
 SectionEnd
 
 !insertmacro MUI_UNFUNCTION_DESCRIPTION_BEGIN
-	!insertmacro MUI_DESCRIPTION_TEXT ${UninstallSection1} "Remove the Remote Filming program files."
+	!insertmacro MUI_DESCRIPTION_TEXT ${UninstallSection1} "Remove the Remote Filming Studio program files."
 	!insertmacro MUI_DESCRIPTION_TEXT ${UninstallSection2} "Removes all settings, scenes and sources, profiles, log files and other application data."
 !insertmacro MUI_UNFUNCTION_DESCRIPTION_END
 
 ; Version information
 VIProductVersion "${APPVERSION}.0"
-VIAddVersionKey /LANG=${LANG_ENGLISH} "ProductName" "Remote Filming"
+VIAddVersionKey /LANG=${LANG_ENGLISH} "ProductName" "Remote Filming Studio"
 VIAddVersionKey /LANG=${LANG_ENGLISH} "CompanyName" "remotefilming.com"
 VIAddVersionKey /LANG=${LANG_ENGLISH} "LegalCopyright" "(c) 2012-2020"
 ; FileDescription is what shows in the UAC elevation prompt when signed
-VIAddVersionKey /LANG=${LANG_ENGLISH} "FileDescription" "Remote Filming"
+VIAddVersionKey /LANG=${LANG_ENGLISH} "FileDescription" "Remote Filming Studio"
 VIAddVersionKey /LANG=${LANG_ENGLISH} "FileVersion" "1.0"
 
 ; eof

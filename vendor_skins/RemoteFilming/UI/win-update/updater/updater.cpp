@@ -1232,7 +1232,8 @@ static bool Update(wchar_t *cmdLine)
 		}
 	}
 
-	StringCbCat(lpAppDataPath, sizeof(lpAppDataPath), L("\\" + (std::string(CONFIG_DIR)).c_str());
+	StringCbCat(lpAppDataPath, sizeof(lpAppDataPath),
+		    L("\\" + std::string(CONFIG_DIR)).c_str());
 
 	/* ------------------------------------- *
 	 * Get download path                     */
