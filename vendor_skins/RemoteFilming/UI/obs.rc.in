@@ -7,12 +7,12 @@ BEGIN
   BEGIN
     BLOCK "040904B0"
     BEGIN
-      VALUE "CompanyName", "Remote Filming"
-      VALUE "FileDescription", "Remote Filming"
+      VALUE "CompanyName", "Remote Filming Studio"
+      VALUE "FileDescription", "Remote Filming Studio"
       VALUE "FileVersion", "${UI_VERSION}"
       VALUE "InternalName", "rfs"
       VALUE "OriginalFilename", "rfs"
-      VALUE "ProductName", "Remote Filming"
+      VALUE "ProductName", "Remote Filming Studio"
       VALUE "ProductVersion", "${UI_VERSION}"
       VALUE "Comments", "Free and open source software for video recording and live streaming"
       VALUE "LegalCopyright", "(C) Hugh Bailey"
