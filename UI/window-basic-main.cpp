@@ -2045,20 +2045,21 @@ void OBSBasic::OBSInit()
 	delete ui->actionShowCrashLogs;
 	delete ui->actionUploadLastCrashLog;
 	delete ui->menuCrashLogs;
+	// #270 Disable auto-update
+	delete ui->actionCheckForUpdates;
 	ui->actionShowCrashLogs = nullptr;
 	ui->actionUploadLastCrashLog = nullptr;
 	ui->menuCrashLogs = nullptr;
+	// #270 Disable auto-update
+	ui->actionCheckForUpdates = nullptr;
 #if !defined(__APPLE__)
+	// #270 Disable auto-update
+	// if (App()->IsUpdaterDisabled())
+	// 	ui->actionCheckForUpdates->setEnabled(false);
 	delete ui->actionCheckForUpdates;
 	ui->actionCheckForUpdates = nullptr;
 #endif
 #endif
-
-// #270 Disable auto-update
-// #if defined(_WIN32) || defined(__APPLE__)
-//	if (App()->IsUpdaterDisabled())
-//		ui->actionCheckForUpdates->setEnabled(false);
-// #endif
 
 	OnFirstLoad();
 
