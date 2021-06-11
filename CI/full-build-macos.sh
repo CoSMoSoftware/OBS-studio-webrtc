@@ -303,6 +303,7 @@ configure_obs_build() {
         -DSWIGDIR="/tmp/obsdeps" \
         -DDepsPath="/tmp/obsdeps" \
         -DVLCPath="${DEPS_BUILD_DIR}/vlc-${VLC_VERSION}" \
+        -DENABLE_VLC=ON \
         -DBUILD_BROWSER=ON \
         -DBROWSER_LEGACY=OFF \
         -DWITH_RTMPS=ON \
