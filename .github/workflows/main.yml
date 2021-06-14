@@ -18,7 +18,10 @@ env:
   MACOS_CEF_BUILD_VERSION: '4183'
   LINUX_CEF_BUILD_VERSION: '4280'
   CEF_VERSION: '75.1.16+g16a67c4+chromium-75.0.3770.100'
-  LIBWEBRTC_VERSION: '84.0'
+  TWITCH_CLIENTID: ${{ secrets.TWITCH_CLIENT_ID }}
+  TWITCH_HASH: ${{ secrets.TWITCH_HASH }}
+  RESTREAM_CLIENTID: ${{ secrets.RESTREAM_CLIENTID }}
+  RESTREAM_HASH: ${{ secrets.RESTREAM_HASH }}
 
 jobs:
   macos64:
@@ -31,6 +34,7 @@ jobs:
       SPARKLE_VERSION: '1.23.0'
       QT_VERSION: '5.15.2'
       SIGN_IDENTITY: ''
+      HAVE_CODESIGN_IDENTITY: ${{ secrets.MACOS_SIGNING_IDENTITY != '' && secrets.MACOS_SIGNING_CERT != '' }}
     steps:
       - name: Get Current Arch
         shell: bash
@@ -169,7 +173,7 @@ jobs:
         if: success() && (github.event_name != 'pull_request' || env.SEEKING_TESTERS == '1')
         shell: bash
         run: |
-          pip3 install dmgbuild==1.4.2
+          pip3 install dmgbuild==1.5.2
       - name: 'Install Apple Developer Certificate'
         if: success() && startsWith(github.ref, 'refs/tags/') && github.event_name != 'pull_request' && env.HAVE_CODESIGN_IDENTITY == 'true'
         uses: apple-actions/import-codesign-certs@253ddeeac23f2bdad1646faac5c8c2832e800071
@@ -207,8 +211,8 @@ jobs:
 
           if [ -d ./OBS.app/Contents/Resources/data/obs-scripting ]; then
             mv ./OBS.app/Contents/Resources/data/obs-scripting/obslua.so ./OBS.app/Contents/MacOS/
-            # mv ./OBS.app/Contents/Resources/data/obs-scripting/_obspython.so ./OBS.app/Contents/MacOS/
-            # mv ./OBS.app/Contents/Resources/data/obs-scripting/obspython.py ./OBS.app/Contents/MacOS/
+            mv ./OBS.app/Contents/Resources/data/obs-scripting/_obspython.so ./OBS.app/Contents/MacOS/
+            mv ./OBS.app/Contents/Resources/data/obs-scripting/obspython.py ./OBS.app/Contents/MacOS/
             rm -rf ./OBS.app/Contents/Resources/data/obs-scripting/
           fi
 
@@ -499,10 +503,6 @@ jobs:
       WINDOWS_DEPS_VERSION: '2019'
       WINDOWS_DEPS_CACHE_VERSION: '1'
       VLC_VERSION: '3.0.0-git'
-      TWITCH-CLIENTID: ${{ secrets.TWITCH_CLIENTID }}
-      TWITCH-HASH: ${{ secrets.TWITCH_HASH }}
-      RESTREAM-CLIENTID: ${{ secrets.RESTREAM-CLIENTID }}
-      RESTREAM-HASH: ${{ secrets.RESTREAM-HASH }}
       VIRTUALCAM-GUID: "A3FCE0F5-3493-419F-958A-ABA1250EC20B"
     steps:
       - name: 'Add msbuild to PATH'
