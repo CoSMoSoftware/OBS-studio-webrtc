@@ -13,8 +13,7 @@ variables:
   - name: CMAKE_PREFIX_PATH
     value: /usr/local/opt/qt5/lib/cmake
   - name: LINUX_CEF_BUILD_VERSION
-    value: 3770
-#    value: 4280
+    value: 87.1.14+ga29e9a3+chromium-87.0.4280.141
   - name: CEF_VERSION
     value: 75.1.16+g16a67c4+chromium-75.0.3770.100
   - name: LIBWEBRTC_VERSION
