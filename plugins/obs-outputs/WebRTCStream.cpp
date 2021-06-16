@@ -217,6 +217,12 @@ bool WebRTCStream::start(WebRTCStream::Type type)
 		publishApiUrl = url;
 	}
 
+	// No Simulast for VP9 codec (not supported properly by libwebrtc)
+	if (video_codec.empty() || "VP9" == video_codec) {
+		info("Simulcast not supported properly for VP9: Disabling Simulcast\n");
+		simulcast = false;
+	}
+
 	// Some extra log
 
 	info("Video codec: %s",
@@ -357,10 +363,6 @@ bool WebRTCStream::start(WebRTCStream::Type type)
 	audio_init.stream_ids.push_back(stream->id());
 	audio_init.direction = webrtc::RtpTransceiverDirection::kSendOnly;
 	pc->AddTransceiver(audio_track, audio_init);
-
-	bool simulcast = obs_service_get_simulcast(service)
-				 ? obs_service_get_simulcast(service)
-				 : false;
 
 	//Add video track
 	webrtc::RtpTransceiverInit video_init;
