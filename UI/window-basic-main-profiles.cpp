@@ -213,6 +213,9 @@ bool OBSBasic::AddProfile(bool create_new, const char *title, const char *text,
 
 	bool showWizardChecked = config_get_bool(App()->GlobalConfig(), "Basic",
 						 "ConfigOnNewProfile");
+	// #277 Disable auto-configuration
+	create_new = false;
+	showWizardChecked = false;
 
 	if (!GetProfileName(this, newName, newDir, title, text, create_new,
 			    showWizardChecked, init_text))
