@@ -3605,9 +3605,9 @@ void OBSBasic::TimedCheckForUpdates()
 void OBSBasic::CheckForUpdates(bool manualUpdate)
 {
 	// #270 Disable auto-update
-// #ifdef UPDATE_SPARKLE
+	// #ifdef UPDATE_SPARKLE
 	// trigger_sparkle_update();
-// #elif _WIN32
+	// #elif _WIN32
 	// ui->actionCheckForUpdates->setEnabled(false);
 
 	// if (updateCheckThread && updateCheckThread->isRunning())
@@ -3615,7 +3615,7 @@ void OBSBasic::CheckForUpdates(bool manualUpdate)
 
 	// updateCheckThread.reset(new AutoUpdateThread(manualUpdate));
 	// updateCheckThread->start();
-// #endif
+	// #endif
 
 	UNUSED_PARAMETER(manualUpdate);
 }
@@ -8030,8 +8030,8 @@ void OBSBasic::UpdateTitleBar()
 		App()->GlobalConfig(), "Basic", "SceneCollection");
 
 	name << "Remote Filming Studio ";
-//	if (previewProgramMode)
-//		name << "Studio ";
+	//	if (previewProgramMode)
+	//		name << "Studio ";
 
 	name << App()->GetVersionString();
 	if (App()->IsPortableMode())

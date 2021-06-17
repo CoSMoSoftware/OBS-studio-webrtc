@@ -173,9 +173,8 @@ bool MillicastWebsocketClientImpl::connect(const std::string &publish_api_url,
 			});
 
 		// -- HTTP handler
-		connection->set_http_handler([=](...) {
-			info("> https called");
-		});
+		connection->set_http_handler(
+			[=](...) { info("> https called"); });
 
 		// Note that connect here only requests a connection. No network messages
 		// exchanged until the event loop starts running in the next line.

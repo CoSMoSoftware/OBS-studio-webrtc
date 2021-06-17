@@ -2416,7 +2416,9 @@ bool GetUnusedSceneCollectionFile(std::string &name, std::string &file)
 		return false;
 	}
 
-	ret = GetConfigPath(path, sizeof(path), (std::string(CONFIG_DIR) + "/basic/scenes/").c_str());
+	ret = GetConfigPath(
+		path, sizeof(path),
+		(std::string(CONFIG_DIR) + "/basic/scenes/").c_str());
 	if (ret <= 0) {
 		blog(LOG_WARNING, "Failed to get scene collection config path");
 		return false;
