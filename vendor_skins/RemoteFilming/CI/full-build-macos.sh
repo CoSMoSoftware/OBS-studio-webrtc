@@ -364,7 +364,7 @@ bundle_dylibs() {
         -x ./RemoteFilmingStudio.app/Contents/PlugIns/text-freetype2.so \
         -x ./RemoteFilmingStudio.app/Contents/PlugIns/obs-outputs.so \
         -x ./RemoteFilmingStudio.app/Contents/PlugIns/obs-ndi.so \
-        -x ./RemoteFilmingStudio.app/Contents/PlugIns/obs-websocket.so
+        -x ./RemoteFilmingStudio.app/Contents/PlugIns/obs-websocket.so \
         -x ./RemoteFilmingStudio.app/Contents/PlugIns/obs-browser.so
 
     step "Move libobs-opengl to final destination"
