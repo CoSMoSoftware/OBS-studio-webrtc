@@ -76,7 +76,7 @@
        <item>
         <widget class="QLabel" name="name">
          <property name="text">
-          <string notr="true">Remote Filming Studio</string>
+          <string notr="true">Remote Filming</string>
          </property>
         </widget>
        </item>

@@ -33,7 +33,7 @@
 set -eE
 
 ## SET UP ENVIRONMENT ##
-PRODUCT_NAME="RemoteFilmingStudio"
+PRODUCT_NAME="RemoteFilming"
 
 CHECKOUT_DIR="$(git rev-parse --show-toplevel)"
 DEPS_BUILD_DIR="${CHECKOUT_DIR}/../obs-build-dependencies"
@@ -272,10 +272,10 @@ configure_obs_build() {
     NIGHTLY_DIR="${CHECKOUT_DIR}/nightly-${CUR_DATE}"
     PACKAGE_NAME=$(find . -name "*.dmg")
 
-    if [ -d ./RemoteFilmingStudio.app ]; then
+    if [ -d ./RemoteFilming.app ]; then
         ensure_dir "${NIGHTLY_DIR}"
-        mv "../${BUILD_DIR}_${VENDOR}/RemoteFilmingStudio.app" .
-        info "You can find RemoteFilmingStudio.app in ${NIGHTLY_DIR}"
+        mv "../${BUILD_DIR}_${VENDOR}/RemoteFilming.app" .
+        info "You can find RemoteFilming.app in ${NIGHTLY_DIR}"
     fi
     ensure_dir "${CHECKOUT_DIR}/${BUILD_DIR}_${VENDOR}"
     if ([ -n "${PACKAGE_NAME}" ] && [ -f ${PACKAGE_NAME} ]); then
@@ -331,67 +331,67 @@ run_obs_build() {
 bundle_dylibs() {
     ensure_dir "${CHECKOUT_DIR}/${BUILD_DIR}_${VENDOR}"
 
-    if [ ! -d ./RemoteFilmingStudio.app ]; then
-        error "No RemoteFilmingStudio.app bundle found"
+    if [ ! -d ./RemoteFilming.app ]; then
+        error "No RemoteFilming.app bundle found"
         exit 1
     fi
 
     hr "Bundle dylibs for macOS application"
 
     step "Run dylibBundler.."
-    ${CI_SCRIPTS}/app/dylibbundler -cd -of -a ./RemoteFilmingStudio.app -q -f \
-        -s ./RemoteFilmingStudio.app/Contents/MacOS \
+    ${CI_SCRIPTS}/app/dylibbundler -cd -of -a ./RemoteFilming.app -q -f \
+        -s ./RemoteFilming.app/Contents/MacOS \
         -s ./rundir/${BUILD_CONFIG}/bin/ \
-        -x ./RemoteFilmingStudio.app/Contents/PlugIns/coreaudio-encoder.so \
-        -x ./RemoteFilmingStudio.app/Contents/PlugIns/decklink-ouput-ui.so \
-        -x ./RemoteFilmingStudio.app/Contents/PlugIns/decklink-captions.so \
-        -x ./RemoteFilmingStudio.app/Contents/PlugIns/frontend-tools.so \
-        -x ./RemoteFilmingStudio.app/Contents/PlugIns/image-source.so \
-        -x ./RemoteFilmingStudio.app/Contents/PlugIns/mac-avcapture.so \
-        -x ./RemoteFilmingStudio.app/Contents/PlugIns/mac-capture.so \
-        -x ./RemoteFilmingStudio.app/Contents/PlugIns/mac-decklink.so \
-        -x ./RemoteFilmingStudio.app/Contents/PlugIns/mac-syphon.so \
-        -x ./RemoteFilmingStudio.app/Contents/PlugIns/mac-vth264.so \
-        -x ./RemoteFilmingStudio.app/Contents/PlugIns/mac-virtualcam.so \
-        -x ./RemoteFilmingStudio.app/Contents/PlugIns/obs-ffmpeg.so \
-        -x ./RemoteFilmingStudio.app/Contents/PlugIns/obs-filters.so \
-        -x ./RemoteFilmingStudio.app/Contents/PlugIns/obs-transitions.so \
-        -x ./RemoteFilmingStudio.app/Contents/PlugIns/obs-vst.so \
-        -x ./RemoteFilmingStudio.app/Contents/PlugIns/rtmp-services.so \
-        -x ./RemoteFilmingStudio.app/Contents/MacOS/obs-ffmpeg-mux \
-        -x ./RemoteFilmingStudio.app/Contents/MacOS/obslua.so \
-        -x ./RemoteFilmingStudio.app/Contents/PlugIns/obs-x264.so \
-        -x ./RemoteFilmingStudio.app/Contents/PlugIns/text-freetype2.so \
-        -x ./RemoteFilmingStudio.app/Contents/PlugIns/obs-outputs.so \
-        -x ./RemoteFilmingStudio.app/Contents/PlugIns/obs-ndi.so \
-        -x ./RemoteFilmingStudio.app/Contents/PlugIns/obs-websocket.so
-#        -x ./RemoteFilmingStudio.app/Contents/PlugIns/obs-browser.so
+        -x ./RemoteFilming.app/Contents/PlugIns/coreaudio-encoder.so \
+        -x ./RemoteFilming.app/Contents/PlugIns/decklink-ouput-ui.so \
+        -x ./RemoteFilming.app/Contents/PlugIns/decklink-captions.so \
+        -x ./RemoteFilming.app/Contents/PlugIns/frontend-tools.so \
+        -x ./RemoteFilming.app/Contents/PlugIns/image-source.so \
+        -x ./RemoteFilming.app/Contents/PlugIns/mac-avcapture.so \
+        -x ./RemoteFilming.app/Contents/PlugIns/mac-capture.so \
+        -x ./RemoteFilming.app/Contents/PlugIns/mac-decklink.so \
+        -x ./RemoteFilming.app/Contents/PlugIns/mac-syphon.so \
+        -x ./RemoteFilming.app/Contents/PlugIns/mac-vth264.so \
+        -x ./RemoteFilming.app/Contents/PlugIns/mac-virtualcam.so \
+        -x ./RemoteFilming.app/Contents/PlugIns/obs-ffmpeg.so \
+        -x ./RemoteFilming.app/Contents/PlugIns/obs-filters.so \
+        -x ./RemoteFilming.app/Contents/PlugIns/obs-transitions.so \
+        -x ./RemoteFilming.app/Contents/PlugIns/obs-vst.so \
+        -x ./RemoteFilming.app/Contents/PlugIns/rtmp-services.so \
+        -x ./RemoteFilming.app/Contents/MacOS/obs-ffmpeg-mux \
+        -x ./RemoteFilming.app/Contents/MacOS/obslua.so \
+        -x ./RemoteFilming.app/Contents/PlugIns/obs-x264.so \
+        -x ./RemoteFilming.app/Contents/PlugIns/text-freetype2.so \
+        -x ./RemoteFilming.app/Contents/PlugIns/obs-outputs.so \
+        -x ./RemoteFilming.app/Contents/PlugIns/obs-ndi.so \
+        -x ./RemoteFilming.app/Contents/PlugIns/obs-websocket.so
+#        -x ./RemoteFilming.app/Contents/PlugIns/obs-browser.so
 
     step "Move libobs-opengl to final destination"
-    cp ./libobs-opengl/libobs-opengl.so ./RemoteFilmingStudio.app/Contents/Frameworks
+    cp ./libobs-opengl/libobs-opengl.so ./RemoteFilming.app/Contents/Frameworks
 
     step "Copy QtNetwork for plugin support"
-    cp -R /tmp/obsdeps/lib/QtNetwork.framework ./RemoteFilmingStudio.app/Contents/Frameworks
-    chmod -R +w ./RemoteFilmingStudio.app/Contents/Frameworks/QtNetwork.framework
-    rm -r ./RemoteFilmingStudio.app/Contents/Frameworks/QtNetwork.framework/Headers
-    rm -r ./RemoteFilmingStudio.app/Contents/Frameworks/QtNetwork.framework/Versions/5/Headers/
-    chmod 644 ./RemoteFilmingStudio.app/Contents/Frameworks/QtNetwork.framework/Versions/5/Resources/Info.plist
-    install_name_tool -id @executable_path/../Frameworks/QtNetwork.framework/Versions/5/QtNetwork ./RemoteFilmingStudio.app/Contents/Frameworks/QtNetwork.framework/Versions/5/QtNetwork
-    install_name_tool -change /tmp/obsdeps/lib/QtCore.framework/Versions/5/QtCore @executable_path/../Frameworks/QtCore.framework/Versions/5/QtCore ./RemoteFilmingStudio.app/Contents/Frameworks/QtNetwork.framework/Versions/5/QtNetwork
+    cp -R /tmp/obsdeps/lib/QtNetwork.framework ./RemoteFilming.app/Contents/Frameworks
+    chmod -R +w ./RemoteFilming.app/Contents/Frameworks/QtNetwork.framework
+    rm -r ./RemoteFilming.app/Contents/Frameworks/QtNetwork.framework/Headers
+    rm -r ./RemoteFilming.app/Contents/Frameworks/QtNetwork.framework/Versions/5/Headers/
+    chmod 644 ./RemoteFilming.app/Contents/Frameworks/QtNetwork.framework/Versions/5/Resources/Info.plist
+    install_name_tool -id @executable_path/../Frameworks/QtNetwork.framework/Versions/5/QtNetwork ./RemoteFilming.app/Contents/Frameworks/QtNetwork.framework/Versions/5/QtNetwork
+    install_name_tool -change /tmp/obsdeps/lib/QtCore.framework/Versions/5/QtCore @executable_path/../Frameworks/QtCore.framework/Versions/5/QtCore ./RemoteFilming.app/Contents/Frameworks/QtNetwork.framework/Versions/5/QtNetwork
 }
 
 install_frameworks() {
     ensure_dir "${CHECKOUT_DIR}/${BUILD_DIR}_${VENDOR}"
 
-    if [ ! -d ./RemoteFilmingStudio.app ]; then
-        error "No RemoteFilmingStudio.app bundle found"
+    if [ ! -d ./RemoteFilming.app ]; then
+        error "No RemoteFilming.app bundle found"
         exit 1
     fi
 
     hr "Adding Chromium Embedded Framework"
     step "Copy Framework..."
-    cp -R "${DEPS_BUILD_DIR}/cef_binary_${MACOS_CEF_BUILD_VERSION}_macosx64/Release/Chromium Embedded Framework.framework" ./RemoteFilmingStudio.app/Contents/Frameworks/
-    chown -R $(whoami) ./RemoteFilmingStudio.app/Contents/Frameworks/
+    cp -R "${DEPS_BUILD_DIR}/cef_binary_${MACOS_CEF_BUILD_VERSION}_macosx64/Release/Chromium Embedded Framework.framework" ./RemoteFilming.app/Contents/Frameworks/
+    chown -R $(whoami) ./RemoteFilming.app/Contents/Frameworks/
 }
 
 prepare_macos_bundle() {
@@ -402,53 +402,53 @@ prepare_macos_bundle() {
         exit 1
     fi
 
-    if [ -d ./RemoteFilmingStudio.app ]; then rm -rf ./RemoteFilmingStudio.app; fi
+    if [ -d ./RemoteFilming.app ]; then rm -rf ./RemoteFilming.app; fi
 
-    hr "Preparing RemoteFilmingStudio.app bundle"
+    hr "Preparing RemoteFilming.app bundle"
     step "Copy binary and plugins..."
-    mkdir -p RemoteFilmingStudio.app/Contents/MacOS
-    mkdir RemoteFilmingStudio.app/Contents/PlugIns
-    mkdir RemoteFilmingStudio.app/Contents/Resources
-    mkdir RemoteFilmingStudio.app/Contents/Frameworks
+    mkdir -p RemoteFilming.app/Contents/MacOS
+    mkdir RemoteFilming.app/Contents/PlugIns
+    mkdir RemoteFilming.app/Contents/Resources
+    mkdir RemoteFilming.app/Contents/Frameworks
 
-    cp rundir/${BUILD_CONFIG}/bin/rfs ./RemoteFilmingStudio.app/Contents/MacOS
-    cp rundir/${BUILD_CONFIG}/bin/obs-ffmpeg-mux ./RemoteFilmingStudio.app/Contents/MacOS
-    cp rundir/${BUILD_CONFIG}/bin/libobsglad.0.dylib ./RemoteFilmingStudio.app/Contents/MacOS
-#    cp -R "rundir/${BUILD_CONFIG}/bin/OBS Helper.app" "./RemoteFilmingStudio.app/Contents/Frameworks/OBS Helper.app"
-#    cp -R "rundir/${BUILD_CONFIG}/bin/OBS Helper (GPU).app" "./RemoteFilmingStudio.app/Contents/Frameworks/OBS Helper (GPU).app"
-#    cp -R "rundir/${BUILD_CONFIG}/bin/OBS Helper (Plugin).app" "./RemoteFilmingStudio.app/Contents/Frameworks/OBS Helper (Plugin).app"
-#    cp -R "rundir/${BUILD_CONFIG}/bin/OBS Helper (Renderer).app" "./RemoteFilmingStudio.app/Contents/Frameworks/OBS Helper (Renderer).app"
-    cp -R rundir/${BUILD_CONFIG}/data ./RemoteFilmingStudio.app/Contents/Resources
-    cp "${CI_SCRIPTS}/app/AppIcon.icns" ./RemoteFilmingStudio.app/Contents/Resources
-    cp -R rundir/${BUILD_CONFIG}/obs-plugins/ ./RemoteFilmingStudio.app/Contents/PlugIns
-    cp "${CI_SCRIPTS}/app/Info.plist" ./RemoteFilmingStudio.app/Contents
+    cp rundir/${BUILD_CONFIG}/bin/rfs ./RemoteFilming.app/Contents/MacOS
+    cp rundir/${BUILD_CONFIG}/bin/obs-ffmpeg-mux ./RemoteFilming.app/Contents/MacOS
+    cp rundir/${BUILD_CONFIG}/bin/libobsglad.0.dylib ./RemoteFilming.app/Contents/MacOS
+#    cp -R "rundir/${BUILD_CONFIG}/bin/OBS Helper.app" "./RemoteFilming.app/Contents/Frameworks/OBS Helper.app"
+#    cp -R "rundir/${BUILD_CONFIG}/bin/OBS Helper (GPU).app" "./RemoteFilming.app/Contents/Frameworks/OBS Helper (GPU).app"
+#    cp -R "rundir/${BUILD_CONFIG}/bin/OBS Helper (Plugin).app" "./RemoteFilming.app/Contents/Frameworks/OBS Helper (Plugin).app"
+#    cp -R "rundir/${BUILD_CONFIG}/bin/OBS Helper (Renderer).app" "./RemoteFilming.app/Contents/Frameworks/OBS Helper (Renderer).app"
+    cp -R rundir/${BUILD_CONFIG}/data ./RemoteFilming.app/Contents/Resources
+    cp "${CI_SCRIPTS}/app/AppIcon.icns" ./RemoteFilming.app/Contents/Resources
+    cp -R rundir/${BUILD_CONFIG}/obs-plugins/ ./RemoteFilming.app/Contents/PlugIns
+    cp "${CI_SCRIPTS}/app/Info.plist" ./RemoteFilming.app/Contents
     # Scripting plugins are required to be placed in same directory as binary
-    if [ -d ./RemoteFilmingStudio.app/Contents/Resources/data/obs-scripting ]; then
-        mv ./RemoteFilmingStudio.app/Contents/Resources/data/obs-scripting/obslua.so ./RemoteFilmingStudio.app/Contents/MacOS/
-        # mv ./RemoteFilmingStudio.app/Contents/Resources/data/obs-scripting/_obspython.so ./RemoteFilmingStudio.app/Contents/MacOS/
-        # mv ./RemoteFilmingStudio.app/Contents/Resources/data/obs-scripting/obspython.py ./RemoteFilmingStudio.app/Contents/MacOS/
-        rm -rf ./RemoteFilmingStudio.app/Contents/Resources/data/obs-scripting/
+    if [ -d ./RemoteFilming.app/Contents/Resources/data/obs-scripting ]; then
+        mv ./RemoteFilming.app/Contents/Resources/data/obs-scripting/obslua.so ./RemoteFilming.app/Contents/MacOS/
+        # mv ./RemoteFilming.app/Contents/Resources/data/obs-scripting/_obspython.so ./RemoteFilming.app/Contents/MacOS/
+        # mv ./RemoteFilming.app/Contents/Resources/data/obs-scripting/obspython.py ./RemoteFilming.app/Contents/MacOS/
+        rm -rf ./RemoteFilming.app/Contents/Resources/data/obs-scripting/
     fi
 
     bundle_dylibs
 #    install_frameworks
 
-    cp "${CI_SCRIPTS}/app/OBSPublicDSAKey.pem" ./RemoteFilmingStudio.app/Contents/Resources
+    cp "${CI_SCRIPTS}/app/OBSPublicDSAKey.pem" ./RemoteFilming.app/Contents/Resources
 
     step "Set bundle meta information..."
-    plutil -insert CFBundleVersion -string "${OBS_VERSION}" ./RemoteFilmingStudio.app/Contents/Info.plist
-    plutil -insert CFBundleShortVersionString -string "${MACOSX_BUNDLE_SHORT_VERSION_STRING}" ./RemoteFilmingStudio.app/Contents/Info.plist
-    # plutil -insert OBSFeedsURL -string https://obsproject.com/osx_update/feeds.xml ./RemoteFilmingStudio.app/Contents/Info.plist
-    # plutil -insert SUFeedURL -string https://obsproject.com/osx_update/stable/updates.xml ./RemoteFilmingStudio.app/Contents/Info.plist
-    # plutil -insert SUPublicDSAKeyFile -string OBSPublicDSAKey.pem ./RemoteFilmingStudio.app/Contents/Info.plist
+    plutil -insert CFBundleVersion -string "${OBS_VERSION}" ./RemoteFilming.app/Contents/Info.plist
+    plutil -insert CFBundleShortVersionString -string "${MACOSX_BUNDLE_SHORT_VERSION_STRING}" ./RemoteFilming.app/Contents/Info.plist
+    # plutil -insert OBSFeedsURL -string https://obsproject.com/osx_update/feeds.xml ./RemoteFilming.app/Contents/Info.plist
+    # plutil -insert SUFeedURL -string https://obsproject.com/osx_update/stable/updates.xml ./RemoteFilming.app/Contents/Info.plist
+    # plutil -insert SUPublicDSAKeyFile -string OBSPublicDSAKey.pem ./RemoteFilming.app/Contents/Info.plist
 }
 
 ## CREATE MACOS DISTRIBUTION AND INSTALLER IMAGE ##
 prepare_macos_image() {
     ensure_dir "${CHECKOUT_DIR}/${BUILD_DIR}_${VENDOR}"
 
-    if [ ! -d ./RemoteFilmingStudio.app ]; then
-        error "No RemoteFilmingStudio.app bundle found"
+    if [ ! -d ./RemoteFilming.app ]; then
+        error "No RemoteFilming.app bundle found"
         exit 1
     fi
 
@@ -464,7 +464,7 @@ prepare_macos_image() {
     sed -i '' 's#\$\$CI_PATH\$\$#'"${CI_SCRIPTS}"'#g' ./settings.json
     sed -i '' 's#\$\$BUNDLE_PATH\$\$#'"${CHECKOUT_DIR}"'/build_'"${VENDOR}"'#g' ./settings.json
     echo -n "${COLOR_ORANGE}"
-    dmgbuild "RemoteFilmingStudio ${OBS_VERSION}" "${FILE_NAME}" -s ./settings.json
+    dmgbuild "RemoteFilming ${OBS_VERSION}" "${FILE_NAME}" -s ./settings.json
     echo -n "${COLOR_RESET}"
 
     if [ -n "${CODESIGN_OBS}" ]; then
@@ -522,49 +522,49 @@ codesign_bundle() {
     ensure_dir "${CHECKOUT_DIR}/${BUILD_DIR}_${VENDOR}"
     trap "caught_error 'code-signing app'" ERR
 
-    if [ ! -d ./RemoteFilmingStudio.app ]; then
-        error "No RemoteFilmingStudio.app bundle found"
+    if [ ! -d ./RemoteFilming.app ]; then
+        error "No RemoteFilming.app bundle found"
         exit 1
     fi
 
     hr "Code-signing application bundle"
 
-    xattr -crs ./RemoteFilmingStudio.app
+    xattr -crs ./RemoteFilming.app
 
     read_codesign_ident
 
     # step "Code-sign Sparkle framework..."
     # echo -n "${COLOR_ORANGE}"
-    # codesign --force --options runtime --sign "${CODESIGN_IDENT}" "./RemoteFilmingStudio.app/Contents/Frameworks/Sparkle.framework/Versions/A/Resources/Autoupdate.app/Contents/MacOS/fileop"
-    # codesign --force --options runtime --sign "${CODESIGN_IDENT}" "./RemoteFilmingStudio.app/Contents/Frameworks/Sparkle.framework/Versions/A/Resources/Autoupdate.app/Contents/MacOS/Autoupdate"
-    # codesign --force --options runtime --sign "${CODESIGN_IDENT}" --deep ./RemoteFilmingStudio.app/Contents/Frameworks/Sparkle.framework
+    # codesign --force --options runtime --sign "${CODESIGN_IDENT}" "./RemoteFilming.app/Contents/Frameworks/Sparkle.framework/Versions/A/Resources/Autoupdate.app/Contents/MacOS/fileop"
+    # codesign --force --options runtime --sign "${CODESIGN_IDENT}" "./RemoteFilming.app/Contents/Frameworks/Sparkle.framework/Versions/A/Resources/Autoupdate.app/Contents/MacOS/Autoupdate"
+    # codesign --force --options runtime --sign "${CODESIGN_IDENT}" --deep ./RemoteFilming.app/Contents/Frameworks/Sparkle.framework
     # echo -n "${COLOR_RESET}"
 
 #    step "Code-sign CEF framework..."
 #    echo -n "${COLOR_ORANGE}"
-#    codesign --force --timestamp --options runtime --entitlements "${CI_SCRIPTS}/app/entitlements.plist" --sign "${CODESIGN_IDENT}" "./RemoteFilmingStudio.app/Contents/Frameworks/Chromium Embedded Framework.framework/Libraries/libEGL.dylib"
-#    codesign --force --timestamp --options runtime --entitlements "${CI_SCRIPTS}/app/entitlements.plist" --sign "${CODESIGN_IDENT}" "./RemoteFilmingStudio.app/Contents/Frameworks/Chromium Embedded Framework.framework/Libraries/libswiftshader_libEGL.dylib"
-#    codesign --force --timestamp --options runtime --entitlements "${CI_SCRIPTS}/app/entitlements.plist" --sign "${CODESIGN_IDENT}" "./RemoteFilmingStudio.app/Contents/Frameworks/Chromium Embedded Framework.framework/Libraries/libGLESv2.dylib"
-#    codesign --force --timestamp --options runtime --entitlements "${CI_SCRIPTS}/app/entitlements.plist" --sign "${CODESIGN_IDENT}" "./RemoteFilmingStudio.app/Contents/Frameworks/Chromium Embedded Framework.framework/Libraries/libswiftshader_libGLESv2.dylib"
-#    codesign --force --timestamp --options runtime --entitlements "${CI_SCRIPTS}/app/entitlements.plist" --sign "${CODESIGN_IDENT}" "./RemoteFilmingStudio.app/Contents/Frameworks/Chromium Embedded Framework.framework/Libraries/libvk_swiftshader.dylib"
-#    codesign --force --timestamp --options runtime --entitlements "${CI_SCRIPTS}/app/entitlements.plist" --sign "${CODESIGN_IDENT}" --deep "./RemoteFilmingStudio.app/Contents/Frameworks/Chromium Embedded Framework.framework"
+#    codesign --force --timestamp --options runtime --entitlements "${CI_SCRIPTS}/app/entitlements.plist" --sign "${CODESIGN_IDENT}" "./RemoteFilming.app/Contents/Frameworks/Chromium Embedded Framework.framework/Libraries/libEGL.dylib"
+#    codesign --force --timestamp --options runtime --entitlements "${CI_SCRIPTS}/app/entitlements.plist" --sign "${CODESIGN_IDENT}" "./RemoteFilming.app/Contents/Frameworks/Chromium Embedded Framework.framework/Libraries/libswiftshader_libEGL.dylib"
+#    codesign --force --timestamp --options runtime --entitlements "${CI_SCRIPTS}/app/entitlements.plist" --sign "${CODESIGN_IDENT}" "./RemoteFilming.app/Contents/Frameworks/Chromium Embedded Framework.framework/Libraries/libGLESv2.dylib"
+#    codesign --force --timestamp --options runtime --entitlements "${CI_SCRIPTS}/app/entitlements.plist" --sign "${CODESIGN_IDENT}" "./RemoteFilming.app/Contents/Frameworks/Chromium Embedded Framework.framework/Libraries/libswiftshader_libGLESv2.dylib"
+#    codesign --force --timestamp --options runtime --entitlements "${CI_SCRIPTS}/app/entitlements.plist" --sign "${CODESIGN_IDENT}" "./RemoteFilming.app/Contents/Frameworks/Chromium Embedded Framework.framework/Libraries/libvk_swiftshader.dylib"
+#    codesign --force --timestamp --options runtime --entitlements "${CI_SCRIPTS}/app/entitlements.plist" --sign "${CODESIGN_IDENT}" --deep "./RemoteFilming.app/Contents/Frameworks/Chromium Embedded Framework.framework"
 #    echo -n "${COLOR_RESET}"
 
 #    step "Code-sign CEF helper apps..."
 #    /bin/echo -n "${COLOR_ORANGE}"
-#    codesign --force --timestamp --options runtime --entitlements "${CI_SCRIPTS}/helpers/helper-entitlements.plist" --sign "${CODESIGN_IDENT}" --deep "./RemoteFilmingStudio.app/Contents/Frameworks/OBS Helper.app"
-#    codesign --force --timestamp --options runtime --entitlements "${CI_SCRIPTS}/helpers/helper-gpu-entitlements.plist" --sign "${CODESIGN_IDENT}" --deep "./RemoteFilmingStudio.app/Contents/Frameworks/OBS Helper (GPU).app"
-#    codesign --force --timestamp --options runtime --entitlements "${CI_SCRIPTS}/helpers/helper-plugin-entitlements.plist" --sign "${CODESIGN_IDENT}" --deep "./RemoteFilmingStudio.app/Contents/Frameworks/OBS Helper (Plugin).app"
-#    codesign --force --timestamp --options runtime --entitlements "${CI_SCRIPTS}/helpers/helper-renderer-entitlements.plist" --sign "${CODESIGN_IDENT}" --deep "./RemoteFilmingStudio.app/Contents/Frameworks/OBS Helper (Renderer).app"
+#    codesign --force --timestamp --options runtime --entitlements "${CI_SCRIPTS}/helpers/helper-entitlements.plist" --sign "${CODESIGN_IDENT}" --deep "./RemoteFilming.app/Contents/Frameworks/OBS Helper.app"
+#    codesign --force --timestamp --options runtime --entitlements "${CI_SCRIPTS}/helpers/helper-gpu-entitlements.plist" --sign "${CODESIGN_IDENT}" --deep "./RemoteFilming.app/Contents/Frameworks/OBS Helper (GPU).app"
+#    codesign --force --timestamp --options runtime --entitlements "${CI_SCRIPTS}/helpers/helper-plugin-entitlements.plist" --sign "${CODESIGN_IDENT}" --deep "./RemoteFilming.app/Contents/Frameworks/OBS Helper (Plugin).app"
+#    codesign --force --timestamp --options runtime --entitlements "${CI_SCRIPTS}/helpers/helper-renderer-entitlements.plist" --sign "${CODESIGN_IDENT}" --deep "./RemoteFilming.app/Contents/Frameworks/OBS Helper (Renderer).app"
 #    /bin/echo -n "${COLOR_RESET}"
 
     step "Code-sign OBS code..."
     echo -n "${COLOR_ORANGE}"
-    codesign --force --timestamp --options runtime --deep --sign "${CODESIGN_IDENT}" "./RemoteFilmingStudio.app/Contents/Resources/data/obs-mac-virtualcam.plugin"
-    codesign --force --timestamp --options runtime --entitlements "${CI_SCRIPTS}/app/entitlements.plist" --sign "${CODESIGN_IDENT}" --deep ./RemoteFilmingStudio.app
+    codesign --force --timestamp --options runtime --deep --sign "${CODESIGN_IDENT}" "./RemoteFilming.app/Contents/Resources/data/obs-mac-virtualcam.plugin"
+    codesign --force --timestamp --options runtime --entitlements "${CI_SCRIPTS}/app/entitlements.plist" --sign "${CODESIGN_IDENT}" --deep ./RemoteFilming.app
     echo -n "${COLOR_RESET}"
     step "Check code-sign result..."
-    codesign -dvv ./RemoteFilmingStudio.app
+    codesign -dvv ./RemoteFilming.app
 }
 
 codesign_image() {
@@ -646,11 +646,11 @@ notarize_macos() {
 
     if [ -f "${FILE_NAME}" ]; then
         NOTARIZE_TARGET="${FILE_NAME}"
-        xcnotary precheck "./RemoteFilmingStudio.app"
-    elif [ -d "RemoteFilmingStudio.app" ]; then
-        NOTARIZE_TARGET="./RemoteFilmingStudio.app"
+        xcnotary precheck "./RemoteFilming.app"
+    elif [ -d "RemoteFilming.app" ]; then
+        NOTARIZE_TARGET="./RemoteFilming.app"
     else
-        error "No notarization app bundle ('RemoteFilmingStudio.app') or disk image ('${FILE_NAME}') found"
+        error "No notarization app bundle ('RemoteFilming.app') or disk image ('${FILE_NAME}') found"
         return
     fi
 

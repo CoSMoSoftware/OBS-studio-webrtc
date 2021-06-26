@@ -307,7 +307,7 @@ OBSBasic::OBSBasic(QWidget *parent)
 	installEventFilter(shortcutFilter);
 
 	stringstream name;
-	name << "Remote Filming Studio " << App()->GetVersionString();
+	name << "Remote Filming " << App()->GetVersionString();
 	blog(LOG_INFO, "%s", name.str().c_str());
 	blog(LOG_INFO, "---------------------------------");
 
@@ -8030,9 +8030,9 @@ void OBSBasic::UpdateTitleBar()
 	const char *sceneCollection = config_get_string(
 		App()->GlobalConfig(), "Basic", "SceneCollection");
 
-	name << "Remote Filming Studio ";
-	//	if (previewProgramMode)
-	//		name << "Studio ";
+	name << "Remote Filming ";
+	if (previewProgramMode)
+		name << "Studio ";
 
 	name << App()->GetVersionString();
 	if (App()->IsPortableMode())

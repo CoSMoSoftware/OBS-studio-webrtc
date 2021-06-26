@@ -70,7 +70,7 @@ void OBSAbout::ShowAbout()
 {
 	OBSBasic *main = OBSBasic::Get();
 	QString text;
-	text += "<h3>Remote Filming Studio is for live single and multi camera film shoot streaming</h3>";
+	text += "<h3>Remote Filming is for live single and multi camera film shoot streaming</h3>";
 	ui->textBrowser->setHtml(text);
 }
 
