@@ -1486,7 +1486,7 @@ bool OBSBasic::InitBasicConfigDefaults()
 	}
 
 	config_set_default_uint(basicConfig, "Video", "FPSType", 0);
-	config_set_default_string(basicConfig, "Video", "FPSCommon", "30");
+	config_set_default_string(basicConfig, "Video", "FPSCommon", "25 PAL");
 	config_set_default_uint(basicConfig, "Video", "FPSInt", 30);
 	config_set_default_uint(basicConfig, "Video", "FPSNum", 30);
 	config_set_default_uint(basicConfig, "Video", "FPSDen", 1);
@@ -2008,9 +2008,10 @@ void OBSBasic::OBSInit()
 		config_save_safe(App()->GlobalConfig(), "tmp", nullptr);
 	}
 
-	if (!first_run && !has_last_version && !Active())
-		QMetaObject::invokeMethod(this, "on_autoConfigure_triggered",
-					  Qt::QueuedConnection);
+	// #277 Disable auto-configuration
+	// if (!first_run && !has_last_version && !Active())
+	// 	QMetaObject::invokeMethod(this, "on_autoConfigure_triggered",
+	// 				  Qt::QueuedConnection);
 
 	ToggleMixerLayout(config_get_bool(App()->GlobalConfig(), "BasicWindow",
 					  "VerticalVolControl"));

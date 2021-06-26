@@ -410,7 +410,7 @@ bool OBSApp::InitGlobalConfigDefaults()
 	config_set_default_string(globalConfig, "General", "ProcessPriority",
 				  "Normal");
 	config_set_default_bool(globalConfig, "General", "EnableAutoUpdates",
-				true);
+				false);
 
 #if _WIN32
 	config_set_default_string(globalConfig, "Video", "Renderer",
@@ -434,7 +434,7 @@ bool OBSApp::InitGlobalConfigDefaults()
 	config_set_default_bool(globalConfig, "BasicWindow", "SourceSnapping",
 				true);
 	config_set_default_bool(globalConfig, "BasicWindow", "CenterSnapping",
-				false);
+				true);
 	config_set_default_double(globalConfig, "BasicWindow", "SnapDistance",
 				  10.0);
 	config_set_default_bool(globalConfig, "BasicWindow",
@@ -442,7 +442,7 @@ bool OBSApp::InitGlobalConfigDefaults()
 	config_set_default_bool(globalConfig, "BasicWindow",
 				"KeepRecordingWhenStreamStops", false);
 	config_set_default_bool(globalConfig, "BasicWindow", "SysTrayEnabled",
-				true);
+				false);
 	config_set_default_bool(globalConfig, "BasicWindow",
 				"SysTrayWhenStarted", false);
 	config_set_default_bool(globalConfig, "BasicWindow", "SaveProjectors",
@@ -499,6 +499,12 @@ bool OBSApp::InitGlobalConfigDefaults()
 
 	config_set_default_bool(globalConfig, "BasicWindow",
 				"MediaControlsCountdownTimer", true);
+
+	config_set_default_string(globalConfig, "BasicWindow", "geometry", "AdnQywADAAAAAAAgAAAAGQAABGgAAAKHAAAAIAAAADUAAARoAAAChwAAAAAAAAAAB4AAAAAgAAAANQAABGgAAAKH");
+	config_set_default_string(globalConfig, "BasicWindow", "DockState", "AAAA/wAAAAD9AAAAAgAAAAEAAAFOAAAB3/wCAAAAA/wAAAAAAAAB3wAAAU8A/////AIAAAAC/AAAAAAAAADGAAAAigEAABj6AAAAAQEAAAAC+wAAABQAcwBjAGUAbgBlAHMARABvAGMAawEAAARpAAAA2QAAAKAA////+wAAABYAcwBvAHUAcgBjAGUAcwBEAG8AYwBrAQAAAAD/////AAAAoAD////7AAAAGABjAG8AbgB0AHIAbwBsAHMARABvAGMAawEAAADHAAABGAAAAMQA////+wAAABgAYwBvAG4AdAByAG8AbABzAEQAbwBjAGsDAAAGSgAAASMAAADZAAAA4/sAAAASAHMAdABhAHQAcwBEAG8AYwBrAgAABJIAAAKgAAACxgAAAaYAAAADAAAESQAAAFj8AQAAAAL7AAAAEgBtAGkAeABlAHIARABvAGMAawEAAAAAAAAESQAAANwA////+wAAAB4AdAByAGEAbgBzAGkAdABpAG8AbgBzAEQAbwBjAGsCAAAC1wAAAa8AAACaAAAA7gAAAvoAAAHfAAAABAAAAAQAAAAIAAAACPwAAAAA");
+	config_set_default_bool(globalConfig, "BasicWindow", "DocksLocked", true);
+	config_set_default_int(globalConfig, "PropertiesWindow", "cx", 852);
+	config_set_default_int(globalConfig, "PropertiesWindow", "cy", 696);
 
 	return true;
 }
@@ -1214,7 +1220,7 @@ static void move_basic_to_profiles(void)
 		return;
 
 	strcat(new_path, "/");
-	strcat(new_path, Str("Untitled"));
+	strcat(new_path, Str("REMOTE"));
 	if (os_mkdir(new_path) == MKDIR_ERROR)
 		return;
 
@@ -1270,7 +1276,7 @@ static void move_basic_to_scene_collections(void)
 
 	strcat(path, "/scenes.json");
 	strcat(new_path, "/");
-	strcat(new_path, Str("Untitled"));
+	strcat(new_path, Str("REMOTE"));
 	strcat(new_path, ".json");
 
 	os_rename(path, new_path);
@@ -1292,28 +1298,28 @@ void OBSApp::AppInit()
 		throw "Failed to load theme";
 
 	config_set_default_string(globalConfig, "Basic", "Profile",
-				  Str("Untitled"));
+				  Str("MAIN"));
 	config_set_default_string(globalConfig, "Basic", "ProfileDir",
-				  Str("Untitled"));
+				  Str("MAIN"));
 	config_set_default_string(globalConfig, "Basic", "SceneCollection",
-				  Str("Untitled"));
+				  Str("REMOTE"));
 	config_set_default_string(globalConfig, "Basic", "SceneCollectionFile",
-				  Str("Untitled"));
+				  Str("REMOTE"));
 	config_set_default_bool(globalConfig, "Basic", "ConfigOnNewProfile",
 				true);
 
 	if (!config_has_user_value(globalConfig, "Basic", "Profile")) {
 		config_set_string(globalConfig, "Basic", "Profile",
-				  Str("Untitled"));
+				  Str("MAIN"));
 		config_set_string(globalConfig, "Basic", "ProfileDir",
-				  Str("Untitled"));
+				  Str("MAIN"));
 	}
 
 	if (!config_has_user_value(globalConfig, "Basic", "SceneCollection")) {
 		config_set_string(globalConfig, "Basic", "SceneCollection",
-				  Str("Untitled"));
+				  Str("REMOTE"));
 		config_set_string(globalConfig, "Basic", "SceneCollectionFile",
-				  Str("Untitled"));
+				  Str("REMOTE"));
 	}
 
 #ifdef _WIN32
