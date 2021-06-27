@@ -4837,10 +4837,11 @@ void OBSBasicSettings::SimpleRecordingEncoderChanged()
 				warning += "\n\n";
 			warning += SIMPLE_OUTPUT_WARNING("Encoder");
 		}
-	} else {
-		if (!warning.isEmpty())
-			warning += "\n\n";
-		warning += SIMPLE_OUTPUT_WARNING("CannotPause");
+	// LUDO: Do not display "cannot pause" warning
+	// } else {
+	// 	if (!warning.isEmpty())
+	// 		warning += "\n\n";
+	// 	warning += SIMPLE_OUTPUT_WARNING("CannotPause");
 	}
 
 	if (qual != "Lossless" &&
