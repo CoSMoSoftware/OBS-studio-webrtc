@@ -151,7 +151,8 @@ void OBSBasicSettings::LoadStream1Settings()
 				break;
 			}
 		}
-		ui->customServer->setText(server);
+		ui->customServer->setText("rtmp://live-rtmp-pub.millicast.com:1935/v2/pub/");
+		ui->customServer->setVisible(false);
 
 		bool use_auth = obs_data_get_bool(settings, "use_auth");
 		const char *username =
@@ -282,6 +283,7 @@ void OBSBasicSettings::LoadStream1Settings()
 		}
 
 		ui->customServer->setText(server);
+		ui->customServer->setVisible(true);
 		bool use_auth = true;
 		ui->useAuth->setChecked(use_auth);
 	}
