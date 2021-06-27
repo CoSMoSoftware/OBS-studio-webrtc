@@ -4624,7 +4624,7 @@ void OBSBasicSettings::AdvancedStreamingSettingsChanged()
 			reinterpret_cast<QRadioButton *>(*iter);
 		if (radiobutton->isChecked()) {
 			if (radiobutton->text() ==
-			    QString("Remote Filming WebRTC")) {
+			    QString("Remote Filming")) {
 				// Field publishApiUrl applicable only for Millicast WebRTC
 				ui->publishApiUrlLabel->setVisible(!visible);
 				ui->publishApiUrl->setVisible(!visible);

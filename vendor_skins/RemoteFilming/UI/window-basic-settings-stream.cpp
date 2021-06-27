@@ -21,7 +21,7 @@ extern QCef *cef;
 extern QCefCookieManager *panel_cookies;
 
 // #289 service list of radio buttons
-// 0 = Remote Filming WebRTC (Millicast)
+// 0 = Remote Filming (Millicast)
 // 1 = Remote Filming RTMP   (Custom)
 enum class ListOpt : int { Millicast = 0, Custom }; // CustomWebrtc
 
@@ -129,7 +129,7 @@ void OBSBasicSettings::LoadStream1Settings()
 	const char *tmpString = nullptr;
 	tmpString = obs_data_get_string(settings, "service");
 	const char *service = strcmp("", tmpString) == 0
-				      ? "Remote Filming WebRTC"
+				      ? "Remote Filming"
 				      : tmpString;
 
 	const char *server = obs_data_get_string(settings, "server");

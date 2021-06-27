@@ -868,7 +868,7 @@
                <item>
                 <widget class="QRadioButton" name="millicastWebrtcRadioButton">
                  <property name="text">
-                  <string>Remote Filming WebRTC</string>
+                  <string>Remote Filming</string>
                  </property>
                  <attribute name="buttonGroup">
                   <string notr="true">serviceButtonGroup</string>
