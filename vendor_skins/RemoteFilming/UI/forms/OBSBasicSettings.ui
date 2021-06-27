@@ -1602,11 +1602,6 @@
                     <string>Basic.Settings.Output.Mode.Simple</string>
                    </property>
                   </item>
-                  <item>
-                   <property name="text">
-                    <string>Basic.Settings.Output.Mode.Adv</string>
-                   </property>
-                  </item>
                  </widget>
                 </item>
                </layout>
@@ -1812,6 +1807,12 @@
                    </property>
                    <property name="title">
                     <string>Basic.Settings.Output.Adv.Recording</string>
+                   </property>
+                   <property name="visible">
+                    <bool>false</bool>
+                   </property>
+                   <property name="enabled">
+                    <bool>false</bool>
                    </property>
                    <layout class="QFormLayout" name="formLayout_6">
                     <property name="fieldGrowthPolicy">
