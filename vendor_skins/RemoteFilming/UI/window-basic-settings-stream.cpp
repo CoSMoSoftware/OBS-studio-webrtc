@@ -153,6 +153,7 @@ void OBSBasicSettings::LoadStream1Settings()
 		}
 		ui->customServer->setText("rtmp://live-rtmp-pub.millicast.com:1935/v2/pub/");
 		ui->customServer->setVisible(false);
+		ui->serverLabel->setVisible(false);
 
 		bool use_auth = obs_data_get_bool(settings, "use_auth");
 		const char *username =
@@ -284,6 +285,7 @@ void OBSBasicSettings::LoadStream1Settings()
 
 		ui->customServer->setText(server);
 		ui->customServer->setVisible(true);
+		ui->serverLabel->setVisible(true);
 		bool use_auth = true;
 		ui->useAuth->setChecked(use_auth);
 	}
@@ -639,8 +641,8 @@ void OBSBasicSettings::on_service_currentIndexChanged(int)
 	ui->authPwWidget->setVisible(false);
 
 	if (custom && !isWebrtc) {
-		ui->streamkeyPageLayout->insertRow(1, ui->serverLabel,
-						   ui->serverStackedWidget);
+		// ui->streamkeyPageLayout->insertRow(1, ui->serverLabel,
+		// 				   ui->serverStackedWidget);
 		ui->streamkeyPageLayout->insertRow(2, ui->streamKeyLabel,
 						   ui->streamKeyWidget);
 		// ui->streamkeyPageLayout->insertRow(3, nullptr, ui->useAuth);
@@ -654,10 +656,10 @@ void OBSBasicSettings::on_service_currentIndexChanged(int)
 		// ui->streamkeyPageLayout->insertRow(7, ui->streamProtocolLabel,
 		// 				   ui->streamProtocol);
 
-		ui->serverLabel->setVisible(true);
+		ui->serverLabel->setVisible(false);
 		ui->serverLabel->setText("Server");
 		ui->serverStackedWidget->setCurrentIndex(1);
-		ui->serverStackedWidget->setVisible(true);
+		ui->serverStackedWidget->setVisible(false);
 		ui->streamKeyLabel->setVisible(true);
 		ui->streamKeyWidget->setVisible(true);
 		ui->roomLabel->setVisible(false);
