@@ -14,8 +14,8 @@ file(
   )
 
 foreach( _file ${_vendor_files_to_copy_over} )
-  message( STATUS "${OBS_WEBRTC_VENDOR_NAME}: Copying ./${_file} over to ${PROJECT_SOURCE_DIR}/${_subdir}." )
   get_filename_component( _subdir ${_file} DIRECTORY )
+  message( STATUS "${OBS_WEBRTC_VENDOR_NAME}: Copying ./${_file} over to ${PROJECT_SOURCE_DIR}/${_subdir}." )
   if( NOT EXISTS  ${PROJECT_SOURCE_DIR}/${_file} )
     file( TOUCH
       ${PROJECT_SOURCE_DIR}/${_file}.old

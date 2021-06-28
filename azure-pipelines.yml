@@ -75,6 +75,10 @@ jobs:
   - ${{ each vendor in parameters.vendors }}:
     - script: git stash
       displayName: git stash
+    - script: rm -rf plugins/obs-ndi
+      displayName: rm plugins/obs-ndi
+    - script: git submodule update --init --recursive
+      displayName: 'Checkout Submodules'
     - ${{ if eq( vendor, 'RemoteFilming') }}:
       - script: cp ./vendor_skins/RemoteFilming/CI/full-build-macos.sh ./CI/full-build-macos.sh
         displayName: '${{ vendor }} copy full-build-macos.sh'
@@ -147,6 +151,10 @@ jobs:
   - ${{ each vendor in parameters.vendors }}:
     - script: git stash
       displayName: git stash
+    - script: rmdir /S /Q plugins\\obs-ndi
+      displayName: rm plugins/obs-ndi
+    - script: git submodule update --init --recursive
+      displayName: 'Checkout Submodules'
     - script: ./CI/install-script-win.cmd ${{ vendor }}
       displayName: '${{ vendor }} Run CMake'
     - task: MSBuild@1
@@ -197,6 +205,8 @@ jobs:
     - bash: |
         set -e
         git stash
+        rm -rf plugins/obs-ndi
+        git submodule update --init --recursive
         mkdir build_${{ vendor }}
         export CC=clang
         export CXX=clang++
