@@ -658,6 +658,7 @@ void OBSBasicSettings::on_service_currentIndexChanged(int)
 
 		ui->serverLabel->setVisible(false);
 		ui->serverLabel->setText("Server");
+		ui->customServer->setText("rtmp://live-rtmp-pub.millicast.com:1935/v2/pub/");
 		ui->serverStackedWidget->setCurrentIndex(1);
 		ui->serverStackedWidget->setVisible(false);
 		ui->streamKeyLabel->setVisible(true);
