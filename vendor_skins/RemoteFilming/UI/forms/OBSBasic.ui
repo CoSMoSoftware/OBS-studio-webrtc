@@ -1296,7 +1296,7 @@
        </property>
        <property name="font">
         <font>
-         <pointsize>18</pointsize>
+         <pointsize>24</pointsize>
          <weight>75</weight>
          <bold>true</bold>
         </font>
@@ -1406,25 +1406,28 @@
      </item>
      <item>
       <layout class="QHBoxLayout" name="RFSlogoLayout">
+       <property name="topMargin">
+        <number>8</number>
+       </property>
        <item>
         <widget class="QLabel" name="remoteFilmingLogo">
          <property name="minimumSize">
           <size>
-           <width>128</width>
-           <height>128</height>
+           <width>284</width>
+           <height>59</height>
           </size>
          </property>
          <property name="maximumSize">
           <size>
-           <width>128</width>
-           <height>128</height>
+           <width>284</width>
+           <height>59</height>
           </size>
          </property>
          <property name="text">
           <string/>
          </property>
          <property name="pixmap">
-          <pixmap>:res/images/obs.png</pixmap>
+          <pixmap>:res/images/RF-Logo.png</pixmap>
          </property>
          <property name="scaledContents">
           <bool>true</bool>
