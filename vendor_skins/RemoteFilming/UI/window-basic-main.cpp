@@ -786,9 +786,9 @@ void OBSBasic::CreateFirstRunSources()
 	// if (hasDesktopAudio)
 	// 	ResetAudioDevice(App()->OutputAudioSource(), "default",
 	// 			 Str("Basic.DesktopDevice1"), 1);
-	if (hasInputAudio)
-		ResetAudioDevice(App()->InputAudioSource(), "default",
-				 Str("Basic.AuxDevice1"), 3);
+	// if (hasInputAudio)
+	// 	ResetAudioDevice(App()->InputAudioSource(), "default",
+	// 			 Str("Basic.AuxDevice1"), 3);
 }
 
 void OBSBasic::CreateDefaultScene(bool firstStart)
