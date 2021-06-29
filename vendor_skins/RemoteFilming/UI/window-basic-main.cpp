@@ -798,7 +798,8 @@ void OBSBasic::CreateDefaultScene(bool firstStart)
 	InitDefaultTransitions();
 	CreateDefaultQuickTransitions();
 	ui->transitionDuration->setValue(300);
-	SetTransition(fadeTransition);
+	// LUDO: set default transition to "cutTransition"
+	SetTransition(cutTransition);
 
 	obs_scene_t *scene = obs_scene_create(Str("Basic.Scene"));
 
@@ -989,7 +990,8 @@ void OBSBasic::LoadData(obs_data_t *data, const char *file)
 		newDuration = 300;
 
 	if (!transitionName)
-		transitionName = obs_source_get_name(fadeTransition);
+		// LUDO: set default transition to "cutTransition"
+		transitionName = obs_source_get_name(cutTransition);
 
 	const char *curSceneCollection = config_get_string(
 		App()->GlobalConfig(), "Basic", "SceneCollection");
@@ -1041,7 +1043,8 @@ void OBSBasic::LoadData(obs_data_t *data, const char *file)
 
 	curTransition = FindTransition(transitionName);
 	if (!curTransition)
-		curTransition = fadeTransition;
+		// LUDO: set default transition to "cutTransition"
+		curTransition = cutTransition;
 
 	ui->transitionDuration->setValue(newDuration);
 	SetTransition(curTransition);
