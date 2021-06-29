@@ -18,6 +18,22 @@ index e851dda..39dcc48 100644
 +
 +install_obs_plugin_with_data(obs-ndi data)
 \ No newline at end of file
+diff --git a/plugins/obs-ndi/src/Config.cpp b/plugins/obs-ndi/src/Config.cpp
+index 18426fe..ca05647 100644
+--- a/plugins/obs-ndi/src/Config.cpp
++++ b/plugins/obs-ndi/src/Config.cpp
+@@ -32,9 +32,9 @@ Config* Config::_instance = nullptr;
+ 
+ Config::Config() :
+ 	OutputEnabled(false),
+-	OutputName("OBS"),
++	OutputName("Remote Filming"),
+ 	PreviewOutputEnabled(false),
+-	PreviewOutputName("OBS Preview")
++	PreviewOutputName("Remote Filming Preview")
+ {
+ 	config_t* obs_config = obs_frontend_get_global_config();
+ 	if (obs_config) {
 diff --git a/plugins/obs-ndi/src/obs-ndi-filter.cpp b/plugins/obs-ndi/src/obs-ndi-filter.cpp
 index c7dc7f8..02c3525 100644
 --- a/plugins/obs-ndi/src/obs-ndi-filter.cpp
