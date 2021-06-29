@@ -1336,6 +1336,9 @@
                    <property name="text">
                     <string>h264</string>
                    </property>
+                   <property name="checked">
+                    <bool>true</bool>
+                   </property>
                    <attribute name="buttonGroup">
                     <string notr="true">codecButtonGroup</string>
                    </attribute>
@@ -1355,9 +1358,6 @@
                   <widget class="QRadioButton" name="vp9RadioButton">
                    <property name="text">
                     <string>VP9</string>
-                   </property>
-                   <property name="checked">
-                    <bool>true</bool>
                    </property>
                    <attribute name="buttonGroup">
                     <string notr="true">codecButtonGroup</string>
