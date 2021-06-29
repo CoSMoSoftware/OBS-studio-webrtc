@@ -1566,6 +1566,9 @@
                 </property>
                 <item row="0" column="0">
                  <widget class="QLabel" name="outputModeLabel">
+                  <property name="visible">
+                   <bool>false</bool>
+                  </property>
                   <property name="minimumSize">
                    <size>
                     <width>170</width>
@@ -1585,8 +1588,11 @@
                 </item>
                 <item row="0" column="1">
                  <widget class="QComboBox" name="outputMode">
+                  <property name="visible">
+                   <bool>false</bool>
+                  </property>
                   <property name="enabled">
-                   <bool>true</bool>
+                   <bool>false</bool>
                   </property>
                   <property name="sizePolicy">
                    <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
@@ -1760,8 +1766,14 @@
                       <property name="text">
                        <string>Basic.Settings.Output.Advanced</string>
                       </property>
+                      <property name="visible">
+                       <bool>false</bool>
+                      </property>
+                      <property name="enabled">
+                       <bool>false</bool>
+                      </property>
                       <property name="checked">
-                       <bool>true</bool>
+                       <bool>false</bool>
                       </property>
                      </widget>
                     </item>
