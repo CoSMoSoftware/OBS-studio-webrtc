@@ -1779,6 +1779,9 @@
                     </item>
                     <item row="4" column="0">
                      <widget class="QLabel" name="label_24">
+                      <property name="visible">
+                       <bool>false</bool>
+                      </property>
                       <property name="enabled">
                        <bool>true</bool>
                       </property>
@@ -1792,6 +1795,9 @@
                     </item>
                     <item row="4" column="1">
                      <widget class="QComboBox" name="simpleOutPreset"/>
+                      <property name="visible">
+                       <bool>false</bool>
+                      </property>
                     </item>
                     <item row="5" column="0">
                      <widget class="QLabel" name="label_23">
@@ -1801,10 +1807,16 @@
                       <property name="buddy">
                        <cstring>simpleOutCustom</cstring>
                       </property>
+                      <property name="visible">
+                       <bool>false</bool>
+                      </property>
                      </widget>
                     </item>
                     <item row="5" column="1">
                      <widget class="QLineEdit" name="simpleOutCustom"/>
+                      <property name="visible">
+                       <bool>false</bool>
+                      </property>
                     </item>
                    </layout>
                   </widget>
