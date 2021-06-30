@@ -1832,11 +1832,8 @@
                    <property name="title">
                     <string>Basic.Settings.Output.Adv.Recording</string>
                    </property>
-                   <property name="visible">
-                    <bool>false</bool>
-                   </property>
                    <property name="enabled">
-                    <bool>false</bool>
+                    <bool>true</bool>
                    </property>
                    <layout class="QFormLayout" name="formLayout_6">
                     <property name="fieldGrowthPolicy">
