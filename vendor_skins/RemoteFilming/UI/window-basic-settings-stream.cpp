@@ -128,9 +128,8 @@ void OBSBasicSettings::LoadStream1Settings()
 	// #289 service list of radio buttons
 	const char *tmpString = nullptr;
 	tmpString = obs_data_get_string(settings, "service");
-	const char *service = strcmp("", tmpString) == 0
-				      ? "Remote Filming"
-				      : tmpString;
+	const char *service = strcmp("", tmpString) == 0 ? "Remote Filming"
+							 : tmpString;
 
 	const char *server = obs_data_get_string(settings, "server");
 	const char *key = obs_data_get_string(settings, "key");
@@ -151,7 +150,8 @@ void OBSBasicSettings::LoadStream1Settings()
 				break;
 			}
 		}
-		ui->customServer->setText("rtmp://live-rtmp-pub.millicast.com:1935/v2/pub/");
+		ui->customServer->setText(
+			"rtmp://live-rtmp-pub.millicast.com:1935/v2/pub/");
 		ui->customServer->setVisible(false);
 		ui->serverLabel->setVisible(false);
 
@@ -658,7 +658,8 @@ void OBSBasicSettings::on_service_currentIndexChanged(int)
 
 		ui->serverLabel->setVisible(false);
 		ui->serverLabel->setText("Server");
-		ui->customServer->setText("rtmp://live-rtmp-pub.millicast.com:1935/v2/pub/");
+		ui->customServer->setText(
+			"rtmp://live-rtmp-pub.millicast.com:1935/v2/pub/");
 		ui->serverStackedWidget->setCurrentIndex(1);
 		ui->serverStackedWidget->setVisible(false);
 		ui->streamKeyLabel->setVisible(true);
