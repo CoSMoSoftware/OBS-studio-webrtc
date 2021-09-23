@@ -134,7 +134,7 @@ jobs:
     inputs:
       command: 'custom'
       custom: 'tool'
-      arguments: 'install --global azuresigntool'
+      arguments: 'install --global azuresigntool --vresion 2.0.17'
     displayName: Install AzureSignTool
   - script: git submodule update --init --recursive
     displayName: 'Checkout Submodules'
