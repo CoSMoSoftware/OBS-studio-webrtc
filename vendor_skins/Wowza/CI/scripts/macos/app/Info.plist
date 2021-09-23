@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple Computer//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CFBundleIconFile</key>
+	<string>AppIcon.icns</string>
+        <key>CFBundleDisplayName</key>
+        <string>Wowza</string>
+	<key>CFBundleName</key>
+	<string>Wowza</string>
+	<key>CFBundleGetInfoString</key>
+	<string>Wowza</string>
+	<key>CFBundleExecutable</key>
+	<string>obs</string>
+	<key>CFBundleIdentifier</key>
+	<string>io.cosmosoftware.wowza</string>
+	<key>CFBundlePackageType</key>
+	<string>APPL</string>
+	<key>LSMinimumSystemVersion</key>
+	<string>10.13.0</string>
+	<key>NSHighResolutionCapable</key>
+	<true/>
+	<key>LSAppNapIsDisabled</key>
+	<true/>
+	<key>NSCameraUsageDescription</key>
+ 	<string>Wowza needs to access the camera to enable camera sources to work.</string>
+ 	<key>NSMicrophoneUsageDescription</key>
+ 	<string>Wowza needs to access the microphone to enable audio input.</string>
+</dict>
+</plist>
