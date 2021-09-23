@@ -686,7 +686,7 @@ obs-build-main() {
     GIT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
     GIT_HASH=$(git rev-parse --short HEAD)
     GIT_TAG=$(git describe --tags --abbrev=0)
-    FILE_NAME="remote-filming-${OBS_VERSION}-macOS.dmg"
+    FILE_NAME="obs-webrtc-${OBS_VERSION}-macOS.dmg"
 
     ##########################################################################
     # IMPORTANT:

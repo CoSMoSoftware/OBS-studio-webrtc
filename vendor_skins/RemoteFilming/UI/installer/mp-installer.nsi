@@ -93,6 +93,9 @@ Function PreReqCheck
 !ifdef INSTALL64
 	${if} ${RunningX64}
 	${Else}
+		IfSilent +1 +3
+			SetErrorLevel 3
+			Quit
 		MessageBox MB_OK|MB_ICONSTOP "This version of Remote Filming is not compatible with your system.  Please use the 32bit (x86) installer."
 	${EndIf}
 	; Abort on XP or lower

@@ -34,16 +34,16 @@ ManifestDPIAware true
 ; Main Install settings
 Name "${APPNAMEANDVERSION}"
 !ifdef INSTALL64
-InstallDir "$PROGRAMFILES64\remote-filming"
+InstallDir "$PROGRAMFILES64\obs-webrtc"
 !else
-InstallDir "$PROGRAMFILES32\remote-filming"
+InstallDir "$PROGRAMFILES32\obs-webrtc"
 !endif
 InstallDirRegKey HKLM "Software\${APPNAME}" ""
 
 !ifdef INSTALL64
- OutFile "Remote-Filming-${SHORTVERSION}-Full-Installer-x64.exe"
+ OutFile "OBS-WebRTC-${SHORTVERSION}-Full-Installer-x64.exe"
 !else
- OutFile "Remote-Filming-${SHORTVERSION}-Full-Installer-x86.exe"
+ OutFile "OBS-WebRTC-${SHORTVERSION}-Full-Installer-x86.exe"
 !endif
 
 ; Use compression
@@ -93,6 +93,9 @@ Function PreReqCheck
 !ifdef INSTALL64
 	${if} ${RunningX64}
 	${Else}
+		IfSilent +1 +3
+			SetErrorLevel 3
+			Quit
 		MessageBox MB_OK|MB_ICONSTOP "This version of Wowza is not compatible with your system.  Please use the 32bit (x86) installer."
 	${EndIf}
 	; Abort on XP or lower
@@ -479,7 +482,7 @@ Section "un.obs-webrtc Program Files" UninstallSection1
 SectionEnd
 
 Section /o "un.User Settings" UninstallSection2
-	RMDir /r "$APPDATA\remote-filming"
+	RMDir /r "$APPDATA\obs-webrtc"
 SectionEnd
 
 !insertmacro MUI_UNFUNCTION_DESCRIPTION_BEGIN
