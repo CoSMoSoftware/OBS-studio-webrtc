@@ -33,7 +33,7 @@
 set -eE
 
 ## SET UP ENVIRONMENT ##
-PRODUCT_NAME="Wowza"
+PRODUCT_NAME="Wowza-OBS-Real-Time"
 
 CHECKOUT_DIR="$(git rev-parse --show-toplevel)"
 DEPS_BUILD_DIR="${CHECKOUT_DIR}/../obs-build-dependencies"
@@ -272,10 +272,10 @@ configure_obs_build() {
     NIGHTLY_DIR="${CHECKOUT_DIR}/nightly-${CUR_DATE}"
     PACKAGE_NAME=$(find . -name "*.dmg")
 
-    if [ -d ./Wowza.app ]; then
+    if [ -d ./Wowza-OBS-Real-Time.app ]; then
         ensure_dir "${NIGHTLY_DIR}"
         mv "../${BUILD_DIR}_${VENDOR}/Wowza.app" .
-        info "You can find Wowza.app in ${NIGHTLY_DIR}"
+        info "You can find Wowza-OBS-Real-Time.app in ${NIGHTLY_DIR}"
     fi
     ensure_dir "${CHECKOUT_DIR}/${BUILD_DIR}_${VENDOR}"
     if ([ -n "${PACKAGE_NAME}" ] && [ -f ${PACKAGE_NAME} ]); then
@@ -331,67 +331,67 @@ run_obs_build() {
 bundle_dylibs() {
     ensure_dir "${CHECKOUT_DIR}/${BUILD_DIR}_${VENDOR}"
 
-    if [ ! -d ./Wowza.app ]; then
-        error "No Wowza.app bundle found"
+    if [ ! -d ./Wowza-OBS-Real-Time.app ]; then
+        error "No Wowza-OBS-Real-Time.app bundle found"
         exit 1
     fi
 
     hr "Bundle dylibs for macOS application"
 
     step "Run dylibBundler.."
-    ${CI_SCRIPTS}/app/dylibbundler -cd -of -a ./Wowza.app -q -f \
-        -s ./Wowza.app/Contents/MacOS \
+    ${CI_SCRIPTS}/app/dylibbundler -cd -of -a ./Wowza-OBS-Real-Time.app -q -f \
+        -s ./Wowza-OBS-Real-Time.app/Contents/MacOS \
         -s ./rundir/${BUILD_CONFIG}/bin/ \
-        -x ./Wowza.app/Contents/PlugIns/coreaudio-encoder.so \
-        -x ./Wowza.app/Contents/PlugIns/decklink-ouput-ui.so \
-        -x ./Wowza.app/Contents/PlugIns/decklink-captions.so \
-        -x ./Wowza.app/Contents/PlugIns/frontend-tools.so \
-        -x ./Wowza.app/Contents/PlugIns/image-source.so \
-        -x ./Wowza.app/Contents/PlugIns/mac-avcapture.so \
-        -x ./Wowza.app/Contents/PlugIns/mac-capture.so \
-        -x ./Wowza.app/Contents/PlugIns/mac-decklink.so \
-        -x ./Wowza.app/Contents/PlugIns/mac-syphon.so \
-        -x ./Wowza.app/Contents/PlugIns/mac-vth264.so \
-        -x ./Wowza.app/Contents/PlugIns/mac-virtualcam.so \
-        -x ./Wowza.app/Contents/PlugIns/obs-ffmpeg.so \
-        -x ./Wowza.app/Contents/PlugIns/obs-filters.so \
-        -x ./Wowza.app/Contents/PlugIns/obs-transitions.so \
-        -x ./Wowza.app/Contents/PlugIns/obs-vst.so \
-        -x ./Wowza.app/Contents/PlugIns/rtmp-services.so \
-        -x ./Wowza.app/Contents/MacOS/obs-ffmpeg-mux \
-        -x ./Wowza.app/Contents/MacOS/obslua.so \
-        -x ./Wowza.app/Contents/PlugIns/obs-x264.so \
-        -x ./Wowza.app/Contents/PlugIns/text-freetype2.so \
-        -x ./Wowza.app/Contents/PlugIns/obs-outputs.so \
-        -x ./Wowza.app/Contents/PlugIns/obs-ndi.so \
-        -x ./Wowza.app/Contents/PlugIns/obs-websocket.so
-#        -x ./Wowza.app/Contents/PlugIns/obs-browser.so
+        -x ./Wowza-OBS-Real-Time.app/Contents/PlugIns/coreaudio-encoder.so \
+        -x ./Wowza-OBS-Real-Time.app/Contents/PlugIns/decklink-ouput-ui.so \
+        -x ./Wowza-OBS-Real-Time.app/Contents/PlugIns/decklink-captions.so \
+        -x ./Wowza-OBS-Real-Time.app/Contents/PlugIns/frontend-tools.so \
+        -x ./Wowza-OBS-Real-Time.app/Contents/PlugIns/image-source.so \
+        -x ./Wowza-OBS-Real-Time.app/Contents/PlugIns/mac-avcapture.so \
+        -x ./Wowza-OBS-Real-Time.app/Contents/PlugIns/mac-capture.so \
+        -x ./Wowza-OBS-Real-Time.app/Contents/PlugIns/mac-decklink.so \
+        -x ./Wowza-OBS-Real-Time.app/Contents/PlugIns/mac-syphon.so \
+        -x ./Wowza-OBS-Real-Time.app/Contents/PlugIns/mac-vth264.so \
+        -x ./Wowza-OBS-Real-Time.app/Contents/PlugIns/mac-virtualcam.so \
+        -x ./Wowza-OBS-Real-Time.app/Contents/PlugIns/obs-ffmpeg.so \
+        -x ./Wowza-OBS-Real-Time.app/Contents/PlugIns/obs-filters.so \
+        -x ./Wowza-OBS-Real-Time.app/Contents/PlugIns/obs-transitions.so \
+        -x ./Wowza-OBS-Real-Time.app/Contents/PlugIns/obs-vst.so \
+        -x ./Wowza-OBS-Real-Time.app/Contents/PlugIns/rtmp-services.so \
+        -x ./Wowza-OBS-Real-Time.app/Contents/MacOS/obs-ffmpeg-mux \
+        -x ./Wowza-OBS-Real-Time.app/Contents/MacOS/obslua.so \
+        -x ./Wowza-OBS-Real-Time.app/Contents/PlugIns/obs-x264.so \
+        -x ./Wowza-OBS-Real-Time.app/Contents/PlugIns/text-freetype2.so \
+        -x ./Wowza-OBS-Real-Time.app/Contents/PlugIns/obs-outputs.so \
+        -x ./Wowza-OBS-Real-Time.app/Contents/PlugIns/obs-ndi.so \
+        -x ./Wowza-OBS-Real-Time.app/Contents/PlugIns/obs-websocket.so
+#        -x ./Wowza-OBS-Real-Time.app/Contents/PlugIns/obs-browser.so
 
     step "Move libobs-opengl to final destination"
-    cp ./libobs-opengl/libobs-opengl.so ./Wowza.app/Contents/Frameworks
+    cp ./libobs-opengl/libobs-opengl.so ./Wowza-OBS-Real-Time.app/Contents/Frameworks
 
     step "Copy QtNetwork for plugin support"
-    cp -R /tmp/obsdeps/lib/QtNetwork.framework ./Wowza.app/Contents/Frameworks
-    chmod -R +w ./Wowza.app/Contents/Frameworks/QtNetwork.framework
-    rm -r ./Wowza.app/Contents/Frameworks/QtNetwork.framework/Headers
-    rm -r ./Wowza.app/Contents/Frameworks/QtNetwork.framework/Versions/5/Headers/
-    chmod 644 ./Wowza.app/Contents/Frameworks/QtNetwork.framework/Versions/5/Resources/Info.plist
-    install_name_tool -id @executable_path/../Frameworks/QtNetwork.framework/Versions/5/QtNetwork ./Wowza.app/Contents/Frameworks/QtNetwork.framework/Versions/5/QtNetwork
-    install_name_tool -change /tmp/obsdeps/lib/QtCore.framework/Versions/5/QtCore @executable_path/../Frameworks/QtCore.framework/Versions/5/QtCore ./Wowza.app/Contents/Frameworks/QtNetwork.framework/Versions/5/QtNetwork
+    cp -R /tmp/obsdeps/lib/QtNetwork.framework ./Wowza-OBS-Real-Time.app/Contents/Frameworks
+    chmod -R +w ./Wowza-OBS-Real-Time.app/Contents/Frameworks/QtNetwork.framework
+    rm -r ./Wowza-OBS-Real-Time.app/Contents/Frameworks/QtNetwork.framework/Headers
+    rm -r ./Wowza-OBS-Real-Time.app/Contents/Frameworks/QtNetwork.framework/Versions/5/Headers/
+    chmod 644 ./Wowza-OBS-Real-Time.app/Contents/Frameworks/QtNetwork.framework/Versions/5/Resources/Info.plist
+    install_name_tool -id @executable_path/../Frameworks/QtNetwork.framework/Versions/5/QtNetwork ./Wowza-OBS-Real-Time.app/Contents/Frameworks/QtNetwork.framework/Versions/5/QtNetwork
+    install_name_tool -change /tmp/obsdeps/lib/QtCore.framework/Versions/5/QtCore @executable_path/../Frameworks/QtCore.framework/Versions/5/QtCore ./Wowza-OBS-Real-Time.app/Contents/Frameworks/QtNetwork.framework/Versions/5/QtNetwork
 }
 
 install_frameworks() {
     ensure_dir "${CHECKOUT_DIR}/${BUILD_DIR}_${VENDOR}"
 
-    if [ ! -d ./Wowza.app ]; then
-        error "No Wowza.app bundle found"
+    if [ ! -d ./Wowza-OBS-Real-Time.app ]; then
+        error "No Wowza-OBS-Real-Time.app bundle found"
         exit 1
     fi
 
     hr "Adding Chromium Embedded Framework"
     step "Copy Framework..."
-    cp -R "${DEPS_BUILD_DIR}/cef_binary_${MACOS_CEF_BUILD_VERSION}_macosx64/Release/Chromium Embedded Framework.framework" ./Wowza.app/Contents/Frameworks/
-    chown -R $(whoami) ./Wowza.app/Contents/Frameworks/
+    cp -R "${DEPS_BUILD_DIR}/cef_binary_${MACOS_CEF_BUILD_VERSION}_macosx64/Release/Chromium Embedded Framework.framework" ./Wowza-OBS-Real-Time.app/Contents/Frameworks/
+    chown -R $(whoami) ./Wowza-OBS-Real-Time.app/Contents/Frameworks/
 }
 
 prepare_macos_bundle() {
@@ -402,53 +402,53 @@ prepare_macos_bundle() {
         exit 1
     fi
 
-    if [ -d ./Wowza.app ]; then rm -rf ./Wowza.app; fi
+    if [ -d ./Wowza-OBS-Real-Time.app ]; then rm -rf ./Wowza-OBS-Real-Time.app; fi
 
-    hr "Preparing Wowza.app bundle"
+    hr "Preparing Wowza-OBS-Real-Time.app bundle"
     step "Copy binary and plugins..."
-    mkdir -p Wowza.app/Contents/MacOS
-    mkdir Wowza.app/Contents/PlugIns
-    mkdir Wowza.app/Contents/Resources
-    mkdir Wowza.app/Contents/Frameworks
+    mkdir -p Wowza-OBS-Real-Time.app/Contents/MacOS
+    mkdir Wowza-OBS-Real-Time.app/Contents/PlugIns
+    mkdir Wowza-OBS-Real-Time.app/Contents/Resources
+    mkdir Wowza-OBS-Real-Time.app/Contents/Frameworks
 
-    cp rundir/${BUILD_CONFIG}/bin/obs ./Wowza.app/Contents/MacOS
-    cp rundir/${BUILD_CONFIG}/bin/obs-ffmpeg-mux ./Wowza.app/Contents/MacOS
-    cp rundir/${BUILD_CONFIG}/bin/libobsglad.0.dylib ./Wowza.app/Contents/MacOS
-#    cp -R "rundir/${BUILD_CONFIG}/bin/OBS Helper.app" "./Wowza.app/Contents/Frameworks/OBS Helper.app"
-#    cp -R "rundir/${BUILD_CONFIG}/bin/OBS Helper (GPU).app" "./Wowza.app/Contents/Frameworks/OBS Helper (GPU).app"
-#    cp -R "rundir/${BUILD_CONFIG}/bin/OBS Helper (Plugin).app" "./Wowza.app/Contents/Frameworks/OBS Helper (Plugin).app"
-#    cp -R "rundir/${BUILD_CONFIG}/bin/OBS Helper (Renderer).app" "./Wowza.app/Contents/Frameworks/OBS Helper (Renderer).app"
-    cp -R rundir/${BUILD_CONFIG}/data ./Wowza.app/Contents/Resources
-    cp "${CI_SCRIPTS}/app/AppIcon.icns" ./Wowza.app/Contents/Resources
-    cp -R rundir/${BUILD_CONFIG}/obs-plugins/ ./Wowza.app/Contents/PlugIns
-    cp "${CI_SCRIPTS}/app/Info.plist" ./Wowza.app/Contents
+    cp rundir/${BUILD_CONFIG}/bin/obs ./Wowza-OBS-Real-Time.app/Contents/MacOS
+    cp rundir/${BUILD_CONFIG}/bin/obs-ffmpeg-mux ./Wowza-OBS-Real-Time.app/Contents/MacOS
+    cp rundir/${BUILD_CONFIG}/bin/libobsglad.0.dylib ./Wowza-OBS-Real-Time.app/Contents/MacOS
+#    cp -R "rundir/${BUILD_CONFIG}/bin/OBS Helper.app" "./Wowza-OBS-Real-Time.app/Contents/Frameworks/OBS Helper.app"
+#    cp -R "rundir/${BUILD_CONFIG}/bin/OBS Helper (GPU).app" "./Wowza-OBS-Real-Time.app/Contents/Frameworks/OBS Helper (GPU).app"
+#    cp -R "rundir/${BUILD_CONFIG}/bin/OBS Helper (Plugin).app" "./Wowza-OBS-Real-Time.app/Contents/Frameworks/OBS Helper (Plugin).app"
+#    cp -R "rundir/${BUILD_CONFIG}/bin/OBS Helper (Renderer).app" "./Wowza-OBS-Real-Time.app/Contents/Frameworks/OBS Helper (Renderer).app"
+    cp -R rundir/${BUILD_CONFIG}/data ./Wowza-OBS-Real-Time.app/Contents/Resources
+    cp "${CI_SCRIPTS}/app/AppIcon.icns" ./Wowza-OBS-Real-Time.app/Contents/Resources
+    cp -R rundir/${BUILD_CONFIG}/obs-plugins/ ./Wowza-OBS-Real-Time.app/Contents/PlugIns
+    cp "${CI_SCRIPTS}/app/Info.plist" ./Wowza-OBS-Real-Time.app/Contents
     # Scripting plugins are required to be placed in same directory as binary
-    if [ -d ./Wowza.app/Contents/Resources/data/obs-scripting ]; then
-        mv ./Wowza.app/Contents/Resources/data/obs-scripting/obslua.so ./Wowza.app/Contents/MacOS/
-        # mv ./Wowza.app/Contents/Resources/data/obs-scripting/_obspython.so ./Wowza.app/Contents/MacOS/
-        # mv ./Wowza.app/Contents/Resources/data/obs-scripting/obspython.py ./Wowza.app/Contents/MacOS/
-        rm -rf ./Wowza.app/Contents/Resources/data/obs-scripting/
+    if [ -d ./Wowza-OBS-Real-Time.app/Contents/Resources/data/obs-scripting ]; then
+        mv ./Wowza-OBS-Real-Time.app/Contents/Resources/data/obs-scripting/obslua.so ./Wowza-OBS-Real-Time.app/Contents/MacOS/
+        # mv ./Wowza-OBS-Real-Time.app/Contents/Resources/data/obs-scripting/_obspython.so ./Wowza-OBS-Real-Time.app/Contents/MacOS/
+        # mv ./Wowza-OBS-Real-Time.app/Contents/Resources/data/obs-scripting/obspython.py ./Wowza-OBS-Real-Time.app/Contents/MacOS/
+        rm -rf ./Wowza-OBS-Real-Time.app/Contents/Resources/data/obs-scripting/
     fi
 
     bundle_dylibs
 #    install_frameworks
 
-    cp "${CI_SCRIPTS}/app/OBSPublicDSAKey.pem" ./Wowza.app/Contents/Resources
+    cp "${CI_SCRIPTS}/app/OBSPublicDSAKey.pem" ./Wowza-OBS-Real-Time.app/Contents/Resources
 
     step "Set bundle meta information..."
-    plutil -insert CFBundleVersion -string "${OBS_VERSION}" ./Wowza.app/Contents/Info.plist
-    plutil -insert CFBundleShortVersionString -string "${MACOSX_BUNDLE_SHORT_VERSION_STRING}" ./Wowza.app/Contents/Info.plist
-    # plutil -insert OBSFeedsURL -string https://obsproject.com/osx_update/feeds.xml ./Wowza.app/Contents/Info.plist
-    # plutil -insert SUFeedURL -string https://obsproject.com/osx_update/stable/updates.xml ./Wowza.app/Contents/Info.plist
-    # plutil -insert SUPublicDSAKeyFile -string OBSPublicDSAKey.pem ./Wowza.app/Contents/Info.plist
+    plutil -insert CFBundleVersion -string "${OBS_VERSION}" ./Wowza-OBS-Real-Time.app/Contents/Info.plist
+    plutil -insert CFBundleShortVersionString -string "${MACOSX_BUNDLE_SHORT_VERSION_STRING}" ./Wowza-OBS-Real-Time.app/Contents/Info.plist
+    # plutil -insert OBSFeedsURL -string https://obsproject.com/osx_update/feeds.xml ./Wowza-OBS-Real-Time.app/Contents/Info.plist
+    # plutil -insert SUFeedURL -string https://obsproject.com/osx_update/stable/updates.xml ./Wowza-OBS-Real-Time.app/Contents/Info.plist
+    # plutil -insert SUPublicDSAKeyFile -string OBSPublicDSAKey.pem ./Wowza-OBS-Real-Time.app/Contents/Info.plist
 }
 
 ## CREATE MACOS DISTRIBUTION AND INSTALLER IMAGE ##
 prepare_macos_image() {
     ensure_dir "${CHECKOUT_DIR}/${BUILD_DIR}_${VENDOR}"
 
-    if [ ! -d ./Wowza.app ]; then
-        error "No Wowza.app bundle found"
+    if [ ! -d ./Wowza-OBS-Real-Time.app ]; then
+        error "No Wowza-OBS-Real-Time.app bundle found"
         exit 1
     fi
 
@@ -464,7 +464,7 @@ prepare_macos_image() {
     sed -i '' 's#\$\$CI_PATH\$\$#'"${CI_SCRIPTS}"'#g' ./settings.json
     sed -i '' 's#\$\$BUNDLE_PATH\$\$#'"${CHECKOUT_DIR}"'/build_'"${VENDOR}"'#g' ./settings.json
     echo -n "${COLOR_ORANGE}"
-    dmgbuild "Wowza ${OBS_VERSION}" "${FILE_NAME}" -s ./settings.json
+    dmgbuild "Wowza-OBS-Real-Time ${OBS_VERSION}" "${FILE_NAME}" -s ./settings.json
     echo -n "${COLOR_RESET}"
 
     if [ -n "${CODESIGN_OBS}" ]; then
@@ -522,49 +522,49 @@ codesign_bundle() {
     ensure_dir "${CHECKOUT_DIR}/${BUILD_DIR}_${VENDOR}"
     trap "caught_error 'code-signing app'" ERR
 
-    if [ ! -d ./Wowza.app ]; then
-        error "No Wowza.app bundle found"
+    if [ ! -d ./Wowza-OBS-Real-Time.app ]; then
+        error "No Wowza-OBS-Real-Time.app bundle found"
         exit 1
     fi
 
     hr "Code-signing application bundle"
 
-    xattr -crs ./Wowza.app
+    xattr -crs ./Wowza-OBS-Real-Time.app
 
     read_codesign_ident
 
     # step "Code-sign Sparkle framework..."
     # echo -n "${COLOR_ORANGE}"
-    # codesign --force --options runtime --sign "${CODESIGN_IDENT}" "./Wowza.app/Contents/Frameworks/Sparkle.framework/Versions/A/Resources/Autoupdate.app/Contents/MacOS/fileop"
-    # codesign --force --options runtime --sign "${CODESIGN_IDENT}" "./Wowza.app/Contents/Frameworks/Sparkle.framework/Versions/A/Resources/Autoupdate.app/Contents/MacOS/Autoupdate"
-    # codesign --force --options runtime --sign "${CODESIGN_IDENT}" --deep ./Wowza.app/Contents/Frameworks/Sparkle.framework
+    # codesign --force --options runtime --sign "${CODESIGN_IDENT}" "./Wowza-OBS-Real-Time.app/Contents/Frameworks/Sparkle.framework/Versions/A/Resources/Autoupdate.app/Contents/MacOS/fileop"
+    # codesign --force --options runtime --sign "${CODESIGN_IDENT}" "./Wowza-OBS-Real-Time.app/Contents/Frameworks/Sparkle.framework/Versions/A/Resources/Autoupdate.app/Contents/MacOS/Autoupdate"
+    # codesign --force --options runtime --sign "${CODESIGN_IDENT}" --deep ./Wowza-OBS-Real-Time.app/Contents/Frameworks/Sparkle.framework
     # echo -n "${COLOR_RESET}"
 
 #    step "Code-sign CEF framework..."
 #    echo -n "${COLOR_ORANGE}"
-#    codesign --force --timestamp --options runtime --entitlements "${CI_SCRIPTS}/app/entitlements.plist" --sign "${CODESIGN_IDENT}" "./Wowza.app/Contents/Frameworks/Chromium Embedded Framework.framework/Libraries/libEGL.dylib"
-#    codesign --force --timestamp --options runtime --entitlements "${CI_SCRIPTS}/app/entitlements.plist" --sign "${CODESIGN_IDENT}" "./Wowza.app/Contents/Frameworks/Chromium Embedded Framework.framework/Libraries/libswiftshader_libEGL.dylib"
-#    codesign --force --timestamp --options runtime --entitlements "${CI_SCRIPTS}/app/entitlements.plist" --sign "${CODESIGN_IDENT}" "./Wowza.app/Contents/Frameworks/Chromium Embedded Framework.framework/Libraries/libGLESv2.dylib"
-#    codesign --force --timestamp --options runtime --entitlements "${CI_SCRIPTS}/app/entitlements.plist" --sign "${CODESIGN_IDENT}" "./Wowza.app/Contents/Frameworks/Chromium Embedded Framework.framework/Libraries/libswiftshader_libGLESv2.dylib"
-#    codesign --force --timestamp --options runtime --entitlements "${CI_SCRIPTS}/app/entitlements.plist" --sign "${CODESIGN_IDENT}" "./Wowza.app/Contents/Frameworks/Chromium Embedded Framework.framework/Libraries/libvk_swiftshader.dylib"
-#    codesign --force --timestamp --options runtime --entitlements "${CI_SCRIPTS}/app/entitlements.plist" --sign "${CODESIGN_IDENT}" --deep "./Wowza.app/Contents/Frameworks/Chromium Embedded Framework.framework"
+#    codesign --force --timestamp --options runtime --entitlements "${CI_SCRIPTS}/app/entitlements.plist" --sign "${CODESIGN_IDENT}" "./Wowza-OBS-Real-Time.app/Contents/Frameworks/Chromium Embedded Framework.framework/Libraries/libEGL.dylib"
+#    codesign --force --timestamp --options runtime --entitlements "${CI_SCRIPTS}/app/entitlements.plist" --sign "${CODESIGN_IDENT}" "./Wowza-OBS-Real-Time.app/Contents/Frameworks/Chromium Embedded Framework.framework/Libraries/libswiftshader_libEGL.dylib"
+#    codesign --force --timestamp --options runtime --entitlements "${CI_SCRIPTS}/app/entitlements.plist" --sign "${CODESIGN_IDENT}" "./Wowza-OBS-Real-Time.app/Contents/Frameworks/Chromium Embedded Framework.framework/Libraries/libGLESv2.dylib"
+#    codesign --force --timestamp --options runtime --entitlements "${CI_SCRIPTS}/app/entitlements.plist" --sign "${CODESIGN_IDENT}" "./Wowza-OBS-Real-Time.app/Contents/Frameworks/Chromium Embedded Framework.framework/Libraries/libswiftshader_libGLESv2.dylib"
+#    codesign --force --timestamp --options runtime --entitlements "${CI_SCRIPTS}/app/entitlements.plist" --sign "${CODESIGN_IDENT}" "./Wowza-OBS-Real-Time.app/Contents/Frameworks/Chromium Embedded Framework.framework/Libraries/libvk_swiftshader.dylib"
+#    codesign --force --timestamp --options runtime --entitlements "${CI_SCRIPTS}/app/entitlements.plist" --sign "${CODESIGN_IDENT}" --deep "./Wowza-OBS-Real-Time.app/Contents/Frameworks/Chromium Embedded Framework.framework"
 #    echo -n "${COLOR_RESET}"
 
 #    step "Code-sign CEF helper apps..."
 #    /bin/echo -n "${COLOR_ORANGE}"
-#    codesign --force --timestamp --options runtime --entitlements "${CI_SCRIPTS}/helpers/helper-entitlements.plist" --sign "${CODESIGN_IDENT}" --deep "./Wowza.app/Contents/Frameworks/OBS Helper.app"
-#    codesign --force --timestamp --options runtime --entitlements "${CI_SCRIPTS}/helpers/helper-gpu-entitlements.plist" --sign "${CODESIGN_IDENT}" --deep "./Wowza.app/Contents/Frameworks/OBS Helper (GPU).app"
-#    codesign --force --timestamp --options runtime --entitlements "${CI_SCRIPTS}/helpers/helper-plugin-entitlements.plist" --sign "${CODESIGN_IDENT}" --deep "./Wowza.app/Contents/Frameworks/OBS Helper (Plugin).app"
-#    codesign --force --timestamp --options runtime --entitlements "${CI_SCRIPTS}/helpers/helper-renderer-entitlements.plist" --sign "${CODESIGN_IDENT}" --deep "./Wowza.app/Contents/Frameworks/OBS Helper (Renderer).app"
+#    codesign --force --timestamp --options runtime --entitlements "${CI_SCRIPTS}/helpers/helper-entitlements.plist" --sign "${CODESIGN_IDENT}" --deep "./Wowza-OBS-Real-Time.app/Contents/Frameworks/OBS Helper.app"
+#    codesign --force --timestamp --options runtime --entitlements "${CI_SCRIPTS}/helpers/helper-gpu-entitlements.plist" --sign "${CODESIGN_IDENT}" --deep "./Wowza-OBS-Real-Time.app/Contents/Frameworks/OBS Helper (GPU).app"
+#    codesign --force --timestamp --options runtime --entitlements "${CI_SCRIPTS}/helpers/helper-plugin-entitlements.plist" --sign "${CODESIGN_IDENT}" --deep "./Wowza-OBS-Real-Time.app/Contents/Frameworks/OBS Helper (Plugin).app"
+#    codesign --force --timestamp --options runtime --entitlements "${CI_SCRIPTS}/helpers/helper-renderer-entitlements.plist" --sign "${CODESIGN_IDENT}" --deep "./Wowza-OBS-Real-Time.app/Contents/Frameworks/OBS Helper (Renderer).app"
 #    /bin/echo -n "${COLOR_RESET}"
 
     step "Code-sign OBS code..."
     echo -n "${COLOR_ORANGE}"
-    codesign --force --timestamp --options runtime --deep --sign "${CODESIGN_IDENT}" "./Wowza.app/Contents/Resources/data/obs-mac-virtualcam.plugin"
-    codesign --force --timestamp --options runtime --entitlements "${CI_SCRIPTS}/app/entitlements.plist" --sign "${CODESIGN_IDENT}" --deep ./Wowza.app
+    codesign --force --timestamp --options runtime --deep --sign "${CODESIGN_IDENT}" "./Wowza-OBS-Real-Time.app/Contents/Resources/data/obs-mac-virtualcam.plugin"
+    codesign --force --timestamp --options runtime --entitlements "${CI_SCRIPTS}/app/entitlements.plist" --sign "${CODESIGN_IDENT}" --deep ./Wowza-OBS-Real-Time.app
     echo -n "${COLOR_RESET}"
     step "Check code-sign result..."
-    codesign -dvv ./Wowza.app
+    codesign -dvv ./Wowza-OBS-Real-Time.app
 }
 
 codesign_image() {
@@ -646,11 +646,11 @@ notarize_macos() {
 
     if [ -f "${FILE_NAME}" ]; then
         NOTARIZE_TARGET="${FILE_NAME}"
-        xcnotary precheck "./Wowza.app"
-    elif [ -d "Wowza.app" ]; then
-        NOTARIZE_TARGET="./Wowza.app"
+        xcnotary precheck "./Wowza-OBS-Real-Time.app"
+    elif [ -d "Wowza-OBS-Real-Time.app" ]; then
+        NOTARIZE_TARGET="./Wowza-OBS-Real-Time.app"
     else
-        error "No notarization app bundle ('Wowza.app') or disk image ('${FILE_NAME}') found"
+        error "No notarization app bundle ('Wowza-OBS-Real-Time.app') or disk image ('${FILE_NAME}') found"
         return
     fi
 
@@ -686,7 +686,7 @@ obs-build-main() {
     GIT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
     GIT_HASH=$(git rev-parse --short HEAD)
     GIT_TAG=$(git describe --tags --abbrev=0)
-    FILE_NAME="obs-webrtc-${OBS_VERSION}-macOS.dmg"
+    FILE_NAME="wowza-obs-real-time-x64-${OBS_VERSION}-macOS.dmg"
 
     ##########################################################################
     # IMPORTANT:

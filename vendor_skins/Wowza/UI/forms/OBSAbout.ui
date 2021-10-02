@@ -76,7 +76,7 @@
        <item>
         <widget class="QLabel" name="name">
          <property name="text">
-          <string notr="true">Wowza</string>
+          <string notr="true">Wowza OBS - Real-Time</string>
          </property>
         </widget>
        </item>
@@ -84,6 +84,40 @@
         <widget class="QLabel" name="version">
          <property name="text">
           <string notr="true">Version</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLabel" name="info">
+         <property name="text">
+          <string>About.Info</string>
+         </property>
+         <property name="wordWrap">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLabel" name="contribute">
+         <property name="text">
+          <string notr="true">Contribute</string>
+         </property>
+         <property name="wordWrap">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLabel" name="donate">
+         <property name="text">
+          <string notr="true">Donate</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLabel" name="getInvolved">
+         <property name="text">
+          <string notr="true">Get Involved</string>
          </property>
         </widget>
        </item>

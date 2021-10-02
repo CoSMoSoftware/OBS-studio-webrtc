@@ -4623,7 +4623,7 @@ void OBSBasicSettings::AdvancedStreamingSettingsChanged()
 		QRadioButton *radiobutton =
 			reinterpret_cast<QRadioButton *>(*iter);
 		if (radiobutton->isChecked()) {
-			if (radiobutton->text() == QString("Wowza")) {
+			if (radiobutton->text() == QString("Wowza WebRTC")) {
 				// Field publishApiUrl applicable only for Millicast WebRTC
 				ui->publishApiUrlLabel->setVisible(!visible);
 				ui->publishApiUrl->setVisible(!visible);
@@ -4836,11 +4836,10 @@ void OBSBasicSettings::SimpleRecordingEncoderChanged()
 				warning += "\n\n";
 			warning += SIMPLE_OUTPUT_WARNING("Encoder");
 		}
-		// LUDO: Do not display "cannot pause" warning
-		// } else {
-		// 	if (!warning.isEmpty())
-		// 		warning += "\n\n";
-		// 	warning += SIMPLE_OUTPUT_WARNING("CannotPause");
+	} else {
+		if (!warning.isEmpty())
+			warning += "\n\n";
+		warning += SIMPLE_OUTPUT_WARNING("CannotPause");
 	}
 
 	if (qual != "Lossless" &&

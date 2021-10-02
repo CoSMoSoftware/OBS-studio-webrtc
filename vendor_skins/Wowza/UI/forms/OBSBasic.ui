@@ -1294,13 +1294,6 @@
          <height>0</height>
         </size>
        </property>
-       <property name="font">
-        <font>
-         <pointsize>24</pointsize>
-         <weight>75</weight>
-         <bold>true</bold>
-        </font>
-       </property>
        <property name="text">
         <string>Basic.Main.StartStreaming</string>
        </property>
@@ -1403,38 +1396,6 @@
         <string>Exit</string>
        </property>
       </widget>
-     </item>
-     <item>
-      <layout class="QHBoxLayout" name="OBSlogoLayout">
-       <property name="topMargin">
-        <number>8</number>
-       </property>
-       <item>
-        <widget class="QLabel" name="wowzaLogo">
-         <property name="minimumSize">
-          <size>
-           <width>284</width>
-           <height>59</height>
-          </size>
-         </property>
-         <property name="maximumSize">
-          <size>
-           <width>284</width>
-           <height>59</height>
-          </size>
-         </property>
-         <property name="text">
-          <string/>
-         </property>
-         <property name="pixmap">
-          <pixmap>:res/images/RF-Logo.png</pixmap>
-         </property>
-         <property name="scaledContents">
-          <bool>true</bool>
-         </property>
-        </widget>
-       </item>
-      </layout>
      </item>
      <item>
       <spacer name="expVSpacer">

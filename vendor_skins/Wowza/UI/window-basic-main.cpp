@@ -307,7 +307,7 @@ OBSBasic::OBSBasic(QWidget *parent)
 	installEventFilter(shortcutFilter);
 
 	stringstream name;
-	name << "Wowza " << App()->GetVersionString();
+	name << "Wowza OBS - Real-Time " << App()->GetVersionString();
 	blog(LOG_INFO, "%s", name.str().c_str());
 	blog(LOG_INFO, "---------------------------------");
 
@@ -782,13 +782,12 @@ void OBSBasic::CreateFirstRunSources()
 	bool hasDesktopAudio = HasAudioDevices(App()->OutputAudioSource());
 	bool hasInputAudio = HasAudioDevices(App()->InputAudioSource());
 
-	// LUDO: disable all audio by default
-	// if (hasDesktopAudio)
-	// 	ResetAudioDevice(App()->OutputAudioSource(), "default",
-	// 			 Str("Basic.DesktopDevice1"), 1);
-	// if (hasInputAudio)
-	// 	ResetAudioDevice(App()->InputAudioSource(), "default",
-	// 			 Str("Basic.AuxDevice1"), 3);
+	if (hasDesktopAudio)
+		ResetAudioDevice(App()->OutputAudioSource(), "default",
+				 Str("Basic.DesktopDevice1"), 1);
+	if (hasInputAudio)
+		ResetAudioDevice(App()->InputAudioSource(), "default",
+				 Str("Basic.AuxDevice1"), 3);
 }
 
 void OBSBasic::CreateDefaultScene(bool firstStart)
@@ -799,8 +798,7 @@ void OBSBasic::CreateDefaultScene(bool firstStart)
 	InitDefaultTransitions();
 	CreateDefaultQuickTransitions();
 	ui->transitionDuration->setValue(300);
-	// LUDO: set default transition to "cutTransition"
-	SetTransition(cutTransition);
+	SetTransition(fadeTransition);
 
 	obs_scene_t *scene = obs_scene_create(Str("Basic.Scene"));
 
@@ -991,8 +989,7 @@ void OBSBasic::LoadData(obs_data_t *data, const char *file)
 		newDuration = 300;
 
 	if (!transitionName)
-		// LUDO: set default transition to "cutTransition"
-		transitionName = obs_source_get_name(cutTransition);
+		transitionName = obs_source_get_name(fadeTransition);
 
 	const char *curSceneCollection = config_get_string(
 		App()->GlobalConfig(), "Basic", "SceneCollection");
@@ -1044,8 +1041,7 @@ void OBSBasic::LoadData(obs_data_t *data, const char *file)
 
 	curTransition = FindTransition(transitionName);
 	if (!curTransition)
-		// LUDO: set default transition to "cutTransition"
-		curTransition = cutTransition;
+		curTransition = fadeTransition;
 
 	ui->transitionDuration->setValue(newDuration);
 	SetTransition(curTransition);
@@ -1490,7 +1486,7 @@ bool OBSBasic::InitBasicConfigDefaults()
 	}
 
 	config_set_default_uint(basicConfig, "Video", "FPSType", 0);
-	config_set_default_string(basicConfig, "Video", "FPSCommon", "25 PAL");
+	config_set_default_string(basicConfig, "Video", "FPSCommon", "30");
 	config_set_default_uint(basicConfig, "Video", "FPSInt", 30);
 	config_set_default_uint(basicConfig, "Video", "FPSNum", 30);
 	config_set_default_uint(basicConfig, "Video", "FPSDen", 1);
@@ -8034,7 +8030,7 @@ void OBSBasic::UpdateTitleBar()
 	const char *sceneCollection = config_get_string(
 		App()->GlobalConfig(), "Basic", "SceneCollection");
 
-	name << "Wowza ";
+	name << "Wowza OBS - Real-Time ";
 	if (previewProgramMode)
 		name << "Studio ";
 

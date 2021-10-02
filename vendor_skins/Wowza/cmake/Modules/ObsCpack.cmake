@@ -7,7 +7,7 @@ endif()
 
 set(CPACK_PACKAGE_NAME "Wowza")
 set(CPACK_PACKAGE_VENDOR "wowza.com")
-set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "Wowza - Live video and audio streaming and recording software")
+set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "Wowza OBS - Real-Time - Live video and audio streaming and recording software")
 set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/UI/data/license/gplv2.txt")
 
 set(CPACK_PACKAGE_VERSION_MAJOR "0")
@@ -35,8 +35,8 @@ MESSAGE(STATUS "OBS_VERSION: ${OBS_VERSION}")
 
 if(INSTALLER_RUN)
 	set(CPACK_PACKAGE_EXECUTABLES
-		"obs32" "Wowza (32bit)"
-		"obs64" "Wowza (64bit)")
+		"obs32" "Wowza OBS - Real-Time (32bit)"
+		"obs64" "Wowza OBS - Real-Time (64bit)")
 	set(CPACK_CREATE_DESKTOP_LINKS
 		"obs32"
 		"obs64")
@@ -51,11 +51,11 @@ else()
 		set(_output_suffix "")
 	endif()
 
-	set(CPACK_PACKAGE_EXECUTABLES "obs${_output_suffix}" "Wowza")
+	set(CPACK_PACKAGE_EXECUTABLES "obs${_output_suffix}" "Wowza OBS - Real-Time")
 	set(CPACK_CREATE_DESKTOP_LINKS "obs${_output_suffix}")
 endif()
 
-set(CPACK_BUNDLE_NAME "Wowza")
+set(CPACK_BUNDLE_NAME "Wowza-OBS-Real-Time")
 set(CPACK_BUNDLE_PLIST "${CMAKE_SOURCE_DIR}/cmake/osxbundle/Info.plist")
 set(CPACK_BUNDLE_ICON "${CMAKE_SOURCE_DIR}/cmake/osxbundle/obs.icns")
 set(CPACK_BUNDLE_STARTUP_COMMAND "${CMAKE_SOURCE_DIR}/cmake/osxbundle/obslaunch.sh")
@@ -63,25 +63,25 @@ set(CPACK_BUNDLE_STARTUP_COMMAND "${CMAKE_SOURCE_DIR}/cmake/osxbundle/obslaunch.
 set(CPACK_WIX_TEMPLATE "${CMAKE_SOURCE_DIR}/cmake/Modules/WIX.template.in")
 
 if(INSTALLER_RUN)
-	set(CPACK_PACKAGE_INSTALL_REGISTRY_KEY "Wowza")
-	set(CPACK_WIX_UPGRADE_GUID "da3e76a1-f557-4ada-862e-52a2d6ae94dd")
-	set(CPACK_WIX_PRODUCT_GUID "967f8ee3-e414-4b63-b0f6-369f9db41739")
+	set(CPACK_PACKAGE_INSTALL_REGISTRY_KEY "Wowza OBS - Real-Time")
+	set(CPACK_WIX_UPGRADE_GUID "710b0878-9744-4eff-b228-6a5deb9322c3")
+	set(CPACK_WIX_PRODUCT_GUID "5f425f73-5f5e-48c3-8dc1-9bb6416c1180")
 	set(CPACK_PACKAGE_FILE_NAME "obs-webrtc-${OBS_VERSION}")
 elseif(CMAKE_SIZEOF_VOID_P EQUAL 8)
 	if(WIN32)
-		set(CPACK_PACKAGE_NAME "Wowza (64bit)")
+		set(CPACK_PACKAGE_NAME "Wowza OBS - Real-Time (64bit)")
 	endif()
 	set(CPACK_PACKAGE_INSTALL_REGISTRY_KEY "Wowza64")
-	set(CPACK_WIX_UPGRADE_GUID "030ab630-bb94-4115-82a7-facf7507229e")
-	set(CPACK_WIX_PRODUCT_GUID "60d23a09-da02-4022-b35a-e63d7d34c8d3")
+	set(CPACK_WIX_UPGRADE_GUID "8d61c270-0a68-42b9-86d2-370f493920f0")
+	set(CPACK_WIX_PRODUCT_GUID "f7cfa15e-8553-4670-a331-43da88d5f256")
 	set(CPACK_PACKAGE_FILE_NAME "obs-webrtc-x64-${OBS_VERSION}")
 else()
 	if(WIN32)
-		set(CPACK_PACKAGE_NAME "Wowza (32bit)")
+		set(CPACK_PACKAGE_NAME "Wowza OBS - Real-Time(32bit)")
 	endif()
 	set(CPACK_PACKAGE_INSTALL_REGISTRY_KEY "Wowza32")
-	set(CPACK_WIX_UPGRADE_GUID "fe081464-bed5-4170-ba42-7f120af1e450")
-	set(CPACK_WIX_PRODUCT_GUID "d4247729-b609-4cc4-89d0-bffd64beb424")
+	set(CPACK_WIX_UPGRADE_GUID "31849e16-d9f9-4d36-a641-b170c83b03f9")
+	set(CPACK_WIX_PRODUCT_GUID "a627b263-bd6f-4f40-9e32-66e21fb02486")
 	set(CPACK_PACKAGE_FILE_NAME "obs-webrtc-x86-${OBS_VERSION}")
 endif()
 

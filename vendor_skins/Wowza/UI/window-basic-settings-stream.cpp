@@ -21,7 +21,7 @@ extern QCef *cef;
 extern QCefCookieManager *panel_cookies;
 
 // #289 service list of radio buttons
-// 0 = Wowza (Millicast)
+// 0 = Wowza WebRTC (Millicast)
 // 1 = Wowza RTMP   (Custom)
 enum class ListOpt : int { Millicast = 0, Custom }; // CustomWebrtc
 
@@ -128,7 +128,7 @@ void OBSBasicSettings::LoadStream1Settings()
 	// #289 service list of radio buttons
 	const char *tmpString = nullptr;
 	tmpString = obs_data_get_string(settings, "service");
-	const char *service = strcmp("", tmpString) == 0 ? "Wowza"
+	const char *service = strcmp("", tmpString) == 0 ? "Wowza WebRTC"
 							 : tmpString;
 
 	const char *server = obs_data_get_string(settings, "server");
@@ -150,10 +150,7 @@ void OBSBasicSettings::LoadStream1Settings()
 				break;
 			}
 		}
-		ui->customServer->setText(
-			"rtmp://live-rtmp-pub.millicast.com:1935/v2/pub/");
-		ui->customServer->setVisible(false);
-		ui->serverLabel->setVisible(false);
+		ui->customServer->setText(server);
 
 		bool use_auth = obs_data_get_bool(settings, "use_auth");
 		const char *username =
@@ -284,8 +281,6 @@ void OBSBasicSettings::LoadStream1Settings()
 		}
 
 		ui->customServer->setText(server);
-		ui->customServer->setVisible(true);
-		ui->serverLabel->setVisible(true);
 		bool use_auth = true;
 		ui->useAuth->setChecked(use_auth);
 	}
@@ -641,8 +636,8 @@ void OBSBasicSettings::on_service_currentIndexChanged(int)
 	ui->authPwWidget->setVisible(false);
 
 	if (custom && !isWebrtc) {
-		// ui->streamkeyPageLayout->insertRow(1, ui->serverLabel,
-		// 				   ui->serverStackedWidget);
+		ui->streamkeyPageLayout->insertRow(1, ui->serverLabel,
+						   ui->serverStackedWidget);
 		ui->streamkeyPageLayout->insertRow(2, ui->streamKeyLabel,
 						   ui->streamKeyWidget);
 		// ui->streamkeyPageLayout->insertRow(3, nullptr, ui->useAuth);
@@ -656,12 +651,10 @@ void OBSBasicSettings::on_service_currentIndexChanged(int)
 		// ui->streamkeyPageLayout->insertRow(7, ui->streamProtocolLabel,
 		// 				   ui->streamProtocol);
 
-		ui->serverLabel->setVisible(false);
+		ui->serverLabel->setVisible(true);
 		ui->serverLabel->setText("Server");
-		ui->customServer->setText(
-			"rtmp://live-rtmp-pub.millicast.com:1935/v2/pub/");
 		ui->serverStackedWidget->setCurrentIndex(1);
-		ui->serverStackedWidget->setVisible(false);
+		ui->serverStackedWidget->setVisible(true);
 		ui->streamKeyLabel->setVisible(true);
 		ui->streamKeyWidget->setVisible(true);
 		ui->roomLabel->setVisible(false);

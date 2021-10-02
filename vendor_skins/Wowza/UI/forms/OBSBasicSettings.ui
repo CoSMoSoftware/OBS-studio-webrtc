@@ -868,7 +868,7 @@
                <item>
                 <widget class="QRadioButton" name="millicastWebrtcRadioButton">
                  <property name="text">
-                  <string>Wowza</string>
+                  <string>Wowza-Real-Time</string>
                  </property>
                  <attribute name="buttonGroup">
                   <string notr="true">serviceButtonGroup</string>
@@ -1336,9 +1336,6 @@
                    <property name="text">
                     <string>h264</string>
                    </property>
-                   <property name="checked">
-                    <bool>true</bool>
-                   </property>
                    <attribute name="buttonGroup">
                     <string notr="true">codecButtonGroup</string>
                    </attribute>
@@ -1358,6 +1355,9 @@
                   <widget class="QRadioButton" name="vp9RadioButton">
                    <property name="text">
                     <string>VP9</string>
+                   </property>
+                   <property name="checked">
+                    <bool>true</bool>
                    </property>
                    <attribute name="buttonGroup">
                     <string notr="true">codecButtonGroup</string>
@@ -1566,9 +1566,6 @@
                 </property>
                 <item row="0" column="0">
                  <widget class="QLabel" name="outputModeLabel">
-                  <property name="visible">
-                   <bool>false</bool>
-                  </property>
                   <property name="minimumSize">
                    <size>
                     <width>170</width>
@@ -1588,11 +1585,8 @@
                 </item>
                 <item row="0" column="1">
                  <widget class="QComboBox" name="outputMode">
-                  <property name="visible">
-                   <bool>false</bool>
-                  </property>
                   <property name="enabled">
-                   <bool>false</bool>
+                   <bool>true</bool>
                   </property>
                   <property name="sizePolicy">
                    <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
@@ -1606,6 +1600,11 @@
                   <item>
                    <property name="text">
                     <string>Basic.Settings.Output.Mode.Simple</string>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text">
+                    <string>Basic.Settings.Output.Mode.Adv</string>
                    </property>
                   </item>
                  </widget>
@@ -1766,22 +1765,13 @@
                       <property name="text">
                        <string>Basic.Settings.Output.Advanced</string>
                       </property>
-                      <property name="visible">
-                       <bool>false</bool>
-                      </property>
-                      <property name="enabled">
-                       <bool>false</bool>
-                      </property>
                       <property name="checked">
-                       <bool>false</bool>
+                       <bool>true</bool>
                       </property>
                      </widget>
                     </item>
                     <item row="4" column="0">
                      <widget class="QLabel" name="label_24">
-                      <property name="visible">
-                       <bool>false</bool>
-                      </property>
                       <property name="enabled">
                        <bool>true</bool>
                       </property>
@@ -1794,11 +1784,7 @@
                      </widget>
                     </item>
                     <item row="4" column="1">
-                     <widget class="QComboBox" name="simpleOutPreset">
-                      <property name="visible">
-                       <bool>false</bool>
-                      </property>
-                     </widget>
+                     <widget class="QComboBox" name="simpleOutPreset"/>
                     </item>
                     <item row="5" column="0">
                      <widget class="QLabel" name="label_23">
@@ -1808,17 +1794,10 @@
                       <property name="buddy">
                        <cstring>simpleOutCustom</cstring>
                       </property>
-                      <property name="visible">
-                       <bool>false</bool>
-                      </property>
                      </widget>
                     </item>
                     <item row="5" column="1">
-                     <widget class="QLineEdit" name="simpleOutCustom">
-                      <property name="visible">
-                       <bool>false</bool>
-                      </property>
-                     </widget>
+                     <widget class="QLineEdit" name="simpleOutCustom"/>
                     </item>
                    </layout>
                   </widget>
@@ -1833,9 +1812,6 @@
                    </property>
                    <property name="title">
                     <string>Basic.Settings.Output.Adv.Recording</string>
-                   </property>
-                   <property name="enabled">
-                    <bool>true</bool>
                    </property>
                    <layout class="QFormLayout" name="formLayout_6">
                     <property name="fieldGrowthPolicy">

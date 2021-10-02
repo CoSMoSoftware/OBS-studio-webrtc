@@ -15,7 +15,7 @@ struct webrtc_millicast {
 static const char *webrtc_millicast_name(void *unused)
 {
 	UNUSED_PARAMETER(unused);
-	return "Wowza Platform";
+	return "Wowza OBS - Real-Time";
 }
 
 static void webrtc_millicast_update(void *data, obs_data_t *settings)
