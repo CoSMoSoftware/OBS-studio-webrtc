@@ -76,22 +76,3 @@ index c4e2009..6d97209 100644
  		#elif defined(__linux__) || defined(__APPLE__)
  			int suppresswarning = system("open http://ndi.newtek.com");
  		#endif
-diff --git a/plugins/obs-ndi/src/obs-ndi.cpp b/plugins/obs-ndi/src/obs-ndi.cpp
-index 673c9e1..e7fa24a 100644
---- a/plugins/obs-ndi/src/obs-ndi.cpp
-+++ b/plugins/obs-ndi/src/obs-ndi.cpp
-@@ -93,10 +93,10 @@ bool obs_module_load(void)
- #endif
- #endif
- 
--		QMessageBox::critical(main_window,
--			obs_module_text("NDIPlugin.LibError.Title"),
--			obs_module_text(msg_string_name),
--			QMessageBox::Ok, QMessageBox::NoButton);
-+		// QMessageBox::critical(main_window,
-+		// 	obs_module_text("NDIPlugin.LibError.Title"),
-+		// 	obs_module_text(msg_string_name),
-+		// 	QMessageBox::Ok, QMessageBox::NoButton);
- 		return false;
- 	}
- 
