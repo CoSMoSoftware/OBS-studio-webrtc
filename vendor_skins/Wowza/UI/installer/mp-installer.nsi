@@ -34,16 +34,16 @@ ManifestDPIAware true
 ; Main Install settings
 Name "${APPNAMEANDVERSION}"
 !ifdef INSTALL64
-InstallDir "$PROGRAMFILES64\obs-webrtc"
+InstallDir "$PROGRAMFILES64\wowza-obs"
 !else
-InstallDir "$PROGRAMFILES32\obs-webrtc"
+InstallDir "$PROGRAMFILES32\wowza-obs"
 !endif
 InstallDirRegKey HKLM "Software\${APPNAME}" ""
 
 !ifdef INSTALL64
- OutFile "OBS-WebRTC-${SHORTVERSION}-Full-Installer-x64.exe"
+ OutFile "Wowza-OBS-Real-Time-${SHORTVERSION}-Full-Installer-x64.exe"
 !else
- OutFile "OBS-WebRTC-${SHORTVERSION}-Full-Installer-x86.exe"
+ OutFile "Wowza-OBS-Real-Time-${SHORTVERSION}-Full-Installer-x86.exe"
 !endif
 
 ; Use compression
@@ -423,7 +423,7 @@ SectionEnd
 !insertmacro MUI_FUNCTION_DESCRIPTION_END
 
 ;Uninstall section
-Section "un.obs-webrtc Program Files" UninstallSection1
+Section "un.wowza-obs Program Files" UninstallSection1
 
 	SectionIn RO
 
@@ -482,7 +482,7 @@ Section "un.obs-webrtc Program Files" UninstallSection1
 SectionEnd
 
 Section /o "un.User Settings" UninstallSection2
-	RMDir /r "$APPDATA\obs-webrtc"
+	RMDir /r "$APPDATA\wowza-obs"
 SectionEnd
 
 !insertmacro MUI_UNFUNCTION_DESCRIPTION_BEGIN
