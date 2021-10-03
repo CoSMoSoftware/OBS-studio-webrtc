@@ -51,8 +51,8 @@ else()
 		set(_output_suffix "")
 	endif()
 
-	set(CPACK_PACKAGE_EXECUTABLES "obs${_output_suffix}" "Wowza OBS - Real-Time")
-	set(CPACK_CREATE_DESKTOP_LINKS "obs${_output_suffix}")
+	set(CPACK_PACKAGE_EXECUTABLES "wowza${_output_suffix}" "Wowza OBS - Real-Time")
+	set(CPACK_CREATE_DESKTOP_LINKS "wowza${_output_suffix}")
 endif()
 
 set(CPACK_BUNDLE_NAME "Wowza-OBS-Real-Time")
