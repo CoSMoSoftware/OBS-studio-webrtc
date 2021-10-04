@@ -401,16 +401,22 @@ static void do_log(int log_level, const char *msg, va_list args, void *param)
 
 #define DEFAULT_LANG "en-US"
 
-bool OBSApp::InitGlobalConfigDefaults()
+bool OBSApp::InitGlobalConfigDefaults(const bool force /* = false */)
 {
+  if(force)
+    config_set_string(globalConfig, "General", "Version", "m91-v27.0.1-0");
+  else
+    config_set_default_string(globalConfig, "General", "Version", "m91-v27.0.1-0");
 	config_set_default_string(globalConfig, "General", "Language",
 				  DEFAULT_LANG);
 	config_set_default_uint(globalConfig, "General", "MaxLogs", 10);
 	config_set_default_int(globalConfig, "General", "InfoIncrement", -1);
 	config_set_default_string(globalConfig, "General", "ProcessPriority",
 				  "Normal");
-	config_set_default_bool(globalConfig, "General", "EnableAutoUpdates",
-				false);
+  if(force)
+  	config_set_bool(globalConfig, "General", "EnableAutoUpdates", false);
+  else
+  	config_set_default_bool(globalConfig, "General", "EnableAutoUpdates", false);
 
 #if _WIN32
 	config_set_default_string(globalConfig, "Video", "Renderer",
@@ -433,16 +439,20 @@ bool OBSApp::InitGlobalConfigDefaults()
 				true);
 	config_set_default_bool(globalConfig, "BasicWindow", "SourceSnapping",
 				true);
-	config_set_default_bool(globalConfig, "BasicWindow", "CenterSnapping",
-				true);
+  if(force)
+  	config_set_bool(globalConfig, "BasicWindow", "CenterSnapping", true);
+  else
+  	config_set_default_bool(globalConfig, "BasicWindow", "CenterSnapping", true);
 	config_set_default_double(globalConfig, "BasicWindow", "SnapDistance",
 				  10.0);
 	config_set_default_bool(globalConfig, "BasicWindow",
 				"RecordWhenStreaming", false);
 	config_set_default_bool(globalConfig, "BasicWindow",
 				"KeepRecordingWhenStreamStops", false);
-	config_set_default_bool(globalConfig, "BasicWindow", "SysTrayEnabled",
-				false);
+  if(force)
+  	config_set_bool(globalConfig, "BasicWindow", "SysTrayEnabled", false);
+  else
+  	config_set_default_bool(globalConfig, "BasicWindow", "SysTrayEnabled", false);
 	config_set_default_bool(globalConfig, "BasicWindow",
 				"SysTrayWhenStarted", false);
 	config_set_default_bool(globalConfig, "BasicWindow", "SaveProjectors",
@@ -500,16 +510,29 @@ bool OBSApp::InitGlobalConfigDefaults()
 	config_set_default_bool(globalConfig, "BasicWindow",
 				"MediaControlsCountdownTimer", true);
 
-	config_set_default_string(
-		globalConfig, "BasicWindow", "geometry",
-		"AdnQywADAAAAAAAgAAAAGQAABGgAAAKHAAAAIAAAADUAAARoAAAChwAAAAAAAAAAB4AAAAAgAAAANQAABGgAAAKH");
-	config_set_default_string(
-		globalConfig, "BasicWindow", "DockState",
-		"AAAA/wAAAAD9AAAAAgAAAAEAAAFOAAAB3/wCAAAAA/wAAAAAAAAB3wAAAU8A/////AIAAAAC/AAAAAAAAADGAAAAigEAABj6AAAAAQEAAAAC+wAAABQAcwBjAGUAbgBlAHMARABvAGMAawEAAARpAAAA2QAAAKAA////+wAAABYAcwBvAHUAcgBjAGUAcwBEAG8AYwBrAQAAAAD/////AAAAoAD////7AAAAGABjAG8AbgB0AHIAbwBsAHMARABvAGMAawEAAADHAAABGAAAAMQA////+wAAABgAYwBvAG4AdAByAG8AbABzAEQAbwBjAGsDAAAGSgAAASMAAADZAAAA4/sAAAASAHMAdABhAHQAcwBEAG8AYwBrAgAABJIAAAKgAAACxgAAAaYAAAADAAAESQAAAFj8AQAAAAL7AAAAEgBtAGkAeABlAHIARABvAGMAawEAAAAAAAAESQAAANwA////+wAAAB4AdAByAGEAbgBzAGkAdABpAG8AbgBzAEQAbwBjAGsCAAAC1wAAAa8AAACaAAAA7gAAAvoAAAHfAAAABAAAAAQAAAAIAAAACPwAAAAA");
-	config_set_default_bool(globalConfig, "BasicWindow", "DocksLocked",
-				true);
-	config_set_default_int(globalConfig, "PropertiesWindow", "cx", 852);
-	config_set_default_int(globalConfig, "PropertiesWindow", "cy", 696);
+  if(force) {
+    config_set_string(
+      globalConfig, "BasicWindow", "geometry",
+      "AdnQywADAAAAAAAgAAAAGQAABGgAAAKHAAAAIAAAADUAAARoAAAChwAAAAAAAAAAB4AAAAAgAAAANQAABGgAAAKH");
+    config_set_string(
+      globalConfig, "BasicWindow", "DockState",
+      "AAAA/wAAAAD9AAAAAgAAAAEAAAFOAAAB3/wCAAAAA/wAAAAAAAAB3wAAAU8A/////AIAAAAC/AAAAAAAAADGAAAAigEAABj6AAAAAQEAAAAC+wAAABQAcwBjAGUAbgBlAHMARABvAGMAawEAAARpAAAA2QAAAKAA////+wAAABYAcwBvAHUAcgBjAGUAcwBEAG8AYwBrAQAAAAD/////AAAAoAD////7AAAAGABjAG8AbgB0AHIAbwBsAHMARABvAGMAawEAAADHAAABGAAAAMQA////+wAAABgAYwBvAG4AdAByAG8AbABzAEQAbwBjAGsDAAAGSgAAASMAAADZAAAA4/sAAAASAHMAdABhAHQAcwBEAG8AYwBrAgAABJIAAAKgAAACxgAAAaYAAAADAAAESQAAAFj8AQAAAAL7AAAAEgBtAGkAeABlAHIARABvAGMAawEAAAAAAAAESQAAANwA////+wAAAB4AdAByAGEAbgBzAGkAdABpAG8AbgBzAEQAbwBjAGsCAAAC1wAAAa8AAACaAAAA7gAAAvoAAAHfAAAABAAAAAQAAAAIAAAACPwAAAAA");
+    config_set_bool(globalConfig, "BasicWindow", "DocksLocked",
+          true);
+    config_set_int(globalConfig, "PropertiesWindow", "cx", 852);
+    config_set_int(globalConfig, "PropertiesWindow", "cy", 696);
+  } else {
+    config_set_default_string(
+      globalConfig, "BasicWindow", "geometry",
+      "AdnQywADAAAAAAAgAAAAGQAABGgAAAKHAAAAIAAAADUAAARoAAAChwAAAAAAAAAAB4AAAAAgAAAANQAABGgAAAKH");
+    config_set_default_string(
+      globalConfig, "BasicWindow", "DockState",
+      "AAAA/wAAAAD9AAAAAgAAAAEAAAFOAAAB3/wCAAAAA/wAAAAAAAAB3wAAAU8A/////AIAAAAC/AAAAAAAAADGAAAAigEAABj6AAAAAQEAAAAC+wAAABQAcwBjAGUAbgBlAHMARABvAGMAawEAAARpAAAA2QAAAKAA////+wAAABYAcwBvAHUAcgBjAGUAcwBEAG8AYwBrAQAAAAD/////AAAAoAD////7AAAAGABjAG8AbgB0AHIAbwBsAHMARABvAGMAawEAAADHAAABGAAAAMQA////+wAAABgAYwBvAG4AdAByAG8AbABzAEQAbwBjAGsDAAAGSgAAASMAAADZAAAA4/sAAAASAHMAdABhAHQAcwBEAG8AYwBrAgAABJIAAAKgAAACxgAAAaYAAAADAAAESQAAAFj8AQAAAAL7AAAAEgBtAGkAeABlAHIARABvAGMAawEAAAAAAAAESQAAANwA////+wAAAB4AdAByAGEAbgBzAGkAdABpAG8AbgBzAEQAbwBjAGsCAAAC1wAAAa8AAACaAAAA7gAAAvoAAAHfAAAABAAAAAQAAAAIAAAACPwAAAAA");
+    config_set_default_bool(globalConfig, "BasicWindow", "DocksLocked",
+          true);
+    config_set_default_int(globalConfig, "PropertiesWindow", "cx", 852);
+    config_set_default_int(globalConfig, "PropertiesWindow", "cy", 696);
+  }
 
 	return true;
 }
@@ -731,6 +754,7 @@ bool OBSApp::InitGlobalConfig()
 {
 	char path[512];
 	bool changed = false;
+  bool version_changed = false;
 
 	int len = GetConfigPath(
 		path, sizeof(path),
@@ -744,6 +768,13 @@ bool OBSApp::InitGlobalConfig()
 		OBSErrorBox(NULL, "Failed to open global.ini: %d", errorcode);
 		return false;
 	}
+
+  if(!config_has_default_value(globalConfig, "General", "Version")) {
+    version_changed = true;
+  }  else {
+    const char *old_version = config_get_string(globalConfig, "General", "Version");
+    version_changed = (0 != strcmp(old_version, "m91-v27.0.1-0"));
+  }
 
 	if (!opt_starting_collection.empty()) {
 		string path = GetSceneCollectionFileFromName(
@@ -832,10 +863,10 @@ bool OBSApp::InitGlobalConfig()
 		changed = true;
 	}
 
-	if (changed)
+	if (changed || version_changed)
 		config_save_safe(globalConfig, "tmp", nullptr);
 
-	return InitGlobalConfigDefaults();
+	return InitGlobalConfigDefaults(version_changed);
 }
 
 bool OBSApp::InitLocale()

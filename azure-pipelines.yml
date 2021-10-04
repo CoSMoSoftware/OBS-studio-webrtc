@@ -60,7 +60,7 @@ parameters:
 #    - Millicast
 #    - PacPost
     - RemoteFilming
-    - Wowza
+#    - Wowza
 
 jobs:
 - job: 'Build_macOS'
