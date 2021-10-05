@@ -118,6 +118,7 @@ jobs:
         CODESIGN_IDENT_PASS: $(ludo_apple_developer_password)
         NOTARIZE_APP_SPECIFIC_PASSWORD: $(ludo_apple_app_specific_password)
     - bash: |
+        ls -l ./build_${{ vendor }}/UI
         mkdir -p ./nightly_${{ vendor }}
         find ./build_${{ vendor }} -name \*.dmg -exec cp -PR \{\} ./nightly_${{ vendor }}/ \;
       displayName: '${{ vendor }} Copy disk image'
