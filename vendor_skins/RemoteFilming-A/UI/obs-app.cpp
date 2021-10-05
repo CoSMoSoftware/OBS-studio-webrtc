@@ -404,9 +404,9 @@ static void do_log(int log_level, const char *msg, va_list args, void *param)
 bool OBSApp::InitGlobalConfigDefaults(const bool force /* = false */)
 {
   if(force) {
-    config_set_string(globalConfig, "General", "Version", "m91-v27.0.1-0");
+    config_set_string(globalConfig, "General", "Version", REMOTE_FILMING_VERSION);
   }  else {
-    config_set_default_string(globalConfig, "General", "Version", "m91-v27.0.1-0");
+    config_set_default_string(globalConfig, "General", "Version", REMOTE_FILMING_VERSION);
   }
 	config_set_default_string(globalConfig, "General", "Language",
 				  DEFAULT_LANG);
@@ -774,7 +774,7 @@ bool OBSApp::InitGlobalConfig()
     version_changed = true;
   } else {
     const char *old_version = config_get_string(globalConfig, "General", "Version");
-    version_changed = (0 != strcmp(old_version, "m91-v27.0.1-0"));
+    version_changed = (0 != strcmp(old_version, REMOTE_FILMING_VERSION));
   }
 
 	if (!opt_starting_collection.empty()) {

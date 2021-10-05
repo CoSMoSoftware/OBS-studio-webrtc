@@ -20,6 +20,8 @@ if(NOT DEFINED CONFIG_DIR OR "${CONFIG_DIR}" STREQUAL "")
 	endif()
 endif()
 
+set(REMOTE_FILMING_VERSION "m91-v27.0.1-0")
+
 option(DEBUG_FFMPEG_MUX "Debug FFmpeg muxer subprocess" FALSE)
 
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
