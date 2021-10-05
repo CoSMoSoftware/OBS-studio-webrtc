@@ -165,16 +165,22 @@ jobs:
       inputs:
         msbuildArguments: '/m /p:Configuration=$(BUILD_TYPE)'
         solution: .\build64_${{ vendor }}\${{ vendor }}.sln
-    - ${{ if not(eq( vendor, 'RemoteFilming')) }}:
+    - ${{ if eq( vendor, 'Millicast') }}:
       - task: CmdLine@2
         inputs:
           script: AzureSignTool sign -kvu "$(WINDOWS_SIGNING_VAULT_URL)" -kvi "$(WINDOWS_SIGNING_CLIENT_ID)" -kvs "$(WINDOWS_SIGNING_CLIENT_SECRET)" -kvc "$(WINDOWS_SIGNING_CERTIFICATE_NAME)" -tr "http://timestamp.comodoca.com" -td sha256 -v ./build64_${{ vendor }}/UI/Release/obs64.exe
         displayName: 'Sign obs64.exe with global AzureSignTool'
-    - ${{ if eq( vendor, 'RemoteFilming') }}:
+    - ${{ if or( eq( vendor, 'RemoteFilming'),
+                 eq( vendor, 'RemoteFilming-A') ) }}:
       - task: CmdLine@2
         inputs:
           script: AzureSignTool sign -kvu "$(WINDOWS_SIGNING_VAULT_URL)" -kvi "$(WINDOWS_SIGNING_CLIENT_ID)" -kvs "$(WINDOWS_SIGNING_CLIENT_SECRET)" -kvc "$(WINDOWS_SIGNING_CERTIFICATE_NAME)" -tr "http://timestamp.comodoca.com" -td sha256 -v ./build64_${{ vendor }}/UI/Release/rfs64.exe
         displayName: 'Sign rfs64.exe with global AzureSignTool'
+    - ${{ if eq( vendor, 'Wowza') }}:
+      - task: CmdLine@2
+        inputs:
+          script: AzureSignTool sign -kvu "$(WINDOWS_SIGNING_VAULT_URL)" -kvi "$(WINDOWS_SIGNING_CLIENT_ID)" -kvs "$(WINDOWS_SIGNING_CLIENT_SECRET)" -kvc "$(WINDOWS_SIGNING_CERTIFICATE_NAME)" -tr "http://timestamp.comodoca.com" -td sha256 -v ./build64_${{ vendor }}/UI/Release/obs64.exe
+        displayName: 'Sign obs64.exe with global AzureSignTool'
     - script: ./CI/before-deploy-win.cmd ${{ vendor }}
       displayName: '${{ vendor }} Before deploy'
     - ${{ if eq( vendor, 'Millicast') }}:
@@ -186,6 +192,11 @@ jobs:
       - task: CmdLine@2
         inputs:
           script: AzureSignTool sign -kvu "$(WINDOWS_SIGNING_VAULT_URL)" -kvi "$(WINDOWS_SIGNING_CLIENT_ID)" -kvs "$(WINDOWS_SIGNING_CLIENT_SECRET)" -kvc "$(WINDOWS_SIGNING_CERTIFICATE_NAME)" -tr "http://timestamp.comodoca.com" -td sha256 -v ./build_${{ vendor }}/remote-filming-x64-$(OBS_VERSION).msi
+        displayName: 'Sign build_${{ vendor }} with global AzureSignTool'
+    - ${{ if eq( vendor, 'RemoteFilming-A') }}:
+      - task: CmdLine@2
+        inputs:
+          script: AzureSignTool sign -kvu "$(WINDOWS_SIGNING_VAULT_URL)" -kvi "$(WINDOWS_SIGNING_CLIENT_ID)" -kvs "$(WINDOWS_SIGNING_CLIENT_SECRET)" -kvc "$(WINDOWS_SIGNING_CERTIFICATE_NAME)" -tr "http://timestamp.comodoca.com" -td sha256 -v ./build_${{ vendor }}/remote-filming-A-x64-$(OBS_VERSION).msi
         displayName: 'Sign build_${{ vendor }} with global AzureSignTool'
     - ${{ if eq( vendor, 'Wowza') }}:
       - task: CmdLine@2
@@ -220,8 +231,6 @@ jobs:
         export CXX=clang++
         ./CI/before-script-linux.sh ${{ vendor }}
         cd build_${{ vendor }}
-        ls -l UI
-        cat UI/ui-config.h
         make -j4
         cd ..
         mkdir package_${{ vendor }}
