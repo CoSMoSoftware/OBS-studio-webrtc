@@ -60,6 +60,7 @@ parameters:
 #    - Millicast
 #    - PacPost
     - RemoteFilming
+    - RemoteFilming-A
 #    - Wowza
 
 jobs:
