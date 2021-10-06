@@ -60,9 +60,9 @@ parameters:
 #    - Millicast
 #    - PacPost
 #    - RemoteFilming
-#    - RemoteFilming-A
-#    - RemoteFilming-B
-#    - RemoteFilming-C
+    - RemoteFilming-A
+    - RemoteFilming-B
+    - RemoteFilming-C
     - RemoteFilming-D
 #    - Wowza
 
