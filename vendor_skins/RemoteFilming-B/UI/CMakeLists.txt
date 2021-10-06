@@ -1,0 +1,452 @@
+if(DISABLE_UI)
+	message(STATUS "UI disabled")
+	return()
+elseif(ENABLE_UI)
+	set(FIND_MODE REQUIRED)
+else()
+	set(FIND_MODE QUIET)
+endif()
+
+if(BROWSER_AVAILABLE_INTERNAL)
+	add_definitions(-DBROWSER_AVAILABLE)
+endif()
+
+add_subdirectory(obs-frontend-api)
+
+# ----------------------------------------------------------------------------
+
+if( NOT OBS_WEBRTC_VENDOR_NAME )
+	set( _gui_name obs )
+else()
+	# NOTE ALEX: ugly, fix me.
+	set( _gui_name rfs )
+endif()
+project(${_gui_name})
+
+set(DISABLE_UPDATE_MODULE TRUE CACHE BOOL "Disables building the update module")
+
+if(NOT DEFINED TWITCH_CLIENTID OR "${TWITCH_CLIENTID}" STREQUAL "" OR
+   NOT DEFINED TWITCH_HASH     OR "${TWITCH_HASH}"     STREQUAL "" OR
+   NOT BROWSER_AVAILABLE_INTERNAL)
+	set(TWITCH_ENABLED FALSE)
+	set(TWITCH_CLIENTID "")
+	set(TWITCH_HASH "0")
+else()
+	set(TWITCH_ENABLED TRUE)
+endif()
+
+if(NOT DEFINED RESTREAM_CLIENTID OR "${RESTREAM_CLIENTID}" STREQUAL "" OR
+   NOT DEFINED RESTREAM_HASH     OR "${RESTREAM_HASH}"     STREQUAL "" OR
+   NOT BROWSER_AVAILABLE_INTERNAL)
+	set(RESTREAM_ENABLED FALSE)
+	set(RESTREAM_CLIENTID "")
+	set(RESTREAM_HASH "0")
+else()
+	set(RESTREAM_ENABLED TRUE)
+endif()
+
+configure_file(
+	"${CMAKE_CURRENT_SOURCE_DIR}/ui-config.h.in"
+	"${CMAKE_CURRENT_BINARY_DIR}/ui-config.h")
+
+set(CMAKE_INCLUDE_CURRENT_DIR TRUE)
+set(CMAKE_AUTOMOC TRUE)
+
+find_package(Qt5Widgets ${FIND_MODE})
+find_package(Qt5Svg ${FIND_MODE})
+find_package(Qt5Xml ${FIND_MODE})
+
+find_package(FFmpeg REQUIRED COMPONENTS avcodec avutil avformat)
+
+if(NOT Qt5Widgets_FOUND)
+	if (ENABLE_UI)
+		message(FATAL_ERROR "Failed to find Qt5")
+	else()
+		message(STATUS "Qt5 not found - UI disabled")
+		return()
+	endif()
+endif()
+
+# #271 do not list video codec H264 if it is not available in libwebrtc
+# WARNING: find_package(LibWebRTC) may modify the value of CMAKE_CXX_STANDARD
+set( _remember_cmake_cxx_standard ${CMAKE_CXX_STANDARD} )
+find_package(LibWebRTC 91 QUIET COMPONENTS H264 )
+if( NOT libwebrtc_FOUND )
+  # A FindLibWebRTC package is also provided in the repository for self-compiled libwebrtc
+  find_package(LibWebRTC REQUIRED)
+endif()
+set( CMAKE_CXX_STANDARD ${_remember_cmake_cxx_standard} )
+if( NOT WEBRTC_H264_FOUND )
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DDISABLE_WEBRTC_H264")
+  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DDISABLE_WEBRTC_H264")
+endif()
+
+include_directories(${FFMPEG_INCLUDE_DIRS})
+include_directories(${CMAKE_CURRENT_BINARY_DIR})
+include_directories(SYSTEM "obs-frontend-api")
+include_directories(SYSTEM "${CMAKE_SOURCE_DIR}/libobs")
+include_directories(SYSTEM "${CMAKE_SOURCE_DIR}/deps/libff")
+include_directories(SYSTEM "${CMAKE_SOURCE_DIR}/deps/json11")
+if(BROWSER_AVAILABLE_INTERNAL)
+	include_directories(SYSTEM "${CMAKE_SOURCE_DIR}/plugins/obs-browser/panel")
+endif()
+
+find_package(Libcurl REQUIRED)
+include_directories(${LIBCURL_INCLUDE_DIRS})
+add_definitions(${LIBCURL_DEFINITIONS})
+
+if(WIN32)
+	include_directories(${BLAKE2_INCLUDE_DIR})
+
+	set(obs_PLATFORM_SOURCES
+		platform-windows.cpp
+		win-update/update-window.cpp
+		win-update/win-update.cpp
+		win-update/win-update-helpers.cpp
+		${${_project_name}_BINARY_DIR}/obs.rc)
+	set(obs_PLATFORM_HEADERS
+		win-update/update-window.hpp
+		win-update/win-update.hpp
+		win-update/win-update-helpers.hpp)
+	set(obs_PLATFORM_LIBRARIES
+		crypt32
+		blake2)
+
+	if(CMAKE_SIZEOF_VOID_P EQUAL 4)
+		set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /LARGEADDRESSAWARE")
+	endif()
+elseif(APPLE)
+	set(obs_PLATFORM_SOURCES
+		platform-osx.mm)
+
+	find_package(AppKit REQUIRED)
+	set(obs_PLATFORM_LIBRARIES ${APPKIT_LIBRARIES})
+
+	add_definitions(-fobjc-arc)
+
+	option(ENABLE_SPARKLE_UPDATER "Enables updates via the Sparkle framework (don't forget to update the Info.plist for your .app)" OFF)
+	if(ENABLE_SPARKLE_UPDATER)
+		find_library(SPARKLE Sparkle)
+		include_directories(${SPARKLE})
+		set(obs_PLATFORM_SOURCES
+			${obs_PLATFORM_SOURCES}
+			sparkle-updater.mm)
+		set(obs_PLATFORM_LIBRARIES
+			${obs_PLATFORM_LIBRARIES}
+			${SPARKLE})
+		add_definitions(-DUPDATE_SPARKLE=1)
+	endif()
+
+elseif(UNIX)
+	find_package(Qt5Gui REQUIRED)
+
+	include_directories(${Qt5Gui_PRIVATE_INCLUDE_DIRS})
+
+	set(obs_PLATFORM_SOURCES
+		platform-x11.cpp)
+
+	set(obs_PLATFORM_LIBRARIES
+		${obs_PLATFORM_LIBRARIES}
+		Qt5::Gui
+		Qt5::GuiPrivate)
+
+	if("${CMAKE_SYSTEM_NAME}" MATCHES "FreeBSD")
+		list(APPEND obs_PLATFORM_LIBRARIES
+			procstat)
+	endif()
+endif()
+
+if(BROWSER_AVAILABLE_INTERNAL)
+	list(APPEND obs_PLATFORM_SOURCES
+		obf.c
+		auth-oauth.cpp
+		window-dock-browser.cpp
+		window-extra-browsers.cpp
+		)
+	list(APPEND obs_PLATFORM_HEADERS
+		obf.h
+		auth-oauth.hpp
+		window-dock-browser.hpp
+		window-extra-browsers.hpp
+		)
+
+	if(TWITCH_ENABLED)
+		list(APPEND obs_PLATFORM_SOURCES
+			auth-twitch.cpp
+			)
+		list(APPEND obs_PLATFORM_HEADERS
+			auth-twitch.hpp
+			)
+	endif()
+
+	if(RESTREAM_ENABLED)
+		list(APPEND obs_PLATFORM_SOURCES
+			auth-restream.cpp
+			)
+		list(APPEND obs_PLATFORM_HEADERS
+			auth-restream.hpp
+			)
+	endif()
+endif()
+
+set(obs_libffutil_SOURCES
+	../deps/libff/libff/ff-util.c
+	)
+set(obs_libffutil_HEADERS
+	../deps/libff/libff/ff-util.h
+	)
+
+if(MSVC)
+	set_source_files_properties(
+		../deps/libff/libff/ff-util.c
+		PROPERTIES COMPILE_FLAGS -Dinline=__inline
+		)
+	set(obs_PLATFORM_LIBRARIES
+		${obs_PLATFORM_LIBRARIES}
+		w32-pthreads)
+endif()
+
+set(obs_SOURCES
+	${obs_PLATFORM_SOURCES}
+	${obs_libffutil_SOURCES}
+	../deps/json11/json11.cpp
+	obs-app.cpp
+	window-dock.cpp
+	api-interface.cpp
+	window-basic-main.cpp
+	window-basic-stats.cpp
+	window-basic-filters.cpp
+	window-basic-settings.cpp
+	window-basic-interaction.cpp
+	window-basic-properties.cpp
+	window-basic-auto-config.cpp
+	window-basic-main-outputs.cpp
+	window-basic-source-select.cpp
+	window-basic-settings-stream.cpp
+	window-basic-main-screenshot.cpp
+	window-basic-auto-config-test.cpp
+	window-basic-main-scene-collections.cpp
+	window-basic-main-transitions.cpp
+	window-basic-main-dropfiles.cpp
+	window-basic-main-profiles.cpp
+	window-basic-main-browser.cpp
+	window-basic-main-icons.cpp
+	window-basic-status-bar.cpp
+	window-basic-adv-audio.cpp
+	window-basic-transform.cpp
+	window-basic-preview.cpp
+	window-basic-about.cpp
+	window-importer.cpp
+	media-controls.cpp
+	window-namedialog.cpp
+	window-log-reply.cpp
+	window-projector.cpp
+	window-remux.cpp
+	window-missing-files.cpp
+	auth-base.cpp
+	source-tree.cpp
+	scene-tree.cpp
+	properties-view.cpp
+	focus-list.cpp
+	menu-button.cpp
+	double-slider.cpp
+	slider-ignorewheel.cpp
+	combobox-ignorewheel.cpp
+	spinbox-ignorewheel.cpp
+	record-button.cpp
+	ui-validation.cpp
+	url-push-button.cpp
+	volume-control.cpp
+	adv-audio-control.cpp
+	item-widget-helpers.cpp
+	context-bar-controls.cpp
+	horizontal-scroll-area.cpp
+	vertical-scroll-area.cpp
+	visibility-item-widget.cpp
+	slider-absoluteset-style.cpp
+	qt-display.cpp
+	crash-report.cpp
+	hotkey-edit.cpp
+	source-label.cpp
+	remote-text.cpp
+	audio-encoders.cpp
+	qt-wrappers.cpp
+	log-viewer.cpp
+	obs-proxy-style.cpp
+	locked-checkbox.cpp
+	visibility-checkbox.cpp
+	media-slider.cpp
+	undo-stack-obs.cpp)
+
+set(obs_HEADERS
+	${obs_PLATFORM_HEADERS}
+	${obs_libffutil_HEADERS}
+	../deps/json11/json11.hpp
+	obs-app.hpp
+	platform.hpp
+	window-dock.hpp
+	window-main.hpp
+	window-basic-main.hpp
+	window-basic-stats.hpp
+	window-basic-filters.hpp
+	window-basic-settings.hpp
+	window-basic-interaction.hpp
+	window-basic-properties.hpp
+	window-basic-auto-config.hpp
+	window-basic-main-outputs.hpp
+	window-basic-source-select.hpp
+	window-basic-about.hpp
+	window-basic-status-bar.hpp
+	window-basic-adv-audio.hpp
+	window-basic-transform.hpp
+	window-basic-preview.hpp
+	window-importer.hpp
+	media-controls.hpp
+	window-namedialog.hpp
+	window-log-reply.hpp
+	window-projector.hpp
+	window-remux.hpp
+	window-missing-files.hpp
+	auth-base.hpp
+	source-tree.hpp
+	scene-tree.hpp
+	properties-view.hpp
+	properties-view.moc.hpp
+	display-helpers.hpp
+	balance-slider.hpp
+	double-slider.hpp
+	slider-ignorewheel.hpp
+	combobox-ignorewheel.hpp
+	spinbox-ignorewheel.hpp
+	focus-list.hpp
+	menu-button.hpp
+	mute-checkbox.hpp
+	record-button.hpp
+	ui-validation.hpp
+	screenshot-obj.hpp
+	url-push-button.hpp
+	volume-control.hpp
+	adv-audio-control.hpp
+	item-widget-helpers.hpp
+	visibility-checkbox.hpp
+	context-bar-controls.hpp
+	locked-checkbox.hpp
+	horizontal-scroll-area.hpp
+	expand-checkbox.hpp
+	vertical-scroll-area.hpp
+	visibility-item-widget.hpp
+	slider-absoluteset-style.hpp
+	qt-display.hpp
+	crash-report.hpp
+	hotkey-edit.hpp
+	source-label.hpp
+	remote-text.hpp
+	audio-encoders.hpp
+	qt-wrappers.hpp
+	clickable-label.hpp
+	log-viewer.hpp
+	obs-proxy-style.hpp
+	obs-proxy-style.hpp
+	media-slider.hpp
+	undo-stack-obs.hpp)
+
+set(obs_importers_HEADERS
+	importers/importers.hpp)
+
+set(obs_importers_SOURCES
+	importers/importers.cpp
+	importers/classic.cpp
+	importers/sl.cpp
+	importers/studio.cpp
+	importers/xsplit.cpp)
+
+source_group("importers\\Source Files" FILES ${obs_importers_SOURCES})
+source_group("importers\\Header Files" FILES ${obs_importers_HEADERS})
+
+set(obs_UI
+	forms/source-toolbar/browser-source-toolbar.ui
+	forms/source-toolbar/device-select-toolbar.ui
+	forms/source-toolbar/game-capture-toolbar.ui
+	forms/source-toolbar/image-source-toolbar.ui
+	forms/source-toolbar/color-source-toolbar.ui
+	forms/source-toolbar/text-source-toolbar.ui
+	forms/source-toolbar/media-controls.ui
+	forms/AutoConfigStartPage.ui
+	forms/AutoConfigVideoPage.ui
+	forms/AutoConfigStreamPage.ui
+	forms/AutoConfigTestPage.ui
+	forms/ColorSelect.ui
+	forms/OBSLogReply.ui
+	forms/OBSBasic.ui
+	forms/OBSBasicTransform.ui
+	forms/OBSBasicFilters.ui
+	forms/OBSBasicSettings.ui
+	forms/OBSBasicSourceSelect.ui
+	forms/OBSBasicInteraction.ui
+	forms/OBSExtraBrowsers.ui
+	forms/OBSUpdate.ui
+	forms/OBSRemux.ui
+	forms/OBSImporter.ui
+	forms/OBSMissingFiles.ui
+	forms/OBSAbout.ui)
+
+set(obs_QRC
+	forms/obs.qrc)
+
+qt5_wrap_ui(obs_UI_HEADERS ${obs_UI})
+qt5_add_resources(obs_QRC_SOURCES ${obs_QRC})
+
+add_executable( ${_gui_name} WIN32
+	obs.manifest
+	${obs_SOURCES}
+	${obs_HEADERS}
+	${obs_importers_SOURCES}
+	${obs_importers_HEADERS}
+	${obs_UI_HEADERS}
+	${obs_QRC_SOURCES})
+
+if(WIN32)
+	if(CMAKE_SIZEOF_VOID_P EQUAL 8)
+		set(_output_suffix "64")
+	else()
+		set(_output_suffix "32")
+	endif()
+
+	set_target_properties(${_gui_name}
+		PROPERTIES
+			OUTPUT_NAME "${_gui_name}${_output_suffix}")
+	target_compile_options(${_gui_name} PRIVATE "/MD$<$<CONFIG:Debug>:d>")
+endif()
+
+target_link_libraries(${_gui_name}
+	libobs
+	Qt5::Widgets
+	Qt5::Svg
+	Qt5::Xml
+	obs-frontend-api
+	${FFMPEG_LIBRARIES}
+	${LIBCURL_LIBRARIES}
+	${obs_PLATFORM_LIBRARIES})
+
+if (APPLE)
+	set_target_properties( ${_gui_name} PROPERTIES
+			LINK_FLAGS "-pagezero_size 10000 -image_base 100000000"
+			MACOSX_BUNDLE_BUNDLE_VERSION "${OBS_VERSION}"
+			MACOSX_BUNDLE_SHORT_VERSION_STRING "${OBS_VERSION}")
+endif()
+set_target_properties( ${_gui_name} PROPERTIES FOLDER "frontend")
+
+define_graphic_modules( ${_gui_name} )
+
+install_obs_core( ${_gui_name} )
+install_obs_data( ${_gui_name} data ${CONFIG_DIR})
+install_obs_data_file( ${_gui_name} ../AUTHORS ${CONFIG_DIR}/authors)
+
+if (UNIX AND UNIX_STRUCTURE AND NOT APPLE)
+	add_subdirectory(xdg-data)
+endif()
+
+add_subdirectory(frontend-plugins)
+if(WIN32)
+	add_subdirectory(win-update/updater)
+endif()
