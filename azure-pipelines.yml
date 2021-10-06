@@ -59,11 +59,11 @@ parameters:
     default:
 #    - Millicast
 #    - PacPost
-#    - RemoteFilming
-    - RemoteFilming-A
-    - RemoteFilming-B
-    - RemoteFilming-C
-    - RemoteFilming-D
+    - RemoteFilming
+#    - RemoteFilming-A
+#    - RemoteFilming-B
+#    - RemoteFilming-C
+#    - RemoteFilming-D
 #    - Wowza
 
 jobs:
