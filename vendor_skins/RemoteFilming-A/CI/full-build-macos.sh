@@ -464,7 +464,9 @@ prepare_macos_image() {
     sed -i '' 's#\$\$CI_PATH\$\$#'"${CI_SCRIPTS}"'#g' ./settings.json
     sed -i '' 's#\$\$BUNDLE_PATH\$\$#'"${CHECKOUT_DIR}"'/build_'"${VENDOR}"'#g' ./settings.json
     echo -n "${COLOR_ORANGE}"
+step "LUDO dmgbuild"
     dmgbuild "RemoteFilming-A ${OBS_VERSION}" "${FILE_NAME}" -s ./settings.json
+step "LUDO dmgbuild done"
     echo -n "${COLOR_RESET}"
 
     if [ -n "${CODESIGN_OBS}" ]; then
@@ -578,6 +580,7 @@ codesign_image() {
         exit 1
     fi
 
+step "LUDO 1"
     hr "Code-signing installation image"
 
     read_codesign_ident

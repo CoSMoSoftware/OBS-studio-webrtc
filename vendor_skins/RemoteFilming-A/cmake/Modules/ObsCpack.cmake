@@ -51,7 +51,7 @@ else()
 		set(_output_suffix "")
 	endif()
 
-	set(CPACK_PACKAGE_EXECUTABLES "rfs${_output_suffix}" "Remote Filming")
+	set(CPACK_PACKAGE_EXECUTABLES "rfs${_output_suffix}" "Remote Filming-A")
 	set(CPACK_CREATE_DESKTOP_LINKS "rfs${_output_suffix}")
 endif()
 
