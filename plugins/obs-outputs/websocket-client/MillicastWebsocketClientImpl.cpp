@@ -127,10 +127,6 @@ bool MillicastWebsocketClientImpl::connect(const std::string &publish_api_url,
 
 				auto data = msg["data"];
 
-				int feedId = 0;
-				if (data.find("feedId") != data.end())
-					feedId = data["feedId"].get<int>();
-
 				std::string sdp = "";
 				if (data.find("sdp") != data.end()) {
 					sdp = data["sdp"].get<std::string>() +
