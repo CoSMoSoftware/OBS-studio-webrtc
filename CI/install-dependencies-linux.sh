@@ -22,6 +22,7 @@ sudo apt-get install -y \
         libfdk-aac-dev \
         libfontconfig-dev \
         libfreetype6-dev \
+        libgl1-mesa-dev \
         libglvnd-dev \
         libjack-jackd2-dev \
         libjansson-dev \
@@ -36,19 +37,19 @@ sudo apt-get install -y \
         libvlc-dev \
         libwayland-dev \
         libx11-dev \
-        libx11-xcb-dev \
         libx264-dev \
+        libxcb-randr0-dev \
         libxcb-shm0-dev \
         libxcb-xinerama0-dev \
         libxcomposite-dev \
         libxinerama-dev \
+        libmbedtls-dev \
         pkg-config \
         python3-dev \
         qtbase5-dev \
         qtbase5-private-dev \
         libqt5svg5-dev \
         swig \
-        libxcb-randr0-dev \
         libxcb-xfixes0-dev \
         libx11-xcb-dev \
         libxcb1-dev \
@@ -68,6 +69,8 @@ sudo apt-get install -y \
 # build cef
 export CC=clang
 export CXX=clang++
+#wget --quiet --retry-connrefused --waitretry=1 https://cdn-fastly.obsproject.com/downloads/cef_binary_${LINUX_CEF_BUILD_VERSION}_linux64.tar.bz2
+#tar -xjf ./cef_binary_${LINUX_CEF_BUILD_VERSION}_linux64.tar.bz2
 wget --quiet --retry-connrefused --waitretry=1 https://cef-builds.spotifycdn.com/cef_binary_87.1.14%2Bga29e9a3%2Bchromium-87.0.4280.141_linux64.tar.bz2
 tar -xjf ./cef_binary_87.1.14+ga29e9a3+chromium-87.0.4280.141_linux64.tar.bz2
 cd cef_binary_87.1.14+ga29e9a3+chromium-87.0.4280.141_linux64

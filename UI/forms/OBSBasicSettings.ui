@@ -622,6 +622,13 @@
                      </property>
                     </widget>
                    </item>
+                   <item row="3" column="1">
+                    <widget class="QCheckBox" name="previewSafeAreas">
+                     <property name="text">
+                      <string>Basic.Settings.General.Multiview.DrawSafeAreas</string>
+                     </property>
+                    </widget>
+                   </item>
                    <item row="0" column="1">
                     <widget class="QCheckBox" name="overflowHide">
                      <property name="text">
@@ -1155,32 +1162,27 @@
                </property>
               </spacer>
              </item>
-             <item row="3" column="1">
-              <layout class="QHBoxLayout" name="horizontalLayout_15">
+             <item row="4" column="1">
+              <layout class="QHBoxLayout" name="horizontalLayout_23">
+               <property name="spacing">
+                <number>8</number>
+               </property>
+               <property name="leftMargin">
+                <number>7</number>
+               </property>
+               <property name="rightMargin">
+                <number>7</number>
+               </property>
                <item>
-                <widget class="QPushButton" name="connectAccount2">
+                <widget class="QLabel" name="connectedAccountText">
+                 <property name="styleSheet">
+                  <string notr="true">font-weight: bold</string>
+                 </property>
                  <property name="text">
-                  <string>Basic.AutoConfig.StreamPage.ConnectAccount</string>
+                  <string>Auth.LoadingChannel.Title</string>
                  </property>
                 </widget>
                </item>
-               <item>
-                <spacer name="horizontalSpacer_19">
-                 <property name="orientation">
-                  <enum>Qt::Horizontal</enum>
-                 </property>
-                 <property name="sizeHint" stdset="0">
-                  <size>
-                   <width>40</width>
-                   <height>20</height>
-                  </size>
-                 </property>
-                </spacer>
-               </item>
-              </layout>
-             </item>
-             <item row="4" column="1">
-              <layout class="QHBoxLayout" name="horizontalLayout_23">
                <item>
                 <widget class="QPushButton" name="disconnectAccount">
                  <property name="text">
@@ -1280,6 +1282,19 @@
                  </widget>
                 </item>
                </layout>
+              </widget>
+             </item>
+             <item row="8" column="1">
+              <widget class="QComboBox" name="twitchAddonDropdown"/>
+             </item>
+             <item row="8" column="0">
+              <widget class="QLabel" name="twitchAddonLabel">
+               <property name="text">
+                <string>Basic.Settings.Stream.TTVAddon</string>
+               </property>
+               <property name="buddy">
+                <cstring>twitchAddonDropdown</cstring>
+               </property>
               </widget>
              </item>
              <item row="10" column="0">
@@ -1424,44 +1439,63 @@
                </property>
               </widget>
              </item>
-             <item row="7" column="1">
-              <widget class="QComboBox" name="twitchAddonDropdown"/>
+             <item row="5" column="1">
+              <layout class="QHBoxLayout" name="horizontalLayout_28">
+               <item>
+                <widget class="QPushButton" name="useStreamKeyAdv">
+                 <property name="text">
+                  <string>Basic.AutoConfig.StreamPage.UseStreamKeyAdvanced</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <spacer name="horizontalSpacer_28">
+                 <property name="orientation">
+                  <enum>Qt::Horizontal</enum>
+                 </property>
+                 <property name="sizeHint" stdset="0">
+                  <size>
+                   <width>40</width>
+                   <height>20</height>
+                  </size>
+                 </property>
+                </spacer>
+               </item>
+              </layout>
              </item>
-             <item row="7" column="0">
-              <widget class="QLabel" name="twitchAddonLabel">
+             <item row="4" column="0">
+              <widget class="QLabel" name="connectedAccountLabel">
                <property name="text">
-                <string>Basic.Settings.Stream.TTVAddon</string>
-               </property>
-               <property name="buddy">
-                <cstring>twitchAddonDropdown</cstring>
+                <string>Basic.AutoConfig.StreamPage.ConnectedAccount</string>
                </property>
               </widget>
              </item>
-             <item row="12" column="0">
-              <spacer name="verticalSpacer_4">
-               <property name="orientation">
-                <enum>Qt::Vertical</enum>
-               </property>
-               <property name="sizeHint" stdset="0">
-                <size>
-                 <width>20</width>
-                 <height>40</height>
-                </size>
-               </property>
-              </spacer>
-             </item>
-             <item row="12" column="1">
-              <spacer name="verticalSpacer_5">
-               <property name="orientation">
-                <enum>Qt::Vertical</enum>
-               </property>
-               <property name="sizeHint" stdset="0">
-                <size>
-                 <width>20</width>
-                 <height>40</height>
-                </size>
-               </property>
-              </spacer>
+             <item row="3" column="1">
+              <layout class="QHBoxLayout" name="horizontalLayout_15">
+               <item>
+                <widget class="QPushButton" name="connectAccount2">
+                 <property name="cursor">
+                  <cursorShape>PointingHandCursor</cursorShape>
+                 </property>
+                 <property name="text">
+                  <string>Basic.AutoConfig.StreamPage.ConnectAccount</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <spacer name="horizontalSpacer_19">
+                 <property name="orientation">
+                  <enum>Qt::Horizontal</enum>
+                 </property>
+                 <property name="sizeHint" stdset="0">
+                  <size>
+                   <width>40</width>
+                   <height>20</height>
+                  </size>
+                 </property>
+                </spacer>
+               </item>
+              </layout>
              </item>
             </layout>
             <widget class="QLineEdit" name="room">
@@ -5738,6 +5772,7 @@
   <tabstop>overflowHide</tabstop>
   <tabstop>overflowAlwaysVisible</tabstop>
   <tabstop>overflowSelectionHide</tabstop>
+  <tabstop>previewSafeAreas</tabstop>
   <tabstop>automaticSearch</tabstop>
   <tabstop>doubleClickSwitch</tabstop>
   <tabstop>studioPortraitLayout</tabstop>

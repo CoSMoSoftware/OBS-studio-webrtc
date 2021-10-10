@@ -407,6 +407,8 @@ private slots:
 	void SetHotkeysIcon(const QIcon &icon);
 	void SetAdvancedIcon(const QIcon &icon);
 
+	void UseStreamKeyAdvClicked();
+
 protected:
 	virtual void closeEvent(QCloseEvent *event) override;
 	void reject() override;

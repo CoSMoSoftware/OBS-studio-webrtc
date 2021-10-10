@@ -15,6 +15,10 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ******************************************************************************/
 
+#ifdef _MSC_VER
+#define WIN32_LEAN_AND_MEAN
+#endif
+
 #include <obs-module.h>
 #include <obs-avc.h>
 #include <util/platform.h>
@@ -44,6 +48,8 @@
 #define OPT_DROP_THRESHOLD "drop_threshold_ms"
 #define OPT_MAX_SHUTDOWN_TIME_SEC "max_shutdown_time_sec"
 #define OPT_BIND_IP "bind_ip"
+
+#define FTL_URL_PROTOCOL "ftl://"
 
 typedef struct _nalu_t {
 	int len;
@@ -886,6 +892,7 @@ static enum ret_type ftl_event(struct ftl_stream *stream,
 	//tell OBS and it will trigger a reconnection
 	blog(LOG_WARNING, "Reconnecting to Ingest");
 	obs_output_signal_stop(stream->output, OBS_OUTPUT_DISCONNECTED);
+	reset_semaphore(stream);
 	return RET_EXIT;
 }
 
@@ -1019,7 +1026,7 @@ static int init_connect(struct ftl_stream *stream)
 {
 	obs_service_t *service;
 	obs_data_t *settings;
-	const char *bind_ip, *key;
+	const char *bind_ip, *key, *ingest_url;
 	ftl_status_t status_code;
 
 	info("init_connect");
@@ -1045,7 +1052,14 @@ static int init_connect(struct ftl_stream *stream)
 		obs_output_get_video_encoder(stream->output);
 	obs_data_t *video_settings = obs_encoder_get_settings(video_encoder);
 
-	dstr_copy(&stream->path, obs_service_get_url(service));
+	ingest_url = obs_service_get_url(service);
+	if (strncmp(ingest_url, FTL_URL_PROTOCOL, strlen(FTL_URL_PROTOCOL)) ==
+	    0) {
+		dstr_copy(&stream->path, ingest_url + strlen(FTL_URL_PROTOCOL));
+	} else {
+		dstr_copy(&stream->path, ingest_url);
+	}
+
 	key = obs_service_get_key(service);
 
 	int target_bitrate = (int)obs_data_get_int(video_settings, "bitrate");

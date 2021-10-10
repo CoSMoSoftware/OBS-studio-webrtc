@@ -15,6 +15,10 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ******************************************************************************/
 
+#ifdef _MSC_VER
+#define WIN32_LEAN_AND_MEAN
+#endif
+
 #include "rtmp-stream.h"
 
 #ifndef SEC_TO_NSEC
@@ -969,8 +973,9 @@ static int try_connect(struct rtmp_stream *stream)
 
 	info("Connecting to RTMP URL %s...", stream->path.array);
 
-	// this should have been called already by rtmp_stream_create
-	//RTMP_Init(&stream->rtmp);
+	// on reconnect we need to reset the internal variables of librtmp
+	// otherwise the data sent/received will not parse correctly on the other end
+	RTMP_Reset(&stream->rtmp);
 
 	// since we don't call RTMP_Init above, there's no other good place
 	// to reset this as doing it in RTMP_Close breaks the ugly RTMP
@@ -1110,6 +1115,13 @@ static bool init_connect(struct rtmp_stream *stream)
 		obs_data_get_bool(settings, OPT_NEWSOCKETLOOP_ENABLED);
 	stream->low_latency_mode =
 		obs_data_get_bool(settings, OPT_LOWLATENCY_ENABLED);
+
+	// ugly hack for now, can be removed once new loop is reworked
+	if (stream->new_socket_loop &&
+	    !strncmp(stream->path.array, "rtmps://", 8)) {
+		warn("Disabling network optimizations, not compatible with RTMPS");
+		stream->new_socket_loop = false;
+	}
 
 	obs_data_release(settings);
 	return true;

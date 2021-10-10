@@ -11,7 +11,14 @@
 
 #ifdef BROWSER_AVAILABLE
 #include <browser-panel.hpp>
+#endif
+
 #include "auth-oauth.hpp"
+
+#include "ui-config.h"
+
+#if YOUTUBE_ENABLED
+#include "youtube-api-wrappers.hpp"
 #endif
 
 struct QCef;
@@ -421,8 +428,12 @@ void OBSBasicSettings::SaveStream1Settings()
 	main->SetService(newService);
 	main->SaveService();
 	main->auth = auth;
-	if (!!main->auth)
+	if (!!main->auth) {
 		main->auth->LoadUI();
+		main->SetBroadcastFlowEnabled(main->auth->broadcastFlow());
+	} else {
+		main->SetBroadcastFlowEnabled(false);
+	}
 
 	SaveCheckBox(ui->ignoreRecommended, "Stream1", "IgnoreRecommended");
 }
@@ -586,6 +597,65 @@ void OBSBasicSettings::UpdateKeyLink()
 static inline bool is_auth_service(const std::string &service)
 {
 	return Auth::AuthType(service) != Auth::Type::None;
+}
+
+static inline bool is_external_oauth(const std::string &service)
+{
+	return Auth::External(service);
+}
+
+static void reset_service_ui_fields(Ui::OBSBasicSettings *ui,
+				    std::string &service, bool loading)
+{
+	bool external_oauth = is_external_oauth(service);
+	if (external_oauth) {
+		ui->streamKeyWidget->setVisible(false);
+		ui->streamKeyLabel->setVisible(false);
+		ui->connectAccount2->setVisible(true);
+		ui->useStreamKeyAdv->setVisible(true);
+		ui->streamStackWidget->setCurrentIndex((int)Section::StreamKey);
+	} else if (cef) {
+		QString key = ui->key->text();
+		bool can_auth = is_auth_service(service);
+		int page = can_auth && (!loading || key.isEmpty())
+				   ? (int)Section::Connect
+				   : (int)Section::StreamKey;
+
+		ui->streamStackWidget->setCurrentIndex(page);
+		ui->streamKeyWidget->setVisible(true);
+		ui->streamKeyLabel->setVisible(true);
+		ui->connectAccount2->setVisible(can_auth);
+		ui->useStreamKeyAdv->setVisible(false);
+	} else {
+		ui->connectAccount2->setVisible(false);
+		ui->useStreamKeyAdv->setVisible(false);
+	}
+
+	ui->connectedAccountLabel->setVisible(false);
+	ui->connectedAccountText->setVisible(false);
+	ui->disconnectAccount->setVisible(false);
+}
+
+#if YOUTUBE_ENABLED
+static void get_yt_ch_title(Ui::OBSBasicSettings *ui)
+{
+	const char *name = config_get_string(OBSBasic::Get()->Config(),
+					     "YouTube", "ChannelName");
+	if (name) {
+		ui->connectedAccountText->setText(name);
+	} else {
+		// if we still not changed the service page
+		if (IsYouTubeService(QT_TO_UTF8(ui->service->currentText()))) {
+			ui->connectedAccountText->setText(
+				QTStr("Auth.LoadingChannel.Error"));
+		}
+	}
+}
+#endif
+
+void OBSBasicSettings::UseStreamKeyAdvClicked()
+{
+	ui->streamKeyWidget->setVisible(true);
 }
 
 void OBSBasicSettings::on_service_currentIndexChanged(int)
@@ -917,7 +987,6 @@ OBSService OBSBasicSettings::SpawnTempService()
 
 void OBSBasicSettings::OnOAuthStreamKeyConnected()
 {
-#ifdef BROWSER_AVAILABLE
 	OAuthStreamKey *a = reinterpret_cast<OAuthStreamKey *>(auth.get());
 
 	if (a) {
@@ -930,6 +999,10 @@ void OBSBasicSettings::OnOAuthStreamKeyConnected()
 		ui->streamKeyLabel->setVisible(false);
 		ui->connectAccount2->setVisible(false);
 		ui->disconnectAccount->setVisible(true);
+		ui->useStreamKeyAdv->setVisible(false);
+
+		ui->connectedAccountLabel->setVisible(false);
+		ui->connectedAccountText->setVisible(false);
 
 		if (strcmp(a->service(), "Twitch") == 0) {
 			ui->bandwidthTestEnable->setVisible(true);
@@ -938,10 +1011,22 @@ void OBSBasicSettings::OnOAuthStreamKeyConnected()
 		} else {
 			ui->bandwidthTestEnable->setChecked(false);
 		}
+#if YOUTUBE_ENABLED
+		if (IsYouTubeService(a->service())) {
+			ui->key->clear();
+
+			ui->connectedAccountLabel->setVisible(true);
+			ui->connectedAccountText->setVisible(true);
+
+			ui->connectedAccountText->setText(
+				QTStr("Auth.LoadingChannel.Title"));
+
+			get_yt_ch_title(ui.get());
+		}
+#endif
 	}
 
 	ui->streamStackWidget->setCurrentIndex((int)Section::StreamKey);
-#endif
 }
 
 void OBSBasicSettings::OnAuthConnected()
@@ -951,7 +1036,8 @@ void OBSBasicSettings::OnAuthConnected()
 		QT_TO_UTF8(ui->serviceButtonGroup->checkedButton()->text());
 	Auth::Type type = Auth::AuthType(service);
 
-	if (type == Auth::Type::OAuth_StreamKey) {
+	if (type == Auth::Type::OAuth_StreamKey ||
+	    type == Auth::Type::OAuth_LinkedAccount) {
 		OnOAuthStreamKeyConnected();
 	}
 
@@ -963,7 +1049,6 @@ void OBSBasicSettings::OnAuthConnected()
 
 void OBSBasicSettings::on_connectAccount_clicked()
 {
-#ifdef BROWSER_AVAILABLE
 	// #289 service list of radio buttons
 	std::string service =
 		QT_TO_UTF8(ui->serviceButtonGroup->checkedButton()->text());
@@ -971,9 +1056,11 @@ void OBSBasicSettings::on_connectAccount_clicked()
 	OAuth::DeleteCookies(service);
 
 	auth = OAuthStreamKey::Login(this, service);
-	if (!!auth)
+	if (!!auth) {
 		OnAuthConnected();
-#endif
+
+		ui->useStreamKeyAdv->setVisible(false);
+	}
 }
 
 #define DISCONNECT_COMFIRM_TITLE \
@@ -994,6 +1081,7 @@ void OBSBasicSettings::on_disconnectAccount_clicked()
 
 	main->auth.reset();
 	auth.reset();
+	main->SetBroadcastFlowEnabled(false);
 
 	// #289 service list of radio buttons
 	std::string service =
@@ -1023,6 +1111,9 @@ void OBSBasicSettings::on_disconnectAccount_clicked()
 	ui->twitchAddonDropdown->setVisible(false);
 	ui->twitchAddonLabel->setVisible(false);
 	ui->key->setText("");
+
+	ui->connectedAccountLabel->setVisible(false);
+	ui->connectedAccountText->setVisible(false);
 }
 
 void OBSBasicSettings::on_useStreamKey_clicked()
@@ -1189,12 +1280,25 @@ void OBSBasicSettings::UpdateServiceRecommendations()
 	}
 	if (fps) {
 		if (!text.isEmpty())
-			text += "\n";
+			text += "<br>";
 
 		text += ENFORCE_TEXT("MaxFPS").arg(QString::number(fps));
 	}
 #undef ENFORCE_TEXT
 
+#if YOUTUBE_ENABLED
+	if (IsYouTubeService(QT_TO_UTF8(ui->service->currentText()))) {
+		if (!text.isEmpty())
+			text += "<br><br>";
+
+		text += "<a href=\"https://www.youtube.com/t/terms\">"
+			"YouTube Terms of Service</a><br>"
+			"<a href=\"http://www.google.com/policies/privacy\">"
+			"Google Privacy Policy</a><br>"
+			"<a href=\"https://security.google.com/settings/security/permissions\">"
+			"Google Third-Party Permissions</a>";
+	}
+#endif
 	ui->enforceSettingsLabel->setText(text);
 }
 

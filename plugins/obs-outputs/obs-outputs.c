@@ -1,3 +1,7 @@
+#ifdef _MSC_VER
+#define WIN32_LEAN_AND_MEAN
+#endif
+
 #include <obs-module.h>
 
 #include "obs-outputs-config.h"
@@ -12,7 +16,7 @@ OBS_DECLARE_MODULE()
 OBS_MODULE_USE_DEFAULT_LOCALE("obs-outputs", "en-US")
 MODULE_EXPORT const char *obs_module_description(void)
 {
-	return "OBS core RTMP/FLV/null/FTL/WebRTC outputs";
+	return "OBS core RTMP/FLV/null/FTL outputs";
 }
 
 extern struct obs_output_info rtmp_output_info;

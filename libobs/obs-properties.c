@@ -15,8 +15,6 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ******************************************************************************/
 
-/* Copyright Dr. Alex Gouaillard (2015, 2020) */
-
 #include "util/bmem.h"
 #include "util/darray.h"
 #include "obs-internal.h"
@@ -74,6 +72,8 @@ struct editable_list_data {
 
 struct button_data {
 	obs_property_clicked_t callback;
+	enum obs_button_type type;
+	char *url;
 };
 
 struct frame_rate_option {
@@ -1188,6 +1188,24 @@ void obs_property_text_set_monospace(obs_property_t *p, bool monospace)
 	data->monospace = monospace;
 }
 
+void obs_property_button_set_type(obs_property_t *p, enum obs_button_type type)
+{
+	struct button_data *data = get_type_data(p, OBS_PROPERTY_BUTTON);
+	if (!data)
+		return;
+
+	data->type = type;
+}
+
+void obs_property_button_set_url(obs_property_t *p, char *url)
+{
+	struct button_data *data = get_type_data(p, OBS_PROPERTY_BUTTON);
+	if (!data)
+		return;
+
+	data->url = url;
+}
+
 void obs_property_list_clear(obs_property_t *p)
 {
 	struct list_data *data = get_list_data(p);
@@ -1566,4 +1584,16 @@ obs_properties_t *obs_property_group_content(obs_property_t *p)
 {
 	struct group_data *data = get_type_data(p, OBS_PROPERTY_GROUP);
 	return data ? data->content : NULL;
+}
+
+enum obs_button_type obs_property_button_type(obs_property_t *p)
+{
+	struct button_data *data = get_type_data(p, OBS_PROPERTY_BUTTON);
+	return data ? data->type : OBS_BUTTON_DEFAULT;
+}
+
+const char *obs_property_button_url(obs_property_t *p)
+{
+	struct button_data *data = get_type_data(p, OBS_PROPERTY_BUTTON);
+	return data ? data->url : "";
 }
