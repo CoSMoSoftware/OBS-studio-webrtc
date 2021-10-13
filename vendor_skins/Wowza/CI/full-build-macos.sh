@@ -49,10 +49,10 @@ VENDOR="${VENDOR:-vendorNameMissing}"
 BUILD_DEPS=(
     "obs-deps ${MACOS_DEPS_VERSION}"
     "qt-deps ${QT_VERSION} ${MACOS_DEPS_VERSION}"
+    "cef ${MACOS_CEF_BUILD_VERSION:-${MACOS_CEF_VERSION}}"
     "vlc ${VLC_VERSION}"
     "libwebrtc ${LIBWEBRTC_VERSION}"
 )
-#    "cef ${MACOS_CEF_BUILD_VERSION:-${MACOS_CEF_VERSION}}"
 
 if [ -n "${TERM-}" ]; then
     COLOR_RED=$(tput setaf 1)
@@ -303,9 +303,10 @@ configure_obs_build() {
         -DDepsPath="/tmp/obsdeps" \
         -DVLCPath="${DEPS_BUILD_DIR}/vlc-${VLC_VERSION}" \
         -DENABLE_VLC=ON \
-        -DBUILD_BROWSER=OFF \
+        -DBUILD_BROWSER=ON \
         -DBROWSER_LEGACY=OFF \
         -DWITH_RTMPS=ON \
+        -DCEF_ROOT_DIR="${DEPS_BUILD_DIR}/cef_binary_${MACOS_CEF_BUILD_VERSION}_macosx64" \
         -DCMAKE_BUILD_TYPE="${BUILD_CONFIG}" \
         .. \
         ${vendor_option} \
@@ -317,8 +318,7 @@ configure_obs_build() {
         -DLIBOBS_LIB=`pwd`/libobs/libobs.0.dylib \
         -DOBS_FRONTEND_LIB=`pwd`/UI/obs-frontend-api/libobs-frontend-api.dylib
 
-#        -DENABLE_SPARKLE_UPDATER=ON \
-#        -DCEF_ROOT_DIR="${DEPS_BUILD_DIR}/cef_binary_${MACOS_CEF_BUILD_VERSION}_macosx64" \
+        # -DENABLE_SPARKLE_UPDATER=ON \
 }
 
 run_obs_build() {
@@ -353,6 +353,7 @@ bundle_dylibs() {
         -x ./Wowza-OBS-Real-Time.app/Contents/PlugIns/mac-syphon.so \
         -x ./Wowza-OBS-Real-Time.app/Contents/PlugIns/mac-vth264.so \
         -x ./Wowza-OBS-Real-Time.app/Contents/PlugIns/mac-virtualcam.so \
+        -x ./Wowza-OBS-Real-Time.app/Contents/PlugIns/obs-browser.so \
         -x ./Wowza-OBS-Real-Time.app/Contents/PlugIns/obs-ffmpeg.so \
         -x ./Wowza-OBS-Real-Time.app/Contents/PlugIns/obs-filters.so \
         -x ./Wowza-OBS-Real-Time.app/Contents/PlugIns/obs-transitions.so \
@@ -365,7 +366,6 @@ bundle_dylibs() {
         -x ./Wowza-OBS-Real-Time.app/Contents/PlugIns/obs-outputs.so \
         -x ./Wowza-OBS-Real-Time.app/Contents/PlugIns/obs-ndi.so \
         -x ./Wowza-OBS-Real-Time.app/Contents/PlugIns/obs-websocket.so
-#        -x ./Wowza-OBS-Real-Time.app/Contents/PlugIns/obs-browser.so
 
     step "Move libobs-opengl to final destination"
     cp ./libobs-opengl/libobs-opengl.so ./Wowza-OBS-Real-Time.app/Contents/Frameworks
@@ -414,10 +414,10 @@ prepare_macos_bundle() {
     cp rundir/${BUILD_CONFIG}/bin/obs ./Wowza-OBS-Real-Time.app/Contents/MacOS
     cp rundir/${BUILD_CONFIG}/bin/obs-ffmpeg-mux ./Wowza-OBS-Real-Time.app/Contents/MacOS
     cp rundir/${BUILD_CONFIG}/bin/libobsglad.0.dylib ./Wowza-OBS-Real-Time.app/Contents/MacOS
-#    cp -R "rundir/${BUILD_CONFIG}/bin/OBS Helper.app" "./Wowza-OBS-Real-Time.app/Contents/Frameworks/OBS Helper.app"
-#    cp -R "rundir/${BUILD_CONFIG}/bin/OBS Helper (GPU).app" "./Wowza-OBS-Real-Time.app/Contents/Frameworks/OBS Helper (GPU).app"
-#    cp -R "rundir/${BUILD_CONFIG}/bin/OBS Helper (Plugin).app" "./Wowza-OBS-Real-Time.app/Contents/Frameworks/OBS Helper (Plugin).app"
-#    cp -R "rundir/${BUILD_CONFIG}/bin/OBS Helper (Renderer).app" "./Wowza-OBS-Real-Time.app/Contents/Frameworks/OBS Helper (Renderer).app"
+    cp -R "rundir/${BUILD_CONFIG}/bin/OBS Helper.app" "./Wowza-OBS-Real-Time.app/Contents/Frameworks/OBS Helper.app"
+    cp -R "rundir/${BUILD_CONFIG}/bin/OBS Helper (GPU).app" "./Wowza-OBS-Real-Time.app/Contents/Frameworks/OBS Helper (GPU).app"
+    cp -R "rundir/${BUILD_CONFIG}/bin/OBS Helper (Plugin).app" "./Wowza-OBS-Real-Time.app/Contents/Frameworks/OBS Helper (Plugin).app"
+    cp -R "rundir/${BUILD_CONFIG}/bin/OBS Helper (Renderer).app" "./Wowza-OBS-Real-Time.app/Contents/Frameworks/OBS Helper (Renderer).app"
     cp -R rundir/${BUILD_CONFIG}/data ./Wowza-OBS-Real-Time.app/Contents/Resources
     cp "${CI_SCRIPTS}/app/AppIcon.icns" ./Wowza-OBS-Real-Time.app/Contents/Resources
     cp -R rundir/${BUILD_CONFIG}/obs-plugins/ ./Wowza-OBS-Real-Time.app/Contents/PlugIns
@@ -431,16 +431,16 @@ prepare_macos_bundle() {
     fi
 
     bundle_dylibs
-#    install_frameworks
+    install_frameworks
 
     cp "${CI_SCRIPTS}/app/OBSPublicDSAKey.pem" ./Wowza-OBS-Real-Time.app/Contents/Resources
 
     step "Set bundle meta information..."
     plutil -insert CFBundleVersion -string "${OBS_VERSION}" ./Wowza-OBS-Real-Time.app/Contents/Info.plist
     plutil -insert CFBundleShortVersionString -string "${MACOSX_BUNDLE_SHORT_VERSION_STRING}" ./Wowza-OBS-Real-Time.app/Contents/Info.plist
-    # plutil -insert OBSFeedsURL -string https://obsproject.com/osx_update/feeds.xml ./Wowza-OBS-Real-Time.app/Contents/Info.plist
-    # plutil -insert SUFeedURL -string https://obsproject.com/osx_update/stable/updates.xml ./Wowza-OBS-Real-Time.app/Contents/Info.plist
-    # plutil -insert SUPublicDSAKeyFile -string OBSPublicDSAKey.pem ./Wowza-OBS-Real-Time.app/Contents/Info.plist
+    plutil -insert OBSFeedsURL -string https://obsproject.com/osx_update/feeds.xml ./Wowza-OBS-Real-Time.app/Contents/Info.plist
+    plutil -insert SUFeedURL -string https://obsproject.com/osx_update/stable/updates.xml ./Wowza-OBS-Real-Time.app/Contents/Info.plist
+    plutil -insert SUPublicDSAKeyFile -string OBSPublicDSAKey.pem ./Wowza-OBS-Real-Time.app/Contents/Info.plist
 }
 
 ## CREATE MACOS DISTRIBUTION AND INSTALLER IMAGE ##
@@ -540,23 +540,23 @@ codesign_bundle() {
     # codesign --force --options runtime --sign "${CODESIGN_IDENT}" --deep ./Wowza-OBS-Real-Time.app/Contents/Frameworks/Sparkle.framework
     # echo -n "${COLOR_RESET}"
 
-#    step "Code-sign CEF framework..."
-#    echo -n "${COLOR_ORANGE}"
-#    codesign --force --timestamp --options runtime --entitlements "${CI_SCRIPTS}/app/entitlements.plist" --sign "${CODESIGN_IDENT}" "./Wowza-OBS-Real-Time.app/Contents/Frameworks/Chromium Embedded Framework.framework/Libraries/libEGL.dylib"
-#    codesign --force --timestamp --options runtime --entitlements "${CI_SCRIPTS}/app/entitlements.plist" --sign "${CODESIGN_IDENT}" "./Wowza-OBS-Real-Time.app/Contents/Frameworks/Chromium Embedded Framework.framework/Libraries/libswiftshader_libEGL.dylib"
-#    codesign --force --timestamp --options runtime --entitlements "${CI_SCRIPTS}/app/entitlements.plist" --sign "${CODESIGN_IDENT}" "./Wowza-OBS-Real-Time.app/Contents/Frameworks/Chromium Embedded Framework.framework/Libraries/libGLESv2.dylib"
-#    codesign --force --timestamp --options runtime --entitlements "${CI_SCRIPTS}/app/entitlements.plist" --sign "${CODESIGN_IDENT}" "./Wowza-OBS-Real-Time.app/Contents/Frameworks/Chromium Embedded Framework.framework/Libraries/libswiftshader_libGLESv2.dylib"
-#    codesign --force --timestamp --options runtime --entitlements "${CI_SCRIPTS}/app/entitlements.plist" --sign "${CODESIGN_IDENT}" "./Wowza-OBS-Real-Time.app/Contents/Frameworks/Chromium Embedded Framework.framework/Libraries/libvk_swiftshader.dylib"
-#    codesign --force --timestamp --options runtime --entitlements "${CI_SCRIPTS}/app/entitlements.plist" --sign "${CODESIGN_IDENT}" --deep "./Wowza-OBS-Real-Time.app/Contents/Frameworks/Chromium Embedded Framework.framework"
-#    echo -n "${COLOR_RESET}"
+    step "Code-sign CEF framework..."
+    echo -n "${COLOR_ORANGE}"
+    codesign --force --timestamp --options runtime --entitlements "${CI_SCRIPTS}/app/entitlements.plist" --sign "${CODESIGN_IDENT}" "./Wowza-OBS-Real-Time.app/Contents/Frameworks/Chromium Embedded Framework.framework/Libraries/libEGL.dylib"
+    codesign --force --timestamp --options runtime --entitlements "${CI_SCRIPTS}/app/entitlements.plist" --sign "${CODESIGN_IDENT}" "./Wowza-OBS-Real-Time.app/Contents/Frameworks/Chromium Embedded Framework.framework/Libraries/libswiftshader_libEGL.dylib"
+    codesign --force --timestamp --options runtime --entitlements "${CI_SCRIPTS}/app/entitlements.plist" --sign "${CODESIGN_IDENT}" "./Wowza-OBS-Real-Time.app/Contents/Frameworks/Chromium Embedded Framework.framework/Libraries/libGLESv2.dylib"
+    codesign --force --timestamp --options runtime --entitlements "${CI_SCRIPTS}/app/entitlements.plist" --sign "${CODESIGN_IDENT}" "./Wowza-OBS-Real-Time.app/Contents/Frameworks/Chromium Embedded Framework.framework/Libraries/libswiftshader_libGLESv2.dylib"
+    codesign --force --timestamp --options runtime --entitlements "${CI_SCRIPTS}/app/entitlements.plist" --sign "${CODESIGN_IDENT}" "./Wowza-OBS-Real-Time.app/Contents/Frameworks/Chromium Embedded Framework.framework/Libraries/libvk_swiftshader.dylib"
+    codesign --force --timestamp --options runtime --entitlements "${CI_SCRIPTS}/app/entitlements.plist" --sign "${CODESIGN_IDENT}" --deep "./Wowza-OBS-Real-Time.app/Contents/Frameworks/Chromium Embedded Framework.framework"
+    echo -n "${COLOR_RESET}"
 
-#    step "Code-sign CEF helper apps..."
-#    /bin/echo -n "${COLOR_ORANGE}"
-#    codesign --force --timestamp --options runtime --entitlements "${CI_SCRIPTS}/helpers/helper-entitlements.plist" --sign "${CODESIGN_IDENT}" --deep "./Wowza-OBS-Real-Time.app/Contents/Frameworks/OBS Helper.app"
-#    codesign --force --timestamp --options runtime --entitlements "${CI_SCRIPTS}/helpers/helper-gpu-entitlements.plist" --sign "${CODESIGN_IDENT}" --deep "./Wowza-OBS-Real-Time.app/Contents/Frameworks/OBS Helper (GPU).app"
-#    codesign --force --timestamp --options runtime --entitlements "${CI_SCRIPTS}/helpers/helper-plugin-entitlements.plist" --sign "${CODESIGN_IDENT}" --deep "./Wowza-OBS-Real-Time.app/Contents/Frameworks/OBS Helper (Plugin).app"
-#    codesign --force --timestamp --options runtime --entitlements "${CI_SCRIPTS}/helpers/helper-renderer-entitlements.plist" --sign "${CODESIGN_IDENT}" --deep "./Wowza-OBS-Real-Time.app/Contents/Frameworks/OBS Helper (Renderer).app"
-#    /bin/echo -n "${COLOR_RESET}"
+    step "Code-sign CEF helper apps..."
+    /bin/echo -n "${COLOR_ORANGE}"
+    codesign --force --timestamp --options runtime --entitlements "${CI_SCRIPTS}/helpers/helper-entitlements.plist" --sign "${CODESIGN_IDENT}" --deep "./Wowza-OBS-Real-Time.app/Contents/Frameworks/OBS Helper.app"
+    codesign --force --timestamp --options runtime --entitlements "${CI_SCRIPTS}/helpers/helper-gpu-entitlements.plist" --sign "${CODESIGN_IDENT}" --deep "./Wowza-OBS-Real-Time.app/Contents/Frameworks/OBS Helper (GPU).app"
+    codesign --force --timestamp --options runtime --entitlements "${CI_SCRIPTS}/helpers/helper-plugin-entitlements.plist" --sign "${CODESIGN_IDENT}" --deep "./Wowza-OBS-Real-Time.app/Contents/Frameworks/OBS Helper (Plugin).app"
+    codesign --force --timestamp --options runtime --entitlements "${CI_SCRIPTS}/helpers/helper-renderer-entitlements.plist" --sign "${CODESIGN_IDENT}" --deep "./Wowza-OBS-Real-Time.app/Contents/Frameworks/OBS Helper (Renderer).app"
+    /bin/echo -n "${COLOR_RESET}"
 
     step "Code-sign OBS code..."
     echo -n "${COLOR_ORANGE}"
