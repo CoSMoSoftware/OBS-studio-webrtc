@@ -56,10 +56,10 @@ sudo apt-get install -y \
         qtwayland5 \
         libgles2-mesa \
         libgles2-mesa-dev \
-        libnss3-dev
+        libnss3-dev \
+        libssl-dev
 
 #        libcmocka-dev \
-#        libssl-dev \
 #        libgtkglext1-dev \
 #        libxi-dev
 #        libva-dev \
