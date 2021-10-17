@@ -85,7 +85,6 @@ static bool GetProfileDir(const char *findName, const char *&profileDir)
 	auto func = [&](const char *name, const char *path) {
 		if (strcmp(name, findName) == 0) {
 			found = true;
-			profileDir = strrchr(path, '/') + 1;
 			return false;
 		}
 		return true;

@@ -459,7 +459,6 @@ Section "un.obs-webrtc Program Files" UninstallSection1
 	${if} ${RunningX64}
 		Delete "$SMPROGRAMS\OBS WebRTC\OBS WebRTC (64bit).lnk"
 	${endif}
-	SetShellVarContext current
 
 	IfFileExists "$INSTDIR\data\obs-plugins\win-ivcam\seg_service.exe" UnregisterSegService SkipUnreg
 	UnregisterSegService:

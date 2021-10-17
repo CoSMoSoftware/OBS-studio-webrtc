@@ -593,8 +593,8 @@ void AutoConfigStreamPage::reset_service_ui_fields(std::string &service)
 	if (external_oauth) {
 		ui->streamKeyWidget->setVisible(false);
 		ui->streamKeyLabel->setVisible(false);
-		ui->connectAccount2->setVisible(false);
-		ui->useStreamKeyAdv->setVisible(false);
+		ui->connectAccount2->setVisible(true);
+		ui->useStreamKeyAdv->setVisible(true);
 
 		ui->stackedWidget->setCurrentIndex((int)Section::StreamKey);
 

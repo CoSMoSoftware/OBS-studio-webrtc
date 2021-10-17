@@ -65,12 +65,8 @@ void OBSBasicSettings::InitStreamPage()
 	ui->connectAccount2->setVisible(false);
 	ui->disconnectAccount->setVisible(false);
 	ui->bandwidthTestEnable->setVisible(false);
-
 	ui->twitchAddonDropdown->setVisible(false);
 	ui->twitchAddonLabel->setVisible(false);
-
-	ui->connectedAccountLabel->setVisible(false);
-	ui->connectedAccountText->setVisible(false);
 
 	int vertSpacing = ui->topStreamLayout->verticalSpacing();
 
@@ -494,21 +490,33 @@ void OBSBasicSettings::UpdateKeyLink()
 	}
 	QString customServer = ui->customServer->text();
 	QString streamKeyLink;
-
-	obs_properties_t *props = obs_get_service_properties("rtmp_common");
-	obs_property_t *services = obs_properties_get(props, "service");
-
-	OBSData settings = obs_data_create();
-	obs_data_release(settings);
-
-	obs_data_set_string(settings, "service", QT_TO_UTF8(serviceName));
-	obs_property_modified(services, settings);
-
-	streamKeyLink = obs_data_get_string(settings, "stream_key_link");
-
-	if (customServer.contains("fbcdn.net") && IsCustomService()) {
+	if (serviceName == "Twitch") {
+		streamKeyLink = "https://dashboard.twitch.tv/settings/stream";
+	} else if (serviceName.startsWith("YouTube")) {
+		streamKeyLink = "https://www.youtube.com/live_dashboard";
+	} else if (serviceName.startsWith("Restream.io")) {
+		streamKeyLink =
+			"https://restream.io/settings/streaming-setup?from=OBS";
+	} else if (serviceName == "Luzento.com - RTMP") {
+		streamKeyLink =
+			"https://cms.luzento.com/dashboard/stream-key?from=OBS";
+	} else if (serviceName == "Facebook Live" ||
+		   (customServer.contains("fbcdn.net") && IsCustomService())) {
 		streamKeyLink =
 			"https://www.facebook.com/live/producer?ref=OBS";
+	} else if (serviceName.startsWith("Twitter")) {
+		streamKeyLink = "https://studio.twitter.com/producer/sources";
+	} else if (serviceName.startsWith("YouStreamer")) {
+		streamKeyLink = "https://app.youstreamer.com/stream/";
+	} else if (serviceName == "Trovo") {
+		streamKeyLink = "https://studio.trovo.live/mychannel/stream";
+	} else if (serviceName == "Glimesh") {
+		streamKeyLink = "https://glimesh.tv/users/settings/stream";
+	} else if (serviceName.startsWith("OPENREC.tv")) {
+		streamKeyLink =
+			"https://www.openrec.tv/login?keep_login=true&url=https://www.openrec.tv/dashboard/live?from=obs";
+	} else if (serviceName == "Brime Live") {
+		streamKeyLink = "https://brimelive.com/obs-stream-key-link";
 	}
 
 	if (serviceName == "Dacast") {
@@ -519,14 +527,12 @@ void OBSBasicSettings::UpdateKeyLink()
 			QTStr("Basic.AutoConfig.StreamPage.StreamKey"));
 	}
 
-	if (QString(streamKeyLink).isNull() ||
-	    QString(streamKeyLink).isEmpty()) {
+	if (QString(streamKeyLink).isNull()) {
 		ui->getStreamKeyButton->hide();
 	} else {
 		ui->getStreamKeyButton->setTargetUrl(QUrl(streamKeyLink));
 		ui->getStreamKeyButton->show();
 	}
-	obs_properties_destroy(props);
 }
 
 // #289 service list of radio buttons
@@ -605,8 +611,8 @@ static void reset_service_ui_fields(Ui::OBSBasicSettings *ui,
 	if (external_oauth) {
 		ui->streamKeyWidget->setVisible(false);
 		ui->streamKeyLabel->setVisible(false);
-		ui->connectAccount2->setVisible(false);
-		ui->useStreamKeyAdv->setVisible(false);
+		ui->connectAccount2->setVisible(true);
+		ui->useStreamKeyAdv->setVisible(true);
 		ui->streamStackWidget->setCurrentIndex((int)Section::StreamKey);
 	} else if (cef) {
 		QString key = ui->key->text();
@@ -671,9 +677,26 @@ void OBSBasicSettings::on_service_currentIndexChanged(int)
 	ui->twitchAddonDropdown->setVisible(false);
 	ui->twitchAddonLabel->setVisible(false);
 
-	if (lastService != service.c_str()) {
-		reset_service_ui_fields(ui.get(), service, loading);
+#ifdef BROWSER_AVAILABLE
+	if (cef && !isWebrtc) {
+		if (lastService != service.c_str()) {
+			QString key = ui->key->text();
+			bool can_auth = is_auth_service(service);
+			int page = can_auth && (!loading || key.isEmpty())
+					   ? (int)Section::Connect
+					   : (int)Section::StreamKey;
+
+			ui->streamStackWidget->setCurrentIndex(page);
+			ui->streamKeyWidget->setVisible(true);
+			ui->streamKeyLabel->setVisible(true);
+			ui->connectAccount2->setVisible(can_auth);
+		}
+	} else {
+		ui->connectAccount2->setVisible(false);
 	}
+#else
+	ui->connectAccount2->setVisible(false);
+#endif
 
 	// #289 service list of radio buttons
 	ui->useAuth->setVisible(false);
@@ -685,6 +708,18 @@ void OBSBasicSettings::on_service_currentIndexChanged(int)
 	if (custom && !isWebrtc) {
 		ui->streamkeyPageLayout->insertRow(1, ui->serverLabel,
 						   ui->serverStackedWidget);
+		ui->streamkeyPageLayout->insertRow(2, ui->streamKeyLabel,
+						   ui->streamKeyWidget);
+		// ui->streamkeyPageLayout->insertRow(3, nullptr, ui->useAuth);
+		// ui->streamkeyPageLayout->insertRow(4, ui->authUsernameLabel,
+		// 				   ui->authUsername);
+		// ui->streamkeyPageLayout->insertRow(5, ui->authPwLabel,
+		// 				   ui->authPwWidget);
+		// NOTE LUDO: #172 codecs list of radio buttons
+		// ui->streamkeyPageLayout->insertRow(6, ui->codecLabel,
+		//				   ui->codec);
+		// ui->streamkeyPageLayout->insertRow(7, ui->streamProtocolLabel,
+		// 				   ui->streamProtocol);
 
 		ui->serverLabel->setVisible(true);
 		ui->serverLabel->setText("Server");
@@ -853,24 +888,15 @@ void OBSBasicSettings::on_service_currentIndexChanged(int)
 		ui->publishApiUrl->setVisible(false);
 	}
 
+#ifdef BROWSER_AVAILABLE
 	auth.reset();
 
-	if (!main->auth) {
-		return;
-	}
-
-	auto system_auth_service = main->auth->service();
-	bool service_check = service.find(system_auth_service) !=
-			     std::string::npos;
-#if YOUTUBE_ENABLED
-	service_check = service_check ? service_check
-				      : IsYouTubeService(system_auth_service) &&
-						IsYouTubeService(service);
-#endif
-	if (service_check) {
+	if (!!main->auth &&
+	    service.find(main->auth->service()) != std::string::npos) {
 		auth = main->auth;
 		OnAuthConnected();
 	}
+#endif
 }
 
 void OBSBasicSettings::UpdateServerList()
@@ -947,9 +973,8 @@ OBSService OBSBasicSettings::SpawnTempService()
 			settings, "server",
 			QT_TO_UTF8(ui->server->currentData().toString()));
 	} else {
-		obs_data_set_string(
-			settings, "server",
-			QT_TO_UTF8(ui->customServer->text().trimmed()));
+		obs_data_set_string(settings, "server",
+				    QT_TO_UTF8(ui->customServer->text()));
 	}
 	obs_data_set_string(settings, "key", QT_TO_UTF8(ui->key->text()));
 
@@ -1228,13 +1253,13 @@ void OBSBasicSettings::UpdateServiceRecommendations()
 				.arg(QString::number(vbitrate));
 	if (abitrate) {
 		if (!text.isEmpty())
-			text += "<br>";
+			text += "\n";
 		text += ENFORCE_TEXT("MaxAudioBitrate")
 				.arg(QString::number(abitrate));
 	}
 	if (res_count) {
 		if (!text.isEmpty())
-			text += "<br>";
+			text += "\n";
 
 		obs_service_resolution best_res = {};
 		int best_res_pixels = 0;

@@ -1539,7 +1539,7 @@
   <action name="actionSceneUp">
    <property name="icon">
     <iconset>
-     <normaloff>:/res/images/up.svg</normaloff>:/res/images/up.svg</iconset>
+     <normaloff>:/res/images/up.png</normaloff>:/res/images/up.png</iconset>
    </property>
    <property name="text">
     <string>MoveUp</string>
@@ -1932,16 +1932,6 @@
   <action name="actionPasteDup">
    <property name="text">
     <string>PasteDuplicate</string>
-   </property>
-  </action>
-  <action name="autoConfigure2">
-   <property name="text">
-    <string>Basic.AutoConfig</string>
-   </property>
-  </action>
-  <action name="autoConfigure">
-   <property name="text">
-    <string>Basic.AutoConfig</string>
    </property>
   </action>
   <action name="stats">
