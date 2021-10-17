@@ -1,17 +1,8 @@
 diff --git a/plugins/obs-websocket/CMakeLists.txt b/plugins/obs-websocket/CMakeLists.txt
-index 6b6f255..11d901b 100644
+index 6b6f255..4d82db8 100644
 --- a/plugins/obs-websocket/CMakeLists.txt
 +++ b/plugins/obs-websocket/CMakeLists.txt
-@@ -20,7 +20,7 @@ if (WIN32 OR APPLE)
- endif()
- 
- find_package(LibObs REQUIRED)
--find_package(Qt5 REQUIRED COMPONENTS Core Widgets)
-+find_package(Qt5 REQUIRED COMPONENTS Core Widgets Concurrent)
- 
- set(obs-websocket_SOURCES
- 	src/obs-websocket.cpp
-@@ -68,17 +68,21 @@ add_library(obs-websocket MODULE
+@@ -68,12 +68,14 @@ add_library(obs-websocket MODULE
  	${obs-websocket_SOURCES}
  	${obs-websocket_HEADERS})
  
@@ -23,20 +14,12 @@ index 6b6f255..11d901b 100644
  	${Qt5Widgets_INCLUDES}
 -	"${CMAKE_SOURCE_DIR}/deps/asio/asio/include"
 -	"${CMAKE_SOURCE_DIR}/deps/websocketpp")
-+	${Qt5Concurrent_INCLUDES}
 +	"${CMAKE_SOURCE_DIR}/plugins/obs-websocket/deps/asio/asio/include"
 +	"${CMAKE_SOURCE_DIR}/plugins/obs-websocket/deps/websocketpp")
  
  target_link_libraries(obs-websocket
  	libobs
- 	Qt5::Core
--	Qt5::Widgets)
-+	Qt5::Widgets
-+	Qt5::Concurrent)
- 
- # --- End of section ---
- 
-@@ -115,69 +119,69 @@ if(WIN32)
+@@ -115,69 +117,69 @@ if(WIN32)
  	# The "release" folder has a structure similar OBS' one on Windows
  	set(RELEASE_DIR "${PROJECT_SOURCE_DIR}/release")
  
@@ -157,14 +140,15 @@ index 6b6f255..11d901b 100644
  	# --- End of sub-section ---
  
  endif()
-@@ -218,3 +222,5 @@ if(APPLE)
+@@ -218,3 +220,5 @@ if(APPLE)
  	target_link_libraries(obs-websocket "${OBS_FRONTEND_LIB}")
  endif()
  # -- End of section --
 +
 +install_obs_plugin_with_data(obs-websocket data)
+\ No newline at end of file
 diff --git a/plugins/obs-websocket/src/protocol/OBSRemoteProtocol.cpp b/plugins/obs-websocket/src/protocol/OBSRemoteProtocol.cpp
-index a7555b6..de6faa5 100644
+index a7555b6..3e1ad4b 100644
 --- a/plugins/obs-websocket/src/protocol/OBSRemoteProtocol.cpp
 +++ b/plugins/obs-websocket/src/protocol/OBSRemoteProtocol.cpp
 @@ -69,13 +69,13 @@ std::string OBSRemoteProtocol::encodeEvent(const RpcEvent& event)
