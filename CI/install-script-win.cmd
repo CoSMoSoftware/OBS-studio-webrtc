@@ -6,7 +6,7 @@ if exist cef_binary_%CEF_VERSION%_windows64_minimal.zip (curl -kLO https://cdn-f
 7z x cef_binary_%CEF_VERSION%_windows64_minimal.zip -oCEF_64
 set DepsPath64=%CD%\dependencies2019\win64
 set VLCPath=%CD%\vlc
-set QTDIR64=C:\QtDep\5.15.2\msvc2019_64
+set QTDIR64=C:\QtDep\Qt\5.15.2\msvc2019_64
 set CEF_64=%CD%\CEF_64\cef_binary_%CEF_VERSION%_windows64_minimal
 set build_config=RelWithDebInfo
 set VIRTUALCAM-GUID=A3FCE0F5-3493-419F-958A-ABA1250EC20B
