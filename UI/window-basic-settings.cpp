@@ -411,6 +411,7 @@ OBSBasicSettings::OBSBasicSettings(QWidget *parent)
 	HookWidget(ui->overflowHide,         CHECK_CHANGED,  GENERAL_CHANGED);
 	HookWidget(ui->overflowAlwaysVisible,CHECK_CHANGED,  GENERAL_CHANGED);
 	HookWidget(ui->overflowSelectionHide,CHECK_CHANGED,  GENERAL_CHANGED);
+	HookWidget(ui->previewSafeAreas,     CHECK_CHANGED,  GENERAL_CHANGED);
 	HookWidget(ui->automaticSearch,      CHECK_CHANGED,  GENERAL_CHANGED);
 	HookWidget(ui->doubleClickSwitch,    CHECK_CHANGED,  GENERAL_CHANGED);
 	HookWidget(ui->studioPortraitLayout, CHECK_CHANGED,  GENERAL_CHANGED);
@@ -3833,12 +3834,6 @@ void OBSBasicSettings::on_theme_activated(int idx)
 // void OBSBasicSettings::on_listWidget_itemSelectionChanged()
 // {
 // 	int row = ui->listWidget->currentRow();
-
-// 	if (loading || row == pageIndex)
-// 		return;
-
-// 	pageIndex = row;
-// }
 
 // NOTE LUDO #170: Settings: replace QListWidget by QPushButtons
 void OBSBasicSettings::on_basicSettingsButtonGroup_buttonClicked(int row)
