@@ -559,6 +559,8 @@ codesign_bundle() {
 
     step "Code-sign OBS code..."
     /bin/echo -n "${COLOR_ORANGE}"
+    /bin/echo "ls -l ./OBS-WebRTC.app/Contents/Resources/data/"
+    ls -l ./OBS-WebRTC.app/Contents/Resources/data/
     /usr/bin/codesign --force --timestamp --options runtime --deep --sign "${CODESIGN_IDENT}" "./OBS-WebRTC.app/Contents/Resources/data/obs-mac-virtualcam.plugin"
     /usr/bin/codesign --force --timestamp --options runtime --entitlements "${CI_SCRIPTS}/app/entitlements.plist" --sign "${CODESIGN_IDENT}" --deep ./OBS-WebRTC.app
     /bin/echo -n "${COLOR_RESET}"
