@@ -370,7 +370,7 @@ bundle_dylibs() {
     cp ./libobs-opengl/libobs-opengl.so ./OBS-WebRTC.app/Contents/Frameworks
 
     step "Copy QtNetwork for plugin support"
-    cp -R /tmp/obsdeps/lib/QtNetwork.framework ./OBS-WebRTC.app/Contents/Frameworks
+#    cp -R /tmp/obsdeps/lib/QtNetwork.framework ./OBS-WebRTC.app/Contents/Frameworks
     chmod -R +w ./OBS-WebRTC.app/Contents/Frameworks/QtNetwork.framework
     rm -r ./OBS-WebRTC.app/Contents/Frameworks/QtNetwork.framework/Headers
     rm -r ./OBS-WebRTC.app/Contents/Frameworks/QtNetwork.framework/Versions/5/Headers/
