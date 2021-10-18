@@ -367,7 +367,7 @@ bundle_dylibs() {
         -x ./OBS-WebRTC.app/Contents/PlugIns/obs-websocket.so
 
     step "Move libobs-opengl to final destination"
-    cp ./libobs-opengl/libobs-opengl.so ./OBS-WebRTC.app/Contents/Frameworks
+    /bin/cp ./libobs-opengl/libobs-opengl.so ./OBS-WebRTC.app/Contents/Frameworks
 
     step "Copy QtNetwork for plugin support"
 #    cp -R /tmp/obsdeps/lib/QtNetwork.framework ./OBS-WebRTC.app/Contents/Frameworks
@@ -557,11 +557,16 @@ codesign_bundle() {
     codesign --force --timestamp --options runtime --entitlements "${CI_SCRIPTS}/helpers/helper-renderer-entitlements.plist" --sign "${CODESIGN_IDENT}" --deep "./OBS-WebRTC.app/Contents/Frameworks/OBS Helper (Renderer).app"
     /bin/echo -n "${COLOR_RESET}"
 
-    step "Code-sign OBS code..."
+    step "Code-sign DAL Plugin..."
     /bin/echo -n "${COLOR_ORANGE}"
     /usr/bin/codesign --force --timestamp --options runtime --deep --sign "${CODESIGN_IDENT}" "./OBS-WebRTC.app/Contents/Resources/data/obs-plugins/mac-virtualcam/obs-mac-virtualcam.plugin"
+    /bin/echo -n "${COLOR_RESET}"
+
+    step "Code-sign OBS code..."
+    /bin/echo -n "${COLOR_ORANGE}"
     /usr/bin/codesign --force --timestamp --options runtime --entitlements "${CI_SCRIPTS}/app/entitlements.plist" --sign "${CODESIGN_IDENT}" --deep ./OBS-WebRTC.app
     /bin/echo -n "${COLOR_RESET}"
+
     step "Check code-sign result..."
     /usr/bin/codesign -dvv ./OBS-WebRTC.app
 }
@@ -664,8 +669,8 @@ notarize_macos() {
 
 ## MAIN SCRIPT FUNCTIONS ##
 print_usage() {
-    /bin/echo -e "full-build-macos.sh - Build helper script for OBS-Studio\n"
-    /bin/echo -e "Usage: ${0}\n" \
+    /bin/echo "full-build-macos.sh - Build helper script for OBS-Studio\n"
+    /bin/echo "Usage: ${0}\n" \
         "-d: Skip dependency checks\n" \
         "-b: Create macOS app bundle\n" \
         "-c: Codesign macOS app bundle\n" \

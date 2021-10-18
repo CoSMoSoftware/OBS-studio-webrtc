@@ -10,7 +10,7 @@ if(NOT OBS_WEBRTC_VENDOR_NAME)
 else()
 	set(_project_name ${OBS_WEBRTC_VENDOR_NAME})
 endif()
-project(${_project_name} VERSION 27.0.1)
+project(${_project_name} VERSION 27.1.3)
 
 if(NOT DEFINED CONFIG_DIR OR "${CONFIG_DIR}" STREQUAL "")
 	if(NOT OBS_WEBRTC_VENDOR_NAME)
