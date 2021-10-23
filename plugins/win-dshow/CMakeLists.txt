@@ -16,7 +16,7 @@ set(MODULE_DESCRIPTION "OBS DirectShow module")
 
 set(VIRTUALCAM_GUID "" CACHE STRING "VirtualCam GUID")
 
-set(VIRTUALCAM_ENABLED FALSE)
+set(VIRTUALCAM_ENABLED TRUE)
 if(VIRTUALCAM_GUID STREQUAL "")
 	message(STATUS "VirtualCam GUID not set! VirtualCam disabled.")
 else()
