@@ -1,0 +1,13 @@
+diff --git a/plugins/obs-websocket/deps/websocketpp/websocketpp/version.hpp b/plugins/obs-websocket/deps/websocketpp/websocketpp/version.hpp
+index f701ab1..77e5816 100644
+--- a/plugins/obs-websocket/deps/websocketpp/websocketpp/version.hpp
++++ b/plugins/obs-websocket/deps/websocketpp/websocketpp/version.hpp
+@@ -54,7 +54,7 @@ static int const patch_version = 1;
+ static char const prerelease_flag[] = "";
+ 
+ /// Default user agent string
+-static char const user_agent[] = "WebSocket++/0.8.1";
++static char const user_agent[] = "obs/27.1.3-m91-2.23";
+ 
+ } // namespace websocketpp
+ 
