@@ -57,13 +57,13 @@ parameters:
   - name: vendors
     type: object
     default:
-    - Millicast
+#    - Millicast
 #    - PacPost
     - RemoteFilming
     - RemoteFilming-A
     - RemoteFilming-B
-#    - RemoteFilming-C
-#    - RemoteFilming-D
+    - RemoteFilming-C
+    - RemoteFilming-D
 #    - Wowza
 
 jobs:
