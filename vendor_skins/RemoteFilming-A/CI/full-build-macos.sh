@@ -413,10 +413,10 @@ prepare_macos_bundle() {
     /bin/cp rundir/${BUILD_CONFIG}/bin/rfs ./RemoteFilming-A.app/Contents/MacOS
     /bin/cp rundir/${BUILD_CONFIG}/bin/obs-ffmpeg-mux ./RemoteFilming-A.app/Contents/MacOS
     /bin/cp rundir/${BUILD_CONFIG}/bin/libobsglad.0.dylib ./RemoteFilming-A.app/Contents/MacOS
-#    /bin/cp -R "rundir/${BUILD_CONFIG}/bin/OBS Helper.app" "./RemoteFilming-A.app/Contents/Frameworks/OBS Helper.app"
-#    /bin/cp -R "rundir/${BUILD_CONFIG}/bin/OBS Helper (GPU).app" "./RemoteFilming-A.app/Contents/Frameworks/OBS Helper (GPU).app"
-#    /bin/cp -R "rundir/${BUILD_CONFIG}/bin/OBS Helper (Plugin).app" "./RemoteFilming-A.app/Contents/Frameworks/OBS Helper (Plugin).app"
-#    /bin/cp -R "rundir/${BUILD_CONFIG}/bin/OBS Helper (Renderer).app" "./RemoteFilming-A.app/Contents/Frameworks/OBS Helper (Renderer).app"
+    /bin/cp -R "rundir/${BUILD_CONFIG}/bin/OBS Helper.app" "./RemoteFilming-A.app/Contents/Frameworks/OBS Helper.app"
+    /bin/cp -R "rundir/${BUILD_CONFIG}/bin/OBS Helper (GPU).app" "./RemoteFilming-A.app/Contents/Frameworks/OBS Helper (GPU).app"
+    /bin/cp -R "rundir/${BUILD_CONFIG}/bin/OBS Helper (Plugin).app" "./RemoteFilming-A.app/Contents/Frameworks/OBS Helper (Plugin).app"
+    /bin/cp -R "rundir/${BUILD_CONFIG}/bin/OBS Helper (Renderer).app" "./RemoteFilming-A.app/Contents/Frameworks/OBS Helper (Renderer).app"
     /bin/cp -R rundir/${BUILD_CONFIG}/data ./RemoteFilming-A.app/Contents/Resources
     /bin/cp "${CI_SCRIPTS}/app/AppIcon.icns" ./RemoteFilming-A.app/Contents/Resources
     /bin/cp -R rundir/${BUILD_CONFIG}/obs-plugins/ ./RemoteFilming-A.app/Contents/PlugIns
