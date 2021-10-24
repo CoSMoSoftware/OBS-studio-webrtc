@@ -41,7 +41,6 @@ OBSAbout::OBSAbout(QWidget *parent) : QDialog(parent), ui(new Ui::OBSAbout)
 	ui->about->setProperty("themeID", "aboutHLayout");
 	ui->authors->setProperty("themeID", "aboutHLayout");
 	ui->license->setProperty("themeID", "aboutHLayout");
-	ui->info->setProperty("themeID", "aboutInfo");
 
 	connect(ui->about, SIGNAL(clicked()), this, SLOT(ShowAbout()));
 	connect(ui->authors, SIGNAL(clicked()), this, SLOT(ShowAuthors()));
