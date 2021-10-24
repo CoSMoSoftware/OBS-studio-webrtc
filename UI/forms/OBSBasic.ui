@@ -1934,16 +1934,6 @@
     <string>PasteDuplicate</string>
    </property>
   </action>
-  <action name="autoConfigure2">
-   <property name="text">
-    <string>Basic.AutoConfig</string>
-   </property>
-  </action>
-  <action name="autoConfigure">
-   <property name="text">
-    <string>Basic.AutoConfig</string>
-   </property>
-  </action>
   <action name="stats">
    <property name="text">
     <string>Basic.Stats</string>

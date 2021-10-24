@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/bash
 
 ##############################################################################
 # macOS full build script
@@ -35,7 +35,7 @@ set -eE
 ## SET UP ENVIRONMENT ##
 PRODUCT_NAME="RemoteFilming"
 
-CHECKOUT_DIR="$(git rev-parse --show-toplevel)"
+CHECKOUT_DIR="$(/usr/bin/git rev-parse --show-toplevel)"
 DEPS_BUILD_DIR="${CHECKOUT_DIR}/../obs-build-dependencies"
 BUILD_DIR="${BUILD_DIR:-build}"
 BUILD_CONFIG=${BUILD_CONFIG:-RelWithDebInfo}
@@ -49,17 +49,17 @@ VENDOR="${VENDOR:-vendorNameMissing}"
 BUILD_DEPS=(
     "obs-deps ${MACOS_DEPS_VERSION}"
     "qt-deps ${QT_VERSION} ${MACOS_DEPS_VERSION}"
+    "cef ${MACOS_CEF_BUILD_VERSION:-${MACOS_CEF_VERSION}}"
     "vlc ${VLC_VERSION}"
     "libwebrtc ${LIBWEBRTC_VERSION}"
 )
-#    "cef ${MACOS_CEF_BUILD_VERSION:-${MACOS_CEF_VERSION}}"
 
 if [ -n "${TERM-}" ]; then
-    COLOR_RED=$(tput setaf 1)
-    COLOR_GREEN=$(tput setaf 2)
-    COLOR_BLUE=$(tput setaf 4)
-    COLOR_ORANGE=$(tput setaf 3)
-    COLOR_RESET=$(tput sgr0)
+    COLOR_RED=$(/usr/bin/tput setaf 1)
+    COLOR_GREEN=$(/usr/bin/tput setaf 2)
+    COLOR_BLUE=$(/usr/bin/tput setaf 4)
+    COLOR_ORANGE=$(/usr/bin/tput setaf 3)
+    COLOR_RESET=$(/usr/bin/tput sgr0)
 else
     COLOR_RED=""
     COLOR_GREEN=""
@@ -69,38 +69,38 @@ else
 fi
 
 
-MACOS_VERSION="$(sw_vers -productVersion)"
-MACOS_MAJOR="$(echo ${MACOS_VERSION} | cut -d '.' -f 1)"
-MACOS_MINOR="$(echo ${MACOS_VERSION} | cut -d '.' -f 2)"
+MACOS_VERSION="$(/usr/bin/sw_vers -productVersion)"
+MACOS_MAJOR="$(/bin/echo ${MACOS_VERSION} | /usr/bin/cut -d '.' -f 1)"
+MACOS_MINOR="$(/bin/echo ${MACOS_VERSION} | /usr/bin/cut -d '.' -f 2)"
 
 ## DEFINE UTILITIES ##
 
 hr() {
-    echo -e "${COLOR_BLUE}[${PRODUCT_NAME}] ${1}${COLOR_RESET}"
+    /bin/echo "${COLOR_BLUE}[${PRODUCT_NAME}] ${1}${COLOR_RESET}"
 }
 
 step() {
-    echo -e "${COLOR_GREEN}  + ${1}${COLOR_RESET}"
+    /bin/echo "${COLOR_GREEN}  + ${1}${COLOR_RESET}"
 }
 
 info() {
-    echo -e "${COLOR_ORANGE} + ${1}${COLOR_RESET}"
+    /bin/echo "${COLOR_ORANGE} + ${1}${COLOR_RESET}"
 }
 
 error() {
-    echo -e "${COLOR_RED}  + ${1}${COLOR_RESET}"
+    /bin/echo "${COLOR_RED}  + ${1}${COLOR_RESET}"
 }
 
 exists() {
-  command -v "$1" >/dev/null 2>&1
+  /usr/bin/command -v "$1" >/dev/null 2>&1
 }
 
 ensure_dir() {
-    [[ -n "${1}" ]] && mkdir -p "${1}" && builtin cd "${1}"
+    [[ -n "${1}" ]] && /bin/mkdir -p "${1}" && builtin cd "${1}"
 }
 
 cleanup() {
-    rm -rf "${CHECKOUT_DIR}/${BUILD_DIR}_${VENDOR}/settings.json"
+    /bin/rm -rf "${CHECKOUT_DIR}/${BUILD_DIR}_${VENDOR}/settings.json"
     unset CODESIGN_IDENT
     unset CODESIGN_IDENT_USER
     unset CODESIGN_IDENT_PASS
@@ -159,7 +159,7 @@ check_curl() {
 
 check_ccache() {
     export PATH="/usr/local/opt/ccache/libexec:${PATH}"
-    CCACHE_STATUS=$(ccache -s >/dev/null 2>&1 && echo "CCache available." || echo "CCache is not available.")
+    CCACHE_STATUS=$(ccache -s >/dev/null 2>&1 && /bin/echo "CCache available." || /bin/echo "CCache is not available.")
     info "${CCACHE_STATUS}"
 }
 
@@ -188,7 +188,7 @@ install_vlc() {
     step "Download..."
     ${CURLCMD} --progress-bar -L -C - -O https://downloads.videolan.org/vlc/${1}/vlc-${1}.tar.xz
     step "Unpack ..."
-    tar -xf vlc-${1}.tar.xz
+    /usr/bin/tar -xf vlc-${1}.tar.xz
 }
 
 # install_sparkle() {
@@ -216,8 +216,8 @@ install_cef() {
     cd ./cef_binary_${1}_macosx64
     step "Fix tests..."
     # remove a broken test
-    sed -i '.orig' '/add_subdirectory(tests\/ceftests)/d' ./CMakeLists.txt
-    sed -i '.orig' s/\"10.10\"/\"${MIN_MACOS_VERSION}\"/ ./cmake/cef_variables.cmake
+    /usr/bin/sed -i '.orig' '/add_subdirectory(tests\/ceftests)/d' ./CMakeLists.txt
+    /usr/bin/sed -i '.orig' s/\"10.10\"/\"${MIN_MACOS_VERSION}\"/ ./cmake/cef_variables.cmake
     ensure_dir ./build
     step "Run CMAKE..."
     cmake \
@@ -227,8 +227,8 @@ install_cef() {
         -DCMAKE_OSX_DEPLOYMENT_TARGET=${MIN_MACOS_VERSION} \
         ..
     step "Build..."
-    make -j${NPROC}
-    if [ ! -d libcef_dll ]; then mkdir libcef_dll; fi
+    /usr/bin/make -j${NPROC}
+    if [ ! -d libcef_dll ]; then /bin/mkdir libcef_dll; fi
 }
 
 install_libwebrtc() {
@@ -268,19 +268,19 @@ install_dmgbuild() {
 configure_obs_build() {
     ensure_dir "${CHECKOUT_DIR}/${BUILD_DIR}_${VENDOR}"
 
-    CUR_DATE=$(date +"%Y-%m-%d@%H%M%S")
+    CUR_DATE=$(/bin/date +"%Y-%m-%d@%H%M%S")
     NIGHTLY_DIR="${CHECKOUT_DIR}/nightly-${CUR_DATE}"
-    PACKAGE_NAME=$(find . -name "*.dmg")
+    PACKAGE_NAME=$(/usr/bin/find . -name "*.dmg")
 
     if [ -d ./RemoteFilming-A.app ]; then
         ensure_dir "${NIGHTLY_DIR}"
-        mv "../${BUILD_DIR}_${VENDOR}/RemoteFilming-A.app" .
+        /bin/mv "../${BUILD_DIR}_${VENDOR}/RemoteFilming-A.app" .
         info "You can find RemoteFilming-A.app in ${NIGHTLY_DIR}"
     fi
     ensure_dir "${CHECKOUT_DIR}/${BUILD_DIR}_${VENDOR}"
     if ([ -n "${PACKAGE_NAME}" ] && [ -f ${PACKAGE_NAME} ]); then
         ensure_dir "${NIGHTLY_DIR}"
-        mv "../${BUILD_DIR}_${VENDOR}/$(basename "${PACKAGE_NAME}")" .
+        /bin/mv "../${BUILD_DIR}_${VENDOR}/$(basename "${PACKAGE_NAME}")" .
         info "You can find ${PACKAGE_NAME} in ${NIGHTLY_DIR}"
     fi
 
@@ -302,10 +302,10 @@ configure_obs_build() {
         -DSWIGDIR="/tmp/obsdeps" \
         -DDepsPath="/tmp/obsdeps" \
         -DVLCPath="${DEPS_BUILD_DIR}/vlc-${VLC_VERSION}" \
-        -DENABLE_VLC=ON \
-        -DBUILD_BROWSER=OFF \
+        -DBUILD_BROWSER=ON \
         -DBROWSER_LEGACY=OFF \
         -DWITH_RTMPS=ON \
+        -DCEF_ROOT_DIR="${DEPS_BUILD_DIR}/cef_binary_${MACOS_CEF_BUILD_VERSION}_macosx64" \
         -DCMAKE_BUILD_TYPE="${BUILD_CONFIG}" \
         .. \
         ${vendor_option} \
@@ -317,14 +317,13 @@ configure_obs_build() {
         -DLIBOBS_LIB=`pwd`/libobs/libobs.0.dylib \
         -DOBS_FRONTEND_LIB=`pwd`/UI/obs-frontend-api/libobs-frontend-api.dylib
 
-#        -DENABLE_SPARKLE_UPDATER=ON \
-#        -DCEF_ROOT_DIR="${DEPS_BUILD_DIR}/cef_binary_${MACOS_CEF_BUILD_VERSION}_macosx64" \
+        # -DENABLE_SPARKLE_UPDATER=ON \
 }
 
 run_obs_build() {
     ensure_dir "${CHECKOUT_DIR}/${BUILD_DIR}_${VENDOR}"
     hr "Build OBS..."
-    make -j4
+    /usr/bin/make -j${NPROC}
 }
 
 ## OBS BUNDLE AS MACOS APPLICATION ##
@@ -353,6 +352,7 @@ bundle_dylibs() {
         -x ./RemoteFilming-A.app/Contents/PlugIns/mac-syphon.so \
         -x ./RemoteFilming-A.app/Contents/PlugIns/mac-vth264.so \
         -x ./RemoteFilming-A.app/Contents/PlugIns/mac-virtualcam.so \
+        -x ./RemoteFilming-A.app/Contents/PlugIns/obs-browser.so
         -x ./RemoteFilming-A.app/Contents/PlugIns/obs-ffmpeg.so \
         -x ./RemoteFilming-A.app/Contents/PlugIns/obs-filters.so \
         -x ./RemoteFilming-A.app/Contents/PlugIns/obs-transitions.so \
@@ -365,17 +365,16 @@ bundle_dylibs() {
         -x ./RemoteFilming-A.app/Contents/PlugIns/obs-outputs.so \
         -x ./RemoteFilming-A.app/Contents/PlugIns/obs-ndi.so \
         -x ./RemoteFilming-A.app/Contents/PlugIns/obs-websocket.so
-#        -x ./RemoteFilming-A.app/Contents/PlugIns/obs-browser.so
 
     step "Move libobs-opengl to final destination"
-    cp ./libobs-opengl/libobs-opengl.so ./RemoteFilming-A.app/Contents/Frameworks
+    /bin/cp ./libobs-opengl/libobs-opengl.so ./RemoteFilming-A.app/Contents/Frameworks
 
     step "Copy QtNetwork for plugin support"
-    cp -R /tmp/obsdeps/lib/QtNetwork.framework ./RemoteFilming-A.app/Contents/Frameworks
-    chmod -R +w ./RemoteFilming-A.app/Contents/Frameworks/QtNetwork.framework
-    rm -r ./RemoteFilming-A.app/Contents/Frameworks/QtNetwork.framework/Headers
-    rm -r ./RemoteFilming-A.app/Contents/Frameworks/QtNetwork.framework/Versions/5/Headers/
-    chmod 644 ./RemoteFilming-A.app/Contents/Frameworks/QtNetwork.framework/Versions/5/Resources/Info.plist
+    /bin/cp -R /tmp/obsdeps/lib/QtNetwork.framework ./RemoteFilming-A.app/Contents/Frameworks
+    /bin/chmod -R +w ./RemoteFilming-A.app/Contents/Frameworks/QtNetwork.framework
+    /bin/rm -r ./RemoteFilming-A.app/Contents/Frameworks/QtNetwork.framework/Headers
+    /bin/rm -r ./RemoteFilming-A.app/Contents/Frameworks/QtNetwork.framework/Versions/5/Headers/
+    /bin/chmod 644 ./RemoteFilming-A.app/Contents/Frameworks/QtNetwork.framework/Versions/5/Resources/Info.plist
     install_name_tool -id @executable_path/../Frameworks/QtNetwork.framework/Versions/5/QtNetwork ./RemoteFilming-A.app/Contents/Frameworks/QtNetwork.framework/Versions/5/QtNetwork
     install_name_tool -change /tmp/obsdeps/lib/QtCore.framework/Versions/5/QtCore @executable_path/../Frameworks/QtCore.framework/Versions/5/QtCore ./RemoteFilming-A.app/Contents/Frameworks/QtNetwork.framework/Versions/5/QtNetwork
 }
@@ -390,8 +389,8 @@ install_frameworks() {
 
     hr "Adding Chromium Embedded Framework"
     step "Copy Framework..."
-    cp -R "${DEPS_BUILD_DIR}/cef_binary_${MACOS_CEF_BUILD_VERSION}_macosx64/Release/Chromium Embedded Framework.framework" ./RemoteFilming-A.app/Contents/Frameworks/
-    chown -R $(whoami) ./RemoteFilming-A.app/Contents/Frameworks/
+    /bin/cp -R "${DEPS_BUILD_DIR}/cef_binary_${MACOS_CEF_BUILD_VERSION}_macosx64/Release/Chromium Embedded Framework.framework" ./RemoteFilming-A.app/Contents/Frameworks/
+    /bin/chown -R $(whoami) ./RemoteFilming-A.app/Contents/Frameworks/
 }
 
 prepare_macos_bundle() {
@@ -406,41 +405,41 @@ prepare_macos_bundle() {
 
     hr "Preparing RemoteFilming-A.app bundle"
     step "Copy binary and plugins..."
-    mkdir -p RemoteFilming-A.app/Contents/MacOS
-    mkdir RemoteFilming-A.app/Contents/PlugIns
-    mkdir RemoteFilming-A.app/Contents/Resources
-    mkdir RemoteFilming-A.app/Contents/Frameworks
+    /bin/mkdir -p RemoteFilming-A.app/Contents/MacOS
+    /bin/mkdir RemoteFilming-A.app/Contents/PlugIns
+    /bin/mkdir RemoteFilming-A.app/Contents/Resources
+    /bin/mkdir RemoteFilming-A.app/Contents/Frameworks
 
-    cp rundir/${BUILD_CONFIG}/bin/rfs ./RemoteFilming-A.app/Contents/MacOS
-    cp rundir/${BUILD_CONFIG}/bin/obs-ffmpeg-mux ./RemoteFilming-A.app/Contents/MacOS
-    cp rundir/${BUILD_CONFIG}/bin/libobsglad.0.dylib ./RemoteFilming-A.app/Contents/MacOS
-#    cp -R "rundir/${BUILD_CONFIG}/bin/OBS Helper.app" "./RemoteFilming-A.app/Contents/Frameworks/OBS Helper.app"
-#    cp -R "rundir/${BUILD_CONFIG}/bin/OBS Helper (GPU).app" "./RemoteFilming-A.app/Contents/Frameworks/OBS Helper (GPU).app"
-#    cp -R "rundir/${BUILD_CONFIG}/bin/OBS Helper (Plugin).app" "./RemoteFilming-A.app/Contents/Frameworks/OBS Helper (Plugin).app"
-#    cp -R "rundir/${BUILD_CONFIG}/bin/OBS Helper (Renderer).app" "./RemoteFilming-A.app/Contents/Frameworks/OBS Helper (Renderer).app"
-    cp -R rundir/${BUILD_CONFIG}/data ./RemoteFilming-A.app/Contents/Resources
-    cp "${CI_SCRIPTS}/app/AppIcon.icns" ./RemoteFilming-A.app/Contents/Resources
-    cp -R rundir/${BUILD_CONFIG}/obs-plugins/ ./RemoteFilming-A.app/Contents/PlugIns
-    cp "${CI_SCRIPTS}/app/Info.plist" ./RemoteFilming-A.app/Contents
+    /bin/cp rundir/${BUILD_CONFIG}/bin/rfs ./RemoteFilming-A.app/Contents/MacOS
+    /bin/cp rundir/${BUILD_CONFIG}/bin/obs-ffmpeg-mux ./RemoteFilming-A.app/Contents/MacOS
+    /bin/cp rundir/${BUILD_CONFIG}/bin/libobsglad.0.dylib ./RemoteFilming-A.app/Contents/MacOS
+#    /bin/cp -R "rundir/${BUILD_CONFIG}/bin/OBS Helper.app" "./RemoteFilming-A.app/Contents/Frameworks/OBS Helper.app"
+#    /bin/cp -R "rundir/${BUILD_CONFIG}/bin/OBS Helper (GPU).app" "./RemoteFilming-A.app/Contents/Frameworks/OBS Helper (GPU).app"
+#    /bin/cp -R "rundir/${BUILD_CONFIG}/bin/OBS Helper (Plugin).app" "./RemoteFilming-A.app/Contents/Frameworks/OBS Helper (Plugin).app"
+#    /bin/cp -R "rundir/${BUILD_CONFIG}/bin/OBS Helper (Renderer).app" "./RemoteFilming-A.app/Contents/Frameworks/OBS Helper (Renderer).app"
+    /bin/cp -R rundir/${BUILD_CONFIG}/data ./RemoteFilming-A.app/Contents/Resources
+    /bin/cp "${CI_SCRIPTS}/app/AppIcon.icns" ./RemoteFilming-A.app/Contents/Resources
+    /bin/cp -R rundir/${BUILD_CONFIG}/obs-plugins/ ./RemoteFilming-A.app/Contents/PlugIns
+    /bin/cp "${CI_SCRIPTS}/app/Info.plist" ./RemoteFilming-A.app/Contents
     # Scripting plugins are required to be placed in same directory as binary
     if [ -d ./RemoteFilming-A.app/Contents/Resources/data/obs-scripting ]; then
-        mv ./RemoteFilming-A.app/Contents/Resources/data/obs-scripting/obslua.so ./RemoteFilming-A.app/Contents/MacOS/
-        # mv ./RemoteFilming-A.app/Contents/Resources/data/obs-scripting/_obspython.so ./RemoteFilming-A.app/Contents/MacOS/
-        # mv ./RemoteFilming-A.app/Contents/Resources/data/obs-scripting/obspython.py ./RemoteFilming-A.app/Contents/MacOS/
-        rm -rf ./RemoteFilming-A.app/Contents/Resources/data/obs-scripting/
+        /bin/mv ./RemoteFilming-A.app/Contents/Resources/data/obs-scripting/obslua.so ./RemoteFilming-A.app/Contents/MacOS/
+        # /bin/mv ./RemoteFilming-A.app/Contents/Resources/data/obs-scripting/_obspython.so ./RemoteFilming-A.app/Contents/MacOS/
+        # /bin/mv ./RemoteFilming-A.app/Contents/Resources/data/obs-scripting/obspython.py ./RemoteFilming-A.app/Contents/MacOS/
+        /bin/rm -rf ./RemoteFilming-A.app/Contents/Resources/data/obs-scripting/
     fi
 
     bundle_dylibs
 #    install_frameworks
 
-    cp "${CI_SCRIPTS}/app/OBSPublicDSAKey.pem" ./RemoteFilming-A.app/Contents/Resources
+    /bin/cp "${CI_SCRIPTS}/app/OBSPublicDSAKey.pem" ./RemoteFilming-A.app/Contents/Resources
 
     step "Set bundle meta information..."
-    plutil -insert CFBundleVersion -string "${OBS_VERSION}" ./RemoteFilming-A.app/Contents/Info.plist
-    plutil -insert CFBundleShortVersionString -string "${MACOSX_BUNDLE_SHORT_VERSION_STRING}" ./RemoteFilming-A.app/Contents/Info.plist
-    # plutil -insert OBSFeedsURL -string https://obsproject.com/osx_update/feeds.xml ./RemoteFilming-A.app/Contents/Info.plist
-    # plutil -insert SUFeedURL -string https://obsproject.com/osx_update/stable/updates.xml ./RemoteFilming-A.app/Contents/Info.plist
-    # plutil -insert SUPublicDSAKeyFile -string OBSPublicDSAKey.pem ./RemoteFilming-A.app/Contents/Info.plist
+    /usr/bin/plutil -insert CFBundleVersion -string "${OBS_VERSION}" ./RemoteFilming-A.app/Contents/Info.plist
+    /usr/bin/plutil -insert CFBundleShortVersionString -string "${MACOSX_BUNDLE_SHORT_VERSION_STRING}" ./RemoteFilming-A.app/Contents/Info.plist
+    /usr/bin/plutil -insert OBSFeedsURL -string https://obsproject.com/osx_update/feeds.xml ./RemoteFilming-A.app/Contents/Info.plist
+    /usr/bin/plutil -insert SUFeedURL -string https://obsproject.com/osx_update/stable/updates.xml ./RemoteFilming-A.app/Contents/Info.plist
+    /usr/bin/plutil -insert SUPublicDSAKeyFile -string OBSPublicDSAKey.pem ./RemoteFilming-A.app/Contents/Info.plist
 }
 
 ## CREATE MACOS DISTRIBUTION AND INSTALLER IMAGE ##
@@ -455,17 +454,17 @@ prepare_macos_image() {
     hr "Preparing macOS installation image"
 
     if [ -f "${FILE_NAME}" ]; then
-        rm "${FILE_NAME}"
+        /bin/rm "${FILE_NAME}"
     fi
 
     step "Run dmgbuild..."
-    cp "${CI_SCRIPTS}/package/settings.json.template" ./settings.json
-    sed -i '' 's#\$\$VERSION\$\$#'"${OBS_VERSION}"'#g' ./settings.json
-    sed -i '' 's#\$\$CI_PATH\$\$#'"${CI_SCRIPTS}"'#g' ./settings.json
-    sed -i '' 's#\$\$BUNDLE_PATH\$\$#'"${CHECKOUT_DIR}"'/build_'"${VENDOR}"'#g' ./settings.json
-    echo -n "${COLOR_ORANGE}"
+    /bin/cp "${CI_SCRIPTS}/package/settings.json.template" ./settings.json
+    /usr/bin/sed -i '' 's#\$\$VERSION\$\$#'"${OBS_VERSION}"'#g' ./settings.json
+    /usr/bin/sed -i '' 's#\$\$CI_PATH\$\$#'"${CI_SCRIPTS}"'#g' ./settings.json
+    /usr/bin/sed -i '' 's#\$\$BUNDLE_PATH\$\$#'"${CHECKOUT_DIR}"'/build_'"${VENDOR}"'#g' ./settings.json
+    /bin/echo -n "${COLOR_ORANGE}"
     dmgbuild "RemoteFilming-A ${OBS_VERSION}" "${FILE_NAME}" -s ./settings.json
-    echo -n "${COLOR_RESET}"
+    /bin/echo -n "${COLOR_RESET}"
 
     if [ -n "${CODESIGN_OBS}" ]; then
         codesign_image
@@ -483,7 +482,7 @@ prepare_macos_image() {
 read_codesign_ident() {
     if [ ! -n "${CODESIGN_IDENT}" ]; then
         step "Code-signing Setup"
-        read -p "${COLOR_ORANGE}  + Apple developer identity: ${COLOR_RESET}" CODESIGN_IDENT
+        /usr/bin/read -p "${COLOR_ORANGE}  + Apple developer identity: ${COLOR_RESET}" CODESIGN_IDENT
     fi
 }
 
@@ -503,16 +502,16 @@ read_codesign_ident() {
 read_codesign_pass() {
     if [ ! -n "${CODESIGN_IDENT_PASS}" ]; then
         step "Notarization Setup"
-        read -p "${COLOR_ORANGE}  + Apple account id: ${COLOR_RESET}" CODESIGN_IDENT_USER
-        CODESIGN_IDENT_PASS=$(stty -echo; read -p "${COLOR_ORANGE}  + Apple developer password: ${COLOR_RESET}" pwd; stty echo; echo $pwd)
-        echo -n "${COLOR_ORANGE}"
-        xcrun altool --store-password-in-keychain-item "OBS-app-specific-password" -u "${CODESIGN_IDENT_USER}" -p "${NOTARIZE_APP_SPECIFIC_PASSWORD}"
-        echo -n "${COLOR_RESET}"
-        CODESIGN_IDENT_SHORT=$(echo "${CODESIGN_IDENT}" | sed -En "s/.+\((.+)\)/\1/p")
+        /usr/bin/read -p "${COLOR_ORANGE}  + Apple account id: ${COLOR_RESET}" CODESIGN_IDENT_USER
+        CODESIGN_IDENT_PASS=$(stty -echo; /usr/bin/read -p "${COLOR_ORANGE}  + Apple developer password: ${COLOR_RESET}" pwd; stty echo; /bin/echo $pwd)
+        /bin/echo -n "${COLOR_ORANGE}"
+        /usr/bin/xcrun altool --store-password-in-keychain-item "OBS-app-specific-password" -u "${CODESIGN_IDENT_USER}" -p "${NOTARIZE_APP_SPECIFIC_PASSWORD}"
+        /bin/echo -n "${COLOR_RESET}"
+        CODESIGN_IDENT_SHORT=$(/bin/echo "${CODESIGN_IDENT}" | /usr/bin/sed -En "s/.+\((.+)\)/\1/p")
     else
         step "Store app password in macOS keychain"
-        xcrun altool --store-password-in-keychain-item "OBS-app-specific-password" -u "${CODESIGN_IDENT_USER}" -p "${NOTARIZE_APP_SPECIFIC_PASSWORD}"
-        CODESIGN_IDENT_SHORT=$(echo "${CODESIGN_IDENT}" | sed -En "s/.+\((.+)\)/\1/p")
+        /usr/bin/xcrun altool --store-password-in-keychain-item "OBS-app-specific-password" -u "${CODESIGN_IDENT_USER}" -p "${NOTARIZE_APP_SPECIFIC_PASSWORD}"
+        CODESIGN_IDENT_SHORT=$(/bin/echo "${CODESIGN_IDENT}" | /usr/bin/sed -En "s/.+\((.+)\)/\1/p")
     fi
 }
 
@@ -529,42 +528,47 @@ codesign_bundle() {
 
     hr "Code-signing application bundle"
 
-    xattr -crs ./RemoteFilming-A.app
+    /usr/bin/xattr -crs ./RemoteFilming-A.app
 
     read_codesign_ident
 
     # step "Code-sign Sparkle framework..."
-    # echo -n "${COLOR_ORANGE}"
-    # codesign --force --options runtime --sign "${CODESIGN_IDENT}" "./RemoteFilming-A.app/Contents/Frameworks/Sparkle.framework/Versions/A/Resources/Autoupdate.app/Contents/MacOS/fileop"
-    # codesign --force --options runtime --sign "${CODESIGN_IDENT}" "./RemoteFilming-A.app/Contents/Frameworks/Sparkle.framework/Versions/A/Resources/Autoupdate.app/Contents/MacOS/Autoupdate"
-    # codesign --force --options runtime --sign "${CODESIGN_IDENT}" --deep ./RemoteFilming-A.app/Contents/Frameworks/Sparkle.framework
-    # echo -n "${COLOR_RESET}"
+    # /bin/echo -n "${COLOR_ORANGE}"
+    # /usr/bin/codesign --force --options runtime --sign "${CODESIGN_IDENT}" "./RemoteFilming-A.app/Contents/Frameworks/Sparkle.framework/Versions/A/Resources/Autoupdate.app/Contents/MacOS/fileop"
+    # /usr/bin/codesign --force --options runtime --sign "${CODESIGN_IDENT}" "./RemoteFilming-A.app/Contents/Frameworks/Sparkle.framework/Versions/A/Resources/Autoupdate.app/Contents/MacOS/Autoupdate"
+    # /usr/bin/codesign --force --options runtime --sign "${CODESIGN_IDENT}" --deep ./RemoteFilming-A.app/Contents/Frameworks/Sparkle.framework
+    # /bin/echo -n "${COLOR_RESET}"
 
-#    step "Code-sign CEF framework..."
-#    echo -n "${COLOR_ORANGE}"
-#    codesign --force --timestamp --options runtime --entitlements "${CI_SCRIPTS}/app/entitlements.plist" --sign "${CODESIGN_IDENT}" "./RemoteFilming-A.app/Contents/Frameworks/Chromium Embedded Framework.framework/Libraries/libEGL.dylib"
-#    codesign --force --timestamp --options runtime --entitlements "${CI_SCRIPTS}/app/entitlements.plist" --sign "${CODESIGN_IDENT}" "./RemoteFilming-A.app/Contents/Frameworks/Chromium Embedded Framework.framework/Libraries/libswiftshader_libEGL.dylib"
-#    codesign --force --timestamp --options runtime --entitlements "${CI_SCRIPTS}/app/entitlements.plist" --sign "${CODESIGN_IDENT}" "./RemoteFilming-A.app/Contents/Frameworks/Chromium Embedded Framework.framework/Libraries/libGLESv2.dylib"
-#    codesign --force --timestamp --options runtime --entitlements "${CI_SCRIPTS}/app/entitlements.plist" --sign "${CODESIGN_IDENT}" "./RemoteFilming-A.app/Contents/Frameworks/Chromium Embedded Framework.framework/Libraries/libswiftshader_libGLESv2.dylib"
-#    codesign --force --timestamp --options runtime --entitlements "${CI_SCRIPTS}/app/entitlements.plist" --sign "${CODESIGN_IDENT}" "./RemoteFilming-A.app/Contents/Frameworks/Chromium Embedded Framework.framework/Libraries/libvk_swiftshader.dylib"
-#    codesign --force --timestamp --options runtime --entitlements "${CI_SCRIPTS}/app/entitlements.plist" --sign "${CODESIGN_IDENT}" --deep "./RemoteFilming-A.app/Contents/Frameworks/Chromium Embedded Framework.framework"
-#    echo -n "${COLOR_RESET}"
+    step "Code-sign CEF framework..."
+    /bin/echo -n "${COLOR_ORANGE}"
+    /usr/bin/codesign --force --timestamp --options runtime --entitlements "${CI_SCRIPTS}/app/entitlements.plist" --sign "${CODESIGN_IDENT}" "./RemoteFilming-A.app/Contents/Frameworks/Chromium Embedded Framework.framework/Libraries/libEGL.dylib"
+    /usr/bin/codesign --force --timestamp --options runtime --entitlements "${CI_SCRIPTS}/app/entitlements.plist" --sign "${CODESIGN_IDENT}" "./RemoteFilming-A.app/Contents/Frameworks/Chromium Embedded Framework.framework/Libraries/libswiftshader_libEGL.dylib"
+    /usr/bin/codesign --force --timestamp --options runtime --entitlements "${CI_SCRIPTS}/app/entitlements.plist" --sign "${CODESIGN_IDENT}" "./RemoteFilming-A.app/Contents/Frameworks/Chromium Embedded Framework.framework/Libraries/libGLESv2.dylib"
+    /usr/bin/codesign --force --timestamp --options runtime --entitlements "${CI_SCRIPTS}/app/entitlements.plist" --sign "${CODESIGN_IDENT}" "./RemoteFilming-A.app/Contents/Frameworks/Chromium Embedded Framework.framework/Libraries/libswiftshader_libGLESv2.dylib"
+    /usr/bin/codesign --force --timestamp --options runtime --entitlements "${CI_SCRIPTS}/app/entitlements.plist" --sign "${CODESIGN_IDENT}" "./RemoteFilming-A.app/Contents/Frameworks/Chromium Embedded Framework.framework/Libraries/libvk_swiftshader.dylib"
+    /usr/bin/codesign --force --timestamp --options runtime --entitlements "${CI_SCRIPTS}/app/entitlements.plist" --sign "${CODESIGN_IDENT}" --deep "./RemoteFilming-A.app/Contents/Frameworks/Chromium Embedded Framework.framework"
+    /bin/echo -n "${COLOR_RESET}"
 
-#    step "Code-sign CEF helper apps..."
-#    /bin/echo -n "${COLOR_ORANGE}"
-#    codesign --force --timestamp --options runtime --entitlements "${CI_SCRIPTS}/helpers/helper-entitlements.plist" --sign "${CODESIGN_IDENT}" --deep "./RemoteFilming-A.app/Contents/Frameworks/OBS Helper.app"
-#    codesign --force --timestamp --options runtime --entitlements "${CI_SCRIPTS}/helpers/helper-gpu-entitlements.plist" --sign "${CODESIGN_IDENT}" --deep "./RemoteFilming-A.app/Contents/Frameworks/OBS Helper (GPU).app"
-#    codesign --force --timestamp --options runtime --entitlements "${CI_SCRIPTS}/helpers/helper-plugin-entitlements.plist" --sign "${CODESIGN_IDENT}" --deep "./RemoteFilming-A.app/Contents/Frameworks/OBS Helper (Plugin).app"
-#    codesign --force --timestamp --options runtime --entitlements "${CI_SCRIPTS}/helpers/helper-renderer-entitlements.plist" --sign "${CODESIGN_IDENT}" --deep "./RemoteFilming-A.app/Contents/Frameworks/OBS Helper (Renderer).app"
-#    /bin/echo -n "${COLOR_RESET}"
+    step "Code-sign CEF helper apps..."
+    /bin/echo -n "${COLOR_ORANGE}"
+    /usr/bin/codesign --force --timestamp --options runtime --entitlements "${CI_SCRIPTS}/helpers/helper-entitlements.plist" --sign "${CODESIGN_IDENT}" --deep "./RemoteFilming-A.app/Contents/Frameworks/OBS Helper.app"
+    /usr/bin/codesign --force --timestamp --options runtime --entitlements "${CI_SCRIPTS}/helpers/helper-gpu-entitlements.plist" --sign "${CODESIGN_IDENT}" --deep "./RemoteFilming-A.app/Contents/Frameworks/OBS Helper (GPU).app"
+    /usr/bin/codesign --force --timestamp --options runtime --entitlements "${CI_SCRIPTS}/helpers/helper-plugin-entitlements.plist" --sign "${CODESIGN_IDENT}" --deep "./RemoteFilming-A.app/Contents/Frameworks/OBS Helper (Plugin).app"
+    /usr/bin/codesign --force --timestamp --options runtime --entitlements "${CI_SCRIPTS}/helpers/helper-renderer-entitlements.plist" --sign "${CODESIGN_IDENT}" --deep "./RemoteFilming-A.app/Contents/Frameworks/OBS Helper (Renderer).app"
+    /bin/echo -n "${COLOR_RESET}"
+
+    step "Code-sign DAL Plugin..."
+    /bin/echo -n "${COLOR_ORANGE}"
+    /usr/bin/codesign --force --timestamp --options runtime --deep --sign "${CODESIGN_IDENT}" "./RemoteFilming-A.app/Contents/Resources/data/obs-mac-virtualcam.plugin"
+    /bin/echo -n "${COLOR_RESET}"
 
     step "Code-sign OBS code..."
-    echo -n "${COLOR_ORANGE}"
-    codesign --force --timestamp --options runtime --deep --sign "${CODESIGN_IDENT}" "./RemoteFilming-A.app/Contents/Resources/data/obs-mac-virtualcam.plugin"
-    codesign --force --timestamp --options runtime --entitlements "${CI_SCRIPTS}/app/entitlements.plist" --sign "${CODESIGN_IDENT}" --deep ./RemoteFilming-A.app
-    echo -n "${COLOR_RESET}"
+    /bin/echo -n "${COLOR_ORANGE}"
+    /usr/bin/codesign --force --timestamp --options runtime --entitlements "${CI_SCRIPTS}/app/entitlements.plist" --sign "${CODESIGN_IDENT}" --deep ./RemoteFilming-A.app
+    /bin/echo -n "${COLOR_RESET}"
+
     step "Check code-sign result..."
-    codesign -dvv ./RemoteFilming-A.app
+    /usr/bin/codesign -dvv ./RemoteFilming-A.app
 }
 
 codesign_image() {
@@ -583,11 +587,11 @@ codesign_image() {
     read_codesign_ident
 
     step "Code-sign OBS installer image..."
-    echo -n "${COLOR_ORANGE}";
-    codesign --force --sign "${CODESIGN_IDENT}" "${FILE_NAME}"
-    echo -n "${COLOR_RESET}"
+    /bin/echo -n "${COLOR_ORANGE}";
+    /usr/bin/codesign --force --sign "${CODESIGN_IDENT}" "${FILE_NAME}"
+    /bin/echo -n "${COLOR_RESET}"
     step "Check code-sign result..."
-    codesign -dvv "${FILE_NAME}"
+    /usr/bin/codesign -dvv "${FILE_NAME}"
 }
 
 ## BUILD FROM SOURCE META FUNCTION ##
@@ -665,8 +669,8 @@ notarize_macos() {
 
 ## MAIN SCRIPT FUNCTIONS ##
 print_usage() {
-    echo -e "full-build-macos.sh - Build helper script for OBS-Studio\n"
-    echo -e "Usage: ${0}\n" \
+    /bin/echo "full-build-macos.sh - Build helper script for OBS-Studio\n"
+    /bin/echo "Usage: ${0}\n" \
         "-d: Skip dependency checks\n" \
         "-b: Create macOS app bundle\n" \
         "-c: Codesign macOS app bundle\n" \
@@ -682,10 +686,10 @@ obs-build-main() {
     ensure_dir ${CHECKOUT_DIR}
     check_macos_version
     step "Fetching OBS tags..."
-    git fetch origin --tags
-    GIT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
-    GIT_HASH=$(git rev-parse --short HEAD)
-    GIT_TAG=$(git describe --tags --abbrev=0)
+    /usr/bin/git fetch origin --tags
+    GIT_BRANCH=$(/usr/bin/git rev-parse --abbrev-ref HEAD)
+    GIT_HASH=$(/usr/bin/git rev-parse --short HEAD)
+    GIT_TAG=$(/usr/bin/git describe --tags --abbrev=0)
     FILE_NAME="remote-filming-A-${OBS_VERSION}-macOS.dmg"
 
     ##########################################################################

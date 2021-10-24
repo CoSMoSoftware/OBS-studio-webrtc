@@ -100,7 +100,7 @@ ensure_dir() {
 }
 
 cleanup() {
-    /bin/rm -rf "${CHECKOUT_DIR}/${BUILD_DIR}/settings.json"
+    /bin/rm -rf "${CHECKOUT_DIR}/${BUILD_DIR}_${VENDOR}/settings.json"
     unset CODESIGN_IDENT
     unset CODESIGN_IDENT_USER
     unset CODESIGN_IDENT_PASS
@@ -370,11 +370,11 @@ bundle_dylibs() {
     /bin/cp ./libobs-opengl/libobs-opengl.so ./OBS-WebRTC.app/Contents/Frameworks
 
     step "Copy QtNetwork for plugin support"
-#    cp -R /tmp/obsdeps/lib/QtNetwork.framework ./OBS-WebRTC.app/Contents/Frameworks
-    chmod -R +w ./OBS-WebRTC.app/Contents/Frameworks/QtNetwork.framework
-    rm -r ./OBS-WebRTC.app/Contents/Frameworks/QtNetwork.framework/Headers
-#    rm -r ./OBS-WebRTC.app/Contents/Frameworks/QtNetwork.framework/Versions/5/Headers/
-    chmod 644 ./OBS-WebRTC.app/Contents/Frameworks/QtNetwork.framework/Versions/5/Resources/Info.plist
+#    /bin/cp -R /tmp/obsdeps/lib/QtNetwork.framework ./OBS-WebRTC.app/Contents/Frameworks
+    /bin/chmod -R +w ./OBS-WebRTC.app/Contents/Frameworks/QtNetwork.framework
+    /bin/rm -r ./OBS-WebRTC.app/Contents/Frameworks/QtNetwork.framework/Headers
+#    /bin/rm -r ./OBS-WebRTC.app/Contents/Frameworks/QtNetwork.framework/Versions/5/Headers/
+    /bin/chmod 644 ./OBS-WebRTC.app/Contents/Frameworks/QtNetwork.framework/Versions/5/Resources/Info.plist
     install_name_tool -id @executable_path/../Frameworks/QtNetwork.framework/Versions/5/QtNetwork ./OBS-WebRTC.app/Contents/Frameworks/QtNetwork.framework/Versions/5/QtNetwork
     install_name_tool -change /tmp/obsdeps/lib/QtCore.framework/Versions/5/QtCore @executable_path/../Frameworks/QtCore.framework/Versions/5/QtCore ./OBS-WebRTC.app/Contents/Frameworks/QtNetwork.framework/Versions/5/QtNetwork
 }
@@ -534,7 +534,7 @@ codesign_bundle() {
 
     # step "Code-sign Sparkle framework..."
     # /bin/echo -n "${COLOR_ORANGE}"
-    # codesign --force --options runtime --sign "${CODESIGN_IDENT}" "./OBS-WebRTC.app/Contents/Frameworks/Sparkle.framework/Versions/A/Resources/Autoupdate.app/Contents/MacOS/fileop"
+    # /usr/bin/codesign --force --options runtime --sign "${CODESIGN_IDENT}" "./OBS-WebRTC.app/Contents/Frameworks/Sparkle.framework/Versions/A/Resources/Autoupdate.app/Contents/MacOS/fileop"
     # /usr/bin/codesign --force --options runtime --sign "${CODESIGN_IDENT}" "./OBS-WebRTC.app/Contents/Frameworks/Sparkle.framework/Versions/A/Resources/Autoupdate.app/Contents/MacOS/Autoupdate"
     # /usr/bin/codesign --force --options runtime --sign "${CODESIGN_IDENT}" --deep ./OBS-WebRTC.app/Contents/Frameworks/Sparkle.framework
     # /bin/echo -n "${COLOR_RESET}"

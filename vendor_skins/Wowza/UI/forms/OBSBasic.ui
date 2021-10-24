@@ -61,7 +61,7 @@
          <number>2</number>
         </property>
         <item>
-         <widget class="QWidget" name="previewDisabledWidget">
+         <widget class="QFrame" name="previewDisabledWidget">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
             <horstretch>0</horstretch>
@@ -196,7 +196,7 @@
      </layout>
     </item>
     <item>
-     <widget class="QWidget" name="contextContainer">
+     <widget class="QFrame" name="contextContainer">
       <property name="sizePolicy">
        <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
         <horstretch>0</horstretch>
@@ -205,13 +205,7 @@
       </property>
       <property name="minimumSize">
        <size>
-        <width>0</width>
-        <height>30</height>
-       </size>
-      </property>
-      <property name="maximumSize">
-       <size>
-        <width>16777215</width>
+        <width>740</width>
         <height>30</height>
        </size>
       </property>
@@ -235,7 +229,7 @@
         <number>4</number>
        </property>
        <item>
-        <widget class="QWidget" name="contextSubContainer">
+        <widget class="QFrame" name="contextSubContainer">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
            <horstretch>0</horstretch>
@@ -265,6 +259,31 @@
            <number>0</number>
           </property>
           <item>
+           <widget class="QLabel" name="contextSourceIcon">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="minimumSize">
+             <size>
+              <width>22</width>
+              <height>22</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>22</width>
+              <height>22</height>
+             </size>
+            </property>
+            <property name="text">
+             <string/>
+            </property>
+           </widget>
+          </item>
+          <item>
            <widget class="QLabel" name="contextSourceLabel">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
@@ -274,18 +293,43 @@
             </property>
             <property name="minimumSize">
              <size>
-              <width>250</width>
+              <width>160</width>
               <height>22</height>
              </size>
             </property>
             <property name="maximumSize">
              <size>
-              <width>250</width>
+              <width>160</width>
               <height>22</height>
              </size>
             </property>
             <property name="text">
              <string>TextLabel</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLabel" name="contextSourceIconSpacer">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="minimumSize">
+             <size>
+              <width>22</width>
+              <height>22</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>22</width>
+              <height>22</height>
+             </size>
+            </property>
+            <property name="text">
+             <string/>
             </property>
            </widget>
           </item>
@@ -307,12 +351,6 @@
             <property name="minimumSize">
              <size>
               <width>0</width>
-              <height>22</height>
-             </size>
-            </property>
-            <property name="maximumSize">
-             <size>
-              <width>16777215</width>
               <height>22</height>
              </size>
             </property>
@@ -342,12 +380,6 @@
               <height>22</height>
              </size>
             </property>
-            <property name="maximumSize">
-             <size>
-              <width>16777215</width>
-              <height>22</height>
-             </size>
-            </property>
             <property name="toolTip">
              <string>Filters</string>
             </property>
@@ -371,12 +403,6 @@
             <property name="minimumSize">
              <size>
               <width>0</width>
-              <height>22</height>
-             </size>
-            </property>
-            <property name="maximumSize">
-             <size>
-              <width>16777215</width>
               <height>22</height>
              </size>
             </property>
@@ -406,9 +432,9 @@
         </widget>
        </item>
        <item>
-        <widget class="QWidget" name="emptySpace">
+        <widget class="QFrame" name="emptySpace">
          <property name="sizePolicy">
-          <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+          <sizepolicy hsizetype="Expanding" vsizetype="Minimum">
            <horstretch>0</horstretch>
            <verstretch>0</verstretch>
           </sizepolicy>
@@ -416,12 +442,6 @@
          <property name="minimumSize">
           <size>
            <width>0</width>
-           <height>22</height>
-          </size>
-         </property>
-         <property name="maximumSize">
-          <size>
-           <width>16777215</width>
            <height>22</height>
           </size>
          </property>
@@ -626,6 +646,8 @@
     <addaction name="actionRemoveSceneCollection"/>
     <addaction name="actionImportSceneCollection"/>
     <addaction name="actionExportSceneCollection"/>
+    <addaction name="separator"/>
+    <addaction name="actionShowMissingFiles"/>
     <addaction name="separator"/>
    </widget>
    <widget class="QMenu" name="viewMenu">
@@ -1002,7 +1024,7 @@
           <rect>
            <x>0</x>
            <y>0</y>
-           <width>94</width>
+           <width>67</width>
            <height>16</height>
           </rect>
          </property>
@@ -1114,7 +1136,7 @@
       <number>4</number>
      </property>
      <item>
-      <widget class="QWidget" name="transitionsContainer">
+      <widget class="QFrame" name="transitionsContainer">
        <layout class="QVBoxLayout" name="verticalLayout_2">
         <property name="spacing">
          <number>2</number>
@@ -1174,7 +1196,7 @@
             </property>
             <property name="icon">
              <iconset>
-              <normaloff>:/res/images/configuration21_16.png</normaloff>:/res/images/configuration21_16.png</iconset>
+              <normaloff>:/settings/images/settings/general.svg</normaloff>:/settings/images/settings/general.svg</iconset>
             </property>
             <property name="flat">
              <bool>true</bool>
@@ -1278,26 +1300,52 @@
       <number>4</number>
      </property>
      <item>
-      <widget class="QPushButton" name="streamButton">
-       <property name="enabled">
-        <bool>true</bool>
-       </property>
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Ignored" vsizetype="Fixed">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="minimumSize">
-        <size>
-         <width>150</width>
-         <height>0</height>
-        </size>
-       </property>
-       <property name="text">
-        <string>Basic.Main.StartStreaming</string>
-       </property>
-      </widget>
+      <layout class="QHBoxLayout" name="horizontalLayout_7">
+       <item>
+        <widget class="QPushButton" name="streamButton">
+         <property name="enabled">
+          <bool>true</bool>
+         </property>
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Ignored" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>150</width>
+           <height>0</height>
+          </size>
+         </property>
+         <property name="text">
+          <string>Basic.Main.StartStreaming</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="broadcastButton">
+         <property name="enabled">
+          <bool>true</bool>
+         </property>
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Ignored" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>150</width>
+           <height>0</height>
+          </size>
+         </property>
+         <property name="text">
+          <string>Basic.Main.StartBroadcast</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
      </item>
      <item>
       <layout class="QHBoxLayout" name="recordingLayout">
@@ -1416,7 +1464,7 @@
   <action name="actionAddScene">
    <property name="icon">
     <iconset>
-     <normaloff>:/res/images/add.png</normaloff>:/res/images/add.png</iconset>
+     <normaloff>:/res/images/plus.svg</normaloff>:/res/images/plus.svg</iconset>
    </property>
    <property name="text">
     <string>Add</string>
@@ -1428,7 +1476,7 @@
   <action name="actionAddSource">
    <property name="icon">
     <iconset>
-     <normaloff>:/res/images/add.png</normaloff>:/res/images/add.png</iconset>
+     <normaloff>:/res/images/plus.svg</normaloff>:/res/images/plus.svg</iconset>
    </property>
    <property name="text">
     <string>Add</string>
@@ -1440,7 +1488,7 @@
   <action name="actionRemoveScene">
    <property name="icon">
     <iconset>
-     <normaloff>:/res/images/list_remove.png</normaloff>:/res/images/list_remove.png</iconset>
+     <normaloff>:/res/images/minus.svg</normaloff>:/res/images/minus.svg</iconset>
    </property>
    <property name="text">
     <string>Remove</string>
@@ -1458,7 +1506,7 @@
   <action name="actionRemoveSource">
    <property name="icon">
     <iconset>
-     <normaloff>:/res/images/list_remove.png</normaloff>:/res/images/list_remove.png</iconset>
+     <normaloff>:/res/images/minus.svg</normaloff>:/res/images/minus.svg</iconset>
    </property>
    <property name="text">
     <string>Remove</string>
@@ -1479,7 +1527,7 @@
    </property>
    <property name="icon">
     <iconset>
-     <normaloff>:/res/images/properties.png</normaloff>:/res/images/properties.png</iconset>
+     <normaloff>:/settings/images/settings/general.svg</normaloff>:/settings/images/settings/general.svg</iconset>
    </property>
    <property name="text">
     <string>Properties</string>
@@ -1491,7 +1539,7 @@
   <action name="actionSceneUp">
    <property name="icon">
     <iconset>
-     <normaloff>:/res/images/up.png</normaloff>:/res/images/up.png</iconset>
+     <normaloff>:/res/images/up.svg</normaloff>:/res/images/up.svg</iconset>
    </property>
    <property name="text">
     <string>MoveUp</string>
@@ -1506,7 +1554,7 @@
    </property>
    <property name="icon">
     <iconset>
-     <normaloff>:/res/images/up.png</normaloff>:/res/images/up.png</iconset>
+     <normaloff>:/res/images/up.svg</normaloff>:/res/images/up.svg</iconset>
    </property>
    <property name="text">
     <string>MoveUp</string>
@@ -1518,7 +1566,7 @@
   <action name="actionSceneDown">
    <property name="icon">
     <iconset>
-     <normaloff>:/res/images/down.png</normaloff>:/res/images/down.png</iconset>
+     <normaloff>:/res/images/down.svg</normaloff>:/res/images/down.svg</iconset>
    </property>
    <property name="text">
     <string>MoveDown</string>
@@ -1533,7 +1581,7 @@
    </property>
    <property name="icon">
     <iconset>
-     <normaloff>:/res/images/down.png</normaloff>:/res/images/down.png</iconset>
+     <normaloff>:/res/images/down.svg</normaloff>:/res/images/down.svg</iconset>
    </property>
    <property name="text">
     <string>MoveDown</string>
@@ -1772,6 +1820,11 @@
   <action name="actionExportSceneCollection">
    <property name="text">
     <string>Export</string>
+   </property>
+  </action>
+  <action name="actionShowMissingFiles">
+   <property name="text">
+    <string>Basic.MainMenu.File.ShowMissingFiles</string>
    </property>
   </action>
   <action name="actionNewProfile">
@@ -2039,19 +2092,19 @@
    <property name="enabled">
     <bool>false</bool>
    </property>
-    <property name="text">
-      <string>Undo.Undo</string>
-    </property>
+   <property name="text">
+    <string>Undo.Undo</string>
+   </property>
   </action>
   <action name="actionMainRedo">
    <property name="enabled">
     <bool>false</bool>
-    </property>
-    <property name="text">
-      <string>Undo.Redo</string>
-    </property>
-    </action>
-  </widget>
+   </property>
+   <property name="text">
+    <string>Undo.Redo</string>
+   </property>
+  </action>
+ </widget>
  <customwidgets>
   <customwidget>
    <class>OBSBasicPreview</class>

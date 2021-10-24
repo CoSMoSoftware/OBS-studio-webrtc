@@ -41,6 +41,7 @@ OBSAbout::OBSAbout(QWidget *parent) : QDialog(parent), ui(new Ui::OBSAbout)
 	ui->about->setProperty("themeID", "aboutHLayout");
 	ui->authors->setProperty("themeID", "aboutHLayout");
 	ui->license->setProperty("themeID", "aboutHLayout");
+	ui->info->setProperty("themeID", "aboutInfo");
 
 	connect(ui->about, SIGNAL(clicked()), this, SLOT(ShowAbout()));
 	connect(ui->authors, SIGNAL(clicked()), this, SLOT(ShowAuthors()));
@@ -69,6 +70,13 @@ OBSAbout::OBSAbout(QWidget *parent) : QDialog(parent), ui(new Ui::OBSAbout)
 void OBSAbout::ShowAbout()
 {
 	OBSBasic *main = OBSBasic::Get();
+
+	if (main->patronJson.empty())
+		return;
+
+	std::string error;
+	Json json = Json::parse(main->patronJson, error);
+	const Json::array &patrons = json.array_items();
 	QString text;
 	text += "<h3>Remote Filming is for live single and multi camera film shoot streaming</h3>";
 	ui->textBrowser->setHtml(text);

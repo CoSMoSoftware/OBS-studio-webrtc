@@ -1,8 +1,8 @@
 diff --git a/plugins/obs-ndi/CMakeLists.txt b/plugins/obs-ndi/CMakeLists.txt
-index e851dda..39dcc48 100644
+index 5c2ff5e..4a5e319 100644
 --- a/plugins/obs-ndi/CMakeLists.txt
 +++ b/plugins/obs-ndi/CMakeLists.txt
-@@ -44,6 +44,8 @@ add_library(obs-ndi MODULE
+@@ -48,6 +48,8 @@ add_library(obs-ndi MODULE
  	${obs-ndi_SOURCES}
  	${obs-ndi_HEADERS})
  
@@ -11,7 +11,7 @@ index e851dda..39dcc48 100644
  include_directories(
  	"lib/ndi"
  	"${LIBOBS_INCLUDE_DIR}/../UI/obs-frontend-api"
-@@ -170,3 +172,5 @@ if(UNIX AND NOT APPLE)
+@@ -178,3 +180,5 @@ if(UNIX AND NOT APPLE)
  	install(FILES ${locale_files}
  		DESTINATION "${CMAKE_INSTALL_FULL_DATAROOTDIR}/obs/obs-plugins/obs-ndi/locale")
  endif()
@@ -35,7 +35,7 @@ index 18426fe..ca05647 100644
  	config_t* obs_config = obs_frontend_get_global_config();
  	if (obs_config) {
 diff --git a/plugins/obs-ndi/src/obs-ndi-filter.cpp b/plugins/obs-ndi/src/obs-ndi-filter.cpp
-index c7dc7f8..02c3525 100644
+index c7dc7f8..48a7fc3 100644
 --- a/plugins/obs-ndi/src/obs-ndi-filter.cpp
 +++ b/plugins/obs-ndi/src/obs-ndi-filter.cpp
 @@ -18,6 +18,7 @@ along with this program; If not, see <https://www.gnu.org/licenses/>
@@ -56,7 +56,7 @@ index c7dc7f8..02c3525 100644
  			int suppresswarning = system("open http://ndi.newtek.com");
  		#endif
 diff --git a/plugins/obs-ndi/src/obs-ndi-source.cpp b/plugins/obs-ndi/src/obs-ndi-source.cpp
-index c4e2009..6d97209 100644
+index 2fd8c36..07b3288 100644
 --- a/plugins/obs-ndi/src/obs-ndi-source.cpp
 +++ b/plugins/obs-ndi/src/obs-ndi-source.cpp
 @@ -18,6 +18,7 @@ along with this program; If not, see <https://www.gnu.org/licenses/>
@@ -67,7 +67,7 @@ index c4e2009..6d97209 100644
  #endif
  
  #include <obs-module.h>
-@@ -265,7 +266,7 @@ obs_properties_t* ndi_source_getproperties(void* data)
+@@ -266,7 +267,7 @@ obs_properties_t* ndi_source_getproperties(void* data)
  		void* private_data)
  	{
  		#if defined(_WIN32)
