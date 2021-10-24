@@ -352,7 +352,7 @@ bundle_dylibs() {
         -x ./RemoteFilming-B.app/Contents/PlugIns/mac-syphon.so \
         -x ./RemoteFilming-B.app/Contents/PlugIns/mac-vth264.so \
         -x ./RemoteFilming-B.app/Contents/PlugIns/mac-virtualcam.so \
-        -x ./RemoteFilming-B.app/Contents/PlugIns/obs-browser.so
+        -x ./RemoteFilming-B.app/Contents/PlugIns/obs-browser.so \
         -x ./RemoteFilming-B.app/Contents/PlugIns/obs-ffmpeg.so \
         -x ./RemoteFilming-B.app/Contents/PlugIns/obs-filters.so \
         -x ./RemoteFilming-B.app/Contents/PlugIns/obs-transitions.so \
