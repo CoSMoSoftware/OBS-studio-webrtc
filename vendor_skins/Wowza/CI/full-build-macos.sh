@@ -370,10 +370,10 @@ bundle_dylibs() {
     /bin/cp ./libobs-opengl/libobs-opengl.so ./Wowza-OBS-Real-Time.app/Contents/Frameworks
 
     step "Copy QtNetwork for plugin support"
-    /bin/cp -R /tmp/obsdeps/lib/QtNetwork.framework ./Wowza-OBS-Real-Time.app/Contents/Frameworks
+#    /bin/cp -R /tmp/obsdeps/lib/QtNetwork.framework ./Wowza-OBS-Real-Time.app/Contents/Frameworks
     /bin/chmod -R +w ./Wowza-OBS-Real-Time.app/Contents/Frameworks/QtNetwork.framework
     /bin/rm -r ./Wowza-OBS-Real-Time.app/Contents/Frameworks/QtNetwork.framework/Headers
-    /bin/rm -r ./Wowza-OBS-Real-Time.app/Contents/Frameworks/QtNetwork.framework/Versions/5/Headers/
+#    /bin/rm -r ./Wowza-OBS-Real-Time.app/Contents/Frameworks/QtNetwork.framework/Versions/5/Headers/
     /bin/chmod 644 ./Wowza-OBS-Real-Time.app/Contents/Frameworks/QtNetwork.framework/Versions/5/Resources/Info.plist
     install_name_tool -id @executable_path/../Frameworks/QtNetwork.framework/Versions/5/QtNetwork ./Wowza-OBS-Real-Time.app/Contents/Frameworks/QtNetwork.framework/Versions/5/QtNetwork
     install_name_tool -change /tmp/obsdeps/lib/QtCore.framework/Versions/5/QtCore @executable_path/../Frameworks/QtCore.framework/Versions/5/QtCore ./Wowza-OBS-Real-Time.app/Contents/Frameworks/QtNetwork.framework/Versions/5/QtNetwork

@@ -370,10 +370,10 @@ bundle_dylibs() {
     /bin/cp ./libobs-opengl/libobs-opengl.so ./RemoteFilming-B.app/Contents/Frameworks
 
     step "Copy QtNetwork for plugin support"
-    /bin/cp -R /tmp/obsdeps/lib/QtNetwork.framework ./RemoteFilming-B.app/Contents/Frameworks
+#    /bin/cp -R /tmp/obsdeps/lib/QtNetwork.framework ./RemoteFilming-B.app/Contents/Frameworks
     /bin/chmod -R +w ./RemoteFilming-B.app/Contents/Frameworks/QtNetwork.framework
     /bin/rm -r ./RemoteFilming-B.app/Contents/Frameworks/QtNetwork.framework/Headers
-    /bin/rm -r ./RemoteFilming-B.app/Contents/Frameworks/QtNetwork.framework/Versions/5/Headers/
+#    /bin/rm -r ./RemoteFilming-B.app/Contents/Frameworks/QtNetwork.framework/Versions/5/Headers/
     /bin/chmod 644 ./RemoteFilming-B.app/Contents/Frameworks/QtNetwork.framework/Versions/5/Resources/Info.plist
     install_name_tool -id @executable_path/../Frameworks/QtNetwork.framework/Versions/5/QtNetwork ./RemoteFilming-B.app/Contents/Frameworks/QtNetwork.framework/Versions/5/QtNetwork
     install_name_tool -change /tmp/obsdeps/lib/QtCore.framework/Versions/5/QtCore @executable_path/../Frameworks/QtCore.framework/Versions/5/QtCore ./RemoteFilming-B.app/Contents/Frameworks/QtNetwork.framework/Versions/5/QtNetwork
