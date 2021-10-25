@@ -33,7 +33,7 @@
 set -eE
 
 ## SET UP ENVIRONMENT ##
-PRODUCT_NAME="RemoteFilming"
+PRODUCT_NAME="RemoteFilming-B"
 
 CHECKOUT_DIR="$(/usr/bin/git rev-parse --show-toplevel)"
 DEPS_BUILD_DIR="${CHECKOUT_DIR}/../obs-build-dependencies"
@@ -302,10 +302,9 @@ configure_obs_build() {
         -DSWIGDIR="/tmp/obsdeps" \
         -DDepsPath="/tmp/obsdeps" \
         -DVLCPath="${DEPS_BUILD_DIR}/vlc-${VLC_VERSION}" \
-        -DBUILD_BROWSER=ON \
+        -DBUILD_BROWSER=OFF \
         -DBROWSER_LEGACY=OFF \
         -DWITH_RTMPS=ON \
-        -DCEF_ROOT_DIR="${DEPS_BUILD_DIR}/cef_binary_${MACOS_CEF_BUILD_VERSION}_macosx64" \
         -DCMAKE_BUILD_TYPE="${BUILD_CONFIG}" \
         .. \
         ${vendor_option} \
@@ -317,7 +316,8 @@ configure_obs_build() {
         -DLIBOBS_LIB=`pwd`/libobs/libobs.0.dylib \
         -DOBS_FRONTEND_LIB=`pwd`/UI/obs-frontend-api/libobs-frontend-api.dylib
 
-        # -DENABLE_SPARKLE_UPDATER=ON \
+#        -DENABLE_SPARKLE_UPDATER=ON \
+#        -DCEF_ROOT_DIR="${DEPS_BUILD_DIR}/cef_binary_${MACOS_CEF_BUILD_VERSION}_macosx64" \
 }
 
 run_obs_build() {
@@ -352,7 +352,6 @@ bundle_dylibs() {
         -x ./RemoteFilming-B.app/Contents/PlugIns/mac-syphon.so \
         -x ./RemoteFilming-B.app/Contents/PlugIns/mac-vth264.so \
         -x ./RemoteFilming-B.app/Contents/PlugIns/mac-virtualcam.so \
-        -x ./RemoteFilming-B.app/Contents/PlugIns/obs-browser.so \
         -x ./RemoteFilming-B.app/Contents/PlugIns/obs-ffmpeg.so \
         -x ./RemoteFilming-B.app/Contents/PlugIns/obs-filters.so \
         -x ./RemoteFilming-B.app/Contents/PlugIns/obs-transitions.so \
@@ -365,6 +364,7 @@ bundle_dylibs() {
         -x ./RemoteFilming-B.app/Contents/PlugIns/obs-outputs.so \
         -x ./RemoteFilming-B.app/Contents/PlugIns/obs-ndi.so \
         -x ./RemoteFilming-B.app/Contents/PlugIns/obs-websocket.so
+#        -x ./RemoteFilming-B.app/Contents/PlugIns/obs-browser.so \
 
     step "Move libobs-opengl to final destination"
     /bin/cp ./libobs-opengl/libobs-opengl.so ./RemoteFilming-B.app/Contents/Frameworks
@@ -401,7 +401,7 @@ prepare_macos_bundle() {
         exit 1
     fi
 
-    if [ -d ./RemoteFilming-B.app ]; then rm -rf ./RemoteFilming-B.app; fi
+    if [ -d ./RemoteFilming-B.app ]; then /bin/rm -rf ./RemoteFilming-B.app; fi
 
     hr "Preparing RemoteFilming-B.app bundle"
     step "Copy binary and plugins..."
@@ -413,10 +413,10 @@ prepare_macos_bundle() {
     /bin/cp rundir/${BUILD_CONFIG}/bin/rfs ./RemoteFilming-B.app/Contents/MacOS
     /bin/cp rundir/${BUILD_CONFIG}/bin/obs-ffmpeg-mux ./RemoteFilming-B.app/Contents/MacOS
     /bin/cp rundir/${BUILD_CONFIG}/bin/libobsglad.0.dylib ./RemoteFilming-B.app/Contents/MacOS
-    /bin/cp -R "rundir/${BUILD_CONFIG}/bin/OBS Helper.app" "./RemoteFilming-B.app/Contents/Frameworks/OBS Helper.app"
-    /bin/cp -R "rundir/${BUILD_CONFIG}/bin/OBS Helper (GPU).app" "./RemoteFilming-B.app/Contents/Frameworks/OBS Helper (GPU).app"
-    /bin/cp -R "rundir/${BUILD_CONFIG}/bin/OBS Helper (Plugin).app" "./RemoteFilming-B.app/Contents/Frameworks/OBS Helper (Plugin).app"
-    /bin/cp -R "rundir/${BUILD_CONFIG}/bin/OBS Helper (Renderer).app" "./RemoteFilming-B.app/Contents/Frameworks/OBS Helper (Renderer).app"
+#    /bin/cp -R "rundir/${BUILD_CONFIG}/bin/OBS Helper.app" "./RemoteFilming-B.app/Contents/Frameworks/OBS Helper.app"
+#    /bin/cp -R "rundir/${BUILD_CONFIG}/bin/OBS Helper (GPU).app" "./RemoteFilming-B.app/Contents/Frameworks/OBS Helper (GPU).app"
+#    /bin/cp -R "rundir/${BUILD_CONFIG}/bin/OBS Helper (Plugin).app" "./RemoteFilming-B.app/Contents/Frameworks/OBS Helper (Plugin).app"
+#    /bin/cp -R "rundir/${BUILD_CONFIG}/bin/OBS Helper (Renderer).app" "./RemoteFilming-B.app/Contents/Frameworks/OBS Helper (Renderer).app"
     /bin/cp -R rundir/${BUILD_CONFIG}/data ./RemoteFilming-B.app/Contents/Resources
     /bin/cp "${CI_SCRIPTS}/app/AppIcon.icns" ./RemoteFilming-B.app/Contents/Resources
     /bin/cp -R rundir/${BUILD_CONFIG}/obs-plugins/ ./RemoteFilming-B.app/Contents/PlugIns
@@ -430,7 +430,7 @@ prepare_macos_bundle() {
     fi
 
     bundle_dylibs
-    install_frameworks
+#    install_frameworks
 
     /bin/cp "${CI_SCRIPTS}/app/OBSPublicDSAKey.pem" ./RemoteFilming-B.app/Contents/Resources
 
@@ -539,23 +539,23 @@ codesign_bundle() {
     # /usr/bin/codesign --force --options runtime --sign "${CODESIGN_IDENT}" --deep ./RemoteFilming-B.app/Contents/Frameworks/Sparkle.framework
     # /bin/echo -n "${COLOR_RESET}"
 
-    step "Code-sign CEF framework..."
-    /bin/echo -n "${COLOR_ORANGE}"
-    /usr/bin/codesign --force --timestamp --options runtime --entitlements "${CI_SCRIPTS}/app/entitlements.plist" --sign "${CODESIGN_IDENT}" "./RemoteFilming-B.app/Contents/Frameworks/Chromium Embedded Framework.framework/Libraries/libEGL.dylib"
-    /usr/bin/codesign --force --timestamp --options runtime --entitlements "${CI_SCRIPTS}/app/entitlements.plist" --sign "${CODESIGN_IDENT}" "./RemoteFilming-B.app/Contents/Frameworks/Chromium Embedded Framework.framework/Libraries/libswiftshader_libEGL.dylib"
-    /usr/bin/codesign --force --timestamp --options runtime --entitlements "${CI_SCRIPTS}/app/entitlements.plist" --sign "${CODESIGN_IDENT}" "./RemoteFilming-B.app/Contents/Frameworks/Chromium Embedded Framework.framework/Libraries/libGLESv2.dylib"
-    /usr/bin/codesign --force --timestamp --options runtime --entitlements "${CI_SCRIPTS}/app/entitlements.plist" --sign "${CODESIGN_IDENT}" "./RemoteFilming-B.app/Contents/Frameworks/Chromium Embedded Framework.framework/Libraries/libswiftshader_libGLESv2.dylib"
-    /usr/bin/codesign --force --timestamp --options runtime --entitlements "${CI_SCRIPTS}/app/entitlements.plist" --sign "${CODESIGN_IDENT}" "./RemoteFilming-B.app/Contents/Frameworks/Chromium Embedded Framework.framework/Libraries/libvk_swiftshader.dylib"
-    /usr/bin/codesign --force --timestamp --options runtime --entitlements "${CI_SCRIPTS}/app/entitlements.plist" --sign "${CODESIGN_IDENT}" --deep "./RemoteFilming-B.app/Contents/Frameworks/Chromium Embedded Framework.framework"
-    /bin/echo -n "${COLOR_RESET}"
+#    step "Code-sign CEF framework..."
+#    /bin/echo -n "${COLOR_ORANGE}"
+#    /usr/bin/codesign --force --timestamp --options runtime --entitlements "${CI_SCRIPTS}/app/entitlements.plist" --sign "${CODESIGN_IDENT}" "./RemoteFilming-B.app/Contents/Frameworks/Chromium Embedded Framework.framework/Libraries/libEGL.dylib"
+#    /usr/bin/codesign --force --timestamp --options runtime --entitlements "${CI_SCRIPTS}/app/entitlements.plist" --sign "${CODESIGN_IDENT}" "./RemoteFilming-B.app/Contents/Frameworks/Chromium Embedded Framework.framework/Libraries/libswiftshader_libEGL.dylib"
+#    /usr/bin/codesign --force --timestamp --options runtime --entitlements "${CI_SCRIPTS}/app/entitlements.plist" --sign "${CODESIGN_IDENT}" "./RemoteFilming-B.app/Contents/Frameworks/Chromium Embedded Framework.framework/Libraries/libGLESv2.dylib"
+#    /usr/bin/codesign --force --timestamp --options runtime --entitlements "${CI_SCRIPTS}/app/entitlements.plist" --sign "${CODESIGN_IDENT}" "./RemoteFilming-B.app/Contents/Frameworks/Chromium Embedded Framework.framework/Libraries/libswiftshader_libGLESv2.dylib"
+#    /usr/bin/codesign --force --timestamp --options runtime --entitlements "${CI_SCRIPTS}/app/entitlements.plist" --sign "${CODESIGN_IDENT}" "./RemoteFilming-B.app/Contents/Frameworks/Chromium Embedded Framework.framework/Libraries/libvk_swiftshader.dylib"
+#    /usr/bin/codesign --force --timestamp --options runtime --entitlements "${CI_SCRIPTS}/app/entitlements.plist" --sign "${CODESIGN_IDENT}" --deep "./RemoteFilming-B.app/Contents/Frameworks/Chromium Embedded Framework.framework"
+#    /bin/echo -n "${COLOR_RESET}"
 
-    step "Code-sign CEF helper apps..."
-    /bin/echo -n "${COLOR_ORANGE}"
-    /usr/bin/codesign --force --timestamp --options runtime --entitlements "${CI_SCRIPTS}/helpers/helper-entitlements.plist" --sign "${CODESIGN_IDENT}" --deep "./RemoteFilming-B.app/Contents/Frameworks/OBS Helper.app"
-    /usr/bin/codesign --force --timestamp --options runtime --entitlements "${CI_SCRIPTS}/helpers/helper-gpu-entitlements.plist" --sign "${CODESIGN_IDENT}" --deep "./RemoteFilming-B.app/Contents/Frameworks/OBS Helper (GPU).app"
-    /usr/bin/codesign --force --timestamp --options runtime --entitlements "${CI_SCRIPTS}/helpers/helper-plugin-entitlements.plist" --sign "${CODESIGN_IDENT}" --deep "./RemoteFilming-B.app/Contents/Frameworks/OBS Helper (Plugin).app"
-    /usr/bin/codesign --force --timestamp --options runtime --entitlements "${CI_SCRIPTS}/helpers/helper-renderer-entitlements.plist" --sign "${CODESIGN_IDENT}" --deep "./RemoteFilming-B.app/Contents/Frameworks/OBS Helper (Renderer).app"
-    /bin/echo -n "${COLOR_RESET}"
+#    step "Code-sign CEF helper apps..."
+#    /bin/echo -n "${COLOR_ORANGE}"
+#    /usr/bin/codesign --force --timestamp --options runtime --entitlements "${CI_SCRIPTS}/helpers/helper-entitlements.plist" --sign "${CODESIGN_IDENT}" --deep "./RemoteFilming-B.app/Contents/Frameworks/OBS Helper.app"
+#    /usr/bin/codesign --force --timestamp --options runtime --entitlements "${CI_SCRIPTS}/helpers/helper-gpu-entitlements.plist" --sign "${CODESIGN_IDENT}" --deep "./RemoteFilming-B.app/Contents/Frameworks/OBS Helper (GPU).app"
+#    /usr/bin/codesign --force --timestamp --options runtime --entitlements "${CI_SCRIPTS}/helpers/helper-plugin-entitlements.plist" --sign "${CODESIGN_IDENT}" --deep "./RemoteFilming-B.app/Contents/Frameworks/OBS Helper (Plugin).app"
+#    /usr/bin/codesign --force --timestamp --options runtime --entitlements "${CI_SCRIPTS}/helpers/helper-renderer-entitlements.plist" --sign "${CODESIGN_IDENT}" --deep "./RemoteFilming-B.app/Contents/Frameworks/OBS Helper (Renderer).app"
+#    /bin/echo -n "${COLOR_RESET}"
 
     step "Code-sign DAL Plugin..."
     /bin/echo -n "${COLOR_ORANGE}"
