@@ -6127,10 +6127,20 @@ void OBSBasic::SceneNameEdited(QWidget *editor,
 
 void OBSBasic::OpenFilters(OBSSource source)
 {
-	OBSSceneItem item = GetCurrentSceneItem();
-	OBSSource source = obs_sceneitem_get_source(item);
-
+	if (source == nullptr) {
+		OBSSceneItem item = GetCurrentSceneItem();
+		source = obs_sceneitem_get_source(item);
+	}
 	CreateFiltersWindow(source);
+}
+
+void OBSBasic::OpenProperties(OBSSource source)
+{
+	if (source == nullptr) {
+		OBSSceneItem item = GetCurrentSceneItem();
+		source = obs_sceneitem_get_source(item);
+	}
+	CreatePropertiesWindow(source);
 }
 
 void OBSBasic::OpenSceneFilters()
