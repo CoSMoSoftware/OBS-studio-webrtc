@@ -390,7 +390,7 @@ install_frameworks() {
     hr "Adding Chromium Embedded Framework"
     step "Copy Framework..."
     /bin/cp -R "${DEPS_BUILD_DIR}/cef_binary_${MACOS_CEF_BUILD_VERSION}_macosx64/Release/Chromium Embedded Framework.framework" ./RemoteFilming-A.app/Contents/Frameworks/
-    /bin/chown -R $(whoami) ./RemoteFilming-A.app/Contents/Frameworks/
+    /usr/sbin/chown -R $(whoami) ./RemoteFilming-A.app/Contents/Frameworks/
 }
 
 prepare_macos_bundle() {

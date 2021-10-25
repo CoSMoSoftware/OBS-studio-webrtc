@@ -390,7 +390,7 @@ install_frameworks() {
     hr "Adding Chromium Embedded Framework"
     step "Copy Framework..."
     /bin/cp -R "${DEPS_BUILD_DIR}/cef_binary_${MACOS_CEF_BUILD_VERSION}_macosx64/Release/Chromium Embedded Framework.framework" ./OBS-WebRTC.app/Contents/Frameworks/
-    chown -R $(whoami) ./OBS-WebRTC.app/Contents/Frameworks/
+    /usr/sbin/chown -R $(whoami) ./OBS-WebRTC.app/Contents/Frameworks/
 }
 
 prepare_macos_bundle() {
