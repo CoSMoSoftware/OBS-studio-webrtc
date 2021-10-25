@@ -420,7 +420,7 @@ prepare_macos_bundle() {
     /bin/cp -R rundir/${BUILD_CONFIG}/data ./Wowza-OBS-Real-Time.app/Contents/Resources
     /bin/cp "${CI_SCRIPTS}/app/AppIcon.icns" ./Wowza-OBS-Real-Time.app/Contents/Resources
     /bin/cp -R rundir/${BUILD_CONFIG}/obs-plugins/ ./Wowza-OBS-Real-Time.app/Contents/PlugIns
-    vcp "${CI_SCRIPTS}/app/Info.plist" ./Wowza-OBS-Real-Time.app/Contents
+    /bin/cp "${CI_SCRIPTS}/app/Info.plist" ./Wowza-OBS-Real-Time.app/Contents
     # Scripting plugins are required to be placed in same directory as binary
     if [ -d ./Wowza-OBS-Real-Time.app/Contents/Resources/data/obs-scripting ]; then
         /bin/mv ./Wowza-OBS-Real-Time.app/Contents/Resources/data/obs-scripting/obslua.so ./Wowza-OBS-Real-Time.app/Contents/MacOS/
