@@ -352,7 +352,7 @@ bundle_dylibs() {
         -x ./Wowza-OBS-Real-Time.app/Contents/PlugIns/mac-syphon.so \
         -x ./Wowza-OBS-Real-Time.app/Contents/PlugIns/mac-vth264.so \
         -x ./Wowza-OBS-Real-Time.app/Contents/PlugIns/mac-virtualcam.so \
-        -x ./Wowza-OBS-Real-Time.app/Contents/PlugIns/obs-browser.so
+        -x ./Wowza-OBS-Real-Time.app/Contents/PlugIns/obs-browser.so \
         -x ./Wowza-OBS-Real-Time.app/Contents/PlugIns/obs-ffmpeg.so \
         -x ./Wowza-OBS-Real-Time.app/Contents/PlugIns/obs-filters.so \
         -x ./Wowza-OBS-Real-Time.app/Contents/PlugIns/obs-transitions.so \
