@@ -3193,7 +3193,7 @@
                           <widget class="QLineEdit" name="advOutFFACfg"/>
                          </item>
                          <item row="16" column="1">
-                          <spacer name="verticalSpacer_3">
+                          <spacer name="verticalSpacer_31">
                            <property name="orientation">
                             <enum>Qt::Vertical</enum>
                            </property>
