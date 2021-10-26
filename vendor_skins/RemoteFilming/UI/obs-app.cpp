@@ -77,7 +77,7 @@ static string lastLogFile;
 static string lastCrashLogFile;
 
 bool portable_mode = false;
-static bool multi = false;
+static bool multi = true; // RemoteFilming: Don't warn when launching multiple instances.
 static bool log_verbose = false;
 static bool unfiltered_log = false;
 bool opt_start_streaming = false;
