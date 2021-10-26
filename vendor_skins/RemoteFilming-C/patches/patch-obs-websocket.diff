@@ -1,0 +1,24 @@
+diff --git a/plugins/obs-websocket/src/WSServer.cpp b/plugins/obs-websocket/src/WSServer.cpp
+index 8ad1159..88b407e 100644
+--- a/plugins/obs-websocket/src/WSServer.cpp
++++ b/plugins/obs-websocket/src/WSServer.cpp
+@@ -104,13 +104,13 @@ void WSServer::start(quint16 port, bool lockToIPv4)
+ 		std::string errorCodeMessage = errorCode.message();
+ 		blog(LOG_INFO, "server: listen failed: %s", errorCodeMessage.c_str());
+ 
+-		obs_frontend_push_ui_translation(obs_module_get_string);
+-		QString errorTitle = tr("OBSWebsocket.Server.StartFailed.Title");
+-		QString errorMessage = tr("OBSWebsocket.Server.StartFailed.Message").arg(_serverPort).arg(errorCodeMessage.c_str());
+-		obs_frontend_pop_ui_translation();
++		// obs_frontend_push_ui_translation(obs_module_get_string);
++		// QString errorTitle = tr("OBSWebsocket.Server.StartFailed.Title");
++		// QString errorMessage = tr("OBSWebsocket.Server.StartFailed.Message").arg(_serverPort).arg(errorCodeMessage.c_str());
++		// obs_frontend_pop_ui_translation();
+ 
+-		QMainWindow* mainWindow = reinterpret_cast<QMainWindow*>(obs_frontend_get_main_window());
+-		QMessageBox::warning(mainWindow, errorTitle, errorMessage);
++		// QMainWindow* mainWindow = reinterpret_cast<QMainWindow*>(obs_frontend_get_main_window());
++		// QMessageBox::warning(mainWindow, errorTitle, errorMessage);
+ 
+ 		return;
+ 	}
