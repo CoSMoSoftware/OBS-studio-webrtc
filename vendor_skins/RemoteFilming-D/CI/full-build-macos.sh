@@ -420,7 +420,7 @@ prepare_macos_bundle() {
     /bin/cp -R rundir/${BUILD_CONFIG}/data ./RemoteFilming-D.app/Contents/Resources
     /bin/cp "${CI_SCRIPTS}/app/AppIcon.icns" ./RemoteFilming-D.app/Contents/Resources
     /bin/cp -R rundir/${BUILD_CONFIG}/obs-plugins/ ./RemoteFilming-D.app/Contents/PlugIns
-    /bin/cp "${CI_SCRIPTS}/app/HOLDING_CARD.mov" ./RemoteFilming.app/Contents/Resources
+    /bin/cp "${CI_SCRIPTS}/app/HOLDING_CARD.mov" ./RemoteFilming-D.app/Contents/Resources
     /bin/cp "${CI_SCRIPTS}/app/Info.plist" ./RemoteFilming-D.app/Contents
     # Scripting plugins are required to be placed in same directory as binary
     if [ -d ./RemoteFilming-D.app/Contents/Resources/data/obs-scripting ]; then
