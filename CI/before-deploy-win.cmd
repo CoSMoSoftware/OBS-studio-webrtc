@@ -6,5 +6,6 @@ cd build64_%1
 cpack -G WIX
 
 mkdir ..\build_%1
+dir
 move *.msi ..\build_%1
 cd ..
