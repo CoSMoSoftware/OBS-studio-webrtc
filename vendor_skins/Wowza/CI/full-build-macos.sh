@@ -33,7 +33,7 @@
 set -eE
 
 ## SET UP ENVIRONMENT ##
-PRODUCT_NAME="Wowza OBS - Real-Time"
+PRODUCT_NAME="Wowza-OBS-Real-Time"
 
 CHECKOUT_DIR="$(/usr/bin/git rev-parse --show-toplevel)"
 DEPS_BUILD_DIR="${CHECKOUT_DIR}/../obs-build-dependencies"
