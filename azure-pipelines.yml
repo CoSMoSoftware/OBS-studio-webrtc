@@ -63,7 +63,7 @@ parameters:
 #    - RemoteFilming-A
 #    - RemoteFilming-B
 #    - RemoteFilming-C
-    - RemoteFilming-D
+#    - RemoteFilming-D
     - Wowza
 
 jobs:
