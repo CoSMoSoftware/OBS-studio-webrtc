@@ -8813,7 +8813,7 @@ void OBSBasic::SystemTrayInit()
 #endif
 	trayIcon.reset(new QSystemTrayIcon(
 		QIcon::fromTheme("obs-tray", trayIconFile), this));
-	trayIcon->setToolTip("Wowza OBS Real-Time");
+	trayIcon->setToolTip("Wowza OBS - Real-Time");
 
 	showHide = new QAction(QTStr("Basic.SystemTray.Show"), trayIcon.data());
 	sysTrayStream = new QAction(QTStr("Basic.Main.StartStreaming"),
@@ -8891,7 +8891,7 @@ void OBSBasic::SysTrayNotify(const QString &text,
 	    QSystemTrayIcon::supportsMessages()) {
 		QSystemTrayIcon::MessageIcon icon =
 			QSystemTrayIcon::MessageIcon(n);
-		trayIcon->showMessage("Wowza OBS Real-Time", text, icon, 10000);
+		trayIcon->showMessage("Wowza OBS - Real-Time", text, icon, 10000);
 	}
 }
 
