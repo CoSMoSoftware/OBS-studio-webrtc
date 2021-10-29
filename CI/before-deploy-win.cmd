@@ -1,7 +1,11 @@
 REM install WiX Toolset
 choco -y install wixtoolset
 
+PATH
+
+echo ========================
 echo $Env:Path
+echo ========================
 
 REM Parameter %1 = vendor name
 cd build64_%1
