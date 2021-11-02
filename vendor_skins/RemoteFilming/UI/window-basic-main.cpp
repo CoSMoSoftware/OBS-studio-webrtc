@@ -1791,14 +1791,14 @@ void OBSBasic::OBSInit()
 		ret = os_get_program_data_path(data_path, sizeof(data_path), "REMOTE.json");
 		if (ret <= 0)
 			throw "Failed to retrieve data path";
-		blog(LOG_ERROR, "************** LUDO data path = $s", data_path);
+		blog(LOG_ERROR, "************** LUDO data path = %s'", data_path);
 
 		char scene_file_path[1024];
 		ret = snprintf(scene_file_path, sizeof(scene_file_path), "../../data/%s/REMOTE.json",
 						std::string(CONFIG_DIR).c_str());
 		if (ret <= 0)
 			throw "Failed to create default scene file path REMOTE.json";
-		blog(LOG_ERROR, "************** LUDO scene file path = $s", scene_file_path);
+		blog(LOG_ERROR, "************** LUDO scene file path = '%s'", scene_file_path);
 
 		if (os_copyfile(scene_file_path, savePath))
 			throw "Failed to copy default scene file REMOTE.json";
