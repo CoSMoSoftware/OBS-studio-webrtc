@@ -1783,6 +1783,27 @@ void OBSBasic::OBSInit()
 	if (ret <= 0)
 		throw "Failed to get scene collection json file path";
 
+	bool first_run =
+		config_get_bool(App()->GlobalConfig(), "General", "FirstRun");
+	if (!first_run) {
+		// Install default scene file REMOTE.json
+		char data_path[1024];
+		ret = os_get_program_data_path(data_path, sizeof(data_path), "REMOTE.json");
+		it (ret <= 0)
+			throw "Failed to retrieve data path";
+		blog(LOG_ERROR, "************** LUDO data path = $s", data_path);
+
+		char scene_file_path[1024];
+		ret = snprintf(scene_file_path, sizeof(scene_file_path), "../../data/%s/REMOTE.json",
+						std::string(CONFIG_DIR).c_str());
+		it (ret <= 0)
+			throw "Failed to create default scene file path REMOTE.json";
+		blog(LOG_ERROR, "************** LUDO scene file path = $s", scene_file_path);
+
+		if (os_copyfile(scene_file_path, savepath))
+			throw "Failed to copy default scene file REMOTE.json";
+	}
+
 	if (!InitBasicConfig())
 		throw "Failed to load basic.ini";
 	if (!ResetAudio())
@@ -2038,8 +2059,6 @@ void OBSBasic::OBSInit()
 
 	bool has_last_version = config_has_user_value(App()->GlobalConfig(),
 						      "General", "LastVersion");
-	bool first_run =
-		config_get_bool(App()->GlobalConfig(), "General", "FirstRun");
 
 	if (!first_run) {
 		config_set_bool(App()->GlobalConfig(), "General", "FirstRun",
