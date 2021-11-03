@@ -1,5 +1,5 @@
 {
-    "title": "Remote Filming-A $$VERSION$$",
+    "title": "A-CAM $$VERSION$$",
     "background": "$$CI_PATH$$/package/background.tiff",
     "icon": "$$CI_PATH$$/app/AppIcon.icns",
     "format": "ULFO",

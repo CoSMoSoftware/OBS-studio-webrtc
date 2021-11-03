@@ -5,7 +5,7 @@ elseif(WIN32 AND NOT CPACK_GENERATOR)
 	set(CPACK_GENERATOR "WIX" "ZIP")
 endif()
 
-set(CPACK_PACKAGE_NAME "RemoteFilming-A")
+set(CPACK_PACKAGE_NAME "A-CAM")
 set(CPACK_PACKAGE_VENDOR "remotefilming.com")
 set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "Remote Filming - Live video and audio streaming and recording software")
 set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/UI/data/license/gplv2.txt")
