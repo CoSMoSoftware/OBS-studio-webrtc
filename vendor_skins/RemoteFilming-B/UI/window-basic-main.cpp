@@ -1794,14 +1794,24 @@ void OBSBasic::OBSInit()
 		blog(LOG_ERROR, "************** LUDO executable path = %s'", executable_path);
 
 		char scene_file_path[1024];
-		ret = snprintf(scene_file_path, sizeof(scene_file_path), "%s../../data/%s/REMOTE.json",
+		ret = snprintf(scene_file_path, sizeof(scene_file_path),
+#if defined(__APPLE__)
+		        "%s../Resources/data/%s/REMOTE.json",
+#else
+		        "%s../../data/%s/REMOTE.json",
+#endif
 						executable_path, std::string(CONFIG_DIR).c_str());
 		if (ret <= 0)
 			throw "Failed to create default scene file path REMOTE.json";
 		blog(LOG_ERROR, "************** LUDO scene file path = '%s'", scene_file_path);
 
 		char holding_card_file_path[1024];
-		ret = snprintf(holding_card_file_path, sizeof(holding_card_file_path), "%s../../data/%s/HOLDING_CARD.mov",
+		ret = snprintf(holding_card_file_path, sizeof(holding_card_file_path),
+#if defined(__APPLE__)
+		        "%s../Resources/data/%s/HOLDING_CARD.mov",
+#else
+		        "%s../../data/%s/HOLDING_CARD.mov",
+#endif
 						executable_path, std::string(CONFIG_DIR).c_str());
 		if (ret <= 0)
 			throw "Failed to create HOLDING_CARD.mov file path";
