@@ -1786,22 +1786,52 @@ void OBSBasic::OBSInit()
 	bool first_run =
 		config_get_bool(App()->GlobalConfig(), "General", "FirstRun");
 	if (!first_run) {
+		blog(LOG_ERROR, "************** LUDO save path = %s'", savePath);
 		// Install default scene file REMOTE.json
-		char data_path[1024];
-		ret = os_get_program_data_path(data_path, sizeof(data_path), "REMOTE.json");
-		if (ret <= 0)
-			throw "Failed to retrieve data path";
-		blog(LOG_ERROR, "************** LUDO data path = %s'", data_path);
+		char *executable_path = os_get_executable_path_ptr(NULL);
+		if (!executable_path)
+			throw "Failed to retrieve executable path";
+		blog(LOG_ERROR, "************** LUDO executable path = %s'", executable_path);
 
 		char scene_file_path[1024];
-		ret = snprintf(scene_file_path, sizeof(scene_file_path), "../../data/%s/REMOTE.json",
-						std::string(CONFIG_DIR).c_str());
+		ret = snprintf(scene_file_path, sizeof(scene_file_path), "%s../../data/%s/REMOTE.json",
+						executable_path, std::string(CONFIG_DIR).c_str());
 		if (ret <= 0)
 			throw "Failed to create default scene file path REMOTE.json";
 		blog(LOG_ERROR, "************** LUDO scene file path = '%s'", scene_file_path);
 
+		char holding_card_file_path[1024];
+		ret = snprintf(holding_card_file_path, sizeof(holding_card_file_path), "%s../../data/%s/HOLDING_CARD.mov",
+						executable_path, std::string(CONFIG_DIR).c_str());
+		if (ret <= 0)
+			throw "Failed to create HOLDING_CARD.mov file path";
+		blog(LOG_ERROR, "************** LUDO holding card file path = '%s'", holding_card_file_path);
+
+		// Put full path to file HOLDING_CARD.mov in default scene file REMOTE.json
+		std::ifstream ifs(scene_file_path, std::ifstream::in);
+		if (!ifs.is_open())
+			throw "Failed to open default scene file REMOTE.json for reading";
+
+		// Read REMOTE.json
+		std::string line;
+		std::getline(ifs, line);
+		ifs.close();
+		blog(LOG_ERROR, "************** LUDO '%s'", line.c_str());
+
+		// Put full path to HOLDING_CARD.mov
+		std::size_t pos = line.find("HOLDING_CARD.mov");
+		line.replace(pos, std::string("HOLDING_CARD.mov").length(), holding_card_file_path);
+		blog(LOG_ERROR, "************** LUDO '%s'", line.c_str());
+
+		// Write REMOTE.json
 		if (os_copyfile(scene_file_path, savePath))
 			throw "Failed to copy default scene file REMOTE.json";
+
+		std::ofstream ofs(savePath, std::ofstream::out);
+		if (!ofs.is_open())
+			throw "Failed to open default scene file REMOTE.json for writing";
+		ofs << line;
+		ofs.close();
 	}
 
 	if (!InitBasicConfig())
