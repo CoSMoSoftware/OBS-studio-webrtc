@@ -5,7 +5,7 @@
 	<key>CFBundleIconFile</key>
 	<string>AppIcon.icns</string>
         <key>CFBundleDisplayName</key>
-        <string>Remote Filming</string>
+        <string>A-CAM</string>
 	<key>CFBundleName</key>
 	<string>RemoteFilming</string>
 	<key>CFBundleGetInfoString</key>
