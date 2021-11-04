@@ -16,7 +16,7 @@ if(NOT DEFINED CONFIG_DIR OR "${CONFIG_DIR}" STREQUAL "")
 	if(NOT OBS_WEBRTC_VENDOR_NAME)
 		set(CONFIG_DIR "obs-webrtc")
 	else()
-		set(CONFIG_DIR ${OBS_WEBRTC_VENDOR_NAME})
+		set(CONFIG_DIR "A-CAM")
 	endif()
 endif()
 
