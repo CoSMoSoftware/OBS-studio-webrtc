@@ -5,11 +5,11 @@
 	<key>CFBundleIconFile</key>
 	<string>AppIcon.icns</string>
         <key>CFBundleDisplayName</key>
-        <string>Wowza OBS - Real-Time</string>
+        <string>Wowza-OBS-Real-Time</string>
 	<key>CFBundleName</key>
-	<string>Wowza OBS - Real-Time</string>
+	<string>Wowza-OBS-Real-Time</string>
 	<key>CFBundleGetInfoString</key>
-	<string>Wowza OBS - Real-Time - Free and Open Source Streaming/Recording Software</string>
+	<string>Wowza-OBS-Real-Time - Free and Open Source Streaming/Recording Software</string>
 	<key>CFBundleExecutable</key>
 	<string>obs</string>
 	<key>CFBundleIdentifier</key>
@@ -23,8 +23,8 @@
 	<key>LSAppNapIsDisabled</key>
 	<true/>
 	<key>NSCameraUsageDescription</key>
- 	<string>Wowza OBS - Real-Time needs to access the camera to enable camera sources to work.</string>
+ 	<string>Wowza-OBS-Real-Time needs to access the camera to enable camera sources to work.</string>
  	<key>NSMicrophoneUsageDescription</key>
- 	<string>Wowza OBS - Real-Time needs to access the microphone to enable audio input.</string>
+ 	<string>Wowza-OBS-Real-Time needs to access the microphone to enable audio input.</string>
 </dict>
 </plist>

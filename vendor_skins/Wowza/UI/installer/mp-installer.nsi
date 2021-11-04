@@ -22,14 +22,14 @@ Unicode true
 ManifestDPIAware true
 
 ; Define your application name
-!define APPNAME "Wowza OBS - Real-Time"
+!define APPNAME "Wowza-OBS-Real-Time"
 
 !ifndef APPVERSION
 !define APPVERSION "25.0.8"
 !define SHORTVERSION "25.0.8"
 !endif
 
-!define APPNAMEANDVERSION "Wowza OBS - Real-Time ${SHORTVERSION}"
+!define APPNAMEANDVERSION "Wowza-OBS-Real-Time ${SHORTVERSION}"
 
 ; Additional script dependencies
 !include WinVer.nsh
@@ -65,16 +65,16 @@ RequestExecutionLevel admin
 
 !define MUI_ABORTWARNING
 !define MUI_FINISHPAGE_RUN
-!define MUI_FINISHPAGE_RUN_TEXT "Launch Wowza OBS - Real-Time ${SHORTVERSION}"
+!define MUI_FINISHPAGE_RUN_TEXT "Launch Wowza-OBS-Real-Time ${SHORTVERSION}"
 !define MUI_FINISHPAGE_RUN_FUNCTION "LaunchOBS"
 
-!define MUI_WELCOMEPAGE_TEXT "This setup will guide you through installing Wowza OBS - Real-Time.\n\nIt is recommended that you close all other applications before starting, including Wowza OBS - Real-Time. This will make it possible to update relevant files without having to reboot your computer.\n\nClick Next to continue."
+!define MUI_WELCOMEPAGE_TEXT "This setup will guide you through installing Wowza-OBS-Real-Time.\n\nIt is recommended that you close all other applications before starting, including Wowza-OBS-Real-Time. This will make it possible to update relevant files without having to reboot your computer.\n\nClick Next to continue."
 
 !define MUI_PAGE_CUSTOMFUNCTION_LEAVE PreReqCheck
 
 !define MUI_HEADERIMAGE
 !define MUI_PAGE_HEADER_TEXT "License Information"
-!define MUI_PAGE_HEADER_SUBTEXT "Please review the license terms before installing Wowza OBS - Real-Time."
+!define MUI_PAGE_HEADER_SUBTEXT "Please review the license terms before installing Wowza-OBS-Real-Time."
 !define MUI_LICENSEPAGE_TEXT_TOP "Press Page Down or scroll to see the rest of the license."
 !define MUI_LICENSEPAGE_TEXT_BOTTOM " "
 !define MUI_LICENSEPAGE_BUTTON "&Next >"
@@ -100,7 +100,7 @@ Function PreReqCheck
 		IfSilent +1 +3
 			SetErrorLevel 3
 			Quit
-		MessageBox MB_OK|MB_ICONSTOP "This version of Wowza OBS - Real-Time is not compatible with your system.  Please use the 32bit (x86) installer."
+		MessageBox MB_OK|MB_ICONSTOP "This version of Wowza-OBS-Real-Time is not compatible with your system.  Please use the 32bit (x86) installer."
 	${EndIf}
 	; Abort on XP or lower
 !endif
@@ -229,7 +229,7 @@ Function checkFilesInUse
 	IfSilent +1 +3
 		SetErrorLevel 6
 		Quit
-	MessageBox MB_RETRYCANCEL|MB_ICONEXCLAMATION "Wowza OBS - Real-Time files are being used by the following applications:$\r$\n$\r$\n$dllFilesInUse$\r$\nPlease close these applications to continue setup." /SD IDCANCEL IDRETRY retryFileChecks
+	MessageBox MB_RETRYCANCEL|MB_ICONEXCLAMATION "Wowza-OBS-Real-Time files are being used by the following applications:$\r$\n$\r$\n$dllFilesInUse$\r$\nPlease close these applications to continue setup." /SD IDCANCEL IDRETRY retryFileChecks
 	Quit
 
 	dllsNotInUse:
@@ -414,7 +414,7 @@ SectionEnd
 
 ; Modern install component descriptions
 !insertmacro MUI_FUNCTION_DESCRIPTION_BEGIN
-	!insertmacro MUI_DESCRIPTION_TEXT ${SecCore} "Core Wowza OBS - Real-Time files"
+	!insertmacro MUI_DESCRIPTION_TEXT ${SecCore} "Core Wowza-OBS-Real-Time files"
 !insertmacro MUI_FUNCTION_DESCRIPTION_END
 
 ;Uninstall section
