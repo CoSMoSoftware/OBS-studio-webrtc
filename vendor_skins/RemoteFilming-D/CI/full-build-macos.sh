@@ -272,10 +272,10 @@ configure_obs_build() {
     NIGHTLY_DIR="${CHECKOUT_DIR}/nightly-${CUR_DATE}"
     PACKAGE_NAME=$(/usr/bin/find . -name "*.dmg")
 
-    if [ -d ./RemoteFilming-D.app ]; then
+    if [ -d ./D-CAM.app ]; then
         ensure_dir "${NIGHTLY_DIR}"
-        /bin/mv "../${BUILD_DIR}_${VENDOR}/RemoteFilming-D.app" .
-        info "You can find RemoteFilming-D.app in ${NIGHTLY_DIR}"
+        /bin/mv "../${BUILD_DIR}_${VENDOR}/D-CAM.app" .
+        info "You can find D-CAM.app in ${NIGHTLY_DIR}"
     fi
     ensure_dir "${CHECKOUT_DIR}/${BUILD_DIR}_${VENDOR}"
     if ([ -n "${PACKAGE_NAME}" ] && [ -f ${PACKAGE_NAME} ]); then
@@ -330,67 +330,67 @@ run_obs_build() {
 bundle_dylibs() {
     ensure_dir "${CHECKOUT_DIR}/${BUILD_DIR}_${VENDOR}"
 
-    if [ ! -d ./RemoteFilming-D.app ]; then
-        error "No RemoteFilming-D.app bundle found"
+    if [ ! -d ./D-CAM.app ]; then
+        error "No D-CAM.app bundle found"
         exit 1
     fi
 
     hr "Bundle dylibs for macOS application"
 
     step "Run dylibBundler.."
-    ${CI_SCRIPTS}/app/dylibbundler -cd -of -a ./RemoteFilming-D.app -q -f \
-        -s ./RemoteFilming-D.app/Contents/MacOS \
+    ${CI_SCRIPTS}/app/dylibbundler -cd -of -a ./D-CAM.app -q -f \
+        -s ./D-CAM.app/Contents/MacOS \
         -s ./rundir/${BUILD_CONFIG}/bin/ \
-        -x ./RemoteFilming-D.app/Contents/PlugIns/coreaudio-encoder.so \
-        -x ./RemoteFilming-D.app/Contents/PlugIns/decklink-ouput-ui.so \
-        -x ./RemoteFilming-D.app/Contents/PlugIns/decklink-captions.so \
-        -x ./RemoteFilming-D.app/Contents/PlugIns/frontend-tools.so \
-        -x ./RemoteFilming-D.app/Contents/PlugIns/image-source.so \
-        -x ./RemoteFilming-D.app/Contents/PlugIns/mac-avcapture.so \
-        -x ./RemoteFilming-D.app/Contents/PlugIns/mac-capture.so \
-        -x ./RemoteFilming-D.app/Contents/PlugIns/mac-decklink.so \
-        -x ./RemoteFilming-D.app/Contents/PlugIns/mac-syphon.so \
-        -x ./RemoteFilming-D.app/Contents/PlugIns/mac-vth264.so \
-        -x ./RemoteFilming-D.app/Contents/PlugIns/mac-virtualcam.so \
-        -x ./RemoteFilming-D.app/Contents/PlugIns/obs-ffmpeg.so \
-        -x ./RemoteFilming-D.app/Contents/PlugIns/obs-filters.so \
-        -x ./RemoteFilming-D.app/Contents/PlugIns/obs-transitions.so \
-        -x ./RemoteFilming-D.app/Contents/PlugIns/obs-vst.so \
-        -x ./RemoteFilming-D.app/Contents/PlugIns/rtmp-services.so \
-        -x ./RemoteFilming-D.app/Contents/MacOS/obs-ffmpeg-mux \
-        -x ./RemoteFilming-D.app/Contents/MacOS/obslua.so \
-        -x ./RemoteFilming-D.app/Contents/PlugIns/obs-x264.so \
-        -x ./RemoteFilming-D.app/Contents/PlugIns/text-freetype2.so \
-        -x ./RemoteFilming-D.app/Contents/PlugIns/obs-outputs.so \
-        -x ./RemoteFilming-D.app/Contents/PlugIns/obs-ndi.so \
-        -x ./RemoteFilming-D.app/Contents/PlugIns/obs-websocket.so
-#        -x ./RemoteFilming-D.app/Contents/PlugIns/obs-browser.so \
+        -x ./D-CAM.app/Contents/PlugIns/coreaudio-encoder.so \
+        -x ./D-CAM.app/Contents/PlugIns/decklink-ouput-ui.so \
+        -x ./D-CAM.app/Contents/PlugIns/decklink-captions.so \
+        -x ./D-CAM.app/Contents/PlugIns/frontend-tools.so \
+        -x ./D-CAM.app/Contents/PlugIns/image-source.so \
+        -x ./D-CAM.app/Contents/PlugIns/mac-avcapture.so \
+        -x ./D-CAM.app/Contents/PlugIns/mac-capture.so \
+        -x ./D-CAM.app/Contents/PlugIns/mac-decklink.so \
+        -x ./D-CAM.app/Contents/PlugIns/mac-syphon.so \
+        -x ./D-CAM.app/Contents/PlugIns/mac-vth264.so \
+        -x ./D-CAM.app/Contents/PlugIns/mac-virtualcam.so \
+        -x ./D-CAM.app/Contents/PlugIns/obs-ffmpeg.so \
+        -x ./D-CAM.app/Contents/PlugIns/obs-filters.so \
+        -x ./D-CAM.app/Contents/PlugIns/obs-transitions.so \
+        -x ./D-CAM.app/Contents/PlugIns/obs-vst.so \
+        -x ./D-CAM.app/Contents/PlugIns/rtmp-services.so \
+        -x ./D-CAM.app/Contents/MacOS/obs-ffmpeg-mux \
+        -x ./D-CAM.app/Contents/MacOS/obslua.so \
+        -x ./D-CAM.app/Contents/PlugIns/obs-x264.so \
+        -x ./D-CAM.app/Contents/PlugIns/text-freetype2.so \
+        -x ./D-CAM.app/Contents/PlugIns/obs-outputs.so \
+        -x ./D-CAM.app/Contents/PlugIns/obs-ndi.so \
+        -x ./D-CAM.app/Contents/PlugIns/obs-websocket.so
+#        -x ./D-CAM.app/Contents/PlugIns/obs-browser.so \
 
     step "Move libobs-opengl to final destination"
-    /bin/cp ./libobs-opengl/libobs-opengl.so ./RemoteFilming-D.app/Contents/Frameworks
+    /bin/cp ./libobs-opengl/libobs-opengl.so ./D-CAM.app/Contents/Frameworks
 
     step "Copy QtNetwork for plugin support"
-#    /bin/cp -R /tmp/obsdeps/lib/QtNetwork.framework ./RemoteFilming-D.app/Contents/Frameworks
-    /bin/chmod -R +w ./RemoteFilming-D.app/Contents/Frameworks/QtNetwork.framework
-    /bin/rm -r ./RemoteFilming-D.app/Contents/Frameworks/QtNetwork.framework/Headers
-#    /bin/rm -r ./RemoteFilming-D.app/Contents/Frameworks/QtNetwork.framework/Versions/5/Headers/
-    /bin/chmod 644 ./RemoteFilming-D.app/Contents/Frameworks/QtNetwork.framework/Versions/5/Resources/Info.plist
-    install_name_tool -id @executable_path/../Frameworks/QtNetwork.framework/Versions/5/QtNetwork ./RemoteFilming-D.app/Contents/Frameworks/QtNetwork.framework/Versions/5/QtNetwork
-    install_name_tool -change /tmp/obsdeps/lib/QtCore.framework/Versions/5/QtCore @executable_path/../Frameworks/QtCore.framework/Versions/5/QtCore ./RemoteFilming-D.app/Contents/Frameworks/QtNetwork.framework/Versions/5/QtNetwork
+#    /bin/cp -R /tmp/obsdeps/lib/QtNetwork.framework ./D-CAM.app/Contents/Frameworks
+    /bin/chmod -R +w ./D-CAM.app/Contents/Frameworks/QtNetwork.framework
+    /bin/rm -r ./D-CAM.app/Contents/Frameworks/QtNetwork.framework/Headers
+#    /bin/rm -r ./D-CAM.app/Contents/Frameworks/QtNetwork.framework/Versions/5/Headers/
+    /bin/chmod 644 ./D-CAM.app/Contents/Frameworks/QtNetwork.framework/Versions/5/Resources/Info.plist
+    install_name_tool -id @executable_path/../Frameworks/QtNetwork.framework/Versions/5/QtNetwork ./D-CAM.app/Contents/Frameworks/QtNetwork.framework/Versions/5/QtNetwork
+    install_name_tool -change /tmp/obsdeps/lib/QtCore.framework/Versions/5/QtCore @executable_path/../Frameworks/QtCore.framework/Versions/5/QtCore ./D-CAM.app/Contents/Frameworks/QtNetwork.framework/Versions/5/QtNetwork
 }
 
 install_frameworks() {
     ensure_dir "${CHECKOUT_DIR}/${BUILD_DIR}_${VENDOR}"
 
-    if [ ! -d ./RemoteFilming-D.app ]; then
-        error "No RemoteFilming-D.app bundle found"
+    if [ ! -d ./D-CAM.app ]; then
+        error "No D-CAM.app bundle found"
         exit 1
     fi
 
     hr "Adding Chromium Embedded Framework"
     step "Copy Framework..."
-    /bin/cp -R "${DEPS_BUILD_DIR}/cef_binary_${MACOS_CEF_BUILD_VERSION}_macosx64/Release/Chromium Embedded Framework.framework" ./RemoteFilming-D.app/Contents/Frameworks/
-    /usr/sbin/chown -R $(whoami) ./RemoteFilming-D.app/Contents/Frameworks/
+    /bin/cp -R "${DEPS_BUILD_DIR}/cef_binary_${MACOS_CEF_BUILD_VERSION}_macosx64/Release/Chromium Embedded Framework.framework" ./D-CAM.app/Contents/Frameworks/
+    /usr/sbin/chown -R $(whoami) ./D-CAM.app/Contents/Frameworks/
 }
 
 prepare_macos_bundle() {
@@ -401,53 +401,53 @@ prepare_macos_bundle() {
         exit 1
     fi
 
-    if [ -d ./RemoteFilming-D.app ]; then /bin/rm -rf ./RemoteFilming-D.app; fi
+    if [ -d ./D-CAM.app ]; then /bin/rm -rf ./D-CAM.app; fi
 
-    hr "Preparing RemoteFilming-D.app bundle"
+    hr "Preparing D-CAM.app bundle"
     step "Copy binary and plugins..."
-    /bin/mkdir -p RemoteFilming-D.app/Contents/MacOS
-    /bin/mkdir RemoteFilming-D.app/Contents/PlugIns
-    /bin/mkdir RemoteFilming-D.app/Contents/Resources
-    /bin/mkdir RemoteFilming-D.app/Contents/Frameworks
+    /bin/mkdir -p D-CAM.app/Contents/MacOS
+    /bin/mkdir D-CAM.app/Contents/PlugIns
+    /bin/mkdir D-CAM.app/Contents/Resources
+    /bin/mkdir D-CAM.app/Contents/Frameworks
 
-    /bin/cp rundir/${BUILD_CONFIG}/bin/rfs ./RemoteFilming-D.app/Contents/MacOS
-    /bin/cp rundir/${BUILD_CONFIG}/bin/obs-ffmpeg-mux ./RemoteFilming-D.app/Contents/MacOS
-    /bin/cp rundir/${BUILD_CONFIG}/bin/libobsglad.0.dylib ./RemoteFilming-D.app/Contents/MacOS
-#    /bin/cp -R "rundir/${BUILD_CONFIG}/bin/OBS Helper.app" "./RemoteFilming-D.app/Contents/Frameworks/OBS Helper.app"
-#    /bin/cp -R "rundir/${BUILD_CONFIG}/bin/OBS Helper (GPU).app" "./RemoteFilming-D.app/Contents/Frameworks/OBS Helper (GPU).app"
-#    /bin/cp -R "rundir/${BUILD_CONFIG}/bin/OBS Helper (Plugin).app" "./RemoteFilming-D.app/Contents/Frameworks/OBS Helper (Plugin).app"
-#    /bin/cp -R "rundir/${BUILD_CONFIG}/bin/OBS Helper (Renderer).app" "./RemoteFilming-D.app/Contents/Frameworks/OBS Helper (Renderer).app"
-    /bin/cp -R rundir/${BUILD_CONFIG}/data ./RemoteFilming-D.app/Contents/Resources
-    /bin/cp "${CI_SCRIPTS}/app/AppIcon.icns" ./RemoteFilming-D.app/Contents/Resources
-    /bin/cp -R rundir/${BUILD_CONFIG}/obs-plugins/ ./RemoteFilming-D.app/Contents/PlugIns
-    /bin/cp "${CI_SCRIPTS}/app/Info.plist" ./RemoteFilming-D.app/Contents
+    /bin/cp rundir/${BUILD_CONFIG}/bin/rfs ./D-CAM.app/Contents/MacOS
+    /bin/cp rundir/${BUILD_CONFIG}/bin/obs-ffmpeg-mux ./D-CAM.app/Contents/MacOS
+    /bin/cp rundir/${BUILD_CONFIG}/bin/libobsglad.0.dylib ./D-CAM.app/Contents/MacOS
+#    /bin/cp -R "rundir/${BUILD_CONFIG}/bin/OBS Helper.app" "./D-CAM.app/Contents/Frameworks/OBS Helper.app"
+#    /bin/cp -R "rundir/${BUILD_CONFIG}/bin/OBS Helper (GPU).app" "./D-CAM.app/Contents/Frameworks/OBS Helper (GPU).app"
+#    /bin/cp -R "rundir/${BUILD_CONFIG}/bin/OBS Helper (Plugin).app" "./D-CAM.app/Contents/Frameworks/OBS Helper (Plugin).app"
+#    /bin/cp -R "rundir/${BUILD_CONFIG}/bin/OBS Helper (Renderer).app" "./D-CAM.app/Contents/Frameworks/OBS Helper (Renderer).app"
+    /bin/cp -R rundir/${BUILD_CONFIG}/data ./D-CAM.app/Contents/Resources
+    /bin/cp "${CI_SCRIPTS}/app/AppIcon.icns" ./D-CAM.app/Contents/Resources
+    /bin/cp -R rundir/${BUILD_CONFIG}/obs-plugins/ ./D-CAM.app/Contents/PlugIns
+    /bin/cp "${CI_SCRIPTS}/app/Info.plist" ./D-CAM.app/Contents
     # Scripting plugins are required to be placed in same directory as binary
-    if [ -d ./RemoteFilming-D.app/Contents/Resources/data/obs-scripting ]; then
-        /bin/mv ./RemoteFilming-D.app/Contents/Resources/data/obs-scripting/obslua.so ./RemoteFilming-D.app/Contents/MacOS/
-        # /bin/mv ./RemoteFilming-D.app/Contents/Resources/data/obs-scripting/_obspython.so ./RemoteFilming-D.app/Contents/MacOS/
-        # /bin/mv ./RemoteFilming-D.app/Contents/Resources/data/obs-scripting/obspython.py ./RemoteFilming-D.app/Contents/MacOS/
-        /bin/rm -rf ./RemoteFilming-D.app/Contents/Resources/data/obs-scripting/
+    if [ -d ./D-CAM.app/Contents/Resources/data/obs-scripting ]; then
+        /bin/mv ./D-CAM.app/Contents/Resources/data/obs-scripting/obslua.so ./D-CAM.app/Contents/MacOS/
+        # /bin/mv ./D-CAM.app/Contents/Resources/data/obs-scripting/_obspython.so ./D-CAM.app/Contents/MacOS/
+        # /bin/mv ./D-CAM.app/Contents/Resources/data/obs-scripting/obspython.py ./D-CAM.app/Contents/MacOS/
+        /bin/rm -rf ./D-CAM.app/Contents/Resources/data/obs-scripting/
     fi
 
     bundle_dylibs
 #    install_frameworks
 
-    /bin/cp "${CI_SCRIPTS}/app/OBSPublicDSAKey.pem" ./RemoteFilming-D.app/Contents/Resources
+    /bin/cp "${CI_SCRIPTS}/app/OBSPublicDSAKey.pem" ./D-CAM.app/Contents/Resources
 
     step "Set bundle meta information..."
-    /usr/bin/plutil -insert CFBundleVersion -string "${OBS_VERSION}" ./RemoteFilming-D.app/Contents/Info.plist
-    /usr/bin/plutil -insert CFBundleShortVersionString -string "${MACOSX_BUNDLE_SHORT_VERSION_STRING}" ./RemoteFilming-D.app/Contents/Info.plist
-    /usr/bin/plutil -insert OBSFeedsURL -string https://obsproject.com/osx_update/feeds.xml ./RemoteFilming-D.app/Contents/Info.plist
-    /usr/bin/plutil -insert SUFeedURL -string https://obsproject.com/osx_update/stable/updates.xml ./RemoteFilming-D.app/Contents/Info.plist
-    /usr/bin/plutil -insert SUPublicDSAKeyFile -string OBSPublicDSAKey.pem ./RemoteFilming-D.app/Contents/Info.plist
+    /usr/bin/plutil -insert CFBundleVersion -string "${OBS_VERSION}" ./D-CAM.app/Contents/Info.plist
+    /usr/bin/plutil -insert CFBundleShortVersionString -string "${MACOSX_BUNDLE_SHORT_VERSION_STRING}" ./D-CAM.app/Contents/Info.plist
+    /usr/bin/plutil -insert OBSFeedsURL -string https://obsproject.com/osx_update/feeds.xml ./D-CAM.app/Contents/Info.plist
+    /usr/bin/plutil -insert SUFeedURL -string https://obsproject.com/osx_update/stable/updates.xml ./D-CAM.app/Contents/Info.plist
+    /usr/bin/plutil -insert SUPublicDSAKeyFile -string OBSPublicDSAKey.pem ./D-CAM.app/Contents/Info.plist
 }
 
 ## CREATE MACOS DISTRIBUTION AND INSTALLER IMAGE ##
 prepare_macos_image() {
     ensure_dir "${CHECKOUT_DIR}/${BUILD_DIR}_${VENDOR}"
 
-    if [ ! -d ./RemoteFilming-D.app ]; then
-        error "No RemoteFilming-D.app bundle found"
+    if [ ! -d ./D-CAM.app ]; then
+        error "No D-CAM.app bundle found"
         exit 1
     fi
 
@@ -521,54 +521,54 @@ codesign_bundle() {
     ensure_dir "${CHECKOUT_DIR}/${BUILD_DIR}_${VENDOR}"
     trap "caught_error 'code-signing app'" ERR
 
-    if [ ! -d ./RemoteFilming-D.app ]; then
-        error "No RemoteFilming-D.app bundle found"
+    if [ ! -d ./D-CAM.app ]; then
+        error "No D-CAM.app bundle found"
         exit 1
     fi
 
     hr "Code-signing application bundle"
 
-    /usr/bin/xattr -crs ./RemoteFilming-D.app
+    /usr/bin/xattr -crs ./D-CAM.app
 
     read_codesign_ident
 
     # step "Code-sign Sparkle framework..."
     # /bin/echo -n "${COLOR_ORANGE}"
-    # /usr/bin/codesign --force --options runtime --sign "${CODESIGN_IDENT}" "./RemoteFilming-D.app/Contents/Frameworks/Sparkle.framework/Versions/A/Resources/Autoupdate.app/Contents/MacOS/fileop"
-    # /usr/bin/codesign --force --options runtime --sign "${CODESIGN_IDENT}" "./RemoteFilming-D.app/Contents/Frameworks/Sparkle.framework/Versions/A/Resources/Autoupdate.app/Contents/MacOS/Autoupdate"
-    # /usr/bin/codesign --force --options runtime --sign "${CODESIGN_IDENT}" --deep ./RemoteFilming-D.app/Contents/Frameworks/Sparkle.framework
+    # /usr/bin/codesign --force --options runtime --sign "${CODESIGN_IDENT}" "./D-CAM.app/Contents/Frameworks/Sparkle.framework/Versions/A/Resources/Autoupdate.app/Contents/MacOS/fileop"
+    # /usr/bin/codesign --force --options runtime --sign "${CODESIGN_IDENT}" "./D-CAM.app/Contents/Frameworks/Sparkle.framework/Versions/A/Resources/Autoupdate.app/Contents/MacOS/Autoupdate"
+    # /usr/bin/codesign --force --options runtime --sign "${CODESIGN_IDENT}" --deep ./D-CAM.app/Contents/Frameworks/Sparkle.framework
     # /bin/echo -n "${COLOR_RESET}"
 
 #    step "Code-sign CEF framework..."
 #    /bin/echo -n "${COLOR_ORANGE}"
-#    /usr/bin/codesign --force --timestamp --options runtime --entitlements "${CI_SCRIPTS}/app/entitlements.plist" --sign "${CODESIGN_IDENT}" "./RemoteFilming-D.app/Contents/Frameworks/Chromium Embedded Framework.framework/Libraries/libEGL.dylib"
-#    /usr/bin/codesign --force --timestamp --options runtime --entitlements "${CI_SCRIPTS}/app/entitlements.plist" --sign "${CODESIGN_IDENT}" "./RemoteFilming-D.app/Contents/Frameworks/Chromium Embedded Framework.framework/Libraries/libswiftshader_libEGL.dylib"
-#    /usr/bin/codesign --force --timestamp --options runtime --entitlements "${CI_SCRIPTS}/app/entitlements.plist" --sign "${CODESIGN_IDENT}" "./RemoteFilming-D.app/Contents/Frameworks/Chromium Embedded Framework.framework/Libraries/libGLESv2.dylib"
-#    /usr/bin/codesign --force --timestamp --options runtime --entitlements "${CI_SCRIPTS}/app/entitlements.plist" --sign "${CODESIGN_IDENT}" "./RemoteFilming-D.app/Contents/Frameworks/Chromium Embedded Framework.framework/Libraries/libswiftshader_libGLESv2.dylib"
-#    /usr/bin/codesign --force --timestamp --options runtime --entitlements "${CI_SCRIPTS}/app/entitlements.plist" --sign "${CODESIGN_IDENT}" "./RemoteFilming-D.app/Contents/Frameworks/Chromium Embedded Framework.framework/Libraries/libvk_swiftshader.dylib"
-#    /usr/bin/codesign --force --timestamp --options runtime --entitlements "${CI_SCRIPTS}/app/entitlements.plist" --sign "${CODESIGN_IDENT}" --deep "./RemoteFilming-D.app/Contents/Frameworks/Chromium Embedded Framework.framework"
+#    /usr/bin/codesign --force --timestamp --options runtime --entitlements "${CI_SCRIPTS}/app/entitlements.plist" --sign "${CODESIGN_IDENT}" "./D-CAM.app/Contents/Frameworks/Chromium Embedded Framework.framework/Libraries/libEGL.dylib"
+#    /usr/bin/codesign --force --timestamp --options runtime --entitlements "${CI_SCRIPTS}/app/entitlements.plist" --sign "${CODESIGN_IDENT}" "./D-CAM.app/Contents/Frameworks/Chromium Embedded Framework.framework/Libraries/libswiftshader_libEGL.dylib"
+#    /usr/bin/codesign --force --timestamp --options runtime --entitlements "${CI_SCRIPTS}/app/entitlements.plist" --sign "${CODESIGN_IDENT}" "./D-CAM.app/Contents/Frameworks/Chromium Embedded Framework.framework/Libraries/libGLESv2.dylib"
+#    /usr/bin/codesign --force --timestamp --options runtime --entitlements "${CI_SCRIPTS}/app/entitlements.plist" --sign "${CODESIGN_IDENT}" "./D-CAM.app/Contents/Frameworks/Chromium Embedded Framework.framework/Libraries/libswiftshader_libGLESv2.dylib"
+#    /usr/bin/codesign --force --timestamp --options runtime --entitlements "${CI_SCRIPTS}/app/entitlements.plist" --sign "${CODESIGN_IDENT}" "./D-CAM.app/Contents/Frameworks/Chromium Embedded Framework.framework/Libraries/libvk_swiftshader.dylib"
+#    /usr/bin/codesign --force --timestamp --options runtime --entitlements "${CI_SCRIPTS}/app/entitlements.plist" --sign "${CODESIGN_IDENT}" --deep "./D-CAM.app/Contents/Frameworks/Chromium Embedded Framework.framework"
 #    /bin/echo -n "${COLOR_RESET}"
 
 #    step "Code-sign CEF helper apps..."
 #    /bin/echo -n "${COLOR_ORANGE}"
-#    /usr/bin/codesign --force --timestamp --options runtime --entitlements "${CI_SCRIPTS}/helpers/helper-entitlements.plist" --sign "${CODESIGN_IDENT}" --deep "./RemoteFilming-D.app/Contents/Frameworks/OBS Helper.app"
-#    /usr/bin/codesign --force --timestamp --options runtime --entitlements "${CI_SCRIPTS}/helpers/helper-gpu-entitlements.plist" --sign "${CODESIGN_IDENT}" --deep "./RemoteFilming-D.app/Contents/Frameworks/OBS Helper (GPU).app"
-#    /usr/bin/codesign --force --timestamp --options runtime --entitlements "${CI_SCRIPTS}/helpers/helper-plugin-entitlements.plist" --sign "${CODESIGN_IDENT}" --deep "./RemoteFilming-D.app/Contents/Frameworks/OBS Helper (Plugin).app"
-#    /usr/bin/codesign --force --timestamp --options runtime --entitlements "${CI_SCRIPTS}/helpers/helper-renderer-entitlements.plist" --sign "${CODESIGN_IDENT}" --deep "./RemoteFilming-D.app/Contents/Frameworks/OBS Helper (Renderer).app"
+#    /usr/bin/codesign --force --timestamp --options runtime --entitlements "${CI_SCRIPTS}/helpers/helper-entitlements.plist" --sign "${CODESIGN_IDENT}" --deep "./D-CAM.app/Contents/Frameworks/OBS Helper.app"
+#    /usr/bin/codesign --force --timestamp --options runtime --entitlements "${CI_SCRIPTS}/helpers/helper-gpu-entitlements.plist" --sign "${CODESIGN_IDENT}" --deep "./D-CAM.app/Contents/Frameworks/OBS Helper (GPU).app"
+#    /usr/bin/codesign --force --timestamp --options runtime --entitlements "${CI_SCRIPTS}/helpers/helper-plugin-entitlements.plist" --sign "${CODESIGN_IDENT}" --deep "./D-CAM.app/Contents/Frameworks/OBS Helper (Plugin).app"
+#    /usr/bin/codesign --force --timestamp --options runtime --entitlements "${CI_SCRIPTS}/helpers/helper-renderer-entitlements.plist" --sign "${CODESIGN_IDENT}" --deep "./D-CAM.app/Contents/Frameworks/OBS Helper (Renderer).app"
 #    /bin/echo -n "${COLOR_RESET}"
 
     step "Code-sign DAL Plugin..."
     /bin/echo -n "${COLOR_ORANGE}"
-    /usr/bin/codesign --force --timestamp --options runtime --deep --sign "${CODESIGN_IDENT}" "./RemoteFilming-D.app/Contents/Resources/data/obs-plugins/mac-virtualcam/obs-mac-virtualcam.plugin"
+    /usr/bin/codesign --force --timestamp --options runtime --deep --sign "${CODESIGN_IDENT}" "./D-CAM.app/Contents/Resources/data/obs-plugins/mac-virtualcam/obs-mac-virtualcam.plugin"
     /bin/echo -n "${COLOR_RESET}"
 
     step "Code-sign OBS code..."
     /bin/echo -n "${COLOR_ORANGE}"
-    /usr/bin/codesign --force --timestamp --options runtime --entitlements "${CI_SCRIPTS}/app/entitlements.plist" --sign "${CODESIGN_IDENT}" --deep ./RemoteFilming-D.app
+    /usr/bin/codesign --force --timestamp --options runtime --entitlements "${CI_SCRIPTS}/app/entitlements.plist" --sign "${CODESIGN_IDENT}" --deep ./D-CAM.app
     /bin/echo -n "${COLOR_RESET}"
 
     step "Check code-sign result..."
-    /usr/bin/codesign -dvv ./RemoteFilming-D.app
+    /usr/bin/codesign -dvv ./D-CAM.app
 }
 
 codesign_image() {
@@ -650,11 +650,11 @@ notarize_macos() {
 
     if [ -f "${FILE_NAME}" ]; then
         NOTARIZE_TARGET="${FILE_NAME}"
-        xcnotary precheck "./RemoteFilming-D.app"
-    elif [ -d "RemoteFilming-D.app" ]; then
-        NOTARIZE_TARGET="./RemoteFilming-D.app"
+        xcnotary precheck "./D-CAM.app"
+    elif [ -d "D-CAM.app" ]; then
+        NOTARIZE_TARGET="./D-CAM.app"
     else
-        error "No notarization app bundle ('RemoteFilming-D.app') or disk image ('${FILE_NAME}') found"
+        error "No notarization app bundle ('D-CAM.app') or disk image ('${FILE_NAME}') found"
         return
     fi
 
