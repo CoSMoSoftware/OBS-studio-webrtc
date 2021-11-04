@@ -463,7 +463,7 @@ prepare_macos_image() {
     /usr/bin/sed -i '' 's#\$\$CI_PATH\$\$#'"${CI_SCRIPTS}"'#g' ./settings.json
     /usr/bin/sed -i '' 's#\$\$BUNDLE_PATH\$\$#'"${CHECKOUT_DIR}"'/build_'"${VENDOR}"'#g' ./settings.json
     /bin/echo -n "${COLOR_ORANGE}"
-    dmgbuild "RemoteFilming-A ${OBS_VERSION}" "${FILE_NAME}" -s ./settings.json
+    dmgbuild "A-CAM ${OBS_VERSION}" "${FILE_NAME}" -s ./settings.json
     /bin/echo -n "${COLOR_RESET}"
 
     if [ -n "${CODESIGN_OBS}" ]; then
