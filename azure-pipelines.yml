@@ -57,14 +57,14 @@ parameters:
   - name: vendors
     type: object
     default:
-#    - Millicast
+    - Millicast
 #    - PacPost
-#    - RemoteFilming
-    - RemoteFilming-A
-    - RemoteFilming-B
-    - RemoteFilming-C
-    - RemoteFilming-D
-#    - Wowza
+    - RemoteFilming
+#    - RemoteFilming-A
+#    - RemoteFilming-B
+#    - RemoteFilming-C
+#    - RemoteFilming-D
+    - Wowza
 
 jobs:
 - job: 'Build_macOS'
