@@ -116,9 +116,8 @@ static obs_properties_t *webrtc_millicast_properties(void *unused)
 	obs_property_list_add_string(obs_properties_get(ppts, "codec"), "AV1",
 				     "av1");
 
-	// NOTE LUDO: Do not display API URL for Wowza
-	// obs_properties_add_text(ppts, "publish_api_url", "Publish API URL",
-	// 			OBS_TEXT_DEFAULT);
+	obs_properties_add_text(ppts, "publish_api_url", "Publish API URL",
+				OBS_TEXT_DEFAULT);
 
 	p = obs_properties_get(ppts, "server");
 	obs_property_set_visible(p, false);
