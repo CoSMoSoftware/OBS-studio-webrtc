@@ -2875,7 +2875,7 @@ int main(int argc, char *argv[])
 			exit(0);
 
 		} else if (arg_is(argv[i], "--version", "-V")) {
-			std::cout << "Wowza OBS - Real-Time - "
+			std::cout << "Wowza-OBS-Real-Time - "
 				  << App()->GetVersionString() << "\n";
 			exit(0);
 		}

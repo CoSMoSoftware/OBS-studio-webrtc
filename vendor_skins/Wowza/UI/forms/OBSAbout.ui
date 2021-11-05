@@ -76,7 +76,7 @@
        <item>
         <widget class="QLabel" name="name">
          <property name="text">
-          <string notr="true">Wowza OBS - Real-Time</string>
+          <string notr="true">Wowza-OBS-Real-Time</string>
          </property>
         </widget>
        </item>

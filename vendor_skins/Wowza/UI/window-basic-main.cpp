@@ -317,7 +317,7 @@ OBSBasic::OBSBasic(QWidget *parent)
 	installEventFilter(shortcutFilter);
 
 	stringstream name;
-	name << "Wowza OBS - Real-Time " << App()->GetVersionString();
+	name << "Wowza-OBS-Real-Time " << App()->GetVersionString();
 	blog(LOG_INFO, "%s", name.str().c_str());
 	blog(LOG_INFO, "---------------------------------");
 
@@ -8499,7 +8499,7 @@ void OBSBasic::UpdateTitleBar()
 	const char *sceneCollection = config_get_string(
 		App()->GlobalConfig(), "Basic", "SceneCollection");
 
-	name << "Wowza OBS - Real-Time ";
+	name << "Wowza-OBS-Real-Time ";
 	if (previewProgramMode)
 		name << "Studio ";
 
@@ -8813,7 +8813,7 @@ void OBSBasic::SystemTrayInit()
 #endif
 	trayIcon.reset(new QSystemTrayIcon(
 		QIcon::fromTheme("obs-tray", trayIconFile), this));
-	trayIcon->setToolTip("Wowza OBS - Real-Time");
+	trayIcon->setToolTip("Wowza-OBS-Real-Time");
 
 	showHide = new QAction(QTStr("Basic.SystemTray.Show"), trayIcon.data());
 	sysTrayStream = new QAction(QTStr("Basic.Main.StartStreaming"),
@@ -8891,7 +8891,7 @@ void OBSBasic::SysTrayNotify(const QString &text,
 	    QSystemTrayIcon::supportsMessages()) {
 		QSystemTrayIcon::MessageIcon icon =
 			QSystemTrayIcon::MessageIcon(n);
-		trayIcon->showMessage("Wowza OBS - Real-Time", text, icon, 10000);
+		trayIcon->showMessage("Wowza-OBS-Real-Time", text, icon, 10000);
 	}
 }
 

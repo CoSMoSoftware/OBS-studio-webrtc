@@ -1,5 +1,5 @@
 {
-    "title": "Wowza OBS - Real-Time $$VERSION$$",
+    "title": "Wowza-OBS-Real-Time $$VERSION$$",
     "background": "$$CI_PATH$$/package/background.tiff",
     "icon": "$$CI_PATH$$/app/AppIcon.icns",
     "format": "ULFO",
