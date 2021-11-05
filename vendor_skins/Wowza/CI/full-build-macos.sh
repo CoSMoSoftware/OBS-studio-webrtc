@@ -338,7 +338,7 @@ bundle_dylibs() {
     hr "Bundle dylibs for macOS application"
 
     step "Run dylibBundler.."
-    ${CI_SCRIPTS}/app/dylibbundler -cd -of -a "./Wowza OBS - Real-Time.app" -q -f \
+    ${CI_SCRIPTS}/app/dylibbundler -cd -of -a "./Wowza\ OBS\ -\ Real-Time.app" -q -f \
         -s "./Wowza OBS - Real-Time.app/Contents/MacOS" \
         -s ./rundir/${BUILD_CONFIG}/bin/ \
         -x "./Wowza OBS - Real-Time.app/Contents/PlugIns/coreaudio-encoder.so" \
