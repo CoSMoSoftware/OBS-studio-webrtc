@@ -29,20 +29,20 @@ variables:
   - name: RESTREAM-HASH
     value: $(restream_hash)
 # for Mac code signing
-  - name: CODESIGN_IDENT
-    value: $(ludo_apple_developer_identity)
-#  - name: CODESIGN_IDENT_USER
-#    value: $(ludo_apple_account_id)
+#  - name: CODESIGN_IDENT
+#    value: $(ludo_apple_developer_identity)
   - name: CODESIGN_IDENT_USER
+    value: $(ludo_apple_account_id)
+  - name: CODESIGN_IDENT
     value: $(wowza_apple_account_id)
 #  - name: CODESIGN_IDENT_PASS
 #    value: $(ludo_apple_developer_password)
-#  - name: NOTARIZE_APP_SPECIFIC_PASSWORD
-#    value: $(ludo_apple_app_specific_password)
+  - name: NOTARIZE_APP_SPECIFIC_PASSWORD
+    value: $(ludo_apple_app_specific_password)
   - name: CODESIGN_IDENT_PASS
     value: $(wowza_mac_certificate_password)
-  - name: NOTARIZE_APP_SPECIFIC_PASSWORD
-    value: $(wowza_mac_certificate_password)
+#  - name: NOTARIZE_APP_SPECIFIC_PASSWORD
+#    value: $(wowza_mac_certificate_password)
 # for script CI/full-build-macos.sh
   - name: MIN_MACOS_VERSION
     value: 10.13
