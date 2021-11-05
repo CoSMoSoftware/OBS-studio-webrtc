@@ -13,7 +13,7 @@
 	<key>CFBundleExecutable</key>
 	<string>obs</string>
 	<key>CFBundleIdentifier</key>
-	<string>io.cosmosoftware.wowza</string>
+	<string>com.wowza.obs</string>
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>LSMinimumSystemVersion</key>
