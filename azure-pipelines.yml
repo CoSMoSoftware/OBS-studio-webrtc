@@ -33,7 +33,8 @@ variables:
 #    value: $(ludo_apple_developer_identity)
   - name: CODESIGN_IDENT
     value: $(wowza_developer_id)
-#  - name: CODESIGN_IDENT
+
+    #  - name: CODESIGN_IDENT
 #    value: $(wowza_apple_account_id)
   - name: CODESIGN_IDENT_USER
     value: $(ludo_apple_account_id)
