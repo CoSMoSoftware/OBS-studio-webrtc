@@ -29,23 +29,14 @@ variables:
   - name: RESTREAM-HASH
     value: $(restream_hash)
 # for Mac code signing
-#  - name: CODESIGN_IDENT
-#    value: $(ludo_apple_developer_identity)
   - name: CODESIGN_IDENT
-    value: $(wowza_developer_id)
-
-    #  - name: CODESIGN_IDENT
-#    value: $(wowza_apple_account_id)
+    value: $(ludo_apple_developer_identity)
   - name: CODESIGN_IDENT_USER
     value: $(ludo_apple_account_id)
   - name: CODESIGN_IDENT_PASS
     value: $(ludo_apple_developer_password)
   - name: NOTARIZE_APP_SPECIFIC_PASSWORD
     value: $(ludo_apple_app_specific_password)
-#  - name: CODESIGN_IDENT_PASS
-#    value: $(wowza_mac_certificate_password)
-#  - name: NOTARIZE_APP_SPECIFIC_PASSWORD
-#    value: $(wowza_mac_certificate_password)
 # for script CI/full-build-macos.sh
   - name: MIN_MACOS_VERSION
     value: 10.13
@@ -69,27 +60,27 @@ parameters:
 #    - Millicast
 #    - PacPost
 #    - RemoteFilming
-#    - RemoteFilming-A
-#    - RemoteFilming-B
-#    - RemoteFilming-C
-#    - RemoteFilming-D
-    - Wowza
+    - RemoteFilming-A
+    - RemoteFilming-B
+    - RemoteFilming-C
+    - RemoteFilming-D
+#    - Wowza
 
 jobs:
 - job: 'Build_macOS'
   pool:
     vmImage: 'macOS-10.15'
   steps:
-  # - task: InstallAppleCertificate@2
-  #   displayName: '🔐 Install CoSMo Signing Certificate'
-  #   inputs:
-  #     certSecureFile: Certificates.p12
-  #     certPwd: $(certificatesLudoPassword)
   - task: InstallAppleCertificate@2
-    displayName: '🔐 Install Wowza Signing Certificate'
+    displayName: '🔐 Install CoSMo Signing Certificate'
     inputs:
-      certSecureFile: wowza.p12
-      certPwd: $(wowza_mac_certificate_password)
+      certSecureFile: Certificates.p12
+      certPwd: $(certificatesLudoPassword)
+  # - task: InstallAppleCertificate@2
+  #   displayName: '🔐 Install Wowza Signing Certificate'
+  #   inputs:
+  #     certSecureFile: wowza.p12
+  #     certPwd: $(wowza_mac_certificate_password)
   - script: git submodule update --init --recursive
     displayName: 'Checkout Submodules'
   - ${{ each vendor in parameters.vendors }}:
