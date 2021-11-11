@@ -1783,9 +1783,14 @@ void OBSBasic::OBSInit()
 	if (ret <= 0)
 		throw "Failed to get scene collection json file path";
 
-	bool first_run =
-		config_get_bool(App()->GlobalConfig(), "General", "FirstRun");
-	if (!first_run) {
+	bool version_changed = false;
+	if(!config_has_user_value(App()->GlobalConfig(), "General", "Version")) {
+		version_changed = true;
+	} else {
+		const char *old_version = config_get_string(App()->GlobalConfig(), "General", "Version");
+		version_changed = (0 != strcmp(old_version, REMOTE_FILMING_VERSION));
+	}
+	if (version_changed) {
 		// Install default scene file REMOTE.json
 		char *executable_path = os_get_executable_path_ptr(NULL);
 		if (!executable_path)
