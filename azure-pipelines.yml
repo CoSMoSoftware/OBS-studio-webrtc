@@ -64,7 +64,7 @@ parameters:
 #    - RemoteFilming-B
 #    - RemoteFilming-C
 #    - RemoteFilming-D
-#    - Wowza
+    - Wowza
 
 jobs:
 - job: 'Build_macOS'
