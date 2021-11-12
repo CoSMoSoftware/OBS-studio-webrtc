@@ -411,7 +411,7 @@ static void do_log(int log_level, const char *msg, va_list args, void *param)
 bool OBSApp::InitGlobalConfigDefaults(const bool force /* = false */)
 {
   if(force) {
-    config_set_string(globalConfig, "General", "Version", REMOTE_FILMING_VERSION);
+    config_set_string(globalConfig, "General", "Version", std::string(REMOTE_FILMING_VERSION).c_str());
   	config_set_string(globalConfig, "General", "Language", DEFAULT_LANG);
     config_set_uint(globalConfig, "General", "MaxLogs", 10);
     config_set_int(globalConfig, "General", "InfoIncrement", -1);
@@ -472,7 +472,7 @@ bool OBSApp::InitGlobalConfigDefaults(const bool force /* = false */)
     config_set_int(globalConfig, "PropertiesWindow", "cx", 852);
     config_set_int(globalConfig, "PropertiesWindow", "cy", 696);
   }  else {
-    config_set_default_string(globalConfig, "General", "Version", REMOTE_FILMING_VERSION);
+    config_set_default_string(globalConfig, "General", "Version", std::string(REMOTE_FILMING_VERSION).c_str());
   	config_set_default_string(globalConfig, "General", "Language", DEFAULT_LANG);
     config_set_default_uint(globalConfig, "General", "MaxLogs", 10);
     config_set_default_int(globalConfig, "General", "InfoIncrement", -1);
@@ -773,7 +773,7 @@ bool OBSApp::InitGlobalConfig()
     version_changed = true;
   } else {
     const char *old_version = config_get_string(globalConfig, "General", "Version");
-    version_changed = (0 != strcmp(old_version, REMOTE_FILMING_VERSION));
+    version_changed = (0 != strcmp(old_version, std::string(REMOTE_FILMING_VERSION).c_str()));
   }
 
 	if (version_changed) {
