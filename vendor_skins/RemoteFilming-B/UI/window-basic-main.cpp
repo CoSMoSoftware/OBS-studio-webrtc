@@ -1783,66 +1783,6 @@ void OBSBasic::OBSInit()
 	if (ret <= 0)
 		throw "Failed to get scene collection json file path";
 
-	bool version_changed = false;
-	if(!config_has_user_value(App()->GlobalConfig(), "General", "Version")) {
-		version_changed = true;
-	} else {
-		const char *old_version = config_get_string(App()->GlobalConfig(), "General", "Version");
-		version_changed = (0 != strcmp(old_version, REMOTE_FILMING_VERSION));
-	}
-	if (version_changed) {
-		// Install default scene file REMOTE.json
-		char *executable_path = os_get_executable_path_ptr(NULL);
-		if (!executable_path)
-			throw "Failed to retrieve executable path";
-
-		char scene_file_path[1024];
-		ret = snprintf(scene_file_path, sizeof(scene_file_path),
-#if defined(__APPLE__)
-		        "%s../Resources/data/%s/REMOTE.json",
-#else
-		        "%s../../data/%s/REMOTE.json",
-#endif
-						executable_path, std::string(CONFIG_DIR).c_str());
-		if (ret <= 0)
-			throw "Failed to create default scene file path REMOTE.json";
-
-		char holding_card_file_path[1024];
-		ret = snprintf(holding_card_file_path, sizeof(holding_card_file_path),
-#if defined(__APPLE__)
-		        "%s../Resources/data/%s/HOLDING_CARD.mov",
-#else
-		        "%s../../data/%s/HOLDING_CARD.mov",
-#endif
-						executable_path, std::string(CONFIG_DIR).c_str());
-		if (ret <= 0)
-			throw "Failed to create HOLDING_CARD.mov file path";
-
-		// Put full path to file HOLDING_CARD.mov in default scene file REMOTE.json
-		std::ifstream ifs(scene_file_path, std::ifstream::in);
-		if (!ifs.is_open())
-			throw "Failed to open default scene file REMOTE.json for reading";
-
-		// Read REMOTE.json
-		std::string line;
-		std::getline(ifs, line);
-		ifs.close();
-
-		// Put full path to HOLDING_CARD.mov
-		std::size_t pos = line.find("HOLDING_CARD.mov");
-		line.replace(pos, std::string("HOLDING_CARD.mov").length(), holding_card_file_path);
-
-		// Write REMOTE.json
-		if (os_copyfile(scene_file_path, savePath))
-			throw "Failed to copy default scene file REMOTE.json";
-
-		std::ofstream ofs(savePath, std::ofstream::out);
-		if (!ofs.is_open())
-			throw "Failed to open default scene file REMOTE.json for writing";
-		ofs << line;
-		ofs.close();
-	}
-
 	if (!InitBasicConfig())
 		throw "Failed to load basic.ini";
 	if (!ResetAudio())
