@@ -834,7 +834,7 @@ bool OBSApp::InitGlobalConfig()
 			os_unlink(savePath);
 		else {
 			// Check that directory to receive REMOTE.json file exists
-			std::string savePathString(svaePath);
+			std::string savePathString(savePath);
 			std::string directory = savePathString.substr(0, savePathString.find_last_of("/\\"));
 			if (!is_dir(directory.c_str())) {
 				if (os_mkdir(directory.c_str())) {
