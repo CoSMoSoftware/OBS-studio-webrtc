@@ -836,7 +836,7 @@ bool OBSApp::InitGlobalConfig()
 			// Check that directory to receive REMOTE.json file exists
 			std::string savePathString(savePath);
 			std::string directory = savePathString.substr(0, savePathString.find_last_of("/\\"));
-			if (!is_dir(directory.c_str())) {
+			if (!os_file_exists(directory.c_str())) {
 				if (os_mkdir(directory.c_str())) {
 					std::string msg = "Failed to create directory " + directory;
 					throw msg;
