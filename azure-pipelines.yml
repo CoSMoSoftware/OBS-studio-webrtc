@@ -168,7 +168,7 @@ jobs:
     - script: git stash
       displayName: git stash
     - script: rmdir /S /Q plugins\\obs-ndi
-      displayName: rm plugins/obs-ndi
+      displayName: rmdir plugins/obs-ndi
     - script: git submodule update --init --recursive
       displayName: 'Checkout Submodules'
     - script: ./CI/install-script-win.cmd ${{ vendor }}

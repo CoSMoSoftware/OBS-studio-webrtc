@@ -17,7 +17,13 @@ if "%1"=="Millicast" (
 ) else (
   set vendor_option="-DOBS_WEBRTC_VENDOR_NAME=%1"
 )
-if "%1"=="RemoteFilming" || "%1"=="RemoteFilming-A" || "%1"=="RemoteFilming-B" || "%1"=="RemoteFilming-C" || "%1"=="RemoteFilming-D" {
+set "_remote_filming="
+if "%1"=="RemoteFilming" set "_remote_filming=1"
+if "%1"=="RemoteFilming-A" set "_remote_filming=1"
+if "%1"=="RemoteFilming-B" set "_remote_filming=1"
+if "%1"=="RemoteFilming-C" set "_remote_filming=1"
+if "%1"=="RemoteFilming-D" set "_remote_filming=1"
+if %_remote_filming% EQU 1 {
   copy .\vendor_skins\%1\CMakeLists.txt .\CMakeLists.txt
   copy .\vendor_skins\%1\UI\ui-config.h.in .\UI\ui-config.h.in
 }
