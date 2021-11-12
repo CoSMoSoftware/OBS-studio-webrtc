@@ -1770,6 +1770,8 @@ void OBSBasic::OBSInit()
 	char fileName[1024];
 	int ret;
 
+blog(LOG_INFO, "************* LUDO scene collection = %s", sceneCollection);
+
 	if (!sceneCollection)
 		throw "Failed to get scene collection name";
 
