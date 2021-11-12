@@ -1764,15 +1764,11 @@ void OBSBasic::OBSInit()
 {
 	ProfileScope("OBSBasic::OBSInit");
 
-blog(LOG_INFO, "************* LUDO");
-
 	const char *sceneCollection = config_get_string(
 		App()->GlobalConfig(), "Basic", "SceneCollectionFile");
 	char savePath[1024];
 	char fileName[1024];
 	int ret;
-
-blog(LOG_INFO, "************* LUDO scene collection = %s", sceneCollection);
 
 	if (!sceneCollection)
 		throw "Failed to get scene collection name";

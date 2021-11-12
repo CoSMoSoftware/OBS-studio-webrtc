@@ -818,26 +818,31 @@ bool OBSApp::InitGlobalConfig()
 		std::size_t pos = line.find("HOLDING_CARD.mov");
 		line.replace(pos, std::string("HOLDING_CARD.mov").length(), holding_card_file_path);
 
-		const char *sceneCollection = config_get_string(
-			App()->GlobalConfig(), "Basic", "SceneCollectionFile");
-		char savePath[1024];
 		char fileName[1024];
-
-		if (!sceneCollection)
-			throw "Failed to get scene collection name";
-
 		ret = snprintf(fileName, sizeof(fileName),
-						"%s/basic/scenes/%s.json",
-						std::string(CONFIG_DIR).c_str(), sceneCollection);
+						"%s/basic/scenes/REMOTE.json",
+						std::string(CONFIG_DIR).c_str());
 		if (ret <= 0)
 			throw "Failed to create scene collection file name";
 
+		char savePath[1024];
 		ret = GetConfigPath(savePath, sizeof(savePath), fileName);
 		if (ret <= 0)
 			throw "Failed to get scene collection json file path";
 
 		if (os_file_exists(savePath))
 			os_unlink(savePath);
+		else {
+			// Check that directory to receive REMOTE.json file exists
+			std::string savePathString(savePath);
+			std::string directory = savePathString.substr(0, savePathString.find_last_of("/\\"));
+			if (!os_file_exists(directory.c_str())) {
+				if (os_mkdir(directory.c_str())) {
+					std::string msg = "Failed to create directory " + directory;
+					throw msg;
+				}
+			}
+		}
 
 		// Write REMOTE.json
 		if (os_copyfile(scene_file_path, savePath))
