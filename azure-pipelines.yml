@@ -171,11 +171,6 @@ jobs:
       displayName: rm plugins/obs-ndi
     - script: git submodule update --init --recursive
       displayName: 'Checkout Submodules'
-    - ${{ if or( eq( vendor, 'RemoteFilming'), eq( vendor, 'RemoteFilming-A'), eq( vendor, 'RemoteFilming-B'), eq( vendor, 'RemoteFilming-C'), eq( vendor, 'RemoteFilming-D') ) }}:
-      - script: cp ./vendor_skins/${{ vendor }}/CMakeLists.txt ./CMakeLists.txt
-        displayName: '${{ vendor }} copy CMakeLists.txt'
-      - script: cp ./vendor_skins/${{ vendor }}/UI/ui-config.h.in ./UI/ui-config.h.in
-        displayName: '${{ vendor }} copy ui-config.h.in'
     - script: ./CI/install-script-win.cmd ${{ vendor }}
       displayName: '${{ vendor }} Run CMake'
     - task: MSBuild@1
