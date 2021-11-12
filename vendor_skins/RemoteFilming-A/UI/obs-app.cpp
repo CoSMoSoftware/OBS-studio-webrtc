@@ -834,8 +834,12 @@ bool OBSApp::InitGlobalConfig()
 			os_unlink(savePath);
 
 		// Write REMOTE.json
-		if (os_copyfile(scene_file_path, savePath))
-			throw "Failed to copy default scene file REMOTE.json";
+		if (os_copyfile(scene_file_path, savePath)) {
+			char msg[10000];
+			sprintf(msg, "Failed to copy default scene file REMOTE.json\n from %s\n to %s", scene_file_path, savePath);
+			throw msg;
+			// throw "Failed to copy default scene file REMOTE.json";
+}
 
 		std::ofstream ofs(savePath, std::ofstream::out);
 		if (!ofs.is_open())
