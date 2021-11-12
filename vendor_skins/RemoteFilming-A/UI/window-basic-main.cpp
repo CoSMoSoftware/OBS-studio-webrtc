@@ -1764,6 +1764,8 @@ void OBSBasic::OBSInit()
 {
 	ProfileScope("OBSBasic::OBSInit");
 
+blog(LOG_INFO, "************* LUDO");
+
 	const char *sceneCollection = config_get_string(
 		App()->GlobalConfig(), "Basic", "SceneCollectionFile");
 	char savePath[1024];
