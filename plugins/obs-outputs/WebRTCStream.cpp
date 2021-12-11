@@ -379,7 +379,10 @@ bool WebRTCStream::start(WebRTCStream::Type type)
 		small.rid = "S";
 		small.scale_resolution_down_by = 4;
 		//In reverse order so large is dropped first on low network condition
-		video_init.send_encodings.push_back(small);
+		// Send small resolution only if output video resolution >= 480p
+		if (obs_output_get_height(output) >= 480) {
+			video_init.send_encodings.push_back(small);
+		}
 		video_init.send_encodings.push_back(medium);
 		video_init.send_encodings.push_back(large);
 	}
