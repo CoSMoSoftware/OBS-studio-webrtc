@@ -521,8 +521,8 @@ static obs_data_t *GenerateSaveData(obs_data_array_t *sceneOrder,
 
 	obs_data_array_t *sourcesArray = obs_save_sources_filtered(
 		[](void *data, obs_source_t *source) {
-			return (*static_cast<FilterAudioSources_t *>(data))(
-				source);
+			return (*static_cast<FilterAudioSources_t *>(
+				data))(source);
 		},
 		static_cast<void *>(&FilterAudioSources));
 
@@ -1769,8 +1769,7 @@ void OBSBasic::OBSInit()
 	if (!sceneCollection)
 		throw "Failed to get scene collection name";
 
-	ret = snprintf(fileName, sizeof(fileName),
-		       "%s/basic/scenes/%s.json",
+	ret = snprintf(fileName, sizeof(fileName), "%s/basic/scenes/%s.json",
 		       std::string(CONFIG_DIR).c_str(), sceneCollection);
 	if (ret <= 0)
 		throw "Failed to create scene collection file name";
@@ -2788,8 +2787,7 @@ void OBSBasic::SaveProjectDeferred()
 	if (!sceneCollection)
 		return;
 
-	ret = snprintf(fileName, sizeof(fileName),
-		       "%s/basic/scenes/%s.json",
+	ret = snprintf(fileName, sizeof(fileName), "%s/basic/scenes/%s.json",
 		       std::string(CONFIG_DIR).c_str(), sceneCollection);
 	if (ret <= 0)
 		return;

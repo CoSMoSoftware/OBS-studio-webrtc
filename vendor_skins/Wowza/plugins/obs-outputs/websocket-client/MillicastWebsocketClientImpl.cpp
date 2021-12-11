@@ -95,7 +95,7 @@ bool MillicastWebsocketClientImpl::connect(const std::string &publish_api_url,
 		// Create websocket url
 		std::string wss = url + "?token=" + jwt;
 		// #323: Do not log publishing token
-  	// NOTE LUDO: do not display API URL in log file for Wowza
+		// NOTE LUDO: do not display API URL in log file for Wowza
 		// info("Connection URL: %s?token=***", url.c_str());
 
 		connection = client.get_connection(wss, ec);

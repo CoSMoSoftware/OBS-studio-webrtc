@@ -77,7 +77,8 @@ static string lastLogFile;
 static string lastCrashLogFile;
 
 bool portable_mode = false;
-static bool multi = true; // RemoteFilming: Don't warn when launching multiple instances.
+static bool multi =
+	true; // RemoteFilming: Don't warn when launching multiple instances.
 static bool log_verbose = false;
 static bool unfiltered_log = false;
 bool opt_start_streaming = false;
@@ -410,129 +411,211 @@ static void do_log(int log_level, const char *msg, va_list args, void *param)
 
 bool OBSApp::InitGlobalConfigDefaults(const bool force /* = false */)
 {
-  if(force) {
-    config_set_string(globalConfig, "General", "Version", std::string(REMOTE_FILMING_VERSION).c_str());
-  	config_set_string(globalConfig, "General", "Language", DEFAULT_LANG);
-    config_set_uint(globalConfig, "General", "MaxLogs", 10);
-    config_set_int(globalConfig, "General", "InfoIncrement", -1);
-    config_set_string(globalConfig, "General", "ProcessPriority", "Normal");
-  	config_set_bool(globalConfig, "General", "EnableAutoUpdates", false);
+	if (force) {
+		config_set_string(globalConfig, "General", "Version",
+				  std::string(REMOTE_FILMING_VERSION).c_str());
+		config_set_string(globalConfig, "General", "Language",
+				  DEFAULT_LANG);
+		config_set_uint(globalConfig, "General", "MaxLogs", 10);
+		config_set_int(globalConfig, "General", "InfoIncrement", -1);
+		config_set_string(globalConfig, "General", "ProcessPriority",
+				  "Normal");
+		config_set_bool(globalConfig, "General", "EnableAutoUpdates",
+				false);
 #if _WIN32
-  	config_set_string(globalConfig, "Video", "Renderer", "Direct3D 11");
+		config_set_string(globalConfig, "Video", "Renderer",
+				  "Direct3D 11");
 #else
-  	config_set_string(globalConfig, "Video", "Renderer", "OpenGL");
+		config_set_string(globalConfig, "Video", "Renderer", "OpenGL");
 #endif
-    config_set_bool(globalConfig, "BasicWindow", "PreviewEnabled", true);
-    config_set_bool(globalConfig, "BasicWindow", "PreviewProgramMode", false);
-    config_set_bool(globalConfig, "BasicWindow", "SceneDuplicationMode", true);
-    config_set_bool(globalConfig, "BasicWindow", "SwapScenesMode", true);
-    config_set_bool(globalConfig, "BasicWindow", "SnappingEnabled", true);
-    config_set_bool(globalConfig, "BasicWindow", "ScreenSnapping", true);
-    config_set_bool(globalConfig, "BasicWindow", "SourceSnapping", true);
-  	config_set_bool(globalConfig, "BasicWindow", "CenterSnapping", true);
-    config_set_double(globalConfig, "BasicWindow", "SnapDistance", 10.0);
-    config_set_bool(globalConfig, "BasicWindow", "RecordWhenStreaming", false);
-    config_set_bool(globalConfig, "BasicWindow", "KeepRecordingWhenStreamStops", false);
-  	config_set_bool(globalConfig, "BasicWindow", "SysTrayEnabled", false);
-    config_set_bool(globalConfig, "BasicWindow", "SysTrayWhenStarted", false);
-    config_set_bool(globalConfig, "BasicWindow", "SaveProjectors", false);
-    config_set_bool(globalConfig, "BasicWindow", "ShowTransitions", true);
-    config_set_bool(globalConfig, "BasicWindow", "ShowListboxToolbars", true);
-    config_set_bool(globalConfig, "BasicWindow", "ShowStatusBar", true);
-    config_set_bool(globalConfig, "BasicWindow", "ShowSourceIcons", true);
-    config_set_bool(globalConfig, "BasicWindow", "ShowContextToolbars", true);
-    config_set_bool(globalConfig, "BasicWindow", "StudioModeLabels", true);
-    if (!config_get_bool(globalConfig, "General", "Pre21Defaults")) {
-      config_set_string(globalConfig, "General",
-              "CurrentTheme", DEFAULT_THEME);
-  	}
-    config_set_string(globalConfig, "General", "HotkeyFocusType", "NeverDisableHotkeys");
-    config_set_bool(globalConfig, "BasicWindow", "VerticalVolControl", false);
-    config_set_bool(globalConfig, "BasicWindow", "MultiviewMouseSwitch", true);
-    config_set_bool(globalConfig, "BasicWindow", "MultiviewDrawNames", true);
-    config_set_bool(globalConfig, "BasicWindow", "MultiviewDrawAreas", true);
+		config_set_bool(globalConfig, "BasicWindow", "PreviewEnabled",
+				true);
+		config_set_bool(globalConfig, "BasicWindow",
+				"PreviewProgramMode", false);
+		config_set_bool(globalConfig, "BasicWindow",
+				"SceneDuplicationMode", true);
+		config_set_bool(globalConfig, "BasicWindow", "SwapScenesMode",
+				true);
+		config_set_bool(globalConfig, "BasicWindow", "SnappingEnabled",
+				true);
+		config_set_bool(globalConfig, "BasicWindow", "ScreenSnapping",
+				true);
+		config_set_bool(globalConfig, "BasicWindow", "SourceSnapping",
+				true);
+		config_set_bool(globalConfig, "BasicWindow", "CenterSnapping",
+				true);
+		config_set_double(globalConfig, "BasicWindow", "SnapDistance",
+				  10.0);
+		config_set_bool(globalConfig, "BasicWindow",
+				"RecordWhenStreaming", false);
+		config_set_bool(globalConfig, "BasicWindow",
+				"KeepRecordingWhenStreamStops", false);
+		config_set_bool(globalConfig, "BasicWindow", "SysTrayEnabled",
+				false);
+		config_set_bool(globalConfig, "BasicWindow",
+				"SysTrayWhenStarted", false);
+		config_set_bool(globalConfig, "BasicWindow", "SaveProjectors",
+				false);
+		config_set_bool(globalConfig, "BasicWindow", "ShowTransitions",
+				true);
+		config_set_bool(globalConfig, "BasicWindow",
+				"ShowListboxToolbars", true);
+		config_set_bool(globalConfig, "BasicWindow", "ShowStatusBar",
+				true);
+		config_set_bool(globalConfig, "BasicWindow", "ShowSourceIcons",
+				true);
+		config_set_bool(globalConfig, "BasicWindow",
+				"ShowContextToolbars", true);
+		config_set_bool(globalConfig, "BasicWindow", "StudioModeLabels",
+				true);
+		if (!config_get_bool(globalConfig, "General",
+				     "Pre21Defaults")) {
+			config_set_string(globalConfig, "General",
+					  "CurrentTheme", DEFAULT_THEME);
+		}
+		config_set_string(globalConfig, "General", "HotkeyFocusType",
+				  "NeverDisableHotkeys");
+		config_set_bool(globalConfig, "BasicWindow",
+				"VerticalVolControl", false);
+		config_set_bool(globalConfig, "BasicWindow",
+				"MultiviewMouseSwitch", true);
+		config_set_bool(globalConfig, "BasicWindow",
+				"MultiviewDrawNames", true);
+		config_set_bool(globalConfig, "BasicWindow",
+				"MultiviewDrawAreas", true);
 #ifdef _WIN32
-    uint32_t winver = GetWindowsVersion();
-    config_set_bool(globalConfig, "Audio", "DisableAudioDucking", true);
-    config_set_bool(globalConfig, "General", "BrowserHWAccel", winver > 0x601);
+		uint32_t winver = GetWindowsVersion();
+		config_set_bool(globalConfig, "Audio", "DisableAudioDucking",
+				true);
+		config_set_bool(globalConfig, "General", "BrowserHWAccel",
+				winver > 0x601);
 #endif
 #ifdef __APPLE__
-    config_set_bool(globalConfig, "General", "BrowserHWAccel", true);
-    config_set_bool(globalConfig, "Video", "DisableOSXVSync", true);
-    config_set_bool(globalConfig, "Video", "ResetOSXVSyncOnExit", true);
+		config_set_bool(globalConfig, "General", "BrowserHWAccel",
+				true);
+		config_set_bool(globalConfig, "Video", "DisableOSXVSync", true);
+		config_set_bool(globalConfig, "Video", "ResetOSXVSyncOnExit",
+				true);
 #endif
-  	config_set_bool(globalConfig, "BasicWindow", "MediaControlsCountdownTimer", true);
-    config_set_string(
-      globalConfig, "BasicWindow", "geometry",
-      "AdnQywADAAAAAAAgAAAAGQAABGgAAAKHAAAAIAAAADUAAARoAAAChwAAAAAAAAAAB4AAAAAgAAAANQAABGgAAAKH");
-    config_set_string(
-      globalConfig, "BasicWindow", "DockState",
-      "AAAA/wAAAAD9AAAAAgAAAAEAAAFOAAAB3/wCAAAAA/wAAAAAAAAB3wAAAU8A/////AIAAAAC/AAAAAAAAADGAAAAigEAABj6AAAAAQEAAAAC+wAAABQAcwBjAGUAbgBlAHMARABvAGMAawEAAARpAAAA2QAAAKAA////+wAAABYAcwBvAHUAcgBjAGUAcwBEAG8AYwBrAQAAAAD/////AAAAoAD////7AAAAGABjAG8AbgB0AHIAbwBsAHMARABvAGMAawEAAADHAAABGAAAAMQA////+wAAABgAYwBvAG4AdAByAG8AbABzAEQAbwBjAGsDAAAGSgAAASMAAADZAAAA4/sAAAASAHMAdABhAHQAcwBEAG8AYwBrAgAABJIAAAKgAAACxgAAAaYAAAADAAAESQAAAFj8AQAAAAL7AAAAEgBtAGkAeABlAHIARABvAGMAawEAAAAAAAAESQAAANwA////+wAAAB4AdAByAGEAbgBzAGkAdABpAG8AbgBzAEQAbwBjAGsCAAAC1wAAAa8AAACaAAAA7gAAAvoAAAHfAAAABAAAAAQAAAAIAAAACPwAAAAA");
-    config_set_bool(globalConfig, "BasicWindow", "DocksLocked", true);
-    config_set_int(globalConfig, "PropertiesWindow", "cx", 852);
-    config_set_int(globalConfig, "PropertiesWindow", "cy", 696);
-  }  else {
-    config_set_default_string(globalConfig, "General", "Version", std::string(REMOTE_FILMING_VERSION).c_str());
-  	config_set_default_string(globalConfig, "General", "Language", DEFAULT_LANG);
-    config_set_default_uint(globalConfig, "General", "MaxLogs", 10);
-    config_set_default_int(globalConfig, "General", "InfoIncrement", -1);
-    config_set_default_string(globalConfig, "General", "ProcessPriority", "Normal");
-  	config_set_default_bool(globalConfig, "General", "EnableAutoUpdates", false);
+		config_set_bool(globalConfig, "BasicWindow",
+				"MediaControlsCountdownTimer", true);
+		config_set_string(
+			globalConfig, "BasicWindow", "geometry",
+			"AdnQywADAAAAAAAgAAAAGQAABGgAAAKHAAAAIAAAADUAAARoAAAChwAAAAAAAAAAB4AAAAAgAAAANQAABGgAAAKH");
+		config_set_string(
+			globalConfig, "BasicWindow", "DockState",
+			"AAAA/wAAAAD9AAAAAgAAAAEAAAFOAAAB3/wCAAAAA/wAAAAAAAAB3wAAAU8A/////AIAAAAC/AAAAAAAAADGAAAAigEAABj6AAAAAQEAAAAC+wAAABQAcwBjAGUAbgBlAHMARABvAGMAawEAAARpAAAA2QAAAKAA////+wAAABYAcwBvAHUAcgBjAGUAcwBEAG8AYwBrAQAAAAD/////AAAAoAD////7AAAAGABjAG8AbgB0AHIAbwBsAHMARABvAGMAawEAAADHAAABGAAAAMQA////+wAAABgAYwBvAG4AdAByAG8AbABzAEQAbwBjAGsDAAAGSgAAASMAAADZAAAA4/sAAAASAHMAdABhAHQAcwBEAG8AYwBrAgAABJIAAAKgAAACxgAAAaYAAAADAAAESQAAAFj8AQAAAAL7AAAAEgBtAGkAeABlAHIARABvAGMAawEAAAAAAAAESQAAANwA////+wAAAB4AdAByAGEAbgBzAGkAdABpAG8AbgBzAEQAbwBjAGsCAAAC1wAAAa8AAACaAAAA7gAAAvoAAAHfAAAABAAAAAQAAAAIAAAACPwAAAAA");
+		config_set_bool(globalConfig, "BasicWindow", "DocksLocked",
+				true);
+		config_set_int(globalConfig, "PropertiesWindow", "cx", 852);
+		config_set_int(globalConfig, "PropertiesWindow", "cy", 696);
+	} else {
+		config_set_default_string(
+			globalConfig, "General", "Version",
+			std::string(REMOTE_FILMING_VERSION).c_str());
+		config_set_default_string(globalConfig, "General", "Language",
+					  DEFAULT_LANG);
+		config_set_default_uint(globalConfig, "General", "MaxLogs", 10);
+		config_set_default_int(globalConfig, "General", "InfoIncrement",
+				       -1);
+		config_set_default_string(globalConfig, "General",
+					  "ProcessPriority", "Normal");
+		config_set_default_bool(globalConfig, "General",
+					"EnableAutoUpdates", false);
 #if _WIN32
-  	config_set_default_string(globalConfig, "Video", "Renderer", "Direct3D 11");
+		config_set_default_string(globalConfig, "Video", "Renderer",
+					  "Direct3D 11");
 #else
-	  config_set_default_string(globalConfig, "Video", "Renderer", "OpenGL");
+		config_set_default_string(globalConfig, "Video", "Renderer",
+					  "OpenGL");
 #endif
-    config_set_default_bool(globalConfig, "BasicWindow", "PreviewEnabled", true);
-    config_set_default_bool(globalConfig, "BasicWindow", "PreviewProgramMode", false);
-    config_set_default_bool(globalConfig, "BasicWindow", "SceneDuplicationMode", true);
-    config_set_default_bool(globalConfig, "BasicWindow", "SwapScenesMode", true);
-    config_set_default_bool(globalConfig, "BasicWindow", "SnappingEnabled", true);
-    config_set_default_bool(globalConfig, "BasicWindow", "ScreenSnapping", true);
-    config_set_default_bool(globalConfig, "BasicWindow", "SourceSnapping", true);
-  	config_set_default_bool(globalConfig, "BasicWindow", "CenterSnapping", true);
-    config_set_default_double(globalConfig, "BasicWindow", "SnapDistance", 10.0);
-    config_set_default_bool(globalConfig, "BasicWindow", "RecordWhenStreaming", false);
-    config_set_default_bool(globalConfig, "BasicWindow", "KeepRecordingWhenStreamStops", false);
-  	config_set_default_bool(globalConfig, "BasicWindow", "SysTrayEnabled", false);
-    config_set_default_bool(globalConfig, "BasicWindow", "SysTrayWhenStarted", false);
-    config_set_default_bool(globalConfig, "BasicWindow", "SaveProjectors", false);
-    config_set_default_bool(globalConfig, "BasicWindow", "ShowTransitions", true);
-    config_set_default_bool(globalConfig, "BasicWindow", "ShowListboxToolbars", true);
-    config_set_default_bool(globalConfig, "BasicWindow", "ShowStatusBar", true);
-    config_set_default_bool(globalConfig, "BasicWindow", "ShowSourceIcons", true);
-    config_set_default_bool(globalConfig, "BasicWindow", "ShowContextToolbars", true);
-    config_set_default_bool(globalConfig, "BasicWindow", "StudioModeLabels", true);
-    if (!config_get_bool(globalConfig, "General", "Pre21Defaults")) {
-      config_set_default_string(globalConfig, "General",
-              "CurrentTheme", DEFAULT_THEME);
-  	}
-    config_set_default_string(globalConfig, "General", "HotkeyFocusType", "NeverDisableHotkeys");
-    config_set_default_bool(globalConfig, "BasicWindow", "VerticalVolControl", false);
-    config_set_default_bool(globalConfig, "BasicWindow", "MultiviewMouseSwitch", true);
-    config_set_default_bool(globalConfig, "BasicWindow", "MultiviewDrawNames", true);
-    config_set_default_bool(globalConfig, "BasicWindow", "MultiviewDrawAreas", true);
+		config_set_default_bool(globalConfig, "BasicWindow",
+					"PreviewEnabled", true);
+		config_set_default_bool(globalConfig, "BasicWindow",
+					"PreviewProgramMode", false);
+		config_set_default_bool(globalConfig, "BasicWindow",
+					"SceneDuplicationMode", true);
+		config_set_default_bool(globalConfig, "BasicWindow",
+					"SwapScenesMode", true);
+		config_set_default_bool(globalConfig, "BasicWindow",
+					"SnappingEnabled", true);
+		config_set_default_bool(globalConfig, "BasicWindow",
+					"ScreenSnapping", true);
+		config_set_default_bool(globalConfig, "BasicWindow",
+					"SourceSnapping", true);
+		config_set_default_bool(globalConfig, "BasicWindow",
+					"CenterSnapping", true);
+		config_set_default_double(globalConfig, "BasicWindow",
+					  "SnapDistance", 10.0);
+		config_set_default_bool(globalConfig, "BasicWindow",
+					"RecordWhenStreaming", false);
+		config_set_default_bool(globalConfig, "BasicWindow",
+					"KeepRecordingWhenStreamStops", false);
+		config_set_default_bool(globalConfig, "BasicWindow",
+					"SysTrayEnabled", false);
+		config_set_default_bool(globalConfig, "BasicWindow",
+					"SysTrayWhenStarted", false);
+		config_set_default_bool(globalConfig, "BasicWindow",
+					"SaveProjectors", false);
+		config_set_default_bool(globalConfig, "BasicWindow",
+					"ShowTransitions", true);
+		config_set_default_bool(globalConfig, "BasicWindow",
+					"ShowListboxToolbars", true);
+		config_set_default_bool(globalConfig, "BasicWindow",
+					"ShowStatusBar", true);
+		config_set_default_bool(globalConfig, "BasicWindow",
+					"ShowSourceIcons", true);
+		config_set_default_bool(globalConfig, "BasicWindow",
+					"ShowContextToolbars", true);
+		config_set_default_bool(globalConfig, "BasicWindow",
+					"StudioModeLabels", true);
+		if (!config_get_bool(globalConfig, "General",
+				     "Pre21Defaults")) {
+			config_set_default_string(globalConfig, "General",
+						  "CurrentTheme",
+						  DEFAULT_THEME);
+		}
+		config_set_default_string(globalConfig, "General",
+					  "HotkeyFocusType",
+					  "NeverDisableHotkeys");
+		config_set_default_bool(globalConfig, "BasicWindow",
+					"VerticalVolControl", false);
+		config_set_default_bool(globalConfig, "BasicWindow",
+					"MultiviewMouseSwitch", true);
+		config_set_default_bool(globalConfig, "BasicWindow",
+					"MultiviewDrawNames", true);
+		config_set_default_bool(globalConfig, "BasicWindow",
+					"MultiviewDrawAreas", true);
 #ifdef _WIN32
-    uint32_t winver = GetWindowsVersion();
-    config_set_default_bool(globalConfig, "Audio", "DisableAudioDucking", true);
-    config_set_default_bool(globalConfig, "General", "BrowserHWAccel", winver > 0x601);
+		uint32_t winver = GetWindowsVersion();
+		config_set_default_bool(globalConfig, "Audio",
+					"DisableAudioDucking", true);
+		config_set_default_bool(globalConfig, "General",
+					"BrowserHWAccel", winver > 0x601);
 #endif
 #ifdef __APPLE__
-    config_set_default_bool(globalConfig, "General", "BrowserHWAccel", true);
-    config_set_default_bool(globalConfig, "Video", "DisableOSXVSync", true);
-    config_set_default_bool(globalConfig, "Video", "ResetOSXVSyncOnExit", true);
+		config_set_default_bool(globalConfig, "General",
+					"BrowserHWAccel", true);
+		config_set_default_bool(globalConfig, "Video",
+					"DisableOSXVSync", true);
+		config_set_default_bool(globalConfig, "Video",
+					"ResetOSXVSyncOnExit", true);
 #endif
-  	config_set_default_bool(globalConfig, "BasicWindow", "MediaControlsCountdownTimer", true);
-    config_set_default_string(
-      globalConfig, "BasicWindow", "geometry",
-      "AdnQywADAAAAAAAgAAAAGQAABGgAAAKHAAAAIAAAADUAAARoAAAChwAAAAAAAAAAB4AAAAAgAAAANQAABGgAAAKH");
-    config_set_default_string(
-      globalConfig, "BasicWindow", "DockState",
-      "AAAA/wAAAAD9AAAAAgAAAAEAAAFOAAAB3/wCAAAAA/wAAAAAAAAB3wAAAU8A/////AIAAAAC/AAAAAAAAADGAAAAigEAABj6AAAAAQEAAAAC+wAAABQAcwBjAGUAbgBlAHMARABvAGMAawEAAARpAAAA2QAAAKAA////+wAAABYAcwBvAHUAcgBjAGUAcwBEAG8AYwBrAQAAAAD/////AAAAoAD////7AAAAGABjAG8AbgB0AHIAbwBsAHMARABvAGMAawEAAADHAAABGAAAAMQA////+wAAABgAYwBvAG4AdAByAG8AbABzAEQAbwBjAGsDAAAGSgAAASMAAADZAAAA4/sAAAASAHMAdABhAHQAcwBEAG8AYwBrAgAABJIAAAKgAAACxgAAAaYAAAADAAAESQAAAFj8AQAAAAL7AAAAEgBtAGkAeABlAHIARABvAGMAawEAAAAAAAAESQAAANwA////+wAAAB4AdAByAGEAbgBzAGkAdABpAG8AbgBzAEQAbwBjAGsCAAAC1wAAAa8AAACaAAAA7gAAAvoAAAHfAAAABAAAAAQAAAAIAAAACPwAAAAA");
-    config_set_default_bool(globalConfig, "BasicWindow", "DocksLocked", true);
-    config_set_default_int(globalConfig, "PropertiesWindow", "cx", 852);
-    config_set_default_int(globalConfig, "PropertiesWindow", "cy", 696);
-  }
+		config_set_default_bool(globalConfig, "BasicWindow",
+					"MediaControlsCountdownTimer", true);
+		config_set_default_string(
+			globalConfig, "BasicWindow", "geometry",
+			"AdnQywADAAAAAAAgAAAAGQAABGgAAAKHAAAAIAAAADUAAARoAAAChwAAAAAAAAAAB4AAAAAgAAAANQAABGgAAAKH");
+		config_set_default_string(
+			globalConfig, "BasicWindow", "DockState",
+			"AAAA/wAAAAD9AAAAAgAAAAEAAAFOAAAB3/wCAAAAA/wAAAAAAAAB3wAAAU8A/////AIAAAAC/AAAAAAAAADGAAAAigEAABj6AAAAAQEAAAAC+wAAABQAcwBjAGUAbgBlAHMARABvAGMAawEAAARpAAAA2QAAAKAA////+wAAABYAcwBvAHUAcgBjAGUAcwBEAG8AYwBrAQAAAAD/////AAAAoAD////7AAAAGABjAG8AbgB0AHIAbwBsAHMARABvAGMAawEAAADHAAABGAAAAMQA////+wAAABgAYwBvAG4AdAByAG8AbABzAEQAbwBjAGsDAAAGSgAAASMAAADZAAAA4/sAAAASAHMAdABhAHQAcwBEAG8AYwBrAgAABJIAAAKgAAACxgAAAaYAAAADAAAESQAAAFj8AQAAAAL7AAAAEgBtAGkAeABlAHIARABvAGMAawEAAAAAAAAESQAAANwA////+wAAAB4AdAByAGEAbgBzAGkAdABpAG8AbgBzAEQAbwBjAGsCAAAC1wAAAa8AAACaAAAA7gAAAvoAAAHfAAAABAAAAAQAAAAIAAAACPwAAAAA");
+		config_set_default_bool(globalConfig, "BasicWindow",
+					"DocksLocked", true);
+		config_set_default_int(globalConfig, "PropertiesWindow", "cx",
+				       852);
+		config_set_default_int(globalConfig, "PropertiesWindow", "cy",
+				       696);
+	}
 
 	return true;
 }
@@ -754,7 +837,7 @@ bool OBSApp::InitGlobalConfig()
 {
 	char path[512];
 	bool changed = false;
-  bool version_changed = false;
+	bool version_changed = false;
 
 	int len = GetConfigPath(
 		path, sizeof(path),
@@ -769,12 +852,16 @@ bool OBSApp::InitGlobalConfig()
 		return false;
 	}
 
-  if(!config_has_user_value(globalConfig, "General", "Version")) {
-    version_changed = true;
-  } else {
-    const char *old_version = config_get_string(globalConfig, "General", "Version");
-    version_changed = (0 != strcmp(old_version, std::string(REMOTE_FILMING_VERSION).c_str()));
-  }
+	if (!config_has_user_value(globalConfig, "General", "Version")) {
+		version_changed = true;
+	} else {
+		const char *old_version =
+			config_get_string(globalConfig, "General", "Version");
+		version_changed =
+			(0 !=
+			 strcmp(old_version,
+				std::string(REMOTE_FILMING_VERSION).c_str()));
+	}
 
 	if (version_changed) {
 		// Install default scene file REMOTE.json
@@ -785,22 +872,25 @@ bool OBSApp::InitGlobalConfig()
 		char scene_file_path[1024];
 		int ret = snprintf(scene_file_path, sizeof(scene_file_path),
 #if defined(__APPLE__)
-		        "%s../Resources/data/%s/REMOTE.json",
+				   "%s../Resources/data/%s/REMOTE.json",
 #else
-		        "%s../../data/%s/REMOTE.json",
+				   "%s../../data/%s/REMOTE.json",
 #endif
-						executable_path, std::string(CONFIG_DIR).c_str());
+				   executable_path,
+				   std::string(CONFIG_DIR).c_str());
 		if (ret <= 0)
 			throw "Failed to create default scene file path REMOTE.json";
 
 		char holding_card_file_path[1024];
-		ret = snprintf(holding_card_file_path, sizeof(holding_card_file_path),
+		ret = snprintf(holding_card_file_path,
+			       sizeof(holding_card_file_path),
 #if defined(__APPLE__)
-		        "%s../Resources/data/%s/HOLDING_CARD.mov",
+			       "%s../Resources/data/%s/HOLDING_CARD.mov",
 #else
-		        "%s../../data/%s/HOLDING_CARD.mov",
+			       "%s../../data/%s/HOLDING_CARD.mov",
 #endif
-						executable_path, std::string(CONFIG_DIR).c_str());
+			       executable_path,
+			       std::string(CONFIG_DIR).c_str());
 		if (ret <= 0)
 			throw "Failed to create HOLDING_CARD.mov file path";
 
@@ -816,12 +906,13 @@ bool OBSApp::InitGlobalConfig()
 
 		// Put full path to HOLDING_CARD.mov
 		std::size_t pos = line.find("HOLDING_CARD.mov");
-		line.replace(pos, std::string("HOLDING_CARD.mov").length(), holding_card_file_path);
+		line.replace(pos, std::string("HOLDING_CARD.mov").length(),
+			     holding_card_file_path);
 
 		char fileName[1024];
 		ret = snprintf(fileName, sizeof(fileName),
-						"%s/basic/scenes/REMOTE.json",
-						std::string(CONFIG_DIR).c_str());
+			       "%s/basic/scenes/REMOTE.json",
+			       std::string(CONFIG_DIR).c_str());
 		if (ret <= 0)
 			throw "Failed to create scene collection file name";
 
@@ -835,10 +926,13 @@ bool OBSApp::InitGlobalConfig()
 		else {
 			// Check that directory to receive REMOTE.json file exists
 			std::string savePathString(savePath);
-			std::string directory = savePathString.substr(0, savePathString.find_last_of("/\\"));
+			std::string directory = savePathString.substr(
+				0, savePathString.find_last_of("/\\"));
 			if (!os_file_exists(directory.c_str())) {
 				if (os_mkdir(directory.c_str())) {
-					std::string msg = "Failed to create directory " + directory;
+					std::string msg =
+						"Failed to create directory " +
+						directory;
 					throw msg;
 				}
 			}
