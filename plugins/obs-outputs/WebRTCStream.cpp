@@ -374,10 +374,13 @@ bool WebRTCStream::start(WebRTCStream::Type type)
 		webrtc::RtpEncodingParameters small;
 		large.rid = "L";
 		large.scale_resolution_down_by = 1;
+		large.max_bitrate_bps = video_bitrate * 1000;
 		medium.rid = "M";
 		medium.scale_resolution_down_by = 2;
+		medium.max_bitrate_bps = video_bitrate * 1000 / 3;
 		small.rid = "S";
 		small.scale_resolution_down_by = 4;
+		small.max_bitrate_bps = video_bitrate * 1000  / 9;
 		//In reverse order so large is dropped first on low network condition
 		// Send small resolution only if output video resolution >= 480p
 		if (obs_output_get_height(output) >= 480) {
