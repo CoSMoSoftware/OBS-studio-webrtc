@@ -6,7 +6,6 @@ This project is a fork of OBS-studio with support for WebRTC. WebRTC supports co
 The implementation is in the "plugins / obs-outputs" directory. The WebRTCStream files contain the high-level implementation, while the xxxx-stream files contain the specific implementation for a given service.
 
 For the time being the following services and sites are supported:
-- Janus "videoRoom" server (Using WHIP)
 - Millicast.com PaaS
 
 Do not forget to share the love with the original OBS-Studio project and its fantastic team [there](https://obsproject.com/blog/progress-report-february-2019).
