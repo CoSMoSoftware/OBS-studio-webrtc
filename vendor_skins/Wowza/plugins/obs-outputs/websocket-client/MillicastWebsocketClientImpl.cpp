@@ -34,11 +34,11 @@ MillicastWebsocketClientImpl::~MillicastWebsocketClientImpl()
 	disconnect(false);
 }
 
-bool MillicastWebsocketClientImpl::connect(const std::string &publish_api_url,
-					   const std::string & /* room */,
-					   const std::string &stream_name,
-					   const std::string &token,
-					   WebsocketClient::Listener *listener)
+bool MillicastWebsocketClientImpl::connect(
+	const std::string &publish_api_url, const std::string & /* room */,
+	const std::string &stream_name, const std::string &token,
+	WebsocketClient::Listener *listener,
+	const char *audio_source_name /* = NULL */)
 {
 	this->token = sanitizeString(token);
 
@@ -49,7 +49,13 @@ bool MillicastWebsocketClientImpl::connect(const std::string &publish_api_url,
 	headers["Content-Type"] = "application/json";
 	conn->SetHeaders(headers);
 	conn->SetTimeout(5);
-	json data = {{"streamName", sanitizeString(stream_name)}};
+	json data{};
+	if (audio_source_name) {
+		data = {{"streamName", sanitizeString(stream_name)},
+			{"sourceId", sanitizeString(audio_source_name)}};
+	} else {
+		data = {{"streamName", sanitizeString(stream_name)}};
+	}
 	RestClient::Response r = conn->post(publish_api_url, data.dump());
 	delete conn;
 	RestClient::disable();

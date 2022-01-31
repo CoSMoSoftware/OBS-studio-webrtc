@@ -29,7 +29,8 @@ bool CustomWebrtcImpl::connect(const std::string &publish_api_url,
 			       const std::string & /* room */,
 			       const std::string & /*stream_name*/,
 			       const std::string &token,
-			       WebsocketClient::Listener *listener)
+			       WebsocketClient::Listener *listener,
+			       const char *audio_source_name /* = NULL */)
 {
 	this->serverUrl = sanitizeString(publish_api_url);
 	this->token = sanitizeString(token);

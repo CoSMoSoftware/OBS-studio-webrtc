@@ -14,6 +14,7 @@
 #include "pc/rtc_stats_collector.h"
 #include "rtc_base/checks.h"
 #include <libyuv.h>
+#include <obs-frontend-api.h>
 
 #include <algorithm>
 #include <chrono>
@@ -375,12 +376,18 @@ bool WebRTCStream::start(WebRTCStream::Type type)
 		webrtc::RtpEncodingParameters small;
 		large.rid = "L";
 		large.scale_resolution_down_by = 1;
+		large.max_bitrate_bps = video_bitrate * 1000;
 		medium.rid = "M";
 		medium.scale_resolution_down_by = 2;
+		medium.max_bitrate_bps = video_bitrate * 1000 / 3;
 		small.rid = "S";
 		small.scale_resolution_down_by = 4;
+		small.max_bitrate_bps = video_bitrate * 1000 / 9;
 		//In reverse order so large is dropped first on low network condition
-		video_init.send_encodings.push_back(small);
+		// Send small resolution only if output video resolution >= 480p
+		if (obs_output_get_height(output) >= 480) {
+			video_init.send_encodings.push_back(small);
+		}
 		video_init.send_encodings.push_back(medium);
 		video_init.send_encodings.push_back(large);
 	}
@@ -416,8 +423,10 @@ bool WebRTCStream::start(WebRTCStream::Type type)
 	// NOTE LUDO: do not display API URL in log file for Wowza
 	// info("CONNECTING TO %s", url.c_str());
 
-	// Connect to the signalling server
-	if (!client->connect(url, room, username, password, this)) {
+	// Connect to the signalling server (send the scene name as sourceId for multisource)
+	if (!client->connect(
+		    url, room, username, password, this,
+		    obs_source_get_name(obs_frontend_get_current_scene()))) {
 		warn("Error connecting to server");
 		// Shutdown websocket connection and close Peer Connection
 		close(false);

@@ -14,6 +14,7 @@
 #include "pc/rtc_stats_collector.h"
 #include "rtc_base/checks.h"
 #include <libyuv.h>
+#include <obs-frontend-api.h>
 
 #include <algorithm>
 #include <chrono>
@@ -380,7 +381,7 @@ bool WebRTCStream::start(WebRTCStream::Type type)
 		medium.max_bitrate_bps = video_bitrate * 1000 / 3;
 		small.rid = "S";
 		small.scale_resolution_down_by = 4;
-		small.max_bitrate_bps = video_bitrate * 1000  / 9;
+		small.max_bitrate_bps = video_bitrate * 1000 / 9;
 		//In reverse order so large is dropped first on low network condition
 		// Send small resolution only if output video resolution >= 480p
 		if (obs_output_get_height(output) >= 480) {
@@ -420,8 +421,10 @@ bool WebRTCStream::start(WebRTCStream::Type type)
 	}
 	info("CONNECTING TO %s", url.c_str());
 
-	// Connect to the signalling server
-	if (!client->connect(url, room, username, password, this)) {
+	// Connect to the signalling server (send the scene name as sourceId for multisource)
+	if (!client->connect(
+		    url, room, username, password, this,
+		    obs_source_get_name(obs_frontend_get_current_scene()))) {
 		warn("Error connecting to server");
 		// Shutdown websocket connection and close Peer Connection
 		close(false);

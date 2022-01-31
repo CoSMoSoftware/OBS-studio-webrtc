@@ -9,6 +9,7 @@
 project(obs-outputs)
 include_directories("${CMAKE_BINARY_DIR}/plugins/obs-outputs/config")
 include_directories("${CMAKE_SOURCE_DIR}/libobs")
+include_directories("${CMAKE_SOURCE_DIR}/UI/obs-frontend-api")
 
 #-------------------------------------------------------------------------------
 # WebRTC

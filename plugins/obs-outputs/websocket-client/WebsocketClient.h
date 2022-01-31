@@ -41,7 +41,8 @@ public:
 	virtual bool connect(const std::string &url, const std::string &room,
 			     const std::string &username,
 			     const std::string &token,
-			     WebsocketClient::Listener *listener) = 0;
+			     WebsocketClient::Listener *listener,
+			     const char *audio_source_name = NULL) = 0;
 	virtual bool open(const std::string &sdp,
 			  const std::string &video_codec,
 			  const std::string &audio_codec,

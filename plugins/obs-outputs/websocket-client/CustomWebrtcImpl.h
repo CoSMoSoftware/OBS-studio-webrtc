@@ -25,7 +25,8 @@ public:
 	bool connect(const std::string &publish_api_url,
 		     const std::string & /* room */,
 		     const std::string &stream_name, const std::string &token,
-		     WebsocketClient::Listener *listener) override;
+		     WebsocketClient::Listener *listener,
+		     const char *audio_source_name = NULL) override;
 	bool open(const std::string &sdp, const std::string &video_codec,
 		  const std::string &audio_codec,
 		  const std::string &stream_name) override;
