@@ -180,7 +180,7 @@ add_library(obs-outputs MODULE
 	${obs-outputs_webrtc_SOURCES}
 	${obs-outputs_webrtc_HEADERS})
 
-	add_dependencies(obs-ndi obs-frontend-api)
+	add_dependencies(obs-outputs obs-frontend-api)
 
 	target_include_directories(obs-outputs
 	PUBLIC  "${WEBRTC_INCLUDE_DIR}"
