@@ -57,16 +57,16 @@ set(obs-outputs_webrtc_HEADERS
 	AudioDeviceModuleWrapper.h
 	millicast-stream.h
 	webrtc-custom-stream.h
-        obsWebrtcAudioSource.h
+  obsWebrtcAudioSource.h
 	SDPModif.h
 	VideoCapturer.h
 	WebRTCStream.h
-       )
+  )
 set(obs-outputs_webrtc_SOURCES
 	AudioDeviceModuleWrapper.cpp
 	millicast-stream.cpp
 	webrtc-custom-stream.cpp
-        obsWebrtcAudioSource.cpp
+  obsWebrtcAudioSource.cpp
 	VideoCapturer.cpp
 	WebRTCStream.cpp
 	)
@@ -180,7 +180,9 @@ add_library(obs-outputs MODULE
 	${obs-outputs_webrtc_SOURCES}
 	${obs-outputs_webrtc_HEADERS})
 
-target_include_directories(obs-outputs
+	add_dependencies(obs-ndi obs-frontend-api)
+
+	target_include_directories(obs-outputs
 	PUBLIC  "${WEBRTC_INCLUDE_DIR}"
 	PUBLIC  "${MC_SIGNAL_LIB_DIR}")
 
