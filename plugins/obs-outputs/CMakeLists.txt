@@ -24,7 +24,7 @@ endif()
 message( STATUS "Looking for libwebrtc" )
 
 # CoSMo libwebrtc package has versioning and COMPONENTS
-find_package(LibWebRTC 91 QUIET COMPONENTS H264 )
+find_package(LibWebRTC 95 QUIET COMPONENTS H264 )
   if( NOT libwebrtc_FOUND )
     message( STATUS "No CoSMo package was found, searching for any webrtc package.")
     # A FindLibWebRTC package is also provided in the repository for self-compiled libwebrtc
@@ -180,9 +180,9 @@ add_library(obs-outputs MODULE
 	${obs-outputs_webrtc_SOURCES}
 	${obs-outputs_webrtc_HEADERS})
 
-	add_dependencies(obs-outputs obs-frontend-api)
+add_dependencies(obs-outputs obs-frontend-api)
 
-	target_include_directories(obs-outputs
+target_include_directories(obs-outputs
 	PUBLIC  "${WEBRTC_INCLUDE_DIR}"
 	PUBLIC  "${MC_SIGNAL_LIB_DIR}")
 
@@ -220,6 +220,7 @@ if(APPLE AND (WITH_RTMPS OR (WITH_RTMPS STREQUAL "AUTO")))
 endif()
 
 target_link_libraries(obs-outputs
+	obs-frontend-api
 	libobs
 	websocketclient
 	${MBEDTLS_LIBRARIES}
