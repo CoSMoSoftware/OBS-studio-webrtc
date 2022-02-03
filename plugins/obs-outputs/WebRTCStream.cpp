@@ -4,6 +4,7 @@
 #include "SDPModif.h"
 
 #include "media-io/video-io.h"
+// #include "ui-validation.hpp"
 
 #include "api/audio_codecs/builtin_audio_decoder_factory.h"
 #include "api/audio_codecs/builtin_audio_encoder_factory.h"
@@ -495,8 +496,23 @@ void WebRTCStream::OnSuccess(webrtc::SessionDescriptionInterface *desc)
 	info("SETTING LOCAL DESCRIPTION\n\n");
 	pc->SetLocalDescription(this, desc);
 
+	// Count number of video sources
+	int count_video_source = 0;
+	auto countSources = [](void *param, obs_source_t *source) {
+		if (!source)
+			return true;
+
+		uint32_t flags = obs_source_get_output_flags(source);
+		if ((flags & OBS_SOURCE_VIDEO) != 0)
+			(*reinterpret_cast<int *>(param))++;
+
+		return true;
+	};
+
+	obs_enum_sources(countSources, &count_video_source);
+
 	info("Sending OFFER (SDP) to remote peer:\n\n%s", sdpCopy.c_str());
-	if (!client->open(sdpCopy, video_codec, audio_codec, username)) {
+	if (!client->open(sdpCopy, (0 == count_video_source ? "" : video_codec), audio_codec, username)) {
 		// Shutdown websocket connection and close Peer Connection
 		close(false);
 		// Disconnect, this will call stop on main thread
