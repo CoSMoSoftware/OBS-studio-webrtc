@@ -50,12 +50,45 @@ bool MillicastWebsocketClientImpl::connect(
 	conn->SetHeaders(headers);
 	conn->SetTimeout(5);
 	json data{};
-	if (audio_source_name) {
-		data = {{"streamName", sanitizeString(stream_name)},
-			{"sourceId", sanitizeString(audio_source_name)}};
-	} else {
+// std::cout << "******************************** LUDO stream name = " << stream_name << std::endl << std::flush;
+	// if (audio_source_name) {
+// std::cout << "******************************** LUDO data with sourceID = " << audio_source_name << std::endl << std::flush;
+// std::cout << "******************************** LUDO data with sourceID = " << audio_source_name << std::endl << std::flush;
+// std::cout << "******************************** LUDO data with sourceID = " << audio_source_name << std::endl << std::flush;
+// std::cout << "******************************** LUDO data with sourceID = " << audio_source_name << std::endl << std::flush;
+// std::cout << "******************************** LUDO data with sourceID = " << audio_source_name << std::endl << std::flush;
+// std::cout << "******************************** LUDO data with sourceID = " << audio_source_name << std::endl << std::flush;
+// std::cout << "******************************** LUDO data with sourceID = " << audio_source_name << std::endl << std::flush;
+// std::cout << "******************************** LUDO data with sourceID = " << audio_source_name << std::endl << std::flush;
+// std::cout << "******************************** LUDO data with sourceID = " << audio_source_name << std::endl << std::flush;
+// std::cout << "******************************** LUDO data with sourceID = " << audio_source_name << std::endl << std::flush;
+// std::cout << "******************************** LUDO data with sourceID = " << audio_source_name << std::endl << std::flush;
+// std::cout << "******************************** LUDO data with sourceID = " << audio_source_name << std::endl << std::flush;
+// std::cout << "******************************** LUDO data with sourceID = " << audio_source_name << std::endl << std::flush;
+// std::cout << "******************************** LUDO data with sourceID = " << audio_source_name << std::endl << std::flush;
+	// 	data = {{"streamName", sanitizeString(stream_name)},
+	// 		{"sourceId", sanitizeString(audio_source_name)}};
+	// } else {
+// std::cout << "******************************** LUDO data without sourceID" << std::endl << std::flush;
+// std::cout << "******************************** LUDO data without sourceID" << std::endl << std::flush;
+// std::cout << "******************************** LUDO data without sourceID" << std::endl << std::flush;
+// std::cout << "******************************** LUDO data without sourceID" << std::endl << std::flush;
+// std::cout << "******************************** LUDO data without sourceID" << std::endl << std::flush;
+// std::cout << "******************************** LUDO data without sourceID" << std::endl << std::flush;
+// std::cout << "******************************** LUDO data without sourceID" << std::endl << std::flush;
+// std::cout << "******************************** LUDO data without sourceID" << std::endl << std::flush;
+// std::cout << "******************************** LUDO data without sourceID" << std::endl << std::flush;
+// std::cout << "******************************** LUDO data without sourceID" << std::endl << std::flush;
+// std::cout << "******************************** LUDO data without sourceID" << std::endl << std::flush;
+// std::cout << "******************************** LUDO data without sourceID" << std::endl << std::flush;
+// std::cout << "******************************** LUDO data without sourceID" << std::endl << std::flush;
+// std::cout << "******************************** LUDO data without sourceID" << std::endl << std::flush;
+// std::cout << "******************************** LUDO data without sourceID" << std::endl << std::flush;
+// std::cout << "******************************** LUDO data without sourceID" << std::endl << std::flush;
+// std::cout << "******************************** LUDO data without sourceID" << std::endl << std::flush;
+// std::cout << "******************************** LUDO data without sourceID" << std::endl << std::flush;
 		data = {{"streamName", sanitizeString(stream_name)}};
-	}
+	// }
 	RestClient::Response r = conn->post(publish_api_url, data.dump());
 	delete conn;
 	RestClient::disable();
@@ -198,7 +231,8 @@ bool MillicastWebsocketClientImpl::connect(
 bool MillicastWebsocketClientImpl::open(const std::string &sdp,
 					const std::string &video_codec,
 					const std::string &audio_codec,
-					const std::string &stream_name)
+					const std::string &stream_name,
+					const char *audio_source_name /* = NULL */)
 {
 	info("WS-OPEN: stream_name: %s", stream_name.c_str());
 
@@ -212,10 +246,12 @@ bool MillicastWebsocketClientImpl::open(const std::string &sdp,
 		json data_without_codec = {
 			{"name", sanitizeString(stream_name)},
 			{"streamId", sanitizeString(stream_name)},
+			{"sourceId", sanitizeString(audio_source_name)},
 			{"sdp", sdp}};
 		json data_with_codec = {{"name", sanitizeString(stream_name)},
 					{"streamId",
 					 sanitizeString(stream_name)},
+					{"sourceId", sanitizeString(audio_source_name)},
 					{"sdp", sdp},
 					{"codec", video_codec}};
 		// Publish command (send offer)

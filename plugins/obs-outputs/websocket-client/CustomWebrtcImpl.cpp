@@ -45,7 +45,8 @@ bool CustomWebrtcImpl::connect(const std::string &publish_api_url,
 bool CustomWebrtcImpl::open(const std::string &sdp,
 			    const std::string &video_codec,
 			    const std::string &audio_codec,
-			    const std::string &stream_name)
+			    const std::string &stream_name,
+					const char *audio_source_name /* = NULL */)
 {
 	info("WS-OPEN: stream_name: %s", stream_name.c_str());
 

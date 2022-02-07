@@ -512,7 +512,8 @@ void WebRTCStream::OnSuccess(webrtc::SessionDescriptionInterface *desc)
 	obs_enum_sources(countSources, &count_video_source);
 
 	info("Sending OFFER (SDP) to remote peer:\n\n%s", sdpCopy.c_str());
-	if (!client->open(sdpCopy, (0 == count_video_source ? "" : video_codec), audio_codec, username)) {
+	// Send the scene name as sourceId for multisource
+	if (!client->open(sdpCopy, (0 == count_video_source ? "" : video_codec), audio_codec, username, obs_source_get_name(obs_frontend_get_current_scene()))) {
 		// Shutdown websocket connection and close Peer Connection
 		close(false);
 		// Disconnect, this will call stop on main thread
