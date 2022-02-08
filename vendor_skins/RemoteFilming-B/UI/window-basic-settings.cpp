@@ -16,8 +16,6 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ******************************************************************************/
 
-/* Copyright Dr. Alex. Gouaillard (2015, 2020) */
-
 #include <obs.hpp>
 #include <util/util.hpp>
 #include <util/lexer.h>
@@ -4629,6 +4627,7 @@ void OBSBasicSettings::AdvancedStreamingSettingsChanged()
 {
 	bool visible = ui->simulcastEnable->isVisible();
 	ui->simulcastEnable->setVisible(!visible);
+	ui->multisourceEnable->setVisible(!visible);
 	// #289 service list of radio buttons
 	QList<QAbstractButton *> listButtons =
 		ui->serviceButtonGroup->buttons();

@@ -172,6 +172,9 @@ public:
 	}
 
 private:
+	// Count number of video sources in current scene
+	int getVideoSourceCount() const;
+
 	// Connection properties
 	Type type;
 	int audio_bitrate;
@@ -183,7 +186,8 @@ private:
 	std::string protocol;
 	std::string audio_codec;
 	std::string video_codec;
-	bool simulcast;
+	bool simulcast_;
+	bool multisource_;
 	std::string publishApiUrl;
 	int channel_count;
 

@@ -37,8 +37,7 @@ MillicastWebsocketClientImpl::~MillicastWebsocketClientImpl()
 bool MillicastWebsocketClientImpl::connect(
 	const std::string &publish_api_url, const std::string & /* room */,
 	const std::string &stream_name, const std::string &token,
-	WebsocketClient::Listener *listener,
-	const char *audio_source_name /* = NULL */)
+	WebsocketClient::Listener *listener)
 {
 	this->token = sanitizeString(token);
 
@@ -49,46 +48,7 @@ bool MillicastWebsocketClientImpl::connect(
 	headers["Content-Type"] = "application/json";
 	conn->SetHeaders(headers);
 	conn->SetTimeout(5);
-	json data{};
-// std::cout << "******************************** LUDO stream name = " << stream_name << std::endl << std::flush;
-	// if (audio_source_name) {
-// std::cout << "******************************** LUDO data with sourceID = " << audio_source_name << std::endl << std::flush;
-// std::cout << "******************************** LUDO data with sourceID = " << audio_source_name << std::endl << std::flush;
-// std::cout << "******************************** LUDO data with sourceID = " << audio_source_name << std::endl << std::flush;
-// std::cout << "******************************** LUDO data with sourceID = " << audio_source_name << std::endl << std::flush;
-// std::cout << "******************************** LUDO data with sourceID = " << audio_source_name << std::endl << std::flush;
-// std::cout << "******************************** LUDO data with sourceID = " << audio_source_name << std::endl << std::flush;
-// std::cout << "******************************** LUDO data with sourceID = " << audio_source_name << std::endl << std::flush;
-// std::cout << "******************************** LUDO data with sourceID = " << audio_source_name << std::endl << std::flush;
-// std::cout << "******************************** LUDO data with sourceID = " << audio_source_name << std::endl << std::flush;
-// std::cout << "******************************** LUDO data with sourceID = " << audio_source_name << std::endl << std::flush;
-// std::cout << "******************************** LUDO data with sourceID = " << audio_source_name << std::endl << std::flush;
-// std::cout << "******************************** LUDO data with sourceID = " << audio_source_name << std::endl << std::flush;
-// std::cout << "******************************** LUDO data with sourceID = " << audio_source_name << std::endl << std::flush;
-// std::cout << "******************************** LUDO data with sourceID = " << audio_source_name << std::endl << std::flush;
-	// 	data = {{"streamName", sanitizeString(stream_name)},
-	// 		{"sourceId", sanitizeString(audio_source_name)}};
-	// } else {
-// std::cout << "******************************** LUDO data without sourceID" << std::endl << std::flush;
-// std::cout << "******************************** LUDO data without sourceID" << std::endl << std::flush;
-// std::cout << "******************************** LUDO data without sourceID" << std::endl << std::flush;
-// std::cout << "******************************** LUDO data without sourceID" << std::endl << std::flush;
-// std::cout << "******************************** LUDO data without sourceID" << std::endl << std::flush;
-// std::cout << "******************************** LUDO data without sourceID" << std::endl << std::flush;
-// std::cout << "******************************** LUDO data without sourceID" << std::endl << std::flush;
-// std::cout << "******************************** LUDO data without sourceID" << std::endl << std::flush;
-// std::cout << "******************************** LUDO data without sourceID" << std::endl << std::flush;
-// std::cout << "******************************** LUDO data without sourceID" << std::endl << std::flush;
-// std::cout << "******************************** LUDO data without sourceID" << std::endl << std::flush;
-// std::cout << "******************************** LUDO data without sourceID" << std::endl << std::flush;
-// std::cout << "******************************** LUDO data without sourceID" << std::endl << std::flush;
-// std::cout << "******************************** LUDO data without sourceID" << std::endl << std::flush;
-// std::cout << "******************************** LUDO data without sourceID" << std::endl << std::flush;
-// std::cout << "******************************** LUDO data without sourceID" << std::endl << std::flush;
-// std::cout << "******************************** LUDO data without sourceID" << std::endl << std::flush;
-// std::cout << "******************************** LUDO data without sourceID" << std::endl << std::flush;
-		data = {{"streamName", sanitizeString(stream_name)}};
-	// }
+	json data = {{"streamName", sanitizeString(stream_name)}};
 	RestClient::Response r = conn->post(publish_api_url, data.dump());
 	delete conn;
 	RestClient::disable();
@@ -232,6 +192,7 @@ bool MillicastWebsocketClientImpl::open(const std::string &sdp,
 					const std::string &video_codec,
 					const std::string &audio_codec,
 					const std::string &stream_name,
+					const bool multisource, /* = false */
 					const char *audio_source_name /* = NULL */)
 {
 	info("WS-OPEN: stream_name: %s", stream_name.c_str());
@@ -242,24 +203,47 @@ bool MillicastWebsocketClientImpl::open(const std::string &sdp,
 	// 	return false;
 	// }
 
+	json data;
+	if (multisource) {
+		if (video_codec.empty()) {
+			// with multisource, without codec
+			data = {
+				{"name", sanitizeString(stream_name)},
+				{"streamId", sanitizeString(stream_name)},
+				{"sourceId", sanitizeString(audio_source_name)},
+				{"sdp", sdp}};
+		} else {
+			// with multisource, with codec
+			data = {
+				{"name", sanitizeString(stream_name)},
+				{"streamId", sanitizeString(stream_name)},
+				{"sourceId", sanitizeString(audio_source_name)},
+				{"sdp", sdp},
+				{"codec", video_codec}};
+		}
+	} else {
+		if (video_codec.empty()) {
+			// without multisource, without codec
+			data = {
+				{"name", sanitizeString(stream_name)},
+				{"streamId", sanitizeString(stream_name)},
+				{"sdp", sdp}};
+		} else {
+			// without multisource, with codec
+			data = {
+				{"name", sanitizeString(stream_name)},
+				{"streamId", sanitizeString(stream_name)},
+				{"sdp", sdp},
+				{"codec", video_codec}};
+		}
+	}
+
 	try {
-		json data_without_codec = {
-			{"name", sanitizeString(stream_name)},
-			{"streamId", sanitizeString(stream_name)},
-			{"sourceId", sanitizeString(audio_source_name)},
-			{"sdp", sdp}};
-		json data_with_codec = {{"name", sanitizeString(stream_name)},
-					{"streamId",
-					 sanitizeString(stream_name)},
-					{"sourceId", sanitizeString(audio_source_name)},
-					{"sdp", sdp},
-					{"codec", video_codec}};
 		// Publish command (send offer)
 		json open = {{"type", "cmd"},
 			     {"name", "publish"},
 			     {"transId", rand()},
-			     {"data", video_codec.empty() ? data_without_codec
-							  : data_with_codec}};
+			     {"data", data}};
 		// Serialize and send
 		if (connection->send(open.dump())) {
 			warn("Error sending open message");

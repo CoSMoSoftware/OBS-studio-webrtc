@@ -41,13 +41,13 @@ public:
 	virtual bool connect(const std::string &url, const std::string &room,
 			     const std::string &username,
 			     const std::string &token,
-			     WebsocketClient::Listener *listener,
-			     const char *audio_source_name = NULL) = 0;
+			     WebsocketClient::Listener *listener) = 0;
 	virtual bool open(const std::string &sdp,
 			  const std::string &video_codec,
 			  const std::string &audio_codec,
 			  const std::string &username,
-				const char *audio_source_name /* = NULL */) = 0;
+				const bool multisource = false,
+				const char *audio_source_name = NULL) = 0;
 	virtual bool trickle(const std::string &mid, int index,
 			     const std::string &candidate, bool last) = 0;
 	virtual bool disconnect(bool wait) = 0;

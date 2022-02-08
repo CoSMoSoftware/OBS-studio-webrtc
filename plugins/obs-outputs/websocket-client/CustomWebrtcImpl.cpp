@@ -29,8 +29,7 @@ bool CustomWebrtcImpl::connect(const std::string &publish_api_url,
 			       const std::string & /* room */,
 			       const std::string & /*stream_name*/,
 			       const std::string &token,
-			       WebsocketClient::Listener *listener,
-			       const char *audio_source_name /* = NULL */)
+			       WebsocketClient::Listener *listener)
 {
 	this->serverUrl = sanitizeString(publish_api_url);
 	this->token = sanitizeString(token);
@@ -46,6 +45,7 @@ bool CustomWebrtcImpl::open(const std::string &sdp,
 			    const std::string &video_codec,
 			    const std::string &audio_codec,
 			    const std::string &stream_name,
+					const bool multisource, /* = false */
 					const char *audio_source_name /* = NULL */)
 {
 	info("WS-OPEN: stream_name: %s", stream_name.c_str());

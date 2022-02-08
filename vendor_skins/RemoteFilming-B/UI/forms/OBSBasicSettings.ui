@@ -1422,14 +1422,21 @@
                </property>
               </widget>
              </item>
-             <item row="15" column="0">
+             <item row="15" column="1">
+              <widget class="QCheckBox" name="multisourceEnable">
+               <property name="text">
+                <string>Multisource</string>
+               </property>
+              </widget>
+             </item>
+             <item row="16" column="0">
               <widget class="QLabel" name="publishApiUrlLabel">
                <property name="text">
                 <string>Publish API URL</string>
                </property>
               </widget>
              </item>
-             <item row="15" column="1">
+             <item row="17" column="1">
               <widget class="QLineEdit" name="publishApiUrl"/>
              </item>
              <item row="13" column="0">
@@ -5840,6 +5847,7 @@
   <tabstop>authPw</tabstop>
   <tabstop>authPwShow</tabstop>
   <tabstop>simulcastEnable</tabstop>
+  <tabstop>multisourceEnable</tabstop>
   <tabstop>streamProtocol</tabstop>
   <tabstop>scrollArea_3</tabstop>
   <tabstop>outputMode</tabstop>

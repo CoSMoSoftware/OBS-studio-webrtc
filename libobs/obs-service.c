@@ -237,6 +237,16 @@ bool obs_service_get_simulcast(const obs_service_t *service)
 	return service->info.get_simulcast(service->context.data);
 }
 
+bool obs_service_get_multisource(const obs_service_t *service)
+{
+	if (!obs_service_valid(service, "obs_service_get_multisource"))
+		return false;
+
+	if (!service->info.get_multisource)
+		return false;
+	return service->info.get_multisource(service->context.data);
+}
+
 const char *obs_service_get_publishApiUrl(const obs_service_t *service)
 {
 	if (!obs_service_valid(service, "obs_service_get_publishApiUrl"))

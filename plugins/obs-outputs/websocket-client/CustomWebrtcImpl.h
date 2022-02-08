@@ -25,12 +25,12 @@ public:
 	bool connect(const std::string &publish_api_url,
 		     const std::string & /* room */,
 		     const std::string &stream_name, const std::string &token,
-		     WebsocketClient::Listener *listener,
-		     const char *audio_source_name = NULL) override;
+		     WebsocketClient::Listener *listener) override;
 	bool open(const std::string &sdp, const std::string &video_codec,
 		  const std::string &audio_codec,
 		  const std::string &stream_name,
-			const char *audio_source_name /* = NULL */) override;
+			const bool multisource = false,
+			const char *audio_source_name = NULL) override;
 	bool trickle(const std::string & /* mid */, int /* index */,
 		     const std::string & /* candidate */,
 		     bool /* last */) override;

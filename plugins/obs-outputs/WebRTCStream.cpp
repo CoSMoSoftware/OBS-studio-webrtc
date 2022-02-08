@@ -209,9 +209,12 @@ bool WebRTCStream::start(WebRTCStream::Type type)
 	protocol = obs_service_get_protocol(service)
 			   ? obs_service_get_protocol(service)
 			   : "";
-	simulcast = obs_service_get_simulcast(service)
-			    ? obs_service_get_simulcast(service)
-			    : false;
+	simulcast_ = obs_service_get_simulcast(service)
+				? obs_service_get_simulcast(service)
+				: false;
+	multisource_ = obs_service_get_multisource(service)
+				? obs_service_get_multisource(service)
+				: false;
 	publishApiUrl = obs_service_get_publishApiUrl(service)
 				? obs_service_get_publishApiUrl(service)
 				: "";
@@ -222,14 +225,22 @@ bool WebRTCStream::start(WebRTCStream::Type type)
 	// No Simulast for VP9 codec (not supported properly by libwebrtc)
 	if (video_codec.empty() || "VP9" == video_codec) {
 		info("Simulcast not supported properly for VP9: Disabling Simulcast\n");
-		simulcast = false;
+		simulcast_ = false;
 	}
 
 	// Some extra log
 
 	info("Video codec: %s",
 	     video_codec.empty() ? "Automatic" : video_codec.c_str());
-	info("Simulcast: %s", simulcast ? "true" : "false");
+	if (0 == getVideoSourceCount()) {
+		info("No video source in current scene");
+	}
+	info("Simulcast: %s", simulcast_ ? "true" : "false");
+	if (multisource_) {
+		info("Multisource: true, sourceID: %s", obs_source_get_name(obs_frontend_get_current_scene()));
+	} else {
+		info("Multisource: false");
+	}
 	info("Publish API URL: %s", publishApiUrl.c_str());
 	info("Protocol:    %s",
 	     protocol.empty() ? "Automatic" : protocol.c_str());
@@ -356,9 +367,11 @@ bool WebRTCStream::start(WebRTCStream::Type type)
 	// pc->AddTrack(audio_track, {"obs"});
 	stream->AddTrack(audio_track);
 
-	video_track = factory->CreateVideoTrack("video", videoCapturer);
-	// pc->AddTrack(video_track, {"obs"});
-	stream->AddTrack(video_track);
+	if (getVideoSourceCount() > 0) {
+		video_track = factory->CreateVideoTrack("video", videoCapturer);
+		// pc->AddTrack(video_track, {"obs"});
+		stream->AddTrack(video_track);
+	}
 
 	//Add audio track
 	webrtc::RtpTransceiverInit audio_init;
@@ -366,32 +379,34 @@ bool WebRTCStream::start(WebRTCStream::Type type)
 	audio_init.direction = webrtc::RtpTransceiverDirection::kSendOnly;
 	pc->AddTransceiver(audio_track, audio_init);
 
-	//Add video track
-	webrtc::RtpTransceiverInit video_init;
-	video_init.stream_ids.push_back(stream->id());
-	video_init.direction = webrtc::RtpTransceiverDirection::kSendOnly;
-	if (simulcast) {
-		webrtc::RtpEncodingParameters large;
-		webrtc::RtpEncodingParameters medium;
-		webrtc::RtpEncodingParameters small;
-		large.rid = "L";
-		large.scale_resolution_down_by = 1;
-		large.max_bitrate_bps = video_bitrate * 1000;
-		medium.rid = "M";
-		medium.scale_resolution_down_by = 2;
-		medium.max_bitrate_bps = video_bitrate * 1000 / 3;
-		small.rid = "S";
-		small.scale_resolution_down_by = 4;
-		small.max_bitrate_bps = video_bitrate * 1000 / 9;
-		//In reverse order so large is dropped first on low network condition
-		// Send small resolution only if output video resolution >= 480p
-		if (obs_output_get_height(output) >= 480) {
-			video_init.send_encodings.push_back(small);
+	if (getVideoSourceCount() > 0) {
+		//Add video track
+		webrtc::RtpTransceiverInit video_init;
+		video_init.stream_ids.push_back(stream->id());
+		video_init.direction = webrtc::RtpTransceiverDirection::kSendOnly;
+		if (simulcast_) {
+			webrtc::RtpEncodingParameters large;
+			webrtc::RtpEncodingParameters medium;
+			webrtc::RtpEncodingParameters small;
+			large.rid = "L";
+			large.scale_resolution_down_by = 1;
+			large.max_bitrate_bps = video_bitrate * 1000;
+			medium.rid = "M";
+			medium.scale_resolution_down_by = 2;
+			medium.max_bitrate_bps = video_bitrate * 1000 / 3;
+			small.rid = "S";
+			small.scale_resolution_down_by = 4;
+			small.max_bitrate_bps = video_bitrate * 1000 / 9;
+			//In reverse order so large is dropped first on low network condition
+			// Send small resolution only if output video resolution >= 480p
+			if (obs_output_get_height(output) >= 480) {
+				video_init.send_encodings.push_back(small);
+			}
+			video_init.send_encodings.push_back(medium);
+			video_init.send_encodings.push_back(large);
 		}
-		video_init.send_encodings.push_back(medium);
-		video_init.send_encodings.push_back(large);
+		pc->AddTransceiver(video_track, video_init);
 	}
-	pc->AddTransceiver(video_track, video_init);
 
 	client = createWebsocketClient(type);
 	if (!client) {
@@ -422,10 +437,9 @@ bool WebRTCStream::start(WebRTCStream::Type type)
 	}
 	info("CONNECTING TO %s", url.c_str());
 
-	// Connect to the signalling server (send the scene name as sourceId for multisource)
+	// Connect to the signalling server
 	if (!client->connect(
-		    url, room, username, password, this,
-		    obs_source_get_name(obs_frontend_get_current_scene()))) {
+		    url, room, username, password, this)) {
 		warn("Error connecting to server");
 		// Shutdown websocket connection and close Peer Connection
 		close(false);
@@ -465,9 +479,13 @@ void WebRTCStream::OnSuccess(webrtc::SessionDescriptionInterface *desc)
 
 	info("Audio codec:      %s", audio_codec.c_str());
 	info("Audio bitrate:    %d\n", audio_bitrate);
-	info("Video codec:      %s",
-	     video_codec.empty() ? "Automatic" : video_codec.c_str());
-	info("Video bitrate:    %d\n", video_bitrate);
+	if (getVideoSourceCount() > 0) {
+		info("Video codec:      %s",
+				video_codec.empty() ? "Automatic" : video_codec.c_str());
+		info("Video bitrate:    %d\n", video_bitrate);
+	} else {
+		info("No video");
+	}
 	info("OFFER:\n\n%s\n", sdp.c_str());
 
 	std::string sdpCopy = sdp;
@@ -484,8 +502,8 @@ void WebRTCStream::OnSuccess(webrtc::SessionDescriptionInterface *desc)
 	}
 	// Force specific video/audio payload
 	SDPModif::forcePayload(sdpCopy, audio_payloads, video_payloads,
-			       // the packaging mode needs to be 1
-			       audio_codec, video_codec, 1, "42e01f", 0);
+							// the packaging mode needs to be 1
+							audio_codec, video_codec, 1, "42e01f", 0);
 	// Constrain video bitrate
 	SDPModif::bitrateMaxMinSDP(sdpCopy, video_bitrate, video_payloads);
 	// Enable stereo & constrain audio bitrate
@@ -496,24 +514,10 @@ void WebRTCStream::OnSuccess(webrtc::SessionDescriptionInterface *desc)
 	info("SETTING LOCAL DESCRIPTION\n\n");
 	pc->SetLocalDescription(this, desc);
 
-	// Count number of video sources
-	int count_video_source = 0;
-	auto countSources = [](void *param, obs_source_t *source) {
-		if (!source)
-			return true;
-
-		uint32_t flags = obs_source_get_output_flags(source);
-		if ((flags & OBS_SOURCE_VIDEO) != 0)
-			(*reinterpret_cast<int *>(param))++;
-
-		return true;
-	};
-
-	obs_enum_sources(countSources, &count_video_source);
-
 	info("Sending OFFER (SDP) to remote peer:\n\n%s", sdpCopy.c_str());
 	// Send the scene name as sourceId for multisource
-	if (!client->open(sdpCopy, (0 == count_video_source ? "" : video_codec), audio_codec, username, obs_source_get_name(obs_frontend_get_current_scene()))) {
+	if (!client->open(sdpCopy, (0==getVideoSourceCount() ? "" : video_codec), audio_codec, username,
+								multisource_, obs_source_get_name(obs_frontend_get_current_scene()))) {
 		// Shutdown websocket connection and close Peer Connection
 		close(false);
 		// Disconnect, this will call stop on main thread
@@ -640,8 +644,10 @@ void WebRTCStream::onOpened(const std::string &sdp)
 
 	std::string sdpCopy = sdp;
 
-	// Constrain video bitrate
-	SDPModif::bitrateSDP(sdpCopy, video_bitrate);
+	if (getVideoSourceCount() > 0) {
+		// Constrain video bitrate
+		SDPModif::bitrateSDP(sdpCopy, video_bitrate);
+	}
 	// Enable stereo & constrain audio bitrate
 	SDPModif::stereoSDP(sdpCopy, audio_bitrate);
 
@@ -829,6 +835,24 @@ void WebRTCStream::onVideoFrame(video_data *frame)
 
 	// Send frame to video capturer
 	videoCapturer->OnFrameCaptured(video_frame);
+}
+
+// Count number of video sources in current scene
+int WebRTCStream::getVideoSourceCount() const
+{
+	auto countSources = [](void *param, obs_source_t *source) {
+		if (!source)
+			return true;
+
+		uint32_t flags = obs_source_get_output_flags(source);
+		if ((flags & OBS_SOURCE_VIDEO) != 0)
+			(*reinterpret_cast<int *>(param))++;
+
+		return true;
+	};
+	int count_video_source = 0;
+	obs_enum_sources(countSources, &count_video_source);
+	return count_video_source;
 }
 
 // NOTE LUDO: #80 add getStats
