@@ -21,7 +21,7 @@
           "streamName": "@MC_STREAM_ID@",
           "publishingToken": "@MC_P_TOKEN@"
         },
-        "codec": ["h264","vp8","vp9"],
+        "codec": ["h264","vp8","vp9","AV1"],
         "meetingDuration": 60000,
         "getStats" : {
           "enabled": true,

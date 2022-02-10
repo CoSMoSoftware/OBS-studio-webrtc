@@ -438,6 +438,7 @@ OBSBasicSettings::OBSBasicSettings(QWidget *parent)
 	HookWidget(ui->h264RadioButton,      CHECK_CHANGED,  STREAM1_CHANGED);
 	HookWidget(ui->vp8RadioButton,       CHECK_CHANGED,  STREAM1_CHANGED);
 	HookWidget(ui->vp9RadioButton,       CHECK_CHANGED,  STREAM1_CHANGED);
+	HookWidget(ui->av1RadioButton,       CHECK_CHANGED,  STREAM1_CHANGED);
 	HookWidget(ui->streamingAdvancedSettingsButton, CHECK_CHANGED, ADV_STREAMING_SETTINGS_CHANGED);
 	HookWidget(ui->simulcastEnable,      CHECK_CHANGED,  STREAM1_CHANGED);
 	HookWidget(ui->multisourceEnable,    CHECK_CHANGED,  STREAM1_CHANGED);
@@ -850,6 +851,7 @@ OBSBasicSettings::OBSBasicSettings(QWidget *parent)
 	ui->codecButtonGroup->setId(ui->h264RadioButton, 0);
 	ui->codecButtonGroup->setId(ui->vp8RadioButton, 1);
 	ui->codecButtonGroup->setId(ui->vp9RadioButton, 2);
+	ui->codecButtonGroup->setId(ui->av1RadioButton, 3);
 
 	// #271 do not list video codec H264 if it is not available in libwebrtc
 #ifdef DISABLE_WEBRTC_H264

@@ -146,6 +146,8 @@ static obs_properties_t *webrtc_millicast_properties(void *unused)
 				     "vp8");
 	obs_property_list_add_string(obs_properties_get(ppts, "codec"), "vp9",
 				     "vp9");
+	obs_property_list_add_string(obs_properties_get(ppts, "codec"), "av1",
+				     "av1");
 
 	p = obs_properties_get(ppts, "room");
 	obs_property_set_visible(p, false);

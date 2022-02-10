@@ -21,7 +21,7 @@
           "rtmpPublishPath" : "rtmp://live-rtmp-pub.millicast.com:1935/v2/pub/",
           "rtmpPublishStreamName" : "@MC_STREAM_ID@?token=@MC_RTMP_TOKEN@"
         },
-        "codec": ["h264","vp8","vp9"],
+        "codec": ["h264","vp8","vp9","AV1"],
         "meetingDuration": 60000,
         "getStats" : {
           "enabled": true,
