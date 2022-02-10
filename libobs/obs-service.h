@@ -84,6 +84,7 @@ struct obs_service_info {
 
 	bool (*get_simulcast)(void *data);
 	bool (*get_multisource)(void *data);
+	const char *(*get_sourceId)(void *data);
 	const char *(*get_publishApiUrl)(void *data);
 
 	const char *(*get_output_type)(void *data);

@@ -46,7 +46,7 @@ bool CustomWebrtcImpl::open(const std::string &sdp,
 			    const std::string &audio_codec,
 			    const std::string &stream_name,
 					const bool multisource, /* = false */
-					const char *audio_source_name /* = NULL */)
+					const std::string &audio_source_name /* = nullptr */)
 {
 	info("WS-OPEN: stream_name: %s", stream_name.c_str());
 

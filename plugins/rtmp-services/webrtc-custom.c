@@ -8,6 +8,7 @@ struct webrtc_custom {
 	char *codec;
 	bool simulcast;
 	bool multisource;
+	char *sourceId;
 	char *output;
 };
 
@@ -24,12 +25,14 @@ static void webrtc_custom_update(void *data, obs_data_t *settings)
 	bfree(service->server);
 	bfree(service->password);
 	bfree(service->codec);
+	bfree(service->sourceId);
 	bfree(service->output);
 
 	service->server = bstrdup(obs_data_get_string(settings, "server"));
 	service->codec = bstrdup(obs_data_get_string(settings, "codec"));
 	service->simulcast = obs_data_get_bool(settings, "simulcast");
 	service->multisource = obs_data_get_bool(settings, "multisource");
+	service->sourceId = bstrdup(obs_data_get_string(settings, "sourceId"));
 	service->output = bstrdup("webrtc_custom_output");
 }
 
@@ -40,6 +43,7 @@ static void webrtc_custom_destroy(void *data)
 	bfree(service->server);
 	bfree(service->password);
 	bfree(service->codec);
+	bfree(service->sourceId);
 	bfree(service->output);
 	bfree(service);
 }
@@ -81,6 +85,9 @@ static bool use_auth_modified(obs_properties_t *ppts, obs_property_t *p,
 	obs_property_set_visible(p, true);
 
 	p = obs_properties_get(ppts, "multisource");
+	obs_property_set_visible(p, true);
+
+	p = obs_properties_get(ppts, "sourceId");
 	obs_property_set_visible(p, true);
 
 	return true;
@@ -126,6 +133,9 @@ static obs_properties_t *webrtc_custom_properties(void *unused)
 	obs_property_set_visible(p, true);
 
 	p = obs_properties_get(ppts, "multisource");
+	obs_property_set_visible(p, true);
+
+	p = obs_properties_get(ppts, "sourceId");
 	obs_property_set_visible(p, true);
 
 	// obs_property_set_modified_callback(p, use_auth_modified);
@@ -189,6 +199,12 @@ static bool webrtc_custom_multisource(void *data)
 	return service->multisource;
 }
 
+static const char *webrtc_custom_sourceId(void *data)
+{
+	struct webrtc_custom *service = data;
+	return service->sourceId;
+}
+
 static const char *webrtc_custom_get_output_type(void *data)
 {
 	struct webrtc_custom *service = data;
@@ -211,4 +227,5 @@ struct obs_service_info webrtc_custom_service = {
 	.get_protocol = webrtc_custom_protocol,
 	.get_simulcast = webrtc_custom_simulcast,
 	.get_multisource = webrtc_custom_multisource,
+	.get_sourceId = webrtc_custom_sourceId,
 	.get_output_type = webrtc_custom_get_output_type};

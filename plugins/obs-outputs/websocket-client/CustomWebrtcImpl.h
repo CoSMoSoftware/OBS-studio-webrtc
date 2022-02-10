@@ -30,7 +30,7 @@ public:
 		  const std::string &audio_codec,
 		  const std::string &stream_name,
 			const bool multisource = false,
-			const char *audio_source_name = NULL) override;
+			const std::string &audio_source_name = nullptr) override;
 	bool trickle(const std::string & /* mid */, int /* index */,
 		     const std::string & /* candidate */,
 		     bool /* last */) override;

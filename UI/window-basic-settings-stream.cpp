@@ -205,6 +205,10 @@ void OBSBasicSettings::LoadStream1Settings()
 		bool multisource = obs_data_get_bool(settings, "multisource");
 		ui->multisourceEnable->setChecked(multisource);
 
+		const char *sourceId =
+			obs_data_get_string(settings, "sourceId");
+		ui->sourceId->setText(sourceId);
+
 		const char *publish_api_url =
 			obs_data_get_string(settings, "publish_api_url");
 		ui->publishApiUrl->setText(publish_api_url);
@@ -277,6 +281,10 @@ void OBSBasicSettings::LoadStream1Settings()
 
 		bool multisource = obs_data_get_bool(settings, "multisource");
 		ui->multisourceEnable->setChecked(multisource);
+
+		const char *sourceId =
+			obs_data_get_string(settings, "sourceId");
+		ui->sourceId->setText(sourceId);
 
 		const char *publish_api_url =
 			obs_data_get_string(settings, "publish_api_url");
@@ -381,6 +389,8 @@ void OBSBasicSettings::SaveStream1Settings()
 				  ui->simulcastEnable->isChecked());
 		obs_data_set_bool(settings, "multisource",
 					ui->multisourceEnable->isChecked());
+		obs_data_set_string(settings, "sourceId",
+				    QT_TO_UTF8(ui->sourceId->text()));
 		obs_data_set_string(settings, "publish_api_url",
 				    QT_TO_UTF8(ui->publishApiUrl->text()));
 	} else if (isWebrtc) {
@@ -401,6 +411,8 @@ void OBSBasicSettings::SaveStream1Settings()
 				  ui->simulcastEnable->isChecked());
 		obs_data_set_bool(settings, "multisource",
 					ui->multisourceEnable->isChecked());
+		obs_data_set_string(settings, "sourceId",
+				    QT_TO_UTF8(ui->sourceId->text()));
 		obs_data_set_string(settings, "publish_api_url",
 				    QT_TO_UTF8(ui->publishApiUrl->text()));
 	}
@@ -722,7 +734,10 @@ void OBSBasicSettings::on_service_currentIndexChanged(int)
 		ui->streamProtocol->setVisible(false);
 		ui->streamingAdvancedSettingsButton->setVisible(false);
 		ui->simulcastEnable->setVisible(false);
+		ui->multisourceLabel->setVisible(false);
 		ui->multisourceEnable->setVisible(false);
+		ui->sourceIdLabel->setVisible(false);
+		ui->sourceId->setVisible(false);
 		ui->publishApiUrlLabel->setVisible(false);
 		ui->publishApiUrl->setVisible(false);
 	} else if (isWebrtc) {
@@ -746,6 +761,8 @@ void OBSBasicSettings::on_service_currentIndexChanged(int)
 			obs_properties_get(props, "simulcast");
 		obs_property_t *multisource =
 			obs_properties_get(props, "multisource");
+		obs_property_t *sourceId =
+			obs_properties_get(props, "sourceId");
 		obs_property_t *publishApiUrl =
 			obs_properties_get(props, "publish_api_url");
 		obs_property_t *protocol =
@@ -818,7 +835,10 @@ void OBSBasicSettings::on_service_currentIndexChanged(int)
 		ui->streamProtocol->setVisible(obs_property_visible(protocol));
 		ui->streamingAdvancedSettingsButton->setVisible(true);
 		ui->simulcastEnable->setVisible(false);
-		ui->multisourceEnable->setVisible(false);
+		ui->multisourceLabel->setVisible(true);
+		ui->multisourceEnable->setVisible(true);
+		ui->sourceIdLabel->setVisible(true);
+		ui->sourceId->setVisible(true);
 		ui->publishApiUrlLabel->setVisible(false);
 		ui->publishApiUrl->setVisible(false);
 		obs_properties_destroy(props);
@@ -863,7 +883,10 @@ void OBSBasicSettings::on_service_currentIndexChanged(int)
 		ui->codecGroupBox->setVisible(false);
 		ui->streamingAdvancedSettingsButton->setVisible(false);
 		ui->simulcastEnable->setVisible(false);
+		ui->multisourceLabel->setVisible(false);
 		ui->multisourceEnable->setVisible(false);
+		ui->sourceIdLabel->setVisible(false);
+		ui->sourceId->setVisible(false);
 		ui->publishApiUrlLabel->setVisible(false);
 		ui->publishApiUrl->setVisible(false);
 	}

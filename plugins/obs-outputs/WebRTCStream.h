@@ -188,6 +188,7 @@ private:
 	std::string video_codec;
 	bool simulcast_;
 	bool multisource_;
+	std::string sourceId_;
 	std::string publishApiUrl;
 	int channel_count;
 

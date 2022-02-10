@@ -9,6 +9,7 @@ struct webrtc_millicast {
 	char *codec;
 	bool simulcast;
 	bool multisource;
+	char *sourceId;
 	char *publishApiUrl;
 	char *output;
 };
@@ -27,6 +28,7 @@ static void webrtc_millicast_update(void *data, obs_data_t *settings)
 	bfree(service->username);
 	bfree(service->codec);
 	bfree(service->password);
+	bfree(service->sourceId);
 	bfree(service->publishApiUrl);
 	bfree(service->output);
 
@@ -36,6 +38,8 @@ static void webrtc_millicast_update(void *data, obs_data_t *settings)
 	service->codec = bstrdup(obs_data_get_string(settings, "codec"));
 	service->simulcast = obs_data_get_bool(settings, "simulcast");
 	service->multisource = obs_data_get_bool(settings, "multisource");
+	service->sourceId =
+		bstrdup(obs_data_get_string(settings, "sourceId"));
 	service->publishApiUrl =
 		bstrdup(obs_data_get_string(settings, "publish_api_url"));
 	service->output = bstrdup("millicast_output");
@@ -49,6 +53,7 @@ static void webrtc_millicast_destroy(void *data)
 	bfree(service->username);
 	bfree(service->codec);
 	bfree(service->password);
+	bfree(service->sourceId);
 	bfree(service->publishApiUrl);
 	bfree(service->output);
 	bfree(service);
@@ -93,6 +98,9 @@ static bool use_auth_modified(obs_properties_t *ppts, obs_property_t *p,
 	obs_property_set_visible(p, true);
 
 	p = obs_properties_get(ppts, "multisource");
+	obs_property_set_visible(p, true);
+
+	p = obs_properties_get(ppts, "sourceId");
 	obs_property_set_visible(p, true);
 
 	p = obs_properties_get(ppts, "publish_api_url");
@@ -159,6 +167,9 @@ static obs_properties_t *webrtc_millicast_properties(void *unused)
 	p = obs_properties_get(ppts, "multisource");
 	obs_property_set_visible(p, true);
 
+	p = obs_properties_get(ppts, "sourceId");
+	obs_property_set_visible(p, true);
+
 	p = obs_properties_get(ppts, "publish_api_url");
 	obs_property_set_visible(p, true);
 
@@ -217,6 +228,12 @@ static bool webrtc_millicast_multisource(void *data)
 	return service->multisource;
 }
 
+static const char *webrtc_millicast_sourceId(void *data)
+{
+	struct webrtc_millicast *service = data;
+	return service->sourceId;
+}
+
 static const char *webrtc_millicast_publishApiUrl(void *data)
 {
 	struct webrtc_millicast *service = data;
@@ -255,5 +272,6 @@ struct obs_service_info webrtc_millicast_service = {
 	.get_protocol = webrtc_millicast_protocol,
 	.get_simulcast = webrtc_millicast_simulcast,
 	.get_multisource = webrtc_millicast_multisource,
+	.get_sourceId = webrtc_millicast_sourceId,
 	.get_publishApiUrl = webrtc_millicast_publishApiUrl,
 	.get_output_type = webrtc_millicast_get_output_type};

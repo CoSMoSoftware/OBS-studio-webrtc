@@ -37,8 +37,7 @@ MillicastWebsocketClientImpl::~MillicastWebsocketClientImpl()
 bool MillicastWebsocketClientImpl::connect(
 	const std::string &publish_api_url, const std::string & /* room */,
 	const std::string &stream_name, const std::string &token,
-	WebsocketClient::Listener *listener,
-	const char *audio_source_name /* = NULL */)
+	WebsocketClient::Listener *listener)
 {
 	this->token = sanitizeString(token);
 
@@ -49,13 +48,7 @@ bool MillicastWebsocketClientImpl::connect(
 	headers["Content-Type"] = "application/json";
 	conn->SetHeaders(headers);
 	conn->SetTimeout(5);
-	json data{};
-	if (audio_source_name) {
-		data = {{"streamName", sanitizeString(stream_name)},
-			{"sourceId", sanitizeString(audio_source_name)}};
-	} else {
-		data = {{"streamName", sanitizeString(stream_name)}};
-	}
+	json data = {{"streamName", sanitizeString(stream_name)}};
 	RestClient::Response r = conn->post(publish_api_url, data.dump());
 	delete conn;
 	RestClient::disable();
@@ -199,32 +192,59 @@ bool MillicastWebsocketClientImpl::connect(
 bool MillicastWebsocketClientImpl::open(const std::string &sdp,
 					const std::string &video_codec,
 					const std::string &audio_codec,
-					const std::string &stream_name)
+					const std::string &stream_name,
+					const bool multisource, /* = false */
+					const std::string &audio_source_name /* = nullptr */)
 {
 	info("WS-OPEN: stream_name: %s", stream_name.c_str());
 
 	// Make sure video_codec is not empty
-	if (video_codec.empty()) {
-		warn("Error: opening stream with video codec not selected (Automatic)");
-		return false;
+	// if (video_codec.empty()) {
+	// 	warn("Error: opening stream with video codec not selected (Automatic)");
+	// 	return false;
+	// }
+
+	json data;
+	if (multisource) {
+		if (video_codec.empty()) {
+			// with multisource, without codec
+			data = {
+				{"name", sanitizeString(stream_name)},
+				{"streamId", sanitizeString(stream_name)},
+				{"sourceId", sanitizeString(audio_source_name)},
+				{"sdp", sdp}};
+		} else {
+			// with multisource, with codec
+			data = {
+				{"name", sanitizeString(stream_name)},
+				{"streamId", sanitizeString(stream_name)},
+				{"sourceId", sanitizeString(audio_source_name)},
+				{"sdp", sdp},
+				{"codec", video_codec}};
+		}
+	} else {
+		if (video_codec.empty()) {
+			// without multisource, without codec
+			data = {
+				{"name", sanitizeString(stream_name)},
+				{"streamId", sanitizeString(stream_name)},
+				{"sdp", sdp}};
+		} else {
+			// without multisource, with codec
+			data = {
+				{"name", sanitizeString(stream_name)},
+				{"streamId", sanitizeString(stream_name)},
+				{"sdp", sdp},
+				{"codec", video_codec}};
+		}
 	}
 
 	try {
-		json data_without_codec = {
-			{"name", sanitizeString(stream_name)},
-			{"streamId", sanitizeString(stream_name)},
-			{"sdp", sdp}};
-		json data_with_codec = {{"name", sanitizeString(stream_name)},
-					{"streamId",
-					 sanitizeString(stream_name)},
-					{"sdp", sdp},
-					{"codec", video_codec}};
 		// Publish command (send offer)
 		json open = {{"type", "cmd"},
 			     {"name", "publish"},
 			     {"transId", rand()},
-			     {"data", video_codec.empty() ? data_without_codec
-							  : data_with_codec}};
+			     {"data", data}};
 		// Serialize and send
 		if (connection->send(open.dump())) {
 			warn("Error sending open message");

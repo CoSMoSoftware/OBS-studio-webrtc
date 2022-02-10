@@ -215,6 +215,9 @@ bool WebRTCStream::start(WebRTCStream::Type type)
 	multisource_ = obs_service_get_multisource(service)
 				? obs_service_get_multisource(service)
 				: false;
+	sourceId_ = obs_service_get_sourceId(service)
+				? obs_service_get_sourceId(service)
+				: "";
 	publishApiUrl = obs_service_get_publishApiUrl(service)
 				? obs_service_get_publishApiUrl(service)
 				: "";
@@ -237,7 +240,7 @@ bool WebRTCStream::start(WebRTCStream::Type type)
 	}
 	info("Simulcast: %s", simulcast_ ? "true" : "false");
 	if (multisource_) {
-		info("Multisource: true, sourceID: %s", obs_source_get_name(obs_frontend_get_current_scene()));
+		info("Multisource: true, sourceID: %s", sourceId_.c_str());
 	} else {
 		info("Multisource: false");
 	}
@@ -515,9 +518,8 @@ void WebRTCStream::OnSuccess(webrtc::SessionDescriptionInterface *desc)
 	pc->SetLocalDescription(this, desc);
 
 	info("Sending OFFER (SDP) to remote peer:\n\n%s", sdpCopy.c_str());
-	// Send the scene name as sourceId for multisource
 	if (!client->open(sdpCopy, (0==getVideoSourceCount() ? "" : video_codec), audio_codec, username,
-								multisource_, obs_source_get_name(obs_frontend_get_current_scene()))) {
+								multisource_, sourceId_)) {
 		// Shutdown websocket connection and close Peer Connection
 		close(false);
 		// Disconnect, this will call stop on main thread

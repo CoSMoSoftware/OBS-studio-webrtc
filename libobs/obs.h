@@ -2278,6 +2278,9 @@ EXPORT bool obs_service_get_simulcast(const obs_service_t *service);
 /** Returns the multisource setting for this service context */
 EXPORT bool obs_service_get_multisource(const obs_service_t *service);
 
+/** Returns the sourceId for multisource */
+EXPORT const char *obs_service_get_sourceId(const obs_service_t *service);
+
 /** Returns the URL for WebRTC service */
 EXPORT const char *obs_service_get_publishApiUrl(const obs_service_t *service);
 
