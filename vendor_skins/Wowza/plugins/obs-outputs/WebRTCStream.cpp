@@ -224,11 +224,11 @@ bool WebRTCStream::start(WebRTCStream::Type type)
 		publishApiUrl = url;
 	}
 
-	// No Simulast for VP9 codec (not supported properly by libwebrtc)
-	// if (video_codec.empty() || "VP9" == video_codec) {
-	// 	info("Simulcast not supported properly for VP9: Disabling Simulcast\n");
-	// 	simulcast_ = false;
-	// }
+	// No Simulast for AV1 codec
+	if (video_codec.empty() || "AV1" == video_codec) {
+		info("Simulcast not supported for AV1: Disabling Simulcast\n");
+		simulcast_ = false;
+	}
 
 	// Some extra log
 
