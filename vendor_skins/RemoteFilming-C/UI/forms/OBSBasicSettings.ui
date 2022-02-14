@@ -1304,15 +1304,15 @@
              <item row="10" column="1">
               <widget class="QGroupBox" name="codecGroupBox">
                <property name="sizePolicy">
-                <sizepolicy hsizetype="Fixed" vsizetype="MinimumExpanding">
+                <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                  <horstretch>0</horstretch>
                  <verstretch>0</verstretch>
                 </sizepolicy>
                </property>
                <property name="minimumSize">
                 <size>
-                 <width>90</width>
-                 <height>80</height>
+                 <width>100</width>
+                 <height>100</height>
                 </size>
                </property>
                <property name="title">
@@ -1323,8 +1323,8 @@
                  <rect>
                   <x>10</x>
                   <y>10</y>
-                  <width>71</width>
-                  <height>61</height>
+                  <width>60</width>
+                  <height>80</height>
                  </rect>
                 </property>
                 <layout class="QVBoxLayout" name="verticalLayout_7">
@@ -1461,7 +1461,7 @@
              <item row="14" column="1">
               <widget class="QCheckBox" name="simulcastEnable">
                <property name="text">
-                <string>Simulcast</string>
+                <string>Simulcast (applicable only to h264 and VP8)</string>
                </property>
               </widget>
              </item>
