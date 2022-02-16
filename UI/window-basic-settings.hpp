@@ -336,6 +336,8 @@ private:
 
 	OBSService GetStream1Service();
 
+	void CheckSimulcastApplicableToCodec();
+
 private slots:
 	void on_theme_activated(int idx);
 
@@ -396,6 +398,8 @@ private slots:
 	void SimpleStreamingEncoderChanged();
 	// note Ludo: Simulcast
 	void AdvancedStreamingSettingsChanged();
+	void on_video_codec_changed();
+	void on_simulcast_box_checked();
 
 	OBSService SpawnTempService();
 

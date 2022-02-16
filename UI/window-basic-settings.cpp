@@ -360,6 +360,8 @@ void OBSBasicSettings::HookWidget(QWidget *widget, const char *signal,
 #define ADV_RESTART     SLOT(AdvancedChangedRestart())
 // note Ludo: Simulcast
 #define ADV_STREAMING_SETTINGS_CHANGED SLOT(AdvancedStreamingSettingsChanged())
+#define VIDEO_CODEC_CHANGED SLOT(on_video_codec_changed())
+#define SIMULCAST_CHANGED SLOT(on_simulcast_box_checked())
 /* clang-format on */
 
 OBSBasicSettings::OBSBasicSettings(QWidget *parent)
@@ -438,9 +440,12 @@ OBSBasicSettings::OBSBasicSettings(QWidget *parent)
 	HookWidget(ui->h264RadioButton,      CHECK_CHANGED,  STREAM1_CHANGED);
 	HookWidget(ui->vp8RadioButton,       CHECK_CHANGED,  STREAM1_CHANGED);
 	HookWidget(ui->vp9RadioButton,       CHECK_CHANGED,  STREAM1_CHANGED);
+	HookWidget(ui->vp9RadioButton,       CHECK_CHANGED,  VIDEO_CODEC_CHANGED);
 	HookWidget(ui->av1RadioButton,       CHECK_CHANGED,  STREAM1_CHANGED);
+	HookWidget(ui->av1RadioButton,       CHECK_CHANGED,  VIDEO_CODEC_CHANGED);
 	HookWidget(ui->streamingAdvancedSettingsButton, CHECK_CHANGED, ADV_STREAMING_SETTINGS_CHANGED);
 	HookWidget(ui->simulcastEnable,      CHECK_CHANGED,  STREAM1_CHANGED);
+	HookWidget(ui->simulcastEnable,      CHECK_CHANGED,  SIMULCAST_CHANGED);
 	HookWidget(ui->multisourceEnable,    CHECK_CHANGED,  STREAM1_CHANGED);
 	HookWidget(ui->sourceId,             EDIT_CHANGED,   STREAM1_CHANGED);
 	HookWidget(ui->publishApiUrl,        EDIT_CHANGED,   STREAM1_CHANGED);
