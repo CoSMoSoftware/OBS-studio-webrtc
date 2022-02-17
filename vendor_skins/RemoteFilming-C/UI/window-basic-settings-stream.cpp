@@ -1,6 +1,6 @@
 // Copyright Dr. Alex. Gouaillard (2015, 2020)
-#include <QMessageBox>
 #include <QUrl>
+#include <QToolTip>
 
 #include "window-basic-settings.hpp"
 #include "obs-frontend-api.h"
@@ -473,11 +473,9 @@ void OBSBasicSettings::CheckSimulcastApplicableToCodec()
 {
 	std::string codec = QT_TO_UTF8(ui->codecButtonGroup->checkedButton()->text());
 	if ("VP9" == codec || "AV1" == codec) {
-		QMainWindow *mainWindow = reinterpret_cast<QMainWindow *>(obs_frontend_get_main_window());
-		QString errorTitle = tr("Simulcast Not Applicable");
 		QString errorMessage =
 			tr("Error: Simulcast is not applicable to %1\nDisabling simulcast").arg(ui->codecButtonGroup->checkedButton()->text());
-		QMessageBox::warning(mainWindow, errorTitle, errorMessage);
+		QToolTip::showText(QCursor::pos(), errorMessage, this);
 		ui->simulcastEnable->setCheckState(Qt::Unchecked);
 	}
 }
