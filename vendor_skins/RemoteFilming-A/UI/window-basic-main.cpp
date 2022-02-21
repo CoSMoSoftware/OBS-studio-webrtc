@@ -2125,6 +2125,8 @@ void OBSBasic::OBSInit()
 	}
 
 	if (display_wizard) {
+		config_set_bool(App()->GlobalConfig(), "General", "SetCustomParameters",
+				false);
 		SetCustomParameters wizard(this);
 		wizard.setModal(true);
 		wizard.show();
