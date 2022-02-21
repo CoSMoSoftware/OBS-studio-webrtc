@@ -2116,19 +2116,15 @@ void OBSBasic::OBSInit()
 	OnFirstLoad();
 
 	// note LUDO: display wizard for set custom parameters if version has changed
-	bool version_changed = false;
-	if (!config_has_user_value(App()->GlobalConfig(), "General", "Version")) {
-		version_changed = true;
+	bool display_wizard = false;
+	if (!config_has_user_value(App()->GlobalConfig(), "General", "SetCustomParameters")) {
+		display_wizard = true;
 	} else {
-		const char *old_version =
-			config_get_string(App()->GlobalConfig(), "General", "Version");
-		version_changed =
-			(0 !=
-			 strcmp(old_version,
-				std::string(REMOTE_FILMING_VERSION).c_str()));
+		display_wizard =
+			config_get_bool(App()->GlobalConfig(), "General", "SetCustomParameters");
 	}
 
-	if (version_changed) {
+	if (display_wizard) {
 		SetCustomParameters wizard(this);
 		wizard.setModal(true);
 		wizard.show();

@@ -414,6 +414,8 @@ bool OBSApp::InitGlobalConfigDefaults(const bool force /* = false */)
 	if (force) {
 		config_set_string(globalConfig, "General", "Version",
 				  std::string(REMOTE_FILMING_VERSION).c_str());
+		config_set_bool(globalConfig, "General", "SetCustomParameters".
+				true);
 		config_set_string(globalConfig, "General", "Language",
 				  DEFAULT_LANG);
 		config_set_uint(globalConfig, "General", "MaxLogs", 10);
