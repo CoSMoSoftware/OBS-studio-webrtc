@@ -280,6 +280,7 @@ set(obs_SOURCES
 	window-projector.cpp
 	window-remux.cpp
 	window-missing-files.cpp
+	window-set-custom-parameters.cpp
 	auth-base.cpp
 	auth-oauth.cpp
 	auth-listener.cpp
@@ -346,6 +347,7 @@ set(obs_HEADERS
 	window-projector.hpp
 	window-remux.hpp
 	window-missing-files.hpp
+	window-set-custom-parameters.hpp
 	auth-base.hpp
 	auth-oauth.hpp
 	auth-listener.hpp
@@ -429,7 +431,8 @@ set(obs_UI
 	forms/OBSRemux.ui
 	forms/OBSImporter.ui
 	forms/OBSMissingFiles.ui
-	forms/OBSAbout.ui)
+	forms/OBSAbout.ui
+	forms/SetCustomParametersPage.ui)
 
 set(obs_QRC
 	forms/obs.qrc)
