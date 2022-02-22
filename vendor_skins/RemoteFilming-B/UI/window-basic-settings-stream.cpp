@@ -177,7 +177,7 @@ void OBSBasicSettings::LoadStream1Settings()
 
 		// NOTE LUDO: #172 codecs list of radio buttons
 		tmpString = obs_data_get_string(settings, "codec");
-		const char *codec = strcmp("", tmpString) == 0 ? "vp9"
+		const char *codec = strcmp("", tmpString) == 0 ? "h264"
 							       : tmpString;
 		listButtons = ui->codecButtonGroup->buttons();
 		for (QList<QAbstractButton *>::iterator iter =
