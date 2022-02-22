@@ -167,18 +167,21 @@ install_obs-deps() {
     hr "Setting up pre-built macOS OBS dependencies v${1}"
     ensure_dir "${DEPS_BUILD_DIR}"
     step "Download..."
-    ${CURLCMD} --progress-bar -L -C - -O https://github.com/obsproject/obs-deps/releases/download/${1}/macos-deps-${CURRENT_ARCH}-${1}.tar.gz
+    ${CURLCMD} --progress-bar -L -C - -O https://github.com/obsproject/obs-deps/releases/download/${1}/macos-deps-${1}-${CURRENT_ARCH}.tar.xz
     step "Unpack..."
-    /usr/bin/tar -xf "./macos-deps-${CURRENT_ARCH}-${1}.tar.gz" -C /tmp
+    mkdir -p /tmp/obsdeps
+    /usr/bin/tar -xf "./macos-deps-${1}-${CURRENT_ARCH}.tar.xz" -C /tmp/obsdeps
+    /usr/bin/xattr -r -d com.apple.quarantine /tmp/obsdeps
 }
 
 install_qt-deps() {
     hr "Setting up pre-built dependency QT v${1}"
     ensure_dir "${DEPS_BUILD_DIR}"
     step "Download..."
-    ${CURLCMD} --progress-bar -L -C - -O https://github.com/obsproject/obs-deps/releases/download/${2}/macos-qt-${1}-${CURRENT_ARCH}-${2}.tar.gz
+    ${CURLCMD} --progress-bar -L -C - -O https://github.com/obsproject/obs-deps/releases/download/${2}/macos-deps-qt-${2}-${CURRENT_ARCH}.tar.xz
     step "Unpack..."
-    /usr/bin/tar -xf ./macos-qt-${1}-${CURRENT_ARCH}-${2}.tar.gz -C /tmp
+    mkdir -p /tmp/obsdeps
+    /usr/bin/tar -xf ./macos-deps-qt-${2}-${CURRENT_ARCH}.tar.xz -C /tmp/obsdeps
     /usr/bin/xattr -r -d com.apple.quarantine /tmp/obsdeps
 }
 
@@ -210,10 +213,10 @@ install_cef() {
     hr "Building dependency CEF v${1}"
     ensure_dir "${DEPS_BUILD_DIR}"
     step "Download..."
-    ${CURLCMD} --progress-bar -L -C - -O https://cdn-fastly.obsproject.com/downloads/cef_binary_${1}_macosx64.tar.bz2
+    ${CURLCMD} --progress-bar -L -C - -O https://cdn-fastly.obsproject.com/downloads/cef_binary_${1}_macos_x86_64.tar.xz
     step "Unpack..."
-    /usr/bin/tar -xf ./cef_binary_${1}_macosx64.tar.bz2
-    cd ./cef_binary_${1}_macosx64
+    /usr/bin/tar -xf ./cef_binary_${1}_macos_x86_64.tar.xz
+    cd ./cef_binary_${1}_macos_x86_64
     step "Fix tests..."
     # remove a broken test
     /usr/bin/sed -i '.orig' '/add_subdirectory(tests\/ceftests)/d' ./CMakeLists.txt
@@ -338,33 +341,79 @@ bundle_dylibs() {
     hr "Bundle dylibs for macOS application"
 
     step "Run dylibBundler.."
-    ${CI_SCRIPTS}/app/dylibbundler -cd -of -a ./A-CAM.app -q -f \
+#    ${CI_SCRIPTS}/app/dylibbundler -cd -of -a ./A-CAM.app -q -f \
+#        -s ./A-CAM.app/Contents/MacOS \
+#        -s ./rundir/${BUILD_CONFIG}/bin/ \
+#        -x ./A-CAM.app/Contents/PlugIns/coreaudio-encoder.so \
+#        -x ./A-CAM.app/Contents/PlugIns/decklink-ouput-ui.so \
+#        -x ./A-CAM.app/Contents/PlugIns/decklink-captions.so \
+#        -x ./A-CAM.app/Contents/PlugIns/frontend-tools.so \
+#        -x ./A-CAM.app/Contents/PlugIns/image-source.so \
+#        -x ./A-CAM.app/Contents/PlugIns/mac-avcapture.so \
+#        -x ./A-CAM.app/Contents/PlugIns/mac-capture.so \
+#        -x ./A-CAM.app/Contents/PlugIns/mac-decklink.so \
+#        -x ./A-CAM.app/Contents/PlugIns/mac-syphon.so \
+#        -x ./A-CAM.app/Contents/PlugIns/mac-vth264.so \
+#        -x ./A-CAM.app/Contents/PlugIns/mac-virtualcam.so \
+#        -x ./A-CAM.app/Contents/PlugIns/obs-ffmpeg.so \
+#        -x ./A-CAM.app/Contents/PlugIns/obs-filters.so \
+#        -x ./A-CAM.app/Contents/PlugIns/obs-transitions.so \
+#        -x ./A-CAM.app/Contents/PlugIns/obs-vst.so \
+#        -x ./A-CAM.app/Contents/PlugIns/rtmp-services.so \
+#        -x ./A-CAM.app/Contents/MacOS/obs-ffmpeg-mux \
+#        -x ./A-CAM.app/Contents/MacOS/obslua.so \
+#        -x ./A-CAM.app/Contents/PlugIns/obs-x264.so \
+#        -x ./A-CAM.app/Contents/PlugIns/text-freetype2.so \
+#        -x ./A-CAM.app/Contents/PlugIns/obs-outputs.so \
+#        -x ./A-CAM.app/Contents/PlugIns/obs-ndi.so \
+#        -x ./A-CAM.app/Contents/PlugIns/obs-websocket.so
+#        -x ./A-CAM.app/Contents/PlugIns/obs-browser.so \
+
+    BUNDLE_PLUGINS=(
+        ./A-CAM.app/Contents/PlugIns/coreaudio-encoder.so
+        ./A-CAM.app/Contents/PlugIns/decklink-ouput-ui.so
+        ./A-CAM.app/Contents/PlugIns/decklink-captions.so
+        ./A-CAM.app/Contents/PlugIns/frontend-tools.so
+        ./A-CAM.app/Contents/PlugIns/image-source.so
+        ./A-CAM.app/Contents/PlugIns/mac-avcapture.so
+        ./A-CAM.app/Contents/PlugIns/mac-capture.so
+        ./A-CAM.app/Contents/PlugIns/mac-decklink.so
+        ./A-CAM.app/Contents/PlugIns/mac-syphon.so
+        ./A-CAM.app/Contents/PlugIns/mac-vth264.so
+        ./A-CAM.app/Contents/PlugIns/mac-virtualcam.so
+        ./A-CAM.app/Contents/PlugIns/obs-ffmpeg.so
+        ./A-CAM.app/Contents/PlugIns/obs-filters.so
+        ./A-CAM.app/Contents/PlugIns/obs-transitions.so
+        ./A-CAM.app/Contents/PlugIns/obs-vst.so
+        ./A-CAM.app/Contents/PlugIns/rtmp-services.so
+        ./A-CAM.app/Contents/MacOS/obs-ffmpeg-mux
+        ./A-CAM.app/Contents/MacOS/obslua.so
+        ./A-CAM.app/Contents/PlugIns/obs-x264.so
+        ./A-CAM.app/Contents/PlugIns/text-freetype2.so
+        ./A-CAM.app/Contents/PlugIns/obs-outputs.so
+        ./A-CAM.app/Contents/PlugIns/aja.so
+        ./A-CAM.app/Contents/PlugIns/aja-output-ui.so
+        ./A-CAM.app/Contents/PlugIns/obs-ndi.so
+        ./A-CAM.app/Contents/PlugIns/obs-websocket.so
+        )
+
+    SEARCH_PATHS=(
+        /tmp/obsdeps/lib
+        /tmp/obsdeps/lib/QtSvg.framework
+        /tmp/obsdeps/lib/QtXml.framework
+        /tmp/obsdeps/lib/QtNetwork.framework
+        /tmp/obsdeps/lib/QtCore.framework
+        /tmp/obsdeps/lib/QtGui.framework
+        /tmp/obsdeps/lib/QtWidgets.framework
+        /tmp/obsdeps/lib/QtDBus.framework
+        /tmp/obsdeps/lib/QtPrintSupport.framework
+    )
+    "${CI_SCRIPTS}/app/dylibbundler" -cd -of -a ./A-CAM.app -q -f \
         -s ./A-CAM.app/Contents/MacOS \
         -s ./rundir/${BUILD_CONFIG}/bin/ \
-        -x ./A-CAM.app/Contents/PlugIns/coreaudio-encoder.so \
-        -x ./A-CAM.app/Contents/PlugIns/decklink-ouput-ui.so \
-        -x ./A-CAM.app/Contents/PlugIns/decklink-captions.so \
-        -x ./A-CAM.app/Contents/PlugIns/frontend-tools.so \
-        -x ./A-CAM.app/Contents/PlugIns/image-source.so \
-        -x ./A-CAM.app/Contents/PlugIns/mac-avcapture.so \
-        -x ./A-CAM.app/Contents/PlugIns/mac-capture.so \
-        -x ./A-CAM.app/Contents/PlugIns/mac-decklink.so \
-        -x ./A-CAM.app/Contents/PlugIns/mac-syphon.so \
-        -x ./A-CAM.app/Contents/PlugIns/mac-vth264.so \
-        -x ./A-CAM.app/Contents/PlugIns/mac-virtualcam.so \
-        -x ./A-CAM.app/Contents/PlugIns/obs-ffmpeg.so \
-        -x ./A-CAM.app/Contents/PlugIns/obs-filters.so \
-        -x ./A-CAM.app/Contents/PlugIns/obs-transitions.so \
-        -x ./A-CAM.app/Contents/PlugIns/obs-vst.so \
-        -x ./A-CAM.app/Contents/PlugIns/rtmp-services.so \
-        -x ./A-CAM.app/Contents/MacOS/obs-ffmpeg-mux \
-        -x ./A-CAM.app/Contents/MacOS/obslua.so \
-        -x ./A-CAM.app/Contents/PlugIns/obs-x264.so \
-        -x ./A-CAM.app/Contents/PlugIns/text-freetype2.so \
-        -x ./A-CAM.app/Contents/PlugIns/obs-outputs.so \
-        -x ./A-CAM.app/Contents/PlugIns/obs-ndi.so \
-        -x ./A-CAM.app/Contents/PlugIns/obs-websocket.so
-#        -x ./A-CAM.app/Contents/PlugIns/obs-browser.so \
+        $(echo "${SEARCH_PATHS[@]/#/-s }") \
+        $(echo "${BUNDLE_PLUGINS[@]/#/-x }") \
+        -x ./A-CAM.app/Contents/PlugIns/obs-browser-page
 
     step "Move libobs-opengl to final destination"
     /bin/cp ./libobs-opengl/libobs-opengl.so ./A-CAM.app/Contents/Frameworks

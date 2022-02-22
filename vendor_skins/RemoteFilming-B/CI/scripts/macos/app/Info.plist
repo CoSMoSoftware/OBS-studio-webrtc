@@ -5,7 +5,7 @@
 	<key>CFBundleIconFile</key>
 	<string>AppIcon.icns</string>
         <key>CFBundleDisplayName</key>
-        <string>Remote Filming</string>
+        <string>B-CAM</string>
 	<key>CFBundleName</key>
 	<string>RemoteFilming</string>
 	<key>CFBundleGetInfoString</key>
@@ -14,6 +14,8 @@
 	<string>rfs</string>
 	<key>CFBundleIdentifier</key>
 	<string>io.cosmosoftware.remotefilming</string>
+	<key>NSHumanReadableCopyright</key>
+	<string>(c) 2012-2021 Hugh Bailey</string>
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>LSMinimumSystemVersion</key>
