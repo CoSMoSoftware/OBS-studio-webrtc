@@ -57,12 +57,12 @@ parameters:
   - name: vendors
     type: object
     default:
-#    - Millicast
+    - Millicast
 #    - PacPost
 #    - RemoteFilming
 #    - RemoteFilming-A
-    - RemoteFilming-B
-    - RemoteFilming-C
+#    - RemoteFilming-B
+#    - RemoteFilming-C
     - RemoteFilming-D
 #    - Wowza
 
@@ -237,7 +237,7 @@ jobs:
 
 - job: 'Build_Linux'
   pool:
-    vmImage: 'ubuntu-20.04'
+    vmImage: 'ubuntu-18.04'
   steps:
   - bash: |
       git submodule update --init --recursive
