@@ -38,6 +38,7 @@ sudo apt-get install -y \
         libwayland-dev \
         libx11-dev \
         libx264-dev \
+        libxkbcommon-dev \
         libxcb-randr0-dev \
         libxcb-shm0-dev \
         libxcb-xinerama0-dev \

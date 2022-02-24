@@ -354,8 +354,8 @@ try {
 	uint8_t updateFileHash[BLAKE2_HASH_LENGTH];
 	vector<string> extraHeaders;
 
-	BPtr<char> updateFilePath =
-		GetConfigPathPtr("obs-webrtc\\updates\\updater.exe");
+	BPtr<char> updateFilePath = GetConfigPathPtr(
+		(std::string(CONFIG_DIR) + "\\updates\\updater.exe").c_str());
 
 	if (CalculateFileHash(updateFilePath, updateFileHash)) {
 		char hashString[BLAKE2_HASH_STR_LENGTH];

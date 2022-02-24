@@ -245,7 +245,7 @@ string CurrentTimeString()
 	auto now = system_clock::to_time_t(tp);
 	tstruct = *localtime(&now);
 
-	size_t written = strftime(buf, sizeof(buf), "%X", &tstruct);
+	size_t written = strftime(buf, sizeof(buf), "%T", &tstruct);
 	if (ratio_less<system_clock::period, seconds::period>::value &&
 	    written && (sizeof(buf) - written) > 5) {
 		auto tp_secs = time_point_cast<seconds>(tp);
@@ -418,6 +418,8 @@ bool OBSApp::InitGlobalConfigDefaults()
 				  "Normal");
 	config_set_default_bool(globalConfig, "General", "EnableAutoUpdates",
 				false);
+
+	config_set_default_bool(globalConfig, "General", "ConfirmOnExit", true);
 
 #if _WIN32
 	config_set_default_string(globalConfig, "Video", "Renderer",
@@ -657,17 +659,14 @@ static string GetSceneCollectionFileFromName(const char *name)
 		if (ent.directory)
 			continue;
 
-		obs_data_t *data =
+		OBSDataAutoRelease data =
 			obs_data_create_from_json_file_safe(ent.path, "bak");
 		const char *curName = obs_data_get_string(data, "name");
 
 		if (astrcmpi(name, curName) == 0) {
 			outputPath = ent.path;
-			obs_data_release(data);
 			break;
 		}
-
-		obs_data_release(data);
 	}
 
 	os_globfree(glob);
@@ -1137,6 +1136,8 @@ bool OBSApp::SetTheme(std::string name, std::string path)
 	setPalette(defaultPalette);
 	ParseExtraThemeData(path.c_str());
 	setStyleSheet(mpath);
+	QColor color = palette().text().color();
+	themeDarkMode = !(color.redF() < 0.5);
 
 	emit StyleChanged();
 	return true;
@@ -1181,6 +1182,8 @@ OBSApp::OBSApp(int &argc, char **argv, profiler_name_store_t *store)
 #else
 	setWindowIcon(QIcon::fromTheme("obs", QIcon(":/res/images/obs.png")));
 #endif
+
+	setDesktopFileName("com.obsproject.Studio");
 }
 
 OBSApp::~OBSApp()
@@ -1193,11 +1196,11 @@ OBSApp::~OBSApp()
 #endif
 
 #ifdef __APPLE__
-	bool vsyncDiabled =
+	bool vsyncDisabled =
 		config_get_bool(globalConfig, "Video", "DisableOSXVSync");
 	bool resetVSync =
 		config_get_bool(globalConfig, "Video", "ResetOSXVSyncOnExit");
-	if (vsyncDiabled && resetVSync)
+	if (vsyncDisabled && resetVSync)
 		EnableOSXVSync(true);
 #endif
 
@@ -1468,10 +1471,9 @@ bool OBSApp::OBSInit()
 	bool browserHWAccel =
 		config_get_bool(globalConfig, "General", "BrowserHWAccel");
 
-	obs_data_t *settings = obs_data_create();
+	OBSDataAutoRelease settings = obs_data_create();
 	obs_data_set_bool(settings, "BrowserHWAccel", browserHWAccel);
 	obs_apply_private_data(settings);
-	obs_data_release(settings);
 
 	blog(LOG_INFO, "Current Date/Time: %s",
 	     CurrentDateTimeString().c_str());
@@ -1479,7 +1481,15 @@ bool OBSApp::OBSInit()
 	blog(LOG_INFO, "Browser Hardware Acceleration: %s",
 	     browserHWAccel ? "true" : "false");
 #endif
+#ifdef _WIN32
+	bool hideFromCapture = config_get_bool(globalConfig, "BasicWindow",
+					       "HideOBSWindowsFromCapture");
+	blog(LOG_INFO, "Hide OBS windows from screen capture: %s",
+	     hideFromCapture ? "true" : "false");
+#endif
 
+	blog(LOG_INFO, "Qt Version: %s (runtime), %s (compiled)", qVersion(),
+	     QT_VERSION_STR);
 	blog(LOG_INFO, "Portable mode: %s", portable_mode ? "true" : "false");
 
 	setQuitOnLastWindowClosed(false);
@@ -1591,6 +1601,44 @@ bool OBSApp::TranslateString(const char *lookupVal, const char **out) const
 	}
 
 	return text_lookup_getstr(App()->GetTextLookup(), lookupVal, out);
+}
+
+// Global handler to receive all QEvent::Show events so we can apply
+// display affinity on any newly created windows and dialogs without
+// caring where they are coming from (e.g. plugins).
+bool OBSApp::notify(QObject *receiver, QEvent *e)
+{
+	QWidget *w;
+	QWindow *window;
+	int windowType;
+
+	if (!receiver->isWidgetType())
+		goto skip;
+
+	if (e->type() != QEvent::Show)
+		goto skip;
+
+	w = qobject_cast<QWidget *>(receiver);
+
+	if (!w->isWindow())
+		goto skip;
+
+	window = w->windowHandle();
+	if (!window)
+		goto skip;
+
+	windowType = window->flags() & Qt::WindowType::WindowType_Mask;
+
+	if (windowType == Qt::WindowType::Dialog ||
+	    windowType == Qt::WindowType::Window ||
+	    windowType == Qt::WindowType::Tool) {
+		OBSBasic *main = reinterpret_cast<OBSBasic *>(GetMainWindow());
+		if (main)
+			main->SetDisplayAffinity(window);
+	}
+
+skip:
+	return QApplication::notify(receiver, e);
 }
 
 QString OBSTranslator::translate(const char *context, const char *sourceText,
@@ -2203,6 +2251,29 @@ static int run_program(fstream &logFile, int argc, char *argv[])
 			created_log = true;
 		}
 
+#ifdef __APPLE__
+		bool rosettaTranslated = ProcessIsRosettaTranslated();
+		blog(LOG_INFO, "Rosetta translation used: %s",
+		     rosettaTranslated ? "true" : "false");
+#endif
+
+#ifdef _WIN32
+		if (IsRunningOnWine()) {
+			QMessageBox mb(QMessageBox::Question,
+				       QTStr("Wine.Title"), QTStr("Wine.Text"));
+			mb.setTextFormat(Qt::RichText);
+			mb.addButton(QTStr("AlreadyRunning.LaunchAnyway"),
+				     QMessageBox::AcceptRole);
+			QPushButton *closeButton =
+				mb.addButton(QMessageBox::Close);
+			mb.setDefaultButton(closeButton);
+
+			mb.exec();
+			if (mb.clickedButton() == closeButton)
+				return 0;
+		}
+#endif
+
 		if (argc > 1) {
 			stringstream stor;
 			stor << argv[1];
@@ -2636,7 +2707,8 @@ static void convert_x264_settings(obs_data_t *data)
 
 static void convert_14_2_encoder_setting(const char *encoder, const char *file)
 {
-	obs_data_t *data = obs_data_create_from_json_file_safe(file, "bak");
+	OBSDataAutoRelease data =
+		obs_data_create_from_json_file_safe(file, "bak");
 	obs_data_item_t *cbr_item = obs_data_item_byname(data, "cbr");
 	obs_data_item_t *rc_item = obs_data_item_byname(data, "rate_control");
 	bool modified = false;
@@ -2665,7 +2737,6 @@ static void convert_14_2_encoder_setting(const char *encoder, const char *file)
 
 	obs_data_item_release(&rc_item);
 	obs_data_item_release(&cbr_item);
-	obs_data_release(data);
 }
 
 static void upgrade_settings(void)
@@ -2773,6 +2844,14 @@ int main(int argc, char *argv[])
 	SetErrorMode(SEM_FAILCRITICALERRORS);
 	load_debug_privilege();
 	base_set_crash_handler(main_crash_handler, nullptr);
+
+	const HMODULE hRtwq = LoadLibrary(L"RTWorkQ.dll");
+	if (hRtwq) {
+		typedef HRESULT(STDAPICALLTYPE * PFN_RtwqStartup)();
+		PFN_RtwqStartup func =
+			(PFN_RtwqStartup)GetProcAddress(hRtwq, "RtwqStartup");
+		func();
+	}
 #endif
 
 	base_get_log_handler(&def_log_handler, nullptr);
@@ -2911,6 +2990,16 @@ int main(int argc, char *argv[])
 
 	curl_global_init(CURL_GLOBAL_ALL);
 	int ret = run_program(logFile, argc, argv);
+
+#ifdef _WIN32
+	if (hRtwq) {
+		typedef HRESULT(STDAPICALLTYPE * PFN_RtwqShutdown)();
+		PFN_RtwqShutdown func =
+			(PFN_RtwqShutdown)GetProcAddress(hRtwq, "RtwqShutdown");
+		func();
+		FreeLibrary(hRtwq);
+	}
+#endif
 
 	blog(LOG_INFO, "Number of memory leaks: %ld", bnum_allocs());
 	base_set_log_handler(nullptr, nullptr);

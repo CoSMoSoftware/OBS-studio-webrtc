@@ -49,7 +49,9 @@
 #include <thread>
 #endif
 
-using namespace std;
+using std::string;
+using std::vector;
+using std::ostringstream;
 
 #ifdef __linux__
 void RunningInstanceCheck(bool &already_running)
@@ -71,7 +73,7 @@ void RunningInstanceCheck(bool &already_running)
 		 App()->GetVersionString().c_str());
 
 	// NOTE LUDO: call std::bind
-	int bindErr = ::bind(uniq, (struct sockaddr *)&bindInfo,
+	int bindErr = std::bind(uniq, (struct sockaddr *)&bindInfo,
 			     sizeof(struct sockaddr_un));
 	already_running = bindErr == 0 ? 0 : 1;
 
@@ -193,7 +195,7 @@ bool GetDataFilePath(const char *data, string &output)
 			return true;
 	}
 
-	if (check_path(data, OBS_DATA_PATH "/obs-webrtc/", output))
+	if (check_path(data, OBS_DATA_PATH "/" CONFIG_DIR "/", output))
 		return true;
 	if (check_path(data, INSTALL_DATA_PATH, output))
 		return true;
@@ -250,4 +252,10 @@ void SetAlwaysOnTop(QWidget *window, bool enable)
 
 	window->setWindowFlags(flags);
 	window->show();
+}
+
+bool SetDisplayAffinitySupported(void)
+{
+	// Not implemented yet
+	return false;
 }

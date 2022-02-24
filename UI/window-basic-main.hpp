@@ -22,6 +22,9 @@
 #include <QThread>
 #include <QWidgetAction>
 #include <QSystemTrayIcon>
+#if defined(_WIN32) && QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
+#include <QWinTaskbarButton>
+#endif
 #include <QStyledItemDelegate>
 #include <obs.hpp>
 #include <vector>
@@ -84,6 +87,14 @@ struct SavedProjectorInfo {
 	std::string name;
 	bool alwaysOnTop;
 	bool alwaysOnTopOverridden;
+};
+
+struct SourceCopyInfo {
+	OBSWeakSource weak_source;
+	bool visible;
+	obs_sceneitem_crop crop;
+	obs_transform_info transform;
+	obs_blending_type blend;
 };
 
 struct QuickTransition {
@@ -185,6 +196,12 @@ class OBSBasic : public OBSMainWindow {
 		DropType_Url,
 	};
 
+	enum ContextBarSize {
+		ContextBarSize_Minimized,
+		ContextBarSize_Reduced,
+		ContextBarSize_Normal
+	};
+
 private:
 	obs_frontend_callbacks *api = nullptr;
 
@@ -200,10 +217,14 @@ private:
 	long disableSaving = 1;
 	bool projectChanged = false;
 	bool previewEnabled = true;
+	ContextBarSize contextBarSize = ContextBarSize_Normal;
 
-	std::list<const char *> copyStrings;
-	const char *copyFiltersString = nullptr;
+	std::deque<SourceCopyInfo> clipboard;
+	OBSWeakSourceAutoRelease copyFiltersSource;
 	bool copyVisible = true;
+	obs_transform_info copiedTransformInfo;
+	obs_sceneitem_crop copiedCropInfo;
+	bool hasCopiedTransform = false;
 
 	bool closing = false;
 	QScopedPointer<QThread> devicePropertiesThread;
@@ -292,6 +313,7 @@ private:
 	QPointer<QMenu> sceneProjectorMenu;
 	QPointer<QMenu> sourceProjector;
 	QPointer<QMenu> scaleFilteringMenu;
+	QPointer<QMenu> blendingModeMenu;
 	QPointer<QMenu> colorMenu;
 	QPointer<QWidgetAction> colorWidgetAction;
 	QPointer<ColorSelect> colorSelect;
@@ -300,6 +322,10 @@ private:
 	QPointer<QObject> shortcutFilter;
 	QPointer<QAction> renameScene;
 	QPointer<QAction> renameSource;
+
+#if defined(_WIN32) && QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
+	QWinTaskbarButton *taskBtn = new QWinTaskbarButton(this);
+#endif
 
 	QPointer<QWidget> programWidget;
 	QPointer<QVBoxLayout> programLayout;
@@ -476,7 +502,7 @@ private:
 
 	int disableOutputsRef = 0;
 
-	inline void OnActivate();
+	inline void OnActivate(bool force = false);
 	inline void OnDeactivate();
 
 	void AddDropSource(const char *file, DropType image);
@@ -518,7 +544,7 @@ private:
 	void SaveExtraBrowserDocks();
 	void ManageExtraBrowserDocks();
 	void AddExtraBrowserDock(const QString &title, const QString &url,
-				 bool firstCreate);
+				 const QString &uuid, bool firstCreate);
 #endif
 
 	QIcon imageIcon;
@@ -687,6 +713,8 @@ private slots:
 
 	void SetScaleFilter();
 
+	void SetBlendingMode();
+
 	void IconActivated(QSystemTrayIcon::ActivationReason reason);
 	void SetShowing(bool showing);
 
@@ -813,7 +841,6 @@ public:
 
 	inline bool VCamEnabled() const { return vcamEnabled; }
 
-	bool StreamingActive() const;
 	bool Active() const;
 
 	void ResetUI();
@@ -861,6 +888,7 @@ public:
 
 	QMenu *AddDeinterlacingMenu(QMenu *menu, obs_source_t *source);
 	QMenu *AddScaleFilteringMenu(QMenu *menu, obs_sceneitem_t *item);
+	QMenu *AddBlendingModeMenu(QMenu *menu, obs_sceneitem_t *item);
 	QMenu *AddBackgroundColorMenu(QMenu *menu, QWidgetAction *widgetAction,
 				      ColorSelect *select,
 				      obs_sceneitem_t *item);
@@ -891,7 +919,7 @@ public:
 	QIcon GetGroupIcon() const;
 	QIcon GetSceneIcon() const;
 
-	OBSWeakSource copyFilter = nullptr;
+	OBSWeakSource copyFilter;
 
 	void ShowStatusBarMessage(const QString &message);
 
@@ -914,6 +942,10 @@ public:
 					     obs_data_array_t *undo_array,
 					     obs_data_array_t *redo_array);
 
+	void UpdateEditMenu();
+
+	void SetDisplayAffinity(QWindow *window);
+
 protected:
 	virtual void closeEvent(QCloseEvent *event) override;
 	virtual void changeEvent(QEvent *event) override;
@@ -926,8 +958,6 @@ private slots:
 	void on_action_Settings_triggered();
 	void on_actionShowMissingFiles_triggered();
 	void on_actionAdvAudioProperties_triggered();
-	void AdvAudioPropsClicked();
-	void AdvAudioPropsDestroyed();
 	void on_actionShowLogs_triggered();
 	void on_actionUploadCurrentLog_triggered();
 	void on_actionUploadLastLog_triggered();
@@ -1067,6 +1097,7 @@ private slots:
 	void OpenSceneFilters();
 	void OpenFilters(OBSSource source = nullptr);
 	void OpenProperties(OBSSource source = nullptr);
+	void OpenInteraction(OBSSource source = nullptr);
 
 	void EnablePreviewDisplay(bool enable);
 	void TogglePreview();
@@ -1088,8 +1119,6 @@ private slots:
 	void OpenMultiviewWindow();
 	void OpenSceneWindow();
 
-	void DeferredSysTrayLoad(int requeueCount);
-
 	void StackedMixerAreaContextMenuRequested();
 
 	void ResizeOutputSizeOfSource();
@@ -1100,10 +1129,12 @@ public slots:
 	bool StreamingActive();
 	bool RecordingActive();
 	bool ReplayBufferActive();
+	bool VirtualCamActive();
 
 	void ClearContextBar();
 	void UpdateContextBar(bool force = false);
 	void UpdateContextBarDeferred(bool force = false);
+	void UpdateContextBarVisibility();
 
 public:
 	explicit OBSBasic(QWidget *parent = 0);
