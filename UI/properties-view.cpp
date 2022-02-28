@@ -1724,7 +1724,8 @@ static bool FrameRateChangedRational(OBSFrameRatePropertyWidget *w,
 	return true;
 }
 
-static bool FrameRateChanged(QWidget *widget, const char *name,
+// Note LUDO: use QObject for inheritance path down to QButtonGroup
+static bool FrameRateChanged(QObject *widget, const char *name,
 			     OBSData &settings)
 {
 	auto w = qobject_cast<OBSFrameRatePropertyWidget *>(widget);
@@ -2285,7 +2286,8 @@ void WidgetInfo::EditListAddText()
 	QListWidget *list = reinterpret_cast<QListWidget *>(widget);
 	const char *desc = obs_property_description(property);
 
-	EditableItemDialog dialog(widget->window(), QString(), false);
+	// Note LUDO: use QObject for inheritance path down to QButtonGroup
+	EditableItemDialog dialog(((QWidget *)widget)->window(), QString(), false);
 	auto title = QTStr("Basic.PropertiesWindow.AddEditableListEntry")
 			     .arg(QT_UTF8(desc));
 	dialog.setWindowTitle(title);
@@ -2384,7 +2386,8 @@ void WidgetInfo::EditListEdit()
 		return;
 	}
 
-	EditableItemDialog dialog(widget->window(), item->text(),
+	// Note LUDO: use QObject for inheritance path down to QButtonGroup
+	EditableItemDialog dialog(((QWidget *)widget)->window(), item->text(),
 				  type != OBS_EDITABLE_LIST_TYPE_STRINGS,
 				  filter);
 	auto title = QTStr("Basic.PropertiesWindow.EditEditableListEntry")

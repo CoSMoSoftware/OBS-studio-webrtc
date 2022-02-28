@@ -27,7 +27,8 @@ class WidgetInfo : public QObject {
 private:
 	OBSPropertiesView *view;
 	obs_property_t *property;
-	QWidget *widget;
+	// Note LUDO: use QObject for inheritance path down to QButtonGroup
+	QObject *widget;
 	QPointer<QTimer> update_timer;
 	bool recently_updated = false;
 	OBSData old_settings_cache;
@@ -51,8 +52,9 @@ private:
 	void TogglePasswordText(bool checked);
 
 public:
+	// Note LUDO: use QObject for inheritance path down to QButtonGroup
 	inline WidgetInfo(OBSPropertiesView *view_, obs_property_t *prop,
-			  QWidget *widget_)
+			  QObject *widget_)
 		: view(view_), property(prop), widget(widget_)
 	{
 	}

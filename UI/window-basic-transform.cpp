@@ -2,6 +2,7 @@
 #include "window-basic-transform.hpp"
 #include "window-basic-main.hpp"
 
+Q_DECLARE_METATYPE(OBSScene);
 Q_DECLARE_METATYPE(OBSSceneItem);
 
 static bool find_sel(obs_scene_t *, obs_sceneitem_t *item, void *param)

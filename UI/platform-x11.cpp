@@ -73,7 +73,7 @@ void RunningInstanceCheck(bool &already_running)
 		 App()->GetVersionString().c_str());
 
 	// NOTE LUDO: call std::bind
-	int bindErr = std::bind(uniq, (struct sockaddr *)&bindInfo,
+	int bindErr = ::bind(uniq, (struct sockaddr *)&bindInfo,
 			     sizeof(struct sockaddr_un));
 	already_running = bindErr == 0 ? 0 : 1;
 

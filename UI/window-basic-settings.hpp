@@ -431,4 +431,9 @@ protected:
 public:
 	OBSBasicSettings(QWidget *parent);
 	~OBSBasicSettings();
+
+	inline const QIcon &GetHotkeyConflictIcon() const
+	{
+		return hotkeyConflictIcon;
+	}
 };
