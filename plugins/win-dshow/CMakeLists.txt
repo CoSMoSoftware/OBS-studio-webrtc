@@ -16,7 +16,7 @@ set(MODULE_DESCRIPTION "OBS DirectShow module")
 
 set(VIRTUALCAM_GUID "" CACHE STRING "VirtualCam GUID")
 
-set(VIRTUALCAM_ENABLED TRUE)
+set(VIRTUALCAM_ENABLED FALSE)
 if(VIRTUALCAM_GUID STREQUAL "")
 	message(STATUS "VirtualCam GUID not set! VirtualCam disabled.")
 else()
@@ -130,8 +130,10 @@ add_library(win-dshow MODULE
 	${libdshowcapture_HEADERS})
 target_link_libraries(win-dshow
 	libobs
+	setupapi
 	strmiids
 	ksuser
+	winmm
 	wmcodecdspuuid
 	w32-pthreads
 	${FFMPEG_LIBRARIES})

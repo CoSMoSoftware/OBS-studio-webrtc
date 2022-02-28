@@ -1,7 +1,5 @@
 project(obs-filters)
 
-set(CMAKE_POSITION_INDEPENDENT_CODE ON)
-
 option(DISABLE_SPEEXDSP "Disable building of the SpeexDSP-based Noise Suppression filter" OFF)
 
 if(DISABLE_SPEEXDSP)
@@ -23,8 +21,7 @@ if(NOT LIBRNNOISE_FOUND)
 		"rnnoise/include/*.h")
 	add_definitions(-DCOMPILE_OPUS)
 	if("${CMAKE_SYSTEM_NAME}" MATCHES "Linux")
-    # NOTE LUDO: option -fvisibility-inlines-hidden to avoid link error "relocation R_X86_64_PC32 against protected symbol"
-		set_property(SOURCE ${rnnoise_SOURCES} PROPERTY COMPILE_FLAGS "-fvisibility-inlines-hidden")
+		set_property(SOURCE ${rnnoise_SOURCES} PROPERTY COMPILE_FLAGS "-fvisibility=protected")
 	endif()
 	include_directories("rnnoise/include")
 	source_group("rnnoise" FILES ${rnnoise_SOURCES})

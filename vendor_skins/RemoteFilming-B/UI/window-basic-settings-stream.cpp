@@ -1,4 +1,5 @@
 // Copyright Dr. Alex. Gouaillard (2015, 2020)
+#include <QMessageBox>
 #include <QUrl>
 #include <QToolTip>
 
@@ -134,7 +135,7 @@ void OBSBasicSettings::LoadStream1Settings()
 
 	loading = true;
 
-	obs_data_t *settings = obs_service_get_settings(service_obj);
+	OBSDataAutoRelease settings = obs_service_get_settings(service_obj);
 
 	// #289 service list of radio buttons
 	const char *tmpString = nullptr;
@@ -332,8 +333,6 @@ void OBSBasicSettings::LoadStream1Settings()
 	lastService.clear();
 	on_service_currentIndexChanged(0);
 
-	obs_data_release(settings);
-
 	UpdateKeyLink();
 	UpdateMoreInfoLink();
 	UpdateVodTrackSetting();
@@ -362,11 +361,9 @@ void OBSBasicSettings::SaveStream1Settings()
 			  : webrtc_services[GetServiceIndex()].c_str();
 
 	obs_service_t *oldService = main->GetService();
-	OBSData hotkeyData = obs_hotkeys_save_service(oldService);
-	obs_data_release(hotkeyData);
+	OBSDataAutoRelease hotkeyData = obs_hotkeys_save_service(oldService);
 
-	OBSData settings = obs_data_create();
-	obs_data_release(settings);
+	OBSDataAutoRelease settings = obs_data_create();
 
 	// #289 service list of radio buttons
 	obs_data_set_string(
@@ -449,9 +446,8 @@ void OBSBasicSettings::SaveStream1Settings()
 
 	obs_data_set_string(settings, "key", QT_TO_UTF8(ui->key->text()));
 
-	OBSService newService = obs_service_create(
+	OBSServiceAutoRelease newService = obs_service_create(
 		service_id, "default_service", settings, hotkeyData);
-	obs_service_release(newService);
 
 	if (!newService)
 		return;
@@ -523,8 +519,7 @@ void OBSBasicSettings::UpdateMoreInfoLink()
 	obs_properties_t *props = obs_get_service_properties("rtmp_common");
 	obs_property_t *services = obs_properties_get(props, "service");
 
-	OBSData settings = obs_data_create();
-	obs_data_release(settings);
+	OBSDataAutoRelease settings = obs_data_create();
 
 	obs_data_set_string(settings, "service", QT_TO_UTF8(serviceName));
 	obs_property_modified(services, settings);
@@ -556,8 +551,7 @@ void OBSBasicSettings::UpdateKeyLink()
 	obs_properties_t *props = obs_get_service_properties("rtmp_common");
 	obs_property_t *services = obs_properties_get(props, "service");
 
-	OBSData settings = obs_data_create();
-	obs_data_release(settings);
+	OBSDataAutoRelease settings = obs_data_create();
 
 	obs_data_set_string(settings, "service", QT_TO_UTF8(serviceName));
 	obs_property_modified(services, settings);
@@ -958,8 +952,7 @@ void OBSBasicSettings::UpdateServerList()
 	obs_properties_t *props = obs_get_service_properties("rtmp_common");
 	obs_property_t *services = obs_properties_get(props, "service");
 
-	OBSData settings = obs_data_create();
-	obs_data_release(settings);
+	OBSDataAutoRelease settings = obs_data_create();
 
 	obs_data_set_string(settings, "service", QT_TO_UTF8(serviceName));
 	obs_property_modified(services, settings);
@@ -1010,8 +1003,7 @@ OBSService OBSBasicSettings::SpawnTempService()
 		!isWebrtc ? custom ? "rtmp_custom" : "rtmp_common"
 			  : webrtc_services[GetServiceIndex()].c_str();
 
-	OBSData settings = obs_data_create();
-	obs_data_release(settings);
+	OBSDataAutoRelease settings = obs_data_create();
 
 	if (!custom && !isWebrtc) {
 		// #289 service list of radio buttons
@@ -1029,11 +1021,9 @@ OBSService OBSBasicSettings::SpawnTempService()
 	}
 	obs_data_set_string(settings, "key", QT_TO_UTF8(ui->key->text()));
 
-	OBSService newService = obs_service_create(service_id, "temp_service",
-						   settings, nullptr);
-	obs_service_release(newService);
-
-	return newService;
+	OBSServiceAutoRelease newService = obs_service_create(
+		service_id, "temp_service", settings, nullptr);
+	return newService.Get();
 }
 
 void OBSBasicSettings::OnOAuthStreamKeyConnected()

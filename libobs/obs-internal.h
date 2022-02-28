@@ -24,6 +24,7 @@
 #include "util/threading.h"
 #include "util/platform.h"
 #include "util/profiler.h"
+#include "util/task.h"
 #include "callback/signal.h"
 #include "callback/proc.h"
 
@@ -269,8 +270,8 @@ struct obs_core_video {
 	gs_samplerstate_t *point_sampler;
 	gs_stagesurf_t *mapped_surfaces[NUM_CHANNELS];
 	int cur_texture;
-	long raw_active;
-	long gpu_encoder_active;
+	volatile long raw_active;
+	volatile long gpu_encoder_active;
 	pthread_mutex_t gpu_encoder_mutex;
 	struct circlebuf gpu_encoder_queue;
 	struct circlebuf gpu_encoder_avail_queue;
@@ -339,6 +340,9 @@ struct obs_core_audio {
 	DARRAY(struct audio_monitor *) monitors;
 	char *monitoring_device_name;
 	char *monitoring_device_id;
+
+	pthread_mutex_t task_mutex;
+	struct circlebuf tasks;
 };
 
 /* user sources, output channels, and displays */
@@ -433,6 +437,8 @@ struct obs_core {
 	struct obs_core_data data;
 	struct obs_core_hotkeys hotkeys;
 
+	os_task_queue_t *destruction_task_thread;
+
 	obs_task_handler_t ui_task_handler;
 };
 
@@ -478,6 +484,18 @@ extern void stop_raw_video(video_t *video,
 /* ------------------------------------------------------------------------- */
 /* obs shared context data */
 
+struct obs_weak_ref {
+	volatile long refs;
+	volatile long weak_refs;
+};
+
+struct obs_weak_object {
+	struct obs_weak_ref ref;
+	struct obs_context_data *object;
+};
+
+typedef void (*obs_destroy_cb)(void *obj);
+
 struct obs_context_data {
 	char *name;
 	void *data;
@@ -485,6 +503,9 @@ struct obs_context_data {
 	signal_handler_t *signals;
 	proc_handler_t *procs;
 	enum obs_obj_type type;
+
+	struct obs_weak_object *control;
+	obs_destroy_cb destroy;
 
 	DARRAY(obs_hotkey_id) hotkeys;
 	DARRAY(obs_hotkey_pair_id) hotkey_pairs;
@@ -504,22 +525,20 @@ extern bool obs_context_data_init(struct obs_context_data *context,
 				  enum obs_obj_type type, obs_data_t *settings,
 				  const char *name, obs_data_t *hotkey_data,
 				  bool private);
+extern void obs_context_init_control(struct obs_context_data *context,
+				     void *object, obs_destroy_cb destroy);
 extern void obs_context_data_free(struct obs_context_data *context);
 
 extern void obs_context_data_insert(struct obs_context_data *context,
 				    pthread_mutex_t *mutex, void *first);
 extern void obs_context_data_remove(struct obs_context_data *context);
+extern void obs_context_wait(struct obs_context_data *context);
 
 extern void obs_context_data_setname(struct obs_context_data *context,
 				     const char *name);
 
 /* ------------------------------------------------------------------------- */
 /* ref-counting  */
-
-struct obs_weak_ref {
-	volatile long refs;
-	volatile long weak_refs;
-};
 
 static inline void obs_ref_addref(struct obs_weak_ref *ref)
 {
@@ -552,6 +571,12 @@ static inline bool obs_weak_ref_get_ref(struct obs_weak_ref *ref)
 	}
 
 	return false;
+}
+
+static inline bool obs_weak_ref_expired(struct obs_weak_ref *ref)
+{
+	long owners = os_atomic_load_long(&ref->refs);
+	return owners < 0;
 }
 
 /* ------------------------------------------------------------------------- */
@@ -597,7 +622,6 @@ struct caption_cb_info {
 struct obs_source {
 	struct obs_context_data context;
 	struct obs_source_info info;
-	struct obs_weak_source *control;
 
 	/* general exposed flags that can be set for the source */
 	uint32_t flags;
@@ -615,6 +639,9 @@ struct obs_source {
 
 	/* ensures activate/deactivate are only called once */
 	volatile long activate_refs;
+
+	/* source is in the process of being destroyed */
+	volatile long destroying;
 
 	/* used to indicate that the source has been removed and all
 	 * references to it should be released (not exactly how I would prefer
@@ -930,7 +957,6 @@ extern void pause_reset(struct pause_data *pause);
 struct obs_output {
 	struct obs_context_data context;
 	struct obs_output_info info;
-	struct obs_weak_output *control;
 
 	/* indicates ownership of the info.id buffer */
 	bool owns_info_id;
@@ -1060,7 +1086,6 @@ struct encoder_callback {
 struct obs_encoder {
 	struct obs_context_data context;
 	struct obs_encoder_info info;
-	struct obs_weak_encoder *control;
 
 	/* allows re-routing to another encoder */
 	struct obs_encoder_info orig_info;
@@ -1164,7 +1189,6 @@ struct obs_weak_service {
 struct obs_service {
 	struct obs_context_data context;
 	struct obs_service_info info;
-	struct obs_weak_service *control;
 
 	/* indicates ownership of the info.id buffer */
 	bool owns_info_id;

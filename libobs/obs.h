@@ -39,6 +39,7 @@
 struct matrix4;
 
 /* opaque types */
+struct obs_context_data;
 struct obs_display;
 struct obs_view;
 struct obs_source;
@@ -51,6 +52,7 @@ struct obs_module;
 struct obs_fader;
 struct obs_volmeter;
 
+typedef struct obs_context_data obs_object_t;
 typedef struct obs_display obs_display_t;
 typedef struct obs_view obs_view_t;
 typedef struct obs_source obs_source_t;
@@ -63,6 +65,7 @@ typedef struct obs_module obs_module_t;
 typedef struct obs_fader obs_fader_t;
 typedef struct obs_volmeter obs_volmeter_t;
 
+typedef struct obs_weak_object obs_weak_object_t;
 typedef struct obs_weak_source obs_weak_source_t;
 typedef struct obs_weak_output obs_weak_output_t;
 typedef struct obs_weak_encoder obs_weak_encoder_t;
@@ -119,6 +122,16 @@ enum obs_scale_type {
 	OBS_SCALE_BILINEAR,
 	OBS_SCALE_LANCZOS,
 	OBS_SCALE_AREA,
+};
+
+enum obs_blending_type {
+	OBS_BLEND_NORMAL,
+	OBS_BLEND_ADDITIVE,
+	OBS_BLEND_SUBTRACT,
+	OBS_BLEND_SCREEN,
+	OBS_BLEND_MULTIPLY,
+	OBS_BLEND_LIGHTEN,
+	OBS_BLEND_DARKEN,
 };
 
 /**
@@ -636,6 +649,9 @@ EXPORT void obs_enum_services(bool (*enum_proc)(void *, obs_service_t *),
  */
 EXPORT obs_source_t *obs_get_source_by_name(const char *name);
 
+/** Get a transition source by its name. */
+EXPORT obs_source_t *obs_get_transition_by_name(const char *name);
+
 /** Gets an output by its name. */
 EXPORT obs_output_t *obs_get_output_by_name(const char *name);
 
@@ -740,6 +756,8 @@ EXPORT bool obs_obj_is_private(void *obj);
 typedef bool (*obs_enum_audio_device_cb)(void *data, const char *name,
 					 const char *id);
 
+EXPORT bool obs_audio_monitoring_available(void);
+
 EXPORT void obs_enum_audio_monitoring_devices(obs_enum_audio_device_cb cb,
 					      void *data);
 
@@ -763,6 +781,14 @@ EXPORT void obs_add_raw_video_callback(
 EXPORT void obs_remove_raw_video_callback(
 	void (*callback)(void *param, struct video_data *frame), void *param);
 
+EXPORT void
+obs_add_raw_audio_callback(size_t mix_idx,
+			   const struct audio_convert_info *conversion,
+			   audio_output_callback_t callback, void *param);
+EXPORT void obs_remove_raw_audio_callback(size_t mix_idx,
+					  audio_output_callback_t callback,
+					  void *param);
+
 EXPORT uint64_t obs_get_video_frame_time(void);
 
 EXPORT double obs_get_active_fps(void);
@@ -783,13 +809,29 @@ typedef void (*obs_task_t)(void *param);
 enum obs_task_type {
 	OBS_TASK_UI,
 	OBS_TASK_GRAPHICS,
+	OBS_TASK_AUDIO,
+	OBS_TASK_DESTROY,
 };
 
 EXPORT void obs_queue_task(enum obs_task_type type, obs_task_t task,
 			   void *param, bool wait);
+EXPORT bool obs_in_task_thread(enum obs_task_type type);
+
+EXPORT bool obs_wait_for_destroy_queue(void);
 
 typedef void (*obs_task_handler_t)(obs_task_t task, void *param, bool wait);
 EXPORT void obs_set_ui_task_handler(obs_task_handler_t handler);
+
+EXPORT obs_object_t *obs_object_get_ref(obs_object_t *object);
+EXPORT void obs_object_release(obs_object_t *object);
+
+EXPORT void obs_weak_object_addref(obs_weak_object_t *weak);
+EXPORT void obs_weak_object_release(obs_weak_object_t *weak);
+EXPORT obs_weak_object_t *obs_object_get_weak_object(obs_object_t *object);
+EXPORT obs_object_t *obs_weak_object_get_object(obs_weak_object_t *weak);
+EXPORT bool obs_weak_object_expired(obs_weak_object_t *weak);
+EXPORT bool obs_weak_object_references_object(obs_weak_object_t *weak,
+					      obs_object_t *object);
 
 /* ------------------------------------------------------------------------- */
 /* View context */
@@ -891,7 +933,7 @@ EXPORT obs_source_t *obs_source_duplicate(obs_source_t *source,
  * Adds/releases a reference to a source.  When the last reference is
  * released, the source is destroyed.
  */
-EXPORT void obs_source_addref(obs_source_t *source);
+OBS_EXTERNAL_DEPRECATED EXPORT void obs_source_addref(obs_source_t *source);
 EXPORT void obs_source_release(obs_source_t *source);
 
 EXPORT void obs_weak_source_addref(obs_weak_source_t *weak);
@@ -900,6 +942,7 @@ EXPORT void obs_weak_source_release(obs_weak_source_t *weak);
 EXPORT obs_source_t *obs_source_get_ref(obs_source_t *source);
 EXPORT obs_weak_source_t *obs_source_get_weak_source(obs_source_t *source);
 EXPORT obs_source_t *obs_weak_source_get_source(obs_weak_source_t *weak);
+EXPORT bool obs_weak_source_expired(obs_weak_source_t *weak);
 
 EXPORT bool obs_weak_source_references_source(obs_weak_source_t *weak,
 					      obs_source_t *source);
@@ -1561,8 +1604,10 @@ enum obs_scene_duplicate_type {
 EXPORT obs_scene_t *obs_scene_duplicate(obs_scene_t *scene, const char *name,
 					enum obs_scene_duplicate_type type);
 
-EXPORT void obs_scene_addref(obs_scene_t *scene);
+OBS_EXTERNAL_DEPRECATED EXPORT void obs_scene_addref(obs_scene_t *scene);
 EXPORT void obs_scene_release(obs_scene_t *scene);
+
+EXPORT obs_scene_t *obs_scene_get_ref(obs_scene_t *scene);
 
 /** Gets the scene's source context */
 EXPORT obs_source_t *obs_scene_get_source(const obs_scene_t *scene);
@@ -1730,6 +1775,11 @@ EXPORT void obs_sceneitem_set_scale_filter(obs_sceneitem_t *item,
 EXPORT enum obs_scale_type
 obs_sceneitem_get_scale_filter(obs_sceneitem_t *item);
 
+EXPORT void obs_sceneitem_set_blending_mode(obs_sceneitem_t *item,
+					    enum obs_blending_type type);
+EXPORT enum obs_blending_type
+obs_sceneitem_get_blending_mode(obs_sceneitem_t *item);
+
 EXPORT void obs_sceneitem_force_update_transform(obs_sceneitem_t *item);
 
 EXPORT void obs_sceneitem_defer_update_begin(obs_sceneitem_t *item);
@@ -1812,6 +1862,7 @@ EXPORT void obs_sceneitem_transition_load(struct obs_scene_item *item,
 					  obs_data_t *data, bool show);
 EXPORT obs_data_t *obs_sceneitem_transition_save(struct obs_scene_item *item,
 						 bool show);
+EXPORT void obs_scene_prune_sources(obs_scene_t *scene);
 
 /* ------------------------------------------------------------------------- */
 /* Outputs */
@@ -1832,7 +1883,7 @@ EXPORT obs_output_t *obs_output_create(const char *id, const char *name,
  * Adds/releases a reference to an output.  When the last reference is
  * released, the output is destroyed.
  */
-EXPORT void obs_output_addref(obs_output_t *output);
+OBS_EXTERNAL_DEPRECATED EXPORT void obs_output_addref(obs_output_t *output);
 EXPORT void obs_output_release(obs_output_t *output);
 
 EXPORT void obs_weak_output_addref(obs_weak_output_t *weak);
@@ -2147,7 +2198,7 @@ EXPORT obs_encoder_t *obs_audio_encoder_create(const char *id, const char *name,
  * Adds/releases a reference to an encoder.  When the last reference is
  * released, the encoder is destroyed.
  */
-EXPORT void obs_encoder_addref(obs_encoder_t *encoder);
+OBS_EXTERNAL_DEPRECATED EXPORT void obs_encoder_addref(obs_encoder_t *encoder);
 EXPORT void obs_encoder_release(obs_encoder_t *encoder);
 
 EXPORT void obs_weak_encoder_addref(obs_weak_encoder_t *weak);
@@ -2194,6 +2245,9 @@ EXPORT uint32_t obs_encoder_get_height(const obs_encoder_t *encoder);
 
 /** For audio encoders, returns the sample rate of the audio */
 EXPORT uint32_t obs_encoder_get_sample_rate(const obs_encoder_t *encoder);
+
+/** For audio encoders, returns the frame size of the audio packet */
+EXPORT size_t obs_encoder_get_frame_size(const obs_encoder_t *encoder);
 
 /**
  * Sets the preferred video format for a video encoder.  If the encoder can use
@@ -2315,7 +2369,7 @@ EXPORT obs_service_t *obs_service_create_private(const char *id,
  * Adds/releases a reference to a service.  When the last reference is
  * released, the service is destroyed.
  */
-EXPORT void obs_service_addref(obs_service_t *service);
+OBS_EXTERNAL_DEPRECATED EXPORT void obs_service_addref(obs_service_t *service);
 EXPORT void obs_service_release(obs_service_t *service);
 
 EXPORT void obs_weak_service_addref(obs_weak_service_t *weak);
