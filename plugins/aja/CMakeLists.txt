@@ -108,4 +108,14 @@ target_compile_definitions(aja PUBLIC ${aja_COMPILE_DEFS})
 set_target_properties(aja PROPERTIES FOLDER
 		"plugins")
 
+# --- Compiler extra settings
+
+if(WIN32 AND MSVC)
+	if(${CMAKE_BUILD_TYPE} STREQUAL "Debug")
+		target_compile_options(aja PUBLIC "/MTd")
+	else()
+		target_compile_options(aja PUBLIC "/MT")
+	endif()
+endif()
+
 install_obs_plugin_with_data(aja data)
