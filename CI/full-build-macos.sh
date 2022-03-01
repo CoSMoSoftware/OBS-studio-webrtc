@@ -397,7 +397,7 @@ bundle_dylibs() {
         ./OBS-WebRTC.app/Contents/PlugIns/aja.so
         ./OBS-WebRTC.app/Contents/PlugIns/aja-output-ui.so
         ./OBS-WebRTC.app/Contents/PlugIns/obs-ndi.so
-        ./OBS-WebRTC.app/Contents/PlugIns/obs-websocket.so
+#        ./OBS-WebRTC.app/Contents/PlugIns/obs-websocket.so
         )
 
     SEARCH_PATHS=(
