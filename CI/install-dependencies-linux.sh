@@ -70,13 +70,16 @@ sudo apt-get install -y \
 # build cef
 export CC=clang
 export CXX=clang++
-#wget --quiet --retry-connrefused --waitretry=1 https://cdn-fastly.obsproject.com/downloads/cef_binary_${LINUX_CEF_BUILD_VERSION}_linux64.tar.bz2
-#tar -xjf ./cef_binary_${LINUX_CEF_BUILD_VERSION}_linux64.tar.bz2
-wget --quiet --retry-connrefused --waitretry=1 https://cef-builds.spotifycdn.com/cef_binary_87.1.14%2Bga29e9a3%2Bchromium-87.0.4280.141_linux64.tar.bz2
-tar -xjf ./cef_binary_87.1.14+ga29e9a3+chromium-87.0.4280.141_linux64.tar.bz2
-cd cef_binary_87.1.14+ga29e9a3+chromium-87.0.4280.141_linux64
+wget --quiet --retry-connrefused --waitretry=1 https://cdn-fastly.obsproject.com/downloads/cef_binary_${LINUX_CEF_BUILD_VERSION}_linux64.tar.bz2
+tar -xjf ./cef_binary_${LINUX_CEF_BUILD_VERSION}_linux64.tar.bz2
+cd cef_binary_${LINUX_CEF_BUILD_VERSION}_linux64
+# Rename build directory
+mv build build.old
+#wget --quiet --retry-connrefused --waitretry=1 https://cef-builds.spotifycdn.com/cef_binary_87.1.14%2Bga29e9a3%2Bchromium-87.0.4280.141_linux64.tar.bz2
+#tar -xjf ./cef_binary_87.1.14+ga29e9a3+chromium-87.0.4280.141_linux64.tar.bz2
+#cd cef_binary_87.1.14+ga29e9a3+chromium-87.0.4280.141_linux64
 # Rename "tests" directory to avoid error when compiling tests
-mv tests tests.renamed
+#mv tests tests.renamed
 mkdir build
 cd build
 cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_FLAGS="-stdlib=libc++"
