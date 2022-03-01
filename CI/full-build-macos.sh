@@ -315,7 +315,7 @@ configure_obs_build() {
         -Dlibwebrtc_DIR="${DEPS_BUILD_DIR}/libwebrtc/cmake" \
         -DOPENSSL_ROOT_DIR="/usr/local/opt/openssl@1.1" \
         -DBUILD_NDI=ON \
-        -DBUILD_WEBSOCKET=ON \
+        -DBUILD_WEBSOCKET=OFF \
         -DLIBOBS_INCLUDE_DIR=../libobs \
         -DLIBOBS_LIB=`pwd`/libobs/libobs.0.dylib \
         -DOBS_FRONTEND_LIB=`pwd`/UI/obs-frontend-api/libobs-frontend-api.dylib
