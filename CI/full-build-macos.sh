@@ -182,6 +182,7 @@ install_qt-deps() {
     step "Unpack..."
     mkdir -p /tmp/obsdeps
     /usr/bin/tar -xf ./macos-deps-qt-${2}-${CURRENT_ARCH}.tar.xz -C /tmp/obsdeps
+    ls -lR /tmp/obsdeps
     /usr/bin/xattr -r -d com.apple.quarantine /tmp/obsdeps
 }
 
@@ -421,14 +422,14 @@ bundle_dylibs() {
     step "Move libobs-opengl to final destination"
     /bin/cp ./libobs-opengl/libobs-opengl.so ./OBS-WebRTC.app/Contents/Frameworks
 
-#    step "Copy QtNetwork for plugin support"
-#    /bin/cp -R /tmp/obsdeps/lib/QtNetwork.framework ./OBS-WebRTC.app/Contents/Frameworks
-#    /bin/chmod -R +w ./OBS-WebRTC.app/Contents/Frameworks/QtNetwork.framework
-#    /bin/rm -r ./OBS-WebRTC.app/Contents/Frameworks/QtNetwork.framework/Headers
-#    /bin/rm -r ./OBS-WebRTC.app/Contents/Frameworks/QtNetwork.framework/Versions/5/Headers/
-#    /bin/chmod 644 ./OBS-WebRTC.app/Contents/Frameworks/QtNetwork.framework/Versions/5/Resources/Info.plist
-#    install_name_tool -id @executable_path/../Frameworks/QtNetwork.framework/Versions/5/QtNetwork ./OBS-WebRTC.app/Contents/Frameworks/QtNetwork.framework/Versions/5/QtNetwork
-#    install_name_tool -change /tmp/obsdeps/lib/QtCore.framework/Versions/5/QtCore @executable_path/../Frameworks/QtCore.framework/Versions/5/QtCore ./OBS-WebRTC.app/Contents/Frameworks/QtNetwork.framework/Versions/5/QtNetwork
+    step "Copy QtNetwork for plugin support"
+    /bin/cp -R /tmp/obsdeps/lib/QtNetwork.framework ./OBS-WebRTC.app/Contents/Frameworks
+    /bin/chmod -R +w ./OBS-WebRTC.app/Contents/Frameworks/QtNetwork.framework
+    /bin/rm -r ./OBS-WebRTC.app/Contents/Frameworks/QtNetwork.framework/Headers
+    /bin/rm -r ./OBS-WebRTC.app/Contents/Frameworks/QtNetwork.framework/Versions/5/Headers/
+    /bin/chmod 644 ./OBS-WebRTC.app/Contents/Frameworks/QtNetwork.framework/Versions/5/Resources/Info.plist
+    install_name_tool -id @executable_path/../Frameworks/QtNetwork.framework/Versions/5/QtNetwork ./OBS-WebRTC.app/Contents/Frameworks/QtNetwork.framework/Versions/5/QtNetwork
+    install_name_tool -change /tmp/obsdeps/lib/QtCore.framework/Versions/5/QtCore @executable_path/../Frameworks/QtCore.framework/Versions/5/QtCore ./OBS-WebRTC.app/Contents/Frameworks/QtNetwork.framework/Versions/5/QtNetwork
 }
 
 install_frameworks() {
