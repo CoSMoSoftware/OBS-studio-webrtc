@@ -33,7 +33,7 @@ find_path(AJA_LIBRARIES_INCLUDE_DIR
 		include)
 
 find_library(AJA_NTV2_LIB
-	NAMES ${_AJA_NTV2_LIBRARIES} ajantv2 libajantv2
+	NAMES ${_AJA_NTV2_LIBRARIES} ajantv2 ajantv2shared libajantv2
 	HINTS
 		ENV AJASDKPath${_lib_suffix}
 		ENV AJASDKPath
@@ -55,7 +55,7 @@ find_library(AJA_NTV2_LIB
 		../bin${_lib_suffix} ../bin)
 
 find_library(AJA_NTV2_DEBUG_LIB
-	NAMES ajantv2d libajantv2d
+	NAMES ajantv2d ajantv2sharedd libajantv2d
 	HINTS
 		ENV AJASDKPath${_lib_suffix}
 		ENV AJASDKPath
