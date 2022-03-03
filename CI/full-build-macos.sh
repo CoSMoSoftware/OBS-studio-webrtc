@@ -423,31 +423,31 @@ bundle_dylibs() {
     /bin/cp ./libobs-opengl/libobs-opengl.so ./OBS-WebRTC.app/Contents/Frameworks
 
     step "Copy QtNetwork for plugin support"
-    /bin/cp -R /tmp/obsdeps/lib/QtNetwork.framework ./OBS-WebRTC.app/Contents/MacOS
-    /bin/chmod -R +w ./OBS-WebRTC.app/Contents/MacOS/QtNetwork.framework
-    /bin/rm -r ./OBS-WebRTC.app/Contents/MacOS/QtNetwork.framework/Headers
-    /bin/rm -r ./OBS-WebRTC.app/Contents/MacOS/QtNetwork.framework/Versions/5/Headers/
-    /bin/chmod 644 ./OBS-WebRTC.app/Contents/MacOS/QtNetwork.framework/Versions/5/Resources/Info.plist
-    install_name_tool -id @executable_path/../MacOS/QtNetwork.framework/Versions/5/QtNetwork ./OBS-WebRTC.app/Contents/MacOS/QtNetwork.framework/Versions/5/QtNetwork
-    install_name_tool -change /tmp/obsdeps/lib/QtCore.framework/Versions/5/QtCore @executable_path/../Frameworks/QtCore.framework/Versions/5/QtCore ./OBS-WebRTC.app/Contents/MacOS/QtNetwork.framework/Versions/5/QtNetwork
+    /bin/cp -R /tmp/obsdeps/lib/QtNetwork.framework ./OBS-WebRTC.app/Contents/Frameworks
+    /bin/chmod -R +w ./OBS-WebRTC.app/Contents/Frameworks/QtNetwork.framework
+    /bin/rm -r ./OBS-WebRTC.app/Contents/Frameworks/QtNetwork.framework/Headers
+    /bin/rm -r ./OBS-WebRTC.app/Contents/Frameworks/QtNetwork.framework/Versions/5/Headers/
+    /bin/chmod 644 ./OBS-WebRTC.app/Contents/Frameworks/QtNetwork.framework/Versions/5/Resources/Info.plist
+    install_name_tool -id @executable_path/../Frameworks/QtNetwork.framework/Versions/5/QtNetwork ./OBS-WebRTC.app/Contents/Frameworks/QtNetwork.framework/Versions/5/QtNetwork
+    install_name_tool -change /tmp/obsdeps/lib/QtCore.framework/Versions/5/QtCore @executable_path/../Frameworks/QtCore.framework/Versions/5/QtCore ./OBS-WebRTC.app/Contents/Frameworks/QtNetwork.framework/Versions/5/QtNetwork
 
-    step "Copy QtSvg for plugin support"
-    /bin/cp -R /tmp/obsdeps/lib/QtSvg.framework ./OBS-WebRTC.app/Contents/MacOS
-    /bin/chmod -R +w ./OBS-WebRTC.app/Contents/MacOS/QtSvg.framework
-    /bin/rm -r ./OBS-WebRTC.app/Contents/MacOS/QtSvg.framework/Headers
-    /bin/rm -r ./OBS-WebRTC.app/Contents/MacOS/QtSvg.framework/Versions/5/Headers/
-    /bin/chmod 644 ./OBS-WebRTC.app/Contents/MacOS/QtSvg.framework/Versions/5/Resources/Info.plist
-    install_name_tool -id @executable_path/../MacOS/QtSvg.framework/Versions/5/QtSvg ./OBS-WebRTC.app/Contents/MacOS/QtSvg.framework/Versions/5/QtSvg
-    install_name_tool -change /tmp/obsdeps/lib/QtCore.framework/Versions/5/QtCore @executable_path/../Frameworks/QtCore.framework/Versions/5/QtCore ./OBS-WebRTC.app/Contents/MacOS/QtSvg.framework/Versions/5/QtSvg
+    # step "Copy QtSvg for plugin support"
+    # /bin/cp -R /tmp/obsdeps/lib/QtSvg.framework ./OBS-WebRTC.app/Contents/MacOS
+    # /bin/chmod -R +w ./OBS-WebRTC.app/Contents/MacOS/QtSvg.framework
+    # /bin/rm -r ./OBS-WebRTC.app/Contents/MacOS/QtSvg.framework/Headers
+    # /bin/rm -r ./OBS-WebRTC.app/Contents/MacOS/QtSvg.framework/Versions/5/Headers/
+    # /bin/chmod 644 ./OBS-WebRTC.app/Contents/MacOS/QtSvg.framework/Versions/5/Resources/Info.plist
+    # install_name_tool -id @executable_path/../MacOS/QtSvg.framework/Versions/5/QtSvg ./OBS-WebRTC.app/Contents/MacOS/QtSvg.framework/Versions/5/QtSvg
+    # install_name_tool -change /tmp/obsdeps/lib/QtCore.framework/Versions/5/QtCore @executable_path/../Frameworks/QtCore.framework/Versions/5/QtCore ./OBS-WebRTC.app/Contents/MacOS/QtSvg.framework/Versions/5/QtSvg
 
-    step "Copy QtXml for plugin support"
-    /bin/cp -R /tmp/obsdeps/lib/QtXml.framework ./OBS-WebRTC.app/Contents/MacOS
-    /bin/chmod -R +w ./OBS-WebRTC.app/Contents/MacOS/QtXml.framework
-    /bin/rm -r ./OBS-WebRTC.app/Contents/MacOS/QtXml.framework/Headers
-    /bin/rm -r ./OBS-WebRTC.app/Contents/MacOS/QtXml.framework/Versions/5/Headers/
-    /bin/chmod 644 ./OBS-WebRTC.app/Contents/MacOS/QtXml.framework/Versions/5/Resources/Info.plist
-    install_name_tool -id @executable_path/../MacOS/QtXml.framework/Versions/5/QtXml ./OBS-WebRTC.app/Contents/MacOS/QtXml.framework/Versions/5/QtXml
-    install_name_tool -change /tmp/obsdeps/lib/QtCore.framework/Versions/5/QtCore @executable_path/../Frameworks/QtCore.framework/Versions/5/QtCore ./OBS-WebRTC.app/Contents/MacOS/QtXml.framework/Versions/5/QtXml
+    # step "Copy QtXml for plugin support"
+    # /bin/cp -R /tmp/obsdeps/lib/QtXml.framework ./OBS-WebRTC.app/Contents/MacOS
+    # /bin/chmod -R +w ./OBS-WebRTC.app/Contents/MacOS/QtXml.framework
+    # /bin/rm -r ./OBS-WebRTC.app/Contents/MacOS/QtXml.framework/Headers
+    # /bin/rm -r ./OBS-WebRTC.app/Contents/MacOS/QtXml.framework/Versions/5/Headers/
+    # /bin/chmod 644 ./OBS-WebRTC.app/Contents/MacOS/QtXml.framework/Versions/5/Resources/Info.plist
+    # install_name_tool -id @executable_path/../MacOS/QtXml.framework/Versions/5/QtXml ./OBS-WebRTC.app/Contents/MacOS/QtXml.framework/Versions/5/QtXml
+    # install_name_tool -change /tmp/obsdeps/lib/QtCore.framework/Versions/5/QtCore @executable_path/../Frameworks/QtCore.framework/Versions/5/QtCore ./OBS-WebRTC.app/Contents/MacOS/QtXml.framework/Versions/5/QtXml
 }
 
 install_frameworks() {
