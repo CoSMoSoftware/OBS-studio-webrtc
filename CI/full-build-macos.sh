@@ -419,6 +419,7 @@ bundle_dylibs() {
        $(echo "${BUNDLE_PLUGINS[@]/#/-x }") \
        -x ./OBS-WebRTC.app/Contents/PlugIns/obs-browser-page
 
+
     step "Move libobs-opengl to final destination"
     /bin/cp ./libobs-opengl/libobs-opengl.so ./OBS-WebRTC.app/Contents/Frameworks
 
