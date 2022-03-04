@@ -412,12 +412,12 @@ bundle_dylibs() {
         /tmp/obsdeps/lib/QtDBus.framework
         /tmp/obsdeps/lib/QtPrintSupport.framework
     )
-#    "${CI_SCRIPTS}/app/dylibbundler" -cd -of -a ./OBS-WebRTC.app -q -f \
-#        -s ./OBS-WebRTC.app/Contents/MacOS \
-#        -s ./rundir/${BUILD_CONFIG}/bin/ \
-#        $(echo "${SEARCH_PATHS[@]/#/-s }") \
-#        $(echo "${BUNDLE_PLUGINS[@]/#/-x }") \
-#        -x ./OBS-WebRTC.app/Contents/PlugIns/obs-browser-page
+   "${CI_SCRIPTS}/app/dylibbundler" -cd -of -a ./OBS-WebRTC.app -q -f \
+       -s ./OBS-WebRTC.app/Contents/MacOS \
+       -s ./rundir/${BUILD_CONFIG}/bin/ \
+       $(echo "${SEARCH_PATHS[@]/#/-s }") \
+       $(echo "${BUNDLE_PLUGINS[@]/#/-x }") \
+       -x ./OBS-WebRTC.app/Contents/PlugIns/obs-browser-page
 
     step "Move libobs-opengl to final destination"
     /bin/cp ./libobs-opengl/libobs-opengl.so ./OBS-WebRTC.app/Contents/Frameworks
