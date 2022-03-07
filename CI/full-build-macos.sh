@@ -412,8 +412,8 @@ bundle_dylibs() {
         /tmp/obsdeps/lib/QtPrintSupport.framework
     )
 
-    "${CI_SCRIPTS}/app/dylibbundler" -cd -of -a ./OBS.app -q -f \
-        -s ./OBS.app/Contents/MacOS \
+    "${CI_SCRIPTS}/app/dylibbundler" -cd -of -a ./OBS-WebRTC.app -q -f \
+        -s ./OBS-WebRTC.app/Contents/MacOS \
 #        -s "${DEPS_BUILD_DIR}/sparkle/Sparkle.framework" \
         -s ./rundir/${BUILD_CONFIG}/bin/ \
         $(echo "${SEARCH_PATHS[@]/#/-s }") \
