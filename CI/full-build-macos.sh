@@ -341,113 +341,151 @@ bundle_dylibs() {
     hr "Bundle dylibs for macOS application"
 
     step "Run dylibBundler.."
-#    ${CI_SCRIPTS}/app/dylibbundler -cd -of -a ./OBS-WebRTC.app -q -f \
-#        -s ./OBS-WebRTC.app/Contents/MacOS \
-#        -s ./rundir/${BUILD_CONFIG}/bin/ \
-#        -x ./OBS-WebRTC.app/Contents/PlugIns/coreaudio-encoder.so \
-#        -x ./OBS-WebRTC.app/Contents/PlugIns/decklink-ouput-ui.so \
-#        -x ./OBS-WebRTC.app/Contents/PlugIns/decklink-captions.so \
-#        -x ./OBS-WebRTC.app/Contents/PlugIns/frontend-tools.so \
-#        -x ./OBS-WebRTC.app/Contents/PlugIns/image-source.so \
-#        -x ./OBS-WebRTC.app/Contents/PlugIns/mac-avcapture.so \
-#        -x ./OBS-WebRTC.app/Contents/PlugIns/mac-capture.so \
-#        -x ./OBS-WebRTC.app/Contents/PlugIns/mac-decklink.so \
-#        -x ./OBS-WebRTC.app/Contents/PlugIns/mac-syphon.so \
-#        -x ./OBS-WebRTC.app/Contents/PlugIns/mac-vth264.so \
-#        -x ./OBS-WebRTC.app/Contents/PlugIns/mac-virtualcam.so \
-#        -x ./OBS-WebRTC.app/Contents/PlugIns/obs-browser.so \
-#        -x ./OBS-WebRTC.app/Contents/PlugIns/obs-ffmpeg.so \
-#        -x ./OBS-WebRTC.app/Contents/PlugIns/obs-filters.so \
-#        -x ./OBS-WebRTC.app/Contents/PlugIns/obs-transitions.so \
-#        -x ./OBS-WebRTC.app/Contents/PlugIns/obs-vst.so \
-#        -x ./OBS-WebRTC.app/Contents/PlugIns/rtmp-services.so \
-#        -x ./OBS-WebRTC.app/Contents/MacOS/obs-ffmpeg-mux \
-#        -x ./OBS-WebRTC.app/Contents/MacOS/obslua.so \
-#        -x ./OBS-WebRTC.app/Contents/PlugIns/obs-x264.so \
-#        -x ./OBS-WebRTC.app/Contents/PlugIns/text-freetype2.so \
-#        -x ./OBS-WebRTC.app/Contents/PlugIns/obs-outputs.so \
-#        -x ./OBS-WebRTC.app/Contents/PlugIns/aja.so \
-#        -x ./OBS-WebRTC.app/Contents/PlugIns/aja-output-ui.so \
-#        -x ./OBS-WebRTC.app/Contents/PlugIns/obs-ndi.so \
-#        -x ./OBS-WebRTC.app/Contents/PlugIns/obs-websocket.so
+   ${CI_SCRIPTS}/app/dylibbundler -cd -of -a ./OBS-WebRTC.app -q -f \
+       -s ./OBS-WebRTC.app/Contents/MacOS \
+       -s ./rundir/${BUILD_CONFIG}/bin/ \
+       -x ./OBS-WebRTC.app/Contents/PlugIns/coreaudio-encoder.so \
+       -x ./OBS-WebRTC.app/Contents/PlugIns/decklink-ouput-ui.so \
+       -x ./OBS-WebRTC.app/Contents/PlugIns/decklink-captions.so \
+       -x ./OBS-WebRTC.app/Contents/PlugIns/frontend-tools.so \
+       -x ./OBS-WebRTC.app/Contents/PlugIns/image-source.so \
+       -x ./OBS-WebRTC.app/Contents/PlugIns/mac-avcapture.so \
+       -x ./OBS-WebRTC.app/Contents/PlugIns/mac-capture.so \
+       -x ./OBS-WebRTC.app/Contents/PlugIns/mac-decklink.so \
+       -x ./OBS-WebRTC.app/Contents/PlugIns/mac-syphon.so \
+       -x ./OBS-WebRTC.app/Contents/PlugIns/mac-vth264.so \
+       -x ./OBS-WebRTC.app/Contents/PlugIns/mac-virtualcam.so \
+       -x ./OBS-WebRTC.app/Contents/PlugIns/obs-browser.so \
+       -x ./OBS-WebRTC.app/Contents/PlugIns/obs-ffmpeg.so \
+       -x ./OBS-WebRTC.app/Contents/PlugIns/obs-filters.so \
+       -x ./OBS-WebRTC.app/Contents/PlugIns/obs-transitions.so \
+       -x ./OBS-WebRTC.app/Contents/PlugIns/obs-vst.so \
+       -x ./OBS-WebRTC.app/Contents/PlugIns/rtmp-services.so \
+       -x ./OBS-WebRTC.app/Contents/MacOS/obs-ffmpeg-mux \
+       -x ./OBS-WebRTC.app/Contents/MacOS/obslua.so \
+       -x ./OBS-WebRTC.app/Contents/PlugIns/obs-x264.so \
+       -x ./OBS-WebRTC.app/Contents/PlugIns/text-freetype2.so \
+       -x ./OBS-WebRTC.app/Contents/PlugIns/obs-outputs.so \
+       -x ./OBS-WebRTC.app/Contents/PlugIns/aja.so \
+       -x ./OBS-WebRTC.app/Contents/PlugIns/aja-output-ui.so \
+       -x ./OBS-WebRTC.app/Contents/PlugIns/obs-ndi.so
+#       -x ./OBS-WebRTC.app/Contents/PlugIns/obs-websocket.so
 
-    BUNDLE_PLUGINS=(
-        ./OBS-WebRTC.app/Contents/PlugIns/coreaudio-encoder.so
-        ./OBS-WebRTC.app/Contents/PlugIns/decklink-ouput-ui.so
-        ./OBS-WebRTC.app/Contents/PlugIns/decklink-captions.so
-        ./OBS-WebRTC.app/Contents/PlugIns/frontend-tools.so
-        ./OBS-WebRTC.app/Contents/PlugIns/image-source.so
-        ./OBS-WebRTC.app/Contents/PlugIns/mac-avcapture.so
-        ./OBS-WebRTC.app/Contents/PlugIns/mac-capture.so
-        ./OBS-WebRTC.app/Contents/PlugIns/mac-decklink.so
-        ./OBS-WebRTC.app/Contents/PlugIns/mac-syphon.so
-        ./OBS-WebRTC.app/Contents/PlugIns/mac-vth264.so
-        ./OBS-WebRTC.app/Contents/PlugIns/mac-virtualcam.so
-        ./OBS-WebRTC.app/Contents/PlugIns/obs-browser.so
-        ./OBS-WebRTC.app/Contents/PlugIns/obs-ffmpeg.so
-        ./OBS-WebRTC.app/Contents/PlugIns/obs-filters.so
-        ./OBS-WebRTC.app/Contents/PlugIns/obs-transitions.so
-        ./OBS-WebRTC.app/Contents/PlugIns/obs-vst.so
-        ./OBS-WebRTC.app/Contents/PlugIns/rtmp-services.so
-        ./OBS-WebRTC.app/Contents/MacOS/obs-ffmpeg-mux
-        ./OBS-WebRTC.app/Contents/MacOS/obslua.so
-        ./OBS-WebRTC.app/Contents/PlugIns/obs-x264.so
-        ./OBS-WebRTC.app/Contents/PlugIns/text-freetype2.so
-        ./OBS-WebRTC.app/Contents/PlugIns/obs-outputs.so
-        ./OBS-WebRTC.app/Contents/PlugIns/aja.so
-        ./OBS-WebRTC.app/Contents/PlugIns/aja-output-ui.so
-        ./OBS-WebRTC.app/Contents/PlugIns/obs-ndi.so
-#        ./OBS-WebRTC.app/Contents/PlugIns/obs-websocket.so
-        )
+#     BUNDLE_PLUGINS=(
+#         ./OBS-WebRTC.app/Contents/PlugIns/coreaudio-encoder.so
+#         ./OBS-WebRTC.app/Contents/PlugIns/decklink-ouput-ui.so
+#         ./OBS-WebRTC.app/Contents/PlugIns/decklink-captions.so
+#         ./OBS-WebRTC.app/Contents/PlugIns/frontend-tools.so
+#         ./OBS-WebRTC.app/Contents/PlugIns/image-source.so
+#         ./OBS-WebRTC.app/Contents/PlugIns/mac-avcapture.so
+#         ./OBS-WebRTC.app/Contents/PlugIns/mac-capture.so
+#         ./OBS-WebRTC.app/Contents/PlugIns/mac-decklink.so
+#         ./OBS-WebRTC.app/Contents/PlugIns/mac-syphon.so
+#         ./OBS-WebRTC.app/Contents/PlugIns/mac-vth264.so
+#         ./OBS-WebRTC.app/Contents/PlugIns/mac-virtualcam.so
+#         ./OBS-WebRTC.app/Contents/PlugIns/obs-browser.so
+#         ./OBS-WebRTC.app/Contents/PlugIns/obs-ffmpeg.so
+#         ./OBS-WebRTC.app/Contents/PlugIns/obs-filters.so
+#         ./OBS-WebRTC.app/Contents/PlugIns/obs-transitions.so
+#         ./OBS-WebRTC.app/Contents/PlugIns/obs-vst.so
+#         ./OBS-WebRTC.app/Contents/PlugIns/rtmp-services.so
+#         ./OBS-WebRTC.app/Contents/MacOS/obs-ffmpeg-mux
+#         ./OBS-WebRTC.app/Contents/MacOS/obslua.so
+#         ./OBS-WebRTC.app/Contents/PlugIns/obs-x264.so
+#         ./OBS-WebRTC.app/Contents/PlugIns/text-freetype2.so
+#         ./OBS-WebRTC.app/Contents/PlugIns/obs-outputs.so
+#         ./OBS-WebRTC.app/Contents/PlugIns/aja.so
+#         ./OBS-WebRTC.app/Contents/PlugIns/aja-output-ui.so
+#         ./OBS-WebRTC.app/Contents/PlugIns/obs-ndi.so
+# #        ./OBS-WebRTC.app/Contents/PlugIns/obs-websocket.so
+#         )
 
-    SEARCH_PATHS=(
-        /tmp/obsdeps/lib
-        /tmp/obsdeps/lib/QtSvg.framework
-        /tmp/obsdeps/lib/QtXml.framework
-        /tmp/obsdeps/lib/QtNetwork.framework
-        /tmp/obsdeps/lib/QtCore.framework
-        /tmp/obsdeps/lib/QtGui.framework
-        /tmp/obsdeps/lib/QtWidgets.framework
-        /tmp/obsdeps/lib/QtDBus.framework
-        /tmp/obsdeps/lib/QtPrintSupport.framework
-    )
-
-    "${CI_SCRIPTS}/app/dylibbundler" -cd -of -a ./OBS-WebRTC.app -q -f \
-        -s ./OBS-WebRTC.app/Contents/MacOS \
-#        -s "${DEPS_BUILD_DIR}/sparkle/Sparkle.framework" \
-        -s ./rundir/${BUILD_CONFIG}/bin/ \
-        $(echo "${SEARCH_PATHS[@]/#/-s }") \
-        $(echo "${BUNDLE_PLUGINS[@]/#/-x }")
+    # SEARCH_PATHS=(
+    #     /tmp/obsdeps/lib
+    #     /tmp/obsdeps/lib/QtSvg.framework
+    #     /tmp/obsdeps/lib/QtXml.framework
+    #     /tmp/obsdeps/lib/QtNetwork.framework
+    #     /tmp/obsdeps/lib/QtCore.framework
+    #     /tmp/obsdeps/lib/QtGui.framework
+    #     /tmp/obsdeps/lib/QtWidgets.framework
+    #     /tmp/obsdeps/lib/QtDBus.framework
+    #     /tmp/obsdeps/lib/QtPrintSupport.framework
+    # )
 
     step "Move libobs-opengl to final destination"
     /bin/cp ./libobs-opengl/libobs-opengl.so ./OBS-WebRTC.app/Contents/Frameworks
 
-    # step "Copy QtNetwork for plugin support"
-    # /bin/cp -R /tmp/obsdeps/lib/QtNetwork.framework ./OBS-WebRTC.app/Contents/Frameworks
-    # /bin/chmod -R +w ./OBS-WebRTC.app/Contents/Frameworks/QtNetwork.framework
-    # /bin/rm -r ./OBS-WebRTC.app/Contents/Frameworks/QtNetwork.framework/Headers
-    # /bin/rm -r ./OBS-WebRTC.app/Contents/Frameworks/QtNetwork.framework/Versions/5/Headers/
-    # /bin/chmod 644 ./OBS-WebRTC.app/Contents/Frameworks/QtNetwork.framework/Versions/5/Resources/Info.plist
-    # install_name_tool -id @executable_path/../Frameworks/QtNetwork.framework/Versions/5/QtNetwork ./OBS-WebRTC.app/Contents/Frameworks/QtNetwork.framework/Versions/5/QtNetwork
-    # install_name_tool -change /tmp/obsdeps/lib/QtCore.framework/Versions/5/QtCore @executable_path/../Frameworks/QtCore.framework/Versions/5/QtCore ./OBS-WebRTC.app/Contents/Frameworks/QtNetwork.framework/Versions/5/QtNetwork
+    step "Copy QtSvg for plugin support"
+    /bin/cp -R /tmp/obsdeps/lib/QtSvg.framework ./OBS-WebRTC.app/Contents/Frameworks
+    /bin/chmod -R +w ./OBS-WebRTC.app/Contents/Frameworks/QtSvg.framework
+    /bin/rm -r ./OBS-WebRTC.app/Contents/Frameworks/QtSvg.framework/Headers
+    /bin/rm -r ./OBS-WebRTC.app/Contents/Frameworks/QtSvg.framework/Versions/5/Headers/
+    /bin/chmod 644 ./OBS-WebRTC.app/Contents/Frameworks/QtSvg.framework/Versions/5/Resources/Info.plist
+    install_name_tool -id @executable_path/../Frameworks/QtSvg.framework/Versions/5/QtSvg ./OBS-WebRTC.app/Contents/Frameworks/QtSvg.framework/Versions/5/QtSvg
+    install_name_tool -change /tmp/obsdeps/lib/QtCore.framework/Versions/5/QtCore @executable_path/../Frameworks/QtCore.framework/Versions/5/QtCore ./OBS-WebRTC.app/Contents/Frameworks/QtSvg.framework/Versions/5/QtSvg
 
-    # step "Copy QtSvg for plugin support"
-    # /bin/cp -R /tmp/obsdeps/lib/QtSvg.framework ./OBS-WebRTC.app/Contents/MacOS
-    # /bin/chmod -R +w ./OBS-WebRTC.app/Contents/MacOS/QtSvg.framework
-    # /bin/rm -r ./OBS-WebRTC.app/Contents/MacOS/QtSvg.framework/Headers
-    # /bin/rm -r ./OBS-WebRTC.app/Contents/MacOS/QtSvg.framework/Versions/5/Headers/
-    # /bin/chmod 644 ./OBS-WebRTC.app/Contents/MacOS/QtSvg.framework/Versions/5/Resources/Info.plist
-    # install_name_tool -id @executable_path/../MacOS/QtSvg.framework/Versions/5/QtSvg ./OBS-WebRTC.app/Contents/MacOS/QtSvg.framework/Versions/5/QtSvg
-    # install_name_tool -change /tmp/obsdeps/lib/QtCore.framework/Versions/5/QtCore @executable_path/../Frameworks/QtCore.framework/Versions/5/QtCore ./OBS-WebRTC.app/Contents/MacOS/QtSvg.framework/Versions/5/QtSvg
+    step "Copy QtXml for plugin support"
+    /bin/cp -R /tmp/obsdeps/lib/QtXml.framework ./OBS-WebRTC.app/Contents/Frameworks
+    /bin/chmod -R +w ./OBS-WebRTC.app/Contents/Frameworks/QtXml.framework
+    /bin/rm -r ./OBS-WebRTC.app/Contents/Frameworks/QtXml.framework/Headers
+    /bin/rm -r ./OBS-WebRTC.app/Contents/Frameworks/QtXml.framework/Versions/5/Headers/
+    /bin/chmod 644 ./OBS-WebRTC.app/Contents/Frameworks/QtXml.framework/Versions/5/Resources/Info.plist
+    install_name_tool -id @executable_path/../Frameworks/QtXml.framework/Versions/5/QtXml ./OBS-WebRTC.app/Contents/Frameworks/QtXml.framework/Versions/5/QtXml
+    install_name_tool -change /tmp/obsdeps/lib/QtCore.framework/Versions/5/QtCore @executable_path/../Frameworks/QtCore.framework/Versions/5/QtCore ./OBS-WebRTC.app/Contents/Frameworks/QtXml.framework/Versions/5/QtXml
 
-    # step "Copy QtXml for plugin support"
-    # /bin/cp -R /tmp/obsdeps/lib/QtXml.framework ./OBS-WebRTC.app/Contents/MacOS
-    # /bin/chmod -R +w ./OBS-WebRTC.app/Contents/MacOS/QtXml.framework
-    # /bin/rm -r ./OBS-WebRTC.app/Contents/MacOS/QtXml.framework/Headers
-    # /bin/rm -r ./OBS-WebRTC.app/Contents/MacOS/QtXml.framework/Versions/5/Headers/
-    # /bin/chmod 644 ./OBS-WebRTC.app/Contents/MacOS/QtXml.framework/Versions/5/Resources/Info.plist
-    # install_name_tool -id @executable_path/../MacOS/QtXml.framework/Versions/5/QtXml ./OBS-WebRTC.app/Contents/MacOS/QtXml.framework/Versions/5/QtXml
-    # install_name_tool -change /tmp/obsdeps/lib/QtCore.framework/Versions/5/QtCore @executable_path/../Frameworks/QtCore.framework/Versions/5/QtCore ./OBS-WebRTC.app/Contents/MacOS/QtXml.framework/Versions/5/QtXml
+    step "Copy QtNetwork for plugin support"
+    /bin/cp -R /tmp/obsdeps/lib/QtNetwork.framework ./OBS-WebRTC.app/Contents/Frameworks
+    /bin/chmod -R +w ./OBS-WebRTC.app/Contents/Frameworks/QtNetwork.framework
+    /bin/rm -r ./OBS-WebRTC.app/Contents/Frameworks/QtNetwork.framework/Headers
+    /bin/rm -r ./OBS-WebRTC.app/Contents/Frameworks/QtNetwork.framework/Versions/5/Headers/
+    /bin/chmod 644 ./OBS-WebRTC.app/Contents/Frameworks/QtNetwork.framework/Versions/5/Resources/Info.plist
+    install_name_tool -id @executable_path/../Frameworks/QtNetwork.framework/Versions/5/QtNetwork ./OBS-WebRTC.app/Contents/Frameworks/QtNetwork.framework/Versions/5/QtNetwork
+    install_name_tool -change /tmp/obsdeps/lib/QtCore.framework/Versions/5/QtCore @executable_path/../Frameworks/QtCore.framework/Versions/5/QtCore ./OBS-WebRTC.app/Contents/Frameworks/QtNetwork.framework/Versions/5/QtNetwork
+
+    step "Copy QtCore for plugin support"
+    /bin/cp -R /tmp/obsdeps/lib/QtCore.framework ./OBS-WebRTC.app/Contents/Frameworks
+    /bin/chmod -R +w ./OBS-WebRTC.app/Contents/Frameworks/QtCore.framework
+    /bin/rm -r ./OBS-WebRTC.app/Contents/Frameworks/QtCore.framework/Headers
+    /bin/rm -r ./OBS-WebRTC.app/Contents/Frameworks/QtCore.framework/Versions/5/Headers/
+    /bin/chmod 644 ./OBS-WebRTC.app/Contents/Frameworks/QtCore.framework/Versions/5/Resources/Info.plist
+    install_name_tool -id @executable_path/../Frameworks/QtCore.framework/Versions/5/QtCore ./OBS-WebRTC.app/Contents/Frameworks/QtCore.framework/Versions/5/QtCore
+    install_name_tool -change /tmp/obsdeps/lib/QtCore.framework/Versions/5/QtCore @executable_path/../Frameworks/QtCore.framework/Versions/5/QtCore ./OBS-WebRTC.app/Contents/Frameworks/QtCore.framework/Versions/5/QtCore
+
+    step "Copy QtGui for plugin support"
+    /bin/cp -R /tmp/obsdeps/lib/QtNeQtGuitwork.framework ./OBS-WebRTC.app/Contents/Frameworks
+    /bin/chmod -R +w ./OBS-WebRTC.app/Contents/Frameworks/QtGui.framework
+    /bin/rm -r ./OBS-WebRTC.app/Contents/Frameworks/QtGui.framework/Headers
+    /bin/rm -r ./OBS-WebRTC.app/Contents/Frameworks/QtGui.framework/Versions/5/Headers/
+    /bin/chmod 644 ./OBS-WebRTC.app/Contents/Frameworks/QtGui.framework/Versions/5/Resources/Info.plist
+    install_name_tool -id @executable_path/../Frameworks/QtGui.framework/Versions/5/QtGui ./OBS-WebRTC.app/Contents/Frameworks/QtGui.framework/Versions/5/QtGui
+    install_name_tool -change /tmp/obsdeps/lib/QtCore.framework/Versions/5/QtCore @executable_path/../Frameworks/QtCore.framework/Versions/5/QtCore ./OBS-WebRTC.app/Contents/Frameworks/QtGui.framework/Versions/5/QtGui
+
+    step "Copy QtWidgets for plugin support"
+    /bin/cp -R /tmp/obsdeps/lib/QtWidgets.framework ./OBS-WebRTC.app/Contents/Frameworks
+    /bin/chmod -R +w ./OBS-WebRTC.app/Contents/Frameworks/QtWidgets.framework
+    /bin/rm -r ./OBS-WebRTC.app/Contents/Frameworks/QtWidgets.framework/Headers
+    /bin/rm -r ./OBS-WebRTC.app/Contents/Frameworks/QtWidgets.framework/Versions/5/Headers/
+    /bin/chmod 644 ./OBS-WebRTC.app/Contents/Frameworks/QtWidgets.framework/Versions/5/Resources/Info.plist
+    install_name_tool -id @executable_path/../Frameworks/QtWidgets.framework/Versions/5/QtWidgets ./OBS-WebRTC.app/Contents/Frameworks/QtWidgets.framework/Versions/5/QtWidgets
+    install_name_tool -change /tmp/obsdeps/lib/QtCore.framework/Versions/5/QtCore @executable_path/../Frameworks/QtCore.framework/Versions/5/QtCore ./OBS-WebRTC.app/Contents/Frameworks/QtWidgets.framework/Versions/5/QtWidgets
+
+    step "Copy QtDBus for plugin support"
+    /bin/cp -R /tmp/obsdeps/lib/QtDBus.framework ./OBS-WebRTC.app/Contents/Frameworks
+    /bin/chmod -R +w ./OBS-WebRTC.app/Contents/Frameworks/QtDBus.framework
+    /bin/rm -r ./OBS-WebRTC.app/Contents/Frameworks/QtDBus.framework/Headers
+    /bin/rm -r ./OBS-WebRTC.app/Contents/Frameworks/QtDBus.framework/Versions/5/Headers/
+    /bin/chmod 644 ./OBS-WebRTC.app/Contents/Frameworks/QtDBus.framework/Versions/5/Resources/Info.plist
+    install_name_tool -id @executable_path/../Frameworks/QtDBus.framework/Versions/5/QtDBus ./OBS-WebRTC.app/Contents/Frameworks/QtDBus.framework/Versions/5/QtDBus
+    install_name_tool -change /tmp/obsdeps/lib/QtCore.framework/Versions/5/QtCore @executable_path/../Frameworks/QtCore.framework/Versions/5/QtCore ./OBS-WebRTC.app/Contents/Frameworks/QtDBus.framework/Versions/5/QtDBus
+
+    step "Copy QtPrintSupport for plugin support"
+    /bin/cp -R /tmp/obsdeps/lib/QtPrintSupport.framework ./OBS-WebRTC.app/Contents/Frameworks
+    /bin/chmod -R +w ./OBS-WebRTC.app/Contents/Frameworks/QtPrintSupport.framework
+    /bin/rm -r ./OBS-WebRTC.app/Contents/Frameworks/QtPrintSupport.framework/Headers
+    /bin/rm -r ./OBS-WebRTC.app/Contents/Frameworks/QtPrintSupport.framework/Versions/5/Headers/
+    /bin/chmod 644 ./OBS-WebRTC.app/Contents/Frameworks/QtPrintSupport.framework/Versions/5/Resources/Info.plist
+    install_name_tool -id @executable_path/../Frameworks/QtPrintSupport.framework/Versions/5/QtPrintSupport ./OBS-WebRTC.app/Contents/Frameworks/QtPrintSupport.framework/Versions/5/QtPrintSupport
+    install_name_tool -change /tmp/obsdeps/lib/QtCore.framework/Versions/5/QtCore @executable_path/../Frameworks/QtCore.framework/Versions/5/QtCore ./OBS-WebRTC.app/Contents/Frameworks/QtPrintSupport.framework/Versions/5/QtPrintSupport
 }
 
 install_frameworks() {
