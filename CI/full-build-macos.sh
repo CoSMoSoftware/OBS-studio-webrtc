@@ -341,9 +341,18 @@ bundle_dylibs() {
     hr "Bundle dylibs for macOS application"
 
     step "Run dylibBundler.."
-   ${CI_SCRIPTS}/app/dylibbundler -cd -of -a ./OBS-WebRTC.app -q -f \
+    ${CI_SCRIPTS}/app/dylibbundler -cd -of -a ./OBS-WebRTC.app -q -f \
        -s ./OBS-WebRTC.app/Contents/MacOS \
        -s ./rundir/${BUILD_CONFIG}/bin/ \
+       -s /tmp/obsdeps/lib \
+       -s /tmp/obsdeps/lib/QtSvg.framework \
+       -s /tmp/obsdeps/lib/QtXml.framework \
+       -s /tmp/obsdeps/lib/QtNetwork.framework \
+       -s /tmp/obsdeps/lib/QtCore.framework \
+       -s /tmp/obsdeps/lib/QtGui.framework \
+       -s /tmp/obsdeps/lib/QtWidgets.framework \
+       -s /tmp/obsdeps/lib/QtDBus.framework \
+       -s /tmp/obsdeps/lib/QtPrintSupport.framework \
        -x ./OBS-WebRTC.app/Contents/PlugIns/coreaudio-encoder.so \
        -x ./OBS-WebRTC.app/Contents/PlugIns/decklink-ouput-ui.so \
        -x ./OBS-WebRTC.app/Contents/PlugIns/decklink-captions.so \
@@ -370,47 +379,6 @@ bundle_dylibs() {
        -x ./OBS-WebRTC.app/Contents/PlugIns/aja-output-ui.so \
        -x ./OBS-WebRTC.app/Contents/PlugIns/obs-ndi.so
 #       -x ./OBS-WebRTC.app/Contents/PlugIns/obs-websocket.so
-
-#     BUNDLE_PLUGINS=(
-#         ./OBS-WebRTC.app/Contents/PlugIns/coreaudio-encoder.so
-#         ./OBS-WebRTC.app/Contents/PlugIns/decklink-ouput-ui.so
-#         ./OBS-WebRTC.app/Contents/PlugIns/decklink-captions.so
-#         ./OBS-WebRTC.app/Contents/PlugIns/frontend-tools.so
-#         ./OBS-WebRTC.app/Contents/PlugIns/image-source.so
-#         ./OBS-WebRTC.app/Contents/PlugIns/mac-avcapture.so
-#         ./OBS-WebRTC.app/Contents/PlugIns/mac-capture.so
-#         ./OBS-WebRTC.app/Contents/PlugIns/mac-decklink.so
-#         ./OBS-WebRTC.app/Contents/PlugIns/mac-syphon.so
-#         ./OBS-WebRTC.app/Contents/PlugIns/mac-vth264.so
-#         ./OBS-WebRTC.app/Contents/PlugIns/mac-virtualcam.so
-#         ./OBS-WebRTC.app/Contents/PlugIns/obs-browser.so
-#         ./OBS-WebRTC.app/Contents/PlugIns/obs-ffmpeg.so
-#         ./OBS-WebRTC.app/Contents/PlugIns/obs-filters.so
-#         ./OBS-WebRTC.app/Contents/PlugIns/obs-transitions.so
-#         ./OBS-WebRTC.app/Contents/PlugIns/obs-vst.so
-#         ./OBS-WebRTC.app/Contents/PlugIns/rtmp-services.so
-#         ./OBS-WebRTC.app/Contents/MacOS/obs-ffmpeg-mux
-#         ./OBS-WebRTC.app/Contents/MacOS/obslua.so
-#         ./OBS-WebRTC.app/Contents/PlugIns/obs-x264.so
-#         ./OBS-WebRTC.app/Contents/PlugIns/text-freetype2.so
-#         ./OBS-WebRTC.app/Contents/PlugIns/obs-outputs.so
-#         ./OBS-WebRTC.app/Contents/PlugIns/aja.so
-#         ./OBS-WebRTC.app/Contents/PlugIns/aja-output-ui.so
-#         ./OBS-WebRTC.app/Contents/PlugIns/obs-ndi.so
-# #        ./OBS-WebRTC.app/Contents/PlugIns/obs-websocket.so
-#         )
-
-    # SEARCH_PATHS=(
-    #     /tmp/obsdeps/lib
-    #     /tmp/obsdeps/lib/QtSvg.framework
-    #     /tmp/obsdeps/lib/QtXml.framework
-    #     /tmp/obsdeps/lib/QtNetwork.framework
-    #     /tmp/obsdeps/lib/QtCore.framework
-    #     /tmp/obsdeps/lib/QtGui.framework
-    #     /tmp/obsdeps/lib/QtWidgets.framework
-    #     /tmp/obsdeps/lib/QtDBus.framework
-    #     /tmp/obsdeps/lib/QtPrintSupport.framework
-    # )
 
     step "Move libobs-opengl to final destination"
     /bin/cp ./libobs-opengl/libobs-opengl.so ./OBS-WebRTC.app/Contents/Frameworks
