@@ -383,77 +383,77 @@ bundle_dylibs() {
     step "Move libobs-opengl to final destination"
     /bin/cp ./libobs-opengl/libobs-opengl.so ./OBS-WebRTC.app/Contents/Frameworks
 
-    step "Copy QtSvg for plugin support"
-    /bin/cp -R /tmp/obsdeps/lib/QtSvg.framework ./OBS-WebRTC.app/Contents/Frameworks
-    /bin/chmod -R +w ./OBS-WebRTC.app/Contents/Frameworks/QtSvg.framework
-    /bin/rm -r ./OBS-WebRTC.app/Contents/Frameworks/QtSvg.framework/Headers
-    /bin/rm -r ./OBS-WebRTC.app/Contents/Frameworks/QtSvg.framework/Versions/5/Headers/
-    /bin/chmod 644 ./OBS-WebRTC.app/Contents/Frameworks/QtSvg.framework/Versions/5/Resources/Info.plist
-    install_name_tool -id @executable_path/../Frameworks/QtSvg.framework/Versions/5/QtSvg ./OBS-WebRTC.app/Contents/Frameworks/QtSvg.framework/Versions/5/QtSvg
-    install_name_tool -change /tmp/obsdeps/lib/QtCore.framework/Versions/5/QtCore @executable_path/../Frameworks/QtCore.framework/Versions/5/QtCore ./OBS-WebRTC.app/Contents/Frameworks/QtSvg.framework/Versions/5/QtSvg
+    # step "Copy QtSvg for plugin support"
+    # /bin/cp -R /tmp/obsdeps/lib/QtSvg.framework ./OBS-WebRTC.app/Contents/Frameworks
+    # /bin/chmod -R +w ./OBS-WebRTC.app/Contents/Frameworks/QtSvg.framework
+    # /bin/rm -r ./OBS-WebRTC.app/Contents/Frameworks/QtSvg.framework/Headers
+    # /bin/rm -r ./OBS-WebRTC.app/Contents/Frameworks/QtSvg.framework/Versions/5/Headers/
+    # /bin/chmod 644 ./OBS-WebRTC.app/Contents/Frameworks/QtSvg.framework/Versions/5/Resources/Info.plist
+    # install_name_tool -id @executable_path/../Frameworks/QtSvg.framework/Versions/5/QtSvg ./OBS-WebRTC.app/Contents/Frameworks/QtSvg.framework/Versions/5/QtSvg
+    # install_name_tool -change /tmp/obsdeps/lib/QtCore.framework/Versions/5/QtCore @executable_path/../Frameworks/QtCore.framework/Versions/5/QtCore ./OBS-WebRTC.app/Contents/Frameworks/QtSvg.framework/Versions/5/QtSvg
 
-    step "Copy QtXml for plugin support"
-    /bin/cp -R /tmp/obsdeps/lib/QtXml.framework ./OBS-WebRTC.app/Contents/Frameworks
-    /bin/chmod -R +w ./OBS-WebRTC.app/Contents/Frameworks/QtXml.framework
-    /bin/rm -r ./OBS-WebRTC.app/Contents/Frameworks/QtXml.framework/Headers
-    /bin/rm -r ./OBS-WebRTC.app/Contents/Frameworks/QtXml.framework/Versions/5/Headers/
-    /bin/chmod 644 ./OBS-WebRTC.app/Contents/Frameworks/QtXml.framework/Versions/5/Resources/Info.plist
-    install_name_tool -id @executable_path/../Frameworks/QtXml.framework/Versions/5/QtXml ./OBS-WebRTC.app/Contents/Frameworks/QtXml.framework/Versions/5/QtXml
-    install_name_tool -change /tmp/obsdeps/lib/QtCore.framework/Versions/5/QtCore @executable_path/../Frameworks/QtCore.framework/Versions/5/QtCore ./OBS-WebRTC.app/Contents/Frameworks/QtXml.framework/Versions/5/QtXml
+    # step "Copy QtXml for plugin support"
+    # /bin/cp -R /tmp/obsdeps/lib/QtXml.framework ./OBS-WebRTC.app/Contents/Frameworks
+    # /bin/chmod -R +w ./OBS-WebRTC.app/Contents/Frameworks/QtXml.framework
+    # /bin/rm -r ./OBS-WebRTC.app/Contents/Frameworks/QtXml.framework/Headers
+    # /bin/rm -r ./OBS-WebRTC.app/Contents/Frameworks/QtXml.framework/Versions/5/Headers/
+    # /bin/chmod 644 ./OBS-WebRTC.app/Contents/Frameworks/QtXml.framework/Versions/5/Resources/Info.plist
+    # install_name_tool -id @executable_path/../Frameworks/QtXml.framework/Versions/5/QtXml ./OBS-WebRTC.app/Contents/Frameworks/QtXml.framework/Versions/5/QtXml
+    # install_name_tool -change /tmp/obsdeps/lib/QtCore.framework/Versions/5/QtCore @executable_path/../Frameworks/QtCore.framework/Versions/5/QtCore ./OBS-WebRTC.app/Contents/Frameworks/QtXml.framework/Versions/5/QtXml
 
-    step "Copy QtNetwork for plugin support"
-    /bin/cp -R /tmp/obsdeps/lib/QtNetwork.framework ./OBS-WebRTC.app/Contents/Frameworks
-    /bin/chmod -R +w ./OBS-WebRTC.app/Contents/Frameworks/QtNetwork.framework
-    /bin/rm -r ./OBS-WebRTC.app/Contents/Frameworks/QtNetwork.framework/Headers
-    /bin/rm -r ./OBS-WebRTC.app/Contents/Frameworks/QtNetwork.framework/Versions/5/Headers/
-    /bin/chmod 644 ./OBS-WebRTC.app/Contents/Frameworks/QtNetwork.framework/Versions/5/Resources/Info.plist
-    install_name_tool -id @executable_path/../Frameworks/QtNetwork.framework/Versions/5/QtNetwork ./OBS-WebRTC.app/Contents/Frameworks/QtNetwork.framework/Versions/5/QtNetwork
-    install_name_tool -change /tmp/obsdeps/lib/QtCore.framework/Versions/5/QtCore @executable_path/../Frameworks/QtCore.framework/Versions/5/QtCore ./OBS-WebRTC.app/Contents/Frameworks/QtNetwork.framework/Versions/5/QtNetwork
+    # step "Copy QtNetwork for plugin support"
+    # /bin/cp -R /tmp/obsdeps/lib/QtNetwork.framework ./OBS-WebRTC.app/Contents/Frameworks
+    # /bin/chmod -R +w ./OBS-WebRTC.app/Contents/Frameworks/QtNetwork.framework
+    # /bin/rm -r ./OBS-WebRTC.app/Contents/Frameworks/QtNetwork.framework/Headers
+    # /bin/rm -r ./OBS-WebRTC.app/Contents/Frameworks/QtNetwork.framework/Versions/5/Headers/
+    # /bin/chmod 644 ./OBS-WebRTC.app/Contents/Frameworks/QtNetwork.framework/Versions/5/Resources/Info.plist
+    # install_name_tool -id @executable_path/../Frameworks/QtNetwork.framework/Versions/5/QtNetwork ./OBS-WebRTC.app/Contents/Frameworks/QtNetwork.framework/Versions/5/QtNetwork
+    # install_name_tool -change /tmp/obsdeps/lib/QtCore.framework/Versions/5/QtCore @executable_path/../Frameworks/QtCore.framework/Versions/5/QtCore ./OBS-WebRTC.app/Contents/Frameworks/QtNetwork.framework/Versions/5/QtNetwork
 
-    step "Copy QtCore for plugin support"
-    /bin/cp -R /tmp/obsdeps/lib/QtCore.framework ./OBS-WebRTC.app/Contents/Frameworks
-    /bin/chmod -R +w ./OBS-WebRTC.app/Contents/Frameworks/QtCore.framework
-    /bin/rm -r ./OBS-WebRTC.app/Contents/Frameworks/QtCore.framework/Headers
-    /bin/rm -r ./OBS-WebRTC.app/Contents/Frameworks/QtCore.framework/Versions/5/Headers/
-    /bin/chmod 644 ./OBS-WebRTC.app/Contents/Frameworks/QtCore.framework/Versions/5/Resources/Info.plist
-    install_name_tool -id @executable_path/../Frameworks/QtCore.framework/Versions/5/QtCore ./OBS-WebRTC.app/Contents/Frameworks/QtCore.framework/Versions/5/QtCore
-    install_name_tool -change /tmp/obsdeps/lib/QtCore.framework/Versions/5/QtCore @executable_path/../Frameworks/QtCore.framework/Versions/5/QtCore ./OBS-WebRTC.app/Contents/Frameworks/QtCore.framework/Versions/5/QtCore
+    # step "Copy QtCore for plugin support"
+    # /bin/cp -R /tmp/obsdeps/lib/QtCore.framework ./OBS-WebRTC.app/Contents/Frameworks
+    # /bin/chmod -R +w ./OBS-WebRTC.app/Contents/Frameworks/QtCore.framework
+    # /bin/rm -r ./OBS-WebRTC.app/Contents/Frameworks/QtCore.framework/Headers
+    # /bin/rm -r ./OBS-WebRTC.app/Contents/Frameworks/QtCore.framework/Versions/5/Headers/
+    # /bin/chmod 644 ./OBS-WebRTC.app/Contents/Frameworks/QtCore.framework/Versions/5/Resources/Info.plist
+    # install_name_tool -id @executable_path/../Frameworks/QtCore.framework/Versions/5/QtCore ./OBS-WebRTC.app/Contents/Frameworks/QtCore.framework/Versions/5/QtCore
+    # install_name_tool -change /tmp/obsdeps/lib/QtCore.framework/Versions/5/QtCore @executable_path/../Frameworks/QtCore.framework/Versions/5/QtCore ./OBS-WebRTC.app/Contents/Frameworks/QtCore.framework/Versions/5/QtCore
 
-    step "Copy QtGui for plugin support"
-    /bin/cp -R /tmp/obsdeps/lib/QtNeQtGuitwork.framework ./OBS-WebRTC.app/Contents/Frameworks
-    /bin/chmod -R +w ./OBS-WebRTC.app/Contents/Frameworks/QtGui.framework
-    /bin/rm -r ./OBS-WebRTC.app/Contents/Frameworks/QtGui.framework/Headers
-    /bin/rm -r ./OBS-WebRTC.app/Contents/Frameworks/QtGui.framework/Versions/5/Headers/
-    /bin/chmod 644 ./OBS-WebRTC.app/Contents/Frameworks/QtGui.framework/Versions/5/Resources/Info.plist
-    install_name_tool -id @executable_path/../Frameworks/QtGui.framework/Versions/5/QtGui ./OBS-WebRTC.app/Contents/Frameworks/QtGui.framework/Versions/5/QtGui
-    install_name_tool -change /tmp/obsdeps/lib/QtCore.framework/Versions/5/QtCore @executable_path/../Frameworks/QtCore.framework/Versions/5/QtCore ./OBS-WebRTC.app/Contents/Frameworks/QtGui.framework/Versions/5/QtGui
+    # step "Copy QtGui for plugin support"
+    # /bin/cp -R /tmp/obsdeps/lib/QtNeQtGuitwork.framework ./OBS-WebRTC.app/Contents/Frameworks
+    # /bin/chmod -R +w ./OBS-WebRTC.app/Contents/Frameworks/QtGui.framework
+    # /bin/rm -r ./OBS-WebRTC.app/Contents/Frameworks/QtGui.framework/Headers
+    # /bin/rm -r ./OBS-WebRTC.app/Contents/Frameworks/QtGui.framework/Versions/5/Headers/
+    # /bin/chmod 644 ./OBS-WebRTC.app/Contents/Frameworks/QtGui.framework/Versions/5/Resources/Info.plist
+    # install_name_tool -id @executable_path/../Frameworks/QtGui.framework/Versions/5/QtGui ./OBS-WebRTC.app/Contents/Frameworks/QtGui.framework/Versions/5/QtGui
+    # install_name_tool -change /tmp/obsdeps/lib/QtCore.framework/Versions/5/QtCore @executable_path/../Frameworks/QtCore.framework/Versions/5/QtCore ./OBS-WebRTC.app/Contents/Frameworks/QtGui.framework/Versions/5/QtGui
 
-    step "Copy QtWidgets for plugin support"
-    /bin/cp -R /tmp/obsdeps/lib/QtWidgets.framework ./OBS-WebRTC.app/Contents/Frameworks
-    /bin/chmod -R +w ./OBS-WebRTC.app/Contents/Frameworks/QtWidgets.framework
-    /bin/rm -r ./OBS-WebRTC.app/Contents/Frameworks/QtWidgets.framework/Headers
-    /bin/rm -r ./OBS-WebRTC.app/Contents/Frameworks/QtWidgets.framework/Versions/5/Headers/
-    /bin/chmod 644 ./OBS-WebRTC.app/Contents/Frameworks/QtWidgets.framework/Versions/5/Resources/Info.plist
-    install_name_tool -id @executable_path/../Frameworks/QtWidgets.framework/Versions/5/QtWidgets ./OBS-WebRTC.app/Contents/Frameworks/QtWidgets.framework/Versions/5/QtWidgets
-    install_name_tool -change /tmp/obsdeps/lib/QtCore.framework/Versions/5/QtCore @executable_path/../Frameworks/QtCore.framework/Versions/5/QtCore ./OBS-WebRTC.app/Contents/Frameworks/QtWidgets.framework/Versions/5/QtWidgets
+    # step "Copy QtWidgets for plugin support"
+    # /bin/cp -R /tmp/obsdeps/lib/QtWidgets.framework ./OBS-WebRTC.app/Contents/Frameworks
+    # /bin/chmod -R +w ./OBS-WebRTC.app/Contents/Frameworks/QtWidgets.framework
+    # /bin/rm -r ./OBS-WebRTC.app/Contents/Frameworks/QtWidgets.framework/Headers
+    # /bin/rm -r ./OBS-WebRTC.app/Contents/Frameworks/QtWidgets.framework/Versions/5/Headers/
+    # /bin/chmod 644 ./OBS-WebRTC.app/Contents/Frameworks/QtWidgets.framework/Versions/5/Resources/Info.plist
+    # install_name_tool -id @executable_path/../Frameworks/QtWidgets.framework/Versions/5/QtWidgets ./OBS-WebRTC.app/Contents/Frameworks/QtWidgets.framework/Versions/5/QtWidgets
+    # install_name_tool -change /tmp/obsdeps/lib/QtCore.framework/Versions/5/QtCore @executable_path/../Frameworks/QtCore.framework/Versions/5/QtCore ./OBS-WebRTC.app/Contents/Frameworks/QtWidgets.framework/Versions/5/QtWidgets
 
-    step "Copy QtDBus for plugin support"
-    /bin/cp -R /tmp/obsdeps/lib/QtDBus.framework ./OBS-WebRTC.app/Contents/Frameworks
-    /bin/chmod -R +w ./OBS-WebRTC.app/Contents/Frameworks/QtDBus.framework
-    /bin/rm -r ./OBS-WebRTC.app/Contents/Frameworks/QtDBus.framework/Headers
-    /bin/rm -r ./OBS-WebRTC.app/Contents/Frameworks/QtDBus.framework/Versions/5/Headers/
-    /bin/chmod 644 ./OBS-WebRTC.app/Contents/Frameworks/QtDBus.framework/Versions/5/Resources/Info.plist
-    install_name_tool -id @executable_path/../Frameworks/QtDBus.framework/Versions/5/QtDBus ./OBS-WebRTC.app/Contents/Frameworks/QtDBus.framework/Versions/5/QtDBus
-    install_name_tool -change /tmp/obsdeps/lib/QtCore.framework/Versions/5/QtCore @executable_path/../Frameworks/QtCore.framework/Versions/5/QtCore ./OBS-WebRTC.app/Contents/Frameworks/QtDBus.framework/Versions/5/QtDBus
+    # step "Copy QtDBus for plugin support"
+    # /bin/cp -R /tmp/obsdeps/lib/QtDBus.framework ./OBS-WebRTC.app/Contents/Frameworks
+    # /bin/chmod -R +w ./OBS-WebRTC.app/Contents/Frameworks/QtDBus.framework
+    # /bin/rm -r ./OBS-WebRTC.app/Contents/Frameworks/QtDBus.framework/Headers
+    # /bin/rm -r ./OBS-WebRTC.app/Contents/Frameworks/QtDBus.framework/Versions/5/Headers/
+    # /bin/chmod 644 ./OBS-WebRTC.app/Contents/Frameworks/QtDBus.framework/Versions/5/Resources/Info.plist
+    # install_name_tool -id @executable_path/../Frameworks/QtDBus.framework/Versions/5/QtDBus ./OBS-WebRTC.app/Contents/Frameworks/QtDBus.framework/Versions/5/QtDBus
+    # install_name_tool -change /tmp/obsdeps/lib/QtCore.framework/Versions/5/QtCore @executable_path/../Frameworks/QtCore.framework/Versions/5/QtCore ./OBS-WebRTC.app/Contents/Frameworks/QtDBus.framework/Versions/5/QtDBus
 
-    step "Copy QtPrintSupport for plugin support"
-    /bin/cp -R /tmp/obsdeps/lib/QtPrintSupport.framework ./OBS-WebRTC.app/Contents/Frameworks
-    /bin/chmod -R +w ./OBS-WebRTC.app/Contents/Frameworks/QtPrintSupport.framework
-    /bin/rm -r ./OBS-WebRTC.app/Contents/Frameworks/QtPrintSupport.framework/Headers
-    /bin/rm -r ./OBS-WebRTC.app/Contents/Frameworks/QtPrintSupport.framework/Versions/5/Headers/
-    /bin/chmod 644 ./OBS-WebRTC.app/Contents/Frameworks/QtPrintSupport.framework/Versions/5/Resources/Info.plist
-    install_name_tool -id @executable_path/../Frameworks/QtPrintSupport.framework/Versions/5/QtPrintSupport ./OBS-WebRTC.app/Contents/Frameworks/QtPrintSupport.framework/Versions/5/QtPrintSupport
-    install_name_tool -change /tmp/obsdeps/lib/QtCore.framework/Versions/5/QtCore @executable_path/../Frameworks/QtCore.framework/Versions/5/QtCore ./OBS-WebRTC.app/Contents/Frameworks/QtPrintSupport.framework/Versions/5/QtPrintSupport
+    # step "Copy QtPrintSupport for plugin support"
+    # /bin/cp -R /tmp/obsdeps/lib/QtPrintSupport.framework ./OBS-WebRTC.app/Contents/Frameworks
+    # /bin/chmod -R +w ./OBS-WebRTC.app/Contents/Frameworks/QtPrintSupport.framework
+    # /bin/rm -r ./OBS-WebRTC.app/Contents/Frameworks/QtPrintSupport.framework/Headers
+    # /bin/rm -r ./OBS-WebRTC.app/Contents/Frameworks/QtPrintSupport.framework/Versions/5/Headers/
+    # /bin/chmod 644 ./OBS-WebRTC.app/Contents/Frameworks/QtPrintSupport.framework/Versions/5/Resources/Info.plist
+    # install_name_tool -id @executable_path/../Frameworks/QtPrintSupport.framework/Versions/5/QtPrintSupport ./OBS-WebRTC.app/Contents/Frameworks/QtPrintSupport.framework/Versions/5/QtPrintSupport
+    # install_name_tool -change /tmp/obsdeps/lib/QtCore.framework/Versions/5/QtCore @executable_path/../Frameworks/QtCore.framework/Versions/5/QtCore ./OBS-WebRTC.app/Contents/Frameworks/QtPrintSupport.framework/Versions/5/QtPrintSupport
 }
 
 install_frameworks() {
