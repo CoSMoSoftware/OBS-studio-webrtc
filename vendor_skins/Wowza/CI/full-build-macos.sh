@@ -308,14 +308,14 @@ configure_obs_build() {
         -DBUILD_BROWSER=ON \
         -DBROWSER_LEGACY=OFF \
         -DWITH_RTMPS=ON \
-        -DCEF_ROOT_DIR="${DEPS_BUILD_DIR}/cef_binary_${MACOS_CEF_BUILD_VERSION}_macosx64" \
+        -DCEF_ROOT_DIR="${DEPS_BUILD_DIR}/cef_binary_${MACOS_CEF_BUILD_VERSION}_macos_x86_64" \
         -DCMAKE_BUILD_TYPE="${BUILD_CONFIG}" \
         .. \
         ${vendor_option} \
         -Dlibwebrtc_DIR="${DEPS_BUILD_DIR}/libwebrtc/cmake" \
         -DOPENSSL_ROOT_DIR="/usr/local/opt/openssl@1.1" \
         -DBUILD_NDI=ON \
-        -DBUILD_WEBSOCKET=ON \
+        -DBUILD_WEBSOCKET=OFF \
         -DLIBOBS_INCLUDE_DIR=../libobs \
         -DLIBOBS_LIB=`pwd`/libobs/libobs.0.dylib \
         -DOBS_FRONTEND_LIB=`pwd`/UI/obs-frontend-api/libobs-frontend-api.dylib
@@ -341,92 +341,47 @@ bundle_dylibs() {
     hr "Bundle dylibs for macOS application"
 
     step "Run dylibBundler.."
-#    ${CI_SCRIPTS}/app/dylibbundler -cd -of -a "./Wowza-OBS-Real-Time.app" -q -f \
-#        -s "./Wowza-OBS-Real-Time.app/Contents/MacOS" \
-#        -s ./rundir/${BUILD_CONFIG}/bin/ \
-#        -x "./Wowza-OBS-Real-Time.app/Contents/PlugIns/coreaudio-encoder.so" \
-#        -x "./Wowza-OBS-Real-Time.app/Contents/PlugIns/decklink-ouput-ui.so" \
-#        -x "./Wowza-OBS-Real-Time.app/Contents/PlugIns/decklink-captions.so" \
-#        -x "./Wowza-OBS-Real-Time.app/Contents/PlugIns/frontend-tools.so" \
-#        -x "./Wowza-OBS-Real-Time.app/Contents/PlugIns/image-source.so" \
-#        -x "./Wowza-OBS-Real-Time.app/Contents/PlugIns/mac-avcapture.so" \
-#        -x "./Wowza-OBS-Real-Time.app/Contents/PlugIns/mac-capture.so" \
-#        -x "./Wowza-OBS-Real-Time.app/Contents/PlugIns/mac-decklink.so" \
-#        -x "./Wowza-OBS-Real-Time.app/Contents/PlugIns/mac-syphon.so" \
-#        -x "./Wowza-OBS-Real-Time.app/Contents/PlugIns/mac-vth264.so" \
-#        -x "./Wowza-OBS-Real-Time.app/Contents/PlugIns/mac-virtualcam.so" \
-#        -x "./Wowza-OBS-Real-Time.app/Contents/PlugIns/obs-browser.so" \
-#        -x "./Wowza-OBS-Real-Time.app/Contents/PlugIns/obs-ffmpeg.so" \
-#        -x "./Wowza-OBS-Real-Time.app/Contents/PlugIns/obs-filters.so" \
-#        -x "./Wowza-OBS-Real-Time.app/Contents/PlugIns/obs-transitions.so" \
-#        -x "./Wowza-OBS-Real-Time.app/Contents/PlugIns/obs-vst.so" \
-#        -x "./Wowza-OBS-Real-Time.app/Contents/PlugIns/rtmp-services.so" \
-#        -x "./Wowza-OBS-Real-Time.app/Contents/MacOS/obs-ffmpeg-mux" \
-#        -x "./Wowza-OBS-Real-Time.app/Contents/MacOS/obslua.so" \
-#        -x "./Wowza-OBS-Real-Time.app/Contents/PlugIns/obs-x264.so" \
-#        -x "./Wowza-OBS-Real-Time.app/Contents/PlugIns/text-freetype2.so" \
-#        -x "./Wowza-OBS-Real-Time.app/Contents/PlugIns/obs-outputs.so" \
-#        -x "./Wowza-OBS-Real-Time.app/Contents/PlugIns/obs-ndi.so" \
-#        -x "./Wowza-OBS-Real-Time.app/Contents/PlugIns/obs-websocket.so"
-
-    BUNDLE_PLUGINS=(
-        ./Wowza-OBS-Real-Time.app/Contents/PlugIns/coreaudio-encoder.so
-        ./Wowza-OBS-Real-Time.app/Contents/PlugIns/decklink-ouput-ui.so
-        ./Wowza-OBS-Real-Time.app/Contents/PlugIns/decklink-captions.so
-        ./Wowza-OBS-Real-Time.app/Contents/PlugIns/frontend-tools.so
-        ./Wowza-OBS-Real-Time.app/Contents/PlugIns/image-source.so
-        ./Wowza-OBS-Real-Time.app/Contents/PlugIns/mac-avcapture.so
-        ./Wowza-OBS-Real-Time.app/Contents/PlugIns/mac-capture.so
-        ./Wowza-OBS-Real-Time.app/Contents/PlugIns/mac-decklink.so
-        ./Wowza-OBS-Real-Time.app/Contents/PlugIns/mac-syphon.so
-        ./Wowza-OBS-Real-Time.app/Contents/PlugIns/mac-vth264.so
-        ./Wowza-OBS-Real-Time.app/Contents/PlugIns/mac-virtualcam.so
-        ./Wowza-OBS-Real-Time.app/Contents/PlugIns/obs-browser.so
-        ./Wowza-OBS-Real-Time.app/Contents/PlugIns/obs-ffmpeg.so
-        ./Wowza-OBS-Real-Time.app/Contents/PlugIns/obs-filters.so
-        ./Wowza-OBS-Real-Time.app/Contents/PlugIns/obs-transitions.so
-        ./Wowza-OBS-Real-Time.app/Contents/PlugIns/obs-vst.so
-        ./Wowza-OBS-Real-Time.app/Contents/PlugIns/rtmp-services.so
-        ./Wowza-OBS-Real-Time.app/Contents/MacOS/obs-ffmpeg-mux
-        ./Wowza-OBS-Real-Time.app/Contents/MacOS/obslua.so
-        ./Wowza-OBS-Real-Time.app/Contents/PlugIns/obs-x264.so
-        ./Wowza-OBS-Real-Time.app/Contents/PlugIns/text-freetype2.so
-        ./Wowza-OBS-Real-Time.app/Contents/PlugIns/obs-outputs.so
-        ./Wowza-OBS-Real-Time.app/Contents/PlugIns/aja.so
-        ./Wowza-OBS-Real-Time.app/Contents/PlugIns/aja-output-ui.so
-        ./Wowza-OBS-Real-Time.app/Contents/PlugIns/obs-ndi.so
-        ./Wowza-OBS-Real-Time.app/Contents/PlugIns/obs-websocket.so
-        )
-
-    SEARCH_PATHS=(
-        /tmp/obsdeps/lib
-        /tmp/obsdeps/lib/QtSvg.framework
-        /tmp/obsdeps/lib/QtXml.framework
-        /tmp/obsdeps/lib/QtNetwork.framework
-        /tmp/obsdeps/lib/QtCore.framework
-        /tmp/obsdeps/lib/QtGui.framework
-        /tmp/obsdeps/lib/QtWidgets.framework
-        /tmp/obsdeps/lib/QtDBus.framework
-        /tmp/obsdeps/lib/QtPrintSupport.framework
-    )
-    "${CI_SCRIPTS}/app/dylibbundler" -cd -of -a ./Wowza-OBS-Real-Time.app -q -f \
-        -s ./Wowza-OBS-Real-Time.app/Contents/MacOS \
-        -s ./rundir/${BUILD_CONFIG}/bin/ \
-        $(echo "${SEARCH_PATHS[@]/#/-s }") \
-        $(echo "${BUNDLE_PLUGINS[@]/#/-x }") \
-        -x ./Wowza-OBS-Real-Time.app/Contents/PlugIns/obs-browser-page
+    ${CI_SCRIPTS}/app/dylibbundler -cd -of -a ./Wowza-OBS-Real-Time.app -q -f \
+       -s ./Wowza-OBS-Real-Time.app/Contents/MacOS \
+       -s ./rundir/${BUILD_CONFIG}/bin/ \
+       -s /tmp/obsdeps/lib \
+       -s /tmp/obsdeps/lib/QtSvg.framework \
+       -s /tmp/obsdeps/lib/QtXml.framework \
+       -s /tmp/obsdeps/lib/QtNetwork.framework \
+       -s /tmp/obsdeps/lib/QtCore.framework \
+       -s /tmp/obsdeps/lib/QtGui.framework \
+       -s /tmp/obsdeps/lib/QtWidgets.framework \
+       -s /tmp/obsdeps/lib/QtDBus.framework \
+       -s /tmp/obsdeps/lib/QtPrintSupport.framework \
+       -x ./Wowza-OBS-Real-Time.app/Contents/PlugIns/coreaudio-encoder.so \
+       -x ./Wowza-OBS-Real-Time.app/Contents/PlugIns/decklink-ouput-ui.so \
+       -x ./Wowza-OBS-Real-Time.app/Contents/PlugIns/decklink-captions.so \
+       -x ./Wowza-OBS-Real-Time.app/Contents/PlugIns/frontend-tools.so \
+       -x ./Wowza-OBS-Real-Time.app/Contents/PlugIns/image-source.so \
+       -x ./Wowza-OBS-Real-Time.app/Contents/PlugIns/mac-avcapture.so \
+       -x ./Wowza-OBS-Real-Time.app/Contents/PlugIns/mac-capture.so \
+       -x ./Wowza-OBS-Real-Time.app/Contents/PlugIns/mac-decklink.so \
+       -x ./Wowza-OBS-Real-Time.app/Contents/PlugIns/mac-syphon.so \
+       -x ./Wowza-OBS-Real-Time.app/Contents/PlugIns/mac-vth264.so \
+       -x ./Wowza-OBS-Real-Time.app/Contents/PlugIns/mac-virtualcam.so \
+       -x ./Wowza-OBS-Real-Time.app/Contents/PlugIns/obs-browser.so \
+       -x ./Wowza-OBS-Real-Time.app/Contents/PlugIns/obs-ffmpeg.so \
+       -x ./Wowza-OBS-Real-Time.app/Contents/PlugIns/obs-filters.so \
+       -x ./Wowza-OBS-Real-Time.app/Contents/PlugIns/obs-transitions.so \
+       -x ./Wowza-OBS-Real-Time.app/Contents/PlugIns/obs-vst.so \
+       -x ./Wowza-OBS-Real-Time.app/Contents/PlugIns/rtmp-services.so \
+       -x ./Wowza-OBS-Real-Time.app/Contents/MacOS/obs-ffmpeg-mux \
+       -x ./Wowza-OBS-Real-Time.app/Contents/MacOS/obslua.so \
+       -x ./Wowza-OBS-Real-Time.app/Contents/PlugIns/obs-x264.so \
+       -x ./Wowza-OBS-Real-Time.app/Contents/PlugIns/text-freetype2.so \
+       -x ./Wowza-OBS-Real-Time.app/Contents/PlugIns/obs-outputs.so \
+       -x ./Wowza-OBS-Real-Time.app/Contents/PlugIns/aja.so \
+       -x ./Wowza-OBS-Real-Time.app/Contents/PlugIns/aja-output-ui.so \
+       -x ./Wowza-OBS-Real-Time.app/Contents/PlugIns/obs-ndi.so
+#       -x ./Wowza-OBS-Real-Time.app/Contents/PlugIns/obs-websocket.so
 
     step "Move libobs-opengl to final destination"
     /bin/cp ./libobs-opengl/libobs-opengl.so "./Wowza-OBS-Real-Time.app/Contents/Frameworks"
-
-    step "Copy QtNetwork for plugin support"
-#    /bin/cp -R /tmp/obsdeps/lib/QtNetwork.framework "./Wowza-OBS-Real-Time.app/Contents/Frameworks"
-    /bin/chmod -R +w "./Wowza-OBS-Real-Time.app/Contents/Frameworks/QtNetwork.framework"
-    /bin/rm -r "./Wowza-OBS-Real-Time.app/Contents/Frameworks/QtNetwork.framework/Headers"
-#    /bin/rm -r "./Wowza-OBS-Real-Time.app/Contents/Frameworks/QtNetwork.framework/Versions/5/Headers/"
-    /bin/chmod 644 ."/Wowza-OBS-Real-Time.app/Contents/Frameworks/QtNetwork.framework/Versions/5/Resources/Info.plist"
-    install_name_tool -id @executable_path/../Frameworks/QtNetwork.framework/Versions/5/QtNetwork "./Wowza-OBS-Real-Time.app/Contents/Frameworks/QtNetwork.framework/Versions/5/QtNetwork"
-    install_name_tool -change /tmp/obsdeps/lib/QtCore.framework/Versions/5/QtCore @executable_path/../Frameworks/QtCore.framework/Versions/5/QtCore "./Wowza-OBS-Real-Time.app/Contents/Frameworks/QtNetwork.framework/Versions/5/QtNetwork"
 }
 
 install_frameworks() {
@@ -478,6 +433,8 @@ prepare_macos_bundle() {
         # /bin/mv "./Wowza-OBS-Real-Time.app/Contents/Resources/data/obs-scripting/obspython.py" "./Wowza-OBS-Real-Time.app/Contents/MacOS/"
         /bin/rm -rf "./Wowza-OBS-Real-Time.app/Contents/Resources/data/obs-scripting/"
     fi
+    # dylibbundler will only copy actually linked files into bundle, but not symlinks
+    /bin/cp -cpR /tmp/obsdeps/lib/*.dylib ./OBS-WebRTC.app/Contents/Frameworks
 
     bundle_dylibs
     install_frameworks

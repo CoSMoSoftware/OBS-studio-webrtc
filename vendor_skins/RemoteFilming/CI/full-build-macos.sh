@@ -341,93 +341,47 @@ bundle_dylibs() {
     hr "Bundle dylibs for macOS application"
 
     step "Run dylibBundler.."
-#    ${CI_SCRIPTS}/app/dylibbundler -cd -of -a ./RemoteFilming.app -q -f \
-#        -s ./RemoteFilming.app/Contents/MacOS \
-#        -s ./rundir/${BUILD_CONFIG}/bin/ \
-#        -x ./RemoteFilming.app/Contents/PlugIns/coreaudio-encoder.so \
-#        -x ./RemoteFilming.app/Contents/PlugIns/decklink-ouput-ui.so \
-#        -x ./RemoteFilming.app/Contents/PlugIns/decklink-captions.so \
-#        -x ./RemoteFilming.app/Contents/PlugIns/frontend-tools.so \
-#        -x ./RemoteFilming.app/Contents/PlugIns/image-source.so \
-#        -x ./RemoteFilming.app/Contents/PlugIns/mac-avcapture.so \
-#        -x ./RemoteFilming.app/Contents/PlugIns/mac-capture.so \
-#        -x ./RemoteFilming.app/Contents/PlugIns/mac-decklink.so \
-#        -x ./RemoteFilming.app/Contents/PlugIns/mac-syphon.so \
-#        -x ./RemoteFilming.app/Contents/PlugIns/mac-vth264.so \
-#        -x ./RemoteFilming.app/Contents/PlugIns/mac-virtualcam.so \
-#        -x ./RemoteFilming.app/Contents/PlugIns/obs-ffmpeg.so \
-#        -x ./RemoteFilming.app/Contents/PlugIns/obs-filters.so \
-#        -x ./RemoteFilming.app/Contents/PlugIns/obs-transitions.so \
-#        -x ./RemoteFilming.app/Contents/PlugIns/obs-vst.so \
-#        -x ./RemoteFilming.app/Contents/PlugIns/rtmp-services.so \
-#        -x ./RemoteFilming.app/Contents/MacOS/obs-ffmpeg-mux \
-#        -x ./RemoteFilming.app/Contents/MacOS/obslua.so \
-#        -x ./RemoteFilming.app/Contents/PlugIns/obs-x264.so \
-#        -x ./RemoteFilming.app/Contents/PlugIns/text-freetype2.so \
-#        -x ./RemoteFilming.app/Contents/PlugIns/obs-outputs.so \
-#        -x ./RemoteFilming.app/Contents/PlugIns/aja.so \
-#        -x ./RemoteFilming.app/Contents/PlugIns/aja-output-ui.so \
-#        -x ./RemoteFilming.app/Contents/PlugIns/obs-ndi.so \
-#        -x ./RemoteFilming.app/Contents/PlugIns/obs-websocket.so
-#        -x ./RemoteFilming.app/Contents/PlugIns/obs-browser.so \
-
-    BUNDLE_PLUGINS=(
-        ./RemoteFilming.app/Contents/PlugIns/coreaudio-encoder.so
-        ./RemoteFilming.app/Contents/PlugIns/decklink-ouput-ui.so
-        ./RemoteFilming.app/Contents/PlugIns/decklink-captions.so
-        ./RemoteFilming.app/Contents/PlugIns/frontend-tools.so
-        ./RemoteFilming.app/Contents/PlugIns/image-source.so
-        ./RemoteFilming.app/Contents/PlugIns/mac-avcapture.so
-        ./RemoteFilming.app/Contents/PlugIns/mac-capture.so
-        ./RemoteFilming.app/Contents/PlugIns/mac-decklink.so
-        ./RemoteFilming.app/Contents/PlugIns/mac-syphon.so
-        ./RemoteFilming.app/Contents/PlugIns/mac-vth264.so
-        ./RemoteFilming.app/Contents/PlugIns/mac-virtualcam.so
-        ./RemoteFilming.app/Contents/PlugIns/obs-ffmpeg.so
-        ./RemoteFilming.app/Contents/PlugIns/obs-filters.so
-        ./RemoteFilming.app/Contents/PlugIns/obs-transitions.so
-        ./RemoteFilming.app/Contents/PlugIns/obs-vst.so
-        ./RemoteFilming.app/Contents/PlugIns/rtmp-services.so
-        ./RemoteFilming.app/Contents/MacOS/obs-ffmpeg-mux
-        ./RemoteFilming.app/Contents/MacOS/obslua.so
-        ./RemoteFilming.app/Contents/PlugIns/obs-x264.so
-        ./RemoteFilming.app/Contents/PlugIns/text-freetype2.so
-        ./RemoteFilming.app/Contents/PlugIns/obs-outputs.so
-        ./RemoteFilming.app/Contents/PlugIns/aja.so
-        ./RemoteFilming.app/Contents/PlugIns/aja-output-ui.so
-        ./RemoteFilming.app/Contents/PlugIns/obs-ndi.so
-        ./RemoteFilming.app/Contents/PlugIns/obs-websocket.so
-        )
-
-    SEARCH_PATHS=(
-        /tmp/obsdeps/lib
-        /tmp/obsdeps/lib/QtSvg.framework
-        /tmp/obsdeps/lib/QtXml.framework
-        /tmp/obsdeps/lib/QtNetwork.framework
-        /tmp/obsdeps/lib/QtCore.framework
-        /tmp/obsdeps/lib/QtGui.framework
-        /tmp/obsdeps/lib/QtWidgets.framework
-        /tmp/obsdeps/lib/QtDBus.framework
-        /tmp/obsdeps/lib/QtPrintSupport.framework
-    )
-    "${CI_SCRIPTS}/app/dylibbundler" -cd -of -a ./RemoteFilming.app -q -f \
-        -s ./RemoteFilming.app/Contents/MacOS \
-        -s ./rundir/${BUILD_CONFIG}/bin/ \
-        $(echo "${SEARCH_PATHS[@]/#/-s }") \
-        $(echo "${BUNDLE_PLUGINS[@]/#/-x }") \
-        -x ./RemoteFilming.app/Contents/PlugIns/obs-browser-page
+    ${CI_SCRIPTS}/app/dylibbundler -cd -of -a ./RemoteFilming.app -q -f \
+       -s ./RemoteFilming.app/Contents/MacOS \
+       -s ./rundir/${BUILD_CONFIG}/bin/ \
+       -s /tmp/obsdeps/lib \
+       -s /tmp/obsdeps/lib/QtSvg.framework \
+       -s /tmp/obsdeps/lib/QtXml.framework \
+       -s /tmp/obsdeps/lib/QtNetwork.framework \
+       -s /tmp/obsdeps/lib/QtCore.framework \
+       -s /tmp/obsdeps/lib/QtGui.framework \
+       -s /tmp/obsdeps/lib/QtWidgets.framework \
+       -s /tmp/obsdeps/lib/QtDBus.framework \
+       -s /tmp/obsdeps/lib/QtPrintSupport.framework \
+       -x ./RemoteFilming.app/Contents/PlugIns/coreaudio-encoder.so \
+       -x ./RemoteFilming.app/Contents/PlugIns/decklink-ouput-ui.so \
+       -x ./RemoteFilming.app/Contents/PlugIns/decklink-captions.so \
+       -x ./RemoteFilming.app/Contents/PlugIns/frontend-tools.so \
+       -x ./RemoteFilming.app/Contents/PlugIns/image-source.so \
+       -x ./RemoteFilming.app/Contents/PlugIns/mac-avcapture.so \
+       -x ./RemoteFilming.app/Contents/PlugIns/mac-capture.so \
+       -x ./RemoteFilming.app/Contents/PlugIns/mac-decklink.so \
+       -x ./RemoteFilming.app/Contents/PlugIns/mac-syphon.so \
+       -x ./RemoteFilming.app/Contents/PlugIns/mac-vth264.so \
+       -x ./RemoteFilming.app/Contents/PlugIns/mac-virtualcam.so \
+       -x ./RemoteFilming.app/Contents/PlugIns/obs-browser.so \
+       -x ./RemoteFilming.app/Contents/PlugIns/obs-ffmpeg.so \
+       -x ./RemoteFilming.app/Contents/PlugIns/obs-filters.so \
+       -x ./RemoteFilming.app/Contents/PlugIns/obs-transitions.so \
+       -x ./RemoteFilming.app/Contents/PlugIns/obs-vst.so \
+       -x ./RemoteFilming.app/Contents/PlugIns/rtmp-services.so \
+       -x ./RemoteFilming.app/Contents/MacOS/obs-ffmpeg-mux \
+       -x ./RemoteFilming.app/Contents/MacOS/obslua.so \
+       -x ./RemoteFilming.app/Contents/PlugIns/obs-x264.so \
+       -x ./RemoteFilming.app/Contents/PlugIns/text-freetype2.so \
+       -x ./RemoteFilming.app/Contents/PlugIns/obs-outputs.so \
+       -x ./RemoteFilming.app/Contents/PlugIns/aja.so \
+       -x ./RemoteFilming.app/Contents/PlugIns/aja-output-ui.so \
+       -x ./RemoteFilming.app/Contents/PlugIns/obs-ndi.so
+#       -x ./RemoteFilming.app/Contents/PlugIns/obs-websocket.so
 
     step "Move libobs-opengl to final destination"
     /bin/cp ./libobs-opengl/libobs-opengl.so ./RemoteFilming.app/Contents/Frameworks
-
-    step "Copy QtNetwork for plugin support"
-#    /bin/cp -R /tmp/obsdeps/lib/QtNetwork.framework ./RemoteFilming.app/Contents/Frameworks
-    /bin/chmod -R +w ./RemoteFilming.app/Contents/Frameworks/QtNetwork.framework
-    /bin/rm -r ./RemoteFilming.app/Contents/Frameworks/QtNetwork.framework/Headers
-#    /bin/rm -r ./RemoteFilming.app/Contents/Frameworks/QtNetwork.framework/Versions/5/Headers/
-    /bin/chmod 644 ./RemoteFilming.app/Contents/Frameworks/QtNetwork.framework/Versions/5/Resources/Info.plist
-    install_name_tool -id @executable_path/../Frameworks/QtNetwork.framework/Versions/5/QtNetwork ./RemoteFilming.app/Contents/Frameworks/QtNetwork.framework/Versions/5/QtNetwork
-    install_name_tool -change /tmp/obsdeps/lib/QtCore.framework/Versions/5/QtCore @executable_path/../Frameworks/QtCore.framework/Versions/5/QtCore ./RemoteFilming.app/Contents/Frameworks/QtNetwork.framework/Versions/5/QtNetwork
 }
 
 install_frameworks() {
@@ -479,6 +433,8 @@ prepare_macos_bundle() {
         # /bin/mv ./RemoteFilming.app/Contents/Resources/data/obs-scripting/obspython.py ./RemoteFilming.app/Contents/MacOS/
         /bin/rm -rf ./RemoteFilming.app/Contents/Resources/data/obs-scripting/
     fi
+    # dylibbundler will only copy actually linked files into bundle, but not symlinks
+    /bin/cp -cpR /tmp/obsdeps/lib/*.dylib ./RemoteFilming.app/Contents/Frameworks
 
     bundle_dylibs
 #    install_frameworks
