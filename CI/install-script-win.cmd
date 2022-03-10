@@ -1,10 +1,9 @@
-if exist dependencies2019.zip (curl -kLO https://cdn-fastly.obsproject.com/downloads/dependencies2019.zip -f --retry 5 dependencies2019.zip) else (curl -kLO https://cdn-fastly.obsproject.com/downloads/dependencies2019.zip -f --retry 5 -C -)
-if exist vlc.zip (curl -kLO https://cdn-fastly.obsproject.com/downloads/vlc.zip -f --retry 5 vlc.zip) else (curl -kLO https://cdn-fastly.obsproject.com/downloads/vlc.zip -f --retry 5 -C -)
-         cef_binary_${{ env.WINDOWS_CEF_BUILD_VERSION }}_windows_x64
-if exist cef_binary_%CEF_VERSION%_windows_x64.zip (curl -kLO https://cdn-fastly.obsproject.com/downloads/cef_binary_%CEF_VERSION%_windows_x64.zip -f --retry 5 cef_binary_%CEF_VERSION%_windows_x64.zip) else (curl -kLO https://cdn-fastly.obsproject.com/downloads/cef_binary_%CEF_VERSION%_windows_x64.zip -f --retry 5 -C -)
-7z x dependencies2019.zip -odependencies2019
-7z x vlc.zip -ovlc
-7z x cef_binary_%CEF_VERSION%_windows_x64.zip -oCEF_64
+REM if exist dependencies2019.zip (curl -kLO https://cdn-fastly.obsproject.com/downloads/dependencies2019.zip -f --retry 5 dependencies2019.zip) else (curl -kLO https://cdn-fastly.obsproject.com/downloads/dependencies2019.zip -f --retry 5 -C -)
+REM if exist vlc.zip (curl -kLO https://cdn-fastly.obsproject.com/downloads/vlc.zip -f --retry 5 vlc.zip) else (curl -kLO https://cdn-fastly.obsproject.com/downloads/vlc.zip -f --retry 5 -C -)
+REM if exist cef_binary_%CEF_VERSION%_windows_x64.zip (curl -kLO https://cdn-fastly.obsproject.com/downloads/cef_binary_%CEF_VERSION%_windows_x64.zip -f --retry 5 cef_binary_%CEF_VERSION%_windows_x64.zip) else (curl -kLO https://cdn-fastly.obsproject.com/downloads/cef_binary_%CEF_VERSION%_windows_x64.zip -f --retry 5 -C -)
+REM 7z x dependencies2019.zip -odependencies2019
+REM 7z x vlc.zip -ovlc
+REM 7z x cef_binary_%CEF_VERSION%_windows_x64.zip -oCEF_64
 set DepsPath64=%CD%\dependencies2019\win64
 set VLCPath=%CD%\vlc
 set QTDIR64=C:\QtDep\Qt\5.15.2\msvc2019_64
