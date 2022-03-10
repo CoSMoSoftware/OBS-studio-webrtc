@@ -228,6 +228,9 @@ file(GLOB OPENSSL_BIN_FILES
 	"${OPENSSL_INCLUDE_DIR}/bin/libcrypto*.dll"
 	"${OPENSSL_INCLUDE_DIR}/bin/libssl*.dll")
 
+file(GLOB AJANTV2_BIN_FILES
+	"${AJA_LIBRARIES_INCLUDE_DIR}/../bin/ajantv2shared.dll")
+
 set(ALL_BASE_BIN_FILES
 	${FFMPEG_BIN_FILES}
 	${X264_BIN_FILES}
@@ -238,7 +241,8 @@ set(ALL_BASE_BIN_FILES
 	${LIBFDK_BIN_FILES}
 	${FREETYPE_BIN_FILES}
 	${QT_ICU_BIN_FILES}
-	${OPENSSL_BIN_FILES})
+	${OPENSSL_BIN_FILES}
+	${AJANTV2_BIN_FILES})
 
 set(ALL_REL_BIN_FILES
 	${QT_BIN_FILES})
@@ -301,6 +305,7 @@ message(STATUS "QT Release Iconengine files: ${QT_ICONENGINE_BIN_FILES}")
 message(STATUS "QT Release Imageformat files: ${QT_IMAGEFORMATS_BIN_FILES}")
 message(STATUS "QT ICU files: ${QT_ICU_BIN_FILES}")
 message(STATUS "OpenSSL files: ${OPENSSL_BIN_FILES}")
+message(STATUS "libajantv2 files: ${AJANTV2_BIN_FILES}")
 
 foreach(BinFile ${ALL_BASE_BIN_FILES})
 	message(STATUS "copying ${BinFile} to ${CMAKE_SOURCE_DIR}/additional_install_files/exec${_bin_suffix}")
