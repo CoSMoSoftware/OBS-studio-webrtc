@@ -35,6 +35,7 @@
 #include "browser-config.h"
 
 #include "json11/json11.hpp"
+#include "obs-websocket-api/obs-websocket-api.h"
 #include "cef-headers.hpp"
 
 #ifdef _WIN32
@@ -217,8 +218,12 @@ static obs_properties_t *browser_source_get_properties(void *data)
 		(int)ControlLevel::None);
 	obs_property_list_add_int(
 		controlLevel,
-		obs_module_text("WebpageControlLevel.Level.ReadOnly"),
-		(int)ControlLevel::ReadOnly);
+		obs_module_text("WebpageControlLevel.Level.ReadObs"),
+		(int)ControlLevel::ReadObs);
+	obs_property_list_add_int(
+		controlLevel,
+		obs_module_text("WebpageControlLevel.Level.ReadUser"),
+		(int)ControlLevel::ReadUser);
 	obs_property_list_add_int(
 		controlLevel,
 		obs_module_text("WebpageControlLevel.Level.Basic"),
@@ -436,10 +441,7 @@ void RegisterBrowserSource()
 	struct obs_source_info info = {};
 	info.id = "browser_source";
 	info.type = OBS_SOURCE_TYPE_INPUT;
-	info.output_flags = OBS_SOURCE_VIDEO |
-#if CHROME_VERSION_BUILD >= 3683
-			    OBS_SOURCE_AUDIO |
-#endif
+	info.output_flags = OBS_SOURCE_VIDEO | OBS_SOURCE_AUDIO |
 			    OBS_SOURCE_CUSTOM_DRAW | OBS_SOURCE_INTERACTION |
 			    OBS_SOURCE_DO_NOT_DUPLICATE | OBS_SOURCE_SRGB;
 	info.get_properties = browser_source_get_properties;
@@ -452,7 +454,7 @@ void RegisterBrowserSource()
 		return new BrowserSource(settings, source);
 	};
 	info.destroy = [](void *data) {
-		delete static_cast<BrowserSource *>(data);
+		static_cast<BrowserSource *>(data)->Destroy();
 	};
 	info.missing_files = browser_source_missingfiles;
 	info.update = [](void *data, obs_data_t *settings) {
@@ -470,7 +472,7 @@ void RegisterBrowserSource()
 	info.video_render = [](void *data, gs_effect_t *) {
 		static_cast<BrowserSource *>(data)->Render();
 	};
-#if CHROME_VERSION_BUILD >= 3683 && CHROME_VERSION_BUILD < 4103
+#if CHROME_VERSION_BUILD < 4103
 	info.audio_mix = [](void *data, uint64_t *ts_out,
 			    struct audio_output_data *audio_output,
 			    size_t channels, size_t sample_rate) {
@@ -733,6 +735,33 @@ bool obs_module_load(void)
 #endif
 
 	return true;
+}
+
+void obs_module_post_load(void)
+{
+	auto vendor = obs_websocket_register_vendor("obs-browser");
+	if (!vendor)
+		return;
+
+	auto emit_event_request_cb = [](obs_data_t *request_data, obs_data_t *,
+					void *) {
+		const char *event_name =
+			obs_data_get_string(request_data, "event_name");
+		if (!event_name)
+			return;
+
+		OBSDataAutoRelease event_data =
+			obs_data_get_obj(request_data, "event_data");
+		const char *event_data_string =
+			event_data ? obs_data_get_json(event_data) : "{}";
+
+		DispatchJSEvent(event_name, event_data_string, nullptr);
+	};
+
+	if (!obs_websocket_vendor_register_request(
+		    vendor, "emit_event", emit_event_request_cb, nullptr))
+		blog(LOG_WARNING,
+		     "[obs-browser]: Failed to register obs-websocket request emit_event");
 }
 
 void obs_module_unload(void)
