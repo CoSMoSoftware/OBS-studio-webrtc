@@ -2617,7 +2617,7 @@ index 42d42df..aa2a7ba 100644
  
  class Config;
 diff --git a/plugins/obs-websocket/src/protocol/OBSRemoteProtocol.cpp b/plugins/obs-websocket/src/protocol/OBSRemoteProtocol.cpp
-index 13ca159..a402cbe 100644
+index 13ca159..8d0cc0e 100644
 --- a/plugins/obs-websocket/src/protocol/OBSRemoteProtocol.cpp
 +++ b/plugins/obs-websocket/src/protocol/OBSRemoteProtocol.cpp
 @@ -28,7 +28,7 @@ std::string OBSRemoteProtocol::processMessage(WSRequestHandler& requestHandler,
@@ -2638,7 +2638,7 @@ index 13ca159..a402cbe 100644
  	obs_data_apply(params, data);
  	obs_data_unset_user_value(params, "request-type");
  	obs_data_unset_user_value(params, "message-id");
-@@ -53,13 +53,13 @@ std::string OBSRemoteProtocol::processMessage(WSRequestHandler& requestHandler,
+@@ -53,26 +53,26 @@ std::string OBSRemoteProtocol::processMessage(WSRequestHandler& requestHandler,
  	RpcRequest request(messageId, methodName, params);
  	RpcResponse response = requestHandler.processRequest(request);
  
@@ -2654,6 +2654,21 @@ index 13ca159..a402cbe 100644
  
  	QString updateType = event.updateType();
  	obs_data_set_string(eventData, "update-type", updateType.toUtf8().constData());
+ 
+ 	std::optional<uint64_t> streamTime = event.streamTime();
+ 	if (streamTime.has_value()) {
+-		QString streamingTimecode = Utils::nsToTimestamp(streamTime.value());
++		QString streamingTimecode = Utils::nsToTimestamp(streamTime);
+ 		obs_data_set_string(eventData, "stream-timecode", streamingTimecode.toUtf8().constData());
+ 	}
+ 
+ 	std::optional<uint64_t> recordingTime = event.recordingTime();
+ 	if (recordingTime.has_value()) {
+-		QString recordingTimecode = Utils::nsToTimestamp(recordingTime.value());
++		QString recordingTimecode = Utils::nsToTimestamp(recordingTime);
+ 		obs_data_set_string(eventData, "rec-timecode", recordingTimecode.toUtf8().constData());
+ 	}
+ 
 @@ -109,7 +109,7 @@ obs_data_t* OBSRemoteProtocol::successResponse(const char* messageId, obs_data_t
  
  obs_data_t* OBSRemoteProtocol::errorResponse(const char* messageId, const char* errorMessage, obs_data_t* additionalFields)
