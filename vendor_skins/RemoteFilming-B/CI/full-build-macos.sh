@@ -437,7 +437,7 @@ prepare_macos_bundle() {
     /bin/cp -cpR /tmp/obsdeps/lib/*.dylib ./RemoteFilming.app/Contents/Frameworks
 
     bundle_dylibs
-#    install_frameworks
+    install_frameworks
 
     /bin/cp "${CI_SCRIPTS}/app/OBSPublicDSAKey.pem" ./RemoteFilming.app/Contents/Resources
 
