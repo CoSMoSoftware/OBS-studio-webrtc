@@ -377,8 +377,8 @@ bundle_dylibs() {
        -x ./Wowza-OBS-Real-Time.app/Contents/PlugIns/obs-outputs.so \
        -x ./Wowza-OBS-Real-Time.app/Contents/PlugIns/aja.so \
        -x ./Wowza-OBS-Real-Time.app/Contents/PlugIns/aja-output-ui.so \
-       -x ./Wowza-OBS-Real-Time.app/Contents/PlugIns/obs-ndi.so
-#       -x ./Wowza-OBS-Real-Time.app/Contents/PlugIns/obs-websocket.so
+       -x ./Wowza-OBS-Real-Time.app/Contents/PlugIns/obs-ndi.so \
+       -x ./Wowza-OBS-Real-Time.app/Contents/PlugIns/obs-websocket.so
 
     step "Move libobs-opengl to final destination"
     /bin/cp ./libobs-opengl/libobs-opengl.so "./Wowza-OBS-Real-Time.app/Contents/Frameworks"
