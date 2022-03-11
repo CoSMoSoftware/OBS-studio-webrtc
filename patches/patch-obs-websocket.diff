@@ -1,5 +1,5 @@
 diff --git a/plugins/obs-websocket/CMakeLists.txt b/plugins/obs-websocket/CMakeLists.txt
-index 9ed89c2..ca3419d 100644
+index 9ed89c2..71d9a46 100644
 --- a/plugins/obs-websocket/CMakeLists.txt
 +++ b/plugins/obs-websocket/CMakeLists.txt
 @@ -73,8 +73,8 @@ include_directories(
@@ -13,6 +13,12 @@ index 9ed89c2..ca3419d 100644
  
  target_link_libraries(obs-websocket
  	libobs
+@@ -225,3 +225,5 @@ if(APPLE)
+ 	target_link_libraries(obs-websocket "${OBS_FRONTEND_LIB}")
+ endif()
+ # -- End of section --
++
++install_obs_plugin_with_data(obs-websocket data)
 diff --git a/plugins/obs-websocket/deps/websocketpp b/plugins/obs-websocket/deps/websocketpp
 --- a/plugins/obs-websocket/deps/websocketpp
 +++ b/plugins/obs-websocket/deps/websocketpp
