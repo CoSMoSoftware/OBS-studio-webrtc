@@ -1,8 +1,14 @@
 diff --git a/plugins/obs-websocket/CMakeLists.txt b/plugins/obs-websocket/CMakeLists.txt
-index 9ed89c2..71d9a46 100644
+index 9ed89c2..988277c 100644
 --- a/plugins/obs-websocket/CMakeLists.txt
 +++ b/plugins/obs-websocket/CMakeLists.txt
-@@ -73,8 +73,8 @@ include_directories(
+@@ -69,12 +69,14 @@ add_library(obs-websocket MODULE
+ 	${obs-websocket_SOURCES}
+ 	${obs-websocket_HEADERS})
+ 
++add_dependencies(obs-websocket obs-frontend-api)
++
+ include_directories(
  	"${LIBOBS_INCLUDE_DIR}/../UI/obs-frontend-api"
  	${Qt5Core_INCLUDES}
  	${Qt5Widgets_INCLUDES}
