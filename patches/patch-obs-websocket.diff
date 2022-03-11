@@ -1,169 +1,2731 @@
 diff --git a/plugins/obs-websocket/CMakeLists.txt b/plugins/obs-websocket/CMakeLists.txt
-index 6b6f255..4d82db8 100644
+index 9ed89c2..ca3419d 100644
 --- a/plugins/obs-websocket/CMakeLists.txt
 +++ b/plugins/obs-websocket/CMakeLists.txt
-@@ -68,12 +68,14 @@ add_library(obs-websocket MODULE
- 	${obs-websocket_SOURCES}
- 	${obs-websocket_HEADERS})
- 
-+add_dependencies(obs-websocket obs-frontend-api)
-+
- include_directories(
+@@ -73,8 +73,8 @@ include_directories(
  	"${LIBOBS_INCLUDE_DIR}/../UI/obs-frontend-api"
  	${Qt5Core_INCLUDES}
  	${Qt5Widgets_INCLUDES}
--	"${CMAKE_SOURCE_DIR}/deps/asio/asio/include"
--	"${CMAKE_SOURCE_DIR}/deps/websocketpp")
+-	"${CMAKE_CURRENT_SOURCE_DIR}/deps/asio/asio/include"
+-	"${CMAKE_CURRENT_SOURCE_DIR}/deps/websocketpp")
 +	"${CMAKE_SOURCE_DIR}/plugins/obs-websocket/deps/asio/asio/include"
 +	"${CMAKE_SOURCE_DIR}/plugins/obs-websocket/deps/websocketpp")
  
  target_link_libraries(obs-websocket
  	libobs
-@@ -115,69 +117,69 @@ if(WIN32)
- 	# The "release" folder has a structure similar OBS' one on Windows
- 	set(RELEASE_DIR "${PROJECT_SOURCE_DIR}/release")
+diff --git a/plugins/obs-websocket/deps/websocketpp b/plugins/obs-websocket/deps/websocketpp
+--- a/plugins/obs-websocket/deps/websocketpp
++++ b/plugins/obs-websocket/deps/websocketpp
+@@ -1 +1 @@
+-Subproject commit c6d7e295bf5a0ab9b5f896720cc1a0e0fdc397a7
++Subproject commit c6d7e295bf5a0ab9b5f896720cc1a0e0fdc397a7-dirty
+diff --git a/plugins/obs-websocket/src/Utils.cpp b/plugins/obs-websocket/src/Utils.cpp
+index 3a6266b..5343680 100644
+--- a/plugins/obs-websocket/src/Utils.cpp
++++ b/plugins/obs-websocket/src/Utils.cpp
+@@ -102,7 +102,7 @@ obs_data_array_t* Utils::StringListToArray(char** strings, const char* key) {
+ 	do {
+ 		value = strings[index];
  
--	add_custom_command(TARGET obs-websocket POST_BUILD
-+#	add_custom_command(TARGET obs-websocket POST_BUILD
- 		# If config is Release, package release files
--		COMMAND if $<CONFIG:Release>==1 (
--			"${CMAKE_COMMAND}" -E make_directory
--			"${RELEASE_DIR}/data/obs-plugins/obs-websocket"
--			"${RELEASE_DIR}/obs-plugins/${ARCH_NAME}")
-+#		COMMAND if $<CONFIG:Release>==1 (
-+#			"${CMAKE_COMMAND}" -E make_directory
-+#			"${RELEASE_DIR}/data/obs-plugins/obs-websocket"
-+#			"${RELEASE_DIR}/obs-plugins/${ARCH_NAME}")
+-		OBSDataAutoRelease item = obs_data_create();
++		palakis_OBSDataAutoRelease item = obs_data_create();
+ 		obs_data_set_string(item, key, value);
  
--		COMMAND if $<CONFIG:Release>==1 ("${CMAKE_COMMAND}" -E copy_directory
--			"${PROJECT_SOURCE_DIR}/data"
--			"${RELEASE_DIR}/data/obs-plugins/obs-websocket")
-+#		COMMAND if $<CONFIG:Release>==1 ("${CMAKE_COMMAND}" -E copy_directory
-+#			"${PROJECT_SOURCE_DIR}/data"
-+#			"${RELEASE_DIR}/data/obs-plugins/obs-websocket")
+ 		if (value) {
+@@ -130,7 +130,7 @@ obs_data_array_t* Utils::GetSceneItems(obs_source_t* source) {
+ 	{
+ 		obs_data_array_t* data = reinterpret_cast<obs_data_array_t*>(param);
  
--		COMMAND if $<CONFIG:Release>==1 ("${CMAKE_COMMAND}" -E copy
--			"$<TARGET_FILE:obs-websocket>"
--			"${RELEASE_DIR}/obs-plugins/${ARCH_NAME}")
-+#		COMMAND if $<CONFIG:Release>==1 ("${CMAKE_COMMAND}" -E copy
-+#			"$<TARGET_FILE:obs-websocket>"
-+#			"${RELEASE_DIR}/obs-plugins/${ARCH_NAME}")
+-		OBSDataAutoRelease itemData = GetSceneItemData(currentItem);
++		palakis_OBSDataAutoRelease itemData = GetSceneItemData(currentItem);
+ 		obs_data_array_insert(data, 0, itemData);
+ 		return true;
+ 	}, items);
+@@ -203,11 +203,11 @@ obs_data_t* Utils::GetSceneItemData(obs_sceneitem_t* item) {
+ 	}
  
- 		# In Release mode, copy Qt image format plugins
--		COMMAND if $<CONFIG:Release>==1 (
--			"${CMAKE_COMMAND}" -E copy
--			"${QTDIR}/plugins/imageformats/qjpeg.dll"
--			"${RELEASE_DIR}/bin/${ARCH_NAME}/imageformats/qjpeg.dll")
--		COMMAND if $<CONFIG:RelWithDebInfo>==1 (
--			"${CMAKE_COMMAND}" -E copy
--			"${QTDIR}/plugins/imageformats/qjpeg.dll"
--			"${RELEASE_DIR}/bin/${ARCH_NAME}/imageformats/qjpeg.dll")
-+#		COMMAND if $<CONFIG:Release>==1 (
-+#			"${CMAKE_COMMAND}" -E copy
-+#			"${QTDIR}/plugins/imageformats/qjpeg.dll"
-+#			"${RELEASE_DIR}/bin/${ARCH_NAME}/imageformats/qjpeg.dll")
-+#		COMMAND if $<CONFIG:RelWithDebInfo>==1 (
-+#			"${CMAKE_COMMAND}" -E copy
-+#			"${QTDIR}/plugins/imageformats/qjpeg.dll"
-+#			"${RELEASE_DIR}/bin/${ARCH_NAME}/imageformats/qjpeg.dll")
+ 	if (obs_sceneitem_is_group(item)) {
+-		OBSDataArrayAutoRelease children = obs_data_array_create();
++		palakis_OBSDataArrayAutoRelease children = obs_data_array_create();
+ 		obs_sceneitem_group_enum_items(item, [](obs_scene_t*, obs_sceneitem_t* currentItem, void* param) {
+ 			obs_data_array_t* items = reinterpret_cast<obs_data_array_t*>(param);
  
- 		# If config is RelWithDebInfo, package release files
--		COMMAND if $<CONFIG:RelWithDebInfo>==1 (
--			"${CMAKE_COMMAND}" -E make_directory
--			"${RELEASE_DIR}/data/obs-plugins/obs-websocket"
--			"${RELEASE_DIR}/obs-plugins/${ARCH_NAME}")
-+#		COMMAND if $<CONFIG:RelWithDebInfo>==1 (
-+#			"${CMAKE_COMMAND}" -E make_directory
-+#			"${RELEASE_DIR}/data/obs-plugins/obs-websocket"
-+#			"${RELEASE_DIR}/obs-plugins/${ARCH_NAME}")
+-			OBSDataAutoRelease itemData = GetSceneItemData(currentItem);
++			palakis_OBSDataAutoRelease itemData = GetSceneItemData(currentItem);
+ 			obs_data_array_push_back(items, itemData);
  
--		COMMAND if $<CONFIG:RelWithDebInfo>==1 ("${CMAKE_COMMAND}" -E copy_directory
--			"${PROJECT_SOURCE_DIR}/data"
--			"${RELEASE_DIR}/data/obs-plugins/obs-websocket")
-+#		COMMAND if $<CONFIG:RelWithDebInfo>==1 ("${CMAKE_COMMAND}" -E copy_directory
-+#			"${PROJECT_SOURCE_DIR}/data"
-+#			"${RELEASE_DIR}/data/obs-plugins/obs-websocket")
+ 			return true;
+@@ -312,10 +312,10 @@ obs_sceneitem_t* Utils::GetSceneItemFromItem(obs_scene_t* scene, obs_data_t* ite
+ 		return nullptr;
+ 	}
  
--		COMMAND if $<CONFIG:RelWithDebInfo>==1 ("${CMAKE_COMMAND}" -E copy
--			"$<TARGET_FILE:obs-websocket>"
--			"${RELEASE_DIR}/obs-plugins/${ARCH_NAME}")
-+#		COMMAND if $<CONFIG:RelWithDebInfo>==1 ("${CMAKE_COMMAND}" -E copy
-+#			"$<TARGET_FILE:obs-websocket>"
-+#			"${RELEASE_DIR}/obs-plugins/${ARCH_NAME}")
+-	OBSDataItemAutoRelease idInfoItem = obs_data_item_byname(itemInfo, "id");
++	palakis_OBSDataItemAutoRelease idInfoItem = obs_data_item_byname(itemInfo, "id");
+ 	int id = obs_data_item_get_int(idInfoItem);
  
--		COMMAND if $<CONFIG:RelWithDebInfo>==1 ("${CMAKE_COMMAND}" -E copy
--			"$<TARGET_PDB_FILE:obs-websocket>"
--			"${RELEASE_DIR}/obs-plugins/${ARCH_NAME}")
-+#		COMMAND if $<CONFIG:RelWithDebInfo>==1 ("${CMAKE_COMMAND}" -E copy
-+#			"$<TARGET_PDB_FILE:obs-websocket>"
-+#			"${RELEASE_DIR}/obs-plugins/${ARCH_NAME}")
+-	OBSDataItemAutoRelease nameInfoItem = obs_data_item_byname(itemInfo, "name");
++	palakis_OBSDataItemAutoRelease nameInfoItem = obs_data_item_byname(itemInfo, "name");
+ 	const char* name = obs_data_item_get_string(nameInfoItem);
  
- 		# Copy to obs-studio dev environment for immediate testing
--		COMMAND if $<CONFIG:Debug>==1 (
--			"${CMAKE_COMMAND}" -E copy
--				"$<TARGET_FILE:obs-websocket>"
--				"${LIBOBS_INCLUDE_DIR}/../${OBS_BUILDDIR_ARCH}/rundir/$<CONFIG>/obs-plugins/${ARCH_NAME}")
--
--		COMMAND if $<CONFIG:Debug>==1 (
--			"${CMAKE_COMMAND}" -E copy
--				"$<TARGET_PDB_FILE:obs-websocket>"
--				"${LIBOBS_INCLUDE_DIR}/../${OBS_BUILDDIR_ARCH}/rundir/$<CONFIG>/obs-plugins/${ARCH_NAME}")
--
--		COMMAND if $<CONFIG:Debug>==1 (
--			"${CMAKE_COMMAND}" -E make_directory
--				"${LIBOBS_INCLUDE_DIR}/../${OBS_BUILDDIR_ARCH}/rundir/$<CONFIG>/data/obs-plugins/obs-websocket")
--
--		COMMAND if $<CONFIG:Debug>==1 (
--			"${CMAKE_COMMAND}" -E copy_directory
--				"${PROJECT_SOURCE_DIR}/data"
--				"${LIBOBS_INCLUDE_DIR}/../${OBS_BUILDDIR_ARCH}/rundir/$<CONFIG>/data/obs-plugins/obs-websocket")
--	)
-+#		COMMAND if $<CONFIG:Debug>==1 (
-+#			"${CMAKE_COMMAND}" -E copy
-+#				"$<TARGET_FILE:obs-websocket>"
-+#				"${LIBOBS_INCLUDE_DIR}/../${OBS_BUILDDIR_ARCH}/rundir/$<CONFIG>/obs-plugins/${ARCH_NAME}")
-+
-+#		COMMAND if $<CONFIG:Debug>==1 (
-+#			"${CMAKE_COMMAND}" -E copy
-+#				"$<TARGET_PDB_FILE:obs-websocket>"
-+#				"${LIBOBS_INCLUDE_DIR}/../${OBS_BUILDDIR_ARCH}/rundir/$<CONFIG>/obs-plugins/${ARCH_NAME}")
-+
-+#		COMMAND if $<CONFIG:Debug>==1 (
-+#			"${CMAKE_COMMAND}" -E make_directory
-+#				"${LIBOBS_INCLUDE_DIR}/../${OBS_BUILDDIR_ARCH}/rundir/$<CONFIG>/data/obs-plugins/obs-websocket")
-+
-+#		COMMAND if $<CONFIG:Debug>==1 (
-+#			"${CMAKE_COMMAND}" -E copy_directory
-+#				"${PROJECT_SOURCE_DIR}/data"
-+#				"${LIBOBS_INCLUDE_DIR}/../${OBS_BUILDDIR_ARCH}/rundir/$<CONFIG>/data/obs-plugins/obs-websocket")
-+#	)
- 	# --- End of sub-section ---
+ 	if (idInfoItem) {
+@@ -340,7 +340,7 @@ obs_sceneitem_t* Utils::GetSceneItemFromRequestField(obs_scene_t* scene, obs_dat
+ 	enum obs_data_type dataType = obs_data_item_gettype(dataItem);
  
- endif()
-@@ -218,3 +220,5 @@ if(APPLE)
- 	target_link_libraries(obs-websocket "${OBS_FRONTEND_LIB}")
- endif()
- # -- End of section --
-+
-+install_obs_plugin_with_data(obs-websocket data)
-\ No newline at end of file
+ 	if (dataType == OBS_DATA_OBJECT) {
+-		OBSDataAutoRelease itemData = obs_data_item_get_obj(dataItem);
++		palakis_OBSDataAutoRelease itemData = obs_data_item_get_obj(dataItem);
+ 		return GetSceneItemFromItem(scene, itemData);
+ 	} else if (dataType == OBS_DATA_STRING) {
+ 		QString name = obs_data_item_get_string(dataItem);
+@@ -391,7 +391,7 @@ obs_source_t* Utils::GetTransitionFromName(QString searchName) {
+ obs_scene_t* Utils::GetSceneFromNameOrCurrent(QString sceneName) {
+ 	// Both obs_frontend_get_current_scene() and obs_get_source_by_name()
+ 	// increase the returned source's refcount
+-	OBSSourceAutoRelease sceneSource = nullptr;
++	palakis_OBSSourceAutoRelease sceneSource = nullptr;
+ 
+ 	if (sceneName.isEmpty() || sceneName.isNull()) {
+ 		sceneSource = obs_frontend_get_current_scene();
+@@ -410,7 +410,7 @@ obs_data_array_t* Utils::GetScenes() {
+ 	obs_data_array_t* scenes = obs_data_array_create();
+ 	for (size_t i = 0; i < sceneList.sources.num; i++) {
+ 		obs_source_t* scene = sceneList.sources.array[i];
+-		OBSDataAutoRelease sceneData = GetSceneData(scene);
++		palakis_OBSDataAutoRelease sceneData = GetSceneData(scene);
+ 		obs_data_array_push_back(scenes, sceneData);
+ 	}
+ 
+@@ -419,7 +419,7 @@ obs_data_array_t* Utils::GetScenes() {
+ }
+ 
+ obs_data_t* Utils::GetSceneData(obs_source_t* source) {
+-	OBSDataArrayAutoRelease sceneItems = GetSceneItems(source);
++	palakis_OBSDataArrayAutoRelease sceneItems = GetSceneItems(source);
+ 
+ 	obs_data_t* sceneData = obs_data_create();
+ 	obs_data_set_string(sceneData, "name", obs_source_get_name(source));
+@@ -451,8 +451,8 @@ int Utils::GetTransitionDuration(obs_source_t* transition) {
+ 		return -1;
+ 	}
+ 
+-	OBSSourceAutoRelease destinationScene = obs_transition_get_active_source(transition);
+-	OBSDataAutoRelease destinationSettings = obs_source_get_private_settings(destinationScene);
++	palakis_OBSSourceAutoRelease destinationScene = obs_transition_get_active_source(transition);
++	palakis_OBSDataAutoRelease destinationSettings = obs_source_get_private_settings(destinationScene);
+ 
+ 	// Detect if transition is the global transition or a transition override.
+ 	// Fetching the duration is different depending on the case.
+@@ -467,7 +467,7 @@ int Utils::GetTransitionDuration(obs_source_t* transition) {
+ }
+ 
+ bool Utils::SetTransitionByName(QString transitionName) {
+-	OBSSourceAutoRelease transition = GetTransitionFromName(transitionName);
++	palakis_OBSSourceAutoRelease transition = GetTransitionFromName(transitionName);
+ 
+ 	if (transition) {
+ 		obs_frontend_set_current_transition(transition);
+@@ -483,8 +483,8 @@ obs_data_t* Utils::GetTransitionData(obs_source_t* transition) {
+ 		blog(LOG_WARNING, "GetTransitionData: duration is negative !");
+ 	}
+ 
+-	OBSSourceAutoRelease sourceScene = obs_transition_get_source(transition, OBS_TRANSITION_SOURCE_A);
+-	OBSSourceAutoRelease destinationScene = obs_transition_get_active_source(transition);
++	palakis_OBSSourceAutoRelease sourceScene = obs_transition_get_source(transition, OBS_TRANSITION_SOURCE_A);
++	palakis_OBSSourceAutoRelease destinationScene = obs_transition_get_active_source(transition);
+ 
+ 	obs_data_t* transitionData = obs_data_create();
+ 	obs_data_set_string(transitionData, "name", obs_source_get_name(transition));
+@@ -672,7 +672,7 @@ void Utils::StartReplayBuffer() {
+ 		obs_output_t* rpOutput = obs_frontend_get_replay_buffer_output();
+ 		OBSData outputHotkeys = obs_hotkeys_save_output(rpOutput);
+ 
+-		OBSDataAutoRelease dummyBinding = obs_data_create();
++		palakis_OBSDataAutoRelease dummyBinding = obs_data_create();
+ 		obs_data_set_bool(dummyBinding, "control", true);
+ 		obs_data_set_bool(dummyBinding, "alt", true);
+ 		obs_data_set_bool(dummyBinding, "shift", true);
+@@ -694,9 +694,9 @@ void Utils::StartReplayBuffer() {
+ }
+ 
+ bool Utils::IsRPHotkeySet() {
+-	OBSOutputAutoRelease rpOutput = obs_frontend_get_replay_buffer_output();
+-	OBSDataAutoRelease hotkeys = obs_hotkeys_save_output(rpOutput);
+-	OBSDataArrayAutoRelease bindings = obs_data_get_array(hotkeys,
++	palakis_OBSOutputAutoRelease rpOutput = obs_frontend_get_replay_buffer_output();
++	palakis_OBSDataAutoRelease hotkeys = obs_hotkeys_save_output(rpOutput);
++	palakis_OBSDataArrayAutoRelease bindings = obs_data_get_array(hotkeys,
+ 		"ReplayBuffer.Save");
+ 
+ 	size_t count = obs_data_array_count(bindings);
+@@ -717,17 +717,17 @@ bool Utils::SetFilenameFormatting(const char* filenameFormatting) {
+ 
+ const char* Utils::GetCurrentRecordingFilename()
+ {
+-	OBSOutputAutoRelease recordingOutput = obs_frontend_get_recording_output();
++	palakis_OBSOutputAutoRelease recordingOutput = obs_frontend_get_recording_output();
+ 	if (!recordingOutput) {
+ 		return nullptr;
+ 	}
+ 
+-	OBSDataAutoRelease settings = obs_output_get_settings(recordingOutput);
++	palakis_OBSDataAutoRelease settings = obs_output_get_settings(recordingOutput);
+ 
+ 	// mimicks the behavior of BasicOutputHandler::GetRecordingFilename :
+ 	// try to fetch the path from the "url" property, then try "path" if the first one
+ 	// didn't yield any result
+-	OBSDataItemAutoRelease item = obs_data_item_byname(settings, "url");
++	palakis_OBSDataItemAutoRelease item = obs_data_item_byname(settings, "url");
+ 	if (!item) {
+ 		item = obs_data_item_byname(settings, "path");
+ 		if (!item) {
+@@ -795,23 +795,23 @@ obs_data_t* Utils::GetSceneItemPropertiesData(obs_sceneitem_t* sceneItem) {
+ 	obs_scale_type scaleFilter = obs_sceneitem_get_scale_filter(sceneItem);
+ 	QString scaleFilterName = getScaleNameFromType(scaleFilter);
+ 
+-	OBSDataAutoRelease posData = obs_data_create();
++	palakis_OBSDataAutoRelease posData = obs_data_create();
+ 	obs_data_set_double(posData, "x", pos.x);
+ 	obs_data_set_double(posData, "y", pos.y);
+ 	obs_data_set_int(posData, "alignment", alignment);
+ 
+-	OBSDataAutoRelease scaleData = obs_data_create();
++	palakis_OBSDataAutoRelease scaleData = obs_data_create();
+ 	obs_data_set_string(scaleData, "filter", scaleFilterName.toUtf8());
+ 	obs_data_set_double(scaleData, "x", scale.x);
+ 	obs_data_set_double(scaleData, "y", scale.y);
+ 
+-	OBSDataAutoRelease cropData = obs_data_create();
++	palakis_OBSDataAutoRelease cropData = obs_data_create();
+ 	obs_data_set_int(cropData, "left", crop.left);
+ 	obs_data_set_int(cropData, "top", crop.top);
+ 	obs_data_set_int(cropData, "right", crop.right);
+ 	obs_data_set_int(cropData, "bottom", crop.bottom);
+ 
+-	OBSDataAutoRelease boundsData = obs_data_create();
++	palakis_OBSDataAutoRelease boundsData = obs_data_create();
+ 	obs_data_set_string(boundsData, "type", boundsTypeName.toUtf8());
+ 	obs_data_set_int(boundsData, "alignment", boundsAlignment);
+ 	obs_data_set_double(boundsData, "x", bounds.x);
+@@ -841,11 +841,11 @@ obs_data_t* Utils::GetSceneItemPropertiesData(obs_sceneitem_t* sceneItem) {
+ 	}
+ 
+ 	if (obs_sceneitem_is_group(sceneItem)) {
+-		OBSDataArrayAutoRelease children = obs_data_array_create();
++		palakis_OBSDataArrayAutoRelease children = obs_data_array_create();
+ 		obs_sceneitem_group_enum_items(sceneItem, [](obs_scene_t*, obs_sceneitem_t* subItem, void* param) {
+ 			obs_data_array_t* items = reinterpret_cast<obs_data_array_t*>(param);
+ 
+-			OBSDataAutoRelease itemData = GetSceneItemPropertiesData(subItem);
++			palakis_OBSDataAutoRelease itemData = GetSceneItemPropertiesData(subItem);
+ 			obs_data_array_push_back(items, itemData);
+ 
+ 			return true;
+@@ -863,7 +863,7 @@ obs_data_t* Utils::GetSourceFilterInfo(obs_source_t* filter, bool includeSetting
+ 	obs_data_set_string(data, "type", obs_source_get_id(filter));
+ 	obs_data_set_string(data, "name", obs_source_get_name(filter));
+ 	if (includeSettings) {
+-		OBSDataAutoRelease settings = obs_source_get_settings(filter);
++		palakis_OBSDataAutoRelease settings = obs_source_get_settings(filter);
+ 		obs_data_set_obj(data, "settings", settings);
+ 	}
+ 	return data;
+@@ -889,7 +889,7 @@ obs_data_array_t* Utils::GetSourceFiltersList(obs_source_t* source, bool include
+ 	{
+ 		auto enumParams = reinterpret_cast<struct enum_params*>(param);
+ 
+-		OBSDataAutoRelease filterData = Utils::GetSourceFilterInfo(child, enumParams->includeSettings);
++		palakis_OBSDataAutoRelease filterData = Utils::GetSourceFilterInfo(child, enumParams->includeSettings);
+ 		obs_data_array_push_back(enumParams->filters, filterData);
+ 	}, &enumParams);
+ 
+@@ -955,10 +955,10 @@ obs_data_t *Utils::OBSDataGetDefaults(obs_data_t *data)
+ 			bool val = obs_data_item_get_bool(item);
+ 			obs_data_set_bool(returnData, name, val);
+ 		} else if (type == OBS_DATA_OBJECT) {
+-			OBSDataAutoRelease obj = obs_data_item_get_obj(item);
++			palakis_OBSDataAutoRelease obj = obs_data_item_get_obj(item);
+ 			obs_data_set_obj(returnData, name, obj);
+ 		} else if (type == OBS_DATA_ARRAY) {
+-			OBSDataArrayAutoRelease array = obs_data_item_get_array(item);
++			palakis_OBSDataArrayAutoRelease array = obs_data_item_get_array(item);
+ 			obs_data_set_array(returnData, name, array);
+ 		}
+ 	}
+diff --git a/plugins/obs-websocket/src/WSEvents.cpp b/plugins/obs-websocket/src/WSEvents.cpp
+index c90360b..599063d 100644
+--- a/plugins/obs-websocket/src/WSEvents.cpp
++++ b/plugins/obs-websocket/src/WSEvents.cpp
+@@ -424,17 +424,17 @@ uint64_t getOutputRunningTime(obs_output_t* output) {
+ }
+ 
+ uint64_t WSEvents::getStreamingTime() {
+-	OBSOutputAutoRelease streamingOutput = obs_frontend_get_streaming_output();
++	palakis_OBSOutputAutoRelease streamingOutput = obs_frontend_get_streaming_output();
+ 	return getOutputRunningTime(streamingOutput);
+ }
+ 
+ uint64_t WSEvents::getRecordingTime() {
+-	OBSOutputAutoRelease recordingOutput = obs_frontend_get_recording_output();
++	palakis_OBSOutputAutoRelease recordingOutput = obs_frontend_get_recording_output();
+ 	return getOutputRunningTime(recordingOutput);
+ }
+ 
+ uint64_t WSEvents::getVirtualCamTime() {
+-	OBSOutputAutoRelease virtualCamOutput = obs_frontend_get_virtualcam_output();
++	palakis_OBSOutputAutoRelease virtualCamOutput = obs_frontend_get_virtualcam_output();
+ 	return getOutputRunningTime(virtualCamOutput);
+ }
+ 
+@@ -450,8 +450,8 @@ QString WSEvents::getVirtualCamTimecode() {
+ 	return Utils::nsToTimestamp(getVirtualCamTime());
+ }
+ 
+-OBSDataAutoRelease getMediaSourceData(calldata_t* data) {
+-	OBSDataAutoRelease fields = obs_data_create();
++palakis_OBSDataAutoRelease getMediaSourceData(calldata_t* data) {
++	palakis_OBSDataAutoRelease fields = obs_data_create();
+ 	OBSSource source = calldata_get_pointer<obs_source_t>(data, "source");
+ 
+ 	obs_data_set_string(fields, "sourceName", obs_source_get_name(source));
+@@ -472,10 +472,10 @@ OBSDataAutoRelease getMediaSourceData(calldata_t* data) {
+  * @since 0.3
+  */
+ void WSEvents::OnSceneChange() {
+-	OBSSourceAutoRelease currentScene = obs_frontend_get_current_scene();
+-	OBSDataArrayAutoRelease sceneItems = Utils::GetSceneItems(currentScene);
++	palakis_OBSSourceAutoRelease currentScene = obs_frontend_get_current_scene();
++	palakis_OBSDataArrayAutoRelease sceneItems = Utils::GetSceneItems(currentScene);
+ 
+-	OBSDataAutoRelease data = obs_data_create();
++	palakis_OBSDataAutoRelease data = obs_data_create();
+ 	obs_data_set_string(data, "scene-name", obs_source_get_name(currentScene));
+ 	obs_data_set_array(data, "sources", sceneItems);
+ 
+@@ -496,9 +496,9 @@ void WSEvents::OnSceneChange() {
+  * @since 0.3
+  */
+ void WSEvents::OnSceneListChange() {
+-	OBSDataArrayAutoRelease scenes = Utils::GetScenes();
++	palakis_OBSDataArrayAutoRelease scenes = Utils::GetScenes();
+ 
+-	OBSDataAutoRelease fields = obs_data_create();
++	palakis_OBSDataAutoRelease fields = obs_data_create();
+ 	obs_data_set_array(fields, "scenes", scenes);
+ 	broadcastUpdate("ScenesChanged", fields);
+ }
+@@ -514,7 +514,7 @@ void WSEvents::OnSceneListChange() {
+  * @since 4.0.0
+  */
+ void WSEvents::OnSceneCollectionChange() {
+-	OBSDataAutoRelease fields = obs_data_create();
++	palakis_OBSDataAutoRelease fields = obs_data_create();
+ 	obs_data_set_string(fields, "sceneCollection", obs_frontend_get_current_scene_collection());
+ 	broadcastUpdate("SceneCollectionChanged", fields);
+ 
+@@ -538,11 +538,11 @@ void WSEvents::OnSceneCollectionChange() {
+  */
+ void WSEvents::OnSceneCollectionListChange() {
+ 	char** sceneCollections = obs_frontend_get_scene_collections();
+-	OBSDataArrayAutoRelease sceneCollectionsList =
++	palakis_OBSDataArrayAutoRelease sceneCollectionsList =
+ 		Utils::StringListToArray(sceneCollections, "name");
+ 	bfree(sceneCollections);
+ 
+-	OBSDataAutoRelease fields = obs_data_create();
++	palakis_OBSDataAutoRelease fields = obs_data_create();
+ 	obs_data_set_array(fields, "sceneCollections", sceneCollectionsList);
+ 	broadcastUpdate("SceneCollectionListChanged", fields);
+ }
+@@ -558,9 +558,9 @@ void WSEvents::OnSceneCollectionListChange() {
+  * @since 4.0.0
+  */
+ void WSEvents::OnTransitionChange() {
+-	OBSSourceAutoRelease currentTransition = obs_frontend_get_current_transition();
++	palakis_OBSSourceAutoRelease currentTransition = obs_frontend_get_current_transition();
+ 
+-	OBSDataAutoRelease data = obs_data_create();
++	palakis_OBSDataAutoRelease data = obs_data_create();
+ 	obs_data_set_string(data, "transition-name",
+ 		obs_source_get_name(currentTransition));
+ 
+@@ -583,17 +583,17 @@ void WSEvents::OnTransitionListChange() {
+ 	obs_frontend_source_list transitionList = {};
+ 	obs_frontend_get_transitions(&transitionList);
+ 
+-	OBSDataArrayAutoRelease transitions = obs_data_array_create();
++	palakis_OBSDataArrayAutoRelease transitions = obs_data_array_create();
+ 	for (size_t i = 0; i < transitionList.sources.num; i++) {
+ 		OBSSource transition = transitionList.sources.array[i];
+ 
+-		OBSDataAutoRelease obj = obs_data_create();
++		palakis_OBSDataAutoRelease obj = obs_data_create();
+ 		obs_data_set_string(obj, "name", obs_source_get_name(transition));
+ 		obs_data_array_push_back(transitions, obj);
+ 	}
+ 	obs_frontend_source_list_free(&transitionList);
+ 
+-	OBSDataAutoRelease fields = obs_data_create();
++	palakis_OBSDataAutoRelease fields = obs_data_create();
+ 	obs_data_set_array(fields, "transitions", transitions);
+ 	broadcastUpdate("TransitionListChanged", fields);
+ }
+@@ -609,7 +609,7 @@ void WSEvents::OnTransitionListChange() {
+  * @since 4.0.0
+  */
+ void WSEvents::OnProfileChange() {
+-	OBSDataAutoRelease fields = obs_data_create();
++	palakis_OBSDataAutoRelease fields = obs_data_create();
+ 	obs_data_set_string(fields, "profile", obs_frontend_get_current_profile());
+ 	broadcastUpdate("ProfileChanged", fields);
+ }
+@@ -627,10 +627,10 @@ void WSEvents::OnProfileChange() {
+  */
+ void WSEvents::OnProfileListChange() {
+ 	char** profiles = obs_frontend_get_profiles();
+-	OBSDataArrayAutoRelease profilesList = Utils::StringListToArray(profiles, "name");
++	palakis_OBSDataArrayAutoRelease profilesList = Utils::StringListToArray(profiles, "name");
+ 	bfree(profiles);
+ 
+-	OBSDataAutoRelease fields = obs_data_create();
++	palakis_OBSDataAutoRelease fields = obs_data_create();
+ 	obs_data_set_array(fields, "profiles", profilesList);
+ 	broadcastUpdate("ProfileListChanged", fields);
+ }
+@@ -646,7 +646,7 @@ void WSEvents::OnProfileListChange() {
+  * @since 0.3
+  */
+ void WSEvents::OnStreamStarting() {
+-	OBSDataAutoRelease data = obs_data_create();
++	palakis_OBSDataAutoRelease data = obs_data_create();
+ 	obs_data_set_bool(data, "preview-only", false);
+ 
+ 	broadcastUpdate("StreamStarting", data);
+@@ -678,7 +678,7 @@ void WSEvents::OnStreamStarted() {
+  * @since 0.3
+  */
+ void WSEvents::OnStreamStopping() {
+-	OBSDataAutoRelease data = obs_data_create();
++	palakis_OBSDataAutoRelease data = obs_data_create();
+ 	obs_data_set_bool(data, "preview-only", false);
+ 	broadcastUpdate("StreamStopping", data);
+ }
+@@ -723,7 +723,7 @@ void WSEvents::OnRecordingStarting() {
+  * @since 0.3
+  */
+ void WSEvents::OnRecordingStarted() {
+-	OBSDataAutoRelease data = obs_data_create();
++	palakis_OBSDataAutoRelease data = obs_data_create();
+ 	obs_data_set_string(data, "recordingFilename", Utils::GetCurrentRecordingFilename());
+ 	broadcastUpdate("RecordingStarted", data);
+ }
+@@ -739,7 +739,7 @@ void WSEvents::OnRecordingStarted() {
+  * @since 0.3
+  */
+ void WSEvents::OnRecordingStopping() {
+-	OBSDataAutoRelease data = obs_data_create();
++	palakis_OBSDataAutoRelease data = obs_data_create();
+ 	obs_data_set_string(data, "recordingFilename", Utils::GetCurrentRecordingFilename());
+ 	broadcastUpdate("RecordingStopping", data);
+ }
+@@ -755,7 +755,7 @@ void WSEvents::OnRecordingStopping() {
+  * @since 0.3
+  */
+ void WSEvents::OnRecordingStopped() {
+-	OBSDataAutoRelease data = obs_data_create();
++	palakis_OBSDataAutoRelease data = obs_data_create();
+ 	obs_data_set_string(data, "recordingFilename", Utils::GetCurrentRecordingFilename());
+ 	broadcastUpdate("RecordingStopped", data);
+ }
+@@ -902,7 +902,7 @@ void WSEvents::StreamStatus() {
+ 	bool recordingPaused = obs_frontend_recording_paused();
+ 	bool replayBufferActive = obs_frontend_replay_buffer_active();
+ 
+-	OBSOutputAutoRelease streamOutput = obs_frontend_get_streaming_output();
++	palakis_OBSOutputAutoRelease streamOutput = obs_frontend_get_streaming_output();
+ 
+ 	if (!streamOutput || !streamingActive) {
+ 		return;
+@@ -932,7 +932,7 @@ void WSEvents::StreamStatus() {
+ 
+ 	float strain = obs_output_get_congestion(streamOutput);
+ 
+-	OBSDataAutoRelease data = obs_data_create();
++	palakis_OBSDataAutoRelease data = obs_data_create();
+ 
+ 	obs_data_set_bool(data, "streaming", streamingActive);
+ 	obs_data_set_bool(data, "recording", recordingActive);
+@@ -949,7 +949,7 @@ void WSEvents::StreamStatus() {
+ 	obs_data_set_double(data, "strain", strain);
+ 
+ 	// `stats` contains fps, cpu usage, memory usage, render missed frames, ...
+-	OBSDataAutoRelease stats = GetStats();
++	palakis_OBSDataAutoRelease stats = GetStats();
+ 	obs_data_apply(data, stats);
+ 
+ 	obs_data_set_bool(data, "preview-only", false); // Retrocompat with OBSRemote
+@@ -986,9 +986,9 @@ void WSEvents::Heartbeat() {
+ 	bool recordingActive = obs_frontend_recording_active();
+ 	bool recordingPaused = obs_frontend_recording_paused();
+ 
+-	OBSDataAutoRelease data = obs_data_create();
+-	OBSOutputAutoRelease recordOutput = obs_frontend_get_recording_output();
+-	OBSOutputAutoRelease streamOutput = obs_frontend_get_streaming_output();
++	palakis_OBSDataAutoRelease data = obs_data_create();
++	palakis_OBSOutputAutoRelease recordOutput = obs_frontend_get_recording_output();
++	palakis_OBSOutputAutoRelease streamOutput = obs_frontend_get_streaming_output();
+ 
+ 	pulse = !pulse;
+ 	obs_data_set_bool(data, "pulse", pulse);
+@@ -997,7 +997,7 @@ void WSEvents::Heartbeat() {
+ 	obs_data_set_string(data, "current-profile", currentProfile);
+ 	bfree(currentProfile);
+ 
+-	OBSSourceAutoRelease currentScene = obs_frontend_get_current_scene();
++	palakis_OBSSourceAutoRelease currentScene = obs_frontend_get_current_scene();
+ 	obs_data_set_string(data, "current-scene", obs_source_get_name(currentScene));
+ 
+ 	obs_data_set_bool(data, "streaming", streamingActive);
+@@ -1015,7 +1015,7 @@ void WSEvents::Heartbeat() {
+ 		obs_data_set_int(data, "total-record-frames", obs_output_get_total_frames(recordOutput));
+ 	}
+ 
+-	OBSDataAutoRelease stats = GetStats();
++	palakis_OBSDataAutoRelease stats = GetStats();
+ 	obs_data_set_obj(data, "stats", stats);
+ 
+ 	broadcastUpdate("Heartbeat", data);
+@@ -1032,7 +1032,7 @@ void WSEvents::Heartbeat() {
+  * @since 4.0.0
+  */
+ void WSEvents::TransitionDurationChanged(int ms) {
+-	OBSDataAutoRelease fields = obs_data_create();
++	palakis_OBSDataAutoRelease fields = obs_data_create();
+ 	obs_data_set_int(fields, "new-duration", ms);
+ 
+ 	broadcastUpdate("TransitionDurationChanged", fields);
+@@ -1062,7 +1062,7 @@ void WSEvents::OnTransitionBegin(void* param, calldata_t* data) {
+ 		return;
+ 	}
+ 
+-	OBSDataAutoRelease fields = Utils::GetTransitionData(transition);
++	palakis_OBSDataAutoRelease fields = Utils::GetTransitionData(transition);
+ 	instance->broadcastUpdate("TransitionBegin", fields);
+ }
+ 
+@@ -1088,7 +1088,7 @@ void WSEvents::OnTransitionEnd(void* param, calldata_t* data) {
+ 		return;
+ 	}
+ 
+-	OBSDataAutoRelease fields = Utils::GetTransitionData(transition);
++	palakis_OBSDataAutoRelease fields = Utils::GetTransitionData(transition);
+ 	instance->broadcastUpdate("TransitionEnd", fields);
+ }
+ 
+@@ -1114,7 +1114,7 @@ void WSEvents::OnTransitionVideoEnd(void* param, calldata_t* data) {
+ 		return;
+ 	}
+ 
+-	OBSDataAutoRelease fields = Utils::GetTransitionData(transition);
++	palakis_OBSDataAutoRelease fields = Utils::GetTransitionData(transition);
+ 	instance->broadcastUpdate("TransitionVideoEnd", fields);
+ }
+ 
+@@ -1141,9 +1141,9 @@ void WSEvents::OnSourceCreate(void* param, calldata_t* data) {
+ 
+ 	self->connectSourceSignals(source);
+ 
+-	OBSDataAutoRelease sourceSettings = obs_source_get_settings(source);
++	palakis_OBSDataAutoRelease sourceSettings = obs_source_get_settings(source);
+ 
+-	OBSDataAutoRelease fields = obs_data_create();
++	palakis_OBSDataAutoRelease fields = obs_data_create();
+ 	obs_data_set_string(fields, "sourceName", obs_source_get_name(source));
+ 	obs_data_set_string(fields, "sourceType",
+ 		sourceTypeToString(obs_source_get_type(source))
+@@ -1177,7 +1177,7 @@ void WSEvents::OnSourceDestroy(void* param, calldata_t* data) {
+ 
+ 	obs_source_type sourceType = obs_source_get_type(source);
+ 
+-	OBSDataAutoRelease fields = obs_data_create();
++	palakis_OBSDataAutoRelease fields = obs_data_create();
+ 	obs_data_set_string(fields, "sourceName", obs_source_get_name(source));
+ 	obs_data_set_string(fields, "sourceType", sourceTypeToString(sourceType));
+ 	obs_data_set_string(fields, "sourceKind", obs_source_get_id(source));
+@@ -1214,7 +1214,7 @@ void WSEvents::OnSourceVolumeChange(void* param, calldata_t* data) {
+ 		volumeDb = -100.0;
+ 	}
+ 
+-	OBSDataAutoRelease fields = obs_data_create();
++	palakis_OBSDataAutoRelease fields = obs_data_create();
+ 	obs_data_set_string(fields, "sourceName", obs_source_get_name(source));
+ 	obs_data_set_double(fields, "volume", volume);
+ 	obs_data_set_double(fields, "volumeDb", volumeDb);
+@@ -1245,7 +1245,7 @@ void WSEvents::OnSourceMuteStateChange(void* param, calldata_t* data) {
+ 		return;
+ 	}
+ 
+-	OBSDataAutoRelease fields = obs_data_create();
++	palakis_OBSDataAutoRelease fields = obs_data_create();
+ 	obs_data_set_string(fields, "sourceName", obs_source_get_name(source));
+ 	obs_data_set_bool(fields, "muted", muted);
+ 	self->broadcastUpdate("SourceMuteStateChanged", fields);
+@@ -1269,7 +1269,7 @@ void WSEvents::OnSourceAudioDeactivated(void* param, calldata_t* data) {
+ 		return;
+ 	}
+ 
+-	OBSDataAutoRelease fields = obs_data_create();
++	palakis_OBSDataAutoRelease fields = obs_data_create();
+ 	obs_data_set_string(fields, "sourceName", obs_source_get_name(source));
+ 	self->broadcastUpdate("SourceAudioDeactivated", fields);
+ }
+@@ -1292,7 +1292,7 @@ void WSEvents::OnSourceAudioActivated(void* param, calldata_t* data) {
+ 		return;
+ 	}
+ 
+-	OBSDataAutoRelease fields = obs_data_create();
++	palakis_OBSDataAutoRelease fields = obs_data_create();
+ 	obs_data_set_string(fields, "sourceName", obs_source_get_name(source));
+ 	self->broadcastUpdate("SourceAudioActivated", fields);
+ }
+@@ -1321,7 +1321,7 @@ void WSEvents::OnSourceAudioSyncOffsetChanged(void* param, calldata_t* data) {
+ 		return;
+ 	}
+ 
+-	OBSDataAutoRelease fields = obs_data_create();
++	palakis_OBSDataAutoRelease fields = obs_data_create();
+ 	obs_data_set_string(fields, "sourceName", obs_source_get_name(source));
+ 	obs_data_set_int(fields, "syncOffset", (int)syncOffset);
+ 	self->broadcastUpdate("SourceAudioSyncOffsetChanged", fields);
+@@ -1354,9 +1354,9 @@ void WSEvents::OnSourceAudioMixersChanged(void* param, calldata_t* data) {
+ 		return;
+ 	}
+ 
+-	OBSDataArrayAutoRelease mixers = obs_data_array_create();
++	palakis_OBSDataArrayAutoRelease mixers = obs_data_array_create();
+ 	for (size_t i = 0; i < MAX_AUDIO_MIXES; i++) {
+-		OBSDataAutoRelease item = obs_data_create();
++		palakis_OBSDataAutoRelease item = obs_data_create();
+ 		obs_data_set_int(item, "id", i + 1);
+ 		obs_data_set_bool(item, "enabled", (1 << i) & audioMixers);
+ 		obs_data_array_push_back(mixers, item);
+@@ -1364,7 +1364,7 @@ void WSEvents::OnSourceAudioMixersChanged(void* param, calldata_t* data) {
+ 
+ 	const QString hexValue = QString::number(audioMixers, 16).toUpper().prepend("0x");
+ 
+-	OBSDataAutoRelease fields = obs_data_create();
++	palakis_OBSDataAutoRelease fields = obs_data_create();
+ 	obs_data_set_string(fields, "sourceName", obs_source_get_name(source));
+ 	obs_data_set_array(fields, "mixers", mixers);
+ 	obs_data_set_string(fields, "hexMixersValue", hexValue.toUtf8());
+@@ -1398,7 +1398,7 @@ void WSEvents::OnSourceRename(void* param, calldata_t* data) {
+ 
+ 	const char* previousName = calldata_get_string(data, "prev_name");
+ 
+-	OBSDataAutoRelease fields = obs_data_create();
++	palakis_OBSDataAutoRelease fields = obs_data_create();
+ 	obs_data_set_string(fields, "previousName", previousName);
+ 	obs_data_set_string(fields, "newName", newName);
+ 	obs_data_set_string(fields, "sourceType",
+@@ -1434,9 +1434,9 @@ void WSEvents::OnSourceFilterAdded(void* param, calldata_t* data) {
+ 
+ 	self->connectFilterSignals(filter);
+ 
+-	OBSDataAutoRelease filterSettings = obs_source_get_settings(filter);
++	palakis_OBSDataAutoRelease filterSettings = obs_source_get_settings(filter);
+ 
+-	OBSDataAutoRelease fields = obs_data_create();
++	palakis_OBSDataAutoRelease fields = obs_data_create();
+ 	obs_data_set_string(fields, "sourceName", obs_source_get_name(source));
+ 	obs_data_set_string(fields, "filterName", obs_source_get_name(filter));
+ 	obs_data_set_string(fields, "filterType", obs_source_get_id(filter));
+@@ -1471,7 +1471,7 @@ void WSEvents::OnSourceFilterRemoved(void* param, calldata_t* data) {
+ 
+ 	self->disconnectFilterSignals(filter);
+ 
+-	OBSDataAutoRelease fields = obs_data_create();
++	palakis_OBSDataAutoRelease fields = obs_data_create();
+ 	obs_data_set_string(fields, "sourceName", obs_source_get_name(source));
+ 	obs_data_set_string(fields, "filterName", obs_source_get_name(filter));
+ 	obs_data_set_string(fields, "filterType", obs_source_get_id(filter));
+@@ -1500,7 +1500,7 @@ void WSEvents::OnSourceFilterVisibilityChanged(void* param, calldata_t* data) {
+ 
+ 	OBSSource parent = obs_filter_get_parent(source);
+ 
+-	OBSDataAutoRelease fields = obs_data_create();
++	palakis_OBSDataAutoRelease fields = obs_data_create();
+ 	obs_data_set_string(fields, "sourceName", obs_source_get_name(parent));
+ 	obs_data_set_string(fields, "filterName", obs_source_get_name(source));
+ 	obs_data_set_bool(fields, "filterEnabled", obs_source_enabled(source));
+@@ -1530,9 +1530,9 @@ void WSEvents::OnSourceFilterOrderChanged(void* param, calldata_t* data) {
+ 		return;
+ 	}
+ 
+-	OBSDataArrayAutoRelease filters = Utils::GetSourceFiltersList(source, false);
++	palakis_OBSDataArrayAutoRelease filters = Utils::GetSourceFiltersList(source, false);
+ 
+-	OBSDataAutoRelease fields = obs_data_create();
++	palakis_OBSDataAutoRelease fields = obs_data_create();
+ 	obs_data_set_string(fields, "sourceName", obs_source_get_name(source));
+ 	obs_data_set_array(fields, "filters", filters);
+ 	self->broadcastUpdate("SourceFiltersReordered", fields);
+@@ -1554,7 +1554,7 @@ void WSEvents::OnSourceFilterOrderChanged(void* param, calldata_t* data) {
+ void WSEvents::OnMediaPlaying(void* param, calldata_t* data) {
+ 	auto self = reinterpret_cast<WSEvents*>(param);
+ 
+-	OBSDataAutoRelease fields = getMediaSourceData(data);
++	palakis_OBSDataAutoRelease fields = getMediaSourceData(data);
+ 
+ 	self->broadcastUpdate("MediaPlaying", fields);
+ }
+@@ -1575,7 +1575,7 @@ void WSEvents::OnMediaPlaying(void* param, calldata_t* data) {
+ void WSEvents::OnMediaPaused(void* param, calldata_t* data) {
+ 	auto self = reinterpret_cast<WSEvents*>(param);
+ 
+-	OBSDataAutoRelease fields = getMediaSourceData(data);
++	palakis_OBSDataAutoRelease fields = getMediaSourceData(data);
+ 
+ 	self->broadcastUpdate("MediaPaused", fields);
+ }
+@@ -1596,7 +1596,7 @@ void WSEvents::OnMediaPaused(void* param, calldata_t* data) {
+ void WSEvents::OnMediaRestarted(void* param, calldata_t* data) {
+ 	auto self = reinterpret_cast<WSEvents*>(param);
+ 
+-	OBSDataAutoRelease fields = getMediaSourceData(data);
++	palakis_OBSDataAutoRelease fields = getMediaSourceData(data);
+ 
+ 	self->broadcastUpdate("MediaRestarted", fields);
+ }
+@@ -1617,7 +1617,7 @@ void WSEvents::OnMediaRestarted(void* param, calldata_t* data) {
+ void WSEvents::OnMediaStopped(void* param, calldata_t* data) {
+ 	auto self = reinterpret_cast<WSEvents*>(param);
+ 
+-	OBSDataAutoRelease fields = getMediaSourceData(data);
++	palakis_OBSDataAutoRelease fields = getMediaSourceData(data);
+ 
+ 	self->broadcastUpdate("MediaStopped", fields);
+ }
+@@ -1638,7 +1638,7 @@ void WSEvents::OnMediaStopped(void* param, calldata_t* data) {
+ void WSEvents::OnMediaNext(void* param, calldata_t* data) {
+ 	auto self = reinterpret_cast<WSEvents*>(param);
+ 
+-	OBSDataAutoRelease fields = getMediaSourceData(data);
++	palakis_OBSDataAutoRelease fields = getMediaSourceData(data);
+ 
+ 	self->broadcastUpdate("MediaNext", fields);
+ }
+@@ -1659,7 +1659,7 @@ void WSEvents::OnMediaNext(void* param, calldata_t* data) {
+ void WSEvents::OnMediaPrevious(void* param, calldata_t* data) {
+ 	auto self = reinterpret_cast<WSEvents*>(param);
+ 
+-	OBSDataAutoRelease fields = getMediaSourceData(data);
++	palakis_OBSDataAutoRelease fields = getMediaSourceData(data);
+ 
+ 	self->broadcastUpdate("MediaPrevious", fields);
+ }
+@@ -1680,7 +1680,7 @@ void WSEvents::OnMediaPrevious(void* param, calldata_t* data) {
+ void WSEvents::OnMediaStarted(void* param, calldata_t* data) {
+ 	auto self = reinterpret_cast<WSEvents*>(param);
+ 
+-	OBSDataAutoRelease fields = getMediaSourceData(data);
++	palakis_OBSDataAutoRelease fields = getMediaSourceData(data);
+ 
+ 	self->broadcastUpdate("MediaStarted", fields);
+ }
+@@ -1701,7 +1701,7 @@ void WSEvents::OnMediaStarted(void* param, calldata_t* data) {
+ void WSEvents::OnMediaEnded(void* param, calldata_t* data) {
+ 	auto self = reinterpret_cast<WSEvents*>(param);
+ 
+-	OBSDataAutoRelease fields = getMediaSourceData(data);
++	palakis_OBSDataAutoRelease fields = getMediaSourceData(data);
+ 
+ 	self->broadcastUpdate("MediaEnded", fields);
+ }
+@@ -1727,13 +1727,13 @@ void WSEvents::OnSceneReordered(void* param, calldata_t* data) {
+ 		return;
+ 	}
+ 
+-	OBSDataArrayAutoRelease sceneItems = obs_data_array_create();
++	palakis_OBSDataArrayAutoRelease sceneItems = obs_data_array_create();
+ 	obs_scene_enum_items(scene, [](obs_scene_t* scene, obs_sceneitem_t* sceneItem, void* param) {
+ 		obs_data_array_t* sceneItems = reinterpret_cast<obs_data_array_t*>(param);
+ 
+ 		OBSSource itemSource = obs_sceneitem_get_source(sceneItem);
+ 
+-		OBSDataAutoRelease item = obs_data_create();
++		palakis_OBSDataAutoRelease item = obs_data_create();
+ 		obs_data_set_string(item, "source-name", obs_source_get_name(itemSource));
+ 		obs_data_set_int(item, "item-id", obs_sceneitem_get_id(sceneItem));
+ 		obs_data_array_push_back(sceneItems, item);
+@@ -1741,7 +1741,7 @@ void WSEvents::OnSceneReordered(void* param, calldata_t* data) {
+ 		return true;
+ 	}, sceneItems);
+ 
+-	OBSDataAutoRelease fields = obs_data_create();
++	palakis_OBSDataAutoRelease fields = obs_data_create();
+ 	obs_data_set_string(fields, "scene-name",
+ 		obs_source_get_name(obs_scene_get_source(scene)));
+ 	obs_data_set_array(fields, "scene-items", sceneItems);
+@@ -1775,7 +1775,7 @@ void WSEvents::OnSceneItemAdd(void* param, calldata_t* data) {
+ 	const char* sceneItemName =
+ 		obs_source_get_name(obs_sceneitem_get_source(sceneItem));
+ 
+-	OBSDataAutoRelease fields = obs_data_create();
++	palakis_OBSDataAutoRelease fields = obs_data_create();
+ 	obs_data_set_string(fields, "scene-name", sceneName);
+ 	obs_data_set_string(fields, "item-name", sceneItemName);
+ 	obs_data_set_int(fields, "item-id", obs_sceneitem_get_id(sceneItem));
+@@ -1808,7 +1808,7 @@ void WSEvents::OnSceneItemDelete(void* param, calldata_t* data) {
+ 	const char* sceneItemName =
+ 		obs_source_get_name(obs_sceneitem_get_source(sceneItem));
+ 
+-	OBSDataAutoRelease fields = obs_data_create();
++	palakis_OBSDataAutoRelease fields = obs_data_create();
+ 	obs_data_set_string(fields, "scene-name", sceneName);
+ 	obs_data_set_string(fields, "item-name", sceneItemName);
+ 	obs_data_set_int(fields, "item-id", obs_sceneitem_get_id(sceneItem));
+@@ -1845,7 +1845,7 @@ void WSEvents::OnSceneItemVisibilityChanged(void* param, calldata_t* data) {
+ 	const char* sceneItemName =
+ 		obs_source_get_name(obs_sceneitem_get_source(sceneItem));
+ 
+-	OBSDataAutoRelease fields = obs_data_create();
++	palakis_OBSDataAutoRelease fields = obs_data_create();
+ 	obs_data_set_string(fields, "scene-name", sceneName);
+ 	obs_data_set_string(fields, "item-name", sceneItemName);
+ 	obs_data_set_int(fields, "item-id", obs_sceneitem_get_id(sceneItem));
+@@ -1883,7 +1883,7 @@ void WSEvents::OnSceneItemLockChanged(void* param, calldata_t* data) {
+ 	const char* sceneItemName =
+ 		obs_source_get_name(obs_sceneitem_get_source(sceneItem));
+ 
+-	OBSDataAutoRelease fields = obs_data_create();
++	palakis_OBSDataAutoRelease fields = obs_data_create();
+ 	obs_data_set_string(fields, "scene-name", sceneName);
+ 	obs_data_set_string(fields, "item-name", sceneItemName);
+ 	obs_data_set_int(fields, "item-id", obs_sceneitem_get_id(sceneItem));
+@@ -1918,9 +1918,9 @@ void WSEvents::OnSceneItemTransform(void* param, calldata_t* data) {
+ 	const char* sceneItemName =
+ 		obs_source_get_name(obs_sceneitem_get_source(sceneItem));
+ 
+-	OBSDataAutoRelease transform = Utils::GetSceneItemPropertiesData(sceneItem);
++	palakis_OBSDataAutoRelease transform = Utils::GetSceneItemPropertiesData(sceneItem);
+ 
+-	OBSDataAutoRelease fields = obs_data_create();
++	palakis_OBSDataAutoRelease fields = obs_data_create();
+ 	obs_data_set_string(fields, "scene-name", sceneName);
+ 	obs_data_set_string(fields, "item-name", sceneItemName);
+ 	obs_data_set_int(fields, "item-id", obs_sceneitem_get_id(sceneItem));
+@@ -1956,7 +1956,7 @@ void WSEvents::OnSceneItemSelected(void* param, calldata_t* data) {
+ 	OBSSource sceneSource = obs_scene_get_source(scene);
+ 	OBSSource itemSource = obs_sceneitem_get_source(item);
+ 
+-	OBSDataAutoRelease fields = obs_data_create();
++	palakis_OBSDataAutoRelease fields = obs_data_create();
+ 	obs_data_set_string(fields, "scene-name", obs_source_get_name(sceneSource));
+ 	obs_data_set_string(fields, "item-name", obs_source_get_name(itemSource));
+ 	obs_data_set_int(fields, "item-id", obs_sceneitem_get_id(item));
+@@ -1991,7 +1991,7 @@ void WSEvents::OnSceneItemDeselected(void* param, calldata_t* data) {
+ 	OBSSource sceneSource = obs_scene_get_source(scene);
+ 	OBSSource itemSource = obs_sceneitem_get_source(item);
+ 
+-	OBSDataAutoRelease fields = obs_data_create();
++	palakis_OBSDataAutoRelease fields = obs_data_create();
+ 	obs_data_set_string(fields, "scene-name", obs_source_get_name(sceneSource));
+ 	obs_data_set_string(fields, "item-name", obs_source_get_name(itemSource));
+ 	obs_data_set_int(fields, "item-id", obs_sceneitem_get_id(item));
+@@ -2011,13 +2011,13 @@ void WSEvents::OnSceneItemDeselected(void* param, calldata_t* data) {
+  */
+ void WSEvents::OnPreviewSceneChanged() {
+ 	if (obs_frontend_preview_program_mode_active()) {
+-		OBSSourceAutoRelease scene = obs_frontend_get_current_preview_scene();
++		palakis_OBSSourceAutoRelease scene = obs_frontend_get_current_preview_scene();
+ 		if (!scene)
+ 			return;
+ 
+-		OBSDataArrayAutoRelease sceneItems = Utils::GetSceneItems(scene);
++		palakis_OBSDataArrayAutoRelease sceneItems = Utils::GetSceneItems(scene);
+ 
+-		OBSDataAutoRelease data = obs_data_create();
++		palakis_OBSDataAutoRelease data = obs_data_create();
+ 		obs_data_set_string(data, "scene-name", obs_source_get_name(scene));
+ 		obs_data_set_array(data, "sources", sceneItems);
+ 
+@@ -2036,7 +2036,7 @@ void WSEvents::OnPreviewSceneChanged() {
+  * @since 4.1.0
+  */
+ void WSEvents::OnStudioModeSwitched(bool checked) {
+-	OBSDataAutoRelease data = obs_data_create();
++	palakis_OBSDataAutoRelease data = obs_data_create();
+ 	obs_data_set_bool(data, "new-state", checked);
+ 
+ 	broadcastUpdate("StudioModeSwitched", data);
+@@ -2054,7 +2054,7 @@ void WSEvents::OnStudioModeSwitched(bool checked) {
+  * @since 4.7.0
+  */
+ void WSEvents::OnBroadcastCustomMessage(QString realm, obs_data_t* data) {
+-	OBSDataAutoRelease broadcastData = obs_data_create();
++	palakis_OBSDataAutoRelease broadcastData = obs_data_create();
+ 	obs_data_set_string(broadcastData, "realm", realm.toUtf8().constData());
+ 	obs_data_set_obj(broadcastData, "data", data);
+ 
+diff --git a/plugins/obs-websocket/src/WSRequestHandler_General.cpp b/plugins/obs-websocket/src/WSRequestHandler_General.cpp
+index 2dec543..bf1626b 100644
+--- a/plugins/obs-websocket/src/WSRequestHandler_General.cpp
++++ b/plugins/obs-websocket/src/WSRequestHandler_General.cpp
+@@ -91,7 +91,7 @@ RpcResponse WSRequestHandler::GetVersion(const RpcRequest& request) {
+ 		supportedImageExportFormats += ("," + QString::fromUtf8(format));
+ 	}
+ 
+-	OBSDataAutoRelease data = obs_data_create();
++	palakis_OBSDataAutoRelease data = obs_data_create();
+ 	obs_data_set_double(data, "version", 1.1);
+ 	obs_data_set_string(data, "obs-websocket-version", OBS_WEBSOCKET_VERSION);
+ 	obs_data_set_string(data, "obs-studio-version", obsVersion.toUtf8());
+@@ -118,7 +118,7 @@ RpcResponse WSRequestHandler::GetAuthRequired(const RpcRequest& request) {
+ 	auto config = GetConfig();
+ 	bool authRequired = (config && config->AuthRequired);
+ 
+-	OBSDataAutoRelease data = obs_data_create();
++	palakis_OBSDataAutoRelease data = obs_data_create();
+ 	obs_data_set_bool(data, "authRequired", authRequired);
+ 
+ 	if (authRequired) {
+@@ -183,7 +183,7 @@ RpcResponse WSRequestHandler::SetHeartbeat(const RpcRequest& request) {
+ 	auto events = GetEventsSystem();
+ 	events->HeartbeatIsActive = obs_data_get_bool(request.parameters(), "enable");
+ 
+-	OBSDataAutoRelease response = obs_data_create();
++	palakis_OBSDataAutoRelease response = obs_data_create();
+ 	obs_data_set_bool(response, "enable", events->HeartbeatIsActive);
+ 
+ 	return request.success(response);
+@@ -225,7 +225,7 @@ RpcResponse WSRequestHandler::SetFilenameFormatting(const RpcRequest& request) {
+  * @since 4.3.0
+  */
+ RpcResponse WSRequestHandler::GetFilenameFormatting(const RpcRequest& request) {
+-	OBSDataAutoRelease response = obs_data_create();
++	palakis_OBSDataAutoRelease response = obs_data_create();
+ 	obs_data_set_string(response, "filename-formatting", Utils::GetFilenameFormatting());
+ 
+ 	return request.success(response);
+@@ -242,9 +242,9 @@ RpcResponse WSRequestHandler::GetFilenameFormatting(const RpcRequest& request) {
+  * @since 4.6.0
+  */
+ RpcResponse WSRequestHandler::GetStats(const RpcRequest& request) {
+-	OBSDataAutoRelease stats = GetEventsSystem()->GetStats();
++	palakis_OBSDataAutoRelease stats = GetEventsSystem()->GetStats();
+ 
+-	OBSDataAutoRelease response = obs_data_create();
++	palakis_OBSDataAutoRelease response = obs_data_create();
+ 	obs_data_set_obj(response, "stats", stats);
+ 
+ 	return request.success(response);
+@@ -267,7 +267,7 @@ RpcResponse WSRequestHandler::BroadcastCustomMessage(const RpcRequest& request)
+ 	}
+ 
+ 	QString realm = obs_data_get_string(request.parameters(), "realm");
+-	OBSDataAutoRelease data = obs_data_get_obj(request.parameters(), "data");
++	palakis_OBSDataAutoRelease data = obs_data_get_obj(request.parameters(), "data");
+ 
+ 	if (realm.isEmpty()) {
+ 		return request.failed("realm not specified!");
+@@ -306,7 +306,7 @@ RpcResponse WSRequestHandler::GetVideoInfo(const RpcRequest& request) {
+ 	obs_video_info ovi;
+ 	obs_get_video_info(&ovi);
+ 
+-	OBSDataAutoRelease response = obs_data_create();
++	palakis_OBSDataAutoRelease response = obs_data_create();
+ 	obs_data_set_int(response, "baseWidth", ovi.base_width);
+ 	obs_data_set_int(response, "baseHeight", ovi.base_height);
+ 	obs_data_set_int(response, "outputWidth", ovi.output_width);
+@@ -389,7 +389,7 @@ RpcResponse WSRequestHandler::TriggerHotkeyBySequence(const RpcRequest& request)
+ 		return request.failed("missing request keyId parameter");
+ 	}
+ 
+-	OBSDataAutoRelease data = obs_data_get_obj(request.parameters(), "keyModifiers");
++	palakis_OBSDataAutoRelease data = obs_data_get_obj(request.parameters(), "keyModifiers");
+ 
+ 	obs_key_combination_t combo = {0};
+ 	uint32_t modifiers = 0;
+@@ -443,12 +443,12 @@ RpcResponse WSRequestHandler::ExecuteBatch(const RpcRequest& request) {
+ 
+ 	bool abortOnFail = obs_data_get_bool(request.parameters(), "abortOnFail");
+ 
+-	OBSDataArrayAutoRelease results = obs_data_array_create();
++	palakis_OBSDataArrayAutoRelease results = obs_data_array_create();
+ 
+-	OBSDataArrayAutoRelease requests = obs_data_get_array(request.parameters(), "requests");
++	palakis_OBSDataArrayAutoRelease requests = obs_data_get_array(request.parameters(), "requests");
+ 	size_t requestsCount = obs_data_array_count(requests);
+ 	for (size_t i = 0; i < requestsCount; i++) {
+-		OBSDataAutoRelease requestData = obs_data_array_item(requests, i);
++		palakis_OBSDataAutoRelease requestData = obs_data_array_item(requests, i);
+ 		QString messageId = obs_data_get_string(requestData, "message-id");
+ 		QString methodName = obs_data_get_string(requestData, "request-type");
+ 		obs_data_unset_user_value(requestData, "request-type");
+@@ -461,7 +461,7 @@ RpcResponse WSRequestHandler::ExecuteBatch(const RpcRequest& request) {
+ 		RpcResponse subResponse = processRequest(subRequest);
+ 
+ 		// transform response into json data
+-		OBSDataAutoRelease subResponseData = OBSRemoteProtocol::rpcResponseToJsonData(subResponse);
++		palakis_OBSDataAutoRelease subResponseData = OBSRemoteProtocol::rpcResponseToJsonData(subResponse);
+ 
+ 		obs_data_array_push_back(results, subResponseData);
+ 
+@@ -470,7 +470,7 @@ RpcResponse WSRequestHandler::ExecuteBatch(const RpcRequest& request) {
+ 			break;
+ 	}
+ 
+-	OBSDataAutoRelease response = obs_data_create();
++	palakis_OBSDataAutoRelease response = obs_data_create();
+ 	obs_data_set_array(response, "results", results);
+ 	return request.success(response);
+ }
+diff --git a/plugins/obs-websocket/src/WSRequestHandler_MediaControl.cpp b/plugins/obs-websocket/src/WSRequestHandler_MediaControl.cpp
+index 20df968..39e19d0 100644
+--- a/plugins/obs-websocket/src/WSRequestHandler_MediaControl.cpp
++++ b/plugins/obs-websocket/src/WSRequestHandler_MediaControl.cpp
+@@ -65,7 +65,7 @@ RpcResponse WSRequestHandler::PlayPauseMedia(const RpcRequest& request) {
+ 		return request.failed("invalid request parameters");
+ 	}
+ 
+-	OBSSourceAutoRelease source = obs_get_source_by_name(sourceName.toUtf8());
++	palakis_OBSSourceAutoRelease source = obs_get_source_by_name(sourceName.toUtf8());
+ 	if (!source) {
+ 		return request.failed("specified source doesn't exist");
+ 	}
+@@ -102,7 +102,7 @@ RpcResponse WSRequestHandler::RestartMedia(const RpcRequest& request) {
+ 		return request.failed("invalid request parameters");
+ 	}
+ 
+-	OBSSourceAutoRelease source = obs_get_source_by_name(sourceName.toUtf8());
++	palakis_OBSSourceAutoRelease source = obs_get_source_by_name(sourceName.toUtf8());
+ 	if (!source) {
+ 		return request.failed("specified source doesn't exist");
+ 	}
+@@ -131,7 +131,7 @@ RpcResponse WSRequestHandler::StopMedia(const RpcRequest& request) {
+ 		return request.failed("invalid request parameters");
+ 	}
+ 
+-	OBSSourceAutoRelease source = obs_get_source_by_name(sourceName.toUtf8());
++	palakis_OBSSourceAutoRelease source = obs_get_source_by_name(sourceName.toUtf8());
+ 	if (!source) {
+ 		return request.failed("specified source doesn't exist");
+ 	}
+@@ -160,7 +160,7 @@ RpcResponse WSRequestHandler::NextMedia(const RpcRequest& request) {
+ 		return request.failed("invalid request parameters");
+ 	}
+ 
+-	OBSSourceAutoRelease source = obs_get_source_by_name(sourceName.toUtf8());
++	palakis_OBSSourceAutoRelease source = obs_get_source_by_name(sourceName.toUtf8());
+ 	if (!source) {
+ 		return request.failed("specified source doesn't exist");
+ 	}
+@@ -189,7 +189,7 @@ RpcResponse WSRequestHandler::PreviousMedia(const RpcRequest& request) {
+ 		return request.failed("invalid request parameters");
+ 	}
+ 
+-	OBSSourceAutoRelease source = obs_get_source_by_name(sourceName.toUtf8());
++	palakis_OBSSourceAutoRelease source = obs_get_source_by_name(sourceName.toUtf8());
+ 	if (!source) {
+ 		return request.failed("specified source doesn't exist");
+ 	}
+@@ -221,12 +221,12 @@ RpcResponse WSRequestHandler::GetMediaDuration(const RpcRequest& request) {
+ 		return request.failed("invalid request parameters");
+ 	}
+ 
+-	OBSSourceAutoRelease source = obs_get_source_by_name(sourceName.toUtf8());
++	palakis_OBSSourceAutoRelease source = obs_get_source_by_name(sourceName.toUtf8());
+ 	if (!source) {
+ 		return request.failed("specified source doesn't exist");
+ 	}
+ 
+-	OBSDataAutoRelease response = obs_data_create();
++	palakis_OBSDataAutoRelease response = obs_data_create();
+ 	obs_data_set_int(response, "mediaDuration", obs_source_media_get_duration(source));
+ 	return request.success(response);
+ }
+@@ -253,12 +253,12 @@ RpcResponse WSRequestHandler::GetMediaTime(const RpcRequest& request) {
+ 		return request.failed("invalid request parameters");
+ 	}
+ 
+-	OBSSourceAutoRelease source = obs_get_source_by_name(sourceName.toUtf8());
++	palakis_OBSSourceAutoRelease source = obs_get_source_by_name(sourceName.toUtf8());
+ 	if (!source) {
+ 		return request.failed("specified source doesn't exist");
+ 	}
+ 
+-	OBSDataAutoRelease response = obs_data_create();
++	palakis_OBSDataAutoRelease response = obs_data_create();
+ 	obs_data_set_int(response, "timestamp", obs_source_media_get_time(source));
+ 	return request.success(response);
+ }
+@@ -285,7 +285,7 @@ RpcResponse WSRequestHandler::SetMediaTime(const RpcRequest& request) {
+ 		return request.failed("invalid request parameters");
+ 	}
+ 
+-	OBSSourceAutoRelease source = obs_get_source_by_name(sourceName.toUtf8());
++	palakis_OBSSourceAutoRelease source = obs_get_source_by_name(sourceName.toUtf8());
+ 	if (!source) {
+ 		return request.failed("specified source doesn't exist");
+ 	}
+@@ -317,7 +317,7 @@ RpcResponse WSRequestHandler::ScrubMedia(const RpcRequest& request) {
+ 		return request.failed("invalid request parameters");
+ 	}
+ 
+-	OBSSourceAutoRelease source = obs_get_source_by_name(sourceName.toUtf8());
++	palakis_OBSSourceAutoRelease source = obs_get_source_by_name(sourceName.toUtf8());
+ 	if (!source) {
+ 		return request.failed("specified source doesn't exist");
+ 	}
+@@ -353,12 +353,12 @@ RpcResponse WSRequestHandler::GetMediaState(const RpcRequest& request) {
+ 		return request.failed("invalid request parameters");
+ 	}
+ 
+-	OBSSourceAutoRelease source = obs_get_source_by_name(sourceName.toUtf8());
++	palakis_OBSSourceAutoRelease source = obs_get_source_by_name(sourceName.toUtf8());
+ 	if (!source) {
+ 		return request.failed("specified source doesn't exist");
+ 	}
+ 
+-	OBSDataAutoRelease response = obs_data_create();
++	palakis_OBSDataAutoRelease response = obs_data_create();
+ 	obs_data_set_string(response, "mediaState", getSourceMediaState(source).toUtf8());
+ 
+ 	return request.success(response);
+@@ -379,14 +379,14 @@ RpcResponse WSRequestHandler::GetMediaState(const RpcRequest& request) {
+ */
+ RpcResponse WSRequestHandler::GetMediaSourcesList(const RpcRequest& request)
+ {
+-	OBSDataArrayAutoRelease sourcesArray = obs_data_array_create();
++	palakis_OBSDataArrayAutoRelease sourcesArray = obs_data_array_create();
+ 
+ 	auto sourceEnumProc = [](void* privateData, obs_source_t* source) -> bool {
+ 		obs_data_array_t* sourcesArray = (obs_data_array_t*)privateData;
+ 
+ 		QString sourceKind = obs_source_get_id(source);
+ 		if (isMediaSource(sourceKind)) {
+-			OBSDataAutoRelease sourceData = obs_data_create();
++			palakis_OBSDataAutoRelease sourceData = obs_data_create();
+ 			obs_data_set_string(sourceData, "sourceName", obs_source_get_name(source));
+ 			obs_data_set_string(sourceData, "sourceKind", sourceKind.toUtf8());
+ 
+@@ -399,7 +399,7 @@ RpcResponse WSRequestHandler::GetMediaSourcesList(const RpcRequest& request)
+ 	};
+ 	obs_enum_sources(sourceEnumProc, sourcesArray);
+ 
+-	OBSDataAutoRelease response = obs_data_create();
++	palakis_OBSDataAutoRelease response = obs_data_create();
+ 	obs_data_set_array(response, "mediaSources", sourcesArray);
+ 	return request.success(response);
+ }
+diff --git a/plugins/obs-websocket/src/WSRequestHandler_Outputs.cpp b/plugins/obs-websocket/src/WSRequestHandler_Outputs.cpp
+index d87a8ca..329a3f8 100644
+--- a/plugins/obs-websocket/src/WSRequestHandler_Outputs.cpp
++++ b/plugins/obs-websocket/src/WSRequestHandler_Outputs.cpp
+@@ -29,10 +29,10 @@ obs_data_t* getOutputInfo(obs_output_t* output)
+ 		return nullptr;
+ 	}
+ 
+-	OBSDataAutoRelease settings = obs_output_get_settings(output);
++	palakis_OBSDataAutoRelease settings = obs_output_get_settings(output);
+ 
+ 	uint32_t rawFlags = obs_output_get_flags(output);
+-	OBSDataAutoRelease flags = obs_data_create();
++	palakis_OBSDataAutoRelease flags = obs_data_create();
+ 	obs_data_set_int(flags, "rawValue", rawFlags);
+ 	obs_data_set_bool(flags, "audio", rawFlags & OBS_OUTPUT_AUDIO);
+ 	obs_data_set_bool(flags, "video", rawFlags & OBS_OUTPUT_VIDEO);
+@@ -66,7 +66,7 @@ RpcResponse findOutputOrFail(const RpcRequest& request, std::function<RpcRespons
+ 	}
+ 
+ 	const char* outputName = obs_data_get_string(request.parameters(), "outputName");
+-	OBSOutputAutoRelease output = obs_get_output_by_name(outputName);
++	palakis_OBSOutputAutoRelease output = obs_get_output_by_name(outputName);
+ 	if (!output) {
+ 		return request.failed("specified output doesn't exist");
+ 	}
+@@ -86,18 +86,18 @@ RpcResponse findOutputOrFail(const RpcRequest& request, std::function<RpcRespons
+ */
+ RpcResponse WSRequestHandler::ListOutputs(const RpcRequest& request)
+ {
+-	OBSDataArrayAutoRelease outputs = obs_data_array_create();
++	palakis_OBSDataArrayAutoRelease outputs = obs_data_array_create();
+ 
+ 	obs_enum_outputs([](void* param, obs_output_t* output) {
+ 		obs_data_array_t* outputs = reinterpret_cast<obs_data_array_t*>(param);
+ 
+-		OBSDataAutoRelease outputInfo = getOutputInfo(output);
++		palakis_OBSDataAutoRelease outputInfo = getOutputInfo(output);
+ 		obs_data_array_push_back(outputs, outputInfo);
+ 
+ 		return true;
+ 	}, outputs);
+ 
+-	OBSDataAutoRelease fields = obs_data_create();
++	palakis_OBSDataAutoRelease fields = obs_data_create();
+ 	obs_data_set_array(fields, "outputs", outputs);
+ 
+ 	return request.success(fields);
+@@ -118,9 +118,9 @@ RpcResponse WSRequestHandler::ListOutputs(const RpcRequest& request)
+ RpcResponse WSRequestHandler::GetOutputInfo(const RpcRequest& request)
+ {
+ 	return findOutputOrFail(request, [](obs_output_t* output, const RpcRequest& request) {
+-		OBSDataAutoRelease outputInfo = getOutputInfo(output);
++		palakis_OBSDataAutoRelease outputInfo = getOutputInfo(output);
+ 
+-		OBSDataAutoRelease fields = obs_data_create();
++		palakis_OBSDataAutoRelease fields = obs_data_create();
+ 		obs_data_set_obj(fields, "outputInfo", outputInfo);
+ 		return request.success(fields);
+ 	});
+diff --git a/plugins/obs-websocket/src/WSRequestHandler_Profiles.cpp b/plugins/obs-websocket/src/WSRequestHandler_Profiles.cpp
+index 55d39b8..0ad37ad 100644
+--- a/plugins/obs-websocket/src/WSRequestHandler_Profiles.cpp
++++ b/plugins/obs-websocket/src/WSRequestHandler_Profiles.cpp
+@@ -47,7 +47,7 @@ RpcResponse WSRequestHandler::SetCurrentProfile(const RpcRequest& request) {
+  * @since 4.0.0
+  */
+ RpcResponse WSRequestHandler::GetCurrentProfile(const RpcRequest& request) {
+-	OBSDataAutoRelease response = obs_data_create();
++	palakis_OBSDataAutoRelease response = obs_data_create();
+ 	char* currentProfile = obs_frontend_get_current_profile();
+ 	obs_data_set_string(response, "profile-name", currentProfile);
+ 	bfree(currentProfile);
+@@ -67,10 +67,10 @@ RpcResponse WSRequestHandler::GetCurrentProfile(const RpcRequest& request) {
+  */
+ RpcResponse WSRequestHandler::ListProfiles(const RpcRequest& request) {
+ 	char** profiles = obs_frontend_get_profiles();
+-	OBSDataArrayAutoRelease list = Utils::StringListToArray(profiles, "profile-name");
++	palakis_OBSDataArrayAutoRelease list = Utils::StringListToArray(profiles, "profile-name");
+ 	bfree(profiles);
+ 
+-	OBSDataAutoRelease response = obs_data_create();
++	palakis_OBSDataAutoRelease response = obs_data_create();
+ 	obs_data_set_array(response, "profiles", list);
+ 
+ 	return request.success(response);
+diff --git a/plugins/obs-websocket/src/WSRequestHandler_Recording.cpp b/plugins/obs-websocket/src/WSRequestHandler_Recording.cpp
+index e00e455..04872d5 100644
+--- a/plugins/obs-websocket/src/WSRequestHandler_Recording.cpp
++++ b/plugins/obs-websocket/src/WSRequestHandler_Recording.cpp
+@@ -31,7 +31,7 @@ RpcResponse ifCanPause(const RpcRequest& request, std::function<RpcResponse()> c
+ RpcResponse WSRequestHandler::GetRecordingStatus(const RpcRequest& request) {
+ 		auto events = GetEventsSystem();
+ 
+-		OBSDataAutoRelease data = obs_data_create();
++		palakis_OBSDataAutoRelease data = obs_data_create();
+ 		obs_data_set_bool(data, "isRecording", obs_frontend_recording_active());
+ 		obs_data_set_bool(data, "isRecordingPaused", obs_frontend_recording_paused());
+ 
+@@ -175,7 +175,7 @@ RpcResponse WSRequestHandler::SetRecordingFolder(const RpcRequest& request) {
+ RpcResponse WSRequestHandler::GetRecordingFolder(const RpcRequest& request) {
+ 	const char* recFolder = Utils::GetRecordingFolder();
+ 
+-	OBSDataAutoRelease response = obs_data_create();
++	palakis_OBSDataAutoRelease response = obs_data_create();
+ 	obs_data_set_string(response, "rec-folder", recFolder);
+ 
+ 	return request.success(response);
+diff --git a/plugins/obs-websocket/src/WSRequestHandler_ReplayBuffer.cpp b/plugins/obs-websocket/src/WSRequestHandler_ReplayBuffer.cpp
+index 035a41f..c1c8afb 100644
+--- a/plugins/obs-websocket/src/WSRequestHandler_ReplayBuffer.cpp
++++ b/plugins/obs-websocket/src/WSRequestHandler_ReplayBuffer.cpp
+@@ -16,7 +16,7 @@
+  * @since 4.9.0
+  */
+ RpcResponse WSRequestHandler::GetReplayBufferStatus(const RpcRequest& request) {
+-		OBSDataAutoRelease data = obs_data_create();
++		palakis_OBSDataAutoRelease data = obs_data_create();
+ 		obs_data_set_bool(data, "isReplayBufferActive", obs_frontend_replay_buffer_active());
+ 
+ 		return request.success(data);
+@@ -97,7 +97,7 @@ RpcResponse WSRequestHandler::SaveReplayBuffer(const RpcRequest& request) {
+ 		return request.failed("replay buffer not active");
+ 	}
+ 
+-	OBSOutputAutoRelease replayOutput = obs_frontend_get_replay_buffer_output();
++	palakis_OBSOutputAutoRelease replayOutput = obs_frontend_get_replay_buffer_output();
+ 
+ 	calldata_t cd = { 0 };
+ 	proc_handler_t* ph = obs_output_get_proc_handler(replayOutput);
+diff --git a/plugins/obs-websocket/src/WSRequestHandler_SceneCollections.cpp b/plugins/obs-websocket/src/WSRequestHandler_SceneCollections.cpp
+index 8fc0ef4..ba9c8b3 100644
+--- a/plugins/obs-websocket/src/WSRequestHandler_SceneCollections.cpp
++++ b/plugins/obs-websocket/src/WSRequestHandler_SceneCollections.cpp
+@@ -52,7 +52,7 @@ RpcResponse WSRequestHandler::SetCurrentSceneCollection(const RpcRequest& reques
+  * @since 4.0.0
+  */
+ RpcResponse WSRequestHandler::GetCurrentSceneCollection(const RpcRequest& request) {
+-	OBSDataAutoRelease response = obs_data_create();
++	palakis_OBSDataAutoRelease response = obs_data_create();
+ 
+ 	char* sceneCollection = obs_frontend_get_current_scene_collection();
+ 	obs_data_set_string(response, "sc-name", sceneCollection);
+@@ -73,11 +73,11 @@ RpcResponse WSRequestHandler::GetCurrentSceneCollection(const RpcRequest& reques
+  */
+ RpcResponse WSRequestHandler::ListSceneCollections(const RpcRequest& request) {
+ 	char** sceneCollections = obs_frontend_get_scene_collections();
+-	OBSDataArrayAutoRelease list =
++	palakis_OBSDataArrayAutoRelease list =
+ 		Utils::StringListToArray(sceneCollections, "sc-name");
+ 	bfree(sceneCollections);
+ 
+-	OBSDataAutoRelease response = obs_data_create();
++	palakis_OBSDataAutoRelease response = obs_data_create();
+ 	obs_data_set_array(response, "scene-collections", list);
+ 
+ 	return request.success(response);
+diff --git a/plugins/obs-websocket/src/WSRequestHandler_SceneItems.cpp b/plugins/obs-websocket/src/WSRequestHandler_SceneItems.cpp
+index 7c6f967..2893135 100644
+--- a/plugins/obs-websocket/src/WSRequestHandler_SceneItems.cpp
++++ b/plugins/obs-websocket/src/WSRequestHandler_SceneItems.cpp
+@@ -22,7 +22,7 @@
+ RpcResponse WSRequestHandler::GetSceneItemList(const RpcRequest& request) {
+ 	const char* sceneName = obs_data_get_string(request.parameters(), "sceneName");
+ 
+-	OBSSourceAutoRelease sceneSource;
++	palakis_OBSSourceAutoRelease sceneSource;
+ 	if (sceneName && strcmp(sceneName, "") != 0) {
+ 		sceneSource = obs_get_source_by_name(sceneName);
+ 	} else {
+@@ -34,12 +34,12 @@ RpcResponse WSRequestHandler::GetSceneItemList(const RpcRequest& request) {
+ 		return request.failed("requested scene is invalid or doesnt exist");
+ 	}
+ 
+-	OBSDataArrayAutoRelease sceneItemArray = obs_data_array_create();
++	palakis_OBSDataArrayAutoRelease sceneItemArray = obs_data_array_create();
+ 
+ 	auto sceneItemEnumProc = [](obs_scene_t *, obs_sceneitem_t* item, void* privateData) -> bool {
+ 		obs_data_array_t* sceneItemArray = (obs_data_array_t*)privateData;
+ 
+-		OBSDataAutoRelease sceneItemData = obs_data_create();
++		palakis_OBSDataAutoRelease sceneItemData = obs_data_create();
+ 		obs_data_set_int(sceneItemData, "itemId", obs_sceneitem_get_id(item));
+ 		OBSSource source = obs_sceneitem_get_source(item);
+ 		obs_data_set_string(sceneItemData, "sourceKind", obs_source_get_id(source));
+@@ -67,7 +67,7 @@ RpcResponse WSRequestHandler::GetSceneItemList(const RpcRequest& request) {
+ 	};
+ 	obs_scene_enum_items(scene, sceneItemEnumProc, sceneItemArray);
+ 
+-	OBSDataAutoRelease response = obs_data_create();
++	palakis_OBSDataAutoRelease response = obs_data_create();
+ 	obs_data_set_string(response, "sceneName", obs_source_get_name(sceneSource));
+ 	obs_data_set_array(response, "sceneItems", sceneItemArray);
+ 
+@@ -128,13 +128,13 @@ RpcResponse WSRequestHandler::GetSceneItemProperties(const RpcRequest& request)
+ 		return request.failed("requested scene doesn't exist");
+ 	}
+ 
+-	OBSDataItemAutoRelease itemField = obs_data_item_byname(params, "item");
+-	OBSSceneItemAutoRelease sceneItem = Utils::GetSceneItemFromRequestField(scene, itemField);
++	palakis_OBSDataItemAutoRelease itemField = obs_data_item_byname(params, "item");
++	palakis_OBSSceneItemAutoRelease sceneItem = Utils::GetSceneItemFromRequestField(scene, itemField);
+ 	if (!sceneItem) {
+ 		return request.failed("specified scene item doesn't exist");
+ 	}
+ 
+-	OBSDataAutoRelease data = Utils::GetSceneItemPropertiesData(sceneItem);
++	palakis_OBSDataAutoRelease data = Utils::GetSceneItemPropertiesData(sceneItem);
+ 
+ 	OBSSource sceneItemSource = obs_sceneitem_get_source(sceneItem);
+ 	obs_data_set_string(data, "name", obs_source_get_name(sceneItemSource));
+@@ -187,23 +187,23 @@ RpcResponse WSRequestHandler::SetSceneItemProperties(const RpcRequest& request)
+ 		return request.failed("requested scene doesn't exist");
+ 	}
+ 
+-	OBSDataItemAutoRelease itemField = obs_data_item_byname(params, "item");
+-	OBSSceneItemAutoRelease sceneItem = Utils::GetSceneItemFromRequestField(scene, itemField);
++	palakis_OBSDataItemAutoRelease itemField = obs_data_item_byname(params, "item");
++	palakis_OBSSceneItemAutoRelease sceneItem = Utils::GetSceneItemFromRequestField(scene, itemField);
+ 	if (!sceneItem) {
+ 		return request.failed("specified scene item doesn't exist");
+ 	}
+ 
+ 	bool badRequest = false;
+-	OBSDataAutoRelease errorData = obs_data_create();
++	palakis_OBSDataAutoRelease errorData = obs_data_create();
+ 
+ 	obs_sceneitem_defer_update_begin(sceneItem);
+ 
+ 	if (request.hasField("position")) {
+ 		vec2 oldPosition;
+-		OBSDataAutoRelease positionError = obs_data_create();
++		palakis_OBSDataAutoRelease positionError = obs_data_create();
+ 		obs_sceneitem_get_pos(sceneItem, &oldPosition);
+ 
+-		OBSDataAutoRelease reqPosition = obs_data_get_obj(params, "position");
++		palakis_OBSDataAutoRelease reqPosition = obs_data_get_obj(params, "position");
+ 		vec2 newPosition = oldPosition;
+ 
+ 		if (obs_data_has_user_value(reqPosition, "x")) {
+@@ -232,7 +232,7 @@ RpcResponse WSRequestHandler::SetSceneItemProperties(const RpcRequest& request)
+ 	}
+ 
+ 	if (request.hasField("scale")) {
+-		OBSDataAutoRelease reqScale = obs_data_get_obj(params, "scale");
++		palakis_OBSDataAutoRelease reqScale = obs_data_get_obj(params, "scale");
+ 
+ 		if (obs_data_has_user_value(reqScale, "filter")) {
+ 			QString newScaleFilter = obs_data_get_string(reqScale, "filter");
+@@ -274,7 +274,7 @@ RpcResponse WSRequestHandler::SetSceneItemProperties(const RpcRequest& request)
+ 		obs_sceneitem_crop oldCrop;
+ 		obs_sceneitem_get_crop(sceneItem, &oldCrop);
+ 
+-		OBSDataAutoRelease reqCrop = obs_data_get_obj(params, "crop");
++		palakis_OBSDataAutoRelease reqCrop = obs_data_get_obj(params, "crop");
+ 		obs_sceneitem_crop newCrop = oldCrop;
+ 
+ 		if (obs_data_has_user_value(reqCrop, "top")) {
+@@ -303,8 +303,8 @@ RpcResponse WSRequestHandler::SetSceneItemProperties(const RpcRequest& request)
+ 
+ 	if (request.hasField("bounds")) {
+ 		bool badBounds = false;
+-		OBSDataAutoRelease boundsError = obs_data_create();
+-		OBSDataAutoRelease reqBounds = obs_data_get_obj(params, "bounds");
++		palakis_OBSDataAutoRelease boundsError = obs_data_create();
++		palakis_OBSDataAutoRelease reqBounds = obs_data_get_obj(params, "bounds");
+ 
+ 		if (obs_data_has_user_value(reqBounds, "type")) {
+ 			QString newBoundsType = obs_data_get_string(reqBounds, "type");
+@@ -399,15 +399,15 @@ RpcResponse WSRequestHandler::ResetSceneItem(const RpcRequest& request) {
+ 		return request.failed("requested scene doesn't exist");
+ 	}
+ 
+-	OBSDataItemAutoRelease itemField = obs_data_item_byname(params, "item");
+-	OBSSceneItemAutoRelease sceneItem = Utils::GetSceneItemFromRequestField(scene, itemField);
++	palakis_OBSDataItemAutoRelease itemField = obs_data_item_byname(params, "item");
++	palakis_OBSSceneItemAutoRelease sceneItem = Utils::GetSceneItemFromRequestField(scene, itemField);
+ 	if (!sceneItem) {
+ 		return request.failed("specified scene item doesn't exist");
+ 	}
+ 
+ 	OBSSource sceneItemSource = obs_sceneitem_get_source(sceneItem);
+ 
+-	OBSDataAutoRelease settings = obs_source_get_settings(sceneItemSource);
++	palakis_OBSDataAutoRelease settings = obs_source_get_settings(sceneItemSource);
+ 	obs_source_update(sceneItemSource, settings);
+ 
+ 	return request.success();
+@@ -447,7 +447,7 @@ RpcResponse WSRequestHandler::SetSceneItemRender(const RpcRequest& request) {
+ 		return request.failed("requested scene doesn't exist");
+ 	}
+ 
+-	OBSSceneItemAutoRelease sceneItem;
++	palakis_OBSSceneItemAutoRelease sceneItem;
+ 
+ 	if (strlen(itemName)) {
+ 		sceneItem = Utils::GetSceneItemFromName(scene, itemName);
+@@ -549,7 +549,7 @@ RpcResponse WSRequestHandler::SetSceneItemTransform(const RpcRequest& request) {
+ 	scale.y = obs_data_get_double(request.parameters(), "y-scale");
+ 	float rotation = obs_data_get_double(request.parameters(), "rotation");
+ 
+-	OBSSceneItemAutoRelease sceneItem = Utils::GetSceneItemFromName(scene, itemName);
++	palakis_OBSSceneItemAutoRelease sceneItem = Utils::GetSceneItemFromName(scene, itemName);
+ 	if (!sceneItem) {
+ 		return request.failed("specified scene item doesn't exist");
+ 	}
+@@ -596,7 +596,7 @@ RpcResponse WSRequestHandler::SetSceneItemCrop(const RpcRequest& request) {
+ 		return request.failed("requested scene doesn't exist");
+ 	}
+ 
+-	OBSSceneItemAutoRelease sceneItem = Utils::GetSceneItemFromName(scene, itemName);
++	palakis_OBSSceneItemAutoRelease sceneItem = Utils::GetSceneItemFromName(scene, itemName);
+ 	if (!sceneItem) {
+ 		return request.failed("specified scene item doesn't exist");
+ 	}
+@@ -636,8 +636,8 @@ RpcResponse WSRequestHandler::DeleteSceneItem(const RpcRequest& request) {
+ 		return request.failed("requested scene doesn't exist");
+ 	}
+ 
+-	OBSDataItemAutoRelease itemField = obs_data_item_byname(request.parameters(), "item");
+-	OBSSceneItemAutoRelease sceneItem = Utils::GetSceneItemFromRequestField(scene, itemField);
++	palakis_OBSDataItemAutoRelease itemField = obs_data_item_byname(request.parameters(), "item");
++	palakis_OBSSceneItemAutoRelease sceneItem = Utils::GetSceneItemFromRequestField(scene, itemField);
+ 	if (!sceneItem) {
+ 		return request.failed("item with id/name combination not found in specified scene");
+ 	}
+@@ -667,14 +667,14 @@ RpcResponse WSRequestHandler::AddSceneItem(const RpcRequest& request) {
+ 	}
+ 
+ 	const char* sceneName = obs_data_get_string(request.parameters(), "sceneName");
+-	OBSSourceAutoRelease sceneSource = obs_get_source_by_name(sceneName);
++	palakis_OBSSourceAutoRelease sceneSource = obs_get_source_by_name(sceneName);
+ 	OBSScene scene = obs_scene_from_source(sceneSource);
+ 	if (!scene) {
+ 		return request.failed("requested scene is invalid or doesnt exist");
+ 	}
+ 
+ 	const char* sourceName = obs_data_get_string(request.parameters(), "sourceName");
+-	OBSSourceAutoRelease source = obs_get_source_by_name(sourceName);
++	palakis_OBSSourceAutoRelease source = obs_get_source_by_name(sourceName);
+ 	if (!source) {
+ 		return request.failed("requested source does not exist");
+ 	}
+@@ -694,7 +694,7 @@ RpcResponse WSRequestHandler::AddSceneItem(const RpcRequest& request) {
+ 	obs_scene_atomic_update(scene, Utils::AddSourceHelper, &data);
+ 	obs_leave_graphics();
+ 
+-	OBSDataAutoRelease responseData = obs_data_create();
++	palakis_OBSDataAutoRelease responseData = obs_data_create();
+ 	obs_data_set_int(responseData, "itemId", obs_sceneitem_get_id(data.sceneItem));
+ 
+ 	return request.success(responseData);
+@@ -742,8 +742,8 @@ RpcResponse WSRequestHandler::DuplicateSceneItem(const RpcRequest& request) {
+ 		return request.failed("requested toScene doesn't exist");
+ 	}
+ 
+-	OBSDataItemAutoRelease itemField = obs_data_item_byname(request.parameters(), "item");
+-	OBSSceneItemAutoRelease referenceItem = Utils::GetSceneItemFromRequestField(fromScene, itemField);
++	palakis_OBSDataItemAutoRelease itemField = obs_data_item_byname(request.parameters(), "item");
++	palakis_OBSSceneItemAutoRelease referenceItem = Utils::GetSceneItemFromRequestField(fromScene, itemField);
+ 	if (!referenceItem) {
+ 		return request.failed("item with id/name combination not found in specified scene");
+ 	}
+@@ -765,11 +765,11 @@ RpcResponse WSRequestHandler::DuplicateSceneItem(const RpcRequest& request) {
+ 		return request.failed("Error duplicating scene item");
+ 	}
+ 
+-	OBSDataAutoRelease itemData = obs_data_create();
++	palakis_OBSDataAutoRelease itemData = obs_data_create();
+ 	obs_data_set_int(itemData, "id", obs_sceneitem_get_id(newItem));
+ 	obs_data_set_string(itemData, "name", obs_source_get_name(obs_sceneitem_get_source(newItem)));
+ 
+-	OBSDataAutoRelease responseData = obs_data_create();
++	palakis_OBSDataAutoRelease responseData = obs_data_create();
+ 	obs_data_set_obj(responseData, "item", itemData);
+ 	obs_data_set_string(responseData, "scene", obs_source_get_name(obs_scene_get_source(toScene)));
+ 
+diff --git a/plugins/obs-websocket/src/WSRequestHandler_Scenes.cpp b/plugins/obs-websocket/src/WSRequestHandler_Scenes.cpp
+index e416ec0..a6a2277 100644
+--- a/plugins/obs-websocket/src/WSRequestHandler_Scenes.cpp
++++ b/plugins/obs-websocket/src/WSRequestHandler_Scenes.cpp
+@@ -24,7 +24,7 @@ RpcResponse WSRequestHandler::SetCurrentScene(const RpcRequest& request) {
+ 	}
+ 
+ 	const char* sceneName = obs_data_get_string(request.parameters(), "scene-name");
+-	OBSSourceAutoRelease source = obs_get_source_by_name(sceneName);
++	palakis_OBSSourceAutoRelease source = obs_get_source_by_name(sceneName);
+ 
+ 	if (source) {
+ 		obs_frontend_set_current_scene(source);
+@@ -46,10 +46,10 @@ RpcResponse WSRequestHandler::SetCurrentScene(const RpcRequest& request) {
+  * @since 0.3
+  */
+ RpcResponse WSRequestHandler::GetCurrentScene(const RpcRequest& request) {
+-	OBSSourceAutoRelease currentScene = obs_frontend_get_current_scene();
+-	OBSDataArrayAutoRelease sceneItems = Utils::GetSceneItems(currentScene);
++	palakis_OBSSourceAutoRelease currentScene = obs_frontend_get_current_scene();
++	palakis_OBSDataArrayAutoRelease sceneItems = Utils::GetSceneItems(currentScene);
+ 
+-	OBSDataAutoRelease data = obs_data_create();
++	palakis_OBSDataAutoRelease data = obs_data_create();
+ 	obs_data_set_string(data, "name", obs_source_get_name(currentScene));
+ 	obs_data_set_array(data, "sources", sceneItems);
+ 
+@@ -68,10 +68,10 @@ RpcResponse WSRequestHandler::GetCurrentScene(const RpcRequest& request) {
+  * @since 0.3
+  */
+ RpcResponse WSRequestHandler::GetSceneList(const RpcRequest& request) {
+-	OBSSourceAutoRelease currentScene = obs_frontend_get_current_scene();
+-	OBSDataArrayAutoRelease scenes = Utils::GetScenes();
++	palakis_OBSSourceAutoRelease currentScene = obs_frontend_get_current_scene();
++	palakis_OBSDataArrayAutoRelease scenes = Utils::GetScenes();
+ 
+-	OBSDataAutoRelease data = obs_data_create();
++	palakis_OBSDataAutoRelease data = obs_data_create();
+ 	obs_data_set_string(data, "current-scene",
+ 		obs_source_get_name(currentScene));
+ 	obs_data_set_array(data, "scenes", scenes);
+@@ -95,7 +95,7 @@ RpcResponse WSRequestHandler::CreateScene(const RpcRequest& request) {
+ 	}
+ 
+ 	const char* sceneName = obs_data_get_string(request.parameters(), "sceneName");
+-	OBSSourceAutoRelease source = obs_get_source_by_name(sceneName);
++	palakis_OBSSourceAutoRelease source = obs_get_source_by_name(sceneName);
+ 
+ 	if (source) {
+ 		return request.failed("scene with this name already exists");
+@@ -125,7 +125,7 @@ RpcResponse WSRequestHandler::ReorderSceneItems(const RpcRequest& request) {
+ 		return request.failed("requested scene doesn't exist");
+ 	}
+ 
+-	OBSDataArrayAutoRelease items = obs_data_get_array(request.parameters(), "items");
++	palakis_OBSDataArrayAutoRelease items = obs_data_get_array(request.parameters(), "items");
+ 	if (!items) {
+ 		return request.failed("sceneItem order not specified");
+ 	}
+@@ -148,9 +148,9 @@ RpcResponse WSRequestHandler::ReorderSceneItems(const RpcRequest& request) {
+ 
+ 		size_t itemCount = obs_data_array_count(ctx->items);
+ 		for (uint i = 0; i < itemCount; i++) {
+-			OBSDataAutoRelease item = obs_data_array_item(ctx->items, i);
++			palakis_OBSDataAutoRelease item = obs_data_array_item(ctx->items, i);
+ 
+-			OBSSceneItemAutoRelease sceneItem = Utils::GetSceneItemFromItem(scene, item);
++			palakis_OBSSceneItemAutoRelease sceneItem = Utils::GetSceneItemFromItem(scene, item);
+ 			if (!sceneItem) {
+ 				ctx->success = false;
+ 				ctx->errorMessage = "Invalid sceneItem id or name specified";
+@@ -193,7 +193,7 @@ RpcResponse WSRequestHandler::SetSceneTransitionOverride(const RpcRequest& reque
+ 	}
+ 
+ 	QString sceneName = obs_data_get_string(request.parameters(), "sceneName");
+-	OBSSourceAutoRelease source = obs_get_source_by_name(sceneName.toUtf8());
++	palakis_OBSSourceAutoRelease source = obs_get_source_by_name(sceneName.toUtf8());
+ 	if (!source) {
+ 		return request.failed("requested scene does not exist");
+ 	}
+@@ -204,12 +204,12 @@ RpcResponse WSRequestHandler::SetSceneTransitionOverride(const RpcRequest& reque
+ 	}
+ 
+ 	QString transitionName = obs_data_get_string(request.parameters(), "transitionName");
+-	OBSSourceAutoRelease transition = Utils::GetTransitionFromName(transitionName);
++	palakis_OBSSourceAutoRelease transition = Utils::GetTransitionFromName(transitionName);
+ 	if (!transition) {
+ 		return request.failed("requested transition does not exist");
+ 	}
+ 
+-	OBSDataAutoRelease sourceData = obs_source_get_private_settings(source);
++	palakis_OBSDataAutoRelease sourceData = obs_source_get_private_settings(source);
+ 	obs_data_set_string(sourceData, "transition", transitionName.toUtf8().constData());
+ 
+ 	if (request.hasField("transitionDuration")) {
+@@ -240,7 +240,7 @@ RpcResponse WSRequestHandler::RemoveSceneTransitionOverride(const RpcRequest& re
+ 	}
+ 
+ 	QString sceneName = obs_data_get_string(request.parameters(), "sceneName");
+-	OBSSourceAutoRelease source = obs_get_source_by_name(sceneName.toUtf8());
++	palakis_OBSSourceAutoRelease source = obs_get_source_by_name(sceneName.toUtf8());
+ 	if (!source) {
+ 		return request.failed("requested scene does not exist");
+ 	}
+@@ -250,7 +250,7 @@ RpcResponse WSRequestHandler::RemoveSceneTransitionOverride(const RpcRequest& re
+ 		return request.failed("requested scene is invalid");
+ 	}
+ 
+-	OBSDataAutoRelease sourceData = obs_source_get_private_settings(source);
++	palakis_OBSDataAutoRelease sourceData = obs_source_get_private_settings(source);
+ 	obs_data_erase(sourceData, "transition");
+ 	obs_data_erase(sourceData, "transition_duration");
+ 
+@@ -276,7 +276,7 @@ RpcResponse WSRequestHandler::GetSceneTransitionOverride(const RpcRequest& reque
+ 	}
+ 
+ 	QString sceneName = obs_data_get_string(request.parameters(), "sceneName");
+-	OBSSourceAutoRelease source = obs_get_source_by_name(sceneName.toUtf8());
++	palakis_OBSSourceAutoRelease source = obs_get_source_by_name(sceneName.toUtf8());
+ 	if (!source) {
+ 		return request.failed("requested scene does not exist");
+ 	}
+@@ -286,13 +286,13 @@ RpcResponse WSRequestHandler::GetSceneTransitionOverride(const RpcRequest& reque
+ 		return request.failed("requested scene is invalid");
+ 	}
+ 
+-	OBSDataAutoRelease sourceData = obs_source_get_private_settings(source);
++	palakis_OBSDataAutoRelease sourceData = obs_source_get_private_settings(source);
+ 	const char* transitionOverrideName = obs_data_get_string(sourceData, "transition");
+ 
+ 	bool hasDurationOverride = obs_data_has_user_value(sourceData, "transition_duration");
+ 	int transitionOverrideDuration = obs_data_get_int(sourceData, "transition_duration");
+ 
+-	OBSDataAutoRelease fields = obs_data_create();
++	palakis_OBSDataAutoRelease fields = obs_data_create();
+ 	obs_data_set_string(fields, "transitionName", transitionOverrideName);
+ 	obs_data_set_int(fields, "transitionDuration",
+ 		(hasDurationOverride ? transitionOverrideDuration : -1)
+diff --git a/plugins/obs-websocket/src/WSRequestHandler_Sources.cpp b/plugins/obs-websocket/src/WSRequestHandler_Sources.cpp
+index c60838f..791361c 100644
+--- a/plugins/obs-websocket/src/WSRequestHandler_Sources.cpp
++++ b/plugins/obs-websocket/src/WSRequestHandler_Sources.cpp
+@@ -46,24 +46,24 @@ RpcResponse WSRequestHandler::CreateSource(const RpcRequest& request)
+ 		return request.failed("empty sourceKind or sourceName parameters");
+ 	}
+ 	
+-	OBSSourceAutoRelease source = obs_get_source_by_name(sourceName.toUtf8());
++	palakis_OBSSourceAutoRelease source = obs_get_source_by_name(sourceName.toUtf8());
+ 	if (source) {
+ 		return request.failed("a source with that name already exists");
+ 	}
+ 	
+ 	const char* sceneName = obs_data_get_string(request.parameters(), "sceneName");
+-	OBSSourceAutoRelease sceneSource = obs_get_source_by_name(sceneName);
++	palakis_OBSSourceAutoRelease sceneSource = obs_get_source_by_name(sceneName);
+ 	OBSScene scene = obs_scene_from_source(sceneSource);
+ 	if (!scene) {
+ 		return request.failed("requested scene is invalid or doesnt exist");
+ 	}
+ 
+-	OBSDataAutoRelease sourceSettings = nullptr;
++	palakis_OBSDataAutoRelease sourceSettings = nullptr;
+ 	if (request.hasField("sourceSettings")) {
+ 		sourceSettings = obs_data_get_obj(request.parameters(), "sourceSettings");
+ 	}
+ 
+-	OBSSourceAutoRelease newSource = obs_source_create(sourceKind.toUtf8(), sourceName.toUtf8(), sourceSettings, nullptr);
++	palakis_OBSSourceAutoRelease newSource = obs_source_create(sourceKind.toUtf8(), sourceName.toUtf8(), sourceSettings, nullptr);
+ 
+ 	if (!newSource) {
+ 		return request.failed("failed to create the source");
+@@ -81,7 +81,7 @@ RpcResponse WSRequestHandler::CreateSource(const RpcRequest& request)
+ 	obs_scene_atomic_update(scene, Utils::AddSourceHelper, &data);
+ 	obs_leave_graphics();
+ 	
+-	OBSDataAutoRelease responseData = obs_data_create();
++	palakis_OBSDataAutoRelease responseData = obs_data_create();
+ 	obs_data_set_int(responseData, "itemId", obs_sceneitem_get_id(data.sceneItem));
+ 
+ 	return request.success(responseData);
+@@ -102,12 +102,12 @@ RpcResponse WSRequestHandler::CreateSource(const RpcRequest& request)
+ */
+ RpcResponse WSRequestHandler::GetSourcesList(const RpcRequest& request)
+ {
+-	OBSDataArrayAutoRelease sourcesArray = obs_data_array_create();
++	palakis_OBSDataArrayAutoRelease sourcesArray = obs_data_array_create();
+ 
+ 	auto sourceEnumProc = [](void* privateData, obs_source_t* source) -> bool {
+ 		obs_data_array_t* sourcesArray = (obs_data_array_t*)privateData;
+ 
+-		OBSDataAutoRelease sourceData = obs_data_create();
++		palakis_OBSDataAutoRelease sourceData = obs_data_create();
+ 		obs_data_set_string(sourceData, "name", obs_source_get_name(source));
+ 		obs_data_set_string(sourceData, "typeId", obs_source_get_id(source));
+ 
+@@ -141,7 +141,7 @@ RpcResponse WSRequestHandler::GetSourcesList(const RpcRequest& request)
+ 	};
+ 	obs_enum_sources(sourceEnumProc, sourcesArray);
+ 
+-	OBSDataAutoRelease response = obs_data_create();
++	palakis_OBSDataAutoRelease response = obs_data_create();
+ 	obs_data_set_array(response, "sources", sourcesArray);
+ 	return request.success(response);
+ }
+@@ -170,7 +170,7 @@ RpcResponse WSRequestHandler::GetSourcesList(const RpcRequest& request)
+ */
+ RpcResponse WSRequestHandler::GetSourceTypesList(const RpcRequest& request)
+ {
+-	OBSDataArrayAutoRelease idsArray = obs_data_array_create();
++	palakis_OBSDataArrayAutoRelease idsArray = obs_data_array_create();
+ 
+ 	const char* id;
+ 	size_t idx = 0;
+@@ -194,14 +194,14 @@ RpcResponse WSRequestHandler::GetSourceTypesList(const RpcRequest& request)
+ 
+ 	idx = 0;
+ 	while (obs_enum_source_types(idx++, &id)) {
+-		OBSDataAutoRelease item = obs_data_create();
++		palakis_OBSDataAutoRelease item = obs_data_create();
+ 
+ 		obs_data_set_string(item, "typeId", id);
+ 		obs_data_set_string(item, "displayName", obs_source_get_display_name(id));
+ 		obs_data_set_string(item, "type", idTypes.value(id, "other").toUtf8());
+ 
+ 		uint32_t caps = obs_get_source_output_flags(id);
+-		OBSDataAutoRelease capsData = obs_data_create();
++		palakis_OBSDataAutoRelease capsData = obs_data_create();
+ 		obs_data_set_bool(capsData, "isAsync", caps & OBS_SOURCE_ASYNC);
+ 		obs_data_set_bool(capsData, "hasVideo", caps & OBS_SOURCE_VIDEO);
+ 		obs_data_set_bool(capsData, "hasAudio", caps & OBS_SOURCE_AUDIO);
+@@ -213,13 +213,13 @@ RpcResponse WSRequestHandler::GetSourceTypesList(const RpcRequest& request)
+ 
+ 		obs_data_set_obj(item, "caps", capsData);
+ 
+-		OBSDataAutoRelease defaultSettings = obs_get_source_defaults(id);
++		palakis_OBSDataAutoRelease defaultSettings = obs_get_source_defaults(id);
+ 		obs_data_set_obj(item, "defaultSettings", defaultSettings);
+ 
+ 		obs_data_array_push_back(idsArray, item);
+ 	}
+ 
+-	OBSDataAutoRelease response = obs_data_create();
++	palakis_OBSDataAutoRelease response = obs_data_create();
+ 	obs_data_set_array(response, "types", idsArray);
+ 	return request.success(response);
+ }
+@@ -250,7 +250,7 @@ RpcResponse WSRequestHandler::GetVolume(const RpcRequest& request)
+ 		return request.failed("invalid request parameters");
+ 	}
+ 
+-	OBSSourceAutoRelease source = obs_get_source_by_name(sourceName.toUtf8());
++	palakis_OBSSourceAutoRelease source = obs_get_source_by_name(sourceName.toUtf8());
+ 	if (!source) {
+ 		return request.failed("specified source doesn't exist");
+ 	}
+@@ -266,7 +266,7 @@ RpcResponse WSRequestHandler::GetVolume(const RpcRequest& request)
+ 		volume = -100.0;
+ 	}
+ 
+-	OBSDataAutoRelease response = obs_data_create();
++	palakis_OBSDataAutoRelease response = obs_data_create();
+ 	obs_data_set_string(response, "name", obs_source_get_name(source));
+ 	obs_data_set_double(response, "volume", volume);
+ 	obs_data_set_bool(response, "muted", obs_source_muted(source));
+@@ -302,7 +302,7 @@ RpcResponse WSRequestHandler::SetVolume(const RpcRequest& request)
+ 		return request.failed("invalid request parameters");
+ 	}
+ 
+-	OBSSourceAutoRelease source = obs_get_source_by_name(sourceName.toUtf8());
++	palakis_OBSSourceAutoRelease source = obs_get_source_by_name(sourceName.toUtf8());
+ 	if (!source) {
+ 		return request.failed("specified source doesn't exist");
+ 	}
+@@ -341,7 +341,7 @@ RpcResponse WSRequestHandler::SetAudioTracks(const RpcRequest& request)
+ 		return request.failed("invalid request parameters");
+ 	}
+ 
+-	OBSSourceAutoRelease source = obs_get_source_by_name(sourceName.toUtf8());
++	palakis_OBSSourceAutoRelease source = obs_get_source_by_name(sourceName.toUtf8());
+ 	if (!source) {
+ 		return request.failed("specified source doesn't exist");
+ 	}
+@@ -387,14 +387,14 @@ RpcResponse WSRequestHandler::GetAudioTracks(const RpcRequest& request)
+ 		return request.failed("invalid request parameters");
+ 	}
+ 
+-	OBSSourceAutoRelease source = obs_get_source_by_name(sourceName.toUtf8());
++	palakis_OBSSourceAutoRelease source = obs_get_source_by_name(sourceName.toUtf8());
+ 	if (!source) {
+ 		return request.failed("specified source doesn't exist");
+ 	}
+ 
+ 	uint32_t mixers = obs_source_get_audio_mixers(source);
+ 
+-	OBSDataAutoRelease response = obs_data_create();
++	palakis_OBSDataAutoRelease response = obs_data_create();
+ 	obs_data_set_string(response, "name", obs_source_get_name(source));
+ 	obs_data_set_bool(response, "track1", mixers & (1 << 0));
+ 	obs_data_set_bool(response, "track2", mixers & (1 << 1));
+@@ -429,12 +429,12 @@ RpcResponse WSRequestHandler::GetMute(const RpcRequest& request)
+ 		return request.failed("invalid request parameters");
+ 	}
+ 
+-	OBSSourceAutoRelease source = obs_get_source_by_name(sourceName.toUtf8());
++	palakis_OBSSourceAutoRelease source = obs_get_source_by_name(sourceName.toUtf8());
+ 	if (!source) {
+ 		return request.failed("specified source doesn't exist");
+ 	}
+ 
+-	OBSDataAutoRelease response = obs_data_create();
++	palakis_OBSDataAutoRelease response = obs_data_create();
+ 	obs_data_set_string(response, "name", obs_source_get_name(source));
+ 	obs_data_set_bool(response, "muted", obs_source_muted(source));
+ 
+@@ -465,7 +465,7 @@ RpcResponse WSRequestHandler::SetMute(const RpcRequest& request)
+ 		return request.failed("invalid request parameters");
+ 	}
+ 
+-	OBSSourceAutoRelease source = obs_get_source_by_name(sourceName.toUtf8());
++	palakis_OBSSourceAutoRelease source = obs_get_source_by_name(sourceName.toUtf8());
+ 	if (!source) {
+ 		return request.failed("specified source doesn't exist");
+ 	}
+@@ -495,7 +495,7 @@ RpcResponse WSRequestHandler::ToggleMute(const RpcRequest& request)
+ 		return request.failed("invalid request parameters");
+ 	}
+ 
+-	OBSSourceAutoRelease source = obs_get_source_by_name(sourceName.toUtf8());
++	palakis_OBSSourceAutoRelease source = obs_get_source_by_name(sourceName.toUtf8());
+ 	if (!source) {
+ 		return request.failed("invalid request parameters");
+ 	}
+@@ -527,12 +527,12 @@ RpcResponse WSRequestHandler::GetSourceActive(const RpcRequest& request)
+ 		return request.failed("invalid request parameters");
+ 	}
+ 
+-	OBSSourceAutoRelease source = obs_get_source_by_name(sourceName.toUtf8());
++	palakis_OBSSourceAutoRelease source = obs_get_source_by_name(sourceName.toUtf8());
+ 	if (!source) {
+ 		return request.failed("specified source doesn't exist");
+ 	}
+ 
+-	OBSDataAutoRelease response = obs_data_create();
++	palakis_OBSDataAutoRelease response = obs_data_create();
+ 	obs_data_set_bool(response, "sourceActive", obs_source_active(source));
+ 
+ 	return request.success(response);
+@@ -561,12 +561,12 @@ RpcResponse WSRequestHandler::GetAudioActive(const RpcRequest& request)
+ 		return request.failed("invalid request parameters");
+ 	}
+ 
+-	OBSSourceAutoRelease source = obs_get_source_by_name(sourceName.toUtf8());
++	palakis_OBSSourceAutoRelease source = obs_get_source_by_name(sourceName.toUtf8());
+ 	if (!source) {
+ 		return request.failed("specified source doesn't exist");
+ 	}
+ 
+-	OBSDataAutoRelease response = obs_data_create();
++	palakis_OBSDataAutoRelease response = obs_data_create();
+ 	obs_data_set_bool(response, "audioActive", obs_source_audio_active(source));
+ 
+ 	return request.success(response);
+@@ -597,12 +597,12 @@ RpcResponse WSRequestHandler::SetSourceName(const RpcRequest& request)
+ 		return request.failed("invalid request parameters");
+ 	}
+ 
+-	OBSSourceAutoRelease source = obs_get_source_by_name(sourceName.toUtf8());
++	palakis_OBSSourceAutoRelease source = obs_get_source_by_name(sourceName.toUtf8());
+ 	if (!source) {
+ 		return request.failed("specified source doesn't exist");
+ 	}
+ 
+-	OBSSourceAutoRelease existingSource = obs_get_source_by_name(newName.toUtf8());
++	palakis_OBSSourceAutoRelease existingSource = obs_get_source_by_name(newName.toUtf8());
+ 	if (!existingSource) { // OBS is supposed to automatically rename colliding source names, but it doesn't. So this gets to be the solution for now.
+ 		obs_source_set_name(source, newName.toUtf8());
+ 
+@@ -636,7 +636,7 @@ RpcResponse WSRequestHandler::SetSyncOffset(const RpcRequest& request)
+ 		return request.failed("invalid request parameters");
+ 	}
+ 
+-	OBSSourceAutoRelease source = obs_get_source_by_name(sourceName.toUtf8());
++	palakis_OBSSourceAutoRelease source = obs_get_source_by_name(sourceName.toUtf8());
+ 	if (!source) {
+ 		return request.failed("specified source doesn't exist");
+ 	}
+@@ -669,12 +669,12 @@ RpcResponse WSRequestHandler::GetSyncOffset(const RpcRequest& request)
+ 		return request.failed("invalid request parameters");
+ 	}
+ 
+-	OBSSourceAutoRelease source = obs_get_source_by_name(sourceName.toUtf8());
++	palakis_OBSSourceAutoRelease source = obs_get_source_by_name(sourceName.toUtf8());
+ 	if (!source) {
+ 		return request.failed("specified source doesn't exist");
+ 	}
+ 
+-	OBSDataAutoRelease response = obs_data_create();
++	palakis_OBSDataAutoRelease response = obs_data_create();
+ 	obs_data_set_string(response, "name", obs_source_get_name(source));
+ 	obs_data_set_int(response, "offset", obs_source_get_sync_offset(source));
+ 
+@@ -703,7 +703,7 @@ RpcResponse WSRequestHandler::GetSourceSettings(const RpcRequest& request)
+ 	}
+ 
+ 	const char* sourceName = obs_data_get_string(request.parameters(), "sourceName");
+-	OBSSourceAutoRelease source = obs_get_source_by_name(sourceName);
++	palakis_OBSSourceAutoRelease source = obs_get_source_by_name(sourceName);
+ 
+ 	if (!source) {
+ 		return request.failed("specified source doesn't exist");
+@@ -718,9 +718,9 @@ RpcResponse WSRequestHandler::GetSourceSettings(const RpcRequest& request)
+ 		}
+ 	}
+ 
+-	OBSDataAutoRelease sourceSettings = obs_source_get_settings(source);
++	palakis_OBSDataAutoRelease sourceSettings = obs_source_get_settings(source);
+ 
+-	OBSDataAutoRelease response = obs_data_create();
++	palakis_OBSDataAutoRelease response = obs_data_create();
+ 	obs_data_set_string(response, "sourceName", obs_source_get_name(source));
+ 	obs_data_set_string(response, "sourceType", obs_source_get_id(source));
+ 	obs_data_set_obj(response, "sourceSettings", sourceSettings);
+@@ -751,7 +751,7 @@ RpcResponse WSRequestHandler::SetSourceSettings(const RpcRequest& request)
+ 	}
+ 
+ 	const char* sourceName = obs_data_get_string(request.parameters(), "sourceName");
+-	OBSSourceAutoRelease source = obs_get_source_by_name(sourceName);
++	palakis_OBSSourceAutoRelease source = obs_get_source_by_name(sourceName);
+ 	if (!source) {
+ 		return request.failed("specified source doesn't exist");
+ 	}
+@@ -765,14 +765,14 @@ RpcResponse WSRequestHandler::SetSourceSettings(const RpcRequest& request)
+ 		}
+ 	}
+ 
+-	OBSDataAutoRelease newSettings = obs_data_get_obj(request.parameters(), "sourceSettings");
++	palakis_OBSDataAutoRelease newSettings = obs_data_get_obj(request.parameters(), "sourceSettings");
+ 
+ 	obs_source_update(source, newSettings);
+ 	obs_source_update_properties(source);
+ 
+-	OBSDataAutoRelease updatedSettings = obs_source_get_settings(source);
++	palakis_OBSDataAutoRelease updatedSettings = obs_source_get_settings(source);
+ 
+-	OBSDataAutoRelease response = obs_data_create();
++	palakis_OBSDataAutoRelease response = obs_data_create();
+ 	obs_data_set_string(response, "sourceName", obs_source_get_name(source));
+ 	obs_data_set_string(response, "sourceType", obs_source_get_id(source));
+ 	obs_data_set_obj(response, "sourceSettings", updatedSettings);
+@@ -825,7 +825,7 @@ RpcResponse WSRequestHandler::GetTextGDIPlusProperties(const RpcRequest& request
+ 		return request.failed("invalid request parameters");
+ 	}
+ 
+-	OBSSourceAutoRelease source = obs_get_source_by_name(sourceName);
++	palakis_OBSSourceAutoRelease source = obs_get_source_by_name(sourceName);
+ 	if (!source) {
+ 		return request.failed("specified source doesn't exist");
+ 	}
+@@ -835,7 +835,7 @@ RpcResponse WSRequestHandler::GetTextGDIPlusProperties(const RpcRequest& request
+ 		return request.failed("not a text gdi plus source");
+ 	}
+ 
+-	OBSDataAutoRelease response = obs_source_get_settings(source);
++	palakis_OBSDataAutoRelease response = obs_source_get_settings(source);
+ 	obs_data_set_string(response, "source", obs_source_get_name(source));
+ 
+ 	return request.success(response);
+@@ -890,7 +890,7 @@ RpcResponse WSRequestHandler::SetTextGDIPlusProperties(const RpcRequest& request
+ 		return request.failed("invalid request parameters");
+ 	}
+ 
+-	OBSSourceAutoRelease source = obs_get_source_by_name(sourceName);
++	palakis_OBSSourceAutoRelease source = obs_get_source_by_name(sourceName);
+ 	if (!source) {
+ 		return request.failed("specified source doesn't exist");
+ 	}
+@@ -900,7 +900,7 @@ RpcResponse WSRequestHandler::SetTextGDIPlusProperties(const RpcRequest& request
+ 		return request.failed("not a text gdi plus source");
+ 	}
+ 
+-	OBSDataAutoRelease settings = obs_source_get_settings(source);
++	palakis_OBSDataAutoRelease settings = obs_source_get_settings(source);
+ 
+ 	if (request.hasField("align")) {
+ 		obs_data_set_string(settings, "align", obs_data_get_string(request.parameters(), "align"));
+@@ -947,9 +947,9 @@ RpcResponse WSRequestHandler::SetTextGDIPlusProperties(const RpcRequest& request
+ 	}
+ 
+ 	if (request.hasField("font")) {
+-		OBSDataAutoRelease font_obj = obs_data_get_obj(settings, "font");
++		palakis_OBSDataAutoRelease font_obj = obs_data_get_obj(settings, "font");
+ 		if (font_obj) {
+-			OBSDataAutoRelease req_font_obj = obs_data_get_obj(request.parameters(), "font");
++			palakis_OBSDataAutoRelease req_font_obj = obs_data_get_obj(request.parameters(), "font");
+ 
+ 			if (obs_data_has_user_value(req_font_obj, "face")) {
+ 				obs_data_set_string(font_obj, "face", obs_data_get_string(req_font_obj, "face"));
+@@ -1056,7 +1056,7 @@ RpcResponse WSRequestHandler::GetTextFreetype2Properties(const RpcRequest& reque
+ 		return request.failed("invalid request parameters");
+ 	}
+ 
+-	OBSSourceAutoRelease source = obs_get_source_by_name(sourceName);
++	palakis_OBSSourceAutoRelease source = obs_get_source_by_name(sourceName);
+ 	if (!source) {
+ 		return request.failed("specified source doesn't exist");
+ 	}
+@@ -1066,7 +1066,7 @@ RpcResponse WSRequestHandler::GetTextFreetype2Properties(const RpcRequest& reque
+ 		return request.failed("not a freetype 2 source");
+ 	}
+ 
+-	OBSDataAutoRelease response = obs_source_get_settings(source);
++	palakis_OBSDataAutoRelease response = obs_source_get_settings(source);
+ 	obs_data_set_string(response, "source", sourceName);
+ 
+ 	return request.success(response);
+@@ -1104,7 +1104,7 @@ RpcResponse WSRequestHandler::SetTextFreetype2Properties(const RpcRequest& reque
+ 		return request.failed("invalid request parameters");
+ 	}
+ 
+-	OBSSourceAutoRelease source = obs_get_source_by_name(sourceName);
++	palakis_OBSSourceAutoRelease source = obs_get_source_by_name(sourceName);
+ 	if (!source) {
+ 		return request.failed("specified source doesn't exist");
+ 	}
+@@ -1114,7 +1114,7 @@ RpcResponse WSRequestHandler::SetTextFreetype2Properties(const RpcRequest& reque
+ 		return request.failed("not text freetype 2 source");
+ 	}
+ 
+-	OBSDataAutoRelease settings = obs_source_get_settings(source);
++	palakis_OBSDataAutoRelease settings = obs_source_get_settings(source);
+ 
+ 	if (request.hasField("color1")) {
+ 		obs_data_set_int(settings, "color1", obs_data_get_int(request.parameters(), "color1"));
+@@ -1133,9 +1133,9 @@ RpcResponse WSRequestHandler::SetTextFreetype2Properties(const RpcRequest& reque
+ 	}
+ 
+ 	if (request.hasField("font")) {
+-		OBSDataAutoRelease font_obj = obs_data_get_obj(settings, "font");
++		palakis_OBSDataAutoRelease font_obj = obs_data_get_obj(settings, "font");
+ 		if (font_obj) {
+-			OBSDataAutoRelease req_font_obj = obs_data_get_obj(request.parameters(), "font");
++			palakis_OBSDataAutoRelease req_font_obj = obs_data_get_obj(request.parameters(), "font");
+ 
+ 			if (obs_data_has_user_value(req_font_obj, "face")) {
+ 				obs_data_set_string(font_obj, "face", obs_data_get_string(req_font_obj, "face"));
+@@ -1212,7 +1212,7 @@ RpcResponse WSRequestHandler::GetBrowserSourceProperties(const RpcRequest& reque
+ 		return request.failed("invalid request parameters");
+ 	}
+ 
+-	OBSSourceAutoRelease source = obs_get_source_by_name(sourceName);
++	palakis_OBSSourceAutoRelease source = obs_get_source_by_name(sourceName);
+ 	if (!source) {
+ 		return request.failed("specified source doesn't exist");
+ 	}
+@@ -1222,7 +1222,7 @@ RpcResponse WSRequestHandler::GetBrowserSourceProperties(const RpcRequest& reque
+ 		return request.failed("not a browser source");
+ 	}
+ 
+-	OBSDataAutoRelease response = obs_source_get_settings(source);
++	palakis_OBSDataAutoRelease response = obs_source_get_settings(source);
+ 	obs_data_set_string(response, "source", obs_source_get_name(source));
+ 
+ 	return request.success(response);
+@@ -1259,7 +1259,7 @@ RpcResponse WSRequestHandler::SetBrowserSourceProperties(const RpcRequest& reque
+ 		return request.failed("invalid request parameters");
+ 	}
+ 
+-	OBSSourceAutoRelease source = obs_get_source_by_name(sourceName);
++	palakis_OBSSourceAutoRelease source = obs_get_source_by_name(sourceName);
+ 	if (!source) {
+ 		return request.failed("specified source doesn't exist");
+ 	}
+@@ -1269,7 +1269,7 @@ RpcResponse WSRequestHandler::SetBrowserSourceProperties(const RpcRequest& reque
+ 		return request.failed("not a browser source");
+ 	}
+ 
+-	OBSDataAutoRelease settings = obs_source_get_settings(source);
++	palakis_OBSDataAutoRelease settings = obs_source_get_settings(source);
+ 
+ 	if (request.hasField("restart_when_active")) {
+ 		obs_data_set_bool(settings, "restart_when_active", obs_data_get_bool(request.parameters(), "restart_when_active"));
+@@ -1328,7 +1328,7 @@ RpcResponse WSRequestHandler::SetBrowserSourceProperties(const RpcRequest& reque
+  */
+ RpcResponse WSRequestHandler::GetSpecialSources(const RpcRequest& request)
+  {
+-	OBSDataAutoRelease response = obs_data_create();
++	palakis_OBSDataAutoRelease response = obs_data_create();
+ 
+ 	QMap<const char*, int> sources;
+ 	sources["desktop-1"] = 1;
+@@ -1342,7 +1342,7 @@ RpcResponse WSRequestHandler::GetSpecialSources(const RpcRequest& request)
+ 		i.next();
+ 
+ 		const char* id = i.key();
+-		OBSSourceAutoRelease source = obs_get_output_source(i.value());
++		palakis_OBSSourceAutoRelease source = obs_get_output_source(i.value());
+ 		if (source) {
+ 			obs_data_set_string(response, id, obs_source_get_name(source));
+ 		}
+@@ -1374,14 +1374,14 @@ RpcResponse WSRequestHandler::GetSourceFilters(const RpcRequest& request)
+ 	}
+ 
+ 	const char* sourceName = obs_data_get_string(request.parameters(), "sourceName");
+-	OBSSourceAutoRelease source = obs_get_source_by_name(sourceName);
++	palakis_OBSSourceAutoRelease source = obs_get_source_by_name(sourceName);
+ 	if (!source) {
+ 		return request.failed("specified source doesn't exist");
+ 	}
+ 
+-	OBSDataArrayAutoRelease filters = Utils::GetSourceFiltersList(source, true);
++	palakis_OBSDataArrayAutoRelease filters = Utils::GetSourceFiltersList(source, true);
+ 
+-	OBSDataAutoRelease response = obs_data_create();
++	palakis_OBSDataAutoRelease response = obs_data_create();
+ 	obs_data_set_array(response, "filters", filters);
+ 	return request.success(response);
+ }
+@@ -1409,18 +1409,18 @@ RpcResponse WSRequestHandler::GetSourceFilterInfo(const RpcRequest& request)
+ 	}
+ 
+ 	const char* sourceName = obs_data_get_string(request.parameters(), "sourceName");
+-	OBSSourceAutoRelease source = obs_get_source_by_name(sourceName);
++	palakis_OBSSourceAutoRelease source = obs_get_source_by_name(sourceName);
+ 	if (!source) {
+ 		return request.failed("specified source doesn't exist");
+ 	}
+ 
+ 	const char* filterName = obs_data_get_string(request.parameters(), "filterName");
+-	OBSSourceAutoRelease filter = obs_source_get_filter_by_name(source, filterName);
++	palakis_OBSSourceAutoRelease filter = obs_source_get_filter_by_name(source, filterName);
+ 	if (!filter) {
+ 		return request.failed("specified filter doesn't exist on specified source");
+ 	}
+ 
+-	OBSDataAutoRelease response = Utils::GetSourceFilterInfo(filter, true);
++	palakis_OBSDataAutoRelease response = Utils::GetSourceFilterInfo(filter, true);
+ 	return request.success(response);
+ }
+ 
+@@ -1448,19 +1448,19 @@ RpcResponse WSRequestHandler::AddFilterToSource(const RpcRequest& request)
+ 	const char* sourceName = obs_data_get_string(request.parameters(), "sourceName");
+ 	const char* filterName = obs_data_get_string(request.parameters(), "filterName");
+ 	const char* filterType = obs_data_get_string(request.parameters(), "filterType");
+-	OBSDataAutoRelease filterSettings = obs_data_get_obj(request.parameters(), "filterSettings");
++	palakis_OBSDataAutoRelease filterSettings = obs_data_get_obj(request.parameters(), "filterSettings");
+ 
+-	OBSSourceAutoRelease source = obs_get_source_by_name(sourceName);
++	palakis_OBSSourceAutoRelease source = obs_get_source_by_name(sourceName);
+ 	if (!source) {
+ 		return request.failed("specified source doesn't exist");
+ 	}
+ 
+-	OBSSourceAutoRelease existingFilter = obs_source_get_filter_by_name(source, filterName);
++	palakis_OBSSourceAutoRelease existingFilter = obs_source_get_filter_by_name(source, filterName);
+ 	if (existingFilter) {
+ 		return request.failed("filter name already taken");
+ 	}
+ 
+-	OBSSourceAutoRelease filter = obs_source_create_private(filterType, filterName, filterSettings);
++	palakis_OBSSourceAutoRelease filter = obs_source_create_private(filterType, filterName, filterSettings);
+ 	if (!filter) {
+ 		return request.failed("filter creation failed");
+ 	}
+@@ -1493,12 +1493,12 @@ RpcResponse WSRequestHandler::RemoveFilterFromSource(const RpcRequest& request)
+ 	const char* sourceName = obs_data_get_string(request.parameters(), "sourceName");
+ 	const char* filterName = obs_data_get_string(request.parameters(), "filterName");
+ 
+-	OBSSourceAutoRelease source = obs_get_source_by_name(sourceName);
++	palakis_OBSSourceAutoRelease source = obs_get_source_by_name(sourceName);
+ 	if (!source) {
+ 		return request.failed("specified source doesn't exist");
+ 	}
+ 
+-	OBSSourceAutoRelease filter = obs_source_get_filter_by_name(source, filterName);
++	palakis_OBSSourceAutoRelease filter = obs_source_get_filter_by_name(source, filterName);
+ 	if (!filter) {
+ 		return request.failed("specified filter doesn't exist");
+ 	}
+@@ -1534,12 +1534,12 @@ RpcResponse WSRequestHandler::ReorderSourceFilter(const RpcRequest& request)
+ 		return request.failed("invalid index");
+ 	}
+ 
+-	OBSSourceAutoRelease source = obs_get_source_by_name(sourceName);
++	palakis_OBSSourceAutoRelease source = obs_get_source_by_name(sourceName);
+ 	if (!source) {
+ 		return request.failed("specified source doesn't exist");
+ 	}
+ 
+-	OBSSourceAutoRelease filter = obs_source_get_filter_by_name(source, filterName);
++	palakis_OBSSourceAutoRelease filter = obs_source_get_filter_by_name(source, filterName);
+ 	if (!filter) {
+ 		return request.failed("specified filter doesn't exist");
+ 	}
+@@ -1603,12 +1603,12 @@ RpcResponse WSRequestHandler::MoveSourceFilter(const RpcRequest& request)
+ 	const char* filterName = obs_data_get_string(request.parameters(), "filterName");
+ 	QString movementType(obs_data_get_string(request.parameters(), "movementType"));
+ 
+-	OBSSourceAutoRelease source = obs_get_source_by_name(sourceName);
++	palakis_OBSSourceAutoRelease source = obs_get_source_by_name(sourceName);
+ 	if (!source) {
+ 		return request.failed("specified source doesn't exist");
+ 	}
+ 
+-	OBSSourceAutoRelease filter = obs_source_get_filter_by_name(source, filterName);
++	palakis_OBSSourceAutoRelease filter = obs_source_get_filter_by_name(source, filterName);
+ 	if (!filter) {
+ 		return request.failed("specified filter doesn't exist");
+ 	}
+@@ -1655,19 +1655,19 @@ RpcResponse WSRequestHandler::SetSourceFilterSettings(const RpcRequest& request)
+ 
+ 	const char* sourceName = obs_data_get_string(request.parameters(), "sourceName");
+ 	const char* filterName = obs_data_get_string(request.parameters(), "filterName");
+-	OBSDataAutoRelease newFilterSettings = obs_data_get_obj(request.parameters(), "filterSettings");
++	palakis_OBSDataAutoRelease newFilterSettings = obs_data_get_obj(request.parameters(), "filterSettings");
+ 
+-	OBSSourceAutoRelease source = obs_get_source_by_name(sourceName);
++	palakis_OBSSourceAutoRelease source = obs_get_source_by_name(sourceName);
+ 	if (!source) {
+ 		return request.failed("specified source doesn't exist");
+ 	}
+ 
+-	OBSSourceAutoRelease filter = obs_source_get_filter_by_name(source, filterName);
++	palakis_OBSSourceAutoRelease filter = obs_source_get_filter_by_name(source, filterName);
+ 	if (!filter) {
+ 		return request.failed("specified filter doesn't exist");
+ 	}
+ 
+-	OBSDataAutoRelease settings = obs_source_get_settings(filter);
++	palakis_OBSDataAutoRelease settings = obs_source_get_settings(filter);
+ 	obs_data_apply(settings, newFilterSettings);
+ 	obs_source_update(filter, settings);
+ 
+@@ -1693,13 +1693,13 @@ RpcResponse WSRequestHandler::SetSourceFilterVisibility(const RpcRequest& reques
+ 	}
+ 
+ 	const char* sourceName = obs_data_get_string(request.parameters(), "sourceName");
+-	OBSSourceAutoRelease source = obs_get_source_by_name(sourceName);
++	palakis_OBSSourceAutoRelease source = obs_get_source_by_name(sourceName);
+ 	if (!source) {
+ 		return request.failed("specified source doesn't exist");
+ 	}
+ 
+ 	const char* filterName = obs_data_get_string(request.parameters(), "filterName");
+-	OBSSourceAutoRelease filter = obs_source_get_filter_by_name(source, filterName);
++	palakis_OBSSourceAutoRelease filter = obs_source_get_filter_by_name(source, filterName);
+ 	if (!filter) {
+ 		return request.failed("specified filter doesn't exist on specified source");
+ 	}
+@@ -1734,12 +1734,12 @@ RpcResponse WSRequestHandler::GetAudioMonitorType(const RpcRequest& request)
+ 		return request.failed("invalid request parameters");
+ 	}
+ 
+-	OBSSourceAutoRelease source = obs_get_source_by_name(sourceName.toUtf8());
++	palakis_OBSSourceAutoRelease source = obs_get_source_by_name(sourceName.toUtf8());
+ 	if (!source) {
+ 		return request.failed("specified source doesn't exist");
+ 	}
+ 
+-	OBSDataAutoRelease response = obs_data_create();
++	palakis_OBSDataAutoRelease response = obs_data_create();
+ 
+ 	QString monitorType;
+ 	enum obs_monitoring_type mtype = obs_source_get_monitoring_type(source);
+@@ -1786,7 +1786,7 @@ RpcResponse WSRequestHandler::SetAudioMonitorType(const RpcRequest& request)
+ 		return request.failed("invalid request parameters");
+ 	}
+ 
+-	OBSSourceAutoRelease source = obs_get_source_by_name(sourceName.toUtf8());
++	palakis_OBSSourceAutoRelease source = obs_get_source_by_name(sourceName.toUtf8());
+ 	if (!source) {
+ 		return request.failed("specified source doesn't exist");
+ 	}
+@@ -1827,14 +1827,14 @@ RpcResponse WSRequestHandler::GetSourceDefaultSettings(const RpcRequest& request
+ 		return request.failed("invalid request parameters");
+ 	}
+ 
+-	OBSDataAutoRelease defaultData = obs_get_source_defaults(sourceKind.toUtf8());
++	palakis_OBSDataAutoRelease defaultData = obs_get_source_defaults(sourceKind.toUtf8());
+ 	if (!defaultData) {
+ 		return request.failed("invalid sourceKind");
+ 	}
+ 
+-	OBSDataAutoRelease defaultSettings = Utils::OBSDataGetDefaults(defaultData);
++	palakis_OBSDataAutoRelease defaultSettings = Utils::OBSDataGetDefaults(defaultData);
+ 
+-	OBSDataAutoRelease response = obs_data_create();
++	palakis_OBSDataAutoRelease response = obs_data_create();
+ 	obs_data_set_string(response, "sourceKind", sourceKind.toUtf8().constData());
+ 	obs_data_set_obj(response, "defaultSettings", defaultSettings);
+ 	return request.success(response);
+@@ -1872,7 +1872,7 @@ RpcResponse WSRequestHandler::TakeSourceScreenshot(const RpcRequest& request) {
+ 		return request.failed("At least 'embedPictureFormat' or 'saveToFilePath' must be specified");
+ 	}
+ 
+-	OBSSourceAutoRelease source;
++	palakis_OBSSourceAutoRelease source;
+ 	if (!request.hasField("sourceName")) {
+ 		source = obs_frontend_get_current_scene();
+ 	} else {
+@@ -1956,7 +1956,7 @@ RpcResponse WSRequestHandler::TakeSourceScreenshot(const RpcRequest& request) {
+ 		return request.failed("Source render failed");
+ 	}
+ 
+-	OBSDataAutoRelease response = obs_data_create();
++	palakis_OBSDataAutoRelease response = obs_data_create();
+ 
+ 	int compressionQuality {-1};
+ 	if (request.hasField("compressionQuality")) {
+@@ -2037,7 +2037,7 @@ RpcResponse WSRequestHandler::RefreshBrowserSource(const RpcRequest& request)
+ 
+ 	QString sourceName = obs_data_get_string(request.parameters(), "sourceName");
+ 
+-	OBSSourceAutoRelease source = obs_get_source_by_name(sourceName.toUtf8());
++	palakis_OBSSourceAutoRelease source = obs_get_source_by_name(sourceName.toUtf8());
+ 	if (!source) {
+ 		return request.failed("specified source doesn't exist");
+ 	}
+diff --git a/plugins/obs-websocket/src/WSRequestHandler_Streaming.cpp b/plugins/obs-websocket/src/WSRequestHandler_Streaming.cpp
+index fa3b0b3..07f9df4 100644
+--- a/plugins/obs-websocket/src/WSRequestHandler_Streaming.cpp
++++ b/plugins/obs-websocket/src/WSRequestHandler_Streaming.cpp
+@@ -26,7 +26,7 @@
+ RpcResponse WSRequestHandler::GetStreamingStatus(const RpcRequest& request) {
+ 	auto events = GetEventsSystem();
+ 
+-	OBSDataAutoRelease data = obs_data_create();
++	palakis_OBSDataAutoRelease data = obs_data_create();
+ 	obs_data_set_bool(data, "streaming", obs_frontend_streaming_active());
+ 	obs_data_set_bool(data, "recording", obs_frontend_recording_active());
+ 	obs_data_set_bool(data, "recording-paused", obs_frontend_recording_paused());
+@@ -93,11 +93,11 @@ RpcResponse WSRequestHandler::StartStreaming(const RpcRequest& request) {
+ 		// TODO: fix service memory leak
+ 
+ 		if (request.hasField("stream")) {
+-			OBSDataAutoRelease streamData = obs_data_get_obj(request.parameters(), "stream");
+-			OBSDataAutoRelease newSettings = obs_data_get_obj(streamData, "settings");
+-			OBSDataAutoRelease newMetadata = obs_data_get_obj(streamData, "metadata");
++			palakis_OBSDataAutoRelease streamData = obs_data_get_obj(request.parameters(), "stream");
++			palakis_OBSDataAutoRelease newSettings = obs_data_get_obj(streamData, "settings");
++			palakis_OBSDataAutoRelease newMetadata = obs_data_get_obj(streamData, "metadata");
+ 
+-			OBSDataAutoRelease csHotkeys =
++			palakis_OBSDataAutoRelease csHotkeys =
+ 				obs_hotkeys_save_service(configuredService);
+ 
+ 			QString currentType = obs_service_get_type(configuredService);
+@@ -139,8 +139,8 @@ RpcResponse WSRequestHandler::StartStreaming(const RpcRequest& request) {
+ 				// that only contains settings you want to change, instead of
+ 				// having to do a get and then change them
+ 
+-				OBSDataAutoRelease currentSettings = obs_service_get_settings(configuredService);
+-				OBSDataAutoRelease updatedSettings = obs_data_create();
++				palakis_OBSDataAutoRelease currentSettings = obs_service_get_settings(configuredService);
++				palakis_OBSDataAutoRelease updatedSettings = obs_data_create();
+ 
+ 				obs_data_apply(updatedSettings, currentSettings); //first apply the existing settings
+ 				obs_data_apply(updatedSettings, newSettings); //then apply the settings from the request should they exist
+@@ -210,7 +210,7 @@ RpcResponse WSRequestHandler::StopStreaming(const RpcRequest& request) {
+ RpcResponse WSRequestHandler::SetStreamSettings(const RpcRequest& request) {
+ 	OBSService service = obs_frontend_get_streaming_service();
+ 
+-	OBSDataAutoRelease requestSettings = obs_data_get_obj(request.parameters(), "settings");
++	palakis_OBSDataAutoRelease requestSettings = obs_data_get_obj(request.parameters(), "settings");
+ 	if (!requestSettings) {
+ 		return request.failed("'settings' are required'");
+ 	}
+@@ -219,7 +219,7 @@ RpcResponse WSRequestHandler::SetStreamSettings(const RpcRequest& request) {
+ 	QString requestedType = obs_data_get_string(request.parameters(), "type");
+ 
+ 	if (requestedType != nullptr && requestedType != serviceType) {
+-		OBSDataAutoRelease hotkeys = obs_hotkeys_save_service(service);
++		palakis_OBSDataAutoRelease hotkeys = obs_hotkeys_save_service(service);
+ 		service = obs_service_create(
+ 			requestedType.toUtf8(), STREAM_SERVICE_ID, requestSettings, hotkeys);
+ 		obs_frontend_set_streaming_service(service);
+@@ -229,8 +229,8 @@ RpcResponse WSRequestHandler::SetStreamSettings(const RpcRequest& request) {
+ 		// only contains the settings you want to change, instead of having to
+ 		// do a get and then change them
+ 
+-		OBSDataAutoRelease existingSettings = obs_service_get_settings(service);
+-		OBSDataAutoRelease newSettings = obs_data_create();
++		palakis_OBSDataAutoRelease existingSettings = obs_service_get_settings(service);
++		palakis_OBSDataAutoRelease newSettings = obs_data_create();
+ 
+ 		// Apply existing settings
+ 		obs_data_apply(newSettings, existingSettings);
+@@ -246,10 +246,10 @@ RpcResponse WSRequestHandler::SetStreamSettings(const RpcRequest& request) {
+ 	}
+ 
+ 	OBSService responseService = obs_frontend_get_streaming_service();
+-	OBSDataAutoRelease serviceSettings = obs_service_get_settings(responseService);
++	palakis_OBSDataAutoRelease serviceSettings = obs_service_get_settings(responseService);
+ 	const char* responseType = obs_service_get_type(responseService);
+ 
+-	OBSDataAutoRelease response = obs_data_create();
++	palakis_OBSDataAutoRelease response = obs_data_create();
+ 	obs_data_set_string(response, "type", responseType);
+ 	obs_data_set_obj(response, "settings", serviceSettings);
+ 
+@@ -276,9 +276,9 @@ RpcResponse WSRequestHandler::GetStreamSettings(const RpcRequest& request) {
+ 	OBSService service = obs_frontend_get_streaming_service();
+ 
+ 	const char* serviceType = obs_service_get_type(service);
+-	OBSDataAutoRelease settings = obs_service_get_settings(service);
++	palakis_OBSDataAutoRelease settings = obs_service_get_settings(service);
+ 
+-	OBSDataAutoRelease response = obs_data_create();
++	palakis_OBSDataAutoRelease response = obs_data_create();
+ 	obs_data_set_string(response, "type", serviceType);
+ 	obs_data_set_obj(response, "settings", settings);
+ 
+@@ -314,7 +314,7 @@ RpcResponse WSRequestHandler::SendCaptions(const RpcRequest& request) {
+ 		return request.failed("missing request parameters");
+ 	}
+ 
+-	OBSOutputAutoRelease output = obs_frontend_get_streaming_output();
++	palakis_OBSOutputAutoRelease output = obs_frontend_get_streaming_output();
+ 	if (output) {
+ 		const char* caption = obs_data_get_string(request.parameters(), "text");
+ 		// Send caption text with immediately (0 second delay)
+diff --git a/plugins/obs-websocket/src/WSRequestHandler_StudioMode.cpp b/plugins/obs-websocket/src/WSRequestHandler_StudioMode.cpp
+index c5e33a7..14c1f68 100644
+--- a/plugins/obs-websocket/src/WSRequestHandler_StudioMode.cpp
++++ b/plugins/obs-websocket/src/WSRequestHandler_StudioMode.cpp
+@@ -15,7 +15,7 @@
+ RpcResponse WSRequestHandler::GetStudioModeStatus(const RpcRequest& request) {
+ 	bool previewActive = obs_frontend_preview_program_mode_active();
+ 
+-	OBSDataAutoRelease response = obs_data_create();
++	palakis_OBSDataAutoRelease response = obs_data_create();
+ 	obs_data_set_bool(response, "studio-mode", previewActive);
+ 
+ 	return request.success(response);
+@@ -38,10 +38,10 @@ RpcResponse WSRequestHandler::GetPreviewScene(const RpcRequest& request) {
+ 		return request.failed("studio mode not enabled");
+ 	}
+ 
+-	OBSSourceAutoRelease scene = obs_frontend_get_current_preview_scene();
+-	OBSDataArrayAutoRelease sceneItems = Utils::GetSceneItems(scene);
++	palakis_OBSSourceAutoRelease scene = obs_frontend_get_current_preview_scene();
++	palakis_OBSDataArrayAutoRelease sceneItems = Utils::GetSceneItems(scene);
+ 
+-	OBSDataAutoRelease data = obs_data_create();
++	palakis_OBSDataAutoRelease data = obs_data_create();
+ 	obs_data_set_string(data, "name", obs_source_get_name(scene));
+ 	obs_data_set_array(data, "sources", sceneItems);
+ 
+@@ -97,7 +97,7 @@ RpcResponse WSRequestHandler::TransitionToProgram(const RpcRequest& request) {
+ 	}
+ 
+ 	if (request.hasField("with-transition")) {
+-		OBSDataAutoRelease transitionInfo =
++		palakis_OBSDataAutoRelease transitionInfo =
+ 			obs_data_get_obj(request.parameters(), "with-transition");
+ 
+ 		if (obs_data_has_user_value(transitionInfo, "name")) {
+diff --git a/plugins/obs-websocket/src/WSRequestHandler_Transitions.cpp b/plugins/obs-websocket/src/WSRequestHandler_Transitions.cpp
+index d5a1851..714e04e 100644
+--- a/plugins/obs-websocket/src/WSRequestHandler_Transitions.cpp
++++ b/plugins/obs-websocket/src/WSRequestHandler_Transitions.cpp
+@@ -15,21 +15,21 @@
+  * @since 4.1.0
+  */
+ RpcResponse WSRequestHandler::GetTransitionList(const RpcRequest& request) {
+-	OBSSourceAutoRelease currentTransition = obs_frontend_get_current_transition();
++	palakis_OBSSourceAutoRelease currentTransition = obs_frontend_get_current_transition();
+ 	obs_frontend_source_list transitionList = {};
+ 	obs_frontend_get_transitions(&transitionList);
+ 
+-	OBSDataArrayAutoRelease transitions = obs_data_array_create();
++	palakis_OBSDataArrayAutoRelease transitions = obs_data_array_create();
+ 	for (size_t i = 0; i < transitionList.sources.num; i++) {
+ 		OBSSource transition = transitionList.sources.array[i];
+ 
+-		OBSDataAutoRelease obj = obs_data_create();
++		palakis_OBSDataAutoRelease obj = obs_data_create();
+ 		obs_data_set_string(obj, "name", obs_source_get_name(transition));
+ 		obs_data_array_push_back(transitions, obj);
+ 	}
+ 	obs_frontend_source_list_free(&transitionList);
+ 
+-	OBSDataAutoRelease response = obs_data_create();
++	palakis_OBSDataAutoRelease response = obs_data_create();
+ 	obs_data_set_string(response, "current-transition",
+ 		obs_source_get_name(currentTransition));
+ 	obs_data_set_array(response, "transitions", transitions);
+@@ -49,9 +49,9 @@ RpcResponse WSRequestHandler::GetTransitionList(const RpcRequest& request) {
+  * @since 0.3
+  */
+ RpcResponse WSRequestHandler::GetCurrentTransition(const RpcRequest& request) {
+-	OBSSourceAutoRelease currentTransition = obs_frontend_get_current_transition();
++	palakis_OBSSourceAutoRelease currentTransition = obs_frontend_get_current_transition();
+ 
+-	OBSDataAutoRelease response = obs_data_create();
++	palakis_OBSDataAutoRelease response = obs_data_create();
+ 	obs_data_set_string(response, "name",
+ 		obs_source_get_name(currentTransition));
+ 
+@@ -116,7 +116,7 @@ RpcResponse WSRequestHandler::SetTransitionDuration(const RpcRequest& request) {
+  * @since 4.1.0
+  */
+ RpcResponse WSRequestHandler::GetTransitionDuration(const RpcRequest& request) {
+-	OBSDataAutoRelease response = obs_data_create();
++	palakis_OBSDataAutoRelease response = obs_data_create();
+ 	obs_data_set_int(response, "transition-duration", obs_frontend_get_transition_duration());
+ 	return request.success(response);
+ }
+@@ -132,9 +132,9 @@ RpcResponse WSRequestHandler::GetTransitionDuration(const RpcRequest& request) {
+  * @since 4.9.0
+  */
+ RpcResponse WSRequestHandler::GetTransitionPosition(const RpcRequest& request) {
+-	OBSSourceAutoRelease currentTransition = obs_frontend_get_current_transition();
++	palakis_OBSSourceAutoRelease currentTransition = obs_frontend_get_current_transition();
+ 
+-	OBSDataAutoRelease response = obs_data_create();
++	palakis_OBSDataAutoRelease response = obs_data_create();
+ 	obs_data_set_double(response, "position", obs_transition_get_time(currentTransition));
+ 
+ 	return request.success(response);
+@@ -158,14 +158,14 @@ RpcResponse WSRequestHandler::GetTransitionSettings(const RpcRequest& request) {
+ 	}
+ 
+ 	const char* transitionName = obs_data_get_string(request.parameters(), "transitionName");
+-	OBSSourceAutoRelease transition = Utils::GetTransitionFromName(transitionName);
++	palakis_OBSSourceAutoRelease transition = Utils::GetTransitionFromName(transitionName);
+ 	if (!transition) {
+ 		return request.failed("specified transition doesn't exist");
+ 	}
+ 
+-	OBSDataAutoRelease transitionSettings = obs_source_get_settings(transition);
++	palakis_OBSDataAutoRelease transitionSettings = obs_source_get_settings(transition);
+ 
+-	OBSDataAutoRelease response = obs_data_create();
++	palakis_OBSDataAutoRelease response = obs_data_create();
+ 	obs_data_set_obj(response, "transitionSettings", transitionSettings);
+ 	return request.success(response);
+ }
+@@ -189,18 +189,18 @@ RpcResponse WSRequestHandler::SetTransitionSettings(const RpcRequest& request) {
+ 	}
+ 
+ 	const char* transitionName = obs_data_get_string(request.parameters(), "transitionName");
+-	OBSSourceAutoRelease transition = Utils::GetTransitionFromName(transitionName);
++	palakis_OBSSourceAutoRelease transition = Utils::GetTransitionFromName(transitionName);
+ 	if (!transition) {
+ 		return request.failed("specified transition doesn't exist");
+ 	}
+ 
+-	OBSDataAutoRelease newSettings = obs_data_get_obj(request.parameters(), "transitionSettings");
++	palakis_OBSDataAutoRelease newSettings = obs_data_get_obj(request.parameters(), "transitionSettings");
+ 	obs_source_update(transition, newSettings);
+ 	obs_source_update_properties(transition);
+ 
+-	OBSDataAutoRelease updatedSettings = obs_source_get_settings(transition);
++	palakis_OBSDataAutoRelease updatedSettings = obs_source_get_settings(transition);
+ 
+-	OBSDataAutoRelease response = obs_data_create();
++	palakis_OBSDataAutoRelease response = obs_data_create();
+ 	obs_data_set_obj(response, "transitionSettings", updatedSettings);
+ 	return request.success(response);
+ }
+@@ -219,7 +219,7 @@ RpcResponse WSRequestHandler::ReleaseTBar(const RpcRequest& request) {
+ 		return request.failed("studio mode not enabled");
+ 	}
+ 
+-    OBSSourceAutoRelease transition = obs_frontend_get_current_transition();
++  palakis_OBSSourceAutoRelease transition = obs_frontend_get_current_transition();
+ 	if (obs_transition_fixed(transition)) {
+ 		return request.failed("current transition doesn't support t-bar control");
+ 	}
+@@ -248,7 +248,7 @@ RpcResponse WSRequestHandler::SetTBarPosition(const RpcRequest& request) {
+ 		return request.failed("studio mode not enabled");
+ 	}
+ 
+-    OBSSourceAutoRelease transition = obs_frontend_get_current_transition();
++  palakis_OBSSourceAutoRelease transition = obs_frontend_get_current_transition();
+ 	if (obs_transition_fixed(transition)) {
+ 		return request.failed("current transition doesn't support t-bar control");
+ 	}
+diff --git a/plugins/obs-websocket/src/WSRequestHandler_VirtualCam.cpp b/plugins/obs-websocket/src/WSRequestHandler_VirtualCam.cpp
+index 7c7fdcc..065e351 100644
+--- a/plugins/obs-websocket/src/WSRequestHandler_VirtualCam.cpp
++++ b/plugins/obs-websocket/src/WSRequestHandler_VirtualCam.cpp
+@@ -18,7 +18,7 @@
+ RpcResponse WSRequestHandler::GetVirtualCamStatus(const RpcRequest& request) {
+ 		auto events = GetEventsSystem();
+ 
+-		OBSDataAutoRelease data = obs_data_create();
++		palakis_OBSDataAutoRelease data = obs_data_create();
+ 		obs_data_set_bool(data, "isVirtualCam", obs_frontend_virtualcam_active());
+ 
+ 		if (obs_frontend_virtualcam_active()) {
+diff --git a/plugins/obs-websocket/src/obs-websocket.h b/plugins/obs-websocket/src/obs-websocket.h
+index 42d42df..aa2a7ba 100644
+--- a/plugins/obs-websocket/src/obs-websocket.h
++++ b/plugins/obs-websocket/src/obs-websocket.h
+@@ -27,20 +27,20 @@ void ___data_dummy_addref(obs_data_t*);
+ void ___data_array_dummy_addref(obs_data_array_t*);
+ void ___output_dummy_addref(obs_output_t*);
+ 
+-using OBSSourceAutoRelease =
++using palakis_OBSSourceAutoRelease =
+ 	OBSRef<obs_source_t*, ___source_dummy_addref, obs_source_release>;
+-using OBSSceneItemAutoRelease =
++using palakis_OBSSceneItemAutoRelease =
+ 	OBSRef<obs_sceneitem_t*, ___sceneitem_dummy_addref, obs_sceneitem_release>;
+-using OBSDataAutoRelease =
++using palakis_OBSDataAutoRelease =
+ 	OBSRef<obs_data_t*, ___data_dummy_addref, obs_data_release>;
+-using OBSDataArrayAutoRelease =
++using palakis_OBSDataArrayAutoRelease =
+ 	OBSRef<obs_data_array_t*, ___data_array_dummy_addref, obs_data_array_release>;
+-using OBSOutputAutoRelease =
++using palakis_OBSOutputAutoRelease =
+ 	OBSRef<obs_output_t*, ___output_dummy_addref, obs_output_release>;
+ 
+ void ___data_item_dummy_addref(obs_data_item_t*);
+ void ___data_item_release(obs_data_item_t*);
+-using OBSDataItemAutoRelease =
++using palakis_OBSDataItemAutoRelease =
+ 	OBSRef<obs_data_item_t*, ___data_item_dummy_addref, ___data_item_release>;
+ 
+ class Config;
 diff --git a/plugins/obs-websocket/src/protocol/OBSRemoteProtocol.cpp b/plugins/obs-websocket/src/protocol/OBSRemoteProtocol.cpp
-index a7555b6..3e1ad4b 100644
+index 13ca159..a402cbe 100644
 --- a/plugins/obs-websocket/src/protocol/OBSRemoteProtocol.cpp
 +++ b/plugins/obs-websocket/src/protocol/OBSRemoteProtocol.cpp
-@@ -69,13 +69,13 @@ std::string OBSRemoteProtocol::encodeEvent(const RpcEvent& event)
+@@ -28,7 +28,7 @@ std::string OBSRemoteProtocol::processMessage(WSRequestHandler& requestHandler,
+ 	std::string msgContainer(message);
+ 	const char* msg = msgContainer.c_str();
  
- 	std::optional<uint64_t> streamTime = event.streamTime();
- 	if (streamTime.has_value()) {
--		QString streamingTimecode = Utils::nsToTimestamp(streamTime.value());
-+		QString streamingTimecode = Utils::nsToTimestamp(*streamTime);
- 		obs_data_set_string(eventData, "stream-timecode", streamingTimecode.toUtf8().constData());
+-	OBSDataAutoRelease data = obs_data_create_from_json(msg);
++	palakis_OBSDataAutoRelease data = obs_data_create_from_json(msg);
+ 	if (!data) {
+ 		blog(LOG_ERROR, "invalid JSON payload received for '%s'", msg);
+ 		return jsonDataToString(
+@@ -45,7 +45,7 @@ std::string OBSRemoteProtocol::processMessage(WSRequestHandler& requestHandler,
+ 	QString methodName = obs_data_get_string(data, "request-type");
+ 	QString messageId = obs_data_get_string(data, "message-id");
+ 
+-	OBSDataAutoRelease params = obs_data_create();
++	palakis_OBSDataAutoRelease params = obs_data_create();
+ 	obs_data_apply(params, data);
+ 	obs_data_unset_user_value(params, "request-type");
+ 	obs_data_unset_user_value(params, "message-id");
+@@ -53,13 +53,13 @@ std::string OBSRemoteProtocol::processMessage(WSRequestHandler& requestHandler,
+ 	RpcRequest request(messageId, methodName, params);
+ 	RpcResponse response = requestHandler.processRequest(request);
+ 
+-	OBSDataAutoRelease responseData = rpcResponseToJsonData(response);
++	palakis_OBSDataAutoRelease responseData = rpcResponseToJsonData(response);
+ 	return jsonDataToString(responseData);
+ }
+ 
+ std::string OBSRemoteProtocol::encodeEvent(const RpcEvent& event)
+ {
+-	OBSDataAutoRelease eventData = obs_data_create();
++	palakis_OBSDataAutoRelease eventData = obs_data_create();
+ 
+ 	QString updateType = event.updateType();
+ 	obs_data_set_string(eventData, "update-type", updateType.toUtf8().constData());
+@@ -109,7 +109,7 @@ obs_data_t* OBSRemoteProtocol::successResponse(const char* messageId, obs_data_t
+ 
+ obs_data_t* OBSRemoteProtocol::errorResponse(const char* messageId, const char* errorMessage, obs_data_t* additionalFields)
+ {
+-	OBSDataAutoRelease fields = obs_data_create();
++	palakis_OBSDataAutoRelease fields = obs_data_create();
+ 	if (additionalFields) {
+ 		obs_data_apply(fields, additionalFields);
+ 	}
+@@ -132,7 +132,7 @@ obs_data_t* OBSRemoteProtocol::buildResponse(const char* messageId, const char*
+ 	return response;
+ }
+ 
+-std::string OBSRemoteProtocol::jsonDataToString(OBSDataAutoRelease data)
++std::string OBSRemoteProtocol::jsonDataToString(palakis_OBSDataAutoRelease data)
+ {
+ 	std::string responseString = obs_data_get_json(data);
+ 	return responseString;
+diff --git a/plugins/obs-websocket/src/protocol/OBSRemoteProtocol.h b/plugins/obs-websocket/src/protocol/OBSRemoteProtocol.h
+index 354ca51..4105d0b 100644
+--- a/plugins/obs-websocket/src/protocol/OBSRemoteProtocol.h
++++ b/plugins/obs-websocket/src/protocol/OBSRemoteProtocol.h
+@@ -37,5 +37,5 @@ private:
+ 	static obs_data_t* successResponse(const char* messageId, obs_data_t* fields = nullptr);
+ 	static obs_data_t* errorResponse(const char* messageId, const char* errorMessage, obs_data_t* additionalFields = nullptr);
+ 	static obs_data_t* buildResponse(const char* messageId, const char*, obs_data_t* fields = nullptr);
+-	static std::string jsonDataToString(OBSDataAutoRelease data);
++	static std::string jsonDataToString(palakis_OBSDataAutoRelease data);
+ };
+diff --git a/plugins/obs-websocket/src/rpc/RpcEvent.h b/plugins/obs-websocket/src/rpc/RpcEvent.h
+index af69a10..f3213b0 100644
+--- a/plugins/obs-websocket/src/rpc/RpcEvent.h
++++ b/plugins/obs-websocket/src/rpc/RpcEvent.h
+@@ -57,5 +57,5 @@ private:
+ 	QString _updateType;
+ 	std::optional<uint64_t> _streamTime;
+ 	std::optional<uint64_t> _recordingTime;
+-	OBSDataAutoRelease _additionalFields;
++	palakis_OBSDataAutoRelease _additionalFields;
+ };
+diff --git a/plugins/obs-websocket/src/rpc/RpcRequest.cpp b/plugins/obs-websocket/src/rpc/RpcRequest.cpp
+index 04d62cb..81b677d 100644
+--- a/plugins/obs-websocket/src/rpc/RpcRequest.cpp
++++ b/plugins/obs-websocket/src/rpc/RpcRequest.cpp
+@@ -46,7 +46,7 @@ const bool RpcRequest::hasField(QString name, obs_data_type expectedFieldType, o
+ 		return false;
  	}
  
- 	std::optional<uint64_t> recordingTime = event.recordingTime();
- 	if (recordingTime.has_value()) {
--		QString recordingTimecode = Utils::nsToTimestamp(recordingTime.value());
-+		QString recordingTimecode = Utils::nsToTimestamp(*recordingTime);
- 		obs_data_set_string(eventData, "rec-timecode", recordingTimecode.toUtf8().constData());
+-	OBSDataItemAutoRelease dataItem = obs_data_item_byname(_parameters, name.toUtf8());
++	palakis_OBSDataItemAutoRelease dataItem = obs_data_item_byname(_parameters, name.toUtf8());
+ 	if (!dataItem) {
+ 		return false;
  	}
- 
+diff --git a/plugins/obs-websocket/src/rpc/RpcRequest.h b/plugins/obs-websocket/src/rpc/RpcRequest.h
+index 3e36015..64c5cea 100644
+--- a/plugins/obs-websocket/src/rpc/RpcRequest.h
++++ b/plugins/obs-websocket/src/rpc/RpcRequest.h
+@@ -61,5 +61,5 @@ public:
+ private:
+ 	const QString _messageId;
+ 	const QString _methodName;
+-	OBSDataAutoRelease _parameters;
++	palakis_OBSDataAutoRelease _parameters;
+ };
+diff --git a/plugins/obs-websocket/src/rpc/RpcResponse.h b/plugins/obs-websocket/src/rpc/RpcResponse.h
+index d0c96d6..31ad220 100644
+--- a/plugins/obs-websocket/src/rpc/RpcResponse.h
++++ b/plugins/obs-websocket/src/rpc/RpcResponse.h
+@@ -66,5 +66,5 @@ private:
+ 	const QString _messageId;
+ 	const QString _methodName;
+ 	QString _errorMessage;
+-	OBSDataAutoRelease _additionalFields;
++	palakis_OBSDataAutoRelease _additionalFields;
+ };
