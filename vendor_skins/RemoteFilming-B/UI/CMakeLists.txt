@@ -477,7 +477,7 @@ if(WIN32)
 	target_compile_options(${_gui_name} PRIVATE "/MD$<$<CONFIG:Debug>:d>")
 
 	if(Qt5Widgets_VERSION VERSION_LESS 6.0.0)
-		target_link_libraries(obs
+		target_link_libraries(${_gui_name}
 				Qt5::WinExtras)		
 	endif()	
 endif()
@@ -518,10 +518,10 @@ if (UNIX AND NOT APPLE)
 	# obs-scripting python support to be enabled.
 	# see: https://github.com/obsproject/obs-studio/issues/2222 and https://bugs.python.org/issue36721
 	if(NOT DISABLE_PYTHON AND PYTHONLIBS_FOUND)
-		target_link_libraries(obs ${PYTHON_LIBRARIES})
-		set_target_properties(obs PROPERTIES LINK_FLAGS "-Wl,--no-as-needed")
+		target_link_libraries(${_gui_name} ${PYTHON_LIBRARIES})
+		set_target_properties(${_gui_name} PROPERTIES LINK_FLAGS "-Wl,--no-as-needed")
 		# Use this after cmake 3.13 aka we drop ubuntu 18.04.
-		# target_link_options(obs PRIVATE "LINKER:-no-as-needed")
+		# target_link_options(${_gui_name} PRIVATE "LINKER:-no-as-needed")
 	endif()
 endif()
 
