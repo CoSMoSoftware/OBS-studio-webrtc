@@ -23,7 +23,7 @@ if(APPLE)
 endif()
 
 option(DISABLE_LUA "Disable Lua scripting support" OFF)
-option(DISABLE_PYTHON "Disable Python scripting support" OFF)
+option(DISABLE_PYTHON "Disable Python scripting support" ON)
 
 set(COMPILE_PYTHON FALSE CACHE BOOL "" FORCE)
 set(COMPILE_LUA FALSE CACHE BOOL "" FORCE)
