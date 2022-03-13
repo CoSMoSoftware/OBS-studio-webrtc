@@ -434,7 +434,7 @@ prepare_macos_bundle() {
         /bin/rm -rf "./Wowza-OBS-Real-Time.app/Contents/Resources/data/obs-scripting/"
     fi
     # dylibbundler will only copy actually linked files into bundle, but not symlinks
-    /bin/cp -cpR /tmp/obsdeps/lib/*.dylib ./OBS-WebRTC.app/Contents/Frameworks
+    /bin/cp -cpR /tmp/obsdeps/lib/*.dylib ./Wowza-OBS-Real-Time.app/Contents/Frameworks
 
     bundle_dylibs
     install_frameworks
