@@ -7611,7 +7611,11 @@ void OBSBasic::VCamButtonClicked()
 
 void OBSBasic::on_settingsButton_clicked()
 {
-	on_action_Settings_triggered();
+	// Note Ludo: Display custom parameters wizard instead of Settings window.
+	SetCustomParameters wizard(this);
+	wizard.setModal(true);
+	wizard.show();
+	wizard.exec();
 }
 
 void OBSBasic::on_actionHelpPortal_triggered()
