@@ -19,10 +19,10 @@
 /* ------------------------------------------------------------------------- */
 
 SetCustomParametersPage::SetCustomParametersPage(QWidget *parent)
-  : QWizardPage(parent), ui(new Ui_SetCustomParametersPage)
+	: QWizardPage(parent), ui(new Ui_SetCustomParametersPage)
 {
-  ui->setupUi(this);
-  setTitle(QTStr("Set Custom Parameters"));
+	ui->setupUi(this);
+	setTitle(QTStr("Set Custom Parameters"));
 
 	connect(ui->stream_name, SIGNAL(textChanged(const QString)), this,
 		SLOT(on_stream_name_textChanged()));
@@ -56,7 +56,7 @@ SetCustomParametersPage::SetCustomParametersPage(QWidget *parent)
 
 SetCustomParametersPage::~SetCustomParametersPage()
 {
-  delete ui;
+	delete ui;
 }
 
 void SetCustomParametersPage::on_stream_name_textChanged()
@@ -134,7 +134,8 @@ void SetCustomParameters::SaveSettings()
 	obs_data_t *settings = obs_service_get_settings(service);
 	const char *type = obs_service_get_type(service);
 	if (strcmp(type, "webrtc_millicast") != 0) {
-		blog(LOG_ERROR, "Current streaming service is not set to WebRTC");
+		blog(LOG_ERROR,
+		     "Current streaming service is not set to WebRTC");
 		return;
 	}
 
@@ -143,10 +144,11 @@ void SetCustomParameters::SaveSettings()
 	obs_data_release(hotkeyData);
 
 	obs_data_set_string(settings, "username", page_->stream_name_.c_str());
-	obs_data_set_string(settings, "password", page_->publishing_token_.c_str());
+	obs_data_set_string(settings, "password",
+			    page_->publishing_token_.c_str());
 	const char *service_id = obs_data_get_string(settings, "service");
-	OBSService newService = obs_service_create(
-		type, "default_service", settings, hotkeyData);
+	OBSService newService = obs_service_create(type, "default_service",
+						   settings, hotkeyData);
 	obs_service_release(newService);
 
 	if (!newService)
@@ -160,6 +162,7 @@ void SetCustomParameters::SaveSettings()
 		blog(LOG_ERROR, "No profile configuration file");
 		return;
 	}
-	config_set_string(main->Config(), "Video", "FPSCommon", page_->fps_.c_str());
+	config_set_string(main->Config(), "Video", "FPSCommon",
+			  page_->fps_.c_str());
 	config_save_safe(main->Config(), "tmp", nullptr);
 }

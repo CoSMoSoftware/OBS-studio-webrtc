@@ -38,8 +38,7 @@ static void webrtc_millicast_update(void *data, obs_data_t *settings)
 	service->codec = bstrdup(obs_data_get_string(settings, "codec"));
 	service->simulcast = obs_data_get_bool(settings, "simulcast");
 	service->multisource = obs_data_get_bool(settings, "multisource");
-	service->sourceId =
-		bstrdup(obs_data_get_string(settings, "sourceId"));
+	service->sourceId = bstrdup(obs_data_get_string(settings, "sourceId"));
 	service->publishApiUrl =
 		bstrdup(obs_data_get_string(settings, "publish_api_url"));
 	service->output = bstrdup("millicast_output");

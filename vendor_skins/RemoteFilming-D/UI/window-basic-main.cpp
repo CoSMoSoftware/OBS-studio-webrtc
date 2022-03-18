@@ -2087,16 +2087,18 @@ void OBSBasic::OBSInit()
 
 	// note LUDO: display wizard for set custom parameters if version has changed
 	bool display_wizard = false;
-	if (!config_has_user_value(App()->GlobalConfig(), "General", "SetCustomParameters")) {
+	if (!config_has_user_value(App()->GlobalConfig(), "General",
+				   "SetCustomParameters")) {
 		display_wizard = true;
 	} else {
-		display_wizard =
-			config_get_bool(App()->GlobalConfig(), "General", "SetCustomParameters");
+		display_wizard = config_get_bool(App()->GlobalConfig(),
+						 "General",
+						 "SetCustomParameters");
 	}
 
 	if (display_wizard) {
-		config_set_bool(App()->GlobalConfig(), "General", "SetCustomParameters",
-				false);
+		config_set_bool(App()->GlobalConfig(), "General",
+				"SetCustomParameters", false);
 		SetCustomParameters wizard(this);
 		wizard.setModal(true);
 		wizard.show();

@@ -29,8 +29,8 @@ public:
 	bool open(const std::string &sdp, const std::string &video_codec,
 		  const std::string &audio_codec,
 		  const std::string &stream_name,
-			const bool multisource = false,
-			const std::string &audio_source_name = nullptr) override;
+		  const bool multisource = false,
+		  const std::string &audio_source_name = nullptr) override;
 	bool trickle(const std::string & /* mid */, int /* index */,
 		     const std::string & /* candidate */,
 		     bool /* last */) override;

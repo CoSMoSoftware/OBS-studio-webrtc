@@ -46,8 +46,8 @@ public:
 			  const std::string &video_codec,
 			  const std::string &audio_codec,
 			  const std::string &username,
-				const bool multisource = false,
-				const std::string &audio_source_name = nullptr) = 0;
+			  const bool multisource = false,
+			  const std::string &audio_source_name = nullptr) = 0;
 	virtual bool trickle(const std::string &mid, int index,
 			     const std::string &candidate, bool last) = 0;
 	virtual bool disconnect(bool wait) = 0;

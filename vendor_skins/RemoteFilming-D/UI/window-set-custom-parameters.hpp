@@ -20,41 +20,41 @@ class Ui_SetCustomParametersPage;
 class SetCustomParametersPage;
 
 class SetCustomParameters : public QWizard {
-  Q_OBJECT
+	Q_OBJECT
 
-  friend class SetCustomParametersPage;
+	friend class SetCustomParametersPage;
 
-  SetCustomParametersPage *page_ = nullptr;
+	SetCustomParametersPage *page_ = nullptr;
 
-  virtual void done(int result) override;
+	virtual void done(int result) override;
 
-  void SaveCustomParameters();
-  void SaveSettings();
+	void SaveCustomParameters();
+	void SaveSettings();
 
 public:
-  SetCustomParameters(QWidget *parent);
-  ~SetCustomParameters();
+	SetCustomParameters(QWidget *parent);
+	~SetCustomParameters();
 };
 
 class SetCustomParametersPage : public QWizardPage {
-  Q_OBJECT
+	Q_OBJECT
 
-  friend class SetCustomParameters;
+	friend class SetCustomParameters;
 
-  Ui_SetCustomParametersPage *ui;
+	Ui_SetCustomParametersPage *ui;
 
-  std::string stream_name_;
-  std::string publishing_token_;
-  std::string fps_;
+	std::string stream_name_;
+	std::string publishing_token_;
+	std::string fps_;
 
 private slots:
-  void on_stream_name_textChanged();
-  void on_publishing_token_textChanged();
-  void on_video_frame_rate_currentIndexChanged();
+	void on_stream_name_textChanged();
+	void on_publishing_token_textChanged();
+	void on_video_frame_rate_currentIndexChanged();
 
 public:
-  SetCustomParametersPage(QWidget* parent = nullptr);
-  ~SetCustomParametersPage();
+	SetCustomParametersPage(QWidget *parent = nullptr);
+	~SetCustomParametersPage();
 
-  virtual bool validatePage() override;
+	virtual bool validatePage() override;
 };

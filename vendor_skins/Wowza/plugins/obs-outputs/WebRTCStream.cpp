@@ -210,14 +210,14 @@ bool WebRTCStream::start(WebRTCStream::Type type)
 			   ? obs_service_get_protocol(service)
 			   : "";
 	simulcast_ = obs_service_get_simulcast(service)
-				? obs_service_get_simulcast(service)
-				: false;
+			     ? obs_service_get_simulcast(service)
+			     : false;
 	multisource_ = obs_service_get_multisource(service)
-				? obs_service_get_multisource(service)
-				: false;
+			       ? obs_service_get_multisource(service)
+			       : false;
 	sourceId_ = obs_service_get_sourceId(service)
-				? obs_service_get_sourceId(service)
-				: "";
+			    ? obs_service_get_sourceId(service)
+			    : "";
 	publishApiUrl = obs_service_get_publishApiUrl(service)
 				? obs_service_get_publishApiUrl(service)
 				: "";
@@ -226,9 +226,10 @@ bool WebRTCStream::start(WebRTCStream::Type type)
 	}
 
 	// No Simulast for VP9 (not supported properly by libwebrtc) and AV1 codecs
-	if (video_codec.empty() || "VP9" == video_codec || "AV1" == video_codec) {
+	if (video_codec.empty() || "VP9" == video_codec ||
+	    "AV1" == video_codec) {
 		info("Simulcast not supported for %s: Disabling Simulcast\n",
-				video_codec.empty() ? "VP9" : video_codec.c_str());
+		     video_codec.empty() ? "VP9" : video_codec.c_str());
 		simulcast_ = false;
 	}
 
@@ -388,7 +389,8 @@ bool WebRTCStream::start(WebRTCStream::Type type)
 		//Add video track
 		webrtc::RtpTransceiverInit video_init;
 		video_init.stream_ids.push_back(stream->id());
-		video_init.direction = webrtc::RtpTransceiverDirection::kSendOnly;
+		video_init.direction =
+			webrtc::RtpTransceiverDirection::kSendOnly;
 		if (simulcast_) {
 			webrtc::RtpEncodingParameters large;
 			webrtc::RtpEncodingParameters medium;
@@ -444,8 +446,7 @@ bool WebRTCStream::start(WebRTCStream::Type type)
 	// info("CONNECTING TO %s", url.c_str());
 
 	// Connect to the signalling server
-	if (!client->connect(
-		    url, room, username, password, this)) {
+	if (!client->connect(url, room, username, password, this)) {
 		warn("Error connecting to server");
 		// Shutdown websocket connection and close Peer Connection
 		close(false);
@@ -487,7 +488,7 @@ void WebRTCStream::OnSuccess(webrtc::SessionDescriptionInterface *desc)
 	info("Audio bitrate:    %d\n", audio_bitrate);
 	if (getVideoSourceCount() > 0) {
 		info("Video codec:      %s",
-				video_codec.empty() ? "Automatic" : video_codec.c_str());
+		     video_codec.empty() ? "Automatic" : video_codec.c_str());
 		info("Video bitrate:    %d\n", video_bitrate);
 	} else {
 		info("No video");
@@ -508,8 +509,8 @@ void WebRTCStream::OnSuccess(webrtc::SessionDescriptionInterface *desc)
 	}
 	// Force specific video/audio payload
 	SDPModif::forcePayload(sdpCopy, audio_payloads, video_payloads,
-							// the packaging mode needs to be 1
-							audio_codec, video_codec, 1, "42e01f", 0);
+			       // the packaging mode needs to be 1
+			       audio_codec, video_codec, 1, "42e01f", 0);
 	// Constrain video bitrate
 	SDPModif::bitrateMaxMinSDP(sdpCopy, video_bitrate, video_payloads);
 	// Enable stereo & constrain audio bitrate
@@ -521,8 +522,9 @@ void WebRTCStream::OnSuccess(webrtc::SessionDescriptionInterface *desc)
 	pc->SetLocalDescription(this, desc);
 
 	info("Sending OFFER (SDP) to remote peer:\n\n%s", sdpCopy.c_str());
-	if (!client->open(sdpCopy, (0==getVideoSourceCount() ? "" : video_codec), audio_codec, username,
-								multisource_, sourceId_)) {
+	if (!client->open(sdpCopy,
+			  (0 == getVideoSourceCount() ? "" : video_codec),
+			  audio_codec, username, multisource_, sourceId_)) {
 		// Shutdown websocket connection and close Peer Connection
 		close(false);
 		// Disconnect, this will call stop on main thread

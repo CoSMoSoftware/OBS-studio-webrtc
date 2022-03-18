@@ -525,7 +525,8 @@ bool OBSApp::InitGlobalConfigDefaults(const bool force /* = false */)
 					  "ProcessPriority", "Normal");
 		config_set_default_bool(globalConfig, "General",
 					"EnableAutoUpdates", false);
-		config_set_default_bool(globalConfig, "General", "ConfirmOnExit", true);
+		config_set_default_bool(globalConfig, "General",
+					"ConfirmOnExit", true);
 #if _WIN32
 		config_set_default_string(globalConfig, "Video", "Renderer",
 					  "Direct3D 11");

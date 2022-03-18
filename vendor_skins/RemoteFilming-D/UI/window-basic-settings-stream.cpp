@@ -390,7 +390,7 @@ void OBSBasicSettings::SaveStream1Settings()
 		obs_data_set_bool(settings, "simulcast",
 				  ui->simulcastEnable->isChecked());
 		obs_data_set_bool(settings, "multisource",
-					ui->multisourceEnable->isChecked());
+				  ui->multisourceEnable->isChecked());
 		obs_data_set_string(settings, "sourceId",
 				    QT_TO_UTF8(ui->sourceId->text()));
 		obs_data_set_string(settings, "publish_api_url",
@@ -412,7 +412,7 @@ void OBSBasicSettings::SaveStream1Settings()
 		obs_data_set_bool(settings, "simulcast",
 				  ui->simulcastEnable->isChecked());
 		obs_data_set_bool(settings, "multisource",
-					ui->multisourceEnable->isChecked());
+				  ui->multisourceEnable->isChecked());
 		obs_data_set_string(settings, "sourceId",
 				    QT_TO_UTF8(ui->sourceId->text()));
 		obs_data_set_string(settings, "publish_api_url",
@@ -467,10 +467,13 @@ void OBSBasicSettings::SaveStream1Settings()
 
 void OBSBasicSettings::CheckSimulcastApplicableToCodec()
 {
-	std::string codec = QT_TO_UTF8(ui->codecButtonGroup->checkedButton()->text());
+	std::string codec =
+		QT_TO_UTF8(ui->codecButtonGroup->checkedButton()->text());
 	if ("VP9" == codec || "AV1" == codec) {
 		QString errorMessage =
-			tr("Error: Simulcast is not applicable to %1\nDisabling simulcast").arg(ui->codecButtonGroup->checkedButton()->text());
+			tr("Error: Simulcast is not applicable to %1\nDisabling simulcast")
+				.arg(ui->codecButtonGroup->checkedButton()
+					     ->text());
 		QToolTip::showText(QCursor::pos(), errorMessage, this);
 		ui->simulcastEnable->setCheckState(Qt::Unchecked);
 	}

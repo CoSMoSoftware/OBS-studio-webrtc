@@ -2287,7 +2287,8 @@ void WidgetInfo::EditListAddText()
 	const char *desc = obs_property_description(property);
 
 	// Note LUDO: use QObject for inheritance path down to QButtonGroup
-	EditableItemDialog dialog(((QWidget *)widget)->window(), QString(), false);
+	EditableItemDialog dialog(((QWidget *)widget)->window(), QString(),
+				  false);
 	auto title = QTStr("Basic.PropertiesWindow.AddEditableListEntry")
 			     .arg(QT_UTF8(desc));
 	dialog.setWindowTitle(title);

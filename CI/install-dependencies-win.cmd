@@ -6,6 +6,6 @@ if exist libWebRTC-%LIBWEBRTC_VERSION%-x64-Release-H264-OpenSSL_1_1_1a.exe (curl
 if exist openssl-1.1.tgz (curl -kLO https://libwebrtc-community-builds.s3.amazonaws.com/openssl-1.1.tgz -f --retry 5 -z openssl-1.1.tgz) else (curl -kLO https://libwebrtc-community-builds.s3.amazonaws.com/openssl-1.1.tgz -f --retry 5 -C -)
 7z x dependencies2019.zip -odependencies2019
 7z x vlc.zip -ovlc
-7z x cef_binary_%CEF_VERSION%_windows_x64.zip -oCEF_64
+7z x cef_binary_%CEF_VERSION%_windows_x64.zip -oCEF_64\cef_binary_%CEF_VERSION%_windows_x64
 libWebRTC-%LIBWEBRTC_VERSION%-x64-Release-H264-OpenSSL_1_1_1a.exe /S /SD /D="%CD%\libwebrtc"
 tar -xzf openssl-1.1.tgz

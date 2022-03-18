@@ -34,10 +34,11 @@ MillicastWebsocketClientImpl::~MillicastWebsocketClientImpl()
 	disconnect(false);
 }
 
-bool MillicastWebsocketClientImpl::connect(
-	const std::string &publish_api_url, const std::string & /* room */,
-	const std::string &stream_name, const std::string &token,
-	WebsocketClient::Listener *listener)
+bool MillicastWebsocketClientImpl::connect(const std::string &publish_api_url,
+					   const std::string & /* room */,
+					   const std::string &stream_name,
+					   const std::string &token,
+					   WebsocketClient::Listener *listener)
 {
 	this->token = sanitizeString(token);
 
@@ -188,12 +189,11 @@ bool MillicastWebsocketClientImpl::connect(
 	return true;
 }
 
-bool MillicastWebsocketClientImpl::open(const std::string &sdp,
-					const std::string &video_codec,
-					const std::string &audio_codec,
-					const std::string &stream_name,
-					const bool multisource, /* = false */
-					const std::string &audio_source_name /* = nullptr */)
+bool MillicastWebsocketClientImpl::open(
+	const std::string &sdp, const std::string &video_codec,
+	const std::string &audio_codec, const std::string &stream_name,
+	const bool multisource, /* = false */
+	const std::string &audio_source_name /* = nullptr */)
 {
 	info("WS-OPEN: stream_name: %s", stream_name.c_str());
 
@@ -207,15 +207,13 @@ bool MillicastWebsocketClientImpl::open(const std::string &sdp,
 	if (multisource) {
 		if (video_codec.empty()) {
 			// with multisource, without codec
-			data = {
-				{"name", sanitizeString(stream_name)},
+			data = {{"name", sanitizeString(stream_name)},
 				{"streamId", sanitizeString(stream_name)},
 				{"sourceId", sanitizeString(audio_source_name)},
 				{"sdp", sdp}};
 		} else {
 			// with multisource, with codec
-			data = {
-				{"name", sanitizeString(stream_name)},
+			data = {{"name", sanitizeString(stream_name)},
 				{"streamId", sanitizeString(stream_name)},
 				{"sourceId", sanitizeString(audio_source_name)},
 				{"sdp", sdp},
@@ -224,14 +222,12 @@ bool MillicastWebsocketClientImpl::open(const std::string &sdp,
 	} else {
 		if (video_codec.empty()) {
 			// without multisource, without codec
-			data = {
-				{"name", sanitizeString(stream_name)},
+			data = {{"name", sanitizeString(stream_name)},
 				{"streamId", sanitizeString(stream_name)},
 				{"sdp", sdp}};
 		} else {
 			// without multisource, with codec
-			data = {
-				{"name", sanitizeString(stream_name)},
+			data = {{"name", sanitizeString(stream_name)},
 				{"streamId", sanitizeString(stream_name)},
 				{"sdp", sdp},
 				{"codec", video_codec}};
