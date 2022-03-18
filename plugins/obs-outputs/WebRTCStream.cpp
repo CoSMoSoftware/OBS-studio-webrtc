@@ -285,6 +285,19 @@ bool WebRTCStream::start(WebRTCStream::Type type)
 	}
 
 	// Set up encoders.
+	// NOTE ALEX: should not be done for webrtc.
+
+	obs_output_t *context = output;
+
+	obs_encoder_t *aencoder = obs_output_get_audio_encoder(context, 0);
+	obs_data_t *asettings = obs_encoder_get_settings(aencoder);
+	audio_bitrate = (int)obs_data_get_int(asettings, "bitrate");
+	obs_data_release(asettings);
+
+	obs_encoder_t *vencoder = obs_output_get_video_encoder(context);
+	obs_data_t *vsettings = obs_encoder_get_settings(vencoder);
+	video_bitrate = (int)obs_data_get_int(vsettings, "bitrate");
+	obs_data_release(vsettings);
 
 	struct obs_audio_info audio_info;
 	if (!obs_get_audio_info(&audio_info)) {
