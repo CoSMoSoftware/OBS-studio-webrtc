@@ -95,9 +95,7 @@ else()
 	set(OBS_LIBRARY_DESTINATION "lib${OBS_MULTIARCH_SUFFIX}")
 	set(OBS_LIBRARY32_DESTINATION "lib32")
 	set(OBS_LIBRARY64_DESTINATION "lib64")
-	# note ludo #340 Linux path to obs plugins libraries
-#	set(OBS_PLUGIN_DESTINATION "${OBS_LIBRARY_DESTINATION}/obs-plugins")
-	set(OBS_PLUGIN_DESTINATION "${CMAKE_INSTALL_LIBDIR}/obs-plugins")
+	set(OBS_PLUGIN_DESTINATION "${OBS_LIBRARY_DESTINATION}/obs-plugins")
 	set(OBS_PLUGIN32_DESTINATION "${OBS_LIBRARY32_DESTINATION}/obs-plugins")
 	set(OBS_PLUGIN64_DESTINATION "${OBS_LIBRARY64_DESTINATION}/obs-plugins")
 	set(OBS_DATA_DESTINATION "share/obs")
@@ -470,9 +468,16 @@ function(install_obs_plugin target)
 	set_target_properties(${target} PROPERTIES
 		PREFIX "")
 
-	install(TARGETS ${target}
-		LIBRARY DESTINATION "${OBS_PLUGIN_DESTINATION}"
-		RUNTIME DESTINATION "${OBS_PLUGIN_DESTINATION}")
+	if(UNIX AND NOT APPLE)
+		# note ludo #340 Linux path to obs plugins libraries
+		install(TARGETS ${target}
+			LIBRARY DESTINATION "${CMAKE_INSTALL_FULL_LIBDIR}/obs-plugins"
+			RUNTIME DESTINATION "${CMAKE_INSTALL_FULL_LIBDIR}/obs-plugins")
+	else()
+		install(TARGETS ${target}
+			LIBRARY DESTINATION "${OBS_PLUGIN_DESTINATION}"
+			RUNTIME DESTINATION "${OBS_PLUGIN_DESTINATION}")
+	endif()
 	add_custom_command(TARGET ${target} POST_BUILD
 		COMMAND "${CMAKE_COMMAND}" -E copy
 			"$<TARGET_FILE:${target}>"
