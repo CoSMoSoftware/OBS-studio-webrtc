@@ -228,9 +228,10 @@ bool WebRTCStream::start(WebRTCStream::Type type)
 		publishApiUrl = url;
 	}
 
-	config_t* obs_config = obs_frontend_get_profile_config();
+	config_t *obs_config = obs_frontend_get_profile_config();
 	if (obs_config) {
-		const char* tmp = config_get_string(obs_config, "Video", "ColorFormat");
+		const char *tmp =
+			config_get_string(obs_config, "Video", "ColorFormat");
 		if (tmp) {
 			// Possible values for ColorFormat:
 			// I420
@@ -272,7 +273,7 @@ bool WebRTCStream::start(WebRTCStream::Type type)
 
 	if ("I444" == colorFormat && "VP9" != video_codec) {
 		info("Color format %s is not supported for video codec %s: Switching to video codec VP9\n",
-			colorFormat.c_str(), video_codec.c_str());
+		     colorFormat.c_str(), video_codec.c_str());
 		video_codec = "VP9";
 	}
 
@@ -850,8 +851,8 @@ void WebRTCStream::onVideoFrame(video_data *frame)
 	webrtc::VideoType videoType;
 	if ("I420" == colorFormat) {
 		videoType = webrtc::VideoType::kI420;
-	// } else if ("I444" == colorFormat) {
-	// 	videoType = webrtc::VideoType::kI444;
+		// } else if ("I444" == colorFormat) {
+		// 	videoType = webrtc::VideoType::kI444;
 	} else {
 		videoType = webrtc::VideoType::kNV12;
 	}
@@ -865,7 +866,8 @@ void WebRTCStream::onVideoFrame(video_data *frame)
 		// Convert frame
 		rtc::scoped_refptr<webrtc::I420Buffer> buffer =
 			webrtc::I420Buffer::Create(target_width, target_height,
-							stride_y, stride_uv, stride_uv);
+						   stride_y, stride_uv,
+						   stride_uv);
 
 		libyuv::RotationMode rotation_mode = libyuv::kRotate0;
 
@@ -873,19 +875,19 @@ void WebRTCStream::onVideoFrame(video_data *frame)
 			frame->data[0], size, buffer.get()->MutableDataY(),
 			buffer.get()->StrideY(), buffer.get()->MutableDataU(),
 			buffer.get()->StrideU(), buffer.get()->MutableDataV(),
-			buffer.get()->StrideV(), 0, 0, outputWidth, outputHeight,
-			target_width, target_height, rotation_mode,
-			ConvertVideoType(videoType));
+			buffer.get()->StrideV(), 0, 0, outputWidth,
+			outputHeight, target_width, target_height,
+			rotation_mode, ConvertVideoType(videoType));
 		// not using the result yet, silence compiler
 		(void)conversionResult;
 
-		const int64_t obs_timestamp_us =
-			(int64_t)frame->timestamp / rtc::kNumNanosecsPerMicrosec;
+		const int64_t obs_timestamp_us = (int64_t)frame->timestamp /
+						 rtc::kNumNanosecsPerMicrosec;
 
 		// Align timestamps from OBS capturer with rtc::TimeMicros timebase
 		const int64_t aligned_timestamp_us =
-			timestamp_aligner_.TranslateTimestamp(obs_timestamp_us,
-										rtc::TimeMicros());
+			timestamp_aligner_.TranslateTimestamp(
+				obs_timestamp_us, rtc::TimeMicros());
 
 		// Create a webrtc::VideoFrame to pass to the capturer
 		webrtc::VideoFrame video_frame =
@@ -906,21 +908,25 @@ void WebRTCStream::onVideoFrame(video_data *frame)
 		// Convert frame
 		rtc::scoped_refptr<webrtc::I444Buffer> buffer444 =
 			webrtc::I444Buffer::Create(target_width, target_height,
-							stride_y, stride_uv, stride_uv);
-		uint8_t* datay = const_cast<uint8_t*>(buffer444->DataY());
-		memcpy(datay, frame->data[0], frame->linesize[0] * outputHeight);
-		uint8_t* datau = const_cast<uint8_t*>(buffer444->DataU());
-		memcpy(datau, frame->data[1], frame->linesize[1] * outputHeight);
-		uint8_t* datav = const_cast<uint8_t*>(buffer444->DataV());
-		memcpy(datav, frame->data[2], frame->linesize[2] * outputHeight);
+						   stride_y, stride_uv,
+						   stride_uv);
+		uint8_t *datay = const_cast<uint8_t *>(buffer444->DataY());
+		memcpy(datay, frame->data[0],
+		       frame->linesize[0] * outputHeight);
+		uint8_t *datau = const_cast<uint8_t *>(buffer444->DataU());
+		memcpy(datau, frame->data[1],
+		       frame->linesize[1] * outputHeight);
+		uint8_t *datav = const_cast<uint8_t *>(buffer444->DataV());
+		memcpy(datav, frame->data[2],
+		       frame->linesize[2] * outputHeight);
 
-		const int64_t obs_timestamp_us =
-			(int64_t)frame->timestamp / rtc::kNumNanosecsPerMicrosec;
+		const int64_t obs_timestamp_us = (int64_t)frame->timestamp /
+						 rtc::kNumNanosecsPerMicrosec;
 
 		// Align timestamps from OBS capturer with rtc::TimeMicros timebase
 		const int64_t aligned_timestamp_us =
-			timestamp_aligner_.TranslateTimestamp(obs_timestamp_us,
-										rtc::TimeMicros());
+			timestamp_aligner_.TranslateTimestamp(
+				obs_timestamp_us, rtc::TimeMicros());
 
 		// Create a webrtc::VideoFrame to pass to the capturer
 		webrtc::VideoFrame video_frame444 =
@@ -1234,7 +1240,8 @@ WebRTCStream::NewGetStats()
 	std::vector<rtc::scoped_refptr<StatsCallback>> vector_stats_callbacks;
 	for (const auto &transceiver : pc->GetTransceivers()) {
 		auto sender = transceiver->sender();
-		rtc::scoped_refptr<StatsCallback> stats_callback(new rtc::RefCountedObject<StatsCallback>());
+		rtc::scoped_refptr<StatsCallback> stats_callback(
+			new rtc::RefCountedObject<StatsCallback>());
 		pc->GetStats(sender, stats_callback);
 		vector_stats_callbacks.push_back(stats_callback);
 	}
