@@ -191,6 +191,11 @@ private:
 	std::string sourceId_;
 	std::string publishApiUrl;
 	int channel_count;
+	std::string colorFormat;
+	// Codec profile to support the selected color format:
+	// VP9 profile 0 for color format NV12 ot I420
+	// VP9 profile 3 for color format I444
+	int profile;
 
 	void resetStats();
 

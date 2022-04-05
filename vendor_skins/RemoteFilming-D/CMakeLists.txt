@@ -20,7 +20,7 @@ if(NOT DEFINED CONFIG_DIR OR "${CONFIG_DIR}" STREQUAL "")
 	endif()
 endif()
 
-set(REMOTE_FILMING_VERSION "m99-v27.2.3-0")
+set(REMOTE_FILMING_VERSION "m100-v27.2.3-0")
 
 option(DEBUG_FFMPEG_MUX "Debug FFmpeg muxer subprocess" FALSE)
 

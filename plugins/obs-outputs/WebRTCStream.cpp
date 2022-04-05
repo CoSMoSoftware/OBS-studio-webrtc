@@ -11,11 +11,14 @@
 #include "api/video_codecs/builtin_video_decoder_factory.h"
 #include "api/video_codecs/builtin_video_encoder_factory.h"
 #include "api/video/i420_buffer.h"
+#include "api/video/i444_buffer.h"
 #include "common_video/libyuv/include/webrtc_libyuv.h"
 #include "pc/rtc_stats_collector.h"
 #include "rtc_base/checks.h"
+#include "modules/video_coding/codecs/vp9/include/vp9.h"
 #include <libyuv.h>
 #include <obs-frontend-api.h>
+#include <util/config-file.h>
 
 #include <algorithm>
 #include <chrono>
@@ -225,6 +228,54 @@ bool WebRTCStream::start(WebRTCStream::Type type)
 		publishApiUrl = url;
 	}
 
+	config_t* obs_config = obs_frontend_get_profile_config();
+	if (obs_config) {
+		const char* tmp = config_get_string(obs_config, "Video", "ColorFormat");
+		if (tmp) {
+			// Possible values for ColorFormat:
+			// I420
+			// I444
+			// NV12
+			// RGB
+			switch (tmp[0]) {
+			case 'I':
+				if ('2' == tmp[2]) {
+					colorFormat = "I420";
+					profile = 0;
+				} else {
+					colorFormat = "I444";
+					profile = 3;
+				}
+				break;
+			case 'N':
+				colorFormat = "NV12";
+				profile = 0;
+				break;
+			case 'R':
+				colorFormat = "RGB";
+				profile = 0;
+				break;
+			default:
+				colorFormat = "NV12";
+				profile = 0;
+			}
+		} else {
+			// No color format read from config file: Use NV12 color format by default
+			colorFormat = "NV12";
+			profile = 0;
+		}
+	} else {
+		// No config file: Use NV12 color format by default
+		colorFormat = "NV12";
+		profile = 0;
+	}
+
+	if ("I444" == colorFormat && "VP9" != video_codec) {
+		info("Color format %s is not supported for video codec %s: Switching to video codec VP9\n",
+			colorFormat.c_str(), video_codec.c_str());
+		video_codec = "VP9";
+	}
+
 	// No Simulast for VP9 (not supported properly by libwebrtc) and AV1 codecs
 	if (video_codec.empty() || "VP9" == video_codec ||
 	    "AV1" == video_codec) {
@@ -235,6 +286,7 @@ bool WebRTCStream::start(WebRTCStream::Type type)
 
 	// Some extra log
 
+	info("Color format: %s", colorFormat.c_str());
 	info("Video codec: %s",
 	     video_codec.empty() ? "Automatic" : video_codec.c_str());
 	if (0 == getVideoSourceCount()) {
@@ -358,10 +410,10 @@ bool WebRTCStream::start(WebRTCStream::Type type)
 	options.highpass_filter.emplace(false);   // default: true
 	options.stereo_swapping.emplace(false);
 	options.typing_detection.emplace(false); // default: true
-	options.experimental_agc.emplace(false);
+	// m100 options.experimental_agc.emplace(false);
 	// m79 options.extended_filter_aec.emplace(false);
 	// m79 options.delay_agnostic_aec.emplace(false);
-	options.experimental_ns.emplace(false);
+	// m100 options.experimental_ns.emplace(false);
 	options.residual_echo_detector.emplace(false); // default: true
 	// options.tx_agc_limiter.emplace(false);
 
@@ -508,7 +560,7 @@ void WebRTCStream::OnSuccess(webrtc::SessionDescriptionInterface *desc)
 	// Force specific video/audio payload
 	SDPModif::forcePayload(sdpCopy, audio_payloads, video_payloads,
 			       // the packaging mode needs to be 1
-			       audio_codec, video_codec, 1, "42e01f", 0);
+			       audio_codec, video_codec, 1, "42e01f", profile);
 	// Constrain video bitrate
 	SDPModif::bitrateMaxMinSDP(sdpCopy, video_bitrate, video_payloads);
 	// Enable stereo & constrain audio bitrate
@@ -795,51 +847,93 @@ void WebRTCStream::onVideoFrame(video_data *frame)
 	// Calculate size
 	int outputWidth = obs_output_get_width(output);
 	int outputHeight = obs_output_get_height(output);
-	auto videoType = webrtc::VideoType::kNV12;
-	uint32_t size = outputWidth * outputHeight * 3 / 2;
+	webrtc::VideoType videoType;
+	if ("I420" == colorFormat) {
+		videoType = webrtc::VideoType::kI420;
+	// } else if ("I444" == colorFormat) {
+	// 	videoType = webrtc::VideoType::kI444;
+	} else {
+		videoType = webrtc::VideoType::kNV12;
+	}
 
-	int stride_y = outputWidth;
-	int stride_uv = (outputWidth + 1) / 2;
 	int target_width = abs(outputWidth);
 	int target_height = abs(outputHeight);
+	if ("NV12" == colorFormat || "I420" == colorFormat) {
+		uint32_t size = outputWidth * outputHeight * 3 / 2;
+		int stride_y = outputWidth;
+		int stride_uv = (outputWidth + 1) / 2;
+		// Convert frame
+		rtc::scoped_refptr<webrtc::I420Buffer> buffer =
+			webrtc::I420Buffer::Create(target_width, target_height,
+							stride_y, stride_uv, stride_uv);
 
-	// Convert frame
-	rtc::scoped_refptr<webrtc::I420Buffer> buffer =
-		webrtc::I420Buffer::Create(target_width, target_height,
-					   stride_y, stride_uv, stride_uv);
+		libyuv::RotationMode rotation_mode = libyuv::kRotate0;
 
-	libyuv::RotationMode rotation_mode = libyuv::kRotate0;
+		const int conversionResult = libyuv::ConvertToI420(
+			frame->data[0], size, buffer.get()->MutableDataY(),
+			buffer.get()->StrideY(), buffer.get()->MutableDataU(),
+			buffer.get()->StrideU(), buffer.get()->MutableDataV(),
+			buffer.get()->StrideV(), 0, 0, outputWidth, outputHeight,
+			target_width, target_height, rotation_mode,
+			ConvertVideoType(videoType));
+		// not using the result yet, silence compiler
+		(void)conversionResult;
 
-	const int conversionResult = libyuv::ConvertToI420(
-		frame->data[0], size, buffer.get()->MutableDataY(),
-		buffer.get()->StrideY(), buffer.get()->MutableDataU(),
-		buffer.get()->StrideU(), buffer.get()->MutableDataV(),
-		buffer.get()->StrideV(), 0, 0, outputWidth, outputHeight,
-		target_width, target_height, rotation_mode,
-		ConvertVideoType(videoType));
+		const int64_t obs_timestamp_us =
+			(int64_t)frame->timestamp / rtc::kNumNanosecsPerMicrosec;
 
-	// not using the result yet, silence compiler
-	(void)conversionResult;
+		// Align timestamps from OBS capturer with rtc::TimeMicros timebase
+		const int64_t aligned_timestamp_us =
+			timestamp_aligner_.TranslateTimestamp(obs_timestamp_us,
+										rtc::TimeMicros());
 
-	const int64_t obs_timestamp_us =
-		(int64_t)frame->timestamp / rtc::kNumNanosecsPerMicrosec;
+		// Create a webrtc::VideoFrame to pass to the capturer
+		webrtc::VideoFrame video_frame =
+			webrtc::VideoFrame::Builder()
+				.set_video_frame_buffer(buffer)
+				.set_rotation(webrtc::kVideoRotation_0)
+				.set_timestamp_us(aligned_timestamp_us)
+				.set_id(++frame_id_)
+				.build();
 
-	// Align timestamps from OBS capturer with rtc::TimeMicros timebase
-	const int64_t aligned_timestamp_us =
-		timestamp_aligner_.TranslateTimestamp(obs_timestamp_us,
-						      rtc::TimeMicros());
+		// Send frame to video capturer
+		videoCapturer->OnFrameCaptured(video_frame);
 
-	// Create a webrtc::VideoFrame to pass to the capturer
-	webrtc::VideoFrame video_frame =
-		webrtc::VideoFrame::Builder()
-			.set_video_frame_buffer(buffer)
-			.set_rotation(webrtc::kVideoRotation_0)
-			.set_timestamp_us(aligned_timestamp_us)
-			.set_id(++frame_id_)
-			.build();
+	} else if ("I444" == colorFormat) {
+		uint32_t size = outputWidth * outputHeight * 3;
+		int stride_y = outputWidth;
+		int stride_uv = outputWidth;
+		// Convert frame
+		rtc::scoped_refptr<webrtc::I444Buffer> buffer444 =
+			webrtc::I444Buffer::Create(target_width, target_height,
+							stride_y, stride_uv, stride_uv);
+		uint8_t* datay = const_cast<uint8_t*>(buffer444->DataY());
+		memcpy(datay, frame->data[0], frame->linesize[0] * outputHeight);
+		uint8_t* datau = const_cast<uint8_t*>(buffer444->DataU());
+		memcpy(datau, frame->data[1], frame->linesize[1] * outputHeight);
+		uint8_t* datav = const_cast<uint8_t*>(buffer444->DataV());
+		memcpy(datav, frame->data[2], frame->linesize[2] * outputHeight);
 
-	// Send frame to video capturer
-	videoCapturer->OnFrameCaptured(video_frame);
+		const int64_t obs_timestamp_us =
+			(int64_t)frame->timestamp / rtc::kNumNanosecsPerMicrosec;
+
+		// Align timestamps from OBS capturer with rtc::TimeMicros timebase
+		const int64_t aligned_timestamp_us =
+			timestamp_aligner_.TranslateTimestamp(obs_timestamp_us,
+										rtc::TimeMicros());
+
+		// Create a webrtc::VideoFrame to pass to the capturer
+		webrtc::VideoFrame video_frame444 =
+			webrtc::VideoFrame::Builder()
+				.set_video_frame_buffer(buffer444)
+				.set_rotation(webrtc::kVideoRotation_0)
+				.set_timestamp_us(aligned_timestamp_us)
+				.set_id(++frame_id_)
+				.build();
+
+		// Send frame to video capturer
+		videoCapturer->OnFrameCaptured(video_frame444);
+	}
 }
 
 // Count number of video sources in current scene
@@ -1140,8 +1234,7 @@ WebRTCStream::NewGetStats()
 	std::vector<rtc::scoped_refptr<StatsCallback>> vector_stats_callbacks;
 	for (const auto &transceiver : pc->GetTransceivers()) {
 		auto sender = transceiver->sender();
-		rtc::scoped_refptr<StatsCallback> stats_callback =
-			new rtc::RefCountedObject<StatsCallback>();
+		rtc::scoped_refptr<StatsCallback> stats_callback(new rtc::RefCountedObject<StatsCallback>());
 		pc->GetStats(sender, stats_callback);
 		vector_stats_callbacks.push_back(stats_callback);
 	}
