@@ -430,7 +430,7 @@ prepare_macos_bundle() {
     if [ -d "./Wowza-OBS-Real-Time.app/Contents/Resources/data/obs-scripting" ]; then
         /bin/mv "./Wowza-OBS-Real-Time.app/Contents/Resources/data/obs-scripting/obslua.so" "./Wowza-OBS-Real-Time.app/Contents/MacOS/"
         # /bin/mv "./Wowza-OBS-Real-Time.app/Contents/Resources/data/obs-scripting/_obspython.so" "./Wowza-OBS-Real-Time.app/Contents/MacOS/"
-        # /bin/mv "./Wowza-OBS-Real-Time.app/Contents/Resources/data/obs-scripting/obspython.py" "./Wowza-OBS-Real-Time.app/Contents/MacOS/"
+        # /bin/mv "./Wowza-OBS-Real-Time.app/Contents/Resources/data/obs-scripting/obspython.py" "./Wowza-OBS-Real-Time.app/Contents/Resources/"
         /bin/rm -rf "./Wowza-OBS-Real-Time.app/Contents/Resources/data/obs-scripting/"
     fi
     # dylibbundler will only copy actually linked files into bundle, but not symlinks

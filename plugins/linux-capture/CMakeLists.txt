@@ -44,7 +44,7 @@ set(linux-capture_LIBRARIES
 	${XCB_LIBRARIES}
 )
 
-option(ENABLE_PIPEWIRE "Enable PipeWire support" ON)
+option(ENABLE_PIPEWIRE "Enable PipeWire support" OFF)
 if(ENABLE_PIPEWIRE)
 	find_package(PipeWire 0.3.32 QUIET)
 	find_package(Libdrm QUIET) # we require libdrm/drm_fourcc.h to build

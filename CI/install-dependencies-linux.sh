@@ -28,6 +28,7 @@ sudo apt-get install -y \
         libjansson-dev \
         libluajit-5.1-dev \
         libpci-dev \
+        libpipewire-0.3-dev \
         libpulse-dev \
         libqt5x11extras5-dev \
         libspeexdsp-dev \

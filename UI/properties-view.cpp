@@ -183,14 +183,15 @@ void OBSPropertiesView::GetScrollPos(int &h, int &v)
 OBSPropertiesView::OBSPropertiesView(OBSData settings_, obs_object_t *obj,
 				     PropertiesReloadCallback reloadCallback,
 				     PropertiesUpdateCallback callback_,
-				     PropertiesVisualUpdateCb cb_, int minSize_)
+				     PropertiesVisualUpdateCb visUpdateCb_,
+				     int minSize_)
 	: VScrollArea(nullptr),
 	  properties(nullptr, obs_properties_destroy),
 	  settings(settings_),
 	  weakObj(obs_object_get_weak_object(obj)),
 	  reloadCallback(reloadCallback),
 	  callback(callback_),
-	  cb(cb_),
+	  visUpdateCb(visUpdateCb_),
 	  minSize(minSize_)
 {
 	setFrameShape(QFrame::NoFrame);
@@ -201,14 +202,15 @@ OBSPropertiesView::OBSPropertiesView(OBSData settings_, obs_object_t *obj,
 OBSPropertiesView::OBSPropertiesView(OBSData settings_, void *obj,
 				     PropertiesReloadCallback reloadCallback,
 				     PropertiesUpdateCallback callback_,
-				     PropertiesVisualUpdateCb cb_, int minSize_)
+				     PropertiesVisualUpdateCb visUpdateCb_,
+				     int minSize_)
 	: VScrollArea(nullptr),
 	  properties(nullptr, obs_properties_destroy),
 	  settings(settings_),
 	  rawObj(obj),
 	  reloadCallback(reloadCallback),
 	  callback(callback_),
-	  cb(cb_),
+	  visUpdateCb(visUpdateCb_),
 	  minSize(minSize_)
 {
 	setFrameShape(QFrame::NoFrame);
@@ -2164,11 +2166,11 @@ void WidgetInfo::ControlChanged()
 		blog(LOG_DEBUG, "No update timer or no callback!");
 	}
 
-	if (view->cb && !view->deferUpdate) {
+	if (view->visUpdateCb && !view->deferUpdate) {
 		OBSObject strongObj = view->GetObject();
 		void *obj = strongObj ? strongObj.Get() : view->rawObj;
 		if (obj)
-			view->cb(obj, view->settings);
+			view->visUpdateCb(obj, view->settings);
 	}
 
 	view->SignalChanged();

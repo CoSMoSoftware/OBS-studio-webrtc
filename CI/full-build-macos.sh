@@ -430,7 +430,7 @@ prepare_macos_bundle() {
     if [ -d ./OBS-WebRTC.app/Contents/Resources/data/obs-scripting ]; then
         /bin/mv ./OBS-WebRTC.app/Contents/Resources/data/obs-scripting/obslua.so ./OBS-WebRTC.app/Contents/MacOS/
         # /bin/mv ./OBS-WebRTC.app/Contents/Resources/data/obs-scripting/_obspython.so ./OBS-WebRTC.app/Contents/MacOS/
-        # /bin/mv ./OBS-WebRTC.app/Contents/Resources/data/obs-scripting/obspython.py ./OBS-WebRTC.app/Contents/MacOS/
+        # /bin/mv ./OBS-WebRTC.app/Contents/Resources/data/obs-scripting/obspython.py ./OBS-WebRTC.app/Contents/Resources/
         /bin/rm -rf ./OBS-WebRTC.app/Contents/Resources/data/obs-scripting/
     fi
     # dylibbundler will only copy actually linked files into bundle, but not symlinks
