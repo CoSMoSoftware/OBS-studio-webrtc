@@ -282,8 +282,8 @@ bool WebRTCStream::start(WebRTCStream::Type type)
 #endif // ENABLE_WEBRTC_YUV444
 
 	// No Simulast for VP9 (not supported properly by libwebrtc) and AV1 codecs
-	if (video_codec.empty() || "VP9" == video_codec ||
-	    "AV1" == video_codec) {
+	if (simulcast_ && (video_codec.empty() || "VP9" == video_codec ||
+			   "AV1" == video_codec)) {
 		info("Simulcast not supported for %s: Disabling Simulcast\n",
 		     video_codec.empty() ? "VP9" : video_codec.c_str());
 		simulcast_ = false;
@@ -946,8 +946,9 @@ void WebRTCStream::onVideoFrame(video_data *frame)
 
 		// Send frame to video capturer
 		videoCapturer->OnFrameCaptured(video_frame444);
-#else // ENABLE_WEBRTC_YUV444
-		info("WebRTCStream: ERROR, color format %s is not supported", colorFormat.c_str());
+#else  // ENABLE_WEBRTC_YUV444
+		info("WebRTCStream: ERROR, color format %s is not supported",
+		     colorFormat.c_str());
 #endif // ENABLE_WEBRTC_YUV444
 	}
 }
