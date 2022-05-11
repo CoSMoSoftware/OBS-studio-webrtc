@@ -520,6 +520,7 @@ bool WebRTCStream::start(WebRTCStream::Type type)
 		thread.detach();
 		return false;
 	}
+	obs_output_begin_data_capture(output, 0);
 	return true;
 }
 
