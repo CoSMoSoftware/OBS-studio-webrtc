@@ -40,7 +40,7 @@ extern "C" void millicast_stream_destroy(void *data)
 	stream->Release();
 }
 
-extern "C" void *millicast_stream_create(obs_data_t *, obs_output_t *output)
+extern "C" void *millicast_stream_create(obs_data_t *settings, obs_output_t *output)
 {
 	info("millicast_stream_create");
 	// Create new stream
@@ -50,6 +50,7 @@ extern "C" void *millicast_stream_create(obs_data_t *, obs_output_t *output)
 	// info("millicast_setCodec: h264");
 	// stream->setCodec("h264");
 	// Return it
+	UNUSED_PARAMETER(settings);
 	return (void *)stream;
 }
 
