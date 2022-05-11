@@ -63,7 +63,7 @@ extern "C" void millicast_stream_stop(void *data, uint64_t ts)
 	// Stop it
 	stream->stop();
 	// Remove ref and let it self destroy
-	stream->Release();
+	// stream->Release();
 }
 
 extern "C" bool millicast_stream_start(void *data)

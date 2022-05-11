@@ -174,9 +174,6 @@ bool WebRTCStream::start(WebRTCStream::Type type)
 
 	resetStats();
 
-	if (!obs_output_can_begin_data_capture(output, 0))
-		return false;
-
 	// Access service if started, or fail
 
 	obs_service_t *service = obs_output_get_service(output);
@@ -520,7 +517,6 @@ bool WebRTCStream::start(WebRTCStream::Type type)
 		thread.detach();
 		return false;
 	}
-	obs_output_begin_data_capture(output, 0);
 	return true;
 }
 
