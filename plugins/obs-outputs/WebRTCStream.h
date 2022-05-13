@@ -171,6 +171,9 @@ public:
 		return rtc::scoped_refptr<T>(t);
 	}
 
+	// OBS stream output
+	obs_output_t *output;
+
 private:
 	// Count number of video sources in current scene
 	int getVideoSourceCount() const;
@@ -261,9 +264,6 @@ private:
 
 	// Websocket client
 	WebsocketClient *client;
-
-	// OBS stream output
-	obs_output_t *output;
 };
 
 #endif
