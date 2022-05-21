@@ -61,7 +61,7 @@ parameters:
 #    - PacPost
 #    - RemoteFilming
     - RemoteFilming-A
-#    - RemoteFilming-B
+    - RemoteFilming-B
 #    - RemoteFilming-C
 #    - RemoteFilming-D
 #    - Wowza
