@@ -1,3 +1,16 @@
+diff --git a/plugins/obs-websocket/src/Config.cpp b/plugins/obs-websocket/src/Config.cpp
+index f3c615e..af0d1ef 100644
+--- a/plugins/obs-websocket/src/Config.cpp
++++ b/plugins/obs-websocket/src/Config.cpp
+@@ -320,6 +320,8 @@ void Config::FirstRunPasswordSetup()
+ 	// lift the flag up and save it
+ 	config_set_bool(globalConfig, SECTION_NAME, GLOBAL_AUTH_SETUP_PROMPTED, true);
+ 	config_save(globalConfig);
++  // RF: Do not ask for password for obs-websocket
++  return;
+ 
+ 	// check if the password is already set
+ 	auto config = GetConfig();
 diff --git a/plugins/obs-websocket/src/WSServer.cpp b/plugins/obs-websocket/src/WSServer.cpp
 index 8ad1159..88b407e 100644
 --- a/plugins/obs-websocket/src/WSServer.cpp

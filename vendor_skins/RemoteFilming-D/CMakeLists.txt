@@ -20,7 +20,7 @@ if(NOT DEFINED CONFIG_DIR OR "${CONFIG_DIR}" STREQUAL "")
 	endif()
 endif()
 
-set(REMOTE_FILMING_VERSION "m100-v27.2.4-0")
+set(REMOTE_FILMING_VERSION "m100-v27.2.4-1")
 
 option(DEBUG_FFMPEG_MUX "Debug FFmpeg muxer subprocess" FALSE)
 
@@ -134,7 +134,7 @@ if(WIN32)
 	list(GET UI_VERSION_SEMANTIC 1 UI_VERSION_MINOR)
 	list(GET UI_VERSION_SEMANTIC 2 UI_VERSION_PATCH)
 	set(OBS_COMPANY_NAME "Remote Filming")
-	set(OBS_PRODUCT_NAME "Remote Filming")
+	set(OBS_PRODUCT_NAME "D-CAM")
 	set(OBS_COMMENTS "Free and open source software for video recording and live streaming")
 	set(OBS_LEGAL_COPYRIGHT "(C) Hugh Bailey")
 	set(MODULE_DESCRIPTION "Remote Filming")

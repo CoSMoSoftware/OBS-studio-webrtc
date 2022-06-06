@@ -27,10 +27,10 @@ index 18426fe..ca05647 100644
  Config::Config() :
  	OutputEnabled(false),
 -	OutputName("OBS"),
-+	OutputName("Remote Filming-A"),
++	OutputName("A-CAM"),
  	PreviewOutputEnabled(false),
 -	PreviewOutputName("OBS Preview")
-+	PreviewOutputName("Remote Filming-A Preview")
++	PreviewOutputName("A-CAM Preview")
  {
  	config_t* obs_config = obs_frontend_get_global_config();
  	if (obs_config) {

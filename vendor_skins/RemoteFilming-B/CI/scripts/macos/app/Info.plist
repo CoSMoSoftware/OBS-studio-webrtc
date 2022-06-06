@@ -7,7 +7,7 @@
         <key>CFBundleDisplayName</key>
         <string>B-CAM</string>
 	<key>CFBundleName</key>
-	<string>RemoteFilming</string>
+	<string>B-CAM</string>
 	<key>CFBundleGetInfoString</key>
 	<string>Remote Filming</string>
 	<key>CFBundleExecutable</key>
