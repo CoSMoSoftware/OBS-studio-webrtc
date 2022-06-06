@@ -855,8 +855,8 @@ void WebRTCStream::onVideoFrame(video_data *frame)
 	webrtc::VideoType videoType;
 	if ("I420" == colorFormat) {
 		videoType = webrtc::VideoType::kI420;
-		// } else if ("I444" == colorFormat) {
-		// 	videoType = webrtc::VideoType::kI444;
+	} else if ("I444" == colorFormat) {
+		videoType = webrtc::VideoType::kI444;
 	} else {
 		videoType = webrtc::VideoType::kNV12;
 	}

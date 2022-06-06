@@ -13,6 +13,7 @@
 #include <api/peer_connection_interface.h>
 #include <api/media_stream_interface.h>
 #include <rtc_base/ref_counted_object.h>
+#include "rtc_base/timestamp_aligner.h"
 
 // Glue class to use OBS audio capturer and proxy the audio data through to
 // webrtc pipeline. Allows to fully control the audio capturing, and to reuse
@@ -46,6 +47,7 @@ protected:
 	// webrtc
 	cricket::AudioOptions options_;
 	webrtc::AudioTrackSinkInterface *sink_;
+	rtc::TimestampAligner timestamp_aligner_;
 	obsWebrtcAudioSource();
 	void Initialize(audio_t *audio, cricket::AudioOptions *options);
 };
