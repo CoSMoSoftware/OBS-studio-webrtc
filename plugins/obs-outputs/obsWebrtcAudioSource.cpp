@@ -40,6 +40,7 @@ void obsWebrtcAudioSource::OnAudioData(audio_data *frame)
 {
 	webrtc::AudioTrackSinkInterface *sink = this->sink_;
 	if (nullptr == sink) {
+		blog(LOG_WARNING, "Audio frame without audio sink ==> audio frame dropped.");
 		return;
 	}
 
