@@ -190,7 +190,7 @@ jobs:
         displayName: 'Sign rfs64.exe with global AzureSignTool'
     - ${{ if eq( vendor, 'Wowza') }}:
       - task: CmdLine@2
-       ninputs:
+        inputs:
           script: AzureSignTool sign -kvt "$(WINDOWS_SIGNING_TENANT_ID)" -kvu "$(WINDOWS_SIGNING_VAULT_URL)" -kvi "$(WINDOWS_SIGNING_CLIENT_ID)" -kvs "$(WOWZA_SIGNING_CLIENT_SECRET)" -kvc "$(WOWZA_SIGNING_CERTIFICATE_NAME)" -td sha256 -v ./build64_${{ vendor }}/UI/Release/obs64.exe
         displayName: 'Sign obs64.exe with global AzureSignTool'
     - script: ./CI/before-deploy-win.cmd ${{ vendor }}
