@@ -7,7 +7,7 @@
 ; that you make your own installer.
 ;
 ; If you choose to use this script anyway, be absolutely sure you
-; have replaced every OBS specific check, whether process names,Wowza-OBS-Real-Time
+; have replaced every OBS specific check, whether process names, Wowza-OBS-Real-Time
 ; application names, files, registry entries, etc.
 ;
 ; To auto-install required Visual C++ components, download from
