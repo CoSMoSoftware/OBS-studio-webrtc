@@ -2203,14 +2203,15 @@ void OBSBasic::ReceivedIntroJson(const QString &text)
 #endif
 	cef->init_browser();
 
-	WhatsNewBrowserInitThread *wnbit =
-		new WhatsNewBrowserInitThread(QT_UTF8(info_url.c_str()));
+	// NOTE LUDO: Do not activate "What is new"
+	// WhatsNewBrowserInitThread *wnbit =
+	// 	new WhatsNewBrowserInitThread(QT_UTF8(info_url.c_str()));
 
-	connect(wnbit, &WhatsNewBrowserInitThread::Result, this,
-		&OBSBasic::ShowWhatsNew);
+	// connect(wnbit, &WhatsNewBrowserInitThread::Result, this,
+	// 	&OBSBasic::ShowWhatsNew);
 
-	whatsNewInitThread.reset(wnbit);
-	whatsNewInitThread->start();
+	// whatsNewInitThread.reset(wnbit);
+	// whatsNewInitThread->start();
 
 #else
 	UNUSED_PARAMETER(text);
