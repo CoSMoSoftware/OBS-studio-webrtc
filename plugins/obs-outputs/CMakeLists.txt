@@ -51,12 +51,6 @@ if( WEBRTC_SFRAME_FOUND )
         message( STATUS "This libwebrtc package was build with SFrame end-to-end encryption." )
 endif()
 
-if( ENABLE_WEBRTC_YUV444 )
-	# Pass configuration item to the code layer
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DENABLE_WEBRTC_YUV444")
-	set(CMAKE_C_FLAGS   "${CMAKE_C_FLAGS}   -DENABLE_WEBRTC_YUV444")
-endif()
-
 # --- Sources
 
 set(obs-outputs_webrtc_HEADERS

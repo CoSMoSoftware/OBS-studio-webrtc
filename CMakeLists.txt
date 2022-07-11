@@ -22,8 +22,6 @@ endif()
 
 option(DEBUG_FFMPEG_MUX "Debug FFmpeg muxer subprocess" FALSE)
 
-option(ENABLE_WEBRTC_YUV444 "Enable support for YUV 444 when using WebRTC" FALSE)
-
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
 if(WIN32)

@@ -318,8 +318,7 @@ configure_obs_build() {
         -DBUILD_WEBSOCKET=ON \
         -DLIBOBS_INCLUDE_DIR=../libobs \
         -DLIBOBS_LIB=`pwd`/libobs/libobs.0.dylib \
-        -DOBS_FRONTEND_LIB=`pwd`/UI/obs-frontend-api/libobs-frontend-api.dylib \
-        -DENABLE_WEBRTC_YUV444=ON
+        -DOBS_FRONTEND_LIB=`pwd`/UI/obs-frontend-api/libobs-frontend-api.dylib
 
         # -DENABLE_SPARKLE_UPDATER=ON \
 }

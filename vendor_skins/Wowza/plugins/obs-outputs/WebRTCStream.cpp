@@ -241,7 +241,6 @@ bool WebRTCStream::start(WebRTCStream::Type type)
 		publishApiUrl = url;
 	}
 
-#ifdef ENABLE_WEBRTC_YUV444
 	config_t *obs_config = obs_frontend_get_profile_config();
 	if (obs_config) {
 		const char *tmp =
@@ -290,7 +289,6 @@ bool WebRTCStream::start(WebRTCStream::Type type)
 		     colorFormat.c_str(), video_codec.c_str());
 		video_codec = "VP9";
 	}
-#endif // ENABLE_WEBRTC_YUV444
 
 	// No Simulast for VP9 (not supported properly by libwebrtc) and AV1 codecs
 	if (simulcast_ && (video_codec.empty() || "VP9" == video_codec ||
@@ -965,7 +963,6 @@ void WebRTCStream::onVideoFrame(video_data *frame)
 		videoCapturer->OnFrameCaptured(video_frame);
 
 	} else if ("I444" == colorFormat) {
-#ifdef ENABLE_WEBRTC_YUV444
 		uint32_t size = outputWidth * outputHeight * 3;
 		int stride_y = outputWidth;
 		int stride_uv = outputWidth;
@@ -1003,10 +1000,6 @@ void WebRTCStream::onVideoFrame(video_data *frame)
 
 		// Send frame to video capturer
 		videoCapturer->OnFrameCaptured(video_frame444);
-#else  // ENABLE_WEBRTC_YUV444
-		info("WebRTCStream: ERROR, color format %s is not supported",
-		     colorFormat.c_str());
-#endif // ENABLE_WEBRTC_YUV444
 	}
 }
 
