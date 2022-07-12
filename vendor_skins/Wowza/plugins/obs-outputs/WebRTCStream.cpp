@@ -854,21 +854,24 @@ void WebRTCStream::onAudioFrame(audio_data *frame)
 		uint64_t end_ts = frame->timestamp;
 		if (!video_start_ts_) {
 			// No video yet, so do not start audio
-			info("Audio frame but no video yet ==> drop audio frame");
-			return;
+			info("Audio frame but no video yet");
+			goto end;
+			// return;
 		}
 
 		end_ts += util_mul_div64(frame->frames, 1000000000ULL, audio_samplerate_);
 		if (end_ts <= video_start_ts_) {
 			// Audio starting point still not yet synced with video starting point, so do not start audio
-			info("Audio starting point still not yet synced with video starting point ==> drop audio frame");
-			return;
+			info("Audio starting point still not yet synced with video starting point");
+			goto end;
+			// return;
 		}
 
 		if (frame->timestamp <= video_start_ts_) {
 			// Current audio frame timestamp before start of video timestamp, so do not start audio
-			info("Audio frame timestamp before start of video timestamp ==> drop audio frame");
-			return;
+			info("Audio frame timestamp before start of video timestamp");
+			goto end;
+			// return;
 		}
 
 		audio_start_ts_ = video_start_ts_;
@@ -877,6 +880,7 @@ void WebRTCStream::onAudioFrame(audio_data *frame)
 		audio_start_ts_ = frame->timestamp;
 	}
 
+end:
 	// Push frame to the device
 	audio_source->OnAudioData(frame);
 }

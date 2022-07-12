@@ -258,7 +258,7 @@ bool WebRTCStream::start(WebRTCStream::Type type)
 					profile = 0;
 				} else {
 					colorFormat = "I444";
-					profile = 3;
+					profile = 0;
 				}
 				break;
 			case 'N':
