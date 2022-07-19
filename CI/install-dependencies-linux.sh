@@ -83,7 +83,7 @@ mv build build.old
 #mv tests tests.renamed
 mkdir build
 cd build
-cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_FLAGS="-stdlib=libc++"
+cmake .. -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_CXX_FLAGS="-stdlib=libc++"
 make -j4
 cd ../..
 

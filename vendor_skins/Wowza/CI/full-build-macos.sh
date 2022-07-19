@@ -224,7 +224,7 @@ install_cef() {
     ensure_dir ./build
     step "Run CMAKE..."
     cmake \
-        -DCMAKE_BUILD_TYPE=Release \
+        -DCMAKE_BUILD_TYPE=RelWithDebInfo \
         -DCMAKE_CXX_FLAGS="-std=c++11 -stdlib=libc++ -Wno-deprecated-declarations"\
         -DCMAKE_EXE_LINKER_FLAGS="-std=c++11 -stdlib=libc++"\
         -DCMAKE_OSX_DEPLOYMENT_TARGET=${MIN_MACOS_VERSION} \

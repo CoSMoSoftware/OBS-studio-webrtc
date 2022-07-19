@@ -9,7 +9,7 @@ variables:
   - name: FTP_PASSWORD
     value: $(ftpLudoPassword)
   - name: BUILD_TYPE
-    value: Release
+    value: RelWithDebInfo
   - name: CMAKE_PREFIX_PATH
     value: /usr/local/opt/qt5/lib/cmake
   - name: LINUX_CEF_BUILD_VERSION
@@ -64,7 +64,7 @@ parameters:
 #    - RemoteFilming-B
 #    - RemoteFilming-C
 #    - RemoteFilming-D
-    - Wowza
+#    - Wowza
 
 jobs:
 - job: 'Build_macOS'
