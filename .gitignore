@@ -37,6 +37,7 @@ cmake-build-debug/
 #other stuff (windows stuff, qt moc stuff, etc)
 Release_MD/
 Release/
+RelWithDebInfo/
 Debug/
 x64/
 ipch/
