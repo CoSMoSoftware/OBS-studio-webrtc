@@ -326,3 +326,48 @@ jobs:
       inputs:
         pathtoPublish: './package_${{ vendor }}'
         artifactName: 'debbuild_2004_${{ vendor }}'
+
+- job: 'Build_Ubuntu_22_04'
+  pool:
+    vmImage: 'ubuntu-22.04'
+  steps:
+  - bash: |
+      git submodule update --init --recursive
+      ./CI/install-dependencies-linux.sh
+    displayName: 'checkout and dependencies'
+    env:
+      FTP_PATH_PREFIX: $(webrtc_path_prefix)
+      FTP_LOGIN: $(ftpLudoLogin)
+      FTP_PASSWORD: $(ftpLudoPassword)
+  - ${{ each vendor in parameters.vendors }}:
+    - bash: |
+        set -e
+        git stash
+        rm -rf plugins/obs-ndi
+        git submodule update --init --recursive
+      displayName: 'git stash'
+    - ${{ if eq( vendor, 'Wowza') }}:
+      - script: cp ./vendor_skins/${{ vendor }}/CMakeLists.txt ./CMakeLists.txt
+        displayName: '${{ vendor }} copy CMakeLists.txt'
+    - bash: |
+        set -e
+        mkdir build_${{ vendor }}
+        export CC=clang
+        export CXX=clang++
+        export OBS_VERSION=${OBS_VERSION}-2204
+        ./CI/before-script-linux-2204.sh ${{ vendor }}
+        cd build_${{ vendor }}
+        make -j4
+        cd ..
+        mkdir package_${{ vendor }}
+        cd build_${{ vendor }}
+        cpack -G DEB
+        mv *.deb ../package_${{ vendor }}
+        cd ..
+      displayName: '${{ vendor }} cmake, build, package'
+      env:
+        CI_BUILD_TYPE: $(BUILD_TYPE)
+    - task: PublishBuildArtifacts@1
+      inputs:
+        pathtoPublish: './package_${{ vendor }}'
+        artifactName: 'debbuild_2204_${{ vendor }}'
