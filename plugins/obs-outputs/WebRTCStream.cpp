@@ -258,7 +258,7 @@ bool WebRTCStream::start(WebRTCStream::Type type)
 					profile = 0;
 				} else {
 					colorFormat = "I444";
-					profile = 0;
+					profile = 1;
 				}
 				break;
 			case 'N':
@@ -285,9 +285,8 @@ bool WebRTCStream::start(WebRTCStream::Type type)
 	}
 
 	if ("I444" == colorFormat && "VP9" != video_codec) {
-		info("Color format %s is not supported for video codec %s: Switching to video codec VP9\n",
+		info("Color format %s is not supported for video codec %s: Switching to color format I420\n",
 		     colorFormat.c_str(), video_codec.c_str());
-		video_codec = "VP9";
 	}
 
 	// No Simulast for VP9 (not supported properly by libwebrtc) and AV1 codecs
