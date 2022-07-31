@@ -710,6 +710,10 @@ void WebRTCStream::onRemoteIceCandidate(const std::string &sdpData)
 
 void WebRTCStream::onOpened(const std::string &sdp)
 {
+	// Wait for 'output' structure to be updated by OBS
+	// in case of a change in video color format (NV12/I420/I444)
+	std::this_thread::sleep_for (std::chrono::seconds(1));
+
 	info("ANSWER:\n\n%s\n", sdp.c_str());
 
 	std::string sdpCopy = sdp;
