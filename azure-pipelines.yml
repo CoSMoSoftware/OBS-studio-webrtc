@@ -9,7 +9,7 @@ variables:
   - name: FTP_PASSWORD
     value: $(ftpLudoPassword)
   - name: BUILD_TYPE
-    value: Release
+    value: RelWithDebInfo
   - name: CMAKE_PREFIX_PATH
     value: /usr/local/opt/qt5/lib/cmake
   - name: LINUX_CEF_BUILD_VERSION
@@ -175,6 +175,8 @@ jobs:
       displayName: 'Checkout Submodules'
     - script: ./CI/install-script-win.cmd ${{ vendor }}
       displayName: '${{ vendor }} Run CMake'
+      env:
+        BUILD_TYPE: $(BUILD_TYPE)
     - task: MSBuild@1
       displayName: '${{ vendor }} Build 64-bit'
       inputs:
