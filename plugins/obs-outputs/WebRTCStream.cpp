@@ -742,12 +742,7 @@ void WebRTCStream::onOpened(const std::string &sdp)
 	obs_output_set_audio_conversion(output, &conversion);
 
 	info("Begin data capture...");
-	try {
-		obs_output_begin_data_capture(output, 0);
-	} catch (...) {
-		info("ERROR: Start streaming failed");
-		return;
-	}
+	obs_output_begin_data_capture(output, 0);
 }
 
 void WebRTCStream::OnSetRemoteDescriptionComplete(webrtc::RTCError error)
