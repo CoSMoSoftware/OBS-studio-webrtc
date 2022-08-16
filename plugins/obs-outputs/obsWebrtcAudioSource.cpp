@@ -52,13 +52,13 @@ void obsWebrtcAudioSource::OnAudioData(audio_data *frame)
 	size_t i = 0;
 	uint8_t *position;
 
-	const int64_t obs_timestamp_us = (int64_t)frame->timestamp /
-						rtc::kNumNanosecsPerMicrosec;
+	const int64_t obs_timestamp_us =
+		(int64_t)frame->timestamp / rtc::kNumNanosecsPerMicrosec;
 
 	// Align timestamps from OBS capturer with rtc::TimeMicros timebase
 	const int64_t aligned_timestamp_us =
-		timestamp_aligner_.TranslateTimestamp(
-			obs_timestamp_us, rtc::TimeMicros());
+		timestamp_aligner_.TranslateTimestamp(obs_timestamp_us,
+						      rtc::TimeMicros());
 
 	if (pending_remainder) {
 		// Copy missing chunks
@@ -67,7 +67,8 @@ void obsWebrtcAudioSource::OnAudioData(audio_data *frame)
 		       data, i * sample_size * num_channels);
 
 		// Send
-		sink->OnData(pending, 16, sample_rate, num_channels, chunk, aligned_timestamp_us);
+		sink->OnData(pending, 16, sample_rate, num_channels, chunk,
+			     aligned_timestamp_us);
 
 		// No pending chunks
 		pending_remainder = 0;
@@ -75,7 +76,8 @@ void obsWebrtcAudioSource::OnAudioData(audio_data *frame)
 
 	while (i + chunk < frame->frames) {
 		position = data + i * sample_size * num_channels;
-		sink->OnData(position, 16, sample_rate, num_channels, chunk, aligned_timestamp_us);
+		sink->OnData(position, 16, sample_rate, num_channels, chunk,
+			     aligned_timestamp_us);
 		i += chunk;
 	}
 

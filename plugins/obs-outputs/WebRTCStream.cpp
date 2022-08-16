@@ -140,7 +140,8 @@ WebRTCStream::~WebRTCStream()
 	signaling.release();
 }
 
-void WebRTCStream::initAudioVideoSync() {
+void WebRTCStream::initAudioVideoSync()
+{
 	audio_first_frame_received_ = false;
 	video_first_frame_received_ = false;
 	audio_first_raw_ts_ = 0;
@@ -856,7 +857,8 @@ void WebRTCStream::onAudioFrame(audio_data *frame)
 			// return;
 		}
 
-		end_ts += util_mul_div64(frame->frames, 1000000000ULL, audio_samplerate_);
+		end_ts += util_mul_div64(frame->frames, 1000000000ULL,
+					 audio_samplerate_);
 		if (end_ts <= video_start_ts_) {
 			// Audio starting point still not yet synced with video starting point, so do not start audio
 			info("Audio starting point still not yet synced with video starting point");
@@ -890,7 +892,8 @@ void WebRTCStream::onVideoFrame(video_data *frame)
 		return;
 
 	if (!video_first_frame_received_) {
-		if (!audio_first_frame_received_ || audio_first_raw_ts_ > frame->timestamp) {
+		if (!audio_first_frame_received_ ||
+		    audio_first_raw_ts_ > frame->timestamp) {
 			// Wait for audio
 			info("Video frame but not yet any audio frame ==> wait for audio");
 			return;
