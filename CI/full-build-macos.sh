@@ -242,7 +242,7 @@ install_libwebrtc() {
     hr "Installing LibWebRTC v${1}"
     ensure_dir ${DEPS_BUILD_DIR}
     step "Download..."
-    ${CURLCMD} --progress-bar -u ${FTP_LOGIN}:${FTP_PASSWORD} -L -C - -o libWebRTC.dmg ${FTP_PATH_PREFIX}/mac/libWebRTC-${1}-x64-Release-H264-OpenSSL_1_1_1n.dmg
+    ${CURLCMD} --progress-bar -u ${FTP_LOGIN}:${FTP_PASSWORD} -L -C - -o libWebRTC.dmg ${FTP_PATH_PREFIX}/mac/libWebRTC-${1}-x64-Debug-H264-OpenSSL_1_1_1n.dmg
     step "Bypass the EULA by converting the DMG download to a CDR image"
     hdiutil convert -quiet libWebRTC.dmg -format UDTO -o libWebRTC
     step "Mount the CDR image"
@@ -297,7 +297,7 @@ configure_obs_build() {
     fi
 
     hr "Run CMAKE for OBS..."
-    cmake \
+    cmake -G Xcode \
         -DCMAKE_OSX_DEPLOYMENT_TARGET=${MIN_MACOS_VERSION} \
         -DOBS_VERSION_OVERRIDE=${OBS_VERSION} \
         -DDISABLE_PYTHON=ON  \
@@ -317,8 +317,8 @@ configure_obs_build() {
         -DBUILD_NDI=ON \
         -DBUILD_WEBSOCKET=ON \
         -DLIBOBS_INCLUDE_DIR=../libobs \
-        -DLIBOBS_LIB=`pwd`/libobs/libobs.0.dylib \
-        -DOBS_FRONTEND_LIB=`pwd`/UI/obs-frontend-api/libobs-frontend-api.dylib
+        -DLIBOBS_LIB=`pwd`/libobs/${BUILD_CONFIG}/libobs.0.dylib \
+        -DOBS_FRONTEND_LIB=`pwd`/UI/obs-frontend-api/${BUILD_CONFIG}/libobs-frontend-api.dylib
 
         # -DENABLE_SPARKLE_UPDATER=ON \
 }
@@ -326,7 +326,7 @@ configure_obs_build() {
 run_obs_build() {
     ensure_dir "${CHECKOUT_DIR}/${BUILD_DIR}_${VENDOR}"
     hr "Build OBS..."
-    /usr/bin/make -j${NPROC}
+    cmake --build . --config $BUILD_TYPE -- -IDEBuildOperationMaxNumberOfConcurrentCompileTasks=${NPROC}
 }
 
 ## OBS BUNDLE AS MACOS APPLICATION ##
@@ -415,6 +415,7 @@ prepare_macos_bundle() {
     /bin/mkdir OBS-WebRTC.app/Contents/Resources
     /bin/mkdir OBS-WebRTC.app/Contents/Frameworks
 
+    /bin/cp -R dSYMs OBS-WebRTC.app/Contents/
     /bin/cp rundir/${BUILD_CONFIG}/bin/obs ./OBS-WebRTC.app/Contents/MacOS
     /bin/cp rundir/${BUILD_CONFIG}/bin/obs-ffmpeg-mux ./OBS-WebRTC.app/Contents/MacOS
     /bin/cp rundir/${BUILD_CONFIG}/bin/libobsglad.0.dylib ./OBS-WebRTC.app/Contents/MacOS
