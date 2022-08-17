@@ -35,6 +35,7 @@ set -eE
 ## SET UP ENVIRONMENT ##
 PRODUCT_NAME="OBS-Studio"
 
+INVOCATION_DIR=$(pwd)
 CHECKOUT_DIR="$(/usr/bin/git rev-parse --show-toplevel)"
 DEPS_BUILD_DIR="${CHECKOUT_DIR}/../obs-build-dependencies"
 BUILD_DIR="${BUILD_DIR:-build}"
@@ -241,7 +242,7 @@ install_libwebrtc() {
     fi
     hr "Installing LibWebRTC v${1}"
     ensure_dir ${DEPS_BUILD_DIR}
-    mv libWebRTC-${1}-x64-Debug-H264-OpenSSL_1_1_1n.dmg libWebRTC.dmg
+    cp ${INVOCATION_DIR}/libWebRTC-${1}-x64-Debug-H264-OpenSSL_1_1_1n.dmg libWebRTC.dmg
     step "Bypass the EULA by converting the DMG download to a CDR image"
     hdiutil convert -quiet libWebRTC.dmg -format UDTO -o libWebRTC
     step "Mount the CDR image"
