@@ -82,13 +82,13 @@ jobs:
   #     certSecureFile: wowza.p12
   #     certPwd: $(wowza_mac_certificate_password)
   - task: DownloadGitHubRelease@0
-   inputs:
-     connection: 'CoSMoSoftware'
-     userRepository: 'CoSMoSoftware/libwebrtc-cmake'
-     defaultVersionType: 'specificTag'
-     version: 'm100'
-     itemPattern: 'libWebRTC-${{ variables.LIBWEBRTC_VERSION }}.0-*64-Debug-*.dmg'
-     downloadPath: '$(System.DefaultWorkingDirectory)'
+    inputs:
+      connection: 'CoSMoSoftware'
+      userRepository: 'CoSMoSoftware/libwebrtc-cmake'
+      defaultVersionType: 'specificTag'
+      version: 'm100'
+      itemPattern: 'libWebRTC-${{ variables.LIBWEBRTC_VERSION }}.0-*64-Debug-*.dmg'
+      downloadPath: '$(System.DefaultWorkingDirectory)'
   - script: git submodule update --init --recursive
     displayName: 'Checkout Submodules'
   - ${{ each vendor in parameters.vendors }}:
@@ -161,13 +161,13 @@ jobs:
       arguments: 'install --global azuresigntool'
     displayName: Install AzureSignTool
   - task: DownloadGitHubRelease@0
-   inputs:
-     connection: 'CoSMoSoftware'
-     userRepository: 'CoSMoSoftware/libwebrtc-cmake'
-     defaultVersionType: 'specificTag'
-     version: 'm100'
-     itemPattern: 'libWebRTC-${{ variables.LIBWEBRTC_VERSION }}.0-*64-Debug-*.exe'
-     downloadPath: '$(System.DefaultWorkingDirectory)'
+    inputs:
+      connection: 'CoSMoSoftware'
+      userRepository: 'CoSMoSoftware/libwebrtc-cmake'
+      defaultVersionType: 'specificTag'
+      version: 'm100'
+      itemPattern: 'libWebRTC-${{ variables.LIBWEBRTC_VERSION }}.0-*64-Debug-*.exe'
+      downloadPath: '$(System.DefaultWorkingDirectory)'
   - script: git submodule update --init --recursive
     displayName: 'Checkout Submodules'
   - script: ./CI/install-qt-win.cmd
@@ -260,13 +260,13 @@ jobs:
     vmImage: 'ubuntu-18.04'
   steps:
   - task: DownloadGitHubRelease@0
-   inputs:
-     connection: 'CoSMoSoftware'
-     userRepository: 'CoSMoSoftware/libwebrtc-cmake'
-     defaultVersionType: 'specificTag'
-     version: 'm100'
-     itemPattern: 'libWebRTC-${{ variables.LIBWEBRTC_VERSION }}.0-*64-Debug-*.sh'
-     downloadPath: '$(System.DefaultWorkingDirectory)'
+    inputs:
+      connection: 'CoSMoSoftware'
+      userRepository: 'CoSMoSoftware/libwebrtc-cmake'
+      defaultVersionType: 'specificTag'
+      version: 'm100'
+      itemPattern: 'libWebRTC-${{ variables.LIBWEBRTC_VERSION }}.0-*64-Debug-*.sh'
+      downloadPath: '$(System.DefaultWorkingDirectory)'
   - bash: |
       git submodule update --init --recursive
       ./CI/install-dependencies-linux.sh
@@ -313,13 +313,13 @@ jobs:
     vmImage: 'ubuntu-20.04'
   steps:
   - task: DownloadGitHubRelease@0
-   inputs:
-     connection: 'CoSMoSoftware'
-     userRepository: 'CoSMoSoftware/libwebrtc-cmake'
-     defaultVersionType: 'specificTag'
-     version: 'm100'
-     itemPattern: 'libWebRTC-${{ variables.LIBWEBRTC_VERSION }}.0-*64-Debug-*.sh'
-     downloadPath: '$(System.DefaultWorkingDirectory)'
+    inputs:
+      connection: 'CoSMoSoftware'
+      userRepository: 'CoSMoSoftware/libwebrtc-cmake'
+      defaultVersionType: 'specificTag'
+      version: 'm100'
+      itemPattern: 'libWebRTC-${{ variables.LIBWEBRTC_VERSION }}.0-*64-Debug-*.sh'
+      downloadPath: '$(System.DefaultWorkingDirectory)'
   - bash: |
       git submodule update --init --recursive
       ./CI/install-dependencies-linux.sh
@@ -366,13 +366,13 @@ jobs:
     vmImage: 'ubuntu-22.04'
   steps:
   - task: DownloadGitHubRelease@0
-   inputs:
-     connection: 'CoSMoSoftware'
-     userRepository: 'CoSMoSoftware/libwebrtc-cmake'
-     defaultVersionType: 'specificTag'
-     version: 'm100'
-     itemPattern: 'libWebRTC-${{ variables.LIBWEBRTC_VERSION }}.0-*64-Debug-*.sh'
-     downloadPath: '$(System.DefaultWorkingDirectory)'
+    inputs:
+      connection: 'CoSMoSoftware'
+      userRepository: 'CoSMoSoftware/libwebrtc-cmake'
+      defaultVersionType: 'specificTag'
+      version: 'm100'
+      itemPattern: 'libWebRTC-${{ variables.LIBWEBRTC_VERSION }}.0-*64-Debug-*.sh'
+      downloadPath: '$(System.DefaultWorkingDirectory)'
   - bash: |
       git submodule update --init --recursive
       ./CI/install-dependencies-linux.sh
