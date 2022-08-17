@@ -162,7 +162,7 @@ jobs:
     displayName: Install AzureSignTool
   - task: DownloadGitHubRelease@0
     inputs:
-      connectyousifcss'
+      connection: 'yousifcs'
       userRepository: 'CoSMoSoftware/libwebrtc-cmake'
       defaultVersionType: 'specificTag'
       version: 'm100'
