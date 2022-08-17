@@ -381,7 +381,7 @@ bundle_dylibs() {
        -x ./OBS-WebRTC.app/Contents/PlugIns/obs-websocket.so
 
     step "Move libobs-opengl to final destination"
-    /bin/cp ./libobs-opengl/libobs-opengl.so ./OBS-WebRTC.app/Contents/Frameworks
+    /bin/cp ./libobs-opengl/${BUILD_CONFIG}/libobs-opengl.so ./OBS-WebRTC.app/Contents/Frameworks
 }
 
 install_frameworks() {
