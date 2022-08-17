@@ -83,7 +83,7 @@ jobs:
   #     certPwd: $(wowza_mac_certificate_password)
   - task: DownloadGitHubRelease@0
    inputs:
-     connection: 'yousifcs'
+     connection: 'CoSMoSoftware'
      userRepository: 'CoSMoSoftware/libwebrtc-cmake'
      defaultVersionType: 'specificTag'
      version: 'm100'
@@ -162,7 +162,7 @@ jobs:
     displayName: Install AzureSignTool
   - task: DownloadGitHubRelease@0
    inputs:
-     connection: 'yousifcs'
+     connection: 'CoSMoSoftware'
      userRepository: 'CoSMoSoftware/libwebrtc-cmake'
      defaultVersionType: 'specificTag'
      version: 'm100'
@@ -261,7 +261,7 @@ jobs:
   steps:
   - task: DownloadGitHubRelease@0
    inputs:
-     connection: 'yousifcs'
+     connection: 'CoSMoSoftware'
      userRepository: 'CoSMoSoftware/libwebrtc-cmake'
      defaultVersionType: 'specificTag'
      version: 'm100'
@@ -314,7 +314,7 @@ jobs:
   steps:
   - task: DownloadGitHubRelease@0
    inputs:
-     connection: 'yousifcs'
+     connection: 'CoSMoSoftware'
      userRepository: 'CoSMoSoftware/libwebrtc-cmake'
      defaultVersionType: 'specificTag'
      version: 'm100'
@@ -367,7 +367,7 @@ jobs:
   steps:
   - task: DownloadGitHubRelease@0
    inputs:
-     connection: 'yousifcs'
+     connection: 'CoSMoSoftware'
      userRepository: 'CoSMoSoftware/libwebrtc-cmake'
      defaultVersionType: 'specificTag'
      version: 'm100'
