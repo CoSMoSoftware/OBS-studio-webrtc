@@ -40,8 +40,7 @@ else ()
 	)
 endif()
 find_path(MBEDTLS_INCLUDE_DIR
-	NAMES mbedtls/arc4.h
-	NO_DEFAULT_PATH
+	NAMES mbedtls/ssl.h
 	HINTS
 		ENV mbedtlsPath${_lib_suffix}
 		ENV mbedtlsPath
@@ -50,12 +49,10 @@ find_path(MBEDTLS_INCLUDE_DIR
 	PATHS
 		${_MBEDTLS_SEARCH_PATHS}
 	PATH_SUFFIXES
-		include
-	REQUIRED)
+		include)
 
 find_library(MBEDTLS_LIB
 	NAMES ${_MBEDTLS_LIBRARIES} mbedtls libmbedtls
-	NO_DEFAULT_PATH
 	HINTS
 		ENV mbedtlsPath${_lib_suffix}
 		ENV mbedtlsPath
@@ -76,7 +73,6 @@ find_library(MBEDTLS_LIB
 
 find_library(MBEDCRYPTO_LIB
 	NAMES ${_MBEDCRYPTO_LIBRARIES} mbedcrypto libmbedcrypto
-	NO_DEFAULT_PATH
 	HINTS
 		ENV mbedcryptoPath${_lib_suffix}
 		ENV mbedcryptoPath
@@ -94,7 +90,6 @@ find_library(MBEDCRYPTO_LIB
 
 find_library(MBEDX509_LIB
 	NAMES ${_MBEDX509_LIBRARIES} mbedx509 libmbedx509
-	NO_DEFAULT_PATH
 	HINTS
 		ENV mbedx509Path${_lib_suffix}
 		ENV mbedx509Path
