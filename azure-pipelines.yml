@@ -9,7 +9,7 @@ variables:
   - name: FTP_PASSWORD
     value: $(ftpLudoPassword)
   - name: BUILD_TYPE
-    value: RelWithDebInfo
+    value: Release
   - name: CMAKE_PREFIX_PATH
     value: /usr/local/opt/qt5/lib/cmake
   - name: LINUX_CEF_BUILD_VERSION
@@ -57,30 +57,30 @@ parameters:
   - name: vendors
     type: object
     default:
-    - Millicast
+#    - Millicast
 #    - PacPost
 #    - RemoteFilming
 #    - RemoteFilming-A
 #    - RemoteFilming-B
 #    - RemoteFilming-C
 #    - RemoteFilming-D
-#    - Wowza
+    - Wowza
 
 jobs:
 - job: 'Build_macOS'
   pool:
     vmImage: 'macOS-10.15'
   steps:
-  - task: InstallAppleCertificate@2
-    displayName: '🔐 Install CoSMo Signing Certificate'
-    inputs:
-      certSecureFile: Certificates.p12
-      certPwd: $(certificatesLudoPassword)
   # - task: InstallAppleCertificate@2
-  #   displayName: '🔐 Install Wowza Signing Certificate'
+  #   displayName: '🔐 Install CoSMo Signing Certificate'
   #   inputs:
-  #     certSecureFile: wowza.p12
-  #     certPwd: $(wowza_mac_certificate_password)
+  #     certSecureFile: Certificates.p12
+  #     certPwd: $(certificatesLudoPassword)
+  - task: InstallAppleCertificate@2
+    displayName: '🔐 Install Wowza Signing Certificate'
+    inputs:
+      certSecureFile: wowza.p12
+      certPwd: $(wowza_mac_certificate_password)
   - script: git submodule update --init --recursive
     displayName: 'Checkout Submodules'
   - ${{ each vendor in parameters.vendors }}:
