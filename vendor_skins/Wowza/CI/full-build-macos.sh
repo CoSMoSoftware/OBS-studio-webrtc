@@ -719,7 +719,7 @@ obs-build-main() {
             d) SKIP_DEPS=1 ;;
             s) SKIP_BUILD=1 ;;
             b) BUNDLE_OBS=1 ;;
-            n) CODESIGN_OBS=1; NOTARIZE_OBS=1 ;;
+            n) CODESIGN_OBS=1;;
             p) PACKAGE_OBS=1 ;;
             c) CODESIGN_OBS=1 ;;
             v) VENDOR="${OPTARG}" ;;
