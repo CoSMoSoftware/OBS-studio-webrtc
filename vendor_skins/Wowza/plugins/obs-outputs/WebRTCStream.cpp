@@ -73,7 +73,6 @@ WebRTCStream::WebRTCStream(obs_output_t *output)
 					rtc::LoggingSeverity::LS_VERBOSE);
 
 	resetStats();
-	initAudioVideoSync();
 
 	profile = 0;
 	colorFormat = "NV12";
@@ -140,15 +139,6 @@ WebRTCStream::~WebRTCStream()
 	signaling.release();
 }
 
-void WebRTCStream::initAudioVideoSync() {
-	audio_first_frame_received_ = false;
-	video_first_frame_received_ = false;
-	audio_first_raw_ts_ = 0;
-	audio_start_ts_ = 0;
-	video_start_ts_ = 0;
-	has_video_ = false;
-}
-
 void WebRTCStream::resetStats()
 {
 	stats_list_ = "";
@@ -183,7 +173,6 @@ bool WebRTCStream::start(WebRTCStream::Type type)
 	this->type = type;
 
 	resetStats();
-	initAudioVideoSync();
 
 	// Access service if started, or fail
 
@@ -719,7 +708,6 @@ void WebRTCStream::onOpened(const std::string &sdp)
 	if (getVideoSourceCount() > 0) {
 		// Constrain video bitrate
 		SDPModif::bitrateSDP(sdpCopy, video_bitrate);
-		has_video_ = true;
 	}
 	// Enable stereo & constrain audio bitrate
 	SDPModif::stereoSDP(sdpCopy, audio_bitrate);
@@ -844,42 +832,6 @@ void WebRTCStream::onAudioFrame(audio_data *frame)
 	if (!frame)
 		return;
 
-	if (!audio_first_frame_received_) {
-		audio_first_raw_ts_ = frame->timestamp;
-		audio_first_frame_received_ = true;
-	}
-
-	if (!audio_start_ts_ && has_video_) {
-		uint64_t end_ts = frame->timestamp;
-		if (!video_start_ts_) {
-			// No video yet, so do not start audio
-			info("Audio frame but no video yet");
-			goto end;
-			// return;
-		}
-
-		end_ts += util_mul_div64(frame->frames, 1000000000ULL, audio_samplerate_);
-		if (end_ts <= video_start_ts_) {
-			// Audio starting point still not yet synced with video starting point, so do not start audio
-			info("Audio starting point still not yet synced with video starting point");
-			goto end;
-			// return;
-		}
-
-		if (frame->timestamp <= video_start_ts_) {
-			// Current audio frame timestamp before start of video timestamp, so do not start audio
-			info("Audio frame timestamp before start of video timestamp");
-			goto end;
-			// return;
-		}
-
-		audio_start_ts_ = video_start_ts_;
-
-	} else if (!audio_start_ts_ && !has_video_) {
-		audio_start_ts_ = frame->timestamp;
-	}
-
-end:
 	// Push frame to the device
 	audio_source->OnAudioData(frame);
 }
@@ -890,18 +842,6 @@ void WebRTCStream::onVideoFrame(video_data *frame)
 		return;
 	if (!videoCapturer)
 		return;
-
-	if (!video_first_frame_received_) {
-		if (!audio_first_frame_received_ || audio_first_raw_ts_ > frame->timestamp) {
-			// Wait for audio
-			info("Video frame but not yet any audio frame ==> wait for audio");
-			return;
-		}
-	}
-
-	if (!video_start_ts_) {
-		video_start_ts_ = frame->timestamp;
-	}
 
 	if (std::chrono::system_clock::time_point(
 		    std::chrono::duration<int>(0)) == previous_time_) {
