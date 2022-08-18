@@ -202,16 +202,7 @@ private:
 
 	void resetStats();
 
-	// Manage audio/video synchronisation
-	bool audio_first_frame_received_;
-	bool video_first_frame_received_;
-	uint64_t audio_first_raw_ts_;
-	uint64_t audio_start_ts_;
-	uint64_t video_start_ts_;
-	bool has_video_;
 	const uint64_t audio_samplerate_ = 48000;
-
-	void initAudioVideoSync();
 
 	// NOTE LUDO: #80 add getStats
 	std::string stats_list_;
