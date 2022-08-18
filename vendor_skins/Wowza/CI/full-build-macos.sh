@@ -35,6 +35,7 @@ set -eE
 ## SET UP ENVIRONMENT ##
 PRODUCT_NAME="Wowza-OBS-Real-Time"
 
+INVOCATION_DIR=$(pwd)
 CHECKOUT_DIR="$(/usr/bin/git rev-parse --show-toplevel)"
 DEPS_BUILD_DIR="${CHECKOUT_DIR}/../obs-build-dependencies"
 BUILD_DIR="${BUILD_DIR:-build}"
@@ -241,14 +242,13 @@ install_libwebrtc() {
     fi
     hr "Installing LibWebRTC v${1}"
     ensure_dir ${DEPS_BUILD_DIR}
-    step "Download..."
-    ${CURLCMD} --progress-bar -u ${FTP_LOGIN}:${FTP_PASSWORD} -L -C - -o libWebRTC.dmg ${FTP_PATH_PREFIX}/mac/libWebRTC-${1}-x64-Release-H264-OpenSSL_1_1_1n.dmg
+    cp ${INVOCATION_DIR}/libWebRTC-${1}-x64-Debug-H264-OpenSSL_1_1_1n.dmg libWebRTC.dmg
     step "Bypass the EULA by converting the DMG download to a CDR image"
     hdiutil convert -quiet libWebRTC.dmg -format UDTO -o libWebRTC
     step "Mount the CDR image"
     hdiutil attach -quiet -nobrowse -noverify libWebRTC.cdr
     step "Copy to destination..."
-    cp -r /Volumes/libWebRTC-${1}-x64-Release-H264-OpenSSL_1_1_1n/libwebrtc ./
+    cp -r /Volumes/libWebRTC-${1}-x64-Debug-H264-OpenSSL_1_1_1n/libwebrtc ./
 }
 
 ## CHECK AND INSTALL PACKAGING DEPENDENCIES ##
@@ -297,7 +297,7 @@ configure_obs_build() {
     fi
 
     hr "Run CMAKE for OBS..."
-    cmake \
+    cmake -G Xcode \
         -DCMAKE_OSX_DEPLOYMENT_TARGET=${MIN_MACOS_VERSION} \
         -DOBS_VERSION_OVERRIDE=${OBS_VERSION} \
         -DDISABLE_PYTHON=ON  \
@@ -317,8 +317,8 @@ configure_obs_build() {
         -DBUILD_NDI=ON \
         -DBUILD_WEBSOCKET=ON \
         -DLIBOBS_INCLUDE_DIR=../libobs \
-        -DLIBOBS_LIB=`pwd`/libobs/libobs.0.dylib \
-        -DOBS_FRONTEND_LIB=`pwd`/UI/obs-frontend-api/libobs-frontend-api.dylib
+        -DLIBOBS_LIB=`pwd`/libobs/${BUILD_CONFIG}/libobs.0.dylib \
+        -DOBS_FRONTEND_LIB=`pwd`/UI/obs-frontend-api/${BUILD_CONFIG}/libobs-frontend-api.dylib
 
         # -DENABLE_SPARKLE_UPDATER=ON \
 }
@@ -326,7 +326,7 @@ configure_obs_build() {
 run_obs_build() {
     ensure_dir "${CHECKOUT_DIR}/${BUILD_DIR}_${VENDOR}"
     hr "Build OBS..."
-    /usr/bin/make -j${NPROC}
+    cmake --build . --config ${BUILD_CONFIG} -- -IDEBuildOperationMaxNumberOfConcurrentCompileTasks=${NPROC}
 }
 
 ## OBS BUNDLE AS MACOS APPLICATION ##
@@ -381,7 +381,7 @@ bundle_dylibs() {
        -x ./Wowza-OBS-Real-Time.app/Contents/PlugIns/obs-websocket.so
 
     step "Move libobs-opengl to final destination"
-    /bin/cp ./libobs-opengl/libobs-opengl.so "./Wowza-OBS-Real-Time.app/Contents/Frameworks"
+    /bin/cp ./libobs-opengl/${BUILD_CONFIG}/libobs-opengl.so "./Wowza-OBS-Real-Time.app/Contents/Frameworks"
 }
 
 install_frameworks() {
@@ -414,7 +414,9 @@ prepare_macos_bundle() {
     /bin/mkdir "Wowza-OBS-Real-Time.app/Contents/PlugIns"
     /bin/mkdir "Wowza-OBS-Real-Time.app/Contents/Resources"
     /bin/mkdir "Wowza-OBS-Real-Time.app/Contents/Frameworks"
+    /bin/mkdir "Wowza-OBS-Real-Time.app/Contents/dSYMs"
 
+    /bin/cp -R dSYMs "Wowza-OBS-Real-Time.app/Contents/"
     /bin/cp rundir/${BUILD_CONFIG}/bin/obs "./Wowza-OBS-Real-Time.app/Contents/MacOS"
     /bin/cp rundir/${BUILD_CONFIG}/bin/obs-ffmpeg-mux "./Wowza-OBS-Real-Time.app/Contents/MacOS"
     /bin/cp rundir/${BUILD_CONFIG}/bin/libobsglad.0.dylib "./Wowza-OBS-Real-Time.app/Contents/MacOS"
@@ -422,6 +424,7 @@ prepare_macos_bundle() {
     /bin/cp -R "rundir/${BUILD_CONFIG}/bin/OBS Helper (GPU).app" "./Wowza-OBS-Real-Time.app/Contents/Frameworks/OBS Helper (GPU).app"
     /bin/cp -R "rundir/${BUILD_CONFIG}/bin/OBS Helper (Plugin).app" "./Wowza-OBS-Real-Time.app/Contents/Frameworks/OBS Helper (Plugin).app"
     /bin/cp -R "rundir/${BUILD_CONFIG}/bin/OBS Helper (Renderer).app" "./Wowza-OBS-Real-Time.app/Contents/Frameworks/OBS Helper (Renderer).app"
+
     /bin/cp -R rundir/${BUILD_CONFIG}/data "./Wowza-OBS-Real-Time.app/Contents/Resources"
     /bin/cp "${CI_SCRIPTS}/app/AppIcon.icns" "./Wowza-OBS-Real-Time.app/Contents/Resources"
     /bin/cp -R rundir/${BUILD_CONFIG}/obs-plugins/ "./Wowza-OBS-Real-Time.app/Contents/PlugIns"
