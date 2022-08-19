@@ -215,6 +215,8 @@ jobs:
     #     displayName: 'Sign obs64.exe with global AzureSignTool'
     - script: ./CI/before-deploy-win.cmd ${{ vendor }}
       displayName: '${{ vendor }} Before deploy'
+      env:
+        BUILD_TYPE: $(BUILD_TYPE)
     - ${{ if eq( vendor, 'Millicast') }}:
       - task: CmdLine@2
         inputs:
