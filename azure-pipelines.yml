@@ -71,19 +71,24 @@ jobs:
   pool:
     vmImage: 'macOS-10.15'
   steps:
-  # - task: InstallAppleCertificate@2
-  #   displayName: '🔐 Install CoSMo Signing Certificate'
-  #   inputs:
-  #     certSecureFile: Certificates.p12
-  #     certPwd: $(certificatesLudoPassword)
-  - task: InstallAppleCertificate@2
-    displayName: '🔐 Install Wowza Signing Certificate'
-    inputs:
-      certSecureFile: wowza.p12
-      certPwd: $(wowza_mac_certificate_password)
   - script: git submodule update --init --recursive
     displayName: 'Checkout Submodules'
   - ${{ each vendor in parameters.vendors }}:
+
+    - ${{ if ne( vendor, 'Wowza') }}:
+      - task: InstallAppleCertificate@2
+        displayName: '🔐 Install CoSMo Signing Certificate'
+        inputs:
+          certSecureFile: Certificates.p12
+          certPwd: $(certificatesLudoPassword)
+
+    - ${{ if eq( vendor, 'Wowza') }}:
+      - task: InstallAppleCertificate@2
+        displayName: '🔐 Install Wowza Signing Certificate'
+        inputs:
+          certSecureFile: wowza.p12
+          certPwd: $(wowza_mac_certificate_password)
+
     - script: git stash
       displayName: git stash
     - script: rm -rf plugins/obs-ndi
