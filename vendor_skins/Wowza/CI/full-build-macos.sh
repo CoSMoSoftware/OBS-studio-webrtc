@@ -102,7 +102,7 @@ ensure_dir() {
 
 cleanup() {
     /bin/rm -rf "${CHECKOUT_DIR}/${BUILD_DIR}_${VENDOR}/settings.json"
-    unset CODESIGN_IDENT
+    unset WOWZA_CODESIGN_IDENT
     unset CODESIGN_IDENT_USER
     unset CODESIGN_IDENT_PASS
 }
@@ -490,9 +490,9 @@ prepare_macos_image() {
 #
 ##############################################################################
 read_codesign_ident() {
-    if [ ! -n "${CODESIGN_IDENT}" ]; then
+    if [ ! -n "${WOWZA_CODESIGN_IDENT}" ]; then
         step "Code-signing Setup"
-        /usr/bin/read -p "${COLOR_ORANGE}  + Apple developer identity: ${COLOR_RESET}" CODESIGN_IDENT
+        /usr/bin/read -p "${COLOR_ORANGE}  + Apple developer identity: ${COLOR_RESET}" WOWZA_CODESIGN_IDENT
     fi
 }
 
@@ -517,11 +517,11 @@ read_codesign_pass() {
         /bin/echo -n "${COLOR_ORANGE}"
         /usr/bin/xcrun altool --store-password-in-keychain-item "OBS-app-specific-password" -u "${CODESIGN_IDENT_USER}" -p "${NOTARIZE_APP_SPECIFIC_PASSWORD}"
         /bin/echo -n "${COLOR_RESET}"
-        CODESIGN_IDENT_SHORT=$(/bin/echo "${CODESIGN_IDENT}" | /usr/bin/sed -En "s/.+\((.+)\)/\1/p")
+        CODESIGN_IDENT_SHORT=$(/bin/echo "${WOWZA_CODESIGN_IDENT}" | /usr/bin/sed -En "s/.+\((.+)\)/\1/p")
     else
         step "Store app password in macOS keychain"
         /usr/bin/xcrun altool --store-password-in-keychain-item "OBS-app-specific-password" -u "${CODESIGN_IDENT_USER}" -p "${NOTARIZE_APP_SPECIFIC_PASSWORD}"
-        CODESIGN_IDENT_SHORT=$(/bin/echo "${CODESIGN_IDENT}" | /usr/bin/sed -En "s/.+\((.+)\)/\1/p")
+        CODESIGN_IDENT_SHORT=$(/bin/echo "${WOWZA_CODESIGN_IDENT}" | /usr/bin/sed -En "s/.+\((.+)\)/\1/p")
     fi
 }
 
@@ -544,37 +544,37 @@ codesign_bundle() {
 
     # step "Code-sign Sparkle framework..."
     # /bin/echo -n "${COLOR_ORANGE}"
-    # /usr/bin/codesign --force --options runtime --sign "${CODESIGN_IDENT}" "./Wowza-OBS-Real-Time.app/Contents/Frameworks/Sparkle.framework/Versions/A/Resources/Autoupdate.app/Contents/MacOS/fileop"
-    # /usr/bin/codesign --force --options runtime --sign "${CODESIGN_IDENT}" "./Wowza-OBS-Real-Time.app/Contents/Frameworks/Sparkle.framework/Versions/A/Resources/Autoupdate.app/Contents/MacOS/Autoupdate"
-    # /usr/bin/codesign --force --options runtime --sign "${CODESIGN_IDENT}" --deep "./Wowza-OBS-Real-Time.app/Contents/Frameworks/Sparkle.framework"
+    # /usr/bin/codesign --force --options runtime --sign "${WOWZA_CODESIGN_IDENT}" "./Wowza-OBS-Real-Time.app/Contents/Frameworks/Sparkle.framework/Versions/A/Resources/Autoupdate.app/Contents/MacOS/fileop"
+    # /usr/bin/codesign --force --options runtime --sign "${WOWZA_CODESIGN_IDENT}" "./Wowza-OBS-Real-Time.app/Contents/Frameworks/Sparkle.framework/Versions/A/Resources/Autoupdate.app/Contents/MacOS/Autoupdate"
+    # /usr/bin/codesign --force --options runtime --sign "${WOWZA_CODESIGN_IDENT}" --deep "./Wowza-OBS-Real-Time.app/Contents/Frameworks/Sparkle.framework"
     # /bin/echo -n "${COLOR_RESET}"
 
     step "Code-sign CEF framework..."
     /bin/echo -n "${COLOR_ORANGE}"
-    /usr/bin/codesign --force --timestamp --options runtime --entitlements "${CI_SCRIPTS}/app/entitlements.plist" --sign "${CODESIGN_IDENT}" "./Wowza-OBS-Real-Time.app/Contents/Frameworks/Chromium Embedded Framework.framework/Libraries/libEGL.dylib"
-    /usr/bin/codesign --force --timestamp --options runtime --entitlements "${CI_SCRIPTS}/app/entitlements.plist" --sign "${CODESIGN_IDENT}" "./Wowza-OBS-Real-Time.app/Contents/Frameworks/Chromium Embedded Framework.framework/Libraries/libswiftshader_libEGL.dylib"
-    /usr/bin/codesign --force --timestamp --options runtime --entitlements "${CI_SCRIPTS}/app/entitlements.plist" --sign "${CODESIGN_IDENT}" "./Wowza-OBS-Real-Time.app/Contents/Frameworks/Chromium Embedded Framework.framework/Libraries/libGLESv2.dylib"
-    /usr/bin/codesign --force --timestamp --options runtime --entitlements "${CI_SCRIPTS}/app/entitlements.plist" --sign "${CODESIGN_IDENT}" "./Wowza-OBS-Real-Time.app/Contents/Frameworks/Chromium Embedded Framework.framework/Libraries/libswiftshader_libGLESv2.dylib"
-    /usr/bin/codesign --force --timestamp --options runtime --entitlements "${CI_SCRIPTS}/app/entitlements.plist" --sign "${CODESIGN_IDENT}" "./Wowza-OBS-Real-Time.app/Contents/Frameworks/Chromium Embedded Framework.framework/Libraries/libvk_swiftshader.dylib"
-    /usr/bin/codesign --force --timestamp --options runtime --entitlements "${CI_SCRIPTS}/app/entitlements.plist" --sign "${CODESIGN_IDENT}" --deep "./Wowza-OBS-Real-Time.app/Contents/Frameworks/Chromium Embedded Framework.framework"
+    /usr/bin/codesign --force --timestamp --options runtime --entitlements "${CI_SCRIPTS}/app/entitlements.plist" --sign "${WOWZA_CODESIGN_IDENT}" "./Wowza-OBS-Real-Time.app/Contents/Frameworks/Chromium Embedded Framework.framework/Libraries/libEGL.dylib"
+    /usr/bin/codesign --force --timestamp --options runtime --entitlements "${CI_SCRIPTS}/app/entitlements.plist" --sign "${WOWZA_CODESIGN_IDENT}" "./Wowza-OBS-Real-Time.app/Contents/Frameworks/Chromium Embedded Framework.framework/Libraries/libswiftshader_libEGL.dylib"
+    /usr/bin/codesign --force --timestamp --options runtime --entitlements "${CI_SCRIPTS}/app/entitlements.plist" --sign "${WOWZA_CODESIGN_IDENT}" "./Wowza-OBS-Real-Time.app/Contents/Frameworks/Chromium Embedded Framework.framework/Libraries/libGLESv2.dylib"
+    /usr/bin/codesign --force --timestamp --options runtime --entitlements "${CI_SCRIPTS}/app/entitlements.plist" --sign "${WOWZA_CODESIGN_IDENT}" "./Wowza-OBS-Real-Time.app/Contents/Frameworks/Chromium Embedded Framework.framework/Libraries/libswiftshader_libGLESv2.dylib"
+    /usr/bin/codesign --force --timestamp --options runtime --entitlements "${CI_SCRIPTS}/app/entitlements.plist" --sign "${WOWZA_CODESIGN_IDENT}" "./Wowza-OBS-Real-Time.app/Contents/Frameworks/Chromium Embedded Framework.framework/Libraries/libvk_swiftshader.dylib"
+    /usr/bin/codesign --force --timestamp --options runtime --entitlements "${CI_SCRIPTS}/app/entitlements.plist" --sign "${WOWZA_CODESIGN_IDENT}" --deep "./Wowza-OBS-Real-Time.app/Contents/Frameworks/Chromium Embedded Framework.framework"
     /bin/echo -n "${COLOR_RESET}"
 
     step "Code-sign CEF helper apps..."
     /bin/echo -n "${COLOR_ORANGE}"
-    /usr/bin/codesign --force --timestamp --options runtime --entitlements "${CI_SCRIPTS}/helpers/helper-entitlements.plist" --sign "${CODESIGN_IDENT}" --deep "./Wowza-OBS-Real-Time.app/Contents/Frameworks/OBS Helper.app"
-    /usr/bin/codesign --force --timestamp --options runtime --entitlements "${CI_SCRIPTS}/helpers/helper-gpu-entitlements.plist" --sign "${CODESIGN_IDENT}" --deep "./Wowza-OBS-Real-Time.app/Contents/Frameworks/OBS Helper (GPU).app"
-    /usr/bin/codesign --force --timestamp --options runtime --entitlements "${CI_SCRIPTS}/helpers/helper-plugin-entitlements.plist" --sign "${CODESIGN_IDENT}" --deep "./Wowza-OBS-Real-Time.app/Contents/Frameworks/OBS Helper (Plugin).app"
-    /usr/bin/codesign --force --timestamp --options runtime --entitlements "${CI_SCRIPTS}/helpers/helper-renderer-entitlements.plist" --sign "${CODESIGN_IDENT}" --deep "./Wowza-OBS-Real-Time.app/Contents/Frameworks/OBS Helper (Renderer).app"
+    /usr/bin/codesign --force --timestamp --options runtime --entitlements "${CI_SCRIPTS}/helpers/helper-entitlements.plist" --sign "${WOWZA_CODESIGN_IDENT}" --deep "./Wowza-OBS-Real-Time.app/Contents/Frameworks/OBS Helper.app"
+    /usr/bin/codesign --force --timestamp --options runtime --entitlements "${CI_SCRIPTS}/helpers/helper-gpu-entitlements.plist" --sign "${WOWZA_CODESIGN_IDENT}" --deep "./Wowza-OBS-Real-Time.app/Contents/Frameworks/OBS Helper (GPU).app"
+    /usr/bin/codesign --force --timestamp --options runtime --entitlements "${CI_SCRIPTS}/helpers/helper-plugin-entitlements.plist" --sign "${WOWZA_CODESIGN_IDENT}" --deep "./Wowza-OBS-Real-Time.app/Contents/Frameworks/OBS Helper (Plugin).app"
+    /usr/bin/codesign --force --timestamp --options runtime --entitlements "${CI_SCRIPTS}/helpers/helper-renderer-entitlements.plist" --sign "${WOWZA_CODESIGN_IDENT}" --deep "./Wowza-OBS-Real-Time.app/Contents/Frameworks/OBS Helper (Renderer).app"
     /bin/echo -n "${COLOR_RESET}"
 
     step "Code-sign DAL Plugin..."
     /bin/echo -n "${COLOR_ORANGE}"
-    /usr/bin/codesign --force --timestamp --options runtime --deep --sign "${CODESIGN_IDENT}" "./Wowza-OBS-Real-Time.app/Contents/Resources/data/obs-plugins/mac-virtualcam/obs-mac-virtualcam.plugin"
+    /usr/bin/codesign --force --timestamp --options runtime --deep --sign "${WOWZA_CODESIGN_IDENT}" "./Wowza-OBS-Real-Time.app/Contents/Resources/data/obs-plugins/mac-virtualcam/obs-mac-virtualcam.plugin"
     /bin/echo -n "${COLOR_RESET}"
 
     step "Code-sign OBS code..."
     /bin/echo -n "${COLOR_ORANGE}"
-    /usr/bin/codesign --force --timestamp --options runtime --entitlements "${CI_SCRIPTS}/app/entitlements.plist" --sign "${CODESIGN_IDENT}" --deep "./Wowza-OBS-Real-Time.app"
+    /usr/bin/codesign --force --timestamp --options runtime --entitlements "${CI_SCRIPTS}/app/entitlements.plist" --sign "${WOWZA_CODESIGN_IDENT}" --deep "./Wowza-OBS-Real-Time.app"
     /bin/echo -n "${COLOR_RESET}"
 
     step "Check code-sign result..."
@@ -598,7 +598,7 @@ codesign_image() {
 
     step "Code-sign OBS installer image..."
     /bin/echo -n "${COLOR_ORANGE}";
-    /usr/bin/codesign --force --sign "${CODESIGN_IDENT}" "${FILE_NAME}"
+    /usr/bin/codesign --force --sign "${WOWZA_CODESIGN_IDENT}" "${FILE_NAME}"
     /bin/echo -n "${COLOR_RESET}"
     step "Check code-sign result..."
     /usr/bin/codesign -dvv "${FILE_NAME}"
@@ -722,7 +722,7 @@ obs-build-main() {
             d) SKIP_DEPS=1 ;;
             s) SKIP_BUILD=1 ;;
             b) BUNDLE_OBS=1 ;;
-            n) CODESIGN_OBS=1; NOTARIZE_OBS=1 ;;
+            n) CODESIGN_OBS=1;;
             p) PACKAGE_OBS=1 ;;
             c) CODESIGN_OBS=1 ;;
             v) VENDOR="${OPTARG}" ;;
