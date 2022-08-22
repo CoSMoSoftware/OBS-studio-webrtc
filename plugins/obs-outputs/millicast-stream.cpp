@@ -40,7 +40,8 @@ extern "C" void millicast_stream_destroy(void *data)
 	stream->Release();
 }
 
-extern "C" void *millicast_stream_create(obs_data_t *settings, obs_output_t *output)
+extern "C" void *millicast_stream_create(obs_data_t *settings,
+					 obs_output_t *output)
 {
 	info("millicast_stream_create");
 	// Create new stream

@@ -52,7 +52,7 @@ set_target_properties(mac-dal-plugin PROPERTIES
 	COMPILE_FLAGS "-std=gnu++14 -stdlib=libc++ -fobjc-arc -fobjc-weak")
 
 if (XCODE)
-	set(TARGET_DIR "${CMAKE_CURRENT_BINARY_DIR}/Debug")
+	set(TARGET_DIR "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE}")
 else (XCODE)
 	set(TARGET_DIR "${CMAKE_CURRENT_BINARY_DIR}")
 endif (XCODE)
