@@ -309,7 +309,11 @@ void OBSBasicSettings::LoadStream1Settings()
 			}
 		}
 
-		ui->customServer->setText(server);
+		if (server && strlen(server) == 0) {
+			ui->customServer->setText("rtmp://live-rtmp-pub.millicast.com:1935/v2/pub/");
+		} else {
+			ui->customServer->setText(server);
+		}
 		ui->customServer->setVisible(true);
 		ui->serverLabel->setVisible(true);
 		bool use_auth = true;
