@@ -370,6 +370,7 @@ jobs:
 - job: 'Build_Ubuntu_22_04'
   pool:
     vmImage: 'ubuntu-22.04'
+  steps:
   - task: DownloadGitHubRelease@0
     inputs:
       connection: 'github.com_ludocosmo'
@@ -378,7 +379,6 @@ jobs:
       version: 'm100'
       itemPattern: 'libWebRTC-${{ variables.LIBWEBRTC_VERSION }}-*64-Debug-*.sh'
       downloadPath: '$(System.DefaultWorkingDirectory)'
-  steps:
   - bash: |
       git submodule update --init --recursive
       ./CI/install-dependencies-linux.sh
