@@ -35,6 +35,7 @@ set -eE
 ## SET UP ENVIRONMENT ##
 PRODUCT_NAME="RemoteFilming"
 
+INVOCATION_DIR=$(pwd)
 CHECKOUT_DIR="$(/usr/bin/git rev-parse --show-toplevel)"
 DEPS_BUILD_DIR="${CHECKOUT_DIR}/../obs-build-dependencies"
 BUILD_DIR="${BUILD_DIR:-build}"
@@ -296,7 +297,7 @@ configure_obs_build() {
     fi
 
     hr "Run CMAKE for OBS..."
-    cmake \
+    cmake -G Xcode \
         -DCMAKE_OSX_DEPLOYMENT_TARGET=${MIN_MACOS_VERSION} \
         -DOBS_VERSION_OVERRIDE=${OBS_VERSION} \
         -DDISABLE_PYTHON=ON  \
@@ -315,8 +316,8 @@ configure_obs_build() {
         -DBUILD_NDI=ON \
         -DBUILD_WEBSOCKET=ON \
         -DLIBOBS_INCLUDE_DIR=../libobs \
-        -DLIBOBS_LIB=`pwd`/libobs/libobs.0.dylib \
-        -DOBS_FRONTEND_LIB=`pwd`/UI/obs-frontend-api/libobs-frontend-api.dylib
+        -DLIBOBS_LIB=`pwd`/libobs/${BUILD_CONFIG}/libobs.0.dylib \
+        -DOBS_FRONTEND_LIB=`pwd`/UI/obs-frontend-api/${BUILD_CONFIG}/libobs-frontend-api.dylib
 
 #        -DENABLE_SPARKLE_UPDATER=ON \
 #        -DCEF_ROOT_DIR="${DEPS_BUILD_DIR}/cef_binary_${MACOS_CEF_BUILD_VERSION}_macosx64" \
@@ -325,7 +326,7 @@ configure_obs_build() {
 run_obs_build() {
     ensure_dir "${CHECKOUT_DIR}/${BUILD_DIR}_${VENDOR}"
     hr "Build OBS..."
-    /usr/bin/make -j${NPROC}
+    cmake --build . --config $BUILD_TYPE -- -IDEBuildOperationMaxNumberOfConcurrentCompileTasks=${NPROC}
 }
 
 ## OBS BUNDLE AS MACOS APPLICATION ##
@@ -380,7 +381,7 @@ bundle_dylibs() {
 #       -x ./A-CAM.app/Contents/PlugIns/obs-browser.so \
 
     step "Move libobs-opengl to final destination"
-    /bin/cp ./libobs-opengl/libobs-opengl.so ./A-CAM.app/Contents/Frameworks
+    /bin/cp ./libobs-opengl/${BUILD_CONFIG}/libobs-opengl.so ./A-CAM.app/Contents/Frameworks
 }
 
 install_frameworks() {
@@ -414,6 +415,7 @@ prepare_macos_bundle() {
     /bin/mkdir A-CAM.app/Contents/Resources
     /bin/mkdir A-CAM.app/Contents/Frameworks
 
+    /bin/cp -R dSYMs A-CAM.app/Contents/
     /bin/cp rundir/${BUILD_CONFIG}/bin/rfs ./A-CAM.app/Contents/MacOS
     /bin/cp rundir/${BUILD_CONFIG}/bin/obs-ffmpeg-mux ./A-CAM.app/Contents/MacOS
     /bin/cp rundir/${BUILD_CONFIG}/bin/libobsglad.0.dylib ./A-CAM.app/Contents/MacOS

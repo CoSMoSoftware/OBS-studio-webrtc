@@ -297,7 +297,7 @@ configure_obs_build() {
     fi
 
     hr "Run CMAKE for OBS..."
-    cmake \
+    cmake -G Xcode \
         -DCMAKE_OSX_DEPLOYMENT_TARGET=${MIN_MACOS_VERSION} \
         -DOBS_VERSION_OVERRIDE=${OBS_VERSION} \
         -DDISABLE_PYTHON=ON  \
@@ -317,8 +317,8 @@ configure_obs_build() {
         -DBUILD_NDI=ON \
         -DBUILD_WEBSOCKET=ON \
         -DLIBOBS_INCLUDE_DIR=../libobs \
-        -DLIBOBS_LIB=`pwd`/libobs/libobs.0.dylib \
-        -DOBS_FRONTEND_LIB=`pwd`/UI/obs-frontend-api/libobs-frontend-api.dylib
+        -DLIBOBS_LIB=`pwd`/libobs/${BUILD_CONFIG}/libobs.0.dylib \
+        -DOBS_FRONTEND_LIB=`pwd`/UI/obs-frontend-api/${BUILD_CONFIG}/libobs-frontend-api.dylib
 
         # -DENABLE_SPARKLE_UPDATER=ON \
 }
@@ -326,7 +326,7 @@ configure_obs_build() {
 run_obs_build() {
     ensure_dir "${CHECKOUT_DIR}/${BUILD_DIR}_${VENDOR}"
     hr "Build OBS..."
-    /usr/bin/make -j${NPROC}
+    cmake --build . --config $BUILD_TYPE -- -IDEBuildOperationMaxNumberOfConcurrentCompileTasks=${NPROC}
 }
 
 ## OBS BUNDLE AS MACOS APPLICATION ##
@@ -381,7 +381,7 @@ bundle_dylibs() {
        -x ./Wowza-OBS-Real-Time.app/Contents/PlugIns/obs-websocket.so
 
     step "Move libobs-opengl to final destination"
-    /bin/cp ./libobs-opengl/libobs-opengl.so "./Wowza-OBS-Real-Time.app/Contents/Frameworks"
+    /bin/cp ./libobs-opengl/${BUILD_CONFIG}/libobs-opengl.so "./Wowza-OBS-Real-Time.app/Contents/Frameworks"
 }
 
 install_frameworks() {
@@ -415,6 +415,7 @@ prepare_macos_bundle() {
     /bin/mkdir "Wowza-OBS-Real-Time.app/Contents/Resources"
     /bin/mkdir "Wowza-OBS-Real-Time.app/Contents/Frameworks"
 
+    /bin/cp -R dSYMs Wowza-OBS-Real-Time.app/Contents/
     /bin/cp rundir/${BUILD_CONFIG}/bin/obs "./Wowza-OBS-Real-Time.app/Contents/MacOS"
     /bin/cp rundir/${BUILD_CONFIG}/bin/obs-ffmpeg-mux "./Wowza-OBS-Real-Time.app/Contents/MacOS"
     /bin/cp rundir/${BUILD_CONFIG}/bin/libobsglad.0.dylib "./Wowza-OBS-Real-Time.app/Contents/MacOS"

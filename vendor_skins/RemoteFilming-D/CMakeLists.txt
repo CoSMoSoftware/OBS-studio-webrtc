@@ -371,6 +371,21 @@ if( WIN32 )
 	include( InstallRequiredSystemLibraries )
 endif()
 
+if ( APPLE )
+	if ( CMAKE_GENERATOR STREQUAL "Xcode" )
+	  message( STATUS "Generating dSYMs..." )
+	  # generate debug symbols in a .dsym file for release mode
+	  set(CMAKE_XCODE_ATTRIBUTE_CLANG_GENERATE_DEBUGGING_SYMBOLS
+	      "YES")
+	  set(CMAKE_XCODE_ATTRIBUTE_DEBUG_INFORMATION_FORMAT
+	      "dwarf-with-dsym")
+
+	  set(CMAKE_XCODE_ATTRIBUTE_CLANG_DEBUGGING_SYMBOLS "full")
+	  set(CMAKE_XCODE_ATTRIBUTE_DWARF_DSYM_FOLDER_PATH
+		  "${CMAKE_CURRENT_BINARY_DIR}/dSYMs")
+	endif()
+endif()
+
 # enable submissions to a CDash server
 enable_testing()
 include(CTest)

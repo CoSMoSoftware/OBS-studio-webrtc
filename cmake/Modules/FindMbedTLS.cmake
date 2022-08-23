@@ -23,20 +23,31 @@ if(STATIC_MBEDTLS AND (APPLE OR UNIX))
 	set(_MBEDX509_LIBRARIES libmbedx509.a)
 endif()
 
-find_path(MBEDTLS_INCLUDE_DIR
-	NAMES mbedtls/ssl.h
-	HINTS
-		ENV mbedtlsPath${_lib_suffix}
-		ENV mbedtlsPath
+# Enable Mac M1 compilation
+if (APPLE AND (CMAKE_SYSTEM_PROCESSOR STREQUAL arm64 OR CMAKE_OSX_ARCHITECTURES STREQUAL arm64))
+	message(STATUS "Mac M1 build: Searching for mbedtls@2 in homebrew")
+	set(_MBEDTLS_SEARCH_PATHS /opt/homebrew/)
+	set(_MBEDTLS_HINTS "")
+else ()
+	set(_MBEDTLS_SEARCH_PATHS /usr /usr/local /opt/local /sw)
+	set(_MBEDTLS_HINTS 
 		ENV DepsPath${_lib_suffix}
 		ENV DepsPath
 		${mbedtlsPath${_lib_suffix}}
 		${mbedtlsPath}
 		${DepsPath${_lib_suffix}}
 		${DepsPath}
+	)
+endif()
+find_path(MBEDTLS_INCLUDE_DIR
+	NAMES mbedtls/ssl.h
+	HINTS
+		ENV mbedtlsPath${_lib_suffix}
+		ENV mbedtlsPath
+		${_MBEDTLS_HINTS}
 		${_MBEDTLS_INCLUDE_DIRS}
 	PATHS
-		/usr/include /usr/local/include /opt/local/include /sw/include
+		${_MBEDTLS_SEARCH_PATHS}
 	PATH_SUFFIXES
 		include)
 
@@ -45,37 +56,30 @@ find_library(MBEDTLS_LIB
 	HINTS
 		ENV mbedtlsPath${_lib_suffix}
 		ENV mbedtlsPath
-		ENV DepsPath${_lib_suffix}
-		ENV DepsPath
-		${mbedtlsPath${_lib_suffix}}
-		${mbedtlsPath}
-		${DepsPath${_lib_suffix}}
-		${DepsPath}
+		${_MBEDTLS_HINTS}
 		${_MBEDTLS_LIBRARY_DIRS}
 	PATHS
-		/usr/lib /usr/local/lib /opt/local/lib /sw/lib
+		${_MBEDTLS_SEARCH_PATHS}
+
 	PATH_SUFFIXES
 		lib${_lib_suffix} lib
 		libs${_lib_suffix} libs
 		bin${_lib_suffix} bin
 		../lib${_lib_suffix} ../lib
 		../libs${_lib_suffix} ../libs
-		../bin${_lib_suffix} ../bin)
+		../bin${_lib_suffix} ../bin
+
+	REQUIRED)
 
 find_library(MBEDCRYPTO_LIB
 	NAMES ${_MBEDCRYPTO_LIBRARIES} mbedcrypto libmbedcrypto
 	HINTS
 		ENV mbedcryptoPath${_lib_suffix}
 		ENV mbedcryptoPath
-		ENV DepsPath${_lib_suffix}
-		ENV DepsPath
-		${mbedcryptoPath${_lib_suffix}}
-		${mbedcryptoPath}
-		${DepsPath${_lib_suffix}}
-		${DepsPath}
+		${_MBEDTLS_HINTS}
 		${_MBEDCRYPTO_LIBRARY_DIRS}
 	PATHS
-		/usr/lib /usr/local/lib /opt/local/lib /sw/lib
+		${_MBEDTLS_SEARCH_PATHS}
 	PATH_SUFFIXES
 		lib${_lib_suffix} lib
 		libs${_lib_suffix} libs
@@ -89,15 +93,10 @@ find_library(MBEDX509_LIB
 	HINTS
 		ENV mbedx509Path${_lib_suffix}
 		ENV mbedx509Path
-		ENV DepsPath${_lib_suffix}
-		ENV DepsPath
-		${mbedx509Path${_lib_suffix}}
-		${mbedx509Path}
-		${DepsPath${_lib_suffix}}
-		${DepsPath}
+		${_MBEDTLS_HINTS}
 		${_MBEDX509_LIBRARY_DIRS}
 	PATHS
-		/usr/lib /usr/local/lib /opt/local/lib /sw/lib
+		${_MBEDTLS_SEARCH_PATHS}
 	PATH_SUFFIXES
 		lib${_lib_suffix} lib
 		libs${_lib_suffix} libs
