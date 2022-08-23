@@ -156,7 +156,7 @@ jobs:
 
 - job: 'Build_Windows64'
   pool:
-    vmImage: 'windows-2019'
+    vmImage: 'windows-2022'
   steps:
   - task: DotNetCoreCLI@2
     inputs:
