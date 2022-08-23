@@ -326,7 +326,7 @@ configure_obs_build() {
 run_obs_build() {
     ensure_dir "${CHECKOUT_DIR}/${BUILD_DIR}_${VENDOR}"
     hr "Build OBS..."
-    cmake --build . --config $BUILD_TYPE -- -IDEBuildOperationMaxNumberOfConcurrentCompileTasks=${NPROC}
+    cmake --build . --config ${BUILD_CONFIG} -- -IDEBuildOperationMaxNumberOfConcurrentCompileTasks=${NPROC}
 }
 
 ## OBS BUNDLE AS MACOS APPLICATION ##
@@ -414,8 +414,10 @@ prepare_macos_bundle() {
     /bin/mkdir "Wowza-OBS-Real-Time.app/Contents/PlugIns"
     /bin/mkdir "Wowza-OBS-Real-Time.app/Contents/Resources"
     /bin/mkdir "Wowza-OBS-Real-Time.app/Contents/Frameworks"
+    /bin/mkdir "Wowza-OBS-Real-Time.app/Contents/dSYMs"
 
-    /bin/cp -R dSYMs Wowza-OBS-Real-Time.app/Contents/
+
+    /bin/cp -R dSYMs "Wowza-OBS-Real-Time.app/Contents/"
     /bin/cp rundir/${BUILD_CONFIG}/bin/obs "./Wowza-OBS-Real-Time.app/Contents/MacOS"
     /bin/cp rundir/${BUILD_CONFIG}/bin/obs-ffmpeg-mux "./Wowza-OBS-Real-Time.app/Contents/MacOS"
     /bin/cp rundir/${BUILD_CONFIG}/bin/libobsglad.0.dylib "./Wowza-OBS-Real-Time.app/Contents/MacOS"
@@ -423,6 +425,7 @@ prepare_macos_bundle() {
     /bin/cp -R "rundir/${BUILD_CONFIG}/bin/OBS Helper (GPU).app" "./Wowza-OBS-Real-Time.app/Contents/Frameworks/OBS Helper (GPU).app"
     /bin/cp -R "rundir/${BUILD_CONFIG}/bin/OBS Helper (Plugin).app" "./Wowza-OBS-Real-Time.app/Contents/Frameworks/OBS Helper (Plugin).app"
     /bin/cp -R "rundir/${BUILD_CONFIG}/bin/OBS Helper (Renderer).app" "./Wowza-OBS-Real-Time.app/Contents/Frameworks/OBS Helper (Renderer).app"
+
     /bin/cp -R rundir/${BUILD_CONFIG}/data "./Wowza-OBS-Real-Time.app/Contents/Resources"
     /bin/cp "${CI_SCRIPTS}/app/AppIcon.icns" "./Wowza-OBS-Real-Time.app/Contents/Resources"
     /bin/cp -R rundir/${BUILD_CONFIG}/obs-plugins/ "./Wowza-OBS-Real-Time.app/Contents/PlugIns"
