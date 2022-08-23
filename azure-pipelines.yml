@@ -73,22 +73,27 @@ jobs:
   steps:
   - script: git submodule update --init --recursive
     displayName: 'Checkout Submodules'
+  - task: DownloadGitHubRelease@0
+    inputs:
+      connection: 'github.com_ludocosmo'
+      userRepository: 'CoSMoSoftware/libwebrtc-cmake'
+      defaultVersionType: 'specificTag'
+      version: 'm100'
+      itemPattern: 'libWebRTC-${{ variables.LIBWEBRTC_VERSION }}-*64-Debug-*.dmg'
+      downloadPath: '$(System.DefaultWorkingDirectory)'
   - ${{ each vendor in parameters.vendors }}:
-
     - ${{ if ne( vendor, 'Wowza') }}:
       - task: InstallAppleCertificate@2
         displayName: '🔐 Install CoSMo Signing Certificate'
         inputs:
           certSecureFile: Certificates.p12
           certPwd: $(certificatesLudoPassword)
-
     - ${{ if eq( vendor, 'Wowza') }}:
       - task: InstallAppleCertificate@2
         displayName: '🔐 Install Wowza Signing Certificate'
         inputs:
           certSecureFile: wowza.p12
           certPwd: $(wowza_mac_certificate_password)
-
     - script: git stash
       displayName: git stash
     - script: rm -rf plugins/obs-ndi
@@ -159,6 +164,14 @@ jobs:
       custom: 'tool'
       arguments: 'install --global azuresigntool'
     displayName: Install AzureSignTool
+  - task: DownloadGitHubRelease@0
+    inputs:
+      connection: 'github.com_ludocosmo'
+      userRepository: 'CoSMoSoftware/libwebrtc-cmake'
+      defaultVersionType: 'specificTag'
+      version: 'm100'
+      itemPattern: 'libWebRTC-${{ variables.LIBWEBRTC_VERSION }}-*64-Release-*.exe'
+      downloadPath: '$(System.DefaultWorkingDirectory)'
   - script: git submodule update --init --recursive
     displayName: 'Checkout Submodules'
   - script: ./CI/install-qt-win.cmd
@@ -206,6 +219,8 @@ jobs:
     #     displayName: 'Sign obs64.exe with global AzureSignTool'
     - script: ./CI/before-deploy-win.cmd ${{ vendor }}
       displayName: '${{ vendor }} Before deploy'
+      env:
+        BUILD_TYPE: $(BUILD_TYPE)
     - ${{ if eq( vendor, 'Millicast') }}:
       - task: CmdLine@2
         inputs:
@@ -250,6 +265,14 @@ jobs:
   pool:
     vmImage: 'ubuntu-18.04'
   steps:
+  - task: DownloadGitHubRelease@0
+    inputs:
+      connection: 'github.com_ludocosmo'
+      userRepository: 'CoSMoSoftware/libwebrtc-cmake'
+      defaultVersionType: 'specificTag'
+      version: 'm100'
+      itemPattern: 'libWebRTC-${{ variables.LIBWEBRTC_VERSION }}-*64-Debug-*.sh'
+      downloadPath: '$(System.DefaultWorkingDirectory)'
   - bash: |
       git submodule update --init --recursive
       ./CI/install-dependencies-linux.sh
@@ -295,6 +318,14 @@ jobs:
   pool:
     vmImage: 'ubuntu-20.04'
   steps:
+  - task: DownloadGitHubRelease@0
+    inputs:
+      connection: 'github.com_ludocosmo'
+      userRepository: 'CoSMoSoftware/libwebrtc-cmake'
+      defaultVersionType: 'specificTag'
+      version: 'm100'
+      itemPattern: 'libWebRTC-${{ variables.LIBWEBRTC_VERSION }}-*64-Debug-*.sh'
+      downloadPath: '$(System.DefaultWorkingDirectory)'
   - bash: |
       git submodule update --init --recursive
       ./CI/install-dependencies-linux.sh
@@ -339,6 +370,14 @@ jobs:
 - job: 'Build_Ubuntu_22_04'
   pool:
     vmImage: 'ubuntu-22.04'
+  - task: DownloadGitHubRelease@0
+    inputs:
+      connection: 'github.com_ludocosmo'
+      userRepository: 'CoSMoSoftware/libwebrtc-cmake'
+      defaultVersionType: 'specificTag'
+      version: 'm100'
+      itemPattern: 'libWebRTC-${{ variables.LIBWEBRTC_VERSION }}-*64-Debug-*.sh'
+      downloadPath: '$(System.DefaultWorkingDirectory)'
   steps:
   - bash: |
       git submodule update --init --recursive

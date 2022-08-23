@@ -212,8 +212,7 @@ install_vlc() {
 install_cef() {
     hr "Building dependency CEF v${1}"
     ensure_dir "${DEPS_BUILD_DIR}"
-    step "Download..."
-    ${CURLCMD} --progress-bar -L -C - -O https://cdn-fastly.obsproject.com/downloads/cef_binary_${1}_macos_x86_64.tar.xz
+    cp ${INVOCATION_DIR}/libWebRTC-${1}-x64-Debug-H264-OpenSSL_1_1_1n.dmg libWebRTC.dmg
     step "Unpack..."
     /usr/bin/tar -xf ./cef_binary_${1}_macos_x86_64.tar.xz
     cd ./cef_binary_${1}_macos_x86_64
