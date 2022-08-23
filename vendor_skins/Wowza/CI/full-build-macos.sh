@@ -225,7 +225,7 @@ install_cef() {
     ensure_dir ./build
     step "Run CMAKE..."
     cmake \
-        -DCMAKE_BUILD_TYPE=RelWithDebInfo \
+        -DCMAKE_BUILD_TYPE=Release \
         -DCMAKE_CXX_FLAGS="-std=c++11 -stdlib=libc++ -Wno-deprecated-declarations"\
         -DCMAKE_EXE_LINKER_FLAGS="-std=c++11 -stdlib=libc++"\
         -DCMAKE_OSX_DEPLOYMENT_TARGET=${MIN_MACOS_VERSION} \
@@ -415,6 +415,7 @@ prepare_macos_bundle() {
     /bin/mkdir "Wowza-OBS-Real-Time.app/Contents/Resources"
     /bin/mkdir "Wowza-OBS-Real-Time.app/Contents/Frameworks"
     /bin/mkdir "Wowza-OBS-Real-Time.app/Contents/dSYMs"
+
 
     /bin/cp -R dSYMs "Wowza-OBS-Real-Time.app/Contents/"
     /bin/cp rundir/${BUILD_CONFIG}/bin/obs "./Wowza-OBS-Real-Time.app/Contents/MacOS"

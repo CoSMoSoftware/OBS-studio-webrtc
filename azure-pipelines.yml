@@ -9,7 +9,7 @@ variables:
   - name: FTP_PASSWORD
     value: $(ftpLudoPassword)
   - name: BUILD_TYPE
-    value: Release
+    value: RelWithDebInfo
   - name: CMAKE_PREFIX_PATH
     value: /usr/local/opt/qt5/lib/cmake
   - name: LINUX_CEF_BUILD_VERSION
@@ -73,6 +73,14 @@ jobs:
   steps:
   - script: git submodule update --init --recursive
     displayName: 'Checkout Submodules'
+  - task: DownloadGitHubRelease@0
+    inputs:
+      connection: 'github.com_ludocosmo'
+      userRepository: 'CoSMoSoftware/libwebrtc-cmake'
+      defaultVersionType: 'specificTag'
+      version: 'm100'
+      itemPattern: 'libWebRTC-${{ variables.LIBWEBRTC_VERSION }}-*64-Debug-*.dmg'
+      downloadPath: '$(System.DefaultWorkingDirectory)'
   - ${{ each vendor in parameters.vendors }}:
     - ${{ if ne( vendor, 'Wowza') }}:
       - task: InstallAppleCertificate@2

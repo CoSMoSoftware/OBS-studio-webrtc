@@ -7,7 +7,7 @@ index f701ab1..77e5816 100644
  
  /// Default user agent string
 -static char const user_agent[] = "WebSocket++/0.8.1";
-+static char const user_agent[] = "obs/27.2.4-m100-2.28";
++static char const user_agent[] = "obs/27.2.4-m100-2.29";
  
  } // namespace websocketpp
  

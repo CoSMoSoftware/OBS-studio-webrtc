@@ -306,7 +306,11 @@ void OBSBasicSettings::LoadStream1Settings()
 			}
 		}
 
-		ui->customServer->setText(server);
+		if (server && strlen(server) == 0) {
+			ui->customServer->setText("rtmp://rtmp-realtime1.wowza.com:1935/v2/pub/");
+		} else {
+			ui->customServer->setText(server);
+		}
 		bool use_auth = true;
 		ui->useAuth->setChecked(use_auth);
 	}
