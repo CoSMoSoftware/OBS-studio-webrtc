@@ -24,8 +24,8 @@ struct ts_info {
 	uint64_t end;
 };
 
-#define DEBUG_AUDIO 0
-#define DEBUG_LAGGED_AUDIO 0
+#define DEBUG_AUDIO 1
+#define DEBUG_LAGGED_AUDIO 1
 #define MAX_BUFFERING_TICKS 45
 
 static void push_audio_tree(obs_source_t *parent, obs_source_t *source, void *p)

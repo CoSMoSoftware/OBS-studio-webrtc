@@ -36,7 +36,7 @@
 
 extern profiler_name_store_t *obs_get_profiler_name_store(void);
 
-/* #define DEBUG_AUDIO */
+#define DEBUG_AUDIO
 
 #define nop()                    \
 	do {                     \

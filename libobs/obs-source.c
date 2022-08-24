@@ -31,6 +31,8 @@
 #include "obs.h"
 #include "obs-internal.h"
 
+#define DEBUG_AUDIO 1
+
 #define get_weak(source) ((obs_weak_source_t *)source->context.control)
 
 static bool filter_compatible(obs_source_t *source, obs_source_t *filter);
