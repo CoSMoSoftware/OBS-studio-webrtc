@@ -23,7 +23,8 @@
 #ifdef _DEBUG
 static int log_output_level = LOG_DEBUG;
 #else
-static int log_output_level = LOG_INFO;
+static int log_output_level = LOG_DEBUG;
+// static int log_output_level = LOG_INFO;
 #endif
 
 static int crashing = 0;
