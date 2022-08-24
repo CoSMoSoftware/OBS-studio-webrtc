@@ -499,6 +499,13 @@ target_link_libraries(${_gui_name}
 #endif()
 set_target_properties( ${_gui_name} PROPERTIES FOLDER "frontend")
 
+target_compile_definitions( ${_gui_name}
+    PRIVATE
+        # If the debug configuration pass the DEBUG define to the compiler 
+        $<$<CONFIG:RelWithDebInfo>:-DDEBUG_LAGGED_AUDIO>>
+        $<$<CONFIG:RelWithDebInfo>:-DDEBUG_AUDIO>>
+)
+
 define_graphic_modules( ${_gui_name} )
 
 install_obs_core( ${_gui_name} )
