@@ -165,7 +165,7 @@ static void input_and_output(struct audio_output *audio, uint64_t audio_time,
 	memset(data, 0, sizeof(data));
 
 #ifdef DEBUG_AUDIO
-	blog(LOG_DEBUG, "audio_time: %llu, prev_time: %llu, bytes: %lu",
+	blog(LOG_INFO, "audio_time: %llu, prev_time: %llu, bytes: %lu",
 	     audio_time, prev_time, bytes);
 #endif
 

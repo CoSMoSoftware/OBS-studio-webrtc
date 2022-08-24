@@ -89,7 +89,7 @@ static bool ignore_audio(obs_source_t *source, size_t channels,
 
 	if (!source->audio_ts && num_floats) {
 #if DEBUG_LAGGED_AUDIO == 1
-		blog(LOG_DEBUG, "[src: %s] no timestamp, but audio available?",
+		blog(LOG_INFO, "[src: %s] no timestamp, but audio available?",
 		     name);
 #endif
 		for (size_t ch = 0; ch < channels; ch++)
@@ -109,7 +109,7 @@ static bool ignore_audio(obs_source_t *source, size_t channels,
 			drop = num_floats;
 
 #if DEBUG_LAGGED_AUDIO == 1
-		blog(LOG_DEBUG,
+		blog(LOG_INFO,
 		     "[src: %s] ignored %" PRIu64 "/%" PRIu64 " samples", name,
 		     (uint64_t)drop, (uint64_t)num_floats);
 #endif
@@ -120,7 +120,7 @@ static bool ignore_audio(obs_source_t *source, size_t channels,
 		source->last_audio_input_buf_size = 0;
 		source->audio_ts +=
 			util_mul_div64(drop, 1000000000ULL, sample_rate);
-		blog(LOG_DEBUG, "[src: %s] ts lag after ignoring: %" PRIu64,
+		blog(LOG_INFO, "[src: %s] ts lag after ignoring: %" PRIu64,
 		     name, start_ts - source->audio_ts);
 
 		/* rounding error, adjust */
@@ -132,7 +132,7 @@ static bool ignore_audio(obs_source_t *source, size_t channels,
 			return true;
 	} else {
 #if DEBUG_LAGGED_AUDIO == 1
-		blog(LOG_DEBUG, "[src: %s] no samples to ignore! ts = %" PRIu64,
+		blog(LOG_INFO, "[src: %s] no samples to ignore! ts = %" PRIu64,
 		     name, source->audio_ts);
 #endif
 	}
@@ -169,7 +169,7 @@ static bool discard_if_stopped(obs_source_t *source, size_t channels)
 		if (!source->pending_stop) {
 			source->pending_stop = true;
 #if DEBUG_AUDIO == 1
-			blog(LOG_DEBUG, "doing pending stop trick: '%s'",
+			blog(LOG_INFO, "doing pending stop trick: '%s'",
 			     source->context.name);
 #endif
 			return false;
@@ -183,7 +183,7 @@ static bool discard_if_stopped(obs_source_t *source, size_t channels)
 		source->audio_ts = 0;
 		source->last_audio_input_buf_size = 0;
 #if DEBUG_AUDIO == 1
-		blog(LOG_DEBUG, "source audio data appears to have "
+		blog(LOG_INFO, "source audio data appears to have "
 				"stopped, clearing");
 #endif
 		return true;
@@ -285,7 +285,7 @@ static inline void discard_audio(struct obs_core_audio *audio,
 
 #if DEBUG_AUDIO == 1
 	if (is_audio_source)
-		blog(LOG_DEBUG, "audio discarded, new ts: %" PRIu64, ts->end);
+		blog(LOG_INFO, "audio discarded, new ts: %" PRIu64, ts->end);
 #endif
 
 	source->pending_stop = false;
@@ -331,11 +331,11 @@ static void add_audio_buffering(struct obs_core_audio *audio,
 	     " (source: %s)\n",
 	     (int)ms, (int)total_ms, buffering_name);
 #if DEBUG_AUDIO == 1
-	blog(LOG_DEBUG,
+	blog(LOG_INFO,
 	     "min_ts (%" PRIu64 ") < start timestamp "
 	     "(%" PRIu64 ")",
 	     min_ts, ts->start);
-	blog(LOG_DEBUG, "old buffered ts: %" PRIu64 "-%" PRIu64, ts->start,
+	blog(LOG_INFO, "old buffered ts: %" PRIu64 "-%" PRIu64, ts->start,
 	     ts->end);
 #endif
 
@@ -354,7 +354,7 @@ static void add_audio_buffering(struct obs_core_audio *audio,
 					   cur_ticks * AUDIO_OUTPUT_FRAMES);
 
 #if DEBUG_AUDIO == 1
-		blog(LOG_DEBUG, "add buffered ts: %" PRIu64 "-%" PRIu64,
+		blog(LOG_INFO, "add buffered ts: %" PRIu64 "-%" PRIu64,
 		     new_ts.start, new_ts.end);
 #endif
 
@@ -482,7 +482,7 @@ bool audio_callback(void *param, uint64_t start_ts_in, uint64_t end_ts_in,
 	audio_size = AUDIO_OUTPUT_FRAMES * sizeof(float);
 
 #if DEBUG_AUDIO == 1
-	blog(LOG_DEBUG, "ts %llu-%llu", ts.start, ts.end);
+	blog(LOG_INFO, "ts %llu-%llu", ts.start, ts.end);
 #endif
 
 	/* ------------------------------------------------ */
@@ -521,7 +521,7 @@ bool audio_callback(void *param, uint64_t start_ts_in, uint64_t end_ts_in,
 		if (audio->total_buffering_ticks == MAX_BUFFERING_TICKS &&
 		    source->audio_ts < ts.start) {
 			if (source->info.audio_render) {
-				blog(LOG_DEBUG,
+				blog(LOG_INFO,
 				     "render audio source %s timestamp has "
 				     "gone backwards",
 				     obs_source_get_name(source));

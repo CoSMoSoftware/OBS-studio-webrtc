@@ -1332,7 +1332,7 @@ static void reset_audio_data(obs_source_t *source, uint64_t os_time)
 static void handle_ts_jump(obs_source_t *source, uint64_t expected, uint64_t ts,
 			   uint64_t diff, uint64_t os_time)
 {
-	blog(LOG_DEBUG,
+	blog(LOG_INFO,
 	     "Timestamp for source '%s' jumped by '%" PRIu64 "', "
 	     "expected value %" PRIu64 ", input value %" PRIu64,
 	     source->context.name, diff, expected, ts);
@@ -1383,7 +1383,7 @@ static void source_output_audio_place(obs_source_t *source,
 		sizeof(float);
 
 #if DEBUG_AUDIO == 1
-	blog(LOG_DEBUG,
+	blog(LOG_INFO,
 	     "frames: %lu, size: %lu, placement: %lu, base_ts: %llu, ts: %llu",
 	     (unsigned long)in->frames,
 	     (unsigned long)source->audio_input_buf[0].size,
@@ -3571,7 +3571,7 @@ static bool ready_async_frame(obs_source_t *source, uint64_t sys_time)
 	}
 
 #if DEBUG_ASYNC_FRAMES
-	blog(LOG_DEBUG,
+	blog(LOG_INFO,
 	     "source->last_frame_ts: %llu, frame_time: %llu, "
 	     "sys_offset: %llu, frame_offset: %llu, "
 	     "number of frames: %lu",
@@ -3583,7 +3583,7 @@ static bool ready_async_frame(obs_source_t *source, uint64_t sys_time)
 	/* account for timestamp invalidation */
 	if (frame_out_of_bounds(source, frame_time)) {
 #if DEBUG_ASYNC_FRAMES
-		blog(LOG_DEBUG, "timing jump");
+		blog(LOG_INFO, "timing jump");
 #endif
 		source->last_frame_ts = next_frame->timestamp;
 		return true;
@@ -3605,7 +3605,7 @@ static bool ready_async_frame(obs_source_t *source, uint64_t sys_time)
 			da_erase(source->async_frames, 0);
 
 #if DEBUG_ASYNC_FRAMES
-		blog(LOG_DEBUG,
+		blog(LOG_INFO,
 		     "new frame, "
 		     "source->last_frame_ts: %llu, "
 		     "next_frame->timestamp: %llu",
@@ -3623,7 +3623,7 @@ static bool ready_async_frame(obs_source_t *source, uint64_t sys_time)
 		/* more timestamp checking and compensating */
 		if ((next_frame->timestamp - frame_time) > MAX_TS_VAR) {
 #if DEBUG_ASYNC_FRAMES
-			blog(LOG_DEBUG, "timing jump");
+			blog(LOG_INFO, "timing jump");
 #endif
 			source->last_frame_ts =
 				next_frame->timestamp - frame_offset;
@@ -3635,7 +3635,7 @@ static bool ready_async_frame(obs_source_t *source, uint64_t sys_time)
 
 #if DEBUG_ASYNC_FRAMES
 	if (!frame)
-		blog(LOG_DEBUG, "no frame!");
+		blog(LOG_INFO, "no frame!");
 #endif
 
 	return frame != NULL;
