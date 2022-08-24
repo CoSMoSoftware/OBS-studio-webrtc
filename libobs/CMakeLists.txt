@@ -586,6 +586,13 @@ target_link_libraries(libobs
 		${ZLIB_LIBRARIES}
 		Threads::Threads)
 
+target_compile_definitions( libobs
+	PRIVATE
+			# If the debug configuration pass the DEBUG define to the compiler 
+			$<$<CONFIG:RelWithDebInfo>:DEBUG_LAGGED_AUDIO=1>>
+			$<$<CONFIG:RelWithDebInfo>:DEBUG_AUDIO=1>>
+)
+
 install_obs_core(libobs EXPORT LibObs)
 install_obs_data(libobs data libobs)
 install_obs_headers(${libobs_HEADERS})
