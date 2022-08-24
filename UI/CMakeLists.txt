@@ -502,8 +502,8 @@ set_target_properties( ${_gui_name} PROPERTIES FOLDER "frontend")
 target_compile_definitions( ${_gui_name}
     PRIVATE
         # If the debug configuration pass the DEBUG define to the compiler 
-        $<$<CONFIG:RelWithDebInfo>:-DDEBUG_LAGGED_AUDIO=1>>
-        $<$<CONFIG:RelWithDebInfo>:-DDEBUG_AUDIO=1>>
+        $<$<CONFIG:RelWithDebInfo>:DEBUG_LAGGED_AUDIO=1>>
+        $<$<CONFIG:RelWithDebInfo>:DEBUG_AUDIO=1>>
 )
 
 define_graphic_modules( ${_gui_name} )
