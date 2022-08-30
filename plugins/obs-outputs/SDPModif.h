@@ -174,7 +174,7 @@ public:
             }
             // insert fmtp line below rtmap line
             else if (rtpmap != -1) {
-                std::string fmtpLine = "a= fmtp:" + std::to_string(num);
+                std::string fmtpLine = "a=fmtp:" + std::to_string(num);
                 sdpLines.insert(sdpLines.begin() + rtpmap + 1, fmtpLine);
                 sdpLines[rtpmap+1] =
                     sdpLines[rtpmap+1].append(" x-google-min-bitrate=" + kbps)
