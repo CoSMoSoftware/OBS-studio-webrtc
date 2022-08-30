@@ -310,7 +310,8 @@ void OBSBasicSettings::LoadStream1Settings()
 		}
 
 		if (server && strlen(server) == 0) {
-			ui->customServer->setText("rtmp://live-rtmp-pub.millicast.com:1935/v2/pub/");
+			ui->customServer->setText(
+				"rtmp://live-rtmp-pub.millicast.com:1935/v2/pub/");
 		} else {
 			ui->customServer->setText(server);
 		}
