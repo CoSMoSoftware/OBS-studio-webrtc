@@ -78,7 +78,7 @@ jobs:
       connection: 'github.com_ludocosmo'
       userRepository: 'CoSMoSoftware/libwebrtc-cmake'
       defaultVersionType: 'specificTag'
-      version: 'm100'
+      version: 'm100debug'
       itemPattern: 'libWebRTC-${{ variables.LIBWEBRTC_VERSION }}-*64-Debug-*.dmg'
       downloadPath: '$(System.DefaultWorkingDirectory)'
   - ${{ each vendor in parameters.vendors }}:
@@ -270,7 +270,7 @@ jobs:
       connection: 'github.com_ludocosmo'
       userRepository: 'CoSMoSoftware/libwebrtc-cmake'
       defaultVersionType: 'specificTag'
-      version: 'm100'
+      version: 'm100debug'
       itemPattern: 'libWebRTC-${{ variables.LIBWEBRTC_VERSION }}-*64-Debug-*.sh'
       downloadPath: '$(System.DefaultWorkingDirectory)'
   - bash: |
@@ -323,7 +323,7 @@ jobs:
       connection: 'github.com_ludocosmo'
       userRepository: 'CoSMoSoftware/libwebrtc-cmake'
       defaultVersionType: 'specificTag'
-      version: 'm100'
+      version: 'm100debug'
       itemPattern: 'libWebRTC-${{ variables.LIBWEBRTC_VERSION }}-*64-Debug-*.sh'
       downloadPath: '$(System.DefaultWorkingDirectory)'
   - bash: |
@@ -376,7 +376,7 @@ jobs:
       connection: 'github.com_ludocosmo'
       userRepository: 'CoSMoSoftware/libwebrtc-cmake'
       defaultVersionType: 'specificTag'
-      version: 'm100'
+      version: 'm100debug'
       itemPattern: 'libWebRTC-${{ variables.LIBWEBRTC_VERSION }}-*64-Debug-*.sh'
       downloadPath: '$(System.DefaultWorkingDirectory)'
   - bash: |
