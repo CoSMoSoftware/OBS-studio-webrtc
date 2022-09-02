@@ -735,6 +735,8 @@ bool SimpleOutput::SetupStreaming(obs_service_t *service)
 	if (!Active())
 		SetupOutputs();
 
+	obs_output_set_media(streamOutput, obs_get_video(), obs_get_audio());
+
 	Auth *auth = main->GetAuth();
 	if (auth)
 		auth->OnStreamConfig();
