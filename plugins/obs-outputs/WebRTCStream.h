@@ -178,6 +178,14 @@ private:
 	// Count number of video sources in current scene
 	int getVideoSourceCount() const;
 
+	// Audio/video synchronisation management
+	bool audio_started_;
+	uint64_t last_delivered_audio_ts_;
+	std::queue<video_data*> video_queue_;
+	void enqueue_frame(video_data *frame);
+	void deliver_video_frame(video_data *frame);
+	void process_video_queue();
+
 	// Connection properties
 	Type type;
 	int audio_bitrate;
