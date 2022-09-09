@@ -19,7 +19,7 @@ variables:
   - name: LIBWEBRTC_VERSION
     value: 100.0
   - name: OBS_VERSION
-    value: 1.3-27.2.4-m100
+    value: 1.3.1-27.2.4-m100
   - name: TWITCH-CLIENTID
     value: $(twitch_clientid)
   - name: TWITCH-HASH
@@ -64,7 +64,7 @@ parameters:
 #    - RemoteFilming-B
 #    - RemoteFilming-C
 #    - RemoteFilming-D
-    - Wowza
+#    - Wowza
 
 jobs:
 - job: 'Build_macOS'
