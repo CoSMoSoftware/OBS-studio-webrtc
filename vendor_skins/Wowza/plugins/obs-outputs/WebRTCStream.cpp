@@ -111,6 +111,10 @@ WebRTCStream::WebRTCStream(obs_output_t *output)
 
 	// Create video capture module
 	videoCapturer = new rtc::RefCountedObject<VideoCapturer>();
+
+	// Initialize audio/video synchronisation
+	audio_started_ = false;
+	last_delivered_audio_ts_ = 0;
 }
 
 WebRTCStream::~WebRTCStream()
@@ -173,6 +177,10 @@ bool WebRTCStream::start(WebRTCStream::Type type)
 	this->type = type;
 
 	resetStats();
+
+	// Initialize audio/video synchronisation
+	audio_started_ = false;
+	last_delivered_audio_ts_ = 0;
 
 	// Access service if started, or fail
 
@@ -776,6 +784,16 @@ bool WebRTCStream::stop()
 	close(true);
 	// Disconnect, this will call stop on main thread
 	obs_output_end_data_capture(output);
+
+	// Empty video queues
+	while (!video_queue_.empty()) {
+		video_data *frame = video_queue_.front();
+		video_queue_.pop();
+		// Free up memory
+		free(frame->data[0]);
+		free(frame);
+	}
+
 	return true;
 }
 
@@ -832,8 +850,20 @@ void WebRTCStream::onAudioFrame(audio_data *frame)
 	if (!frame)
 		return;
 
-	// Push frame to the device
+	if (getVideoSourceCount() == 0) {
+		// No video, no synchronisation needed with video
+		// Push frame to the device
+		audio_source->OnAudioData(frame);
+		return;
+	}
+
+	if (!audio_started_) {
+		audio_started_ = true;
+	}
+
 	audio_source->OnAudioData(frame);
+	last_delivered_audio_ts_ = frame->timestamp;
+	process_video_queue();
 }
 
 void WebRTCStream::onVideoFrame(video_data *frame)
@@ -843,6 +873,68 @@ void WebRTCStream::onVideoFrame(video_data *frame)
 	if (!videoCapturer)
 		return;
 
+	if (!audio_started_) {
+		enqueue_frame(frame);
+		return;
+	}
+
+	// Handle synchronisation with audio
+	if (frame->timestamp <= last_delivered_audio_ts_) {
+		deliver_video_frame(frame);
+	} else {
+		enqueue_frame(frame);
+	}
+}
+
+void WebRTCStream::enqueue_frame(video_data *frame) {
+	video_data *framecopy = (video_data*)malloc(sizeof(video_data));
+	framecopy->timestamp = frame->timestamp;
+
+	int outputWidth = obs_output_get_width(output);
+	int outputHeight = obs_output_get_height(output);
+	uint32_t size = 0;
+	if ("NV12" == colorFormat || "I420" == colorFormat) {
+		size = outputWidth * outputHeight * 3 / 2;
+	} else if ("I444" == colorFormat || "RGB" == colorFormat) {
+		size = outputWidth * outputHeight * 3;
+	}
+	framecopy->data[0] = (uint8_t *)malloc(size * sizeof(uint8_t));
+	memcpy(framecopy->data[0], frame->data[0], size * sizeof(uint8_t));
+	framecopy->linesize[0] = frame->linesize[0];
+	for (size_t i=1; i < MAX_AV_PLANES; ++i) {
+		if (frame->linesize[i] != 0) {
+			framecopy->linesize[i] = frame->linesize[i];
+			if ("NV12" == colorFormat || "I420" == colorFormat) {
+				framecopy->data[i] = framecopy->data[i-1] + framecopy->linesize[i-1];
+			} else if ("I444" == colorFormat || "RGB" == colorFormat) {
+				framecopy->data[i] = framecopy->data[i-1] + outputWidth * outputHeight;
+			}
+		} else {
+			framecopy->linesize[i] = 0;
+			framecopy->data[i] = NULL;
+		}
+	}
+
+	video_queue_.push(framecopy);
+}
+
+void WebRTCStream::process_video_queue()
+{
+	while (!video_queue_.empty()) {
+		video_data *frame = video_queue_.front();
+		if (frame->timestamp <= last_delivered_audio_ts_) {
+			video_queue_.pop();
+			deliver_video_frame(frame);
+			// Free up memory
+			free(frame->data[0]);
+			free(frame);
+		} else {
+			break;
+		}
+	}
+}
+
+void WebRTCStream::deliver_video_frame(video_data *frame) {
 	if (std::chrono::system_clock::time_point(
 		    std::chrono::duration<int>(0)) == previous_time_) {
 		// First frame sent: Initialize previous_time
