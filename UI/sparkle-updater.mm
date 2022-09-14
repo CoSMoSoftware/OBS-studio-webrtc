@@ -103,8 +103,7 @@ static inline bool bundle_matches(NSBundle *bundle)
 		return false;
 
 	NSRange r = [bundle.executablePath rangeOfString:@"Contents/MacOS/"];
-	return [bundle.bundleIdentifier
-		       isEqual:@"ci.cosmosoftware.obs-webrtc"] &&
+	return [bundle.bundleIdentifier isEqual:@"com.obsproject.obs-studio"] &&
 	       r.location != NSNotFound;
 }
 
@@ -138,6 +137,5 @@ void init_sparkle_updater(bool update_to_undeployed)
 
 void trigger_sparkle_update()
 {
-	// #270 Disable auto-update
-	// [updater checkForUpdates:nil];
+	[updater checkForUpdates:nil];
 }

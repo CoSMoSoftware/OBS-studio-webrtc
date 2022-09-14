@@ -31,6 +31,11 @@
 #include <qpointer.h>
 #include <util/c99defs.h>
 
+#ifdef _WIN32
+#define WIN32_LEAN_AND_MEAN 1
+#include <Windows.h>
+#endif
+
 using namespace std;
 
 static void CreateTransitionScene(OBSSource scene, const char *text,
@@ -38,7 +43,7 @@ static void CreateTransitionScene(OBSSource scene, const char *text,
 
 OBSBasicProperties::OBSBasicProperties(QWidget *parent, OBSSource source_)
 	: QDialog(parent),
-	  preview(new OBSQTDisplay(this)),
+	  ui(new Ui::OBSBasicProperties),
 	  main(qobject_cast<OBSBasic *>(parent)),
 	  acceptClicked(false),
 	  source(source_),
@@ -46,8 +51,7 @@ OBSBasicProperties::OBSBasicProperties(QWidget *parent, OBSSource source_)
 			OBSBasicProperties::SourceRemoved, this),
 	  renamedSignal(obs_source_get_signal_handler(source), "rename",
 			OBSBasicProperties::SourceRenamed, this),
-	  oldSettings(obs_data_create()),
-	  buttonBox(new QDialogButtonBox(this))
+	  oldSettings(obs_data_create())
 {
 	int cx = (int)config_get_int(App()->GlobalConfig(), "PropertiesWindow",
 				     "cx");
@@ -56,24 +60,12 @@ OBSBasicProperties::OBSBasicProperties(QWidget *parent, OBSSource source_)
 
 	enum obs_source_type type = obs_source_get_type(source);
 
-	buttonBox->setObjectName(QStringLiteral("buttonBox"));
-	buttonBox->setStandardButtons(QDialogButtonBox::Ok |
-				      QDialogButtonBox::Cancel |
-				      QDialogButtonBox::RestoreDefaults);
+	setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
 
-	buttonBox->button(QDialogButtonBox::Ok)->setText(QTStr("OK"));
-	buttonBox->button(QDialogButtonBox::Cancel)->setText(QTStr("Cancel"));
-	buttonBox->button(QDialogButtonBox::RestoreDefaults)
-		->setText(QTStr("Defaults"));
+	ui->setupUi(this);
 
 	if (cx > 400 && cy > 400)
 		resize(cx, cy);
-	else
-		resize(720, 580);
-
-	setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
-
-	QMetaObject::connectSlotsByName(this);
 
 	/* The OBSData constructor increments the reference once */
 	obs_data_release(oldSettings);
@@ -88,29 +80,12 @@ OBSBasicProperties::OBSBasicProperties(QWidget *parent, OBSSource source_)
 		(PropertiesVisualUpdateCb)obs_source_update);
 	view->setMinimumHeight(150);
 
-	preview->setMinimumSize(20, 150);
-	preview->setSizePolicy(
-		QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding));
-
-	// Create a QSplitter to keep a unified workflow here.
-	windowSplitter = new QSplitter(Qt::Orientation::Vertical, this);
-	windowSplitter->addWidget(preview);
-	windowSplitter->addWidget(view);
-	windowSplitter->setChildrenCollapsible(false);
-	//windowSplitter->setSizes(QList<int>({ 16777216, 150 }));
-	windowSplitter->setStretchFactor(0, 3);
-	windowSplitter->setStretchFactor(1, 1);
-
-	setLayout(new QVBoxLayout(this));
-	layout()->addWidget(windowSplitter);
+	ui->propertiesLayout->addWidget(view);
 
 	if (type == OBS_SOURCE_TYPE_TRANSITION) {
 		connect(view, SIGNAL(PropertiesRefreshed()), this,
 			SLOT(AddPreviewButton()));
 	}
-
-	layout()->addWidget(buttonBox);
-	layout()->setAlignment(buttonBox, Qt::AlignBottom);
 
 	view->show();
 	installEventFilter(CreateShortcutFilter());
@@ -126,13 +101,13 @@ OBSBasicProperties::OBSBasicProperties(QWidget *parent, OBSSource source_)
 				       this);
 
 	auto addDrawCallback = [this]() {
-		obs_display_add_draw_callback(preview->GetDisplay(),
+		obs_display_add_draw_callback(ui->preview->GetDisplay(),
 					      OBSBasicProperties::DrawPreview,
 					      this);
 	};
 	auto addTransitionDrawCallback = [this]() {
 		obs_display_add_draw_callback(
-			preview->GetDisplay(),
+			ui->preview->GetDisplay(),
 			OBSBasicProperties::DrawTransitionPreview, this);
 	};
 	uint32_t caps = obs_source_get_output_flags(source);
@@ -141,8 +116,8 @@ OBSBasicProperties::OBSBasicProperties(QWidget *parent, OBSSource source_)
 	bool drawable_preview = (caps & OBS_SOURCE_VIDEO) != 0;
 
 	if (drawable_preview && drawable_type) {
-		preview->show();
-		connect(preview.data(), &OBSQTDisplay::DisplayCreated,
+		ui->preview->show();
+		connect(ui->preview, &OBSQTDisplay::DisplayCreated,
 			addDrawCallback);
 
 	} else if (type == OBS_SOURCE_TYPE_TRANSITION) {
@@ -185,12 +160,12 @@ OBSBasicProperties::OBSBasicProperties(QWidget *parent, OBSSource source_)
 
 		connect(view, &OBSPropertiesView::Changed, updateCallback);
 
-		preview->show();
-		connect(preview.data(), &OBSQTDisplay::DisplayCreated,
+		ui->preview->show();
+		connect(ui->preview, &OBSQTDisplay::DisplayCreated,
 			addTransitionDrawCallback);
 
 	} else {
-		preview->hide();
+		ui->preview->hide();
 	}
 }
 
@@ -328,7 +303,7 @@ void OBSBasicProperties::UpdateProperties(void *data, calldata_t *)
 
 void OBSBasicProperties::on_buttonBox_clicked(QAbstractButton *button)
 {
-	QDialogButtonBox::ButtonRole val = buttonBox->buttonRole(button);
+	QDialogButtonBox::ButtonRole val = ui->buttonBox->buttonRole(button);
 
 	if (val == QDialogButtonBox::AcceptRole) {
 
@@ -467,10 +442,10 @@ void OBSBasicProperties::Cleanup()
 	config_set_int(App()->GlobalConfig(), "PropertiesWindow", "cy",
 		       height());
 
-	obs_display_remove_draw_callback(preview->GetDisplay(),
+	obs_display_remove_draw_callback(ui->preview->GetDisplay(),
 					 OBSBasicProperties::DrawPreview, this);
 	obs_display_remove_draw_callback(
-		preview->GetDisplay(),
+		ui->preview->GetDisplay(),
 		OBSBasicProperties::DrawTransitionPreview, this);
 }
 
@@ -500,6 +475,35 @@ void OBSBasicProperties::closeEvent(QCloseEvent *event)
 		return;
 
 	Cleanup();
+}
+
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+bool OBSBasicProperties::nativeEvent(const QByteArray &, void *message,
+				     qintptr *)
+#else
+bool OBSBasicProperties::nativeEvent(const QByteArray &, void *message, long *)
+#endif
+{
+#ifdef _WIN32
+	const MSG &msg = *static_cast<MSG *>(message);
+	switch (msg.message) {
+	case WM_MOVE:
+		for (OBSQTDisplay *const display :
+		     findChildren<OBSQTDisplay *>()) {
+			display->OnMove();
+		}
+		break;
+	case WM_DISPLAYCHANGE:
+		for (OBSQTDisplay *const display :
+		     findChildren<OBSQTDisplay *>()) {
+			display->OnDisplayChange();
+		}
+	}
+#else
+	UNUSED_PARAMETER(message);
+#endif
+
+	return false;
 }
 
 void OBSBasicProperties::Init()

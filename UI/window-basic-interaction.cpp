@@ -26,6 +26,11 @@
 #include <QScreen>
 #include <QWindow>
 
+#ifdef _WIN32
+#define WIN32_LEAN_AND_MEAN 1
+#include <Windows.h>
+#endif
+
 using namespace std;
 
 OBSBasicInteraction::OBSBasicInteraction(QWidget *parent, OBSSource source_)
@@ -175,6 +180,35 @@ void OBSBasicInteraction::closeEvent(QCloseEvent *event)
 					 this);
 }
 
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+bool OBSBasicInteraction::nativeEvent(const QByteArray &, void *message,
+				      qintptr *)
+#else
+bool OBSBasicInteraction::nativeEvent(const QByteArray &, void *message, long *)
+#endif
+{
+#ifdef _WIN32
+	const MSG &msg = *static_cast<MSG *>(message);
+	switch (msg.message) {
+	case WM_MOVE:
+		for (OBSQTDisplay *const display :
+		     findChildren<OBSQTDisplay *>()) {
+			display->OnMove();
+		}
+		break;
+	case WM_DISPLAYCHANGE:
+		for (OBSQTDisplay *const display :
+		     findChildren<OBSQTDisplay *>()) {
+			display->OnDisplayChange();
+		}
+	}
+#else
+	UNUSED_PARAMETER(message);
+#endif
+
+	return false;
+}
+
 static int TranslateQtKeyboardEventModifiers(QInputEvent *event,
 					     bool mouseEvent)
 {
@@ -285,8 +319,9 @@ bool OBSBasicInteraction::HandleMouseClickEvent(QMouseEvent *event)
 	//if (event->flags().testFlag(Qt::MouseEventCreatedDoubleClick))
 	//	clickCount = 2;
 
-	bool insideSource = GetSourceRelativeXY(event->x(), event->y(),
-						mouseEvent.x, mouseEvent.y);
+	QPoint pos = event->pos();
+	bool insideSource = GetSourceRelativeXY(pos.x(), pos.y(), mouseEvent.x,
+						mouseEvent.y);
 
 	if (mouseUp || insideSource)
 		obs_source_send_mouse_click(source, &mouseEvent, button,
@@ -303,7 +338,8 @@ bool OBSBasicInteraction::HandleMouseMoveEvent(QMouseEvent *event)
 
 	if (!mouseLeave) {
 		mouseEvent.modifiers = TranslateQtMouseEventModifiers(event);
-		mouseLeave = !GetSourceRelativeXY(event->x(), event->y(),
+		QPoint pos = event->pos();
+		mouseLeave = !GetSourceRelativeXY(pos.x(), pos.y(),
 						  mouseEvent.x, mouseEvent.y);
 	}
 

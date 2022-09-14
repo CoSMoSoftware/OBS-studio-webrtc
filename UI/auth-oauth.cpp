@@ -14,6 +14,8 @@
 
 #include <json11.hpp>
 
+#include "ui-config.h"
+
 using namespace json11;
 
 #ifdef BROWSER_AVAILABLE
@@ -64,6 +66,8 @@ OAuthLogin::OAuthLogin(QWidget *parent, const std::string &url, bool token)
 	QVBoxLayout *topLayout = new QVBoxLayout(this);
 	topLayout->addWidget(cefWidget);
 	topLayout->addLayout(bottomLayout);
+#else
+	UNUSED_PARAMETER(url);
 #endif
 }
 
@@ -91,7 +95,7 @@ void OAuthLogin::urlChanged(const QString &url)
 	if (code_idx == -1)
 		return;
 
-	if (url.left(22) != "https://obsproject.com")
+	if (!url.startsWith(OAUTH_BASE_URL))
 		return;
 
 	code_idx += (int)uri.size();

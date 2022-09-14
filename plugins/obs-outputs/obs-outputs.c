@@ -20,7 +20,7 @@ extern struct obs_output_info flv_output_info;
 extern struct obs_output_info millicast_output_info;
 extern struct obs_output_info webrtc_custom_output_info;
 
-#if COMPILE_FTL
+#if defined(FTL_FOUND)
 extern struct obs_output_info ftl_output_info;
 #endif
 
@@ -72,7 +72,7 @@ bool obs_module_load(void)
 	obs_register_output(&flv_output_info);
 	obs_register_output(&millicast_output_info);
 	obs_register_output(&webrtc_custom_output_info);
-#if COMPILE_FTL
+#if defined(FTL_FOUND)
 	obs_register_output(&ftl_output_info);
 #endif
 	return true;

@@ -7,9 +7,6 @@
 #-------------------------------------------------------------------------------
 
 project(obs-outputs)
-include_directories("${CMAKE_BINARY_DIR}/plugins/obs-outputs/config")
-include_directories("${CMAKE_SOURCE_DIR}/libobs")
-include_directories("${CMAKE_SOURCE_DIR}/UI/obs-frontend-api")
 
 #-------------------------------------------------------------------------------
 # WebRTC
@@ -87,190 +84,186 @@ add_subdirectory(${MC_SIGNAL_LIB_DIR})
 # - RTMP Support
 #-------------------------------------------------------------------------------
 
-# --- Secure RTMP if SSL implementation available on the build host
-
-set(WITH_RTMPS AUTO CACHE STRING "Enable RTMPS support with mbedTLS")
-set_property(CACHE WITH_RTMPS PROPERTY STRINGS AUTO ON OFF)
-
-find_package(PkgConfig)
-
-option(STATIC_MBEDTLS "Statically link mbedTLS into binary" OFF)
-
-if (WITH_RTMPS STREQUAL "AUTO")
-	find_package(MbedTLS)
-	find_package(ZLIB)
-	if (NOT MBEDTLS_FOUND OR NOT ZLIB_FOUND)
-		set(WITH_RTMPS "OFF")
-		message(WARNING "mbedTLS or zlib was not found, RTMPS will be auto-disabled")
-	endif()
+if(NOT DEFINED ENABLE_RTMPS)
+  set(ENABLE_RTMPS
+      AUTO
+      CACHE STRING "Enable RTMPS support with mbedTLS" FORCE)
+  set_property(CACHE ENABLE_RTMPS PROPERTY STRINGS AUTO ON OFF)
 endif()
 
-if (WITH_RTMPS)
-	find_package(MbedTLS REQUIRED)
-	find_package(ZLIB REQUIRED)
-	add_definitions(-DCRYPTO -DUSE_MBEDTLS)
-	include_directories(${MBEDTLS_INCLUDE_DIRS} ${ZLIB_INCLUDE_DIRS})
+option(ENABLE_STATIC_MBEDTLS "Enable statically linking mbedTLS into binary"
+       OFF)
+mark_as_advanced(ENABLE_STATIC_MBEDTLS)
+
+add_library(obs-outputs MODULE)
+add_library(OBS::outputs ALIAS obs-outputs)
+
+target_sources(
+  obs-outputs
+  PRIVATE obs-outputs.c
+          obs-output-ver.h
+          flv-mux.c
+          flv-mux.h
+          flv-output.c
+          net-if.c
+          net-if.h
+          null-output.c
+          rtmp-helpers.h
+          rtmp-stream.c
+          rtmp-stream.h
+          rtmp-windows.c)
+
+target_link_libraries(obs-outputs PRIVATE OBS::libobs)
+
+set_target_properties(obs-outputs PROPERTIES FOLDER "plugins" PREFIX "")
+
+if(OS_WINDOWS)
+  set(MODULE_DESCRIPTION "OBS output module")
+  configure_file(${CMAKE_SOURCE_DIR}/cmake/bundle/windows/obs-module.rc.in
+                 obs-outputs.rc)
+
+  target_sources(obs-outputs PRIVATE obs-outputs.rc)
+
+  if(MSVC)
+    target_link_libraries(obs-outputs PRIVATE OBS::w32-pthreads)
+    target_link_options(obs-outputs PRIVATE "LINKER:/IGNORE:4098"
+                        "LINKER:/IGNORE:4099")
+  endif()
+
+  target_link_libraries(obs-outputs PRIVATE ws2_32 winmm Iphlpapi)
+endif()
+
+if(ENABLE_RTMPS STREQUAL "AUTO" OR ENABLE_RTMPS STREQUAL "ON")
+  find_package(MbedTLS)
+  find_package(ZLIB)
+  if(NOT MBEDTLS_FOUND OR NOT ZLIB_FOUND)
+    if(ENABLE_RTMPS STREQUAL "ON")
+      obs_status(FATAL_ERROR
+                 "mbedTLS or zlib not found, but required for RTMPS support.")
+      return()
+    else()
+      obs_status(
+        WARNING
+        "mbedTLS or zlib was not found, RTMPS will be automatically disabled.")
+      target_compile_definitions(obs-outputs PRIVATE NO_CRYPTO)
+    endif()
+  else()
+    target_sources(
+      obs-outputs
+      PRIVATE librtmp/amf.c
+              librtmp/amf.h
+              librtmp/bytes.h
+              librtmp/cencode.c
+              librtmp/cencode.h
+              librtmp/handshake.h
+              librtmp/hashswf.c
+              librtmp/http.h
+              librtmp/log.c
+              librtmp/log.h
+              librtmp/md5.c
+              librtmp/md5.h
+              librtmp/parseurl.c
+              librtmp/rtmp.c
+              librtmp/rtmp.h
+              librtmp/rtmp_sys.h)
+
+    target_compile_definitions(obs-outputs PRIVATE USE_MBEDTLS CRYPTO)
+
+    target_link_libraries(obs-outputs PRIVATE Mbedtls::Mbedtls ZLIB::ZLIB)
+
+    if(OS_WINDOWS)
+      target_link_libraries(obs-outputs PRIVATE crypt32)
+
+    elseif(OS_MACOS)
+      find_library(FOUNDATION_FRAMEWORK Foundation)
+      find_library(SECURITY_FRAMEWORK Security)
+      mark_as_advanced(FOUNDATION_FRAMEWORK SECURITY_FRAMEWORK)
+
+      target_link_libraries(obs-outputs PRIVATE ${FOUNDATION_FRAMEWORK}
+                                                ${SECURITY_FRAMEWORK})
+      set_target_properties(obs-outputs PROPERTIES CXX_VISIBILITY_PRESET hidden)
+      set_target_properties(obs-outputs PROPERTIES C_VISIBILITY_PRESET hidden)
+
+    elseif(OS_POSIX)
+      set_target_properties(obs-outputs PROPERTIES CXX_VISIBILITY_PRESET hidden)
+      set_target_properties(obs-outputs PROPERTIES C_VISIBILITY_PRESET hidden)
+    endif()
+  endif()
 else()
-	add_definitions(-DNO_CRYPTO)
+  target_compile_definitions(obs-outputs PRIVATE NO_CRYPTO)
 endif()
 
-set(COMPILE_FTL FALSE)
-
-if (PKG_CONFIG_FOUND)
-	pkg_check_modules(FTL libftl)
+find_package(PkgConfig QUIET)
+if(PKG_CONFIG_FOUND)
+  pkg_check_modules(FTL QUIET libftl)
 endif()
 
-if (FTL_FOUND)
-	find_package(Libcurl REQUIRED)
-	message(STATUS "Found ftl-sdk (system): ftl outputs enabled")
+if(FTL_FOUND)
+  find_package(CURL REQUIRED)
+  obs_status(ENABLED "ftl outputs (system ftl-sdk)")
 
-	set(ftl_SOURCES ftl-stream.c)
+  target_sources(obs-outputs PRIVATE ftl-stream.c)
 
-	include_directories(${LIBCURL_INCLUDE_DIRS} ${FTL_INCLUDE_DIRS})
-	set(COMPILE_FTL TRUE)
-elseif (EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/ftl-sdk/CMakeLists.txt")
-	find_package(Libcurl REQUIRED)
-	message(STATUS "Found ftl-sdk: ftl outputs enabled")
+  target_include_directories(obs-outputs PRIVATE ${FTL_INCLUDE_DIRS})
 
-	add_definitions(-DFTL_STATIC_COMPILE)
+  target_link_libraries(obs-outputs PRIVATE ${FTL_LIBRARIES} CURL::libcurl)
 
-	include_directories(${LIBCURL_INCLUDE_DIRS})
+  target_compile_features(obs-outputs PRIVATE c_std_11)
 
-	set(ftl_SOURCES
-		ftl-stream.c
-		ftl-sdk/libftl/hmac/hmac.c
-		ftl-sdk/libftl/hmac/sha2.c
-		ftl-sdk/libftl/ftl-sdk.c
-		ftl-sdk/libftl/handshake.c
-		ftl-sdk/libftl/ingest.c
-		ftl-sdk/libftl/ftl_helpers.c
-		ftl-sdk/libftl/media.c
-		ftl-sdk/libftl/gettimeofday/gettimeofday.c
-		ftl-sdk/libftl/logging.c)
-	set(ftl_HEADERS
-		ftl-sdk/libftl/hmac/hmac.h
-		ftl-sdk/libftl/hmac/sha2.h
-		ftl-sdk/libftl/ftl.h
-		ftl-sdk/libftl/ftl_private.h)
-	set(ftl_IMPORTS
-		${OBS_JANSSON_IMPORT}
-		${LIBCURL_LIBRARIES})
+  target_compile_definitions(obs-outputs PRIVATE FTL_FOUND)
 
-	if (WIN32)
-		list(APPEND ftl_SOURCES
-			ftl-sdk/libftl/win32/socket.c
-			ftl-sdk/libftl/gettimeofday/gettimeofday.c
-			ftl-sdk/libftl/win32/threads.c)
-		list(APPEND ftl_HEADERS
-			ftl-sdk/libftl/gettimeofday/gettimeofday.h
-			ftl-sdk/libftl/win32/threads.h)
+elseif(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/ftl-sdk/CMakeLists.txt")
+  find_package(CURL REQUIRED)
+  obs_status(ENABLED "ftl ouputs (bundled ftl-sdk)")
 
-		include_directories(ftl-sdk/libftl/win32)
-	else()
-		list(APPEND ftl_SOURCES
-			ftl-sdk/libftl/posix/socket.c
-			ftl-sdk/libftl/posix/threads.c)
-		list(APPEND ftl_HEADERS
-			ftl-sdk/libftl/posix/threads.h)
+  target_compile_definitions(obs-outputs PRIVATE FTL_STATIC_COMPILE)
 
-		include_directories(ftl-sdk/libftl/posix)
-	endif()
+  target_compile_features(obs-outputs PRIVATE c_std_11)
 
-	include_directories(ftl-sdk/libftl)
+  target_link_libraries(obs-outputs PRIVATE Jansson::Jansson CURL::libcurl)
 
-	set(COMPILE_FTL TRUE)
-endif()
+  target_sources(
+    obs-outputs
+    PRIVATE ftl-stream.c
+            ftl-sdk/libftl/ftl.h
+            ftl-sdk/libftl/ftl_private.h
+            ftl-sdk/libftl/hmac/hmac.c
+            ftl-sdk/libftl/hmac/hmac.h
+            ftl-sdk/libftl/hmac/sha2.c
+            ftl-sdk/libftl/hmac/sha2.h
+            ftl-sdk/libftl/ftl-sdk.c
+            ftl-sdk/libftl/handshake.c
+            ftl-sdk/libftl/ingest.c
+            ftl-sdk/libftl/ftl_helpers.c
+            ftl-sdk/libftl/media.c
+            ftl-sdk/libftl/gettimeofday/gettimeofday.c
+            ftl-sdk/libftl/logging.c)
 
-configure_file(
-	"${CMAKE_CURRENT_SOURCE_DIR}/obs-outputs-config.h.in"
-	"${CMAKE_BINARY_DIR}/plugins/obs-outputs/config/obs-outputs-config.h")
+  target_include_directories(obs-outputs
+                             PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/ftl-sdk/libftl)
 
-include_directories("${CMAKE_BINARY_DIR}/plugins/obs-outputs/config")
+  if(OS_WINDOWS)
+    target_sources(
+      obs-outputs
+      PRIVATE ftl-sdk/libftl/gettimeofday/gettimeofday.c
+              ftl-sdk/libftl/gettimeofday/gettimeofday.h
+              ftl-sdk/libftl/win32/socket.c
+              ftl-sdk/libftl/win32/threads.c
+              ftl-sdk/libftl/win32/threads.h)
 
-if(WIN32)
-	set(obs-outputs_PLATFORM_DEPS
-		ws2_32
-		winmm
-		Iphlpapi)
+    target_include_directories(
+      obs-outputs PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/ftl-sdk/libftl/win32)
+  elseif(OS_POSIX)
+    target_sources(
+      obs-outputs
+      PRIVATE ftl-sdk/libftl/posix/socket.c ftl-sdk/libftl/posix/threads.c
+              ftl-sdk/libftl/posix/threads.h)
 
-	if (WITH_RTMPS OR (WITH_RTMPS STREQUAL "AUTO"))
-		SET(obs-outputs_PLATFORM_DEPS
-			${obs-outputs_PLATFORM_DEPS}
-			crypt32)
-	endif()
-endif()
+    target_include_directories(
+      obs-outputs PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/ftl-sdk/libftl/posix)
+  endif()
 
-if(MSVC)
-	set(obs-outputs_PLATFORM_DEPS
-		${obs-outputs_PLATFORM_DEPS}
-		w32-pthreads)
-endif()
-
-if(APPLE AND (WITH_RTMPS OR (WITH_RTMPS STREQUAL "AUTO")))
-	find_library(FOUNDATION_FRAMEWORK Foundation)
-	find_library(SECURITY_FRAMEWORK Security)
-
-	set(obs-outputs_PLATFORM_DEPS
-		${obs-outputs_PLATFORM_DEPS}
-		${FOUNDATION_FRAMEWORK}
-		${SECURITY_FRAMEWORK})
-endif()
-
-set(obs-outputs_librtmp_HEADERS
-	librtmp/amf.h
-	librtmp/bytes.h
-	librtmp/cencode.h
-	librtmp/dh.h
-	librtmp/dhgroups.h
-	librtmp/handshake.h
-	librtmp/http.h
-	librtmp/log.h
-	librtmp/md5.h
-	librtmp/rtmp.h
-	librtmp/rtmp_sys.h)
-set(obs-outputs_librtmp_SOURCES
-	librtmp/amf.c
-	librtmp/cencode.c
-	librtmp/hashswf.c
-	librtmp/log.c
-	# librtmp/md5.c
-	librtmp/parseurl.c
-	librtmp/rtmp.c)
-
-if(NOT WIN32)
-	set_source_files_properties(${obs-outputs_librtmp_SOURCES} PROPERTIES
-		COMPILE_FLAGS "-fvisibility=hidden")
-endif()
-
-#-------------------------------------------------------------------------------
-# - Library target definition
-#-------------------------------------------------------------------------------
-
-set(COMPILE_FTL FALSE)
-configure_file(
-	"${CMAKE_CURRENT_SOURCE_DIR}/obs-outputs-config.h.in"
-	"${CMAKE_BINARY_DIR}/plugins/obs-outputs/config/obs-outputs-config.h")
-set(obs-outputs_HEADERS
-	"${CMAKE_BINARY_DIR}/plugins/obs-outputs/config/obs-outputs-config.h"
-	obs-output-ver.h
-	rtmp-helpers.h
-	rtmp-stream.h
-	net-if.h
-	flv-mux.h)
-set(obs-outputs_SOURCES
-	obs-outputs.c
-	null-output.c
-	rtmp-stream.c
-	rtmp-windows.c
-	flv-output.c
-	flv-mux.c
-	net-if.c)
-
-if(WIN32)
-	set(MODULE_DESCRIPTION "OBS output module")
-	configure_file(${CMAKE_SOURCE_DIR}/cmake/winrc/obs-module.rc.in obs-outputs.rc)
-	list(APPEND obs-outputs_SOURCES
-		obs-outputs.rc)
+  target_compile_definitions(obs-outputs PRIVATE FTL_FOUND)
 endif()
 
 add_library(obs-outputs MODULE
@@ -287,49 +280,6 @@ target_include_directories(obs-outputs
 	PUBLIC  "${WEBRTC_INCLUDE_DIR}"
 	PUBLIC  "${MC_SIGNAL_LIB_DIR}")
 
-#-------------------------------------------------------------------------------
-# - System Libs and linking
-#-------------------------------------------------------------------------------
-
-if(WIN32)
-	set(obs-outputs_PLATFORM_DEPS
-		ws2_32
-		winmm
-		Iphlpapi)
-
-	if (WITH_RTMPS OR (WITH_RTMPS STREQUAL "AUTO"))
-		SET(obs-outputs_PLATFORM_DEPS
-			${obs-outputs_PLATFORM_DEPS}
-			crypt32)
-	endif()
-endif()
-
-if(MSVC)
-	set(obs-outputs_PLATFORM_DEPS
-		${obs-outputs_PLATFORM_DEPS}
-		w32-pthreads)
-endif()
-
-if(APPLE AND (WITH_RTMPS OR (WITH_RTMPS STREQUAL "AUTO")))
-	find_library(FOUNDATION_FRAMEWORK Foundation)
-	find_library(SECURITY_FRAMEWORK Security)
-
-	set(obs-outputs_PLATFORM_DEPS
-		${obs-outputs_PLATFORM_DEPS}
-		${FOUNDATION_FRAMEWORK}
-		${SECURITY_FRAMEWORK})
-endif()
-
-target_link_libraries(obs-outputs
-	obs-frontend-api
-	libobs
-	websocketclient
-	${MBEDTLS_LIBRARIES}
-	${WEBRTC_LIBRARIES}
-	${ZLIB_LIBRARIES}
-	${ftl_IMPORTS}
-	${obs-outputs_PLATFORM_DEPS})
-set_target_properties(obs-outputs PROPERTIES FOLDER "plugins")
 
 # --- Compiler extra settings
 
@@ -344,3 +294,5 @@ endif()
 # --- build tree install
 
 install_obs_plugin_with_data(obs-outputs data)
+
+setup_plugin_target(obs-outputs)

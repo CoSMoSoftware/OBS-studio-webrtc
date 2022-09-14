@@ -28,6 +28,8 @@
 #include <QKeyEvent>
 #include <QFileDialog>
 #include <QStandardItemModel>
+#include <QLabel>
+#include <QPushButton>
 
 #if !defined(_WIN32) && !defined(__APPLE__)
 #include <obs-nix-platform.h>
@@ -59,55 +61,61 @@ OBSMessageBox::question(QWidget *parent, const QString &title,
 			QMessageBox::StandardButtons buttons,
 			QMessageBox::StandardButton defaultButton)
 {
-	QMessageBox mb(QMessageBox::Question, title, text, buttons, parent);
+	QMessageBox mb(QMessageBox::Question, title, text,
+		       QMessageBox::NoButton, parent);
 	mb.setDefaultButton(defaultButton);
-	if (buttons & QMessageBox::Ok)
-		mb.setButtonText(QMessageBox::Ok, QTStr("OK"));
-#define translate_button(x)           \
-	if (buttons & QMessageBox::x) \
-		mb.setButtonText(QMessageBox::x, QTStr(#x));
-	translate_button(Open);
-	translate_button(Save);
-	translate_button(Cancel);
-	translate_button(Close);
-	translate_button(Discard);
-	translate_button(Apply);
-	translate_button(Reset);
-	translate_button(Yes);
-	translate_button(No);
-	translate_button(Abort);
-	translate_button(Retry);
-	translate_button(Ignore);
-#undef translate_button
+
+	if (buttons & QMessageBox::Ok) {
+		QPushButton *button = mb.addButton(QMessageBox::Ok);
+		button->setText(QTStr("OK"));
+	}
+#define add_button(x)                                               \
+	if (buttons & QMessageBox::x) {                             \
+		QPushButton *button = mb.addButton(QMessageBox::x); \
+		button->setText(QTStr(#x));                         \
+	}
+	add_button(Open);
+	add_button(Save);
+	add_button(Cancel);
+	add_button(Close);
+	add_button(Discard);
+	add_button(Apply);
+	add_button(Reset);
+	add_button(Yes);
+	add_button(No);
+	add_button(Abort);
+	add_button(Retry);
+	add_button(Ignore);
+#undef add_button
 	return (QMessageBox::StandardButton)mb.exec();
 }
 
 void OBSMessageBox::information(QWidget *parent, const QString &title,
 				const QString &text)
 {
-	QMessageBox mb(QMessageBox::Information, title, text, QMessageBox::Ok,
-		       parent);
-	mb.setButtonText(QMessageBox::Ok, QTStr("OK"));
+	QMessageBox mb(QMessageBox::Information, title, text,
+		       QMessageBox::NoButton, parent);
+	mb.addButton(QTStr("OK"), QMessageBox::AcceptRole);
 	mb.exec();
 }
 
 void OBSMessageBox::warning(QWidget *parent, const QString &title,
 			    const QString &text, bool enableRichText)
 {
-	QMessageBox mb(QMessageBox::Warning, title, text, QMessageBox::Ok,
+	QMessageBox mb(QMessageBox::Warning, title, text, QMessageBox::NoButton,
 		       parent);
 	if (enableRichText)
 		mb.setTextFormat(Qt::RichText);
-	mb.setButtonText(QMessageBox::Ok, QTStr("OK"));
+	mb.addButton(QTStr("OK"), QMessageBox::AcceptRole);
 	mb.exec();
 }
 
 void OBSMessageBox::critical(QWidget *parent, const QString &title,
 			     const QString &text)
 {
-	QMessageBox mb(QMessageBox::Critical, title, text, QMessageBox::Ok,
-		       parent);
-	mb.setButtonText(QMessageBox::Ok, QTStr("OK"));
+	QMessageBox mb(QMessageBox::Critical, title, text,
+		       QMessageBox::NoButton, parent);
+	mb.addButton(QTStr("OK"), QMessageBox::AcceptRole);
 	mb.exec();
 }
 
@@ -121,7 +129,6 @@ bool QTToGSWindow(QWindow *window, gs_window &gswindow)
 	gswindow.view = (id)window->winId();
 #else
 	switch (obs_get_nix_platform()) {
-	case OBS_NIX_PLATFORM_X11_GLX:
 	case OBS_NIX_PLATFORM_X11_EGL:
 		gswindow.id = window->winId();
 		gswindow.display = obs_get_nix_platform_display();
@@ -192,30 +199,6 @@ QDataStream &operator>>(QDataStream &in, OBSScene &scene)
 	OBSSourceAutoRelease source =
 		obs_get_source_by_name(QT_TO_UTF8(sceneName));
 	scene = obs_scene_from_source(source);
-
-	return in;
-}
-
-QDataStream &operator<<(QDataStream &out, const OBSSceneItem &si)
-{
-	obs_scene_t *scene = obs_sceneitem_get_scene(si);
-	obs_source_t *source = obs_sceneitem_get_source(si);
-	return out << QString(obs_source_get_name(obs_scene_get_source(scene)))
-		   << QString(obs_source_get_name(source));
-}
-
-QDataStream &operator>>(QDataStream &in, OBSSceneItem &si)
-{
-	QString sceneName;
-	QString sourceName;
-
-	in >> sceneName >> sourceName;
-
-	OBSSourceAutoRelease sceneSource =
-		obs_get_source_by_name(QT_TO_UTF8(sceneName));
-
-	obs_scene_t *scene = obs_scene_from_source(sceneSource);
-	si = obs_scene_find_source(scene, QT_TO_UTF8(sourceName));
 
 	return in;
 }
@@ -401,4 +384,25 @@ QStringList OpenFiles(QWidget *parent, QString title, QString path,
 		QFileDialog::getOpenFileNames(parent, title, path, extensions);
 
 	return files;
+}
+
+static void SetLabelText(QLabel *label, const QString &newText)
+{
+	if (label->text() != newText)
+		label->setText(newText);
+}
+
+void TruncateLabel(QLabel *label, QString newText, int length)
+{
+	if (newText.length() < length) {
+		label->setToolTip(QString());
+		SetLabelText(label, newText);
+		return;
+	}
+
+	label->setToolTip(newText);
+	newText.truncate(length);
+	newText += "...";
+
+	SetLabelText(label, newText);
 }
