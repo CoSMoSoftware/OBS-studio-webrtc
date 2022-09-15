@@ -19,3 +19,12 @@
 [submodule "plugins/obs-websocket"]
 	path = plugins/obs-websocket
 	url = https://github.com/obsproject/obs-websocket.git
+[submodule "plugins/obs-outputs/websocket-client/nlohmann_json"]
+	path = plugins/obs-outputs/websocket-client/nlohmann_json
+	url = https://github.com/nlohmann/json.git
+[submodule "plugins/obs-outputs/websocket-client/websocketpp"]
+	path = plugins/obs-outputs/websocket-client/websocketpp
+	url = https://github.com/zaphoyd/websocketpp
+[submodule "plugins/obs-outputs/websocket-client/third_party"]
+	path = plugins/obs-outputs/websocket-client/third_party
+	url = https://github.com/chriskohlhoff/asio.git
