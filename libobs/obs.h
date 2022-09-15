@@ -2139,9 +2139,34 @@ EXPORT obs_service_t *obs_output_get_service(const obs_output_t *output);
 EXPORT void obs_output_set_reconnect_settings(obs_output_t *output,
 					      int retry_count, int retry_sec);
 
+// #310 webrtc getstats()
+EXPORT void obs_output_get_stats(const obs_output_t *output);
+EXPORT const char *obs_output_get_stats_list(const obs_output_t *output);
 EXPORT uint64_t obs_output_get_total_bytes(const obs_output_t *output);
 EXPORT int obs_output_get_frames_dropped(const obs_output_t *output);
 EXPORT int obs_output_get_total_frames(const obs_output_t *output);
+// #310 webrtc getstats()
+EXPORT uint64_t obs_output_get_transport_bytes_sent(const obs_output_t *output);
+EXPORT uint64_t
+obs_output_get_transport_bytes_received(const obs_output_t *output);
+EXPORT uint64_t obs_output_get_video_packets_sent(const obs_output_t *output);
+EXPORT uint64_t obs_output_get_video_bytes_sent(const obs_output_t *output);
+EXPORT uint64_t obs_output_get_video_fir_count(const obs_output_t *output);
+EXPORT uint32_t obs_output_get_video_pli_count(const obs_output_t *output);
+EXPORT uint64_t obs_output_get_video_nack_count(const obs_output_t *output);
+EXPORT uint64_t obs_output_get_video_qp_sum(const obs_output_t *output);
+EXPORT uint64_t obs_output_get_audio_packets_sent(const obs_output_t *output);
+EXPORT uint64_t obs_output_get_audio_bytes_sent(const obs_output_t *output);
+EXPORT uint32_t obs_output_get_track_audio_level(const obs_output_t *output);
+EXPORT uint32_t
+obs_output_get_track_total_audio_energy(const obs_output_t *output);
+EXPORT uint32_t
+obs_output_get_track_total_samples_duration(const obs_output_t *output);
+EXPORT uint32_t obs_output_get_track_frame_width(const obs_output_t *output);
+EXPORT uint32_t obs_output_get_track_frame_height(const obs_output_t *output);
+EXPORT uint64_t obs_output_get_track_frames_sent(const obs_output_t *output);
+EXPORT uint64_t
+obs_output_get_track_huge_frames_sent(const obs_output_t *output);
 
 /**
  * Sets the preferred scaled resolution for this output.  Set width and height
@@ -2399,6 +2424,18 @@ OBS_DEPRECATED
 EXPORT void obs_free_encoder_packet(struct encoder_packet *packet);
 #endif
 
+/** Returns the simulcast setting for this service context */
+EXPORT bool obs_service_get_simulcast(const obs_service_t *service);
+
+/** Returns the multisource setting for this service context */
+EXPORT bool obs_service_get_multisource(const obs_service_t *service);
+
+/** Returns the sourceId for multisource */
+EXPORT const char *obs_service_get_sourceId(const obs_service_t *service);
+
+/** Returns the URL for WebRTC service */
+EXPORT const char *obs_service_get_publishApiUrl(const obs_service_t *service);
+
 EXPORT void obs_encoder_packet_ref(struct encoder_packet *dst,
 				   struct encoder_packet *src);
 EXPORT void obs_encoder_packet_release(struct encoder_packet *packet);
@@ -2472,11 +2509,20 @@ EXPORT const char *obs_service_get_url(const obs_service_t *service);
 /** Returns the stream key (if any) for this service context */
 EXPORT const char *obs_service_get_key(const obs_service_t *service);
 
+/** Returns the room name (if any) for this service context */
+EXPORT const char *obs_service_get_room(const obs_service_t *service);
+
 /** Returns the username (if any) for this service context */
 EXPORT const char *obs_service_get_username(const obs_service_t *service);
 
 /** Returns the password (if any) for this service context */
 EXPORT const char *obs_service_get_password(const obs_service_t *service);
+
+/** Returns the video codec name for this service context */
+EXPORT const char *obs_service_get_codec(const obs_service_t *service);
+
+/** Returns the protocol for this service context */
+EXPORT const char *obs_service_get_protocol(const obs_service_t *service);
 
 /**
  * Applies service-specific video encoder settings.

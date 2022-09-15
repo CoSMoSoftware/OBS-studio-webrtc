@@ -7,6 +7,7 @@
 #-------------------------------------------------------------------------------
 
 project(obs-outputs)
+include_directories("${CMAKE_SOURCE_DIR}/UI/obs-frontend-api")
 
 #-------------------------------------------------------------------------------
 # WebRTC
@@ -266,11 +267,7 @@ elseif(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/ftl-sdk/CMakeLists.txt")
   target_compile_definitions(obs-outputs PRIVATE FTL_FOUND)
 endif()
 
-add_library(obs-outputs MODULE
-	${obs-outputs_SOURCES}
-	${obs-outputs_HEADERS}
-	${obs-outputs_librtmp_SOURCES}
-	${obs-outputs_librtmp_HEADERS}
+target_sources(obs-outputs PRIVATE
 	${obs-outputs_webrtc_SOURCES}
 	${obs-outputs_webrtc_HEADERS})
 

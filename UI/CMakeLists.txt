@@ -6,7 +6,13 @@ if(NOT ENABLE_UI)
   return()
 endif()
 
-project(obs)
+if( NOT OBS_WEBRTC_VENDOR_NAME )
+	set( _gui_name obs )
+else()
+	# NOTE ALEX: ugly, fix me.
+	set( _gui_name obs )
+endif()
+project(${_gui_name})
 
 # Legacy support
 if(TARGET obs-browser
@@ -81,6 +87,21 @@ set_target_properties(
              AUTOUIC ON
              AUTORCC ON
              AUTOUIC_SEARCH_PATHS "forms;forms/source-toolbar")
+
+# #271 do not list video codec H264 if it is not available in libwebrtc
+# WARNING: find_package(LibWebRTC) may modify the value of CMAKE_CXX_STANDARD
+set( _remember_cmake_cxx_standard ${CMAKE_CXX_STANDARD} )
+find_package(LibWebRTC 91 QUIET COMPONENTS H264 )
+if( NOT libwebrtc_FOUND )
+  # A FindLibWebRTC package is also provided in the repository for self-compiled libwebrtc
+  find_package(LibWebRTC REQUIRED)
+endif()
+set( CMAKE_CXX_STANDARD ${_remember_cmake_cxx_standard} )
+if( NOT WEBRTC_H264_FOUND )
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DDISABLE_WEBRTC_H264")
+  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DDISABLE_WEBRTC_H264")
+endif()
+
 
 target_include_directories(obs PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}
                                        ${CMAKE_CURRENT_BINARY_DIR})

@@ -556,7 +556,6 @@ static bool MakeUserDirs()
 		return false;
 	if (!do_mkdir(path))
 		return false;
-#endif
 
 	if (GetConfigPath(path, sizeof(path),
 			  (std::string(CONFIG_DIR) + "/updates").c_str()) <= 0)

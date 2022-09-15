@@ -23,7 +23,7 @@ include_directories(${CMAKE_SOURCE_DIR}/libobs)
 #
 set(JSON_BuildTests OFF CACHE INTERNAL "")
 # set(JSON_Install OFF CACHE INTERNAL "")
-add_subdirectory(nlohmann_json)
+#add_subdirectory(nlohmann_json)
 
 #------------------------------------------------------------------------
 # OpenSSL

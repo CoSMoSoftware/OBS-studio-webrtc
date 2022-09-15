@@ -228,7 +228,7 @@ private:
 
 	bool QueryChanges();
 
-	void ResetEncoders(bool streamOnly = false);
+	// void ResetEncoders(bool streamOnly = false);
 	void LoadColorRanges();
 	void LoadColorSpaces();
 	void LoadColorFormats();

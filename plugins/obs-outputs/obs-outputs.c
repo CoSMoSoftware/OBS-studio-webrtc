@@ -1,7 +1,5 @@
 #include <obs-module.h>
 
-#include "obs-outputs-config.h"
-
 #ifdef _WIN32
 #include <winsock2.h>
 #include <mbedtls/threading.h>

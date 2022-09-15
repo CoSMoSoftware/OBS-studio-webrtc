@@ -863,7 +863,7 @@ OBSBasicSettings::OBSBasicSettings(QWidget *parent)
 //	ui->basicSettingsButtonGroup->setId(ui->SettingsHotkeysButton, 5);
 //	ui->basicSettingsButtonGroup->setId(ui->SettingsAdvancedButton, 6);
 //	connect(ui->basicSettingsButtonGroup, SIGNAL(buttonClicked(int)), this,
-		SLOT(SimpleRecordingEncoderChanged()));
+//		SLOT(SimpleRecordingEncoderChanged()));
 
 	// #289 service list of radio buttons
 	ui->serviceButtonGroup->setId(ui->millicastWebrtcRadioButton, 0);
@@ -1842,9 +1842,10 @@ void OBSBasicSettings::LoadSimpleOutputSettings()
 
 	ui->simpleOutputPath->setText(path);
 	ui->simpleNoSpace->setChecked(noSpace);
+	ui->simpleOutputVBitrate->setValue(videoBitrate);
 	// NOTE LUDO: #194 replace Settings/Output video bitrate QSpinBox by QLineEdit
-	ui->simpleOutputVBitrate->setText(
-		QString::fromStdString(std::to_string(videoBitrate)));
+//	ui->simpleOutputVBitrate->setText(
+//		QString::fromStdString(std::to_string(videoBitrate)));
 
 	int idx = ui->simpleOutRecFormat->findText(format);
 	ui->simpleOutRecFormat->setCurrentIndex(idx);
@@ -2266,7 +2267,7 @@ void OBSBasicSettings::LoadOutputSettings()
 {
 	loading = true;
 
-	ResetEncoders();
+	// ResetEncoders();
 
 	const char *mode = config_get_string(main->Config(), "Output", "Mode");
 
@@ -3594,8 +3595,8 @@ void OBSBasicSettings::SaveOutputSettings()
 		presetType = "Preset";
 
 	// NOTE LUDO: #194 replace Settings/Output video bitrate QSpinBox by QLineEdit
-	// SaveSpinBox(ui->simpleOutputVBitrate, "SimpleOutput", "VBitrate");
-	SaveEdit(ui->simpleOutputVBitrate, "SimpleOutput", "VBitrate");
+	SaveSpinBox(ui->simpleOutputVBitrate, "SimpleOutput", "VBitrate");
+//	SaveEdit(ui->simpleOutputVBitrate, "SimpleOutput", "VBitrate");
 	SaveComboData(ui->simpleOutStrEncoder, "SimpleOutput", "StreamEncoder");
 	SaveCombo(ui->simpleOutputABitrate, "SimpleOutput", "ABitrate");
 	SaveEdit(ui->simpleOutputPath, "SimpleOutput", "FilePath");
