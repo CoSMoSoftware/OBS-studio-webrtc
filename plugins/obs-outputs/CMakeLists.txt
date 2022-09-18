@@ -7,7 +7,6 @@
 #-------------------------------------------------------------------------------
 
 project(obs-outputs)
-include_directories("${CMAKE_SOURCE_DIR}/UI/obs-frontend-api")
 
 #-------------------------------------------------------------------------------
 # WebRTC
@@ -114,6 +113,7 @@ target_sources(
           rtmp-stream.h
           rtmp-windows.c)
 
+target_include_directories(obs-outputs PRIVATE "${CMAKE_SOURCE_DIR}/UI/obs-frontend-api")
 target_link_libraries(obs-outputs PRIVATE OBS::libobs)
 
 set_target_properties(obs-outputs PROPERTIES FOLDER "plugins" PREFIX "")

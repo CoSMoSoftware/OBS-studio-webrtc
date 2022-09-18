@@ -12,6 +12,8 @@
 #include "log-viewer.hpp"
 #include "qt-wrappers.hpp"
 
+#include "ui-config.h"
+
 OBSLogViewer::OBSLogViewer(QWidget *parent)
 	: QDialog(parent), ui(new Ui::OBSLogViewer)
 {
@@ -56,7 +58,7 @@ void OBSLogViewer::InitLog()
 	char logDir[512];
 	std::string path;
 
-	if (GetConfigPath(logDir, sizeof(logDir), "obs-studio/logs")) {
+	if (GetConfigPath(logDir, sizeof(logDir), CONFIG_DIR "/logs")) {
 		path += logDir;
 		path += "/";
 		path += App()->GetCurrentLog();
@@ -126,7 +128,7 @@ void OBSLogViewer::AddLine(int type, const QString &str)
 void OBSLogViewer::on_openButton_clicked()
 {
 	char logDir[512];
-	if (GetConfigPath(logDir, sizeof(logDir), "obs-studio/logs") <= 0)
+	if (GetConfigPath(logDir, sizeof(logDir), CONFIG_DIR "/logs") <= 0)
 		return;
 
 	const char *log = App()->GetCurrentLog();

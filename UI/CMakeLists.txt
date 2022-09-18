@@ -6,6 +6,8 @@ if(NOT ENABLE_UI)
   return()
 endif()
 
+# ----------------------------------------------------------------------------
+
 if( NOT OBS_WEBRTC_VENDOR_NAME )
 	set( _gui_name obs )
 else()
@@ -531,6 +533,6 @@ unset(_UI)
 
 define_graphic_modules(obs)
 setup_obs_app(obs)
-setup_target_resources(obs obs-studio)
+setup_target_resources(obs ${_gui_name})
 add_target_resource(obs ${CMAKE_CURRENT_SOURCE_DIR}/../AUTHORS
-                    obs-studio/authors)
+                    ${_gui_name}/authors)

@@ -1337,7 +1337,7 @@ static bool Update(wchar_t *cmdLine)
 		}
 	}
 
-	StringCbCat(lpAppDataPath, sizeof(lpAppDataPath), L"\\obs-studio");
+	StringCbCat(lpAppDataPath, sizeof(lpAppDataPath), L"\\" CONFIG_DIR);
 
 	/* ------------------------------------- *
 	 * Get download path                     */
@@ -1355,7 +1355,7 @@ static bool Update(wchar_t *cmdLine)
 		       GetLastError());
 		return false;
 	}
-	if (!GetTempFileNameW(tempDirName, L"obs-studio", 0, tempPath)) {
+	if (!GetTempFileNameW(tempDirName, L"" CONFIG_DIR, 0, tempPath)) {
 		Status(L"Update failed: Failed to create temp dir name: %ld",
 		       GetLastError());
 		return false;

@@ -17,6 +17,8 @@
 
 #include <browser-panel.hpp>
 
+#include "ui-config.h"
+
 struct QCef;
 extern QCef *cef;
 
@@ -205,7 +207,7 @@ try {
 	bool success;
 
 	BPtr<char> whatsnewPath =
-		GetConfigPathPtr("obs-studio/updates/whatsnew.json");
+		GetConfigPathPtr(CONFIG_DIR "/updates/whatsnew.json");
 
 	/* ----------------------------------- *
 	 * avoid downloading json again        */

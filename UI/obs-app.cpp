@@ -2735,7 +2735,7 @@ static void move_to_xdg(void)
 	if (!home)
 		return;
 
-	if (snprintf(old_path, 512, "%s/.$s", home, CONFIG_DIR) <= 0)
+	if (snprintf(old_path, 512, "%s/.%s", home, CONFIG_DIR) <= 0)
 		return;
 
 	/* make base xdg path if it doesn't already exist */
