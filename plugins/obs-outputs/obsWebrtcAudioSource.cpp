@@ -82,7 +82,7 @@ void obsWebrtcAudioSource::OnAudioData(audio_data *frame)
 	}
 
 	if (i != frame->frames) {
-		pending_remainder = frame->frames - i;
+		pending_remainder = frame->frames - static_cast<uint16_t>(i);
 		memcpy(pending, data + i * sample_size * num_channels,
 		       pending_remainder * sample_size * num_channels);
 	}

@@ -419,23 +419,23 @@ bool WebRTCStream::start(WebRTCStream::Type type)
 	options.noise_suppression.emplace(false); // default: true
 	options.highpass_filter.emplace(false);   // default: true
 	options.stereo_swapping.emplace(false);
-	options.typing_detection.emplace(false); // default: true
+	// m104 options.typing_detection.emplace(false); // default: true
 	// m100 options.experimental_agc.emplace(false);
 	// m79 options.extended_filter_aec.emplace(false);
 	// m79 options.delay_agnostic_aec.emplace(false);
 	// m100 options.experimental_ns.emplace(false);
-	options.residual_echo_detector.emplace(false); // default: true
+	// m104 options.residual_echo_detector.emplace(false); // default: true
 	// options.tx_agc_limiter.emplace(false);
 
 	stream = factory->CreateLocalMediaStream("obs");
 
 	audio_source = obsWebrtcAudioSource::Create(&options);
-	audio_track = factory->CreateAudioTrack("audio", audio_source);
+	audio_track = factory->CreateAudioTrack("audio", audio_source.get());
 	// pc->AddTrack(audio_track, {"obs"});
 	stream->AddTrack(audio_track);
 
 	if (getVideoSourceCount() > 0) {
-		video_track = factory->CreateVideoTrack("video", videoCapturer);
+		video_track = factory->CreateVideoTrack("video", videoCapturer.get());
 		// pc->AddTrack(video_track, {"obs"});
 		stream->AddTrack(video_track);
 	}

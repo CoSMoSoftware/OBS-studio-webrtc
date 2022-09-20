@@ -153,11 +153,11 @@ add_subdirectory(UI)
 
 # --- Handle Compiler Settings
 
-if(MSVC AND NOT EXISTS "${CMAKE_BINARY_DIR}/ALL_BUILD.vcxproj.user")
-	file(GENERATE
-		OUTPUT "${CMAKE_BINARY_DIR}/ALL_BUILD.vcxproj.user"
-		INPUT "${CMAKE_SOURCE_DIR}/cmake/ALL_BUILD.vcxproj.user.in")
-endif()
+# if(MSVC AND NOT EXISTS "${CMAKE_BINARY_DIR}/ALL_BUILD.vcxproj.user")
+# 	file(GENERATE
+# 		OUTPUT "${CMAKE_BINARY_DIR}/ALL_BUILD.vcxproj.user"
+# 		INPUT "${CMAKE_SOURCE_DIR}/cmake/ALL_BUILD.vcxproj.user.in")
+# endif()
 
 if(NOT CMAKE_BUILD_TYPE)
         set(CMAKE_BUILD_TYPE Release)
@@ -325,7 +325,7 @@ if(NOT INSTALLER_RUN)
 			list(APPEND CMAKE_PREFIX_PATH "$ENV{QTDIR}")
 		endif()
 
-		find_package(Qt5Widgets REQUIRED)
+		find_package(Qt6Widgets REQUIRED)
 		if( APPLE )
 			# Make sure we are using Qt installed by brew
 			list(GET Qt5Widgets_INCLUDE_DIRS 1 my_path)

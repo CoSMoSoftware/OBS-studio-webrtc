@@ -600,7 +600,7 @@ static string from_obs_data_autoselect(obs_data_t *data, const char *name,
 
 static void AddButtonGroupItem(QButtonGroup *buttongroup, QVBoxLayout *vbox,
 			       obs_property_t *prop,
-			       obs_button_group_format format, size_t idx)
+			       obs_button_group_format format, int idx)
 {
 	const char *name = obs_property_button_group_item_name(prop, idx);
 	QVariant var;
@@ -629,7 +629,7 @@ QWidget *OBSPropertiesView::AddButtonGroup(obs_property_t *prop, bool &warning)
 	size_t count = obs_property_button_group_item_count(prop);
 	int idx = -1;
 
-	for (size_t i = 0; i < count; i++)
+	for (int i = 0; i < count; i++)
 		AddButtonGroupItem(buttongroup, vbox, prop, format, i);
 
 	groupbox->setLayout(vbox);

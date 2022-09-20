@@ -21,7 +21,7 @@ endif()
 message( STATUS "Looking for libwebrtc" )
 
 # CoSMo libwebrtc package has versioning and COMPONENTS
-find_package(LibWebRTC 95 QUIET COMPONENTS H264 )
+find_package(LibWebRTC 104 QUIET COMPONENTS H264 )
   if( NOT libwebrtc_FOUND )
     message( STATUS "No CoSMo package was found, searching for any webrtc package.")
     # A FindLibWebRTC package is also provided in the repository for self-compiled libwebrtc
@@ -98,6 +98,8 @@ mark_as_advanced(ENABLE_STATIC_MBEDTLS)
 add_library(obs-outputs MODULE)
 add_library(OBS::outputs ALIAS obs-outputs)
 
+add_dependencies(obs-outputs obs-frontend-api)
+
 target_sources(
   obs-outputs
   PRIVATE obs-outputs.c
@@ -114,7 +116,10 @@ target_sources(
           rtmp-windows.c)
 
 target_include_directories(obs-outputs PRIVATE "${CMAKE_SOURCE_DIR}/UI/obs-frontend-api")
-target_link_libraries(obs-outputs PRIVATE OBS::libobs)
+target_link_libraries(obs-outputs PRIVATE OBS::libobs
+                                          obs-frontend-api
+                                          websocketclient
+                                          ${WEBRTC_LIBRARIES})
 
 set_target_properties(obs-outputs PROPERTIES FOLDER "plugins" PREFIX "")
 
@@ -290,6 +295,6 @@ endif()
 
 # --- build tree install
 
-install_obs_plugin_with_data(obs-outputs data)
+# install_obs_plugin_with_data(obs-outputs data)
 
 setup_plugin_target(obs-outputs)

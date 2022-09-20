@@ -13,6 +13,13 @@
 // lib obs includes
 #include "obs.h"
 
+#if WIN32
+// undef M_PI o avoid Warning C4005 'M_PI': macro redefinition
+#if defined(M_PI)
+#undef M_PI
+#endif
+#endif
+
 // obs-webrtc includes
 #include "websocket-client/WebsocketClient.h"
 #include "VideoCapturer.h"
@@ -210,7 +217,7 @@ private:
 
 	void resetStats();
 
-	const uint64_t audio_samplerate_ = 48000;
+	const uint32_t audio_samplerate_ = 48000;
 
 	// NOTE LUDO: #80 add getStats
 	std::string stats_list_;

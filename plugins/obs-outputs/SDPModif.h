@@ -19,7 +19,7 @@ public:
         int aLine = findLines(sdpLines, "m=audio ");
         int vLine = findLines(sdpLines, "m=video ");
         int audio_start = aLine > 0 ? aLine : 0;
-        int audio_end = vLine > audio_start ? vLine : sdpLines.size();
+        int audio_end = vLine > audio_start ? vLine : static_cast<int>(sdpLines.size());
         int testLine = findLines(sdpLines, "stereo=1;sprop-stereo=1");
         // audio section contains at least 1 stereo codec
         if (testLine >= audio_start && testLine <= audio_end)
@@ -74,7 +74,7 @@ public:
         int aLine = findLines(sdpLines, "m=audio ");
         int vLine = findLines(sdpLines, "m=video ");
         int video_start = vLine > 0 ? vLine : 0;
-        int video_end = aLine > video_start ? aLine : sdpLines.size();
+        int video_end = aLine > video_start ? aLine : static_cast<int>(sdpLines.size());
         int testLine = findLines(sdpLines, "b=AS:");
         if (testLine >= video_start && testLine <= video_end)
             return;
@@ -98,7 +98,7 @@ public:
         int aLine = findLines(sdpLines, "m=audio ");
         int vLine = findLines(sdpLines, "m=video ");
         int video_start = vLine > 0 ? vLine : 0;
-        int video_end = aLine > video_start ? aLine : sdpLines.size();
+        int video_end = aLine > video_start ? aLine : static_cast<int>(sdpLines.size());
         int testLine = findLines(sdpLines, "b=AS:");
 
         // video section does not have b=AS. insert line with b=AS constraint
@@ -311,14 +311,14 @@ private:
         int aLine = findLines(sdpLines, "m=audio ");
         int vLine = findLines(sdpLines, "m=video ");
         int for_start = 0;
-        int for_end = sdpLines.size();
+        int for_end = static_cast<int>(sdpLines.size());
         if (media_type == "audio") {
             for_start = aLine > 0 ? aLine : 0;
-            for_end = vLine > for_start ? vLine : sdpLines.size();
+            for_end = vLine > for_start ? vLine : static_cast<int>(sdpLines.size());
         }
         else if (media_type == "video") {
             for_start = vLine > 0 ? vLine : 0;
-            for_end = aLine > for_start ? aLine : sdpLines.size();
+            for_end = aLine > for_start ? aLine : static_cast<int>(sdpLines.size());
         }
         for (int i = for_start; i < for_end; i++) {
             std::smatch match;

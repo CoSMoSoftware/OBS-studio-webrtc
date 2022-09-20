@@ -87,6 +87,10 @@ static const char *my_dhm_G = "4";
 #endif
 #endif
 
+#if defined(_WIN32)
+#include <timeapi.h>
+#endif
+
 #if defined(TCP_USER_TIMEOUT)
 #define SOCKET_LEVEL IPPROTO_TCP
 #define SOCKET_TIMEOUT_OPT TCP_USER_TIMEOUT

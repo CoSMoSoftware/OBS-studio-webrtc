@@ -13,11 +13,6 @@ if(WIN32)
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4503 /wd4267 /wd4244 /wd4996")
 endif()
 
-include_directories(${CMAKE_CURRENT_SOURCE_DIR})
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/restclient-cpp/include)
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/websocketpp)
-include_directories(${CMAKE_SOURCE_DIR}/libobs)
-
 #------------------------------------------------------------------------
 # JSON
 #
@@ -33,13 +28,11 @@ message(STATUS "OPENSSL_INCLUDE_DIR:    ${OPENSSL_INCLUDE_DIR}"   )
 message(STATUS "OPENSSL_CRYPTO_LIBRARY: ${OPENSSL_CRYPTO_LIBRARY}")
 message(STATUS "OPENSSL_SSL_LIBRARY:    ${OPENSSL_SSL_LIBRARY}"   )
 message(STATUS "OPENSSL_VERSION:        ${OPENSSL_VERSION}"       )
-include_directories(${OPENSSL_INCLUDE_DIR})
 
 #------------------------------------------------------------------------
-# ASIO
+# curl
 #
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/third_party/asio/include)
-include_directories(${CURL_INCLUDE_DIR})
+find_package(CURL REQUIRED)
 
 #------------------------------------------------------------------------
 # WebSocket
@@ -72,10 +65,18 @@ endif()
 
 target_link_libraries(websocketclient
   PUBLIC libobs
-	PUBLIC ${CURL_LIB}
-	PUBLIC ${OPENSSL_LIBRARIES}
+	PRIVATE CURL::libcurl
+	PRIVATE OpenSSL::SSL
 	PRIVATE nlohmann_json::nlohmann_json)
 
+target_include_directories(websocketclient
+	PRIVATE ${OPENSSL_INCLUDE_DIR}
+					${CMAKE_CURRENT_SOURCE_DIR}
+					${CMAKE_CURRENT_SOURCE_DIR}/restclient-cpp/include
+					${CMAKE_CURRENT_SOURCE_DIR}/websocketpp
+					${CMAKE_SOURCE_DIR}/libobs
+					${CMAKE_CURRENT_SOURCE_DIR}/third_party/asio/include)
+
 if(WIN32)
-	install_obs_plugin(websocketclient)
+	setup_plugin_target(websocketclient)
 endif()

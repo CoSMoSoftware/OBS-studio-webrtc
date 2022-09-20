@@ -6256,11 +6256,12 @@ void OBSBasic::on_actionRepair_triggered()
 	ui->actionCheckForUpdates->setEnabled(false);
 	ui->actionRepair->setEnabled(false);
 
-	if (updateCheckThread && updateCheckThread->isRunning())
-		return;
+	// #270 Disable auto-update
+	// if (updateCheckThread && updateCheckThread->isRunning())
+	// 	return;
 
-	updateCheckThread.reset(new AutoUpdateThread(false, true));
-	updateCheckThread->start();
+	// updateCheckThread.reset(new AutoUpdateThread(false, true));
+	// updateCheckThread->start();
 #endif
 }
 
