@@ -59,10 +59,10 @@ static inline bool check_path(const char *data, const char *path,
 
 bool GetDataFilePath(const char *data, string &output)
 {
-	if (check_path(data, "data/" CONFIG_DIR "/", output))
+	if (check_path(data, "data/obs/", output))
 		return true;
 
-	return check_path(data, OBS_DATA_PATH "/" CONFIG_DIR "/", output);
+	return check_path(data, OBS_DATA_PATH "/obs/", output);
 }
 
 string GetDefaultVideoSavePath()

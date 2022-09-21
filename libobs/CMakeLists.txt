@@ -273,7 +273,8 @@ target_compile_options(
 
 target_include_directories(
   libobs PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
-                $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/config>)
+                $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/config>
+        PRIVATE "$<BUILD_INTERFACE:${CMAKE_BINARY_DIR}>/UI")
 
 if(OS_WINDOWS)
   set(MODULE_DESCRIPTION "OBS Library")
@@ -363,8 +364,6 @@ elseif(OS_MACOS)
             audio-monitoring/osx/coreaudio-output.c
             audio-monitoring/osx/coreaudio-monitoring-available.c
             audio-monitoring/osx/mac-helpers.h)
-
-  target_include_directories(libobs PRIVATE "$<BUILD_INTERFACE:${CMAKE_BINARY_DIR}>/UI")
 
   set_source_files_properties(util/platform-cocoa.m obs-cocoa.m
                               PROPERTIES COMPILE_FLAGS -fobjc-arc)
