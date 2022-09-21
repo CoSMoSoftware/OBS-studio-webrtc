@@ -22,9 +22,13 @@
 #import <AppKit/AppKit.h>
 #import <mach/mach_time.h>
 
+#include <iostream>
+
 #import "Logging.h"
 #import "CMSampleBufferUtils.h"
 #import "OBSDALPlugIn.h"
+
+#include "ui-config.h"
 
 @interface OBSDALStream () {
 	CMSimpleQueueRef _queue;
@@ -171,9 +175,12 @@
 				@"/Contents/Resources/placeholder.png"];
 		NSFileManager *fileManager = [NSFileManager defaultManager];
 		NSURL *homeUrl = [fileManager homeDirectoryForCurrentUser];
+		char tmpChar[1024];
+		int ret = snprintf(tmpChar, sizeof(tmpChar),
+											"Library/Application Support/%s/plugin_config/mac-virtualcam/placeholder.png",
+											std::string(CONFIG_DIR).c_str());
 		NSURL *customUrl = [homeUrl
-			URLByAppendingPathComponent:
-				@"Library/Application Support/" CONFIG_DIR @"/plugin_config/mac-virtualcam/placeholder.png"];
+			URLByAppendingPathComponent: [NSString stringWithUTF8String: tmpChar]];
 		NSString *customPlaceHolder = customUrl.path;
 		if ([fileManager isReadableFileAtPath:customPlaceHolder])
 			placeHolderPath = customPlaceHolder;

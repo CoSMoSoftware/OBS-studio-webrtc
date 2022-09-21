@@ -364,6 +364,8 @@ elseif(OS_MACOS)
             audio-monitoring/osx/coreaudio-monitoring-available.c
             audio-monitoring/osx/mac-helpers.h)
 
+  target_include_directories(libobs PRIVATE "$<BUILD_INTERFACE:${CMAKE_BINARY_DIR}>/UI")
+
   set_source_files_properties(util/platform-cocoa.m obs-cocoa.m
                               PROPERTIES COMPILE_FLAGS -fobjc-arc)
 

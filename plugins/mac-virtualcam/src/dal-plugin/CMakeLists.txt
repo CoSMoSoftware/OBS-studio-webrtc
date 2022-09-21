@@ -34,7 +34,8 @@ target_sources(
 
 target_include_directories(
   mac-dal-plugin
-  PRIVATE "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>/../common")
+  PRIVATE "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>/../common"
+  PRIVATE "$<BUILD_INTERFACE:${CMAKE_BINARY_DIR}>/UI")
 
 target_compile_options(mac-dal-plugin PRIVATE -fobjc-arc -fobjc-weak)
 
