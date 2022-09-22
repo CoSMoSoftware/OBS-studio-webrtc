@@ -20,6 +20,14 @@ endif()
 add_library(libobs SHARED)
 add_library(OBS::libobs ALIAS libobs)
 
+# #define CONFIG_DIR "obs-webrtc"
+if(NOT OBS_WEBRTC_VENDOR_NAME)
+	set(_config_dir obs-studio)
+else()
+	set(_config_dir ${OBS_WEBRTC_VENDOR_NAME})
+endif()
+target_compile_definitions(libobs PRIVATE CONFIG_DIR=\"${_config_dir}\")
+
 target_sources(
   libobs
   PRIVATE obs.c
@@ -273,8 +281,7 @@ target_compile_options(
 
 target_include_directories(
   libobs PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
-                $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/config>
-        PRIVATE "$<BUILD_INTERFACE:${CMAKE_BINARY_DIR}>/UI")
+                $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/config>)
 
 if(OS_WINDOWS)
   set(MODULE_DESCRIPTION "OBS Library")
