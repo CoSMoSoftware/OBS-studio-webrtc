@@ -18,7 +18,6 @@
 
 #include <obs-config.h>
 #include "obs-app.hpp"
-#include "ui-config.h"
 
 #include <QGuiApplication>
 #include <QScreen>

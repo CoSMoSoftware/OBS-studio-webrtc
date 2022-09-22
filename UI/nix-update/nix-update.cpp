@@ -17,8 +17,6 @@
 
 #include <browser-panel.hpp>
 
-#include "ui-config.h"
-
 struct QCef;
 extern QCef *cef;
 

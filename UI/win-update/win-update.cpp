@@ -24,8 +24,6 @@
 #include <browser-panel.hpp>
 #endif
 
-#include "ui-config.h"
-
 using namespace std;
 using namespace json11;
 

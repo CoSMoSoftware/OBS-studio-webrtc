@@ -16,8 +16,6 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ******************************************************************************/
-#include "ui-config.h"
-
 #include <cstddef>
 #include <ctime>
 #include <functional>
@@ -102,8 +100,6 @@ using namespace std;
 #ifdef BROWSER_AVAILABLE
 #include <browser-panel.hpp>
 #endif
-
-#include "ui-config.h"
 
 struct QCef;
 struct QCefCookieManager;

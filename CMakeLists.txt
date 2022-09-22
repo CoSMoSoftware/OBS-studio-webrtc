@@ -14,18 +14,12 @@ endif()
 
 if(NOT OBS_WEBRTC_VENDOR_NAME)
 	set(_project_name obs-studio)
+	set(_config_dir obs-webrtc)
 else()
 	set(_project_name ${OBS_WEBRTC_VENDOR_NAME})
+	set(_config_dir ${OBS_WEBRTC_VENDOR_NAME})
 endif()
 project(${_project_name} VERSION ${OBS_VERSION_CANONICAL})
-
-if(NOT DEFINED CONFIG_DIR OR "${CONFIG_DIR}" STREQUAL "")
-	if(NOT OBS_WEBRTC_VENDOR_NAME)
-		set(CONFIG_DIR "obs-webrtc")
-	else()
-		set(CONFIG_DIR ${OBS_WEBRTC_VENDOR_NAME})
-	endif()
-endif()
 
 option(DEBUG_FFMPEG_MUX "Debug FFmpeg muxer subprocess" FALSE)
 
@@ -324,17 +318,6 @@ if(NOT INSTALLER_RUN)
 		elseif(DEFINED ENV{QTDIR})
 			list(APPEND CMAKE_PREFIX_PATH "$ENV{QTDIR}")
 		endif()
-
-		# find_package(Qt6Widgets REQUIRED)
-		# if( APPLE )
-		# 	# Make sure we are using Qt installed by brew
-		# 	list(GET Qt5Widgets_INCLUDE_DIRS 1 my_path)
-		# 	string(FIND ${my_path} "/usr/local/Cellar/" cellar_index)
-		# 	string(FIND ${my_path} "/usr/local/opt/" opt_index)
-		# 	if( ${cellar_index} EQUAL -1 AND ${opt_index} EQUAL -1 )
-		# 		message( "ERROR, you must give path to a Qt installed by brew." )
-		# 	endif()
-		# endif()
 	endif()
 
 	if (ENABLE_UNIT_TESTS)

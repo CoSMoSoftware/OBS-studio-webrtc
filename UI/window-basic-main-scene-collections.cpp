@@ -26,7 +26,6 @@
 #include "window-importer.hpp"
 #include "window-namedialog.hpp"
 #include "qt-wrappers.hpp"
-#include "ui-config.h"
 
 using namespace std;
 

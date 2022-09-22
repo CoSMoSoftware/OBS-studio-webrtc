@@ -29,7 +29,6 @@
 
 #include "qt-wrappers.hpp"
 #include "importers/importers.hpp"
-#include "ui-config.h"
 
 extern bool SceneCollectionExists(const char *findName);
 

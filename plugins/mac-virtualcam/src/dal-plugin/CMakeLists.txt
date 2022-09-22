@@ -11,6 +11,9 @@ mark_as_advanced(COCOA COREMEDIA COREMEDIAIO COREVIDEO IOSURFACE)
 add_library(mac-dal-plugin MODULE)
 add_library(OBS::mac-dal-plugin ALIAS mac-dal-plugin)
 
+# #define CONFIG_DIR "obs-webrtc"
+target_compile_definitions(mac-dal-plugin PRIVATE CONFIG_DIR=\"${_config_dir}\")
+
 target_sources(
   mac-dal-plugin
   PRIVATE OBSDALPlugIn.mm

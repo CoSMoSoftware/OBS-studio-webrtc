@@ -79,6 +79,9 @@ find_package(CURL REQUIRED)
 add_subdirectory(frontend-plugins)
 add_executable(obs)
 
+# #define CONFIG_DIR "obs-webrtc"
+target_compile_definitions(obs PRIVATE CONFIG_DIR=\"${_config_dir}\")
+
 find_qt(COMPONENTS Widgets Network Svg Xml COMPONENTS_LINUX Gui)
 
 target_link_libraries(obs PRIVATE Qt::Widgets Qt::Svg Qt::Xml Qt::Network)

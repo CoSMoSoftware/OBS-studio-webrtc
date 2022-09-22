@@ -28,8 +28,6 @@
 #import "CMSampleBufferUtils.h"
 #import "OBSDALPlugIn.h"
 
-#include "ui-config.h"
-
 @interface OBSDALStream () {
 	CMSimpleQueueRef _queue;
 	CFTypeRef _clock;
