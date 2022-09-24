@@ -131,6 +131,23 @@ file(
   "${SSL_INCLUDE_DIR}/bin/ssleay32*.dll"
   "${SSL_INCLUDE_DIR}/bin/libeay32*.dll")
 
+if(NOT DEFINED OPENSSL_INCLUDE_DIR AND TARGET OpenSSL::SSL)
+  get_target_property(OPENSSL_INCLUDE_DIR OpenSSL::SSL
+                      INTERFACE_INCLUDE_DIRECTORIES)
+endif()
+
+file(
+  GLOB
+  OPENSSL_BIN_FILES
+	"${OPENSSL_INCLUDE_DIR}/../bin${_bin_suffix}/libcrypto*.dll"
+	"${OPENSSL_INCLUDE_DIR}/../bin${_bin_suffix}/libssl*.dll"
+	"${OPENSSL_INCLUDE_DIR}/../bin/libcrypto*.dll"
+	"${OPENSSL_INCLUDE_DIR}/../bin/libssl*.dll"
+	"${OPENSSL_INCLUDE_DIR}/bin${_bin_suffix}/libcrypto*.dll"
+	"${OPENSSL_INCLUDE_DIR}/bin${_bin_suffix}/libssl*.dll"
+	"${OPENSSL_INCLUDE_DIR}/bin/libcrypto*.dll"
+	"${OPENSSL_INCLUDE_DIR}/bin/libssl*.dll")
+
 if(NOT DEFINED CURL_INCLUDE_DIR AND TARGET CURL::libcurl)
   get_target_property(CURL_INCLUDE_DIR CURL::libcurl
                       INTERFACE_INCLUDE_DIRECTORIES)
@@ -238,6 +255,7 @@ file(GLOB QT_ICU_BIN_FILES "${QtCore_BIN_DIR}/icu*.dll")
 set(ALL_BASE_BIN_FILES
     ${FFMPEG_BIN_FILES}
     ${X264_BIN_FILES}
+    ${OPENSSL_BIN_FILES}
     ${CURL_BIN_FILES}
     ${LUA_BIN_FILES}
     ${SSL_BIN_FILES}
@@ -294,6 +312,7 @@ obs_status(STATUS "x264 files: ${X264_BIN_FILES}")
 obs_status(STATUS "Libfdk files: ${LIBFDK_BIN_FILES}")
 obs_status(STATUS "Freetype files: ${FREETYPE_BIN_FILES}")
 obs_status(STATUS "rnnoise files: ${RNNOISE_BIN_FILES}")
+obs_status(STATUS "OpenSSL files: ${OPENSSL_BIN_FILES}")
 obs_status(STATUS "curl files: ${CURL_BIN_FILES}")
 obs_status(STATUS "lua files: ${LUA_BIN_FILES}")
 obs_status(STATUS "ssl files: ${SSL_BIN_FILES}")
