@@ -306,7 +306,7 @@ jobs:
       connection: 'github.com_ludocosmo'
       userRepository: 'CoSMoSoftware/libwebrtc-cmake'
       defaultVersionType: 'specificTag'
-      version: 'm104'
+      version: 'M104'
       itemPattern: 'libWebRTC-${{ variables.LIBWEBRTC_VERSION }}-*64-Debug-*.sh'
       downloadPath: '$(System.DefaultWorkingDirectory)'
   - bash: |
