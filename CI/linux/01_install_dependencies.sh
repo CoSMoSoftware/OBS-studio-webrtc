@@ -80,6 +80,15 @@ install_plugin-deps() {
     sudo apt-get install -y $@
 }
 
+install_libwebrtc() {
+    shift
+    status "Install libwebrtc ${1}"
+    mv ./libWebRTC-${LIBWEBRTC_VERSION}-x64-Debug-H264-OpenSSL_1_1_1n.sh libWebRTC.sh
+    chmod +x libWebRTC.sh
+    mkdir libwebrtc
+    ./libWebRTC.sh --prefix="./libwebrtc" --skip-license
+}
+
 install_dependencies() {
     status "Set up apt"
     trap "caught_error 'install_dependencies'" ERR
@@ -96,6 +105,7 @@ install_dependencies() {
         "cef ${LINUX_CEF_BUILD_VERSION:-${CI_LINUX_CEF_VERSION}}"
         "plugin-deps libasound2-dev libfdk-aac-dev libfontconfig-dev libfreetype6-dev libjack-jackd2-dev \
          libpulse-dev libsndio-dev libspeexdsp-dev libudev-dev libv4l-dev libva-dev libvlc-dev libdrm-dev"
+        "libwebrtc ${LIBWEBRTC_VERSION}"
     )
 
     sudo dpkg --add-architecture amd64
@@ -111,7 +121,7 @@ install_dependencies() {
 
 install-dependencies-standalone() {
     CHECKOUT_DIR="$(/usr/bin/git rev-parse --show-toplevel)"
-    PRODUCT_NAME="OBS-Studio"
+    PRODUCT_NAME="OBS-WebRTC"
     DEPS_BUILD_DIR="${CHECKOUT_DIR}/../obs-build-dependencies"
     source "${CHECKOUT_DIR}/CI/include/build_support.sh"
     source "${CHECKOUT_DIR}/CI/include/build_support_linux.sh"
