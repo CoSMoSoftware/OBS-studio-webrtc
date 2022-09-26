@@ -23,8 +23,8 @@ package_obs() {
     DEB_NAME=$(find ${BUILD_DIR} -maxdepth 1 -type f -name "obs*.deb" | sort -rn | head -1)
 
     if [ "${DEB_NAME}" ]; then
-        mkdir package_obs_webrtc
-        mv ${DEB_NAME} package_obs_webrtc
+        mkdir package_${VENDOR_NAME}
+        mv ${DEB_NAME} package_${VENDOR_NAME}
     else
         error "ERROR No suitable OBS debian package generated"
     fi
