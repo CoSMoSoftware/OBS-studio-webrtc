@@ -83,6 +83,8 @@ install_plugin-deps() {
 install_libwebrtc() {
     shift
     status "Install libwebrtc ${1}"
+    pwd
+    ls
     mv ./libWebRTC-${LIBWEBRTC_VERSION}-x64-Debug-H264-OpenSSL_1_1_1n.sh libWebRTC.sh
     chmod +x libWebRTC.sh
     mkdir libwebrtc
