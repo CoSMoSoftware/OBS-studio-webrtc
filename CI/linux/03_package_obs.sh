@@ -23,7 +23,8 @@ package_obs() {
     DEB_NAME=$(find ${BUILD_DIR} -maxdepth 1 -type f -name "obs*.deb" | sort -rn | head -1)
 
     if [ "${DEB_NAME}" ]; then
-        mv ${DEB_NAME} ${BUILD_DIR}/${FILE_NAME}
+        mkdir package_obs_webrtc
+        mv ${DEB_NAME} package_obs_webrtc
     else
         error "ERROR No suitable OBS debian package generated"
     fi
@@ -53,7 +54,7 @@ package-obs-standalone() {
         VERSION_STRING="${GIT_TAG}-${GIT_HASH}"
     fi
 
-    FILE_NAME="obs-studio-${VERSION_STRING}-ubuntu-${UBUNTU_VERSION}.deb"
+    FILE_NAME="obs-webrtc-${VERSION_STRING}-ubuntu-${UBUNTU_VERSION}.deb"
     package_obs
 }
 
