@@ -202,7 +202,7 @@ jobs:
       downloadPath: '$(System.DefaultWorkingDirectory)'
   - script: git submodule update --init --recursive
     displayName: 'Checkout Submodules'
-  - script: ./CI/windows/01_install_dependencies.ps1 -BuildArch x64
+  - script: CI/windows/01_install_dependencies.ps1 -BuildArch x64
     displayName: 'Install dependencies'
   - script: ./CI/install-qt-win.cmd
     displayName: 'Install QT'
