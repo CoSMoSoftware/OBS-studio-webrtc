@@ -30,7 +30,7 @@ package_obs() {
 }
 
 package-obs-standalone() {
-    PRODUCT_NAME="OBS-Studio"
+    PRODUCT_NAME="OBS-WebRTC"
 
     CHECKOUT_DIR="$(git rev-parse --show-toplevel)"
     DEPS_BUILD_DIR="${CHECKOUT_DIR}/../obs-build-dependencies"
@@ -73,6 +73,7 @@ package-obs-main() {
                 -q | --quiet ) export QUIET=TRUE; shift ;;
                 -v | --verbose ) export VERBOSE=TRUE; shift ;;
                 --build-dir ) BUILD_DIR="${2}"; shift 2 ;;
+                --vendor ) VENDOR_NAME="${2}"; shift 2 ;;
                 -- ) shift; break ;;
                 * ) break ;;
             esac

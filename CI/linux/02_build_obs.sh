@@ -53,7 +53,19 @@ _configure_obs() {
         PIPEWIRE_OPTION="-DENABLE_PIPEWIRE=OFF"
     fi
 
+    if [ "$VENDOR_NAME" == "Millicast" ]
+    then
+        VENDOR_OPTION=""
+    else
+        VENDOR_OPTION="-DOBS_WEBRTC_VENDOR_NAME=$VENDOR_NAME"
+    fi
+
+    libwebrtc_dir=`pwd`/libwebrtc/cmake
+    export CC=clang
+    export CXX=clang++
+
     cmake -S . -B ${BUILD_DIR} -G Ninja \
+        ${VENDOR_OPTION} \
         -DCEF_ROOT_DIR="${DEPS_BUILD_DIR}/cef_binary_${LINUX_CEF_BUILD_VERSION:-${CI_LINUX_CEF_VERSION}}_linux64" \
         -DCMAKE_BUILD_TYPE=${BUILD_CONFIG} \
         -DLINUX_PORTABLE=${PORTABLE_BUILD:-OFF} \
@@ -64,7 +76,19 @@ _configure_obs() {
         ${TWITCH_OPTIONS} \
         ${RESTREAM_OPTIONS} \
         ${CI:+-DENABLE_UNIT_TESTS=ON -DBUILD_FOR_DISTRIBUTION=${BUILD_FOR_DISTRIBUTION} -DOBS_BUILD_NUMBER=${GITHUB_RUN_ID}} \
-        ${QUIET:+-Wno-deprecated -Wno-dev --log-level=ERROR}
+        ${QUIET:+-Wno-deprecated -Wno-dev --log-level=ERROR} \
+        -DBUILD_NDI=ON \
+        -DBUILD_WEBSOCKET=ON \
+        -DUNIX_STRUCTURE=1 \
+        -DENABLE_VLC=ON \
+        -DUSE_LIBC++=ON \
+        -Dlibwebrtc_DIR=${libwebrtc_dir} \
+        -DOBS_VERSION_OVERRIDE=${OBS_VERSION} \
+        -DCPACK_DEBIAN_PACKAGE_MAINTAINER="CoSMo Software" \
+        -DCPACK_DEBIAN_PACKAGE_NAME="obs" \
+        -DCPACK_DEBIAN_PACKAGE_VERSION=${OBS_VERSION} \
+        -DCPACK_DEBIAN_PACKAGE_ARCHITECTURE="amd64" \
+        -DCPACK_DEBIAN_PACKAGE_DEPENDS="ffmpeg, libqt5gui5, libqt5xml5, libqt5x11extras5, libqt5core5a, libx264-dev, vlc, libavcodec58, libmbedtls12, libfdk-aac1, libavfilter7, libavdevice58, libc++1, libcurl4"
 }
 
 # Function to backup previous build artifacts
@@ -116,6 +140,7 @@ build-obs-main() {
                 -p | --portable ) export PORTABLE=TRUE; shift ;;
                 --disable-pipewire ) DISABLE_PIPEWIRE=TRUE; shift ;;
                 --build-dir ) BUILD_DIR="${2}"; shift 2 ;;
+                --vendor ) VENDOR_NAME="${2}"; shift 2 ;;
                 -- ) shift; break ;;
                 * ) break ;;
             esac

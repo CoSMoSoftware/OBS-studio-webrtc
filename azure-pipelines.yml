@@ -1,6 +1,25 @@
 # https://aka.ms/yaml
 
 variables:
+# new variables OBS 28
+  CEF_BUILD_VERSION_MAC: '5060'
+  CEF_HASH_MAC_X86_64: '88b950aa0bfc001061c35e7f1f3fefba856a6afb35e38b2b7b42ddd8dd239182'
+  CEF_HASH_MAC_ARM64: '98679b92eea6ea9959ac5aa54f46ca60681d8a86c768c35f496dbdd409bf0642'
+  CEF_BUILD_VERSION_LINUX: '5060'
+  CEF_BUILD_VERSION_WIN: '5060'
+  QT_VERSION_MAC: '6.3.1'
+  QT_HASH_MAC_X86_64: 'a83f72a11023b03b6cb2dc365f0a66ad9df31163bbb4fe2df32d601856a9fad3'
+  QT_HASH_MAC_ARM64: '2f30af90c049670a5660656adbb440668aa1b0567f75a5f29e1def9108928403'
+  QT_HASH_MAC_UNIVERSAL: '252e6684f43ab9c6f262c73af739e2296ce391b998da2c4ee04c254aaa07db18'
+  QT_VERSION_WIN: '6.3.1'
+  DEPS_VERSION_MAC: '2022-08-02'
+  DEPS_HASH_MAC_X86_64: '7637e52305e6fc53014b5aabd583f1a4490b1d97450420e977cae9a336a29525'
+  DEPS_HASH_MAC_ARM64: '755e0fa69b17a3ae444e1befa9d91d77e3cafe628fbd1c6333686091826595cd'
+  DEPS_VERSION_WIN: '2022-08-02'
+  VLC_VERSION_MAC: '3.0.8'
+  VLC_HASH_MAC: 'e0149ef4a20a19b9ecd87309c2d27787ee3f47dfd47c6639644bc1f6fd95bdf6'
+  VLC_VERSION_WIN: '3.0.0-git'
+# older variables
   - group: obs-pipeline
   - name: FTP_PATH_PREFIX
     value: $(webrtc_path_prefix)
@@ -270,17 +289,13 @@ jobs:
       connection: 'github.com_ludocosmo'
       userRepository: 'CoSMoSoftware/libwebrtc-cmake'
       defaultVersionType: 'specificTag'
-      version: 'm100debug'
+      version: 'm104'
       itemPattern: 'libWebRTC-${{ variables.LIBWEBRTC_VERSION }}-*64-Debug-*.sh'
       downloadPath: '$(System.DefaultWorkingDirectory)'
   - bash: |
       git submodule update --init --recursive
-      ./CI/install-dependencies-linux.sh
+      ./CI/linux/01_install_dependencies.sh --disable-pipewire
     displayName: 'checkout and dependencies'
-    env:
-      FTP_PATH_PREFIX: $(webrtc_path_prefix)
-      FTP_LOGIN: $(ftpLudoLogin)
-      FTP_PASSWORD: $(ftpLudoPassword)
   - ${{ each vendor in parameters.vendors }}:
     - bash: |
         set -e
@@ -293,20 +308,29 @@ jobs:
         displayName: '${{ vendor }} copy CMakeLists.txt'
     - bash: |
         set -e
-        mkdir build_${{ vendor }}
+#        mkdir build_${{ vendor }}
         export CC=clang
         export CXX=clang++
         export OBS_VERSION=${OBS_VERSION}-2004
-        ./CI/before-script-linux-2004.sh ${{ vendor }}
-        cd build_${{ vendor }}
-        make -j4
-        cd ..
-        mkdir package_${{ vendor }}
-        cd build_${{ vendor }}
-        cpack -G DEB
-        mv *.deb ../package_${{ vendor }}
-        cd ..
-      displayName: '${{ vendor }} cmake, build, package'
+        ./CI/linux/02_build_obs.sh --disable-pipewire --vendor ${{ vendor }}
+#        ./CI/before-script-linux-2004.sh ${{ vendor }}
+#        cd build_${{ vendor }}
+#        make -j4
+#        cd ..
+#        mkdir package_${{ vendor }}
+#        cd build_${{ vendor }}
+#        cpack -G DEB
+#        mv *.deb ../package_${{ vendor }}
+#        cd ..
+      displayName: '${{ vendor }} cmake, build'
+      env:
+        CI_BUILD_TYPE: $(BUILD_TYPE)
+    - bash: |
+        set -e
+        ./CI/linux/03_package_obs.sh --vendor ${{ vendor }}
+        ARTIFACT_NAME=$(basename $(/usr/bin/find build  -maxdepth 1 -type f -name "obs-studio-*.deb" | sort -rn | head -1))
+        echo "FILE_NAME=${ARTIFACT_NAME}" >> $GITHUB_ENV
+      displayName: '${{ vendor }} package'
       env:
         CI_BUILD_TYPE: $(BUILD_TYPE)
     - task: PublishBuildArtifacts@1
