@@ -145,6 +145,7 @@ $WindowsDepsVersion = "$(if (Test-Path Env:WindowsDepsVersion ) { $env:WindowsDe
 $WindowsQtVersion = "$(if (Test-Path Env:WindowsQtVersion ) { $env:WindowsQtVersion } else { $CIQtVersion })"
 $WindowsVlcVersion = "$(if (Test-Path Env:WindowsVlcVersion ) { $env:WindowsVlcVersion } else { $CIVlcVersion })"
 $WindowsCefVersion = "$(if (Test-Path Env:WindowsCefVersion ) { $env:WindowsCefVersion } else { $CICefVersion })"
+$LibwebrtcVersion = "$env:LIBWEBRTC_VERSION"
 $CmakeSystemVersion = "$(if (Test-Path Env:CMAKE_SYSTEM_VERSION) { $Env:CMAKE_SYSTEM_VERSION } else { "10.0.18363.657" })"
 $CmakeGenerator = "$(if (Test-Path Env:CmakeGenerator) { $Env:CmakeGenerator } else { $CIGenerator })"
 

@@ -205,6 +205,7 @@ jobs:
   - powershell: ./CI/windows/01_install_dependencies.ps1 -BuildArch x64
     displayName: 'Install dependencies'
     timeoutInMinutes: 300
+    cancelTimeoutInMinutes: 300
   - ${{ each vendor in parameters.vendors }}:
     - script: git stash
       displayName: git stash

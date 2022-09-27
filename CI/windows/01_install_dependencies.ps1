@@ -116,6 +116,20 @@ function Install-cef {
     }
 }
 
+function Install-libwebrtc {
+    Param(
+        [Parameter(Mandatory=$true)]
+        [String]$Version
+    )
+    Write-Status "Setup for dependency libwebrtc v${Version}"
+
+    Ensure-Directory $DepsBuildDir
+
+    Write-Step "Unpack..."
+    Move-Item -Path ..\libWebRTC-${Version}-x64-Release-H264-OpenSSL_1_1_1n.exe -Destination .
+    libWebRTC-${Version}-x64-Release-H264-OpenSSL_1_1_1n.exe /S /SD /D="%CD%\libwebrtc"
+}
+
 function Install-Dependencies {
     Param(
         [String]$BuildArch = $(if (Test-Path variable:BuildArch) { "${BuildArch}" })
@@ -127,7 +141,8 @@ function Install-Dependencies {
         @('obs-deps', $WindowsDepsVersion),
         @('qt-deps', $WindowsDepsVersion),
         @('vlc', $WindowsVlcVersion),
-        @('cef', $WindowsCefVersion)
+        @('cef', $WindowsCefVersion),
+        @('libwebrtc', $LibwebrtcVersion)
     )
 
     Foreach($Dependency in ${BuildDependencies}) {
