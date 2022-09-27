@@ -183,6 +183,8 @@ jobs:
 
 
 - job: 'Build_Windows64'
+  timeoutInMinutes: 300
+  cancelTimeoutInMinutes: 300
   pool:
     vmImage: 'windows-2022'
   steps:
@@ -204,8 +206,7 @@ jobs:
     displayName: 'Checkout Submodules'
   - powershell: ./CI/windows/01_install_dependencies.ps1 -BuildArch x64
     displayName: 'Install dependencies'
-    timeoutInMinutes: 300
-    cancelTimeoutInMinutes: 300
+    timeoutInMinutes: 200
   - ${{ each vendor in parameters.vendors }}:
     - script: git stash
       displayName: git stash
