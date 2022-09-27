@@ -204,18 +204,6 @@ jobs:
     displayName: 'Checkout Submodules'
   - powershell: ./CI/windows/01_install_dependencies.ps1 -BuildArch x64
     displayName: 'Install dependencies'
-  - script: ./CI/install-qt-win.cmd
-    displayName: 'Install QT'
-    env:
-      FTP_PATH_PREFIX: $(webrtc_path_prefix)
-      FTP_LOGIN: $(ftpLudoLogin)
-      FTP_PASSWORD: $(ftpLudoPassword)
-  - script: ./CI/install-dependencies-win.cmd
-    displayName: 'Download / Setup Dependencies'
-    env:
-      FTP_PATH_PREFIX: $(webrtc_path_prefix)
-      FTP_LOGIN: $(ftpLudoLogin)
-      FTP_PASSWORD: $(ftpLudoPassword)
   - ${{ each vendor in parameters.vendors }}:
     - script: git stash
       displayName: git stash

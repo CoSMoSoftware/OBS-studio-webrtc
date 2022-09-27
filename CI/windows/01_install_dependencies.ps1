@@ -142,10 +142,10 @@ function Install-Dependencies {
 }
 
 function Install-Dependencies-Standalone {
-    $ProductName = "OBS-Studio"
+    $ProductName = "OBS-WebRTC"
     $CheckoutDir = Resolve-Path -Path "$PSScriptRoot\..\.."
     $DepsBuildDir = "${CheckoutDir}/../obs-build-dependencies"
-    $ObsBuildDir = "${CheckoutDir}/../obs-studio"
+    $ObsBuildDir = "${CheckoutDir}/../obs-webrtc"
 
     . ${CheckoutDir}/CI/include/build_support_windows.ps1
 

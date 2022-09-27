@@ -98,3 +98,19 @@ add_subdirectory(obs-transitions)
 add_subdirectory(rtmp-services)
 add_subdirectory(text-freetype2)
 add_subdirectory(aja)
+
+option(BUILD_NDI "Build obs-ndi plugin" OFF)
+if (BUILD_NDI)
+  if (NOT EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/obs-ndi/CMakeLists.txt")
+    execute_process(
+      COMMAND           git submodule update --init --recursive
+      WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+      RESULT_VARIABLE   _res
+      )
+    if(NOT _res EQUAL "0")
+      message(FATAL_ERROR "git submodule update --init failed with ${_res}, please checkout submodules")
+    endif()
+  endif()
+  set(LIBOBS_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}")
+  add_subdirectory(obs-ndi)
+endif()
