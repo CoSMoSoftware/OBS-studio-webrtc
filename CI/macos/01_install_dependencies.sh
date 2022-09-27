@@ -128,11 +128,26 @@ install_cef() {
     fi
 }
 
+install_libwebrtc() {
+    shift
+    status "Install libwebrtc ${1}"
+    if [ "${ARCH}" = "x86_64" ]; then
+        LIBWEBRTC_ARCH="x64"
+    else
+        LIBWEBRTC_ARCH="arm64"
+    fi
+    mv ./libWebRTC-${LIBWEBRTC_VERSION}-${LIBWEBRTC_ARCH}-Debug-H264-OpenSSL_1_1_1n.sh libWebRTC.sh
+    chmod +x libWebRTC.sh
+    mkdir libwebrtc_${ARCH}
+    ./libWebRTC.sh --prefix="./libwebrtc_${ARCH}" --skip-license
+}
+
 install_dependencies() {
     status "Install Homebrew dependencies"
     trap "caught_error 'install_dependencies'" ERR
 
     BUILD_DEPS=(
+        "libwebrtc ${LIBWEBRTC_VERSION}"
         "obs-deps ${MACOS_DEPS_VERSION:-${CI_DEPS_VERSION}} ${MACOS_DEPS_HASH:-${CI_DEPS_HASH}}"
         "qt-deps ${MACOS_DEPS_VERSION:-${CI_DEPS_VERSION}} ${QT_HASH:-${CI_QT_HASH}}"
         "cef ${MACOS_CEF_BUILD_VERSION:-${CI_MACOS_CEF_VERSION}} ${CEF_HASH:-${CI_CEF_HASH}}"

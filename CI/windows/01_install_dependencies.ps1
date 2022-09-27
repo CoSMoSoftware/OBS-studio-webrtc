@@ -126,8 +126,7 @@ function Install-libwebrtc {
     Ensure-Directory $DepsBuildDir
 
     Write-Step "Unpack..."
-    Move-Item -Path ..\libWebRTC-${Version}-x64-Release-H264-OpenSSL_1_1_1n.exe -Destination .
-    libWebRTC-${Version}-x64-Release-H264-OpenSSL_1_1_1n.exe /S /SD /D="%CD%\libwebrtc"
+    libWebRTC-${Version}-x64-Release-H264-OpenSSL_1_1_1n.exe /S /SD /D="${CheckoutDir}/libwebrtc"
 }
 
 function Install-Dependencies {
