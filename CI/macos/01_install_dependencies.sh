@@ -129,7 +129,6 @@ install_cef() {
 }
 
 install_libwebrtc() {
-    shift
     status "Install libwebrtc ${1}"
     if [ "${ARCH}" = "x86_64" ]; then
         LIBWEBRTC_ARCH="x64"
@@ -137,13 +136,19 @@ install_libwebrtc() {
         LIBWEBRTC_ARCH="arm64"
     fi
 
-    pwd
-    find . -name "libWebRTC-*.sh"
-
-    mv ./libWebRTC-${LIBWEBRTC_VERSION}-${LIBWEBRTC_ARCH}-Debug-H264-OpenSSL_1_1_1n.sh libWebRTC.sh
-    chmod +x libWebRTC.sh
-    mkdir libwebrtc_${ARCH}
-    ./libWebRTC.sh --prefix="./libwebrtc_${ARCH}" --skip-license
+    if [ -d ${DEPS_BUILD_DIR}/libwebrtc_${ARCH} ]; then
+        ## libwebrtc has already been retrieved and installed
+        return
+    fi
+    ensure_dir ${DEPS_BUILD_DIR}
+    mv ./libWebRTC-${1}-${LIBWEBRTC_ARCH}-Debug-H264-OpenSSL_1_1_1n.dmg libWebRTC_${ARCH}.dmg
+    step "Bypass the EULA by converting the DMG download to a CDR image"
+    hdiutil convert -quiet libWebRTC_${ARCH}.dmg -format UDTO -o libWebRTC_${ARCH}
+    step "Mount the CDR image"
+    hdiutil attach -quiet -nobrowse -noverify libWebRTC_${ARCH}.cdr
+    step "Copy to destination..."
+    mkdir ${DEPS_BUILD_DIR}/libwebrtc_${ARCH}
+    cp -r /Volumes/libWebRTC-${1}-${LIBWEBRTC_ARCH}-Debug-H264-OpenSSL_1_1_1n/libwebrtc/* ${DEPS_BUILD_DIR}/libwebrtc_${ARCH}
 }
 
 install_dependencies() {
