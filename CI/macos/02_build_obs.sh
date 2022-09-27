@@ -142,6 +142,7 @@ print_usage() {
             "-b, --bundle                   : Create relocatable OBS application bundle in build directory (default: build/install/OBS.app)\n" \
             "--xcode                        : Create Xcode build environment instead of Ninja\n" \
             "--build-dir                    : Specify alternative build directory (default: build)\n"
+            "--vendor                       : Specify vendor name (default: Millicast)\n"
 }
 
 build-obs-main() {
@@ -156,6 +157,7 @@ build-obs-main() {
                 -b | --bundle ) BUNDLE=TRUE; shift ;;
                 --xcode ) XCODE=TRUE; shift ;;
                 --build-dir ) BUILD_DIR="${2}"; shift 2 ;;
+                --vendor ) VENDOR="${2}"; shift 2 ;;
                 -- ) shift; break ;;
                 * ) break ;;
             esac

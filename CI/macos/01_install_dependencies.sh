@@ -136,6 +136,10 @@ install_libwebrtc() {
     else
         LIBWEBRTC_ARCH="arm64"
     fi
+
+    pwd
+    find . -name "libWebRTC-*.sh"
+
     mv ./libWebRTC-${LIBWEBRTC_VERSION}-${LIBWEBRTC_ARCH}-Debug-H264-OpenSSL_1_1_1n.sh libWebRTC.sh
     chmod +x libWebRTC.sh
     mkdir libwebrtc_${ARCH}
