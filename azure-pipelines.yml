@@ -84,7 +84,9 @@ variables:
 parameters:
   - name: architectures
     type: string
-    default: 'x86_64,arm64'
+    default:
+    - x86_64
+    - arm64
   - name: vendors
     type: object
     default:
