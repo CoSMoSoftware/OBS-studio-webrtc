@@ -141,16 +141,14 @@ install_libwebrtc() {
         return
     fi
     ensure_dir ${DEPS_BUILD_DIR}
-    pwd
-    ls
-    mv ./libWebRTC-${1}-${LIBWEBRTC_ARCH}-Debug-H264-OpenSSL_1_1_1n.dmg libWebRTC_${ARCH}.dmg
+    mv ../libWebRTC-${1}-${LIBWEBRTC_ARCH}-Debug-H264-OpenSSL_1_1_1n.dmg libWebRTC_${ARCH}.dmg
     step "Bypass the EULA by converting the DMG download to a CDR image"
     hdiutil convert -quiet libWebRTC_${ARCH}.dmg -format UDTO -o libWebRTC_${ARCH}
     step "Mount the CDR image"
     hdiutil attach -quiet -nobrowse -noverify libWebRTC_${ARCH}.cdr
     step "Copy to destination..."
-    mkdir ${DEPS_BUILD_DIR}/libwebrtc_${ARCH}
-    cp -r /Volumes/libWebRTC-${1}-${LIBWEBRTC_ARCH}-Debug-H264-OpenSSL_1_1_1n/libwebrtc/* ${DEPS_BUILD_DIR}/libwebrtc_${ARCH}
+    mkdir ./libwebrtc_${ARCH}
+    cp -r /Volumes/libWebRTC-${1}-${LIBWEBRTC_ARCH}-Debug-H264-OpenSSL_1_1_1n/libwebrtc/* ./libwebrtc_${ARCH}
 }
 
 install_dependencies() {
