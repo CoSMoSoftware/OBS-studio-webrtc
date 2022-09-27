@@ -83,7 +83,7 @@ variables:
 
 parameters:
   - name: architectures
-    type: string
+    type: object
     default:
     - x86_64
     - arm64
