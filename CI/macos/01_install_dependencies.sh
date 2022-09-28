@@ -15,6 +15,7 @@ install_obs-deps() {
     status "Set up precompiled macOS OBS dependencies v${1}"
     ensure_dir "${DEPS_BUILD_DIR}"
     step "Download..."
+    echo "hash = ${2}"
     check_and_fetch "https://github.com/obsproject/obs-deps/releases/download/${1}/macos-deps-${1}-${ARCH:-x86_64}.tar.xz" "${2}"
     mkdir -p obs-deps
     step "Unpack..."

@@ -127,8 +127,8 @@ function Install-libwebrtc {
 
     Write-Step "Unpack..."
     Write-Host $pwd.Path
-    Get-ChildItem -Path $pwd.Path
-    & ".\libWebRTC-${Version}-x64-Release-H264-OpenSSL_1_1_1n.exe" /S /SD /D="${CheckoutDir}/libwebrtc"
+    Get-ChildItem -Path "..\s"
+    & "..\s\libWebRTC-${Version}-x64-Release-H264-OpenSSL_1_1_1n.exe" /S /SD /D="${CheckoutDir}/libwebrtc"
 }
 
 function Install-Dependencies {
