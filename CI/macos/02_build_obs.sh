@@ -96,7 +96,8 @@ _configure_obs() {
         ${CI:+-DBUILD_FOR_DISTRIBUTION=${BUILD_FOR_DISTRIBUTION} -DOBS_BUILD_NUMBER=${GITHUB_RUN_ID}} \
         ${QUIET:+-Wno-deprecated -Wno-dev --log-level=ERROR} \
         ${VENDOR_OPTION} \
-        -Dlibwebrtc_DIR="${DEPS_BUILD_DIR}/libwebrtc_${ARCH}/cmake"
+        -Dlibwebrtc_DIR="${DEPS_BUILD_DIR}/libwebrtc_${ARCH}/cmake" \
+        -DOPENSSL_ROOT_DIR="/usr/local/opt/openssl@1.1"
 }
 
 # Function to backup previous build artifacts
