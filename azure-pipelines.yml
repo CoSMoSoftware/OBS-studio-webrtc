@@ -126,7 +126,7 @@ jobs:
         env:
           CURRENT_ARCH: ${{ arch }}
       - script: TERM="" ./CI/macos/02_build_obs.sh --codesign --architecture ${{ arch }} --vendor ${{ vendor }}
-        displayName: '${{ vendor }} Build OBS'
+        displayName: '${{ vendor }} ${{ arch }} Build OBS'
         env:
           CODESIGN_IDENT: $(ludo_apple_developer_identity)
           WOWZA_CODESIGN_IDENT: $(wowza_apple_developer_identity)
@@ -134,12 +134,12 @@ jobs:
           CODESIGN_IDENT_PASS: $(ludo_apple_developer_password)
           NOTARIZE_APP_SPECIFIC_PASSWORD: $(ludo_apple_app_specific_password)
       - script: TERM="" ./CI/macos/03_package_obs.sh --codesign --notarize --architecture "${{ arch }}" --vendor ${{ vendor }}
-        displayName: '${{ vendor }} Package, sign, notarize'
+        displayName: '${{ vendor }} ${{ arch }} Package, sign, notarize'
       - bash: |
           ARTIFACT_NAME=$(basename $(/usr/bin/find build -type f -name "obs-webrtc-*.dmg" -depth 1 | head -1))
           mkdir -p ./nightly_${{ vendor }}
           mv build/${ARTIFACT_NAME} ./nightly_${{ vendor }}
-        displayName: '${{ vendor }} Copy disk image'
+        displayName: '${{ vendor }} ${{ arch }} Copy disk image'
       - task: PublishBuildArtifacts@1
         inputs:
           pathtoPublish: './nightly_${{ vendor }}'
