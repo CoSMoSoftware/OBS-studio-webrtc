@@ -46,12 +46,6 @@ variables:
     value: $(ftpLudoPassword)
   - name: BUILD_TYPE
     value: RelWithDebInfo
-  - name: CMAKE_PREFIX_PATH
-    value: /usr/local/opt/qt5/lib/cmake
-  - name: LINUX_CEF_BUILD_VERSION
-    value: 4638
-  - name: CEF_VERSION
-    value: 4638
   - name: LIBWEBRTC_VERSION
     value: 104.0
   - name: OBS_VERSION
@@ -65,21 +59,6 @@ variables:
     value: $(ludo_apple_developer_password)
   - name: NOTARIZE_APP_SPECIFIC_PASSWORD
     value: $(ludo_apple_app_specific_password)
-# for script CI/full-build-macos.sh
-  - name: MIN_MACOS_VERSION
-    value: 10.13
-  - name: MACOS_CEF_BUILD_VERSION
-    value: 4638
-  - name: MACOS_CEF_VERSION
-    value: 85.3.13+gcd6cbe0+chromium-85.0.4183.121
-  - name: MACOS_DEPS_VERSION
-    value: '2022-02-13'
-  - name: VLC_VERSION
-    value: '3.0.8'
-  - name: SPARKLE_VERSION
-    value: '1.23.0'
-  - name: QT_VERSION
-    value: '5.15.2'
 
 parameters:
   - name: architectures
