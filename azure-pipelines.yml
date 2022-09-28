@@ -81,7 +81,7 @@ parameters:
 jobs:
 - job: 'Build_macOS'
   pool:
-    vmImage: 'macOS-10.15'
+    vmImage: 'macOS-11'
   steps:
   - script: git submodule update --init --recursive
     displayName: 'Checkout Submodules'
@@ -134,7 +134,7 @@ jobs:
           CODESIGN_IDENT_PASS: $(ludo_apple_developer_password)
           NOTARIZE_APP_SPECIFIC_PASSWORD: $(ludo_apple_app_specific_password)
       - script: TERM="" ./CI/macos/03_package_obs.sh --codesign --notarize --architecture "${{ arch }}" --vendor ${{ vendor }}
-        displayName: '${{ vendor }} Package'
+        displayName: '${{ vendor }} Package, sign, notarize'
       - bash: |
           ARTIFACT_NAME=$(basename $(/usr/bin/find build -type f -name "obs-webrtc-*.dmg" -depth 1 | head -1))
           mkdir -p ./nightly_${{ vendor }}
