@@ -138,7 +138,11 @@ jobs:
       - bash: |
           ARTIFACT_NAME=$(basename $(/usr/bin/find build -type f -name "obs-webrtc-*.dmg" -depth 1 | head -1))
           mkdir -p ./nightly_${{ vendor }}
-          mv ${ARTIFACT_NAME} ./nightly_${{ vendor }}
+          echo "************** ls"
+          ls
+          echo "************** ls build"
+          ls build
+          mv build/${ARTIFACT_NAME} ./nightly_${{ vendor }}
         displayName: '${{ vendor }} Copy disk image'
       - task: PublishBuildArtifacts@1
         inputs:
@@ -179,6 +183,8 @@ jobs:
       displayName: 'Checkout Submodules'
     - powershell: ./CI/windows/02_build_obs.ps1 -BuildArch x64 -Vendor ${{ vendor }}
       displayName: '${{ vendor }} Build OBS'
+      env:
+        OBS_VERSION: ${OBS_VERSION}
 
     - script: ./CI/install-script-win.cmd ${{ vendor }}
       displayName: '${{ vendor }} Run CMake'
