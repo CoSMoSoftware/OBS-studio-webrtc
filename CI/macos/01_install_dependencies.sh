@@ -142,8 +142,8 @@ install_libwebrtc() {
     fi
     ensure_dir ${DEPS_BUILD_DIR}
     pwd
-    ls ..
-    mv ../libWebRTC-${1}-${LIBWEBRTC_ARCH}-Debug-H264-OpenSSL_1_1_1n.dmg libWebRTC_${ARCH}.dmg
+    ls ../s
+    mv ../s/libWebRTC-${1}-${LIBWEBRTC_ARCH}-Debug-H264-OpenSSL_1_1_1n.dmg libWebRTC_${ARCH}.dmg
     step "Bypass the EULA by converting the DMG download to a CDR image"
     hdiutil convert -quiet libWebRTC_${ARCH}.dmg -format UDTO -o libWebRTC_${ARCH}
     step "Mount the CDR image"
