@@ -91,7 +91,8 @@ function Configure-OBS {
         "$(if (Test-Path Env:CI) { "-DOBS_BUILD_NUMBER=${Env:GITHUB_RUN_ID}" })",
         "$(if (Test-Path Variable:$Quiet) { "-Wno-deprecated -Wno-dev --log-level=ERROR" })",
         "-Dlibwebrtc_DIR=`"${CheckoutDir}/libwebrtc/cmake`"",
-        "$(if (${Vendor} -ne 'Millicast') { "-DOBS_WEBRTC_VENDOR_NAME=${Vendor}" })"
+        "$(if (${Vendor} -ne 'Millicast') { "-DOBS_WEBRTC_VENDOR_NAME=${Vendor}" })",
+        "-DOBS_VERSION_OVERRIDE=${OBS_VERSION}"
     )
 
     Invoke-External cmake -S . -B  "${BuildDirectoryActual}" @CmakeCommand

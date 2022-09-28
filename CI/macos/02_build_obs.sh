@@ -97,7 +97,8 @@ _configure_obs() {
         ${QUIET:+-Wno-deprecated -Wno-dev --log-level=ERROR} \
         ${VENDOR_OPTION} \
         -Dlibwebrtc_DIR="${DEPS_BUILD_DIR}/libwebrtc_${ARCH}/cmake" \
-        -DOPENSSL_ROOT_DIR="/usr/local/opt/openssl@1.1"
+        -DOPENSSL_ROOT_DIR="/usr/local/opt/openssl@1.1" \
+        -DOBS_VERSION_OVERRIDE=${OBS_VERSION}
 }
 
 # Function to backup previous build artifacts
