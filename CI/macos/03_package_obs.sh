@@ -89,7 +89,7 @@ _caught_error_hdiutil_verify() {
 }
 
 package-obs-standalone() {
-    PRODUCT_NAME="OBS-Studio"
+    PRODUCT_NAME="OBS-WebRTC"
 
     CHECKOUT_DIR="$(/usr/bin/git rev-parse --show-toplevel)"
     DEPS_BUILD_DIR="${CHECKOUT_DIR}/../obs-build-dependencies"
@@ -142,6 +142,7 @@ print_usage() {
             "--notarize-image [IMAGE]       : Specify existing OBS disk image for notarization\n" \
             "--notarize-bundle [BUNDLE]     : Specify existing OBS application bundle for notarization\n" \
             "--build-dir                    : Specify alternative build directory (default: build)\n"
+            "--vendor                       : Vendor name (default: Millicast)\n"
 }
 
 package-obs-main() {
@@ -157,6 +158,7 @@ package-obs-main() {
                 --build-dir ) BUILD_DIR="${2}"; shift 2 ;;
                 --notarize-image ) NOTARIZE_IMAGE="${2}"; NOTARIZE=TRUE; CODESIGN=TRUE; shift 2 ;;
                 --notarize-bundle ) NOTARIZE_BUNDLE="${2}"; NOTARIZE=TRUE; CODESIGN=TRUE; shift 2 ;;
+                --vendor ) VENDOR_NAME="${2}"; shift 2 ;;
                 -- ) shift; break ;;
                 * ) break ;;
             esac

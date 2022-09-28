@@ -64,6 +64,7 @@ print_usage() {
             "-q, --quiet                    : Suppress most build process output\n" \
             "-v, --verbose                  : Enable more verbose build process output\n" \
             "--build-dir                    : Specify alternative build directory (default: build)\n"
+            "--vendor                       : Vendor name (default: Millicast)\n"
 }
 
 package-obs-main() {
