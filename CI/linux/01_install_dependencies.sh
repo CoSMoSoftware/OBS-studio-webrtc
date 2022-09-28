@@ -123,6 +123,9 @@ install-dependencies-standalone() {
     CHECKOUT_DIR="$(/usr/bin/git rev-parse --show-toplevel)"
     PRODUCT_NAME="OBS-WebRTC"
     DEPS_BUILD_DIR="${CHECKOUT_DIR}/../obs-build-dependencies"
+    if [ -d "${DEPS_BUILD_DIR}" ]; then
+        rm -rf ${DEPS_BUILD_DIR}
+    fi
     source "${CHECKOUT_DIR}/CI/include/build_support.sh"
     source "${CHECKOUT_DIR}/CI/include/build_support_linux.sh"
 

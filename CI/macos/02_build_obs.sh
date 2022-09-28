@@ -15,9 +15,9 @@ build_obs() {
     status "Build OBS"
     trap "caught_error 'build app'" ERR
 
-    if [ -z "${CI}" ]; then
-        _backup_artifacts
-    fi
+    # if [ -z "${CI}" ]; then
+    #     _backup_artifacts
+    # fi
     step "Configure OBS..."
     _configure_obs
 
@@ -38,9 +38,9 @@ bundle_obs() {
 
 # Function to configure OBS build
 _configure_obs() {
-    if [ "${CODESIGN}" ]; then
-        read_codesign_ident
-    fi
+    # if [ "${CODESIGN}" ]; then
+    #     read_codesign_ident
+    # fi
 
     ensure_dir "${CHECKOUT_DIR}"
     status "Configure OBS build system..."
