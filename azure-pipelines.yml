@@ -133,7 +133,7 @@ jobs:
           CODESIGN_IDENT_USER: $(ludo_apple_account_id)
           CODESIGN_IDENT_PASS: $(ludo_apple_developer_password)
           NOTARIZE_APP_SPECIFIC_PASSWORD: $(ludo_apple_app_specific_password)
-      -script: TERM="" ./CI/macos/03_package_obs.sh --codesign --architecture "${{ arch }}" --vendor ${{ vendor }}
+      - script: TERM="" ./CI/macos/03_package_obs.sh --codesign --architecture "${{ arch }}" --vendor ${{ vendor }}
         displayName: '${{ vendor }} Package'
       - bash: |
           mkdir -p ./nightly_${{ vendor }}
