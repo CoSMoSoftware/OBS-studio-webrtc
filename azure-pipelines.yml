@@ -206,7 +206,7 @@ jobs:
       userRepository: 'CoSMoSoftware/libwebrtc-cmake'
       defaultVersionType: 'specificTag'
       version: 'm104rel'
-      itemPattern: 'libWebRTC-${{ variables.LIBWEBRTC_VERSION }}-*64-Release-*.exe'
+      itemPattern: 'libWebRTC-${{ variables.LIBWEBRTC_VERSION }}-x64-Mt-Release-*.exe'
       downloadPath: '$(System.DefaultWorkingDirectory)'
   - script: git submodule update --init --recursive
     displayName: 'Checkout Submodules'
