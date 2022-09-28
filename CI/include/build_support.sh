@@ -66,7 +66,7 @@ caught_error() {
 # Setup build environment
 BUILD_DIR="${BUILD_DIR:-build}"
 BUILD_CONFIG="${BUILD_CONFIG:-RelWithDebInfo}"
-CI_WORKFLOW="${CHECKOUT_DIR}/azure-pipelines.yml"
+CI_WORKFLOW="${CHECKOUT_DIR}/.github/workflows/main.yml"
 CURRENT_ARCH="$(uname -m)"
 CURRENT_DATE="$(date +"%Y-%m-%d")"
 
