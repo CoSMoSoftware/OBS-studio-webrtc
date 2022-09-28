@@ -12,9 +12,9 @@
 set -eE
 
 package_obs() {
-    if [ "${CODESIGN}" ]; then
-        read_codesign_ident
-    fi
+    # if [ "${CODESIGN}" ]; then
+    #     read_codesign_ident
+    # fi
 
     status "Create macOS disk image"
     trap "caught_error 'package app'" ERR
@@ -70,8 +70,15 @@ notarize_obs() {
     fi
 
     if [ "$?" -eq 0 ]; then
-        read_codesign_ident
-        read_codesign_pass
+        # read_codesign_ident
+        # read_codesign_pass
+
+        step "Update notarization keychain..."
+
+        CODESIGN_IDENT_SHORT=$(echo "${CODESIGN_IDENT}" | /usr/bin/sed -En "s/.+\((.+)\)/\1/p")
+        echo -n "${COLOR_ORANGE}"
+        /usr/bin/xcrun notarytool store-credentials "OBS-Codesign-Password" --apple-id "${CODESIGN_IDENT_USER}" --team-id "${CODESIGN_IDENT_SHORT}" --password "${CODESIGN_IDENT_PASS}"
+        echo -n "${COLOR_RESET}"
 
         step "Notarize ${NOTARIZE_TARGET}..."
         /usr/bin/xcrun notarytool submit "${NOTARIZE_TARGET}" --keychain-profile "OBS-Codesign-Password" --wait
@@ -108,19 +115,13 @@ package-obs-standalone() {
     GIT_HASH=$(/usr/bin/git rev-parse --short=9 HEAD)
     GIT_TAG=$(/usr/bin/git describe --tags --abbrev=0)
 
-    if [ "${BUILD_FOR_DISTRIBUTION}" ]; then
-        VERSION_STRING="${GIT_TAG}"
-    else
-        VERSION_STRING="${GIT_TAG}-${GIT_HASH}"
-    fi
-
     if [ -z "${NOTARIZE_IMAGE}" -a -z "${NOTARIZE_BUNDLE}" ]; then
         if [ "${ARCH}" = "arm64" ]; then
-            FILE_NAME="obs-studio-${VERSION_STRING}-macos-arm64.dmg"
+            FILE_NAME="obs-webrtc-${OBS_VERSION}-macos-arm64.dmg"
         elif [ "${ARCH}" = "universal" ]; then
-            FILE_NAME="obs-studio-${VERSION_STRING}-macos.dmg"
+            FILE_NAME="obs-webrtc-${OBS_VERSION}-macos.dmg"
         else
-            FILE_NAME="obs-studio-${VERSION_STRING}-macos-x86_64.dmg"
+            FILE_NAME="obs-webrtc-${OBS_VERSION}-macos-x86_64.dmg"
         fi
 
         package_obs
