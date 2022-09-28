@@ -136,14 +136,14 @@ jobs:
       - script: TERM="" ./CI/macos/03_package_obs.sh --codesign --architecture "${{ arch }}" --vendor ${{ vendor }}
         displayName: '${{ vendor }} Package'
       - bash: |
+          ARTIFACT_NAME=$(basename $(/usr/bin/find build -type f -name "obs-webrtc-*.dmg" -depth 1 | head -1))
           mkdir -p ./nightly_${{ vendor }}
-          find ./build_${{ vendor }} -name \*.dmg -exec cp -PR \{\} ./nightly_${{ vendor }}/ \;
+          mv ${ARTIFACT_NAME} ./nightly_${{ vendor }}
         displayName: '${{ vendor }} Copy disk image'
       - task: PublishBuildArtifacts@1
         inputs:
           pathtoPublish: './nightly_${{ vendor }}'
           artifactName: macbuild_${{ vendor }}
-
 
 - job: 'Build_Windows64'
   timeoutInMinutes: 300
