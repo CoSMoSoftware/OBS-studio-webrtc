@@ -126,6 +126,7 @@ function Install-libwebrtc {
     Ensure-Directory $DepsBuildDir
 
     Write-Step "Unpack..."
+    echo $env:path
     Write-Host $pwd.Path
     Get-ChildItem -Path "..\s"
     & "..\s\libWebRTC-${Version}-x64-Mt-Release-H264-OpenSSL_1_1_1n.exe" /S /SD
