@@ -140,11 +140,11 @@ function Install-Dependencies {
     Install-Windows-Dependencies
 
     $BuildDependencies = @(
+        @('libwebrtc', $LibwebrtcVersion),
         @('obs-deps', $WindowsDepsVersion),
         @('qt-deps', $WindowsDepsVersion),
         @('vlc', $WindowsVlcVersion),
-        @('cef', $WindowsCefVersion),
-        @('libwebrtc', $LibwebrtcVersion)
+        @('cef', $WindowsCefVersion)
     )
 
     Foreach($Dependency in ${BuildDependencies}) {
