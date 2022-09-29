@@ -131,9 +131,7 @@ function Install-libwebrtc {
     Get-ChildItem -Path "..\s"
     & "..\s\libWebRTC-${Version}-x64-Mt-Release-H264-OpenSSL_1_1_1n.exe" /S /SD
     Write-Step "************** toto"
-    Get-ChildItem -Path "$(Get-Location)"
-    Write-Step "************** toto2"
-    Get-ChildItem -Path "$(Get-Location)/libwebrtc"
+    Get-ChildItem -Path "C:\Program Files"
 }
 
 function Install-Dependencies {
