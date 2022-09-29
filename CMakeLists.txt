@@ -145,14 +145,6 @@ add_subdirectory(plugins)
 # OBS main app
 add_subdirectory(UI)
 
-# --- Handle Compiler Settings
-
-# if(MSVC AND NOT EXISTS "${CMAKE_BINARY_DIR}/ALL_BUILD.vcxproj.user")
-# 	file(GENERATE
-# 		OUTPUT "${CMAKE_BINARY_DIR}/ALL_BUILD.vcxproj.user"
-# 		INPUT "${CMAKE_SOURCE_DIR}/cmake/ALL_BUILD.vcxproj.user.in")
-# endif()
-
 if(NOT CMAKE_BUILD_TYPE)
         set(CMAKE_BUILD_TYPE Release)
 endif()
