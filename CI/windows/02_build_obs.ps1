@@ -65,7 +65,6 @@ function Configure-OBS {
     $CefDirectory = Resolve-Path -Path "${CheckoutDir}/../obs-build-dependencies/cef_binary_${WindowsCefVersion}_windows_${BuildArch}"
     $BuildDirectoryActual = "${BuildDirectory}$(if (${BuildArch} -eq "x64") { "64" } else { "32" })"
     $GeneratorPlatform = "$(if (${BuildArch} -eq "x64") { "x64" } else { "Win32" })"
-    $LibwebrtcPath = Resolve-Path -Path "$(Get-Location | Convert-Path)/libwebrtc/cmake"
 
     $CmakeCommand = @(
         "-G", ${CmakeGenerator}
@@ -91,7 +90,7 @@ function Configure-OBS {
         "-DBUILD_FOR_DISTRIBUTION=`"$(if (Test-Path Env:BUILD_FOR_DISTRIBUTION) { "ON" } else { "OFF" })`"",
         "$(if (Test-Path Env:CI) { "-DOBS_BUILD_NUMBER=${Env:GITHUB_RUN_ID}" })",
         "$(if (Test-Path Variable:$Quiet) { "-Wno-deprecated -Wno-dev --log-level=ERROR" })",
-        "-Dlibwebrtc_DIR=`"${LibwebrtcPath}`"",
+        "-Dlibwebrtc_DIR=`"C:/Program Files/libwebrtc/cmake`"",
         "$(if (${Vendor} -ne 'Millicast') { "-DOBS_WEBRTC_VENDOR_NAME=${Vendor}" })",
         "-DOBS_VERSION_OVERRIDE=`"${Env:OBS_VERSION}`""
     )
