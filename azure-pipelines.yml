@@ -51,6 +51,8 @@ variables:
   - name: OBS_VERSION
     value: 1.4.0-28.0.1-m104
 # for Mac code signing
+  - name: CODESIGN_TEAM_ID
+    value: $(apple_team_id)
   - name: CODESIGN_IDENT
     value: $(ludo_apple_developer_identity)
   - name: CODESIGN_IDENT_USER
@@ -128,6 +130,7 @@ jobs:
       - script: TERM="" ./CI/macos/02_build_obs.sh --codesign --architecture ${{ arch }} --vendor ${{ vendor }}
         displayName: '${{ vendor }} ${{ arch }} Build OBS'
         env:
+          CODESIGN_TEAM_ID: $(apple_team_id)
           CODESIGN_IDENT: $(ludo_apple_developer_identity)
           WOWZA_CODESIGN_IDENT: $(wowza_apple_developer_identity)
           CODESIGN_IDENT_USER: $(ludo_apple_account_id)
@@ -135,6 +138,13 @@ jobs:
           NOTARIZE_APP_SPECIFIC_PASSWORD: $(ludo_apple_app_specific_password)
       - script: TERM="" ./CI/macos/03_package_obs.sh --codesign --notarize --architecture "${{ arch }}" --vendor ${{ vendor }}
         displayName: '${{ vendor }} ${{ arch }} Package, sign, notarize'
+        env:
+          CODESIGN_TEAM_ID: $(apple_team_id)
+          CODESIGN_IDENT: $(ludo_apple_developer_identity)
+          WOWZA_CODESIGN_IDENT: $(wowza_apple_developer_identity)
+          CODESIGN_IDENT_USER: $(ludo_apple_account_id)
+          CODESIGN_IDENT_PASS: $(ludo_apple_developer_password)
+          NOTARIZE_APP_SPECIFIC_PASSWORD: $(ludo_apple_app_specific_password)
       - bash: |
           ARTIFACT_NAME=$(basename $(/usr/bin/find build -type f -name "obs-webrtc-*.dmg" -depth 1 | head -1))
           mkdir -p ./nightly_${{ vendor }}

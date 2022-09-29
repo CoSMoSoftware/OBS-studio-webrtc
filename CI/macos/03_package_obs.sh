@@ -75,9 +75,9 @@ notarize_obs() {
 
         step "Update notarization keychain..."
 
-        CODESIGN_IDENT_SHORT=$(echo "${CODESIGN_IDENT}" | /usr/bin/sed -En "s/.+\((.+)\)/\1/p")
+        # CODESIGN_IDENT_SHORT=$(echo "${CODESIGN_IDENT}" | /usr/bin/sed -En "s/.+\((.+)\)/\1/p")
         echo -n "${COLOR_ORANGE}"
-        /usr/bin/xcrun notarytool store-credentials "OBS-Codesign-Password" --apple-id "${CODESIGN_IDENT_USER}" --team-id "${CODESIGN_IDENT_SHORT}" --password "${CODESIGN_IDENT_PASS}"
+        /usr/bin/xcrun notarytool store-credentials "OBS-Codesign-Password" --apple-id "${CODESIGN_IDENT_USER}" --team-id "${CODESIGN_TEAM_ID}" --password "${CODESIGN_IDENT_PASS}"
         echo -n "${COLOR_RESET}"
 
         step "Notarize ${NOTARIZE_TARGET}..."
