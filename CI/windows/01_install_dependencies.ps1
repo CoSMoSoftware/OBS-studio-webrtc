@@ -129,6 +129,24 @@ function Install-libwebrtc {
     & "..\s\libWebRTC-${Version}-x64-Mt-Release-H264-OpenSSL_1_1_1n.exe" /S /SD
 }
 
+function Install-openssl {
+    Write-Status "Setup for dependency OpenSSL"
+
+    Ensure-Directory $DepsBuildDir
+
+    if (!((Test-Path "${DepsBuildDir}/openssl-1.1"))) {
+        Write-Step "Download..."
+        $ProgressPreference = $(if ($Quiet.isPresent) { 'SilentlyContinue' } else { 'Continue' })
+        Invoke-WebRequest -Uri "https://libwebrtc-community-builds.s3.amazonaws.com/openssl-1.1.tgz" -UseBasicParsing -OutFile "openssl-1.1.tgz"
+        $ProgressPreference = "Continue"
+
+        Write-Step "Unpack..."
+        tar -xzf openssl-1.1.tgz
+    } else {
+        Write-Step "Found existing OpenSSL library..."
+    }
+}
+
 function Install-Dependencies {
     Param(
         [String]$BuildArch = $(if (Test-Path variable:BuildArch) { "${BuildArch}" })
@@ -138,6 +156,7 @@ function Install-Dependencies {
 
     $BuildDependencies = @(
         @('libwebrtc', $LibwebrtcVersion),
+        @('openssl'),
         @('obs-deps', $WindowsDepsVersion),
         @('qt-deps', $WindowsDepsVersion),
         @('vlc', $WindowsVlcVersion),

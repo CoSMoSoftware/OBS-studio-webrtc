@@ -63,6 +63,7 @@ function Configure-OBS {
     # TODO: Clean up archive and directory naming across dependencies
     $CmakePrefixPath = Resolve-Path -Path "${CheckoutDir}/../obs-build-dependencies/windows-deps-${WindowsDepsVersion}-${BuildArch}"
     $CefDirectory = Resolve-Path -Path "${CheckoutDir}/../obs-build-dependencies/cef_binary_${WindowsCefVersion}_windows_${BuildArch}"
+    $OpensslDirectory = Resolve-Path -Path "${CheckoutDir}/../obs-build-dependencies/openssl-1.1/x64"
     $BuildDirectoryActual = "${BuildDirectory}$(if (${BuildArch} -eq "x64") { "64" } else { "32" })"
     $GeneratorPlatform = "$(if (${BuildArch} -eq "x64") { "x64" } else { "Win32" })"
 
@@ -91,6 +92,7 @@ function Configure-OBS {
         "$(if (Test-Path Env:CI) { "-DOBS_BUILD_NUMBER=${Env:GITHUB_RUN_ID}" })",
         "$(if (Test-Path Variable:$Quiet) { "-Wno-deprecated -Wno-dev --log-level=ERROR" })",
         "-Dlibwebrtc_DIR=`"C:/Program Files/libwebrtc/cmake`"",
+        "-DOPENSSL_ROOT_DIR=`"$OpensslDirectory`"",
         "$(if (${Vendor} -ne 'Millicast') { "-DOBS_WEBRTC_VENDOR_NAME=${Vendor}" })",
         "-DOBS_VERSION_OVERRIDE=`"${Env:OBS_VERSION}`""
     )
