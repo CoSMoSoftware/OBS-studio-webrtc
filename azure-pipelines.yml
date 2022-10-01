@@ -195,6 +195,11 @@ jobs:
         CMAKE_SYSTEM_VERSION: '10.0.18363.657'
         VIRTUALCAM-GUID: 'A3FCE0F5-3493-419F-958A-ABA1250EC20B'
     - powershell: ./CI/windows/03_package_obs.ps1 -BuildArch x64 -Package -Vendor ${{ vendor }}
+      displayName: '${{ vendor }} Package'
+    - task: PublishBuildArtifacts@1
+      inputs:
+        pathtoPublish: './build_${{ vendor }}'
+        artifactName: winbuild_${{ vendor }}
 
     - script: ./CI/install-script-win.cmd ${{ vendor }}
       displayName: '${{ vendor }} Run CMake'
