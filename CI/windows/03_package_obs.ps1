@@ -9,6 +9,7 @@ Param(
     [String]$BuildArch = $(if (Test-Path variable:BuildArch) { "${BuildArch}" } else { ('x86', 'x64')[[System.Environment]::Is64BitOperatingSystem] }),
     [ValidateSet("Release", "RelWithDebInfo", "MinSizeRel", "Debug")]
     [String]$BuildConfiguration = $(if (Test-Path variable:BuildConfiguration) { "${BuildConfiguration}" } else { "RelWithDebInfo" })
+    [String]$Vendor = $(if (Test-Path variable:Vendor) { "${Vendor}" } else { "Millicast" })
 )
 
 ##############################################################################
@@ -140,6 +141,7 @@ function Print-Usage {
         "-BuildDirectory          : Directory to use for builds - Default: build64 on 64-bit systems, build32 on 32-bit systems",
         "-BuildArch               : Build architecture to use (x86 or x64) - Default: local architecture",
         "-BuildConfiguration      : Build configuration to use - Default: RelWithDebInfo"
+        "-Vendor                  : Vendor name - Default: Millicast"
     )
 
     $Lines | Write-Host

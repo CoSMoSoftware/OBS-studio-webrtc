@@ -83,7 +83,7 @@ parameters:
 jobs:
 - job: 'Build_macOS'
   pool:
-    vmImage: 'macOS-11'
+    vmImage: 'macOS-12'
   steps:
   - script: git submodule update --init --recursive
     displayName: 'Checkout Submodules'
@@ -194,6 +194,7 @@ jobs:
         CMAKE_GENERATOR: 'Visual Studio 17 2022'
         CMAKE_SYSTEM_VERSION: '10.0.18363.657'
         VIRTUALCAM-GUID: 'A3FCE0F5-3493-419F-958A-ABA1250EC20B'
+    - powershell: ./CI/windows/03_package_obs.ps1 -BuildArch x64 -Package -Vendor ${{ vendor }}
 
     - script: ./CI/install-script-win.cmd ${{ vendor }}
       displayName: '${{ vendor }} Run CMake'
