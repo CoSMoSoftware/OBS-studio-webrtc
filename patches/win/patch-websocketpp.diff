@@ -1,0 +1,13 @@
+diff --git a/websocketpp/version.hpp b/websocketpp/version.hpp
+index 5766546..7c66840 100644
+--- a/websocketpp/version.hpp
++++ b/websocketpp/version.hpp
+@@ -54,7 +54,7 @@ static int const patch_version = 2;
+ static char const prerelease_flag[] = "";
+ 
+ /// Default user agent string
+-static char const user_agent[] = "WebSocket++/0.8.2";
++static char const user_agent[] = "OBS/1.4.0 (Windows/10; WebRTC/m104; OBS/28.0.1)";
+ 
+ } // namespace websocketpp
+ 
