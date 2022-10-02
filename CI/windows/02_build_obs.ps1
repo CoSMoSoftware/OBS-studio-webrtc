@@ -44,7 +44,8 @@ function Build-OBS {
     Ensure-Directory ${CheckoutDir}
     Write-Step "Build OBS targets..."
 
-    $BuildDirectoryActual = "${BuildDirectory}$(if (${BuildArch} -eq "x64") { "64" } else { "32" })"
+    $BuildDirectoryActual = "${BuildDirectory}$(if (${BuildArch} -eq "x64") { "64" } else { "32" })_${Vendor}"
+    Write-Step "build directory = ${BuildDirectoryActual}"
 
     Invoke-External cmake --build "${BuildDirectoryActual}" --config ${BuildConfiguration}
 }
@@ -64,7 +65,7 @@ function Configure-OBS {
     $CmakePrefixPath = Resolve-Path -Path "${CheckoutDir}/../obs-build-dependencies/windows-deps-${WindowsDepsVersion}-${BuildArch}"
     $CefDirectory = Resolve-Path -Path "${CheckoutDir}/../obs-build-dependencies/cef_binary_${WindowsCefVersion}_windows_${BuildArch}"
     $OpensslDirectory = Resolve-Path -Path "${CheckoutDir}/../obs-build-dependencies/openssl-1.1/x64"
-    $BuildDirectoryActual = "${BuildDirectory}$(if (${BuildArch} -eq "x64") { "64" } else { "32" })"
+    $BuildDirectoryActual = "${BuildDirectory}$(if (${BuildArch} -eq "x64") { "64" } else { "32" })_${Vendor}"
     $GeneratorPlatform = "$(if (${BuildArch} -eq "x64") { "x64" } else { "Win32" })"
 
     $CmakeCommand = @(

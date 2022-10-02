@@ -187,7 +187,7 @@ jobs:
       displayName: rmdir plugins/obs-ndi
     - script: git submodule update --init --recursive
       displayName: 'Checkout Submodules'
-    - powershell: ./CI/windows/02_build_obs.ps1 -BuildArch x64 -BuildDirectory build64_${{ vendor }} -Vendor ${{ vendor }}
+    - powershell: ./CI/windows/02_build_obs.ps1 -BuildArch x64 -Vendor ${{ vendor }}
       displayName: '${{ vendor }} Build OBS'
       env:
         OBS_VERSION: ${OBS_VERSION}
