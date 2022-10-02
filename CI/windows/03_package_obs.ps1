@@ -9,6 +9,7 @@ Param(
     [String]$BuildArch = $(if (Test-Path variable:BuildArch) { "${BuildArch}" } else { ('x86', 'x64')[[System.Environment]::Is64BitOperatingSystem] }),
     [ValidateSet("Release", "RelWithDebInfo", "MinSizeRel", "Debug")]
     [String]$BuildConfiguration = $(if (Test-Path variable:BuildConfiguration) { "${BuildConfiguration}" } else { "RelWithDebInfo" })
+    [ValidateSet("Millicast", "Wowza", "RemoteFilming", "RemoteFilming-A", "RemoteFilming-B", "RemoteFilming-C", "RemoteFilming-D")]
     [String]$Vendor = $(if (Test-Path variable:Vendor) { "${Vendor}" } else { "Millicast" })
 )
 
