@@ -130,7 +130,8 @@ include(GNUInstallDirs)
 include(CheckCCompilerFlag)
 include(CheckCXXCompilerFlag)
 
-apply_patches()
+apply_patch(patches/patch-ftl-sdk.diff "${CMAKE_SOURCE_DIR}/plugins/obs-websocket/ftl-sdk")
+apply_patch(patches/patch-obs-ndi.diff "${CMAKE_SOURCE_DIR}/plugins/obs-ndi")
 
 # OBS sources and plugins
 add_subdirectory(deps)
