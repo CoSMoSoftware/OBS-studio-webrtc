@@ -1593,32 +1593,6 @@
               </rect>
              </property>
             </widget>
-            <widget class="QCheckBox" name="ignoreRecommended">
-             <property name="geometry">
-              <rect>
-               <x>0</x>
-               <y>0</y>
-               <width>100</width>
-               <height>30</height>
-              </rect>
-             </property>
-             <property name="text">
-              <string>Basic.Settings.Stream.IgnoreRecommended</string>
-             </property>
-            </widget>
-            <widget class="QLabel" name="enforceSettingsLabel">
-             <property name="geometry">
-              <rect>
-               <x>0</x>
-               <y>0</y>
-               <width>100</width>
-               <height>30</height>
-              </rect>
-             </property>
-             <property name="text">
-              <string notr="true"/>
-             </property>
-            </widget>
            </widget>
           </widget>
          </item>
@@ -7867,7 +7841,6 @@
   <tabstop>hideOBSFromCapture</tabstop>
   <tabstop>closeProjectors</tabstop>
   <tabstop>moreInfoButton</tabstop>
-  <tabstop>ignoreRecommended</tabstop>
   <tabstop>useStreamKeyAdv</tabstop>
   <tabstop>baseResolution</tabstop>
   <tabstop>hotkeyFilterSearch</tabstop>

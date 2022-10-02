@@ -113,8 +113,8 @@ void OBSBasicSettings::InitStreamPage()
 	//   SLOT(UpdateResFPSLimits()));
 	connect(ui->customServer, SIGNAL(textChanged(const QString &)), this,
 		SLOT(UpdateKeyLink()));
-	connect(ui->ignoreRecommended, SIGNAL(clicked(bool)), this,
-		SLOT(DisplayEnforceWarning(bool)));
+	// connect(ui->ignoreRecommended, SIGNAL(clicked(bool)), this,
+	// 	SLOT(DisplayEnforceWarning(bool)));
 	// #289 service list of radio buttons
 	// connect(ui->ignoreRecommended, SIGNAL(toggled(bool)), this,
 	// 	SLOT(UpdateResFPSLimits()));
@@ -127,8 +127,8 @@ void OBSBasicSettings::InitStreamPage()
 
 void OBSBasicSettings::LoadStream1Settings()
 {
-	bool ignoreRecommended =
-		config_get_bool(main->Config(), "Stream1", "IgnoreRecommended");
+	// bool ignoreRecommended =
+	// 	config_get_bool(main->Config(), "Stream1", "IgnoreRecommended");
 
 	obs_service_t *service_obj = main->GetService();
 	const char *type = obs_service_get_type(service_obj);
@@ -336,7 +336,7 @@ void OBSBasicSettings::LoadStream1Settings()
 	bool streamActive = obs_frontend_streaming_active();
 	ui->streamPage->setEnabled(!streamActive);
 
-	ui->ignoreRecommended->setChecked(ignoreRecommended);
+	// ui->ignoreRecommended->setChecked(ignoreRecommended);
 
 	loading = false;
 
@@ -457,7 +457,7 @@ void OBSBasicSettings::SaveStream1Settings()
 		main->SetBroadcastFlowEnabled(false);
 	}
 
-	SaveCheckBox(ui->ignoreRecommended, "Stream1", "IgnoreRecommended");
+	// SaveCheckBox(ui->ignoreRecommended, "Stream1", "IgnoreRecommended");
 }
 
 void OBSBasicSettings::CheckSimulcastApplicableToCodec()
@@ -1267,8 +1267,8 @@ OBSService OBSBasicSettings::GetStream1Service()
 void OBSBasicSettings::UpdateServiceRecommendations()
 {
 	bool customServer = IsCustomService();
-	ui->ignoreRecommended->setVisible(!customServer);
-	ui->enforceSettingsLabel->setVisible(!customServer);
+	// ui->ignoreRecommended->setVisible(!customServer);
+	// ui->enforceSettingsLabel->setVisible(!customServer);
 
 	OBSService service = GetStream1Service();
 
@@ -1335,7 +1335,7 @@ void OBSBasicSettings::UpdateServiceRecommendations()
 			"Google Third-Party Permissions</a>";
 	}
 #endif
-	ui->enforceSettingsLabel->setText(text);
+	// ui->enforceSettingsLabel->setText(text);
 }
 
 void OBSBasicSettings::DisplayEnforceWarning(bool checked)
@@ -1358,9 +1358,9 @@ void OBSBasicSettings::DisplayEnforceWarning(bool checked)
 #undef ENFORCE_WARNING
 
 	if (button == QMessageBox::No) {
-		QMetaObject::invokeMethod(ui->ignoreRecommended, "setChecked",
-					  Qt::QueuedConnection,
-					  Q_ARG(bool, false));
+		// QMetaObject::invokeMethod(ui->ignoreRecommended, "setChecked",
+		// 			  Qt::QueuedConnection,
+		// 			  Q_ARG(bool, false));
 		return;
 	}
 

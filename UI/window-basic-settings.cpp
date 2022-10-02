@@ -431,7 +431,7 @@ OBSBasicSettings::OBSBasicSettings(QWidget *parent)
 	HookWidget(ui->useAuth,              CHECK_CHANGED,  STREAM1_CHANGED);
 	HookWidget(ui->authUsername,         EDIT_CHANGED,   STREAM1_CHANGED);
 	HookWidget(ui->authPw,               EDIT_CHANGED,   STREAM1_CHANGED);
-	HookWidget(ui->ignoreRecommended,    CHECK_CHANGED,  STREAM1_CHANGED);
+	// HookWidget(ui->ignoreRecommended,    CHECK_CHANGED,  STREAM1_CHANGED);
 	// NOTE LUDO: #172 codecs list of radio buttons
 	// HookWidget(ui->codec,                COMBO_CHANGED,  STREAM1_CHANGED);
 	HookWidget(ui->h264RadioButton,      CHECK_CHANGED,  STREAM1_CHANGED);
@@ -802,8 +802,8 @@ OBSBasicSettings::OBSBasicSettings(QWidget *parent)
 		this, SLOT(SimpleRecordingEncoderChanged()));
 	connect(ui->simpleOutAdvanced, SIGNAL(toggled(bool)), this,
 		SLOT(SimpleRecordingEncoderChanged()));
-	connect(ui->ignoreRecommended, SIGNAL(toggled(bool)), this,
-		SLOT(SimpleRecordingEncoderChanged()));
+	// connect(ui->ignoreRecommended, SIGNAL(toggled(bool)), this,
+	// 	SLOT(SimpleRecordingEncoderChanged()));
 	connect(ui->simpleReplayBuf, SIGNAL(toggled(bool)), this,
 		SLOT(SimpleReplayBufferChanged()));
 	// NOTE LUDO: #194 replace Settings/Output video bitrate QSpinBox by QLineEdit
@@ -5161,7 +5161,8 @@ void OBSBasicSettings::SimpleRecordingEncoderChanged()
 {
 	QString qual = ui->simpleOutRecQuality->currentData().toString();
 	QString warning;
-	bool enforceBitrate = !ui->ignoreRecommended->isChecked();
+	// bool enforceBitrate = !ui->ignoreRecommended->isChecked();
+	bool enforceBitrate = false;
 	OBSService service = GetStream1Service();
 
 	delete simpleOutRecWarning;
