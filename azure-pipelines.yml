@@ -187,30 +187,14 @@ jobs:
       displayName: rmdir plugins/obs-ndi
     - script: git submodule update --init --recursive
       displayName: 'Checkout Submodules'
-    - powershell: ./CI/windows/02_build_obs.ps1 -BuildArch x64 -Vendor ${{ vendor }}
+    - powershell: ./CI/windows/02_build_obs.ps1 -BuildArch x64 -BuildDirectory build64_${{ vendor }} -Vendor ${{ vendor }}
       displayName: '${{ vendor }} Build OBS'
       env:
         OBS_VERSION: ${OBS_VERSION}
         CMAKE_GENERATOR: 'Visual Studio 17 2022'
         CMAKE_SYSTEM_VERSION: '10.0.18363.657'
         VIRTUALCAM-GUID: 'A3FCE0F5-3493-419F-958A-ABA1250EC20B'
-    - powershell: ./CI/windows/03_package_obs.ps1 -BuildArch x64 -Package -Vendor ${{ vendor }}
-      displayName: '${{ vendor }} Package'
-    - task: PublishBuildArtifacts@1
-      inputs:
-        pathtoPublish: './build_${{ vendor }}'
-        artifactName: winbuild_${{ vendor }}
-
-    - script: ./CI/install-script-win.cmd ${{ vendor }}
-      displayName: '${{ vendor }} Run CMake'
-      env:
-        BUILD_TYPE: $(BUILD_TYPE)
-    - task: MSBuild@1
-      displayName: '${{ vendor }} Build 64-bit'
-      inputs:
-        msbuildArguments: '/m /p:Configuration=$(BUILD_TYPE)'
-        solution: .\build64_${{ vendor }}\${{ vendor }}.sln
-    - ${{ if eq( vendor, 'Millicast') }}:
+   - ${{ if eq( vendor, 'Millicast') }}:
       - task: CmdLine@2
         inputs:
           script: AzureSignTool sign -kvt "$(WINDOWS_SIGNING_TENANT_ID)" -kvu "$(WINDOWS_SIGNING_VAULT_URL)" -kvi "$(WINDOWS_SIGNING_CLIENT_ID)" -kvs "$(WINDOWS_SIGNING_CLIENT_SECRET)" -kvc "$(WINDOWS_SIGNING_CERTIFICATE_NAME)" -tr "http://timestamp.comodoca.com" -td sha256 -v ./build64_${{ vendor }}/UI/$(BUILD_TYPE)/obs64.exe
@@ -225,7 +209,7 @@ jobs:
     #     inputs:
     #       script: AzureSignTool sign -kvt "$(WINDOWS_SIGNING_TENANT_ID)" -kvu "$(WINDOWS_SIGNING_VAULT_URL)" -kvi "$(WINDOWS_SIGNING_CLIENT_ID)" -kvs "$(WOWZA_SIGNING_CLIENT_SECRET)" -kvc "$(WOWZA_SIGNING_CERTIFICATE_NAME)" -td sha256 -v ./build64_${{ vendor }}/UI/$(BUILD_TYPE)/obs64.exe
     #     displayName: 'Sign obs64.exe with global AzureSignTool'
-    - script: ./CI/before-deploy-win.cmd ${{ vendor }}
+    - script: ./CI/windows/before-deploy-win.cmd ${{ vendor }}
       displayName: '${{ vendor }} Before deploy'
       env:
         BUILD_TYPE: $(BUILD_TYPE)

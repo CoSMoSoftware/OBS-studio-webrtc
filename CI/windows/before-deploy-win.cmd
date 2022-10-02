@@ -6,6 +6,5 @@ cd build64_%1
 "C:\Program Files\CMake\bin\cpack.exe" -C %BUILD_TYPE% -G WIX
 
 mkdir ..\build_%1
-dir
 move *.msi ..\build_%1
 cd ..

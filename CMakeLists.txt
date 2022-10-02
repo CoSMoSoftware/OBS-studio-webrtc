@@ -28,6 +28,7 @@ set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 # Use target folders for MSVC/Xcode/etc.
 include(DeprecationHelpers)
 include(ObsHelpers)
+include(ObsCpack)
 # Set default compiler flags
 include(CompilerConfig)
 
@@ -361,4 +362,3 @@ endif()
 # enable submissions to a CDash server
 enable_testing()
 include(CTest)
-
