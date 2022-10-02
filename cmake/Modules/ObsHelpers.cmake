@@ -598,32 +598,3 @@ function(apply_patches)
 		endforeach()
 	endif()
 endfunction()
-
-# Apply patch to submodules from a specific directory location
-function(apply_patch patch_name location)
-  message(STATUS "Applying patch ${patch_name}")
-  execute_process(
-    COMMAND git apply -p1 --ignore-space-change --ignore-whitespace --whitespace=nowarn
-    WORKING_DIRECTORY "${location}"
-    INPUT_FILE "${patch_name}"
-    OUTPUT_VARIABLE OUTPUT
-    RESULT_VARIABLE RESULT
-  )
-  if (RESULT EQUAL 0)
-    message(STATUS "Applying patch ${patch_name} - success")
-  else()
-    # Check if patch is already applied
-    execute_process(
-      COMMAND git apply -p1 -R --check --ignore-space-change --ignore-whitespace --whitespace=nowarn
-      WORKING_DIRECTORY "${location}"
-      INPUT_FILE "${patch_name}"
-      OUTPUT_VARIABLE OUTPUT_R
-      RESULT_VARIABLE RESULT_R
-    )
-    if (RESULT_R EQUAL 0)
-      message(STATUS "Applying patch ${patch_name} - already applied")
-    else()
-      message(STATUS "Applying patch ${patch_name} - error")
-    endif()
-  endif()
-endfunction()

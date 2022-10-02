@@ -1,7 +1,7 @@
-diff --git a/libftl/gettimeofday/gettimeofday.c b/libftl/gettimeofday/gettimeofday.c
+diff --git a/plugins/obs-outputs/ftl-sdk/libftl/gettimeofday/gettimeofday.c b/plugins/obs-outputs/ftl-sdk/libftl/gettimeofday/gettimeofday.c
 index 08f03fd..3140571 100644
---- a/libftl/gettimeofday/gettimeofday.c
-+++ b/libftl/gettimeofday/gettimeofday.c
+--- a/plugins/obs-outputs/ftl-sdk/libftl/gettimeofday/gettimeofday.c
++++ b/plugins/obs-outputs/ftl-sdk/libftl/gettimeofday/gettimeofday.c
 @@ -45,6 +45,7 @@
  
  #ifdef _WIN32
