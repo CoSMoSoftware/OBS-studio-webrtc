@@ -28,12 +28,13 @@ set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 # Use target folders for MSVC/Xcode/etc.
 include(DeprecationHelpers)
 include(ObsHelpers)
-include(ObsCpack)
 # Set default compiler flags
 include(CompilerConfig)
 
 if(WIN32)
 	cmake_minimum_required(VERSION 3.16)
+
+	include(ObsCpack)
 
 	# Check for Win SDK version 10.0.20348 or above
 	if(MSVC)
