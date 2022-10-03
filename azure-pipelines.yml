@@ -134,7 +134,6 @@ jobs:
           CODESIGN_IDENT: $(ludo_apple_developer_identity)
           WOWZA_CODESIGN_IDENT: $(wowza_apple_developer_identity)
           CODESIGN_IDENT_USER: $(ludo_apple_account_id)
-          CODESIGN_IDENT_PASS: $(ludo_apple_developer_password)
           NOTARIZE_APP_SPECIFIC_PASSWORD: $(ludo_apple_app_specific_password)
       - script: TERM="" ./CI/macos/03_package_obs.sh --codesign --notarize --architecture "${{ arch }}" --vendor ${{ vendor }}
         displayName: '${{ vendor }} ${{ arch }} Package, sign, notarize'
@@ -143,7 +142,6 @@ jobs:
           CODESIGN_IDENT: $(ludo_apple_developer_identity)
           WOWZA_CODESIGN_IDENT: $(wowza_apple_developer_identity)
           CODESIGN_IDENT_USER: $(ludo_apple_account_id)
-          CODESIGN_IDENT_PASS: $(ludo_apple_developer_password)
           NOTARIZE_APP_SPECIFIC_PASSWORD: $(ludo_apple_app_specific_password)
       - bash: |
           ARTIFACT_NAME=$(basename $(/usr/bin/find build -type f -name "obs-webrtc-*.dmg" -depth 1 | head -1))
