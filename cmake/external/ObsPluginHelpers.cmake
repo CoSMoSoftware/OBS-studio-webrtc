@@ -360,7 +360,7 @@ if(OS_MACOS)
   endif()
 
   # Set path to entitlements property list for codesigning. Entitlements should
-  # match the host binary, in this case OBS.app.
+  # match the host binary, in this case OBS-WebRTC.app.
   set(OBS_CODESIGN_ENTITLEMENTS
       ${CMAKE_SOURCE_DIR}/cmake/bundle/macos/entitlements.plist
       CACHE INTERNAL "Path to codesign entitlements plist")
@@ -447,7 +447,7 @@ if(OS_MACOS)
       endif()
 
       # Set up install-time command to fix Qt library references to point into
-      # OBS.app bundle
+      # OBS-WebRTC.app bundle
       set(_COMMAND
           "${CMAKE_INSTALL_NAME_TOOL} \\
         -change ${CMAKE_PREFIX_PATH}/lib/QtWidgets.framework/Versions/${QT_VERSION}/QtWidgets @rpath/QtWidgets.framework/Versions/${_QT_FW_VERSION}/QtWidgets \\

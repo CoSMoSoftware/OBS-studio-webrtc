@@ -64,7 +64,7 @@ notarize_obs() {
         if [ -f "${OBS_IMAGE}" ]; then
             NOTARIZE_TARGET="${OBS_IMAGE}"
         else
-            error "No notarization application bundle ('OBS.app') or disk image ('${NOTARIZE_IMAGE:-${FILE_NAME}}') found"
+            error "No notarization application bundle ('OBS-WebRTC.app') or disk image ('${NOTARIZE_IMAGE:-${FILE_NAME}}') found"
             return
         fi
     fi

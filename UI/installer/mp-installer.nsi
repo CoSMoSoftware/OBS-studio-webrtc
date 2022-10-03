@@ -75,13 +75,13 @@ RequestExecutionLevel admin
 !define MUI_FINISHPAGE_LINK_LOCATION "https://obsproject.com/wiki/OBS-Studio-Quickstart"
 !define MUI_FINISHPAGE_LINK_COLOR 000080
 
-!define MUI_WELCOMEPAGE_TEXT "This setup will guide you through installing OBS Studio.\n\nIt is recommended that you close all other applications before starting, including OBS Studio. This will make it possible to update relevant files without having to reboot your computer.\n\nClick Next to continue."
+!define MUI_WELCOMEPAGE_TEXT "This setup will guide you through installing OBS WebRTC.\n\nIt is recommended that you close all other applications before starting, including OBS WebRTC. This will make it possible to update relevant files without having to reboot your computer.\n\nClick Next to continue."
 
 !define MUI_PAGE_CUSTOMFUNCTION_LEAVE PreReqCheck
 
 !define MUI_HEADERIMAGE
 !define MUI_PAGE_HEADER_TEXT "License Information"
-!define MUI_PAGE_HEADER_SUBTEXT "Please review the license terms before installing OBS Studio."
+!define MUI_PAGE_HEADER_SUBTEXT "Please review the license terms before installing OBS WebRTC."
 !define MUI_LICENSEPAGE_TEXT_TOP "Press Page Down or scroll to see the rest of the license."
 !define MUI_LICENSEPAGE_TEXT_BOTTOM " "
 !define MUI_LICENSEPAGE_BUTTON "&Next >"
@@ -343,10 +343,10 @@ Section "OBS WebRTC" SecCore
 
 !ifdef INSTALL64
 	SetOutPath "$INSTDIR\bin\64bit"
-	CreateShortCut "$DESKTOP\OBS Studio.lnk" "$INSTDIR\bin\64bit\obs64.exe"
+	CreateShortCut "$DESKTOP\OBS WebRTC.lnk" "$INSTDIR\bin\64bit\obs64.exe"
 !else
 	SetOutPath "$INSTDIR\bin\32bit"
-	CreateShortCut "$DESKTOP\OBS Studio.lnk" "$INSTDIR\bin\32bit\obs32.exe"
+	CreateShortCut "$DESKTOP\OBS WebRTC.lnk" "$INSTDIR\bin\32bit\obs32.exe"
 !endif
 
 	CreateDirectory "$SMPROGRAMS\OBS WebRTC"

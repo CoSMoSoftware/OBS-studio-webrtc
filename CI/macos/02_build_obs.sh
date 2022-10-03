@@ -111,11 +111,11 @@ _backup_artifacts() {
         NIGHTLY_DIR="${CHECKOUT_DIR}/nightly-${CUR_DATE}"
         PACKAGE_NAME=$(/usr/bin/find "${BUILD_DIR}" -name "*.dmg" -depth 1 | sort -rn | head -1)
 
-        if [ -d "${BUILD_DIR}/install/OBS.app" ]; then
-            step "Back up OBS.app..."
+        if [ -d "${BUILD_DIR}/install/OBS-WebRTC.app" ]; then
+            step "Back up OBS-WebRTC.app..."
             ensure_dir "${NIGHTLY_DIR}"
-            /bin/mv "${CHECKOUT_DIR}/${BUILD_DIR}/install/OBS.app" "${NIGHTLY_DIR}/"
-            info "You can find OBS.app in ${NIGHTLY_DIR}"
+            /bin/mv "${CHECKOUT_DIR}/${BUILD_DIR}/install/OBS-WebRTC.app" "${NIGHTLY_DIR}/"
+            info "You can find OBS-WebRTC.app in ${NIGHTLY_DIR}"
         fi
 
         if [ "${PACKAGE_NAME}" ]; then
@@ -129,7 +129,7 @@ _backup_artifacts() {
 
 build-obs-standalone() {
     CHECKOUT_DIR="$(/usr/bin/git rev-parse --show-toplevel)"
-    PRODUCT_NAME="OBS-Studio"
+    PRODUCT_NAME="OBS-WebRTC"
     DEPS_BUILD_DIR="${CHECKOUT_DIR}/../obs-build-dependencies"
     source "${CHECKOUT_DIR}/CI/include/build_support.sh"
     source "${CHECKOUT_DIR}/CI/include/build_support_macos.sh"
@@ -150,7 +150,7 @@ print_usage() {
             "-v, --verbose                  : Enable more verbose build process output\n" \
             "-a, --architecture             : Specify build architecture (default: x86_64, alternative: arm64)\n" \
             "-c, --codesign                 : Codesign OBS and all libraries (default: ad-hoc only)\n" \
-            "-b, --bundle                   : Create relocatable OBS application bundle in build directory (default: build/install/OBS.app)\n" \
+            "-b, --bundle                   : Create relocatable OBS application bundle in build directory (default: build/install/OBS-WebRTC.app)\n" \
             "--xcode                        : Create Xcode build environment instead of Ninja\n" \
             "--build-dir                    : Specify alternative build directory (default: build)\n"
             "--vendor                       : Specify vendor name (default: Millicast)\n"

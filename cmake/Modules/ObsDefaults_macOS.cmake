@@ -161,7 +161,7 @@ macro(setup_obs_project)
 
   set(CPACK_COMPONENTS_ALL obs_app obs_frameworks obs_plugins
                            obs_scripting_plugins obs_resources)
-  set(CPACK_COMPONENT_OBS_APP_DISPLAY_NAME "OBS Studio")
+  set(CPACK_COMPONENT_OBS_APP_DISPLAY_NAME "OBS WebRTC")
   set(CPACK_COMPONENT_OBS_FRAMEWORKS_DISPLAY_NAME "OBS Frameworks")
   set(CPACK_COMPONENT_OBS_PLUGINS_DISPLAY_NAME "OBS Plugins")
   set(CPACK_COMPONENT_OBS_SCRIPTING_PLUGINS_DISPLAY_NAME
