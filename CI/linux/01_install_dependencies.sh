@@ -72,6 +72,8 @@ install_cef() {
     fi
 
     step "Build CEF..."
+    export CC=clang
+    export CXX=clang++
     cd cef_binary_${1}_linux64
     # Rename build directory
     mv build build.old
