@@ -127,7 +127,7 @@ function Package-OBS-Standalone {
         $VersionString = "${GitTag}-${GitHash}"
     }
 
-    $FileName = "obs-studio-${VersionString}-windows"
+    $FileName = "obs-webrtc-${VersionString}-windows"
 
     Package-OBS
 }

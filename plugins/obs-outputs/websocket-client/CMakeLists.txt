@@ -7,7 +7,7 @@ project(websocketclient)
 #
 # NOTE ALEX: we should check that we are not overriding thsi setting here
 set(CMAKE_CXX_STANDARD 11)
-set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+#set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 if(WIN32)
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4503 /wd4267 /wd4244 /wd4996")
@@ -18,7 +18,7 @@ endif()
 #
 set(JSON_BuildTests OFF CACHE INTERNAL "")
 # set(JSON_Install OFF CACHE INTERNAL "")
-#add_subdirectory(nlohmann_json)
+add_subdirectory(nlohmann_json)
 
 #------------------------------------------------------------------------
 # OpenSSL
@@ -53,15 +53,16 @@ set(websocketclient_HEADERS
 
 if(WIN32)
 	set(websocketclient_SOURCES ${websocketclient_SOURCES} dllmain.cpp)
-        add_definitions(-DWEBSOCKETCLIENT_EXPORTS)
-        add_library(websocketclient SHARED
-	        ${websocketclient_SOURCES}
-	        ${websocketclient_HEADERS})
+  add_definitions(-DWEBSOCKETCLIENT_EXPORTS)
+	add_library(websocketclient SHARED)
 else()
-        add_library(websocketclient STATIC
-	        ${websocketclient_SOURCES}
-	        ${websocketclient_HEADERS})
+  add_library(websocketclient STATIC)
 endif()
+
+target_sources(
+	websocketclient
+	PRIVATE ${websocketclient_SOURCES}
+					${websocketclient_HEADERS})
 
 target_link_libraries(websocketclient
   PUBLIC libobs

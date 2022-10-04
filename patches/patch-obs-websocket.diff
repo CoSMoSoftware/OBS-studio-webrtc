@@ -1,0 +1,48 @@
+diff --git a/plugins/obs-websocket/CMakeLists.txt b/plugins/obs-websocket/CMakeLists.txt
+index 66fa0da..6b3d8c7 100644
+--- a/plugins/obs-websocket/CMakeLists.txt
++++ b/plugins/obs-websocket/CMakeLists.txt
+@@ -10,10 +10,10 @@ endif()
+ 
+ # Submodule deps check
+ if(NOT
+-   (EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/deps/json/CMakeLists.txt
+-    AND EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/deps/websocketpp/CMakeLists.txt
++   (EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/../obs-outputs/websocket-client/nlohmann_json/CMakeLists.txt
++    AND EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/../obs-outputs/websocket-client/websocketpp/CMakeLists.txt
+     AND EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/deps/qr/cpp/QrCode.hpp
+-    AND EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/deps/asio/asio/include/asio.hpp))
++    AND EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/../obs-outputs/websocket-client/third_party/asio/include/asio.hpp))
+   obs_status(FATAL_ERROR "obs-websocket submodule deps not available.")
+ endif()
+ 
+@@ -31,10 +31,10 @@ set(CMAKE_AUTORCC ON) # For resources.qrc
+ find_qt(COMPONENTS Core Widgets Svg Network)
+ 
+ # Find nlohmann
+-set(JSON_BuildTests
+-    OFF
+-    CACHE INTERNAL "")
+-add_subdirectory(deps/json)
++#set(JSON_BuildTests
++#    OFF
++#    CACHE INTERNAL "")
++#add_subdirectory(deps/json)
+ 
+ # Tell websocketpp not to use system boost
+ add_definitions(-DASIO_STANDALONE)
+@@ -131,8 +131,12 @@ target_sources(
+ 
+ target_include_directories(
+   obs-websocket
+-  PRIVATE ${Qt5Core_INCLUDES} ${Qt5Widgets_INCLUDES} ${Qt5Svg_INCLUDES}
+-          ${Qt5Network_INCLUDES} "deps/asio/asio/include" "deps/websocketpp")
++  PRIVATE ${Qt5Core_INCLUDES}
++          ${Qt5Widgets_INCLUDES}
++          ${Qt5Svg_INCLUDES}
++          ${Qt5Network_INCLUDES}
++          "${CMAKE_SOURCE_DIR}/plugins/obs-outputs/websocket-client/third_party/asio/include"
++          "${CMAKE_SOURCE_DIR}/plugins/obs-outputs/websocket-client/websocketpp")
+ 
+ target_link_libraries(
+   obs-websocket

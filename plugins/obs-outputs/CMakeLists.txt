@@ -33,19 +33,19 @@ message( STATUS "Looking for libwebrtc - found" )
 # CoSMo package components allow for fine feature granularity, and to adjust
 # the application build at configuration time.
 if( WEBRTC_H264_FOUND )
-        message( STATUS "This libwebrtc package was built with H264 support." )
+  message( STATUS "This libwebrtc package was built with H264 support." )
 else()
-        # Pass configuration items to the Code layer so as to e.g. not list
-        # H.264 video codec In the UI if it is not available in libwebrtc
-        # we could use a .h file, but here we are using precompiler instead
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DDISABLE_WEBRTC_H264")
-        set(CMAKE_C_FLAGS   "${CMAKE_C_FLAGS}   -DDISABLE_WEBRTC_H264")
+  # Pass configuration items to the Code layer so as to e.g. not list
+  # H.264 video codec in the UI if it is not available in libwebrtc
+  # we could use a .h file, but here we are using precompiler instead
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DDISABLE_WEBRTC_H264")
+  set(CMAKE_C_FLAGS   "${CMAKE_C_FLAGS}   -DDISABLE_WEBRTC_H264")
 endif()
 if( WEBRTC_EXT_OPENSSL_FOUND )
-        message( STATUS "This libwebrtc package was built against openssl." )
+  message( STATUS "This libwebrtc package was built against openssl." )
 endif()
 if( WEBRTC_SFRAME_FOUND )
-        message( STATUS "This libwebrtc package was build with SFrame end-to-end encryption." )
+  message( STATUS "This libwebrtc package was build with SFrame end-to-end encryption." )
 endif()
 
 # --- Sources

@@ -31,7 +31,7 @@ macro(setup_obs_project)
 						└ PLUGIN
 					└ obs-scripting
 						└ ARCH
-					└ obs-studio
+					└ obs-webrtc
 				└ obs-plugins
 					└ ARCH
 
@@ -48,7 +48,7 @@ macro(setup_obs_project)
 			└ obs
 				└ libobs
 				└ obs-plugins
-				└ obs-studio
+				└ obs-webrtc
 	]]
 
   if(CMAKE_SIZEOF_VOID_P EQUAL 8)

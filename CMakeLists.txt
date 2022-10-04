@@ -13,7 +13,7 @@ if("${CMAKE_BINARY_DIR}" STREQUAL "${CMAKE_SOURCE_DIR}")
 endif()
 
 if(NOT OBS_WEBRTC_VENDOR_NAME)
-	set(_project_name obs-studio)
+	set(_project_name obs-webrtc)
 	set(_config_dir obs-webrtc)
 else()
 	set(_project_name ${OBS_WEBRTC_VENDOR_NAME})

@@ -78,7 +78,6 @@ _configure_obs() {
         ${CI:+-DENABLE_UNIT_TESTS=ON -DBUILD_FOR_DISTRIBUTION=${BUILD_FOR_DISTRIBUTION} -DOBS_BUILD_NUMBER=${GITHUB_RUN_ID}} \
         ${QUIET:+-Wno-deprecated -Wno-dev --log-level=ERROR} \
         -DBUILD_NDI=OFF \
-        -DBUILD_WEBSOCKET=ON \
         -DUNIX_STRUCTURE=1 \
         -DENABLE_VLC=ON \
         -DUSE_LIBC++=ON \
