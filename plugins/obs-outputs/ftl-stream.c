@@ -1071,7 +1071,7 @@ static int init_connect(struct ftl_stream *stream)
 	stream->params.video_codec = FTL_VIDEO_H264;
 	stream->params.audio_codec = FTL_AUDIO_OPUS;
 	stream->params.ingest_hostname = stream->path.array;
-	stream->params.vendor_name = "OBS Studio";
+	stream->params.vendor_name = "OBS WebRTC";
 	stream->params.vendor_version = OBS_VERSION;
 	stream->params.peak_kbps = stream->peak_kbps < 0 ? 0
 							 : stream->peak_kbps;

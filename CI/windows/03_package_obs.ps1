@@ -104,7 +104,7 @@ function Package-OBS {
 }
 
 function Package-OBS-Standalone {
-    $ProductName = "OBS-Studio"
+    $ProductName = "OBS-WebRTC"
     $CheckoutDir = Resolve-Path -Path "$PSScriptRoot\..\.."
 
     . ${CheckoutDir}/CI/include/build_support_windows.ps1
