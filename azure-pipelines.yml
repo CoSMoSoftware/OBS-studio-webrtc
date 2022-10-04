@@ -103,55 +103,54 @@ jobs:
       version: 'm104rel'
       itemPattern: 'libWebRTC-${{ variables.LIBWEBRTC_VERSION }}-arm64-Debug-*.dmg'
       downloadPath: '$(System.DefaultWorkingDirectory)'
-  - ${{ each vendor in parameters.vendors }}:
-    - ${{ if ne( vendor, 'Wowza') }}:
-      - task: InstallAppleCertificate@2
-        displayName: '🔐 Install CoSMo Signing Certificate'
-        inputs:
-          certSecureFile: Certificates.p12
-          certPwd: $(certificatesLudoPassword)
-    - ${{ if eq( vendor, 'Wowza') }}:
-      - task: InstallAppleCertificate@2
-        displayName: '🔐 Install Wowza Signing Certificate'
-        inputs:
-          certSecureFile: wowza.p12
-          certPwd: $(wowza_mac_certificate_password)
-    - ${{ each arch in parameters.architectures }}:
-      - script: git stash
-        displayName: git stash
-      - script: rm -rf plugins/obs-ndi
-        displayName: rm plugins/obs-ndi
-      - script: git submodule update --init --recursive
-        displayName: 'Checkout Submodules'
-      - script: TERM="" ./CI/macos/01_install_dependencies.sh --architecture ${{ arch }}
-        displayName: 'Install dependencies'
-        env:
-          CURRENT_ARCH: ${{ arch }}
-      - script: TERM="" ./CI/macos/02_build_obs.sh --codesign --architecture ${{ arch }} --vendor ${{ vendor }}
-        displayName: '${{ vendor }} ${{ arch }} Build OBS'
-        env:
-          CODESIGN_TEAM_ID: $(apple_team_id)
-          CODESIGN_IDENT: $(ludo_apple_developer_identity)
-          WOWZA_CODESIGN_IDENT: $(wowza_apple_developer_identity)
-          CODESIGN_IDENT_USER: $(ludo_apple_account_id)
-          NOTARIZE_APP_SPECIFIC_PASSWORD: $(ludo_apple_app_specific_password)
-      - script: TERM="" ./CI/macos/03_package_obs.sh --codesign --notarize --architecture "${{ arch }}" --vendor ${{ vendor }}
-        displayName: '${{ vendor }} ${{ arch }} Package, sign, notarize'
-        env:
-          CODESIGN_TEAM_ID: $(apple_team_id)
-          CODESIGN_IDENT: $(ludo_apple_developer_identity)
-          WOWZA_CODESIGN_IDENT: $(wowza_apple_developer_identity)
-          CODESIGN_IDENT_USER: $(ludo_apple_account_id)
-          NOTARIZE_APP_SPECIFIC_PASSWORD: $(ludo_apple_app_specific_password)
-      - bash: |
-          ARTIFACT_NAME=$(basename $(/usr/bin/find build -type f -name "obs-webrtc-*.dmg" -depth 1 | head -1))
-          mkdir -p ./nightly_${{ vendor }}
-          mv build/${ARTIFACT_NAME} ./nightly_${{ vendor }}
-        displayName: '${{ vendor }} ${{ arch }} Copy disk image'
-      - task: PublishBuildArtifacts@1
-        inputs:
-          pathtoPublish: './nightly_${{ vendor }}'
-          artifactName: macbuild_${{ vendor }}
+  - ${{ if ne( vendor, 'Wowza') }}:
+    - task: InstallAppleCertificate@2
+      displayName: '🔐 Install CoSMo Signing Certificate'
+      inputs:
+        certSecureFile: Certificates.p12
+        certPwd: $(certificatesLudoPassword)
+  - ${{ if eq( vendor, 'Wowza') }}:
+    - task: InstallAppleCertificate@2
+      displayName: '🔐 Install Wowza Signing Certificate'
+      inputs:
+        certSecureFile: wowza.p12
+        certPwd: $(wowza_mac_certificate_password)
+  - ${{ each arch in parameters.architectures }}:
+    - script: git stash
+      displayName: git stash
+    - script: rm -rf plugins/obs-ndi
+      displayName: rm plugins/obs-ndi
+    - script: git submodule update --init --recursive
+      displayName: 'Checkout Submodules'
+    - script: TERM="" ./CI/macos/01_install_dependencies.sh --architecture x86_64
+      displayName: 'Install dependencies'
+      env:
+        CURRENT_ARCH: x86_64
+    - script: TERM="" ./CI/macos/02_build_obs.sh --codesign --architecture x86_64 --vendor ${{ vendor }}
+      displayName: '${{ vendor }} x86_64 Build OBS'
+      env:
+        CODESIGN_TEAM_ID: $(apple_team_id)
+        CODESIGN_IDENT: $(ludo_apple_developer_identity)
+        WOWZA_CODESIGN_IDENT: $(wowza_apple_developer_identity)
+        CODESIGN_IDENT_USER: $(ludo_apple_account_id)
+        NOTARIZE_APP_SPECIFIC_PASSWORD: $(ludo_apple_app_specific_password)
+    - script: TERM="" ./CI/macos/03_package_obs.sh --codesign --notarize --architecture "x86_64" --vendor ${{ vendor }}
+      displayName: '${{ vendor }} x86_64 Package, sign, notarize'
+      env:
+        CODESIGN_TEAM_ID: $(apple_team_id)
+        CODESIGN_IDENT: $(ludo_apple_developer_identity)
+        WOWZA_CODESIGN_IDENT: $(wowza_apple_developer_identity)
+        CODESIGN_IDENT_USER: $(ludo_apple_account_id)
+        NOTARIZE_APP_SPECIFIC_PASSWORD: $(ludo_apple_app_specific_password)
+    - bash: |
+        ARTIFACT_NAME=$(basename $(/usr/bin/find build -type f -name "obs-webrtc-*.dmg" -depth 1 | head -1))
+        mkdir -p ./nightly_${{ vendor }}
+        mv build/${ARTIFACT_NAME} ./nightly_${{ vendor }}
+      displayName: '${{ vendor }} x86_64 Copy disk image'
+    - task: PublishBuildArtifacts@1
+      inputs:
+        pathtoPublish: './nightly_${{ vendor }}'
+        artifactName: macbuild_${{ vendor }}
 
 - job: 'Build_Windows64'
   timeoutInMinutes: 300
