@@ -70,6 +70,16 @@ install_cef() {
     else
         step "Found existing Chromium Embedded Framework and loader library..."
     fi
+
+    step "Build CEF..."
+    cd cef_binary_${1}_linux64
+    # Rename build directory
+    mv build build.old
+    mkdir build
+    cd build
+    cmake .. -G "Ninja" -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_CXX_FLAGS="-stdlib=libc++"
+    ninja
+    cd ../..
 }
 
 install_plugin-deps() {
