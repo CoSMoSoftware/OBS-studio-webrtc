@@ -38,7 +38,7 @@
 	</dict>
 	<key>CMIOHardwareAssistantServiceNames</key>
 	<array>
-		<string>com.obsproject.obs-mac-virtualcam.server</string>
+		<string>ci.cosmosoftware.obs-mac-virtualcam.server</string>
 	</array>
 </dict>
 </plist>

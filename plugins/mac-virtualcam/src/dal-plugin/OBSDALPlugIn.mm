@@ -58,7 +58,7 @@ typedef enum {
 {
 	if (self = [super init]) {
 		_stateQueue = dispatch_queue_create(
-			"com.obsproject.obs-mac-virtualcam.dal.state",
+			"ci.cosmosoftware.obs-mac-virtualcam.dal.state",
 			DISPATCH_QUEUE_SERIAL);
 
 		_timeoutTimer = dispatch_source_create(

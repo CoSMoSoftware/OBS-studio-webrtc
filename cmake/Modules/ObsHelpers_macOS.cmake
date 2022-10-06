@@ -11,7 +11,7 @@ function(setup_binary_target target)
       "${target}"
       PARENT_SCOPE)
   set(MACOSX_PLUGIN_GUI_IDENTIFIER
-      "com.obsproject.${target}"
+      "ci.cosmosoftware.${target}"
       PARENT_SCOPE)
   set(MACOSX_PLUGIN_BUNDLE_VERSION
       "${MACOSX_BUNDLE_BUNDLE_VERSION}"
@@ -39,11 +39,11 @@ function(setup_framework_target target)
     PROPERTIES FRAMEWORK ON
                FRAMEWORK_VERSION A
                OUTPUT_NAME "${target}"
-               MACOSX_FRAMEWORK_IDENTIFIER "com.obsproject.${target}"
+               MACOSX_FRAMEWORK_IDENTIFIER "ci.cosmosoftware.${target}"
                MACOSX_FRAMEWORK_INFO_PLIST
                "${CMAKE_SOURCE_DIR}/cmake/bundle/macOS/Plugin-Info.plist.in"
                XCODE_ATTRIBUTE_PRODUCT_BUNDLE_IDENTIFIER
-               "com.obsproject.${target}")
+               "ci.cosmosoftware.${target}")
 
   install(
     TARGETS ${target}
@@ -66,7 +66,7 @@ function(setup_plugin_target target)
       "${target}"
       PARENT_SCOPE)
   set(MACOSX_PLUGIN_GUI_IDENTIFIER
-      "com.obsproject.${target}"
+      "ci.cosmosoftware.${target}"
       PARENT_SCOPE)
   set(MACOSX_PLUGIN_BUNDLE_VERSION
       "${MACOSX_BUNDLE_BUNDLE_VERSION}"
@@ -89,7 +89,7 @@ function(setup_plugin_target target)
                MACOSX_BUNDLE_INFO_PLIST
                "${CMAKE_SOURCE_DIR}/cmake/bundle/macOS/Plugin-Info.plist.in"
                XCODE_ATTRIBUTE_PRODUCT_BUNDLE_IDENTIFIER
-               "com.obsproject.${target}"
+               "ci.cosmosoftware.${target}"
                XCODE_ATTRIBUTE_CODE_SIGN_ENTITLEMENTS
                "${CMAKE_SOURCE_DIR}/cmake/bundle/macOS/entitlements.plist")
 
@@ -104,7 +104,7 @@ function(setup_script_plugin_target target)
   set_target_properties(
     ${target}
     PROPERTIES XCODE_ATTRIBUTE_PRODUCT_BUNDLE_IDENTIFIER
-               "com.obsproject.${target}"
+               "ci.cosmosoftware.${target}"
                XCODE_ATTRIBUTE_CODE_SIGN_ENTITLEMENTS
                "${CMAKE_SOURCE_DIR}/cmake/bundle/macOS/entitlements.plist")
 

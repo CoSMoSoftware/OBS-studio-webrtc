@@ -7,7 +7,7 @@
 	<key>CFBundleExecutable</key>
 	<string>obs-mac-virtualcam</string>
 	<key>CFBundleIdentifier</key>
-	<string>com.obsproject.obs-mac-virtualcam.dal-plugin</string>
+	<string>ci.cosmosoftware.obs-mac-virtualcam.dal-plugin</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleName</key>
@@ -34,7 +34,7 @@
 	<string>10.13</string>
 	<key>CMIOHardwareAssistantServiceNames</key>
 	<array>
-		<string>com.obsproject.obs-mac-virtualcam.server</string>
+		<string>ci.cosmosoftware.obs-mac-virtualcam.server</string>
 	</array>
 </dict>
 </plist>
