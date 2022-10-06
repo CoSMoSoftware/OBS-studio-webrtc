@@ -127,6 +127,10 @@ jobs:
         displayName: 'Install dependencies'
         env:
           CURRENT_ARCH: x86_64
+          MACOSX_DEPLOYMENT_TARGET_X86_64: '10.15'
+          MACOSX_DEPLOYMENT_TARGET_ARM64: '11.0'
+          SPARKLE_VERSION: '1.26.0'
+          SPARKLE_HASH: '8312cbf7528297a49f1b97692c33cb8d33254c396dc51be394e9484e4b6833a0'
       - script: TERM="" ./CI/macos/02_build_obs.sh --codesign --architecture x86_64 --vendor ${{ vendor }}
         displayName: '${{ vendor }} x86_64 Build OBS'
         env:
