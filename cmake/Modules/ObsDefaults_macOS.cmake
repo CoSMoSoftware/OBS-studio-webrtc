@@ -118,7 +118,7 @@ macro(setup_obs_project)
   set(MACOSX_BUNDLE_BUNDLE_NAME "${OBS_PRODUCT_NAME}")
   set(MACOSX_BUNDLE_BUNDLE_VERSION "${OBS_BUILD_NUMBER}")
   set(MACOSX_BUNDLE_COPYRIGHT "${OBS_LEGAL_COPYRIGHT}")
-  set(MACOSX_BUNDLE_GUI_IDENTIFIER "com.obsproject.obs-studio")
+  set(MACOSX_BUNDLE_GUI_IDENTIFIER "ci.cosmosoftware.obs-webrtc")
   set(MACOSX_BUNDLE_ICON_FILE "AppIcon")
   set(MACOSX_BUNDLE_SHORT_VERSION_STRING "${OBS_VERSION_CANONICAL}")
   string(TIMESTAMP CURRENT_YEAR "%Y")
@@ -161,7 +161,7 @@ macro(setup_obs_project)
 
   set(CPACK_COMPONENTS_ALL obs_app obs_frameworks obs_plugins
                            obs_scripting_plugins obs_resources)
-  set(CPACK_COMPONENT_OBS_APP_DISPLAY_NAME "OBS WebRTC")
+  set(CPACK_COMPONENT_OBS_APP_DISPLAY_NAME "OBS-WebRTC")
   set(CPACK_COMPONENT_OBS_FRAMEWORKS_DISPLAY_NAME "OBS Frameworks")
   set(CPACK_COMPONENT_OBS_PLUGINS_DISPLAY_NAME "OBS Plugins")
   set(CPACK_COMPONENT_OBS_SCRIPTING_PLUGINS_DISPLAY_NAME
