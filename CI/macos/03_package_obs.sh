@@ -19,11 +19,12 @@ package_obs() {
     status "Create macOS disk image"
     trap "caught_error 'package app'" ERR
 
-    info "/!\\ CPack will use an AppleScript to create the disk image, this will lead to a Finder window opening to adjust window settings. /!\\"
+    # info "/!\\ CPack will use an AppleScript to create the disk image, this will lead to a Finder window opening to adjust window settings. /!\\"
 
     ensure_dir "${CHECKOUT_DIR}"
 
     step "Package OBS..."
+    ls -lR ${BUILD_DIR}
     cmake --build ${BUILD_DIR} -t package
 
     DMG_NAME=$(/usr/bin/find "${BUILD_DIR}" -type f -name "OBS-*.dmg" -depth 1 | sort -rn | head -1)

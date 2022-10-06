@@ -145,6 +145,7 @@ jobs:
           NOTARIZE_APP_SPECIFIC_PASSWORD: $(ludo_apple_app_specific_password)
       - bash: |
           ARTIFACT_NAME=$(basename $(/usr/bin/find build -type f -name "obs-webrtc-*.dmg" -depth 1 | head -1))
+          echo "*********************** ${ARTIFACT_NAME}"
           mkdir -p ./nightly_${{ vendor }}
           mv build/${ARTIFACT_NAME} ./nightly_${{ vendor }}
         displayName: '${{ vendor }} x86_64 Copy disk image'
