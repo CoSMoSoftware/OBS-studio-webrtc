@@ -22,7 +22,7 @@ Unicode true
 ManifestDPIAware true
 
 ; Define your application name
-!define APPNAME "OBS WebRTC"
+!define APPNAME "OBS-WebRTC"
 
 !ifndef APPVERSION
 !define APPVERSION "28.0.0"
@@ -75,13 +75,13 @@ RequestExecutionLevel admin
 !define MUI_FINISHPAGE_LINK_LOCATION "https://obsproject.com/wiki/OBS-Studio-Quickstart"
 !define MUI_FINISHPAGE_LINK_COLOR 000080
 
-!define MUI_WELCOMEPAGE_TEXT "This setup will guide you through installing OBS WebRTC.\n\nIt is recommended that you close all other applications before starting, including OBS WebRTC. This will make it possible to update relevant files without having to reboot your computer.\n\nClick Next to continue."
+!define MUI_WELCOMEPAGE_TEXT "This setup will guide you through installing OBS-WebRTC.\n\nIt is recommended that you close all other applications before starting, including OBS-WebRTC. This will make it possible to update relevant files without having to reboot your computer.\n\nClick Next to continue."
 
 !define MUI_PAGE_CUSTOMFUNCTION_LEAVE PreReqCheck
 
 !define MUI_HEADERIMAGE
 !define MUI_PAGE_HEADER_TEXT "License Information"
-!define MUI_PAGE_HEADER_SUBTEXT "Please review the license terms before installing OBS WebRTC."
+!define MUI_PAGE_HEADER_SUBTEXT "Please review the license terms before installing OBS-WebRTC."
 !define MUI_LICENSEPAGE_TEXT_TOP "Press Page Down or scroll to see the rest of the license."
 !define MUI_LICENSEPAGE_TEXT_BOTTOM " "
 !define MUI_LICENSEPAGE_BUTTON "&Next >"
@@ -248,13 +248,13 @@ FunctionEnd
 
 Function LaunchOBS
 !ifdef INSTALL64
-	Exec '"$WINDIR\explorer.exe" "$SMPROGRAMS\OBS WebRTC\OBS WebRTC (64bit).lnk"'
+	Exec '"$WINDIR\explorer.exe" "$SMPROGRAMS\OBS-WebRTC\OBS-WebRTC (64bit).lnk"'
 !else
-	Exec '"$WINDIR\explorer.exe" "$SMPROGRAMS\OBS WebRTC\OBS WebRTC (32bit).lnk"'
+	Exec '"$WINDIR\explorer.exe" "$SMPROGRAMS\OBS-WebRTC\OBS-WebRTC (32bit).lnk"'
 !endif
 FunctionEnd
 
-Section "OBS WebRTC" SecCore
+Section "OBS-WebRTC" SecCore
 	SetShellVarContext all
 
 	Call checkFilesInUse
@@ -343,24 +343,24 @@ Section "OBS WebRTC" SecCore
 
 !ifdef INSTALL64
 	SetOutPath "$INSTDIR\bin\64bit"
-	CreateShortCut "$DESKTOP\OBS WebRTC.lnk" "$INSTDIR\bin\64bit\obs64.exe"
+	CreateShortCut "$DESKTOP\OBS-WebRTC.lnk" "$INSTDIR\bin\64bit\obs64.exe"
 !else
 	SetOutPath "$INSTDIR\bin\32bit"
-	CreateShortCut "$DESKTOP\OBS WebRTC.lnk" "$INSTDIR\bin\32bit\obs32.exe"
+	CreateShortCut "$DESKTOP\OBS-WebRTC.lnk" "$INSTDIR\bin\32bit\obs32.exe"
 !endif
 
-	CreateDirectory "$SMPROGRAMS\OBS WebRTC"
+	CreateDirectory "$SMPROGRAMS\OBS-WebRTC"
 
 !ifdef INSTALL64
 	SetOutPath "$INSTDIR\bin\64bit"
-	CreateShortCut "$SMPROGRAMS\OBS WebRTC\OBS WebRTC (64bit).lnk" "$INSTDIR\bin\64bit\obs64.exe"
+	CreateShortCut "$SMPROGRAMS\OBS-WebRTC\OBS-WebRTC (64bit).lnk" "$INSTDIR\bin\64bit\obs64.exe"
 !else
 	SetOutPath "$INSTDIR\bin\32bit"
-	CreateDirectory "$SMPROGRAMS\OBS WebRTC"
-	CreateShortCut "$SMPROGRAMS\OBS WebRTC\OBS WebRTC (32bit).lnk" "$INSTDIR\bin\32bit\obs32.exe"
+	CreateDirectory "$SMPROGRAMS\OBS-WebRTC"
+	CreateShortCut "$SMPROGRAMS\OBS-WebRTC\OBS-WebRTC (32bit).lnk" "$INSTDIR\bin\32bit\obs32.exe"
 !endif
 
-	CreateShortCut "$SMPROGRAMS\OBS WebRTC\Uninstall.lnk" "$INSTDIR\uninstall.exe"
+	CreateShortCut "$SMPROGRAMS\OBS-WebRTC\Uninstall.lnk" "$INSTDIR\uninstall.exe"
 SectionEnd
 
 Section -FinishSection
@@ -421,7 +421,7 @@ SectionEnd
 
 ; Modern install component descriptions
 !insertmacro MUI_FUNCTION_DESCRIPTION_BEGIN
-	!insertmacro MUI_DESCRIPTION_TEXT ${SecCore} "Core OBS WebRTC files"
+	!insertmacro MUI_DESCRIPTION_TEXT ${SecCore} "Core OBS-WebRTC files"
 !insertmacro MUI_FUNCTION_DESCRIPTION_END
 
 ;Uninstall section
@@ -461,11 +461,11 @@ Section "un.${APPNAME} App Files" UninstallSection1
 
 	; Delete Shortcuts
 	SetShellVarContext all
-	Delete "$DESKTOP\OBS WebRTC.lnk"
-	Delete "$SMPROGRAMS\OBS WebRTC\OBS WebRTC (32bit).lnk"
-	Delete "$SMPROGRAMS\OBS WebRTC\Uninstall.lnk"
+	Delete "$DESKTOP\OBS-WebRTC.lnk"
+	Delete "$SMPROGRAMS\OBS-WebRTC\OBS-WebRTC (32bit).lnk"
+	Delete "$SMPROGRAMS\OBS-WebRTC\Uninstall.lnk"
 	${if} ${RunningX64}
-		Delete "$SMPROGRAMS\OBS WebRTC\OBS WebRTC (64bit).lnk"
+		Delete "$SMPROGRAMS\OBS-WebRTC\OBS-WebRTC (64bit).lnk"
 	${endif}
 	SetShellVarContext current
 
@@ -474,15 +474,15 @@ Section "un.${APPNAME} App Files" UninstallSection1
 	ExecWait '"$INSTDIR\data\obs-plugins\win-ivcam\seg_service.exe" /UnregServer'
 	SkipUnreg:
 
-	; Clean up OBS WebRTC
+	; Clean up OBS-WebRTC
 	RMDir /r "$INSTDIR\bin"
 	RMDir /r "$INSTDIR\data"
 	RMDir /r "$INSTDIR\obs-plugins"
 	RMDir "$INSTDIR"
 
 	; Remove remaining directories
-	RMDir "$SMPROGRAMS\OBS WebRTC"
-	RMDir "$INSTDIR\OBS WebRTC"
+	RMDir "$SMPROGRAMS\OBS-WebRTC"
+	RMDir "$INSTDIR\OBS-WebRTC"
 SectionEnd
 
 Section /o "un.Settings, Scenes, etc." UninstallSection2

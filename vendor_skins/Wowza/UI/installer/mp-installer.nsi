@@ -477,7 +477,7 @@ Section "un.${APPNAME} App Files" UninstallSection1
 	ExecWait '"$INSTDIR\data\obs-plugins\win-ivcam\seg_service.exe" /UnregServer'
 	SkipUnreg:
 
-	; Clean up OBS WebRTC
+	; Clean up OBS-WebRTC
 	RMDir /r "$INSTDIR\bin"
 	RMDir /r "$INSTDIR\data"
 	RMDir /r "$INSTDIR\obs-plugins"

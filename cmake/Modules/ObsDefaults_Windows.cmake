@@ -17,7 +17,7 @@ endif()
 
 # Enable building Windows modules with file descriptors
 # https://github.com/obsproject/obs-studio/commit/51be039cf82fc347587d16b48f74e65e86bee301
-set(MODULE_DESCRIPTION "OBS WebRTC")
+set(MODULE_DESCRIPTION "OBS-WebRTC")
 
 macro(setup_obs_project)
   if(CMAKE_SIZEOF_VOID_P EQUAL 8)

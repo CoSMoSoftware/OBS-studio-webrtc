@@ -114,7 +114,7 @@ macro(setup_obs_project)
   set(CMAKE_INSTALL_RPATH_USE_LINK_PATH OFF)
 
   # Set bundle parameters for cmake's automatic plist generation
-  set(MACOSX_BUNDLE_EXECUTABLE_NAME "OBS WebRTC")
+  set(MACOSX_BUNDLE_EXECUTABLE_NAME "OBS-WebRTC")
   set(MACOSX_BUNDLE_BUNDLE_NAME "${OBS_PRODUCT_NAME}")
   set(MACOSX_BUNDLE_BUNDLE_VERSION "${OBS_BUILD_NUMBER}")
   set(MACOSX_BUNDLE_COPYRIGHT "${OBS_LEGAL_COPYRIGHT}")
@@ -124,7 +124,7 @@ macro(setup_obs_project)
   string(TIMESTAMP CURRENT_YEAR "%Y")
 
   # Set paths for distribution bundling
-  set(OBS_BUNDLE_NAME "OBS WebRTC")
+  set(OBS_BUNDLE_NAME "OBS-WebRTC")
   set(OBS_EXECUTABLE_DESTINATION "${CMAKE_INSTALL_BINDIR}")
   set(OBS_INCLUDE_DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/obs")
   set(OBS_LIBRARY_DESTINATION "${CMAKE_INSTALL_LIBDIR}")
@@ -142,7 +142,7 @@ macro(setup_obs_project)
     set_option(ENABLE_RTMPS ON)
   endif()
 
-  set(CPACK_PACKAGE_NAME "OBS WebRTC")
+  set(CPACK_PACKAGE_NAME "OBS-WebRTC")
   set(CPACK_PACKAGE_VENDOR "${OBS_WEBSITE}")
   set(CPACK_GENERATOR "DragNDrop")
   set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "${OBS_COMMENTS}")

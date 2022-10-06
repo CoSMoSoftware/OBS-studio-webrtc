@@ -1,5 +1,5 @@
 set(OBS_COMPANY_NAME "OBS Project")
-set(OBS_PRODUCT_NAME "OBS WebRTC")
+set(OBS_PRODUCT_NAME "OBS-WebRTC")
 set(OBS_WEBSITE "https://www.obsproject.com")
 set(OBS_COMMENTS
     "Free and open source software for video recording and live streaming")

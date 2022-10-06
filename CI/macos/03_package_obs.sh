@@ -24,7 +24,6 @@ package_obs() {
     ensure_dir "${CHECKOUT_DIR}"
 
     step "Package OBS..."
-    ls -lR ${BUILD_DIR}
     cmake --build ${BUILD_DIR} -t package
 
     DMG_NAME=$(/usr/bin/find "${BUILD_DIR}" -type f -name "OBS-*.dmg" -depth 1 | sort -rn | head -1)

@@ -798,7 +798,7 @@ static void play_pipewire_stream(obs_pipewire_data *obs_pw)
 
 	/* Stream */
 	obs_pw->stream = pw_stream_new(
-		obs_pw->core, "OBS WebRTC",
+		obs_pw->core, "OBS-WebRTC",
 		pw_properties_new(PW_KEY_MEDIA_TYPE, "Video",
 				  PW_KEY_MEDIA_CATEGORY, "Capture",
 				  PW_KEY_MEDIA_ROLE, "Screen", NULL));
