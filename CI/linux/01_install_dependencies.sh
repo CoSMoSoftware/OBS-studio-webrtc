@@ -71,21 +71,17 @@ install_cef() {
         step "Found existing Chromium Embedded Framework and loader library..."
     fi
 
-    UBUNTU_VERSION=`lsb_release -d | cut -d\  -f2 | cut -d. -f1`
-    if [ "${UBUNTU_VERSION}" == "22" ]; then
-        # Ubuntu 22.04 ==> recompile CEF
-        step "Build CEF..."
-        export CC=clang
-        export CXX=clang++
-        cd cef_binary_${1}_linux64
-        # Rename build directory
-        mv build build.old
-        mkdir build
-        cd build
-        cmake .. -G "Ninja" -DCMAKE_BUILD_TYPE=RelWithDebInfo -DPROJECT_ARCH="arm64"
-        ninja
-        cd ../..
-    fi
+    step "Build CEF..."
+    export CC=clang
+    export CXX=clang++
+    cd cef_binary_${1}_linux64
+    # Rename build directory
+    mv build build.old
+    mkdir build
+    cd build
+    cmake .. -G "Ninja" -DCMAKE_BUILD_TYPE=RelWithDebInfo -DPROJECT_ARCH="arm64"
+    ninja
+    cd ../..
 }
 
 install_plugin-deps() {
