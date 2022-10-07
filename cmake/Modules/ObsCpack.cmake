@@ -51,7 +51,7 @@ else()
 		set(_output_suffix "")
 	endif()
 
-	set(CPACK_PACKAGE_EXECUTABLES "obs${_output_suffix}" "OBS-WebRTC")
+	set(CPACK_PACKAGE_EXECUTABLES "obs${_output_suffix}" "obs")
 	set(CPACK_CREATE_DESKTOP_LINKS "obs${_output_suffix}")
 endif()
 

@@ -114,7 +114,7 @@ macro(setup_obs_project)
   set(CMAKE_INSTALL_RPATH_USE_LINK_PATH OFF)
 
   # Set bundle parameters for cmake's automatic plist generation
-  set(MACOSX_BUNDLE_EXECUTABLE_NAME "OBS-WebRTC")
+  set(MACOSX_BUNDLE_EXECUTABLE_NAME "obs")
   set(MACOSX_BUNDLE_BUNDLE_NAME "${OBS_PRODUCT_NAME}")
   set(MACOSX_BUNDLE_BUNDLE_VERSION "${OBS_BUILD_NUMBER}")
   set(MACOSX_BUNDLE_COPYRIGHT "${OBS_LEGAL_COPYRIGHT}")
