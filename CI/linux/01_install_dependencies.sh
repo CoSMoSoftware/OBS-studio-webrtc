@@ -82,7 +82,7 @@ install_cef() {
         mv build build.old
         mkdir build
         cd build
-        cmake .. -G "Ninja" -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_CXX_FLAGS="-stdlib=libc++"
+        cmake .. -G "Ninja" -DCMAKE_BUILD_TYPE=RelWithDebInfo -DPROJECT_ARCH="arm64"
         ninja
         cd ../..
     fi
