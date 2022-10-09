@@ -91,7 +91,6 @@ void SceneTree::resizeEvent(QResizeEvent *event)
 		}
 	} else {
 		setGridSize(QSize());
-		setSpacing(1);
 		for (int i = 0; i < count(); i++) {
 			item(i)->setData(Qt::SizeHintRole, QVariant());
 		}
@@ -253,6 +252,7 @@ void SceneTree::rowsInserted(const QModelIndex &parent, int start, int end)
 void SceneTree::selectionChanged(const QItemSelection &selected,
 				 const QItemSelection &deselected)
 {
-	if (selected.count() == 0 && deselected.count() > 0)
+	if (selected.count() == 0 && deselected.count() > 0 &&
+	    !property("clearing").toBool())
 		setCurrentRow(deselected.indexes().front().row());
 }

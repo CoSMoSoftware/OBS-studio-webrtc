@@ -668,7 +668,10 @@ static void screen_capture_video_render(void *data, gs_effect_t *effect
 
 static const char *screen_capture_getname(void *unused __attribute__((unused)))
 {
-	return obs_module_text("SCK.Name");
+	if (@available(macOS 13.0, *))
+		return obs_module_text("SCK.Name");
+	else
+		return obs_module_text("SCK.Name.Beta");
 }
 
 static uint32_t screen_capture_getwidth(void *data)
@@ -983,41 +986,43 @@ static obs_properties_t *screen_capture_properties(void *data)
 		props, "show_hidden_windows",
 		obs_module_text("WindowUtils.ShowHidden"));
 
-	obs_property_set_modified_callback2(hidden, content_settings_changed,
-					    sc);
-
 	obs_properties_add_bool(props, "show_cursor",
 				obs_module_text("DisplayCapture.ShowCursor"));
 
-	switch (sc->capture_type) {
-	case 0: {
-		obs_property_set_visible(display_list, true);
-		obs_property_set_visible(window_list, false);
-		obs_property_set_visible(app_list, false);
-		obs_property_set_visible(empty, false);
-		obs_property_set_visible(hidden, false);
-		break;
-	}
-	case 1: {
-		obs_property_set_visible(display_list, false);
-		obs_property_set_visible(window_list, true);
-		obs_property_set_visible(app_list, false);
-		obs_property_set_visible(empty, true);
-		obs_property_set_visible(hidden, true);
-		break;
-	}
-	case 2: {
-		obs_property_set_visible(display_list, true);
-		obs_property_set_visible(app_list, true);
-		obs_property_set_visible(window_list, false);
-		obs_property_set_visible(empty, false);
-		obs_property_set_visible(hidden, true);
-		break;
-	}
-	}
+	if (sc) {
+		obs_property_set_modified_callback2(
+			hidden, content_settings_changed, sc);
 
-	obs_property_set_modified_callback2(empty, content_settings_changed,
-					    sc);
+		switch (sc->capture_type) {
+		case 0: {
+			obs_property_set_visible(display_list, true);
+			obs_property_set_visible(window_list, false);
+			obs_property_set_visible(app_list, false);
+			obs_property_set_visible(empty, false);
+			obs_property_set_visible(hidden, false);
+			break;
+		}
+		case 1: {
+			obs_property_set_visible(display_list, false);
+			obs_property_set_visible(window_list, true);
+			obs_property_set_visible(app_list, false);
+			obs_property_set_visible(empty, true);
+			obs_property_set_visible(hidden, true);
+			break;
+		}
+		case 2: {
+			obs_property_set_visible(display_list, true);
+			obs_property_set_visible(app_list, true);
+			obs_property_set_visible(window_list, false);
+			obs_property_set_visible(empty, false);
+			obs_property_set_visible(hidden, true);
+			break;
+		}
+		}
+
+		obs_property_set_modified_callback2(
+			empty, content_settings_changed, sc);
+	}
 
 	if (@available(macOS 13.0, *))
 		;

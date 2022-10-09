@@ -347,6 +347,7 @@ bool OBSBasic::CreateProfile(const std::string &newName, bool create_new,
 
 	config_save_safe(App()->GlobalConfig(), "tmp", nullptr);
 	UpdateTitleBar();
+	UpdateVolumeControlsDecayRate();
 
 	Auth::Load();
 
@@ -625,6 +626,7 @@ void OBSBasic::on_actionRemoveProfile_triggered(bool skipConfirmation)
 	blog(LOG_INFO, "------------------------------------------------");
 
 	UpdateTitleBar();
+	UpdateVolumeControlsDecayRate();
 
 	Auth::Load();
 
@@ -800,6 +802,7 @@ void OBSBasic::ChangeProfile()
 	RefreshProfiles();
 	config_save_safe(App()->GlobalConfig(), "tmp", nullptr);
 	UpdateTitleBar();
+	UpdateVolumeControlsDecayRate();
 
 	Auth::Load();
 
