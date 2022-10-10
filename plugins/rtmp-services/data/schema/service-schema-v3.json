@@ -110,7 +110,8 @@
                                 "enum": [
                                     "rtmp_output",
                                     "ffmpeg_hls_muxer",
-                                    "ftl_output"
+                                    "ftl_output",
+                                    "millicast_output"
                                 ]
                             },
                             "profile": {
