@@ -1,7 +1,16 @@
 diff --git a/plugins/obs-browser/CMakeLists.txt b/plugins/obs-browser/CMakeLists.txt
-index ef7ca9a..7f9362c 100644
+index ef7ca9a..d7f95c1 100644
 --- a/plugins/obs-browser/CMakeLists.txt
 +++ b/plugins/obs-browser/CMakeLists.txt
+@@ -188,7 +188,7 @@ elseif(OS_MACOS)
+   target_sources(obs-browser PRIVATE macutil.mm)
+
+   set(CEF_HELPER_TARGET "obs-browser-helper")
+-  set(CEF_HELPER_OUTPUT_NAME "OBS Helper")
++  set(CEF_HELPER_OUTPUT_NAME "OBS-WebRTC Helper")
+   set(CEF_HELPER_APP_SUFFIXES
+       "::" " (GPU):_gpu:.gpu" " (Plugin):_plugin:.plugin"
+       " (Renderer):_renderer:.renderer")
 @@ -249,7 +249,7 @@ elseif(OS_MACOS)
          OUTPUT_NAME ${_HELPER_OUTPUT_NAME}
          FOLDER "plugins/obs-browser/helpers/"
