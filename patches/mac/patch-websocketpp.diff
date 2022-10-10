@@ -1,7 +1,7 @@
-diff --git a/plugins/obs-websocket/deps/websocketpp/websocketpp/version.hpp b/plugins/obs-websocket/deps/websocketpp/websocketpp/version.hpp
-index 5766546..e92bd22 100644
---- a/plugins/obs-websocket/deps/websocketpp/websocketpp/version.hpp
-+++ b/plugins/obs-websocket/deps/websocketpp/websocketpp/version.hpp
+diff --git a/plugins/obs-outputs/websocket-client/websocketpp/websocketpp/version.hpp b/plugins/obs-outputs/websocket-client/websocketpp/websocketpp/version.hpp
+index 5766546..4cbb35c 100644
+--- a/plugins/obs-outputs/websocket-client/websocketpp/websocketpp/version.hpp
++++ b/plugins/obs-outputs/websocket-client/websocketpp/websocketpp/version.hpp
 @@ -54,7 +54,7 @@ static int const patch_version = 2;
  static char const prerelease_flag[] = "";
 
