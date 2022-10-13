@@ -185,6 +185,15 @@ private:
 	void enqueue_frame(video_data *frame);
 	void deliver_video_frame(video_data *frame);
 	void process_video_queue();
+	// video_queue_ is shared by audio thread and video thread
+	// ==> Protect access to video_queue_ with a mutex
+	std::mutex mutex_video_queue_;
+	// Method deliver_video_frame() can be called by video thread
+	// and also by audio thread for video frames that have been buffered
+	// to synchronize with audio timestamps.
+	// Critical section: make sure only one thread at a time call method deliver_video_frame()
+	// by protecting it with a lock on mutex_deliver_video_frame_.
+	std::mutex mutex_deliver_video_frame_;
 
 	// Connection properties
 	Type type;
