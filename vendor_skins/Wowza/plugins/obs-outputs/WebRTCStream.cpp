@@ -785,7 +785,8 @@ bool WebRTCStream::stop()
 	// Disconnect, this will call stop on main thread
 	obs_output_end_data_capture(output);
 
-	// Empty video queues
+	// Empty video queue
+	std::unique_lock<std::mutex> lock(mutex_video_queue_);
 	while (!video_queue_.empty()) {
 		video_data *frame = video_queue_.front();
 		video_queue_.pop();
@@ -793,6 +794,7 @@ bool WebRTCStream::stop()
 		free(frame->data[0]);
 		free(frame);
 	}
+	lock.unlock();
 
 	return true;
 }
@@ -880,7 +882,9 @@ void WebRTCStream::onVideoFrame(video_data *frame)
 
 	// Handle synchronisation with audio
 	if (frame->timestamp <= last_delivered_audio_ts_) {
+		std::unique_lock<std::mutex> lock(mutex_deliver_video_frame_);
 		deliver_video_frame(frame);
+		lock.unlock();
 	} else {
 		enqueue_frame(frame);
 	}
@@ -915,23 +919,29 @@ void WebRTCStream::enqueue_frame(video_data *frame) {
 		}
 	}
 
+	std::unique_lock<std::mutex> lock(mutex_video_queue_);
 	video_queue_.push(framecopy);
+	lock.unlock();
 }
 
 void WebRTCStream::process_video_queue()
 {
+	std::unique_lock<std::mutex> lock_queue(mutex_video_queue_);
 	while (!video_queue_.empty()) {
 		video_data *frame = video_queue_.front();
 		if (frame->timestamp <= last_delivered_audio_ts_) {
-			video_queue_.pop();
+			std::unique_lock<std::mutex> lock_frame(mutex_deliver_video_frame_);
 			deliver_video_frame(frame);
 			// Free up memory
 			free(frame->data[0]);
 			free(frame);
+			lock_frame.unlock();
+			video_queue_.pop();
 		} else {
 			break;
 		}
 	}
+	lock_queue.unlock();
 }
 
 void WebRTCStream::deliver_video_frame(video_data *frame) {

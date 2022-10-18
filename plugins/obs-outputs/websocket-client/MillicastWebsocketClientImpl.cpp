@@ -271,8 +271,8 @@ bool MillicastWebsocketClientImpl::disconnect(bool /* wait */)
 		// Serialize and send
 		if (connection->send(close.dump()))
 			return false;
-		// Wait for unpublished message(s) to be sent
-		std::this_thread::sleep_for(std::chrono::seconds(2));
+		// Wait for unpublished message(s) to be sent, then close connection
+		connection->close(websocketpp::close::status::normal, "");
 		// Stop client
 		if (connection->get_state() ==
 		    websocketpp::session::state::open)
