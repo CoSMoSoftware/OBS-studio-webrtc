@@ -119,7 +119,8 @@ install_cef() {
             -DCMAKE_BUILD_TYPE=Release \
             -DCMAKE_CXX_FLAGS="-std=c++11 -stdlib=libc++ -Wno-deprecated-declarations -Wno-unknown-warning-option" \
             -DCMAKE_EXE_LINKER_FLAGS="-std=c++11 -stdlib=libc++" \
-            -DCMAKE_OSX_DEPLOYMENT_TARGET=${MACOSX_DEPLOYMENT_TARGET:-${CI_MACOSX_DEPLOYMENT_TARGET}}
+            -DCMAKE_OSX_DEPLOYMENT_TARGET=${MACOSX_DEPLOYMENT_TARGET:-${CI_MACOSX_DEPLOYMENT_TARGET}} \
+            -DPROJECT_ARCH=${ARCH:-x86_64}
 
         step "Build CEF v${1}..."
         cmake --build build
