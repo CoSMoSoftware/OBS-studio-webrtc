@@ -52,7 +52,6 @@ _configure_obs() {
         -DCMAKE_BUILD_TYPE=${BUILD_CONFIG} \
         -DLINUX_PORTABLE=${PORTABLE_BUILD:-OFF} \
         -DENABLE_PIPEWIRE=OFF \
-        ${CCACHE_OPTIONS} \
         ${TWITCH_OPTIONS} \
         ${YOUTUBE_OPTIONS} \
         ${RESTREAM_OPTIONS} \

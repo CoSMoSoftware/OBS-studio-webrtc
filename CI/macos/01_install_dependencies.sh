@@ -110,8 +110,7 @@ install_cef() {
         /usr/bin/sed -E -i '' 's/"10.(9|10|11)"/"'${MACOSX_DEPLOYMENT_TARGET:-${CI_MACOSX_DEPLOYMENT_TARGET}}'"/' ./cmake/cef_variables.cmake
 
         step "Run CMake..."
-        check_ccache
-        cmake ${CCACHE_OPTIONS} ${QUIET:+-Wno-deprecated -Wno-dev --log-level=ERROR} \
+        cmake ${QUIET:+-Wno-deprecated -Wno-dev --log-level=ERROR} \
             -S . -B build \
             -G Ninja \
             -DPROJECT_ARCH=${CMAKE_ARCHS:-x86_64} \
@@ -124,6 +123,9 @@ install_cef() {
         step "Build CEF v${1}..."
         cmake --build build
         mkdir -p build/libcef_dll
+
+pwd
+ls ..
     else
         step "Found existing Chromium Embedded Framework and loader library..."
     fi
