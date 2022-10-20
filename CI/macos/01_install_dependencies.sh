@@ -119,8 +119,7 @@ install_cef() {
             -DCMAKE_BUILD_TYPE=Release \
             -DCMAKE_CXX_FLAGS="-std=c++11 -stdlib=libc++ -Wno-deprecated-declarations -Wno-unknown-warning-option" \
             -DCMAKE_EXE_LINKER_FLAGS="-std=c++11 -stdlib=libc++" \
-            -DCMAKE_OSX_DEPLOYMENT_TARGET=${MACOSX_DEPLOYMENT_TARGET:-${CI_MACOSX_DEPLOYMENT_TARGET}} \
-            -DPROJECT_ARCH=${ARCH:-x86_64}
+            -DCMAKE_OSX_DEPLOYMENT_TARGET=${MACOSX_DEPLOYMENT_TARGET:-${CI_MACOSX_DEPLOYMENT_TARGET}}
 
         step "Build CEF v${1}..."
         cmake --build build
@@ -137,6 +136,8 @@ install_libwebrtc() {
     else
         LIBWEBRTC_ARCH="arm64"
     fi
+
+    status "libWebRTC-${1}-${LIBWEBRTC_ARCH}-Release-H264-OpenSSL_1_1_1n.dmg"
 
     if [ -d ${DEPS_BUILD_DIR}/libwebrtc_${ARCH} ]; then
         ## libwebrtc has already been retrieved and installed
