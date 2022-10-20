@@ -123,9 +123,6 @@ install_cef() {
         step "Build CEF v${1}..."
         cmake --build build
         mkdir -p build/libcef_dll
-
-pwd
-ls ..
     else
         step "Found existing Chromium Embedded Framework and loader library..."
     fi
@@ -183,7 +180,7 @@ install_dependencies() {
 install-dependencies-standalone() {
     CHECKOUT_DIR="$(/usr/bin/git rev-parse --show-toplevel)"
     PRODUCT_NAME="OBS-WebRTC"
-    DEPS_BUILD_DIR="${CHECKOUT_DIR}/../obs-build-dependencies"
+    DEPS_BUILD_DIR="${CHECKOUT_DIR}/../obs-build-dependencies_${ARCH}"
     if [ -d "${DEPS_BUILD_DIR}" ]; then
         rm -rf ${DEPS_BUILD_DIR}
     fi

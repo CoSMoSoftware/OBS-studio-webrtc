@@ -76,11 +76,6 @@ _configure_obs() {
         VENDOR_OPTION="-DOBS_WEBRTC_VENDOR_NAME=${VENDOR}"
     fi
 
-    status "CEF path = ${DEPS_BUILD_DIR}/cef_binary_${MACOS_CEF_BUILD_VERSION:-${CI_MACOS_CEF_VERSION}}_macos_${ARCH:-x86_64}"
-    ls ${DEPS_BUILD_DIR}
-    status "CEF path = ${DEPS_BUILD_DIR}/cef_binary_${MACOS_CEF_BUILD_VERSION:-${CI_MACOS_CEF_VERSION}}_macos_${ARCH:-x86_64}"
-    ls ${DEPS_BUILD_DIR}/cef_binary_${MACOS_CEF_BUILD_VERSION:-${CI_MACOS_CEF_VERSION}}_macos_${ARCH:-x86_64}
-
     cmake -S . -B ${BUILD_DIR} -G ${GENERATOR} \
         -DCEF_ROOT_DIR="${DEPS_BUILD_DIR}/cef_binary_${MACOS_CEF_BUILD_VERSION:-${CI_MACOS_CEF_VERSION}}_macos_${ARCH:-x86_64}" \
         -DENABLE_BROWSER=ON \
@@ -135,7 +130,7 @@ _backup_artifacts() {
 build-obs-standalone() {
     CHECKOUT_DIR="$(/usr/bin/git rev-parse --show-toplevel)"
     PRODUCT_NAME="OBS-WebRTC"
-    DEPS_BUILD_DIR="${CHECKOUT_DIR}/../obs-build-dependencies"
+    DEPS_BUILD_DIR="${CHECKOUT_DIR}/../obs-build-dependencies_${ARCH}"
     source "${CHECKOUT_DIR}/CI/include/build_support.sh"
     source "${CHECKOUT_DIR}/CI/include/build_support_macos.sh"
 

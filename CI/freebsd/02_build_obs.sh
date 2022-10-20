@@ -82,7 +82,7 @@ _backup_artifacts() {
 build-obs-standalone() {
     CHECKOUT_DIR="$(git rev-parse --show-toplevel)"
     PRODUCT_NAME="OBS-Studio"
-    DEPS_BUILD_DIR="${CHECKOUT_DIR}/../obs-build-dependencies"
+    DEPS_BUILD_DIR="${CHECKOUT_DIR}/../obs-build-dependencies_${ARCH}"
     source "${CHECKOUT_DIR}/CI/include/build_support.sh"
     source "${CHECKOUT_DIR}/CI/include/build_support_freebsd.sh"
 
