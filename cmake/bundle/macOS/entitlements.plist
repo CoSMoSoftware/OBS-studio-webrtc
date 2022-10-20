@@ -13,7 +13,5 @@
         <!-- Allows @executable_path to load libaries from within the .app bundle. -->
         <key>com.apple.security.cs.allow-dyld-environment-variables</key>
         <true/>
-        <key>com.apple.security.cs.get-task-allow</key>
-        <true/>
     </dict>
 </plist>

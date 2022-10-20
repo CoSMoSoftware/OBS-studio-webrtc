@@ -93,8 +93,8 @@ jobs:
       connection: 'github.com_ludocosmo'
       userRepository: 'CoSMoSoftware/libwebrtc-cmake'
       defaultVersionType: 'specificTag'
-      version: 'm104debug'
-      itemPattern: 'libWebRTC-${{ variables.LIBWEBRTC_VERSION }}-x64-Debug-*.dmg'
+      version: 'm104rel'
+      itemPattern: 'libWebRTC-${{ variables.LIBWEBRTC_VERSION }}-x64-Release-*.dmg'
       downloadPath: '$(System.DefaultWorkingDirectory)'
   - ${{ each vendor in parameters.vendors }}:
     - ${{ if ne( vendor, 'Wowza') }}:
@@ -104,7 +104,7 @@ jobs:
           userRepository: 'CoSMoSoftware/libwebrtc-cmake'
           defaultVersionType: 'specificTag'
           version: 'm104rel'
-          itemPattern: 'libWebRTC-${{ variables.LIBWEBRTC_VERSION }}-arm64-Debug-*.dmg'
+          itemPattern: 'libWebRTC-${{ variables.LIBWEBRTC_VERSION }}-arm64-Release-*.dmg'
           downloadPath: '$(System.DefaultWorkingDirectory)'
       - ${{ if ne( vendor, 'Wowza') }}:
         - task: InstallAppleCertificate@2
