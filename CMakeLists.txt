@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 3.16...3.21)
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake/Modules")
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/plugins/obs-ndi/external")
 include(VersionConfig)
 
 # Prohibit in-source builds
