@@ -98,7 +98,7 @@ function Configure-OBS {
         "-DOBS_VERSION_OVERRIDE=`"${Env:OBS_VERSION}`"",
         "-DBUILD_NDI=ON \
         "-DLIBOBS_INCLUDE_DIR=`"${CMAKE_SOURCE_DIR}/libobs`"",
-        "-DLIBOBS_LIB=`"${CMAKE_BINARY_DIR}/libobs/${CMAKE_BUILD_TYPE}/libobs.dll`""
+        "-DLIBOBS_LIB=`"${BuildDirectoryActual}/libobs/${CMAKE_BUILD_TYPE}/libobs.dll`""
     )
 
 echo "OBS version = ${Env:OBS_VERSION}"

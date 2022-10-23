@@ -79,7 +79,7 @@ _configure_obs() {
         ${QUIET:+-Wno-deprecated -Wno-dev --log-level=ERROR} \
         -DBUILD_NDI=ON \
         -DLIBOBS_INCLUDE_DIR=${CMAKE_SOURCE_DIR}/libobs \
-        -DLIBOBS_LIB=${CMAKE_BINARY_DIR}/libobs/libobs.so \
+        -DLIBOBS_LIB=${BUILD_DIR}/libobs/libobs.so \
         -DUNIX_STRUCTURE=1 \
         -DENABLE_VLC=ON \
         -DUSE_LIBC++=ON \
