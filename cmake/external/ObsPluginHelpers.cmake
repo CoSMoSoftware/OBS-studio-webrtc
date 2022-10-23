@@ -2,6 +2,12 @@ if(POLICY CMP0087)
   cmake_policy(SET CMP0087 NEW)
 endif()
 
+if("${PROJECT_NAME}" STREQUAL "obs-ndi")
+  set(_PROJECT_NAME_TO_USE "obs-ndi")
+else()
+  set(_PROJECT_NAME_TO_USE ${CMAKE_PROJECT_NAME})
+endif()
+
 set(OBS_STANDALONE_PLUGIN_DIR ${CMAKE_SOURCE_DIR}/release)
 
 include(GNUInstallDirs)
@@ -186,7 +192,7 @@ if(OS_POSIX)
   # * Enable color diagnostics on Clang (CMAKE_COLOR_DIAGNOSTICS available in
   #   CMake 3.24)
   target_compile_options(
-    ${CMAKE_PROJECT_NAME}
+    ${_PROJECT_NAME_TO_USE}
     PRIVATE
       -Werror
       -Wextra
@@ -208,7 +214,7 @@ if(OS_POSIX)
   # where there is not. (https://gcc.gnu.org/bugzilla/show_bug.cgi?id=105562)
   if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU" AND CMAKE_CXX_COMPILER_VERSION
                                               VERSION_EQUAL "12.1.0")
-    target_compile_options(${CMAKE_PROJECT_NAME}
+    target_compile_options(${_PROJECT_NAME_TO_USE}
                            PRIVATE -Wno-error=maybe-uninitialized)
   endif()
 
@@ -269,7 +275,7 @@ elseif(_HOST_ARCH MATCHES "arm64|arm64e|aarch64")
     check_c_compiler_flag("-fopenmp-simd" C_COMPILER_SUPPORTS_OPENMP_SIMD)
     check_cxx_compiler_flag("-fopenmp-simd" CXX_COMPILER_SUPPORTS_OPENMP_SIMD)
     target_compile_options(
-      ${CMAKE_PROJECT_NAME}
+      ${_PROJECT_NAME_TO_USE}
       PRIVATE
         -DSIMDE_ENABLE_OPENMP
         "$<$<AND:$<COMPILE_LANGUAGE:C>,$<BOOL:C_COMPILER_SUPPORTS_OPENMP_SIMD>>:-fopenmp-simd>"
@@ -282,7 +288,7 @@ endif()
 if(OS_MACOS)
   # Set macOS-specific C++ standard library
   target_compile_options(
-    ${CMAKE_PROJECT_NAME}
+    ${_PROJECT_NAME_TO_USE}
     PRIVATE
       "$<$<COMPILE_LANG_AND_ID:OBJC,AppleClang,Clang>:-fcolor-diagnostics>"
       -stdlib=libc++)
@@ -536,7 +542,7 @@ else()
 
     # Setup Linux-specific CPack values for "deb" package generation
     if(OS_LINUX)
-      set(CPACK_PACKAGE_NAME "${CMAKE_PROJECT_NAME}")
+      set(CPACK_PACKAGE_NAME "${_PROJECT_NAME_TO_USE}")
       set(CPACK_DEBIAN_PACKAGE_MAINTAINER "${LINUX_MAINTAINER_EMAIL}")
       set(CPACK_PACKAGE_VERSION "${CMAKE_PROJECT_VERSION}")
       set(CPACK_PACKAGE_FILE_NAME
@@ -586,7 +592,7 @@ else()
       # * DISABLE warnings about nonstandard nameless structs/unions,
       #   https://docs.microsoft.com/en-us/cpp/error-messages/compiler-warnings/compiler-warning-level-4-c4201?view=msvc-170
       target_compile_options(
-        ${CMAKE_PROJECT_NAME}
+        ${_PROJECT_NAME_TO_USE}
         PRIVATE /MP
                 /W3
                 # /WX
@@ -612,7 +618,7 @@ else()
       #   folding,
       #   https://docs.microsoft.com/en-us/cpp/build/reference/opt-optimizations?view=msvc-170
       target_link_options(
-        ${CMAKE_PROJECT_NAME}
+        ${_PROJECT_NAME_TO_USE}
         PRIVATE
         "LINKER:/OPT:REF"
         # "LINKER:/WX"

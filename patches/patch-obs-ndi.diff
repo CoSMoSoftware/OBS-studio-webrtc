@@ -1,62 +1,147 @@
-diff --git a/CMakeLists.txt b/CMakeLists.txt
-index 5c2ff5e..4a5e319 100644
---- a/CMakeLists.txt
-+++ b/CMakeLists.txt
-@@ -48,6 +48,8 @@ add_library(obs-ndi MODULE
- 	${obs-ndi_SOURCES}
- 	${obs-ndi_HEADERS})
+diff --git a/plugins/obs-ndi/CMakeLists.txt b/plugins/obs-ndi/CMakeLists.txt
+index 29026e1..96a03aa 100644
+--- a/plugins/obs-ndi/CMakeLists.txt
++++ b/plugins/obs-ndi/CMakeLists.txt
+@@ -1,5 +1,7 @@
+ cmake_minimum_required(VERSION 3.16...3.21)
  
-+add_dependencies(obs-ndi obs-frontend-api)
++list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/external")
 +
- include_directories(
- 	"lib/ndi"
- 	"${LIBOBS_INCLUDE_DIR}/../UI/obs-frontend-api"
-@@ -178,3 +180,5 @@ if(UNIX AND NOT APPLE)
- 	install(FILES ${locale_files}
- 		DESTINATION "${CMAKE_INSTALL_FULL_DATAROOTDIR}/obs/obs-plugins/obs-ndi/locale")
+ project(obs-ndi VERSION 5.0.0)
+ add_library(obs-ndi MODULE)
+ set(NDILIB_HEADERS_VERSION 5.0.10)
+@@ -34,18 +36,19 @@ target_sources(
+ target_sources(obs-ndi PRIVATE src/forms/SettingsDialog.cpp src/forms/SettingsDialog.h
+                                src/forms/resources.qrc)
+ 
+-target_include_directories(obs-ndi PRIVATE ${CMAKE_SOURCE_DIR}/src ${CMAKE_SOURCE_DIR}/lib/ndi)
++target_include_directories(obs-ndi PRIVATE ${CMAKE_SOURCE_DIR}/src
++                                           ${CMAKE_SOURCE_DIR}/plugins/obs-ndi/lib/ndi)
+ 
+ # ----------------------------------------------------------------------
+ 
+-find_package(libobs REQUIRED)
++find_package(LibObs REQUIRED)
+ find_package(obs-frontend-api REQUIRED)
+ include(cmake/ObsPluginHelpers.cmake)
+ find_qt(COMPONENTS Widgets Core)
+ 
+ configure_file(src/plugin-macros.h.in ${CMAKE_SOURCE_DIR}/src/plugin-macros.generated.h)
+ 
+-target_sources(${CMAKE_PROJECT_NAME} PRIVATE src/plugin-macros.generated.h)
++target_sources(${PROJECT_NAME} PRIVATE src/plugin-macros.generated.h)
+ 
+ target_include_directories(obs-ndi PRIVATE ${CMAKE_SOURCE_DIR}/src)
+ 
+@@ -67,7 +70,7 @@ if(OS_WINDOWS)
+                  ${CMAKE_BINARY_DIR}/installer-Windows.generated.iss)
+ 
+   if(MSVC)
+-    target_compile_options(${CMAKE_PROJECT_NAME} PRIVATE /W4)
++    target_compile_options(${PROJECT_NAME} PRIVATE /W4)
+   endif()
+   # --- End of section ---
+ 
+@@ -80,17 +83,17 @@ elseif(OS_MACOS)
+   set(MACOSX_PLUGIN_BUNDLE_VERSION "${CMAKE_PROJECT_VERSION}")
+   set(MACOSX_PLUGIN_SHORT_VERSION_STRING "1")
+ 
+-  target_compile_options(${CMAKE_PROJECT_NAME} PRIVATE -Wall)
++  target_compile_options(${PROJECT_NAME} PRIVATE -Wall)
+ 
+-  set_target_properties(${CMAKE_PROJECT_NAME} PROPERTIES PREFIX "")
++  set_target_properties(${PROJECT_NAME} PROPERTIES PREFIX "")
+   # --- End of section ---
+ 
+   # --- Linux-specific build settings and tasks ---
+ else()
+-  target_compile_options(${CMAKE_PROJECT_NAME} PRIVATE -Wall)
++  target_compile_options(${PROJECT_NAME} PRIVATE -Wall)
+ 
+-  set_target_properties(${CMAKE_PROJECT_NAME} PROPERTIES PREFIX "")
++  set_target_properties(${PROJECT_NAME} PROPERTIES PREFIX "")
  endif()
-+
-+install_obs_plugin_with_data(obs-ndi data)
-\ No newline at end of file
-diff --git a/src/obs-ndi-filter.cpp b/src/obs-ndi-filter.cpp
-index c7dc7f8..48a7fc3 100644
---- a/src/obs-ndi-filter.cpp
-+++ b/src/obs-ndi-filter.cpp
-@@ -18,6 +18,7 @@ along with this program; If not, see <https://www.gnu.org/licenses/>
+ # --- End of section ---
  
- #ifdef _WIN32
- #include <Windows.h>
-+#include <string>
- #endif
+-setup_plugin_target(${CMAKE_PROJECT_NAME})
++setup_plugin_target(${PROJECT_NAME})
+diff --git a/plugins/obs-ndi/cmake/ObsPluginHelpers.cmake b/plugins/obs-ndi/cmake/ObsPluginHelpers.cmake
+index 450c46d..62e32d8 100644
+--- a/plugins/obs-ndi/cmake/ObsPluginHelpers.cmake
++++ b/plugins/obs-ndi/cmake/ObsPluginHelpers.cmake
+@@ -172,7 +172,7 @@ if(OS_POSIX)
+   # * C++, GCC ONLY - Warning about implicit conversion of NULL to another type
+   # * Enable color diagnostics on Clang (CMAKE_COLOR_DIAGNOSTICS available in CMake 3.24)
+   target_compile_options(
+-    ${CMAKE_PROJECT_NAME}
++    ${PROJECT_NAME}
+     PRIVATE
+       -Werror
+       -Wextra
+@@ -193,7 +193,7 @@ if(OS_POSIX)
+   # GCC 12.1.0 has a regression bug which trigger maybe-uninitialized warnings where there is not.
+   # (https://gcc.gnu.org/bugzilla/show_bug.cgi?id=105562)
+   if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU" AND CMAKE_CXX_COMPILER_VERSION VERSION_EQUAL "12.1.0")
+-    target_compile_options(${CMAKE_PROJECT_NAME} PRIVATE -Wno-error=maybe-uninitialized)
++    target_compile_options(${PROJECT_NAME} PRIVATE -Wno-error=maybe-uninitialized)
+   endif()
  
- #include <obs-module.h>
-@@ -99,7 +100,7 @@ obs_properties_t* ndi_filter_getproperties(void* data)
- 		void* private_data)
- 	{
- 		#if defined(_WIN32)
--			ShellExecute(NULL, "open", "http://ndi.newtek.com", NULL, NULL, SW_SHOWNORMAL);
-+			ShellExecute(NULL, std::wstring(L"open").c_str(), std::wstring(L"http://ndi.newtek.com").c_str(), NULL, NULL, SW_SHOWNORMAL);
- 		#elif defined(__linux__) || defined(__APPLE__)
- 			int suppresswarning = system("open http://ndi.newtek.com");
- 		#endif
-diff --git a/src/obs-ndi-source.cpp b/src/obs-ndi-source.cpp
-index 2fd8c36..07b3288 100644
---- a/src/obs-ndi-source.cpp
-+++ b/src/obs-ndi-source.cpp
-@@ -18,6 +18,7 @@ along with this program; If not, see <https://www.gnu.org/licenses/>
+   if(NOT CCACHE_SET)
+@@ -252,7 +252,7 @@ elseif(_HOST_ARCH MATCHES "arm64|arm64e|aarch64")
+     check_c_compiler_flag("-fopenmp-simd" C_COMPILER_SUPPORTS_OPENMP_SIMD)
+     check_cxx_compiler_flag("-fopenmp-simd" CXX_COMPILER_SUPPORTS_OPENMP_SIMD)
+     target_compile_options(
+-      ${CMAKE_PROJECT_NAME}
++      ${PROJECT_NAME}
+       PRIVATE
+         -DSIMDE_ENABLE_OPENMP
+         "$<$<AND:$<COMPILE_LANGUAGE:C>,$<BOOL:C_COMPILER_SUPPORTS_OPENMP_SIMD>>:-fopenmp-simd>"
+@@ -264,7 +264,7 @@ endif()
+ if(OS_MACOS)
+   # Set macOS-specific C++ standard library
+   target_compile_options(
+-    ${CMAKE_PROJECT_NAME}
++    ${PROJECT_NAME}
+     PRIVATE "$<$<COMPILE_LANG_AND_ID:OBJC,AppleClang,Clang>:-fcolor-diagnostics>" -stdlib=libc++)
  
- #ifdef _WIN32
- #include <Windows.h>
-+#include <string>
- #endif
+   # Set build architecture to host architecture by default
+@@ -498,7 +498,7 @@ else()
  
- #include <obs-module.h>
-@@ -266,7 +267,7 @@ obs_properties_t* ndi_source_getproperties(void* data)
- 		void* private_data)
- 	{
- 		#if defined(_WIN32)
--			ShellExecute(NULL, "open", "http://ndi.newtek.com", NULL, NULL, SW_SHOWNORMAL);
-+			ShellExecute(NULL, std::wstring(L"open").c_str(), std::wstring(L"http://ndi.newtek.com").c_str(), NULL, NULL, SW_SHOWNORMAL);
- 		#elif defined(__linux__) || defined(__APPLE__)
- 			int suppresswarning = system("open http://ndi.newtek.com");
- 		#endif
+     # Setup Linux-specific CPack values for "deb" package generation
+     if(OS_LINUX)
+-      set(CPACK_PACKAGE_NAME "${CMAKE_PROJECT_NAME}")
++      set(CPACK_PACKAGE_NAME "${PROJECT_NAME}")
+       set(CPACK_DEBIAN_PACKAGE_MAINTAINER "${LINUX_MAINTAINER_EMAIL}")
+       set(CPACK_PACKAGE_VERSION "${CMAKE_PROJECT_VERSION}")
+       set(CPACK_PACKAGE_FILE_NAME "${CPACK_PACKAGE_NAME}-${CPACK_PACKAGE_VERSION}-linux-x86_64")
+@@ -547,7 +547,7 @@ else()
+       # * DISABLE warnings about nonstandard nameless structs/unions,
+       #   https://docs.microsoft.com/en-us/cpp/error-messages/compiler-warnings/compiler-warning-level-4-c4201?view=msvc-170
+       target_compile_options(
+-        ${CMAKE_PROJECT_NAME}
++        ${PROJECT_NAME}
+         PRIVATE /MP
+                 /W3
+                 /WX
+@@ -572,7 +572,7 @@ else()
+       # * RelWithDebInfo ONLY - Disable incremental linking, but enable COMDAT folding,
+       #   https://docs.microsoft.com/en-us/cpp/build/reference/opt-optimizations?view=msvc-170
+       target_link_options(
+-        ${CMAKE_PROJECT_NAME}
++        ${PROJECT_NAME}
+         PRIVATE
+         "LINKER:/OPT:REF"
+         "LINKER:/WX"
+diff --git a/plugins/obs-ndi/cmake/bundle/macos/installer-macos.pkgproj.in b/plugins/obs-ndi/cmake/bundle/macos/installer-macos.pkgproj.in
+index 2a1f643..300f10a 100644
+--- a/plugins/obs-ndi/cmake/bundle/macos/installer-macos.pkgproj.in
++++ b/plugins/obs-ndi/cmake/bundle/macos/installer-macos.pkgproj.in
+@@ -91,7 +91,7 @@
+ 											<key>GID</key>
+ 											<integer>80</integer>
+ 											<key>PATH</key>
+-											<string>obs-studio</string>
++											<string>obs-webrtc</string>
+ 											<key>PATH_TYPE</key>
+ 											<integer>2</integer>
+ 											<key>PERMISSIONS</key>

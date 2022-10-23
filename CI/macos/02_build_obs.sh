@@ -98,7 +98,10 @@ _configure_obs() {
         ${VENDOR_OPTION} \
         -Dlibwebrtc_DIR="${DEPS_BUILD_DIR}/libwebrtc_${ARCH}/cmake" \
         -DOPENSSL_ROOT_DIR="/usr/local/opt/openssl@1.1" \
-        -DOBS_VERSION_OVERRIDE=${OBS_VERSION}
+        -DOBS_VERSION_OVERRIDE=${OBS_VERSION} \
+        -DBUILD_NDI=ON \
+        -DLIBOBS_INCLUDE_DIR=${CMAKE_SOURCE_DIR}/libobs \
+        -DLIBOBS_LIB=${CMAKE_BINARY_DIR}/libobs/libobs.framework
 }
 
 # Function to backup previous build artifacts

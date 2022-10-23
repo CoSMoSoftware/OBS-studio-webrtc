@@ -95,7 +95,10 @@ function Configure-OBS {
         "-Dlibwebrtc_DIR=`"C:/Program Files/libwebrtc/cmake`"",
         "-DOPENSSL_ROOT_DIR=`"$OpensslDirectory`"",
         "$(if (${Vendor} -ne 'Millicast') { "-DOBS_WEBRTC_VENDOR_NAME=${Vendor}" })",
-        "-DOBS_VERSION_OVERRIDE=`"${Env:OBS_VERSION}`""
+        "-DOBS_VERSION_OVERRIDE=`"${Env:OBS_VERSION}`"",
+        "-DBUILD_NDI=ON \
+        "-DLIBOBS_INCLUDE_DIR=`"${CMAKE_SOURCE_DIR}/libobs`"",
+        "-DLIBOBS_LIB=`"${CMAKE_BINARY_DIR}/libobs/${CMAKE_BUILD_TYPE}/libobs.dll`""
     )
 
 echo "OBS version = ${Env:OBS_VERSION}"
