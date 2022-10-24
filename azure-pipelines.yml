@@ -3,6 +3,8 @@
 variables:
   - group: obs-pipeline
 # new variables OBS 28
+  - name: WITH_AUDIO_VIDEO_SYNC
+    value: 'ON'
   - name: CEF_BUILD_VERSION_MAC
     value: '5060'
   - name: CEF_HASH_MAC_X86_64
@@ -136,6 +138,7 @@ jobs:
           WOWZA_CODESIGN_IDENT: $(wowza_apple_developer_identity)
           CODESIGN_IDENT_USER: $(ludo_apple_account_id)
           NOTARIZE_APP_SPECIFIC_PASSWORD: $(ludo_apple_app_specific_password)
+          WITH_AUDIO_VIDEO_SYNC: ${WITH_AUDIO_VIDEO_SYNC}
       - script: TERM="" ./CI/macos/03_package_obs.sh --codesign --notarize --build-dir build_${{ vendor }}_${{ arch }} --architecture ${{ arch }} --vendor ${{ vendor }}
         displayName: '${{ vendor }} ${{ arch }} Package, sign, notarize'
         env:
@@ -195,6 +198,7 @@ jobs:
         CMAKE_GENERATOR: 'Visual Studio 17 2022'
         CMAKE_SYSTEM_VERSION: '10.0.18363.657'
         VIRTUALCAM-GUID: 'A3FCE0F5-3493-419F-958A-ABA1250EC20B'
+        WITH_AUDIO_VIDEO_SYNC: ${WITH_AUDIO_VIDEO_SYNC}
     - ${{ if eq( vendor, 'Millicast') }}:
       - task: CmdLine@2
         inputs:
@@ -290,6 +294,7 @@ jobs:
       displayName: '${{ vendor }} cmake, build, package'
       env:
         CI_BUILD_TYPE: $(BUILD_TYPE)
+        WITH_AUDIO_VIDEO_SYNC: ${WITH_AUDIO_VIDEO_SYNC}
     - task: PublishBuildArtifacts@1
       inputs:
         pathtoPublish: './package_${{ vendor }}'
@@ -331,6 +336,7 @@ jobs:
       displayName: '${{ vendor }} cmake, build, package'
       env:
         CI_BUILD_TYPE: $(BUILD_TYPE)
+        WITH_AUDIO_VIDEO_SYNC: ${WITH_AUDIO_VIDEO_SYNC}
     - task: PublishBuildArtifacts@1
       inputs:
         pathtoPublish: './package_${{ vendor }}'

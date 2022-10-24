@@ -101,7 +101,8 @@ _configure_obs() {
         -DOBS_VERSION_OVERRIDE=${OBS_VERSION} \
         -DBUILD_NDI=OFF \
         -DLIBOBS_INCLUDE_DIR=${CMAKE_SOURCE_DIR}/libobs \
-        -DLIBOBS_LIB=${BUILD_DIR}/libobs/libobs.framework
+        -DLIBOBS_LIB=${BUILD_DIR}/libobs/libobs.framework \
+        -DWITH_AUDIO_VIDEO_SYNC=${WITH_AUDIO_VIDEO_SYNC}
 }
 
 # Function to backup previous build artifacts
