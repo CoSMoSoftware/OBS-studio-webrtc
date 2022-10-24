@@ -4,7 +4,7 @@ variables:
   - group: obs-pipeline
 # new variables OBS 28
   - name: WITH_AUDIO_VIDEO_SYNC
-    value: 'OFF'
+    value: 'ON'
   - name: CEF_BUILD_VERSION_MAC
     value: '5060'
   - name: CEF_HASH_MAC_X86_64
