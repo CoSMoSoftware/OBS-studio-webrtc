@@ -51,8 +51,14 @@ else()
 		set(_output_suffix "")
 	endif()
 
-	set(CPACK_PACKAGE_EXECUTABLES "obs${_output_suffix}" "obs")
+	set(CPACK_PACKAGE_EXECUTABLES "obs${_output_suffix}" "OBS-WebRTC")
 	set(CPACK_CREATE_DESKTOP_LINKS "obs${_output_suffix}")
+	# set(CPACK_NSIS_CREATE_ICONS_EXTRA
+	# 	"CreateShortCut '$SMPROGRAMS\\\\$STARTMENU_FOLDER\\\\OBS-WebRTC.lnk' '$INSTDIR\\\\obs${_output_suffix}.exe'"
+	# )
+	# set(CPACK_NSIS_DELETE_ICONS_EXTRA
+	# 	"Delete '$SMPROGRAMS\\\\$START_MENU\\\\OBS-WebRTC.lnk'"
+	# )
 endif()
 
 set(CPACK_BUNDLE_NAME "OBS-WebRTC")
