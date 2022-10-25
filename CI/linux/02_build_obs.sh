@@ -77,7 +77,7 @@ _configure_obs() {
         ${RESTREAM_OPTIONS} \
         ${CI:+-DENABLE_UNIT_TESTS=ON -DBUILD_FOR_DISTRIBUTION=${BUILD_FOR_DISTRIBUTION} -DOBS_BUILD_NUMBER=${GITHUB_RUN_ID}} \
         ${QUIET:+-Wno-deprecated -Wno-dev --log-level=ERROR} \
-        -DBUILD_NDI=ON \
+        -DBUILD_NDI=OFF \
         -DLIBOBS_INCLUDE_DIR=${CMAKE_SOURCE_DIR}/libobs \
         -DLIBOBS_LIB=${BUILD_DIR}/libobs/libobs.so \
         -DUNIX_STRUCTURE=1 \
