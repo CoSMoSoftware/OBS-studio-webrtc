@@ -185,12 +185,13 @@ private:
 	// Count number of video sources in current scene
 	int getVideoSourceCount() const;
 
+	void deliver_video_frame(video_data *frame);
+#ifdef WEBRTC_AUDIO_VIDEO_SYNC
 	// Audio/video synchronisation management
 	bool audio_started_;
 	uint64_t last_delivered_audio_ts_;
 	std::queue<video_data*> video_queue_;
 	void enqueue_frame(video_data *frame);
-	void deliver_video_frame(video_data *frame);
 	void process_video_queue();
 	// video_queue_ is shared by audio thread and video thread
 	// ==> Protect access to video_queue_ with a mutex
@@ -201,6 +202,7 @@ private:
 	// Critical section: make sure only one thread at a time call method deliver_video_frame()
 	// by protecting it with a lock on mutex_deliver_video_frame_.
 	std::mutex mutex_deliver_video_frame_;
+#endif
 
 	// Connection properties
 	Type type;

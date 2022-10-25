@@ -121,6 +121,10 @@ target_link_libraries(obs-outputs PRIVATE OBS::libobs
 
 set_target_properties(obs-outputs PROPERTIES FOLDER "plugins" PREFIX "")
 
+if(WITH_AUDIO_VIDEO_SYNC)
+  add_compile_definitions(WEBRTC_AUDIO_VIDEO_SYNC)
+endif()
+
 if(OS_WINDOWS)
   set(MODULE_DESCRIPTION "OBS output module")
   configure_file(${CMAKE_SOURCE_DIR}/cmake/bundle/windows/obs-module.rc.in
