@@ -270,8 +270,8 @@ jobs:
       connection: 'github.com_ludocosmo'
       userRepository: 'CoSMoSoftware/libwebrtc-cmake'
       defaultVersionType: 'specificTag'
-      version: 'm100debug'
-      itemPattern: 'libWebRTC-${{ variables.LIBWEBRTC_VERSION }}-*64-Debug-*.sh'
+      version: 'm100'
+      itemPattern: 'libWebRTC-${{ variables.LIBWEBRTC_VERSION }}-*64-Release-*.sh'
       downloadPath: '$(System.DefaultWorkingDirectory)'
   - bash: |
       git submodule update --init --recursive
@@ -323,8 +323,8 @@ jobs:
       connection: 'github.com_ludocosmo'
       userRepository: 'CoSMoSoftware/libwebrtc-cmake'
       defaultVersionType: 'specificTag'
-      version: 'm100debug'
-      itemPattern: 'libWebRTC-${{ variables.LIBWEBRTC_VERSION }}-*64-Debug-*.sh'
+      version: 'm100'
+      itemPattern: 'libWebRTC-${{ variables.LIBWEBRTC_VERSION }}-*64-Release-*.sh'
       downloadPath: '$(System.DefaultWorkingDirectory)'
   - bash: |
       git submodule update --init --recursive
@@ -376,8 +376,8 @@ jobs:
       connection: 'github.com_ludocosmo'
       userRepository: 'CoSMoSoftware/libwebrtc-cmake'
       defaultVersionType: 'specificTag'
-      version: 'm100debug'
-      itemPattern: 'libWebRTC-${{ variables.LIBWEBRTC_VERSION }}-*64-Debug-*.sh'
+      version: 'm100'
+      itemPattern: 'libWebRTC-${{ variables.LIBWEBRTC_VERSION }}-*64-Release-*.sh'
       downloadPath: '$(System.DefaultWorkingDirectory)'
   - bash: |
       git submodule update --init --recursive

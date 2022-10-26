@@ -90,7 +90,7 @@ make -j4
 cd ../..
 
 # libwebrtc
-cp ${INVOCATION_DIR}/libWebRTC-${LIBWEBRTC_VERSION}-x64-Debug-H264-OpenSSL_1_1_1n.sh libWebRTC.sh
+cp ${INVOCATION_DIR}/libWebRTC-${LIBWEBRTC_VERSION}-x64-Release-H264-OpenSSL_1_1_1n.sh libWebRTC.sh
 chmod +x libWebRTC.sh
 mkdir libwebrtc
 ./libWebRTC.sh --prefix="./libwebrtc" --skip-license
