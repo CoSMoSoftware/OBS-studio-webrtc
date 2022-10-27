@@ -781,6 +781,9 @@ bool SimpleOutput::SetupStreaming(obs_service_t *service)
 	if (!Active())
 		SetupOutputs();
 
+	// Note LUDO: fix color space switch crash
+	obs_output_set_media(streamOutput, obs_get_video(), obs_get_audio());
+
 	Auth *auth = main->GetAuth();
 	if (auth)
 		auth->OnStreamConfig();
