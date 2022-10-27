@@ -78,8 +78,8 @@ jobs:
       connection: 'github.com_ludocosmo'
       userRepository: 'CoSMoSoftware/libwebrtc-cmake'
       defaultVersionType: 'specificTag'
-      version: 'm100debug'
-      itemPattern: 'libWebRTC-${{ variables.LIBWEBRTC_VERSION }}-*64-Debug-*.dmg'
+      version: 'm100'
+      itemPattern: 'libWebRTC-${{ variables.LIBWEBRTC_VERSION }}-*64-Release-*.dmg'
       downloadPath: '$(System.DefaultWorkingDirectory)'
   - ${{ each vendor in parameters.vendors }}:
     - ${{ if ne( vendor, 'Wowza') }}:

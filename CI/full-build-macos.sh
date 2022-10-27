@@ -242,13 +242,13 @@ install_libwebrtc() {
     fi
     hr "Installing LibWebRTC v${1}"
     ensure_dir ${DEPS_BUILD_DIR}
-    cp ${INVOCATION_DIR}/libWebRTC-${1}-x64-Debug-H264-OpenSSL_1_1_1n.dmg libWebRTC.dmg
+    cp ${INVOCATION_DIR}/libWebRTC-${1}-x64-Release-H264-OpenSSL_1_1_1n.dmg libWebRTC.dmg
     step "Bypass the EULA by converting the DMG download to a CDR image"
     hdiutil convert -quiet libWebRTC.dmg -format UDTO -o libWebRTC
     step "Mount the CDR image"
     hdiutil attach -quiet -nobrowse -noverify libWebRTC.cdr
     step "Copy to destination..."
-    cp -r /Volumes/libWebRTC-${1}-x64-Debug-H264-OpenSSL_1_1_1n/libwebrtc ./
+    cp -r /Volumes/libWebRTC-${1}-x64-Release-H264-OpenSSL_1_1_1n/libwebrtc ./
 }
 
 ## CHECK AND INSTALL PACKAGING DEPENDENCIES ##
