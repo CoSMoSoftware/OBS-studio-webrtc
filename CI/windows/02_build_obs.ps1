@@ -97,8 +97,9 @@ function Configure-OBS {
         "$(if (${Vendor} -ne 'Millicast') { "-DOBS_WEBRTC_VENDOR_NAME=${Vendor}" })",
         "-DOBS_VERSION_OVERRIDE=`"${Env:OBS_VERSION}`"",
         "-DBUILD_NDI=ON",
-        "-DLIBOBS_INCLUDE_DIR=`"${CMAKE_SOURCE_DIR}/libobs`"",
+        "-DLIBOBS_INCLUDE_DIRS=`"${CMAKE_SOURCE_DIR}/libobs`"",
         "-DLIBOBS_LIB=`"${BuildDirectoryActual}/libobs/${CMAKE_BUILD_TYPE}/libobs.dll`"",
+        "-DLIBOBS_LIBRARIES=`"${BuildDirectoryActual}/libobs/${CMAKE_BUILD_TYPE}/libobs.dll`"",
         "-DWITH_AUDIO_VIDEO_SYNC=${Env:WITH_AUDIO_VIDEO_SYNC}"
     )
 

@@ -100,8 +100,9 @@ _configure_obs() {
         -DOPENSSL_ROOT_DIR="/usr/local/opt/openssl@1.1" \
         -DOBS_VERSION_OVERRIDE=${OBS_VERSION} \
         -DBUILD_NDI=ON \
-        -DLIBOBS_INCLUDE_DIR=${CMAKE_SOURCE_DIR}/libobs \
+        -DLIBOBS_INCLUDE_DIRS=${CMAKE_SOURCE_DIR}/libobs \
         -DLIBOBS_LIB=${BUILD_DIR}/libobs/libobs.framework \
+        -DLIBOBS_LIBRARIES=${BUILD_DIR}/libobs/libobs.framework \
         -DWITH_AUDIO_VIDEO_SYNC=${WITH_AUDIO_VIDEO_SYNC}
 }
 
