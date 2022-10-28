@@ -96,7 +96,7 @@ function Configure-OBS {
         "-DOPENSSL_ROOT_DIR=`"$OpensslDirectory`"",
         "$(if (${Vendor} -ne 'Millicast') { "-DOBS_WEBRTC_VENDOR_NAME=${Vendor}" })",
         "-DOBS_VERSION_OVERRIDE=`"${Env:OBS_VERSION}`"",
-        "-DBUILD_NDI=OFF",
+        "-DBUILD_NDI=ON",
         "-DLIBOBS_INCLUDE_DIR=`"${CMAKE_SOURCE_DIR}/libobs`"",
         "-DLIBOBS_LIB=`"${BuildDirectoryActual}/libobs/${CMAKE_BUILD_TYPE}/libobs.dll`"",
         "-DWITH_AUDIO_VIDEO_SYNC=${Env:WITH_AUDIO_VIDEO_SYNC}"
