@@ -1,5 +1,5 @@
 diff --git a/plugins/obs-ndi/CMakeLists.txt b/plugins/obs-ndi/CMakeLists.txt
-index 29026e1..7c3b320 100644
+index 29026e1..8d8de45 100644
 --- a/plugins/obs-ndi/CMakeLists.txt
 +++ b/plugins/obs-ndi/CMakeLists.txt
 @@ -34,18 +34,22 @@ target_sources(
@@ -14,9 +14,9 @@ index 29026e1..7c3b320 100644
  
 -find_package(libobs REQUIRED)
 +#list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/external")
-+set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/external" ${CMAKE_MODULE_PATH})
++#set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/external" ${CMAKE_MODULE_PATH})
 +message(STATUS "******************* CMAKE_MODULE_PATH = ${CMAKE_MODULE_PATH}")
-+find_package(LibObs REQUIRED)
++find_package(Libobs REQUIRED)
  find_package(obs-frontend-api REQUIRED)
  include(cmake/ObsPluginHelpers.cmake)
  find_qt(COMPONENTS Widgets Core)
