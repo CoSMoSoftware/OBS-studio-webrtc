@@ -3,8 +3,6 @@
 variables:
   - group: obs-pipeline
 # new variables OBS 28
-  - name: WITH_AUDIO_VIDEO_SYNC
-    value: 'ON'
   - name: CEF_BUILD_VERSION_MAC
     value: '5060'
   - name: CEF_HASH_MAC_X86_64
@@ -129,8 +127,8 @@ jobs:
     - script: git submodule update --init --recursive
       displayName: 'Checkout Submodules'
     - ${{ each arch in parameters.architectures }}:
-      - script: TERM="" ./CI/macos/02_build_obs.sh --codesign --build-dir build_${{ vendor }}_${{ arch }} --architecture ${{ arch }} --vendor ${{ vendor }} --ndi
-        displayName: '${{ vendor }} ${{ arch }} Build OBS + plugin obs-ndi'
+      - script: TERM="" ./CI/macos/02_build_obs.sh --codesign --build-dir build_${{ vendor }}_${{ arch }} --architecture ${{ arch }} --vendor ${{ vendor }}
+        displayName: '${{ vendor }} ${{ arch }} Build OBS'
         env:
           CURRENT_ARCH: ${{ arch }}
           CODESIGN_TEAM_ID: $(apple_team_id)
@@ -138,7 +136,6 @@ jobs:
           WOWZA_CODESIGN_IDENT: $(wowza_apple_developer_identity)
           CODESIGN_IDENT_USER: $(ludo_apple_account_id)
           NOTARIZE_APP_SPECIFIC_PASSWORD: $(ludo_apple_app_specific_password)
-          WITH_AUDIO_VIDEO_SYNC: ${WITH_AUDIO_VIDEO_SYNC}
       - script: TERM="" ./CI/macos/03_package_obs.sh --codesign --notarize --build-dir build_${{ vendor }}_${{ arch }} --architecture ${{ arch }} --vendor ${{ vendor }}
         displayName: '${{ vendor }} ${{ arch }} Package, sign, notarize'
         env:
@@ -190,14 +187,13 @@ jobs:
       displayName: rmdir plugins/obs-ndi
     - script: git submodule update --init --recursive
       displayName: 'Checkout Submodules'
-    - powershell: ./CI/windows/02_build_obs.ps1 -BuildArch x64 -Vendor ${{ vendor }} -Ndi
-      displayName: '${{ vendor }} Build OBS + plugin obs-ndi'
+    - powershell: ./CI/windows/02_build_obs.ps1 -BuildArch x64 -Vendor ${{ vendor }}
+      displayName: '${{ vendor }} Build OBS'
       env:
         OBS_VERSION: ${OBS_VERSION}
         CMAKE_GENERATOR: 'Visual Studio 17 2022'
         CMAKE_SYSTEM_VERSION: '10.0.18363.657'
         VIRTUALCAM-GUID: 'A3FCE0F5-3493-419F-958A-ABA1250EC20B'
-        WITH_AUDIO_VIDEO_SYNC: ${WITH_AUDIO_VIDEO_SYNC}
     - ${{ if eq( vendor, 'Millicast') }}:
       - task: CmdLine@2
         inputs:
@@ -288,12 +284,11 @@ jobs:
         export CC=clang
         export CXX=clang++
         export OBS_VERSION=${OBS_VERSION}-2004
-        ./CI/linux/02_build_obs.sh --disable-pipewire --vendor ${{ vendor }} --ndi
+        ./CI/linux/02_build_obs.sh --disable-pipewire --vendor ${{ vendor }}
         ./CI/linux/03_package_obs.sh --vendor ${{ vendor }}
       displayName: '${{ vendor }} cmake, build, package'
       env:
         CI_BUILD_TYPE: $(BUILD_TYPE)
-        WITH_AUDIO_VIDEO_SYNC: ${WITH_AUDIO_VIDEO_SYNC}
     - task: PublishBuildArtifacts@1
       inputs:
         pathtoPublish: './package_${{ vendor }}'
@@ -330,12 +325,11 @@ jobs:
         export CC=clang
         export CXX=clang++
         export OBS_VERSION=${OBS_VERSION}-2204
-        ./CI/linux/02_build_obs.sh --disable-pipewire --vendor ${{ vendor }} --ndi
+        ./CI/linux/02_build_obs.sh --disable-pipewire --vendor ${{ vendor }}
         ./CI/linux/03_package_obs.sh --vendor ${{ vendor }}
       displayName: '${{ vendor }} cmake, build, package'
       env:
         CI_BUILD_TYPE: $(BUILD_TYPE)
-        WITH_AUDIO_VIDEO_SYNC: ${WITH_AUDIO_VIDEO_SYNC}
     - task: PublishBuildArtifacts@1
       inputs:
         pathtoPublish: './package_${{ vendor }}'
