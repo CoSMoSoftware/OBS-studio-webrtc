@@ -76,6 +76,13 @@ _configure_obs() {
         VENDOR_OPTION="-DOBS_WEBRTC_VENDOR_NAME=${VENDOR}"
     fi
 
+    if [ "${ENABLE_NDI}" ]
+    then
+        NDI_OPTION="ON"
+    else
+        NDI_OPTION="OFF"
+    fi
+
     cmake -S . -B ${BUILD_DIR} -G ${GENERATOR} \
         -DCEF_ROOT_DIR="${DEPS_BUILD_DIR}/cef_binary_${MACOS_CEF_BUILD_VERSION:-${CI_MACOS_CEF_VERSION}}_macos_${ARCH:-x86_64}" \
         -DENABLE_BROWSER=ON \
@@ -99,7 +106,7 @@ _configure_obs() {
         -Dlibwebrtc_DIR="${DEPS_BUILD_DIR}/libwebrtc_${ARCH}/cmake" \
         -DOPENSSL_ROOT_DIR="/usr/local/opt/openssl@1.1" \
         -DOBS_VERSION_OVERRIDE=${OBS_VERSION} \
-        -DBUILD_NDI=ON \
+        -DBUILD_NDI=${NDI_OPTION} \
         -DLIBOBS_INCLUDE_DIRS=${CMAKE_SOURCE_DIR}/libobs \
         -DLIBOBS_LIB=${BUILD_DIR}/libobs/libobs.framework \
         -DLIBOBS_LIBRARIES=${BUILD_DIR}/libobs/libobs.framework \
@@ -157,8 +164,9 @@ print_usage() {
             "-c, --codesign                 : Codesign OBS and all libraries (default: ad-hoc only)\n" \
             "-b, --bundle                   : Create relocatable OBS application bundle in build directory (default: build/install/OBS-WebRTC.app)\n" \
             "--xcode                        : Create Xcode build environment instead of Ninja\n" \
-            "--build-dir                    : Specify alternative build directory (default: build)\n"
-            "--vendor                       : Specify vendor name (default: Millicast)\n"
+            "--build-dir                    : Specify alternative build directory (default: build)\n" \
+            "--vendor                       : Specify vendor name (default: Millicast)\n" \
+            "--ndi                          : Enable plugin obs-ndi (default: off)\n"
 }
 
 build-obs-main() {
@@ -174,6 +182,7 @@ build-obs-main() {
                 --xcode ) XCODE=TRUE; shift ;;
                 --build-dir ) BUILD_DIR="${2}"; shift 2 ;;
                 --vendor ) VENDOR="${2}"; shift 2 ;;
+                --ndi ) ENABLE_NDI=TRUE; shift ;;
                 -- ) shift; break ;;
                 * ) break ;;
             esac

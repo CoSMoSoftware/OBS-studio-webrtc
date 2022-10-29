@@ -14,9 +14,9 @@ set -eE
 build_obs() {
     status "Build OBS"
     trap "caught_error 'build app'" ERR
-    if [ -z "${CI}" ]; then
-        _backup_artifacts
-    fi
+    # if [ -z "${CI}" ]; then
+    #     _backup_artifacts
+    # fi
 
     step "Configure OBS..."
     _configure_obs
@@ -60,6 +60,13 @@ _configure_obs() {
         VENDOR_OPTION="-DOBS_WEBRTC_VENDOR_NAME=$VENDOR_NAME"
     fi
 
+    if [ "${ENABLE_NDI}" ]
+    then
+        NDI_OPTION="ON"
+    else
+        NDI_OPTION="OFF"
+    fi
+
     libwebrtc_dir=`pwd`/libwebrtc/cmake
     export CC=clang
     export CXX=clang++
@@ -77,7 +84,7 @@ _configure_obs() {
         ${RESTREAM_OPTIONS} \
         ${CI:+-DENABLE_UNIT_TESTS=ON -DBUILD_FOR_DISTRIBUTION=${BUILD_FOR_DISTRIBUTION} -DOBS_BUILD_NUMBER=${GITHUB_RUN_ID}} \
         ${QUIET:+-Wno-deprecated -Wno-dev --log-level=ERROR} \
-        -DBUILD_NDI=ON \
+        -DBUILD_NDI=${NDI_OPTION} \
         -DLIBOBS_INCLUDE_DIRS=${CMAKE_SOURCE_DIR}/libobs \
         -DLIBOBS_LIB=${BUILD_DIR}/libobs/libobs.so \
         -DLIBOBS_LIBRARIES=${BUILD_DIR}/libobs/libobs.so \
@@ -129,7 +136,9 @@ print_usage() {
             "-v, --verbose                  : Enable more verbose build process output\n" \
             "-p, --portable                 : Create portable build (default: off)\n" \
             "--disable-pipewire             : Disable building with PipeWire support (default: off)\n" \
-            "--build-dir                    : Specify alternative build directory (default: build)\n"
+            "--build-dir                    : Specify alternative build directory (default: build)\n" \
+            "--vendor                       : Specify vendor name (default: Millicast)\n" \
+            "--ndi                          : Enable plugin obs-ndi (default: off)\n"
 }
 
 build-obs-main() {
@@ -143,6 +152,7 @@ build-obs-main() {
                 --disable-pipewire ) DISABLE_PIPEWIRE=TRUE; shift ;;
                 --build-dir ) BUILD_DIR="${2}"; shift 2 ;;
                 --vendor ) VENDOR_NAME="${2}"; shift 2 ;;
+                --ndi ) ENABLE_NDI=TRUE; shift ;;
                 -- ) shift; break ;;
                 * ) break ;;
             esac
