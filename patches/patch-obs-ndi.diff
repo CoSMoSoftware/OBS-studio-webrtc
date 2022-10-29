@@ -1,8 +1,8 @@
 diff --git a/plugins/obs-ndi/CMakeLists.txt b/plugins/obs-ndi/CMakeLists.txt
-index 29026e1..8d8de45 100644
+index 29026e1..b667016 100644
 --- a/plugins/obs-ndi/CMakeLists.txt
 +++ b/plugins/obs-ndi/CMakeLists.txt
-@@ -34,18 +34,22 @@ target_sources(
+@@ -34,18 +34,21 @@ target_sources(
  target_sources(obs-ndi PRIVATE src/forms/SettingsDialog.cpp src/forms/SettingsDialog.h
                                 src/forms/resources.qrc)
  
@@ -13,8 +13,7 @@ index 29026e1..8d8de45 100644
  # ----------------------------------------------------------------------
  
 -find_package(libobs REQUIRED)
-+#list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/external")
-+#set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/external" ${CMAKE_MODULE_PATH})
++list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/external")
 +message(STATUS "******************* CMAKE_MODULE_PATH = ${CMAKE_MODULE_PATH}")
 +find_package(Libobs REQUIRED)
  find_package(obs-frontend-api REQUIRED)
@@ -28,7 +27,7 @@ index 29026e1..8d8de45 100644
  
  target_include_directories(obs-ndi PRIVATE ${CMAKE_SOURCE_DIR}/src)
  
-@@ -67,7 +71,7 @@ if(OS_WINDOWS)
+@@ -67,7 +70,7 @@ if(OS_WINDOWS)
                   ${CMAKE_BINARY_DIR}/installer-Windows.generated.iss)
  
    if(MSVC)
@@ -37,7 +36,7 @@ index 29026e1..8d8de45 100644
    endif()
    # --- End of section ---
  
-@@ -80,17 +84,17 @@ elseif(OS_MACOS)
+@@ -80,17 +83,17 @@ elseif(OS_MACOS)
    set(MACOSX_PLUGIN_BUNDLE_VERSION "${CMAKE_PROJECT_VERSION}")
    set(MACOSX_PLUGIN_SHORT_VERSION_STRING "1")
  
