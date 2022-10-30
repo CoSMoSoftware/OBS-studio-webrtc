@@ -109,7 +109,8 @@ _configure_obs() {
         -DBUILD_NDI=${NDI_OPTION} \
         -DLIBOBS_INCLUDE_DIRS=${CMAKE_SOURCE_DIR}/libobs \
         -DLIBOBS_LIB=${BUILD_DIR}/libobs/libobs.framework \
-        -Dobs-frontend-api_DIR=${BUILD_DIR}/UI/obs-frontend-api
+        -Dobs-frontend-api_DIR=${BUILD_DIR}/UI/obs-frontend-api \
+        -DCMAKE_PREFIX_PATH=${BUILD_DIR}/UI/obs-frontend-api
 }
 
 # Function to backup previous build artifacts
