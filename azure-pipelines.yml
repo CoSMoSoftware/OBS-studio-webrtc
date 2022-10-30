@@ -369,11 +369,18 @@ jobs:
         find . -name obs-frontend-apiConfig.cmake
         ls build/UI/obs-frontend-api
         echo "######################################"
-        set -e
         ./CI/linux/03_package_obs.sh --vendor ${{ vendor }}
       displayName: '${{ vendor }} cmake, build, package'
       env:
         CI_BUILD_TYPE: $(BUILD_TYPE)
+    - bash: |
+        echo "######################################"
+        echo "find . -name obs-frontend-apiConfig.cmake"
+        pwd
+        find . -name obs-frontend-apiConfig.cmake
+        ls build/UI/obs-frontend-api
+        echo "######################################"
+      displayName: 'find obs-frontend-apiConfig.cmake'
     - task: PublishBuildArtifacts@1
       inputs:
         pathtoPublish: './package_${{ vendor }}'
