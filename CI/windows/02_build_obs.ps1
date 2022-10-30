@@ -100,7 +100,8 @@ function Configure-OBS {
         "-DOBS_VERSION_OVERRIDE=`"${Env:OBS_VERSION}`"",
         "-DBUILD_NDI=${Ndi}",
         "-DLIBOBS_INCLUDE_DIRS=`"${CMAKE_SOURCE_DIR}/libobs`"",
-        "-DLIBOBS_LIB=`"${BuildDirectoryActual}/libobs/${CMAKE_BUILD_TYPE}/libobs.dll`""
+        "-DLIBOBS_LIB=`"${BuildDirectoryActual}/libobs/${CMAKE_BUILD_TYPE}/libobs.dll`"",
+        "-Dobs-frontend-api_DIR=`"${BuildDirectoryActual}/UI/obs-frontend-api`"" \
     )
 
 echo "OBS version = ${Env:OBS_VERSION}"

@@ -104,25 +104,10 @@ if (BUILD_NDI)
 
   find_path(TOTO obs-frontend-apiConfig.cmake
                 HINTS ${CMAKE_BINARY_DIR}/UI/obs-frontend-api)
-  message(STATUS "path to obs-frontend-api = ${TOTO}")
-  cmake_path(GET "${CMAKE_BINARY_DIR}/UI/obs-frontend-api" FILENAME filename)
-  message(STATUS "fichier 1 = ${filename}")
-  cmake_path(GET "${CMAKE_BINARY_DIR}/UI/obs-frontend-api" FILENAME filename)
-  message(STATUS "fichier 2 = ${filename}")
-  cmake_path(GET "${CMAKE_BINARY_DIR}/UI/obs-frontend-api" FILENAME filename)
-  message(STATUS "fichier 3 = ${filename}")
-  cmake_path(GET "${CMAKE_BINARY_DIR}/UI/obs-frontend-api" FILENAME filename)
-  message(STATUS "fichier 4 = ${filename}")
-  cmake_path(GET "${CMAKE_BINARY_DIR}/UI/obs-frontend-api" FILENAME filename)
-  message(STATUS "fichier 5 = ${filename}")
-  cmake_path(GET "${CMAKE_BINARY_DIR}/UI/obs-frontend-api" FILENAME filename)
-  message(STATUS "fichier 6 = ${filename}")
-  cmake_path(GET "${CMAKE_BINARY_DIR}/UI/obs-frontend-api" FILENAME filename)
-  message(STATUS "fichier 7 = ${filename}")
-  cmake_path(GET "${CMAKE_BINARY_DIR}/UI/obs-frontend-api" FILENAME filename)
-  message(STATUS "fichier 8 = ${filename}")
+  message(STATUS "path to obs-frontend-apiConfig.cmake = ${TOTO}")
 
   if (NOT EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/obs-ndi/CMakeLists.txt")
+    message(STATUS "##################################### ${CMAKE_CURRENT_SOURCE_DIR}/obs-ndi/CMakeLists.txt not found")
     execute_process(
       COMMAND           git submodule update --init --recursive
       WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
