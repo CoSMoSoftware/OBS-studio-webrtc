@@ -87,6 +87,7 @@ _configure_obs() {
         -DBUILD_NDI=${NDI_OPTION} \
         -DLIBOBS_INCLUDE_DIRS=${CMAKE_SOURCE_DIR}/libobs \
         -DLIBOBS_LIB=${BUILD_DIR}/libobs/libobs.so \
+        -Dobs-frontend-api_DIR=${CMAKE_BINARY_DIR}/UI/obs-frontend-api \
         -DUNIX_STRUCTURE=1 \
         -DENABLE_VLC=ON \
         -DUSE_LIBC++=ON \
