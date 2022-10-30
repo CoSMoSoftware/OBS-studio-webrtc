@@ -352,7 +352,6 @@ jobs:
       - script: cp ./vendor_skins/${{ vendor }}/CMakeLists.txt ./CMakeLists.txt
         displayName: '${{ vendor }} copy CMakeLists.txt'
     - bash: |
-        set -e
         export CC=clang
         export CXX=clang++
         export OBS_VERSION=${OBS_VERSION}-2204
@@ -370,6 +369,7 @@ jobs:
         find . -name obs-frontend-apiConfig.cmake
         ls build/UI/obs-frontend-api
         echo "######################################"
+        set -e
         ./CI/linux/03_package_obs.sh --vendor ${{ vendor }}
       displayName: '${{ vendor }} cmake, build, package'
       env:
