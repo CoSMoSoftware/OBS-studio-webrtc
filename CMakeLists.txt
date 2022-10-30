@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.16...3.21)
+cmake_minimum_required(VERSION 3.20...3.21)
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake/Modules")
 include(VersionConfig)
@@ -20,6 +20,9 @@ else()
 	set(_config_dir ${OBS_WEBRTC_VENDOR_NAME})
 endif()
 project(${_project_name} VERSION ${OBS_VERSION_CANONICAL})
+
+find_path(TOTO obs-frontend-api)
+message(STATUS "path to obs-frontend-api = ${TOTO}")
 
 option(DEBUG_FFMPEG_MUX "Debug FFmpeg muxer subprocess" FALSE)
 

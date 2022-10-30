@@ -102,6 +102,8 @@ add_subdirectory(aja)
 option(BUILD_NDI "Build obs-ndi plugin" OFF)
 if (BUILD_NDI)
 
+  find_path(TOTO obs-frontend-api)
+  message(STATUS "path to obs-frontend-api = ${TOTO}")
   cmake_path(GET "${CMAKE_BINARY_DIR}/UI/obs-frontend-api" FILENAME filename)
   message(STATUS "fichier 1 = ${filename}")
   cmake_path(GET "${CMAKE_BINARY_DIR}/UI/obs-frontend-api" FILENAME filename)
