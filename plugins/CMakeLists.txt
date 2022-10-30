@@ -101,6 +101,24 @@ add_subdirectory(aja)
 
 option(BUILD_NDI "Build obs-ndi plugin" OFF)
 if (BUILD_NDI)
+
+  cmake_path(GET "${CMAKE_BINARY_DIR}/UI/obs-frontend-api" FILENAME filename)
+  message(STATUS "fichier 1 = ${filename}")
+  cmake_path(GET "${CMAKE_BINARY_DIR}/UI/obs-frontend-api" FILENAME filename)
+  message(STATUS "fichier 2 = ${filename}")
+  cmake_path(GET "${CMAKE_BINARY_DIR}/UI/obs-frontend-api" FILENAME filename)
+  message(STATUS "fichier 3 = ${filename}")
+  cmake_path(GET "${CMAKE_BINARY_DIR}/UI/obs-frontend-api" FILENAME filename)
+  message(STATUS "fichier 4 = ${filename}")
+  cmake_path(GET "${CMAKE_BINARY_DIR}/UI/obs-frontend-api" FILENAME filename)
+  message(STATUS "fichier 5 = ${filename}")
+  cmake_path(GET "${CMAKE_BINARY_DIR}/UI/obs-frontend-api" FILENAME filename)
+  message(STATUS "fichier 6 = ${filename}")
+  cmake_path(GET "${CMAKE_BINARY_DIR}/UI/obs-frontend-api" FILENAME filename)
+  message(STATUS "fichier 7 = ${filename}")
+  cmake_path(GET "${CMAKE_BINARY_DIR}/UI/obs-frontend-api" FILENAME filename)
+  message(STATUS "fichier 8 = ${filename}")
+
   if (NOT EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/obs-ndi/CMakeLists.txt")
     execute_process(
       COMMAND           git submodule update --init --recursive
