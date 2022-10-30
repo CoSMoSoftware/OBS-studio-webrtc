@@ -27,6 +27,7 @@ find_path(TOTO obs-frontend-apiConfig.cmake
 message(STATUS "path to obs-frontend-api = ${TOTO}")
 message(STATUS "######################################################")
 
+
 option(DEBUG_FFMPEG_MUX "Debug FFmpeg muxer subprocess" FALSE)
 
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
