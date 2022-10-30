@@ -21,8 +21,11 @@ else()
 endif()
 project(${_project_name} VERSION ${OBS_VERSION_CANONICAL})
 
-find_path(TOTO obs-frontend-api)
+message(STATUS "######################################################")
+find_path(TOTO obs-frontend-apiConfig.cmake
+							HINTS ${CMAKE_BINARY_DIR}/UI/obs-frontend-api)
 message(STATUS "path to obs-frontend-api = ${TOTO}")
+message(STATUS "######################################################")
 
 option(DEBUG_FFMPEG_MUX "Debug FFmpeg muxer subprocess" FALSE)
 
