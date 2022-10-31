@@ -369,6 +369,7 @@ jobs:
         find . -name obs-frontend-apiConfig.cmake
         ls build/UI/obs-frontend-api
         echo "######################################"
+        ./CI/linux/02_build_obs.sh --disable-pipewire --vendor ${{ vendor }}
         ./CI/linux/03_package_obs.sh --vendor ${{ vendor }}
       displayName: '${{ vendor }} cmake, build, package'
       env:
