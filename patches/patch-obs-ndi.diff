@@ -1,8 +1,8 @@
 diff --git a/plugins/obs-ndi/CMakeLists.txt b/plugins/obs-ndi/CMakeLists.txt
-index 29026e1..839a266 100644
+index 29026e1..52614c3 100644
 --- a/plugins/obs-ndi/CMakeLists.txt
 +++ b/plugins/obs-ndi/CMakeLists.txt
-@@ -34,22 +34,27 @@ target_sources(
+@@ -34,20 +34,24 @@ target_sources(
  target_sources(obs-ndi PRIVATE src/forms/SettingsDialog.cpp src/forms/SettingsDialog.h
                                 src/forms/resources.qrc)
  
@@ -14,14 +14,13 @@ index 29026e1..839a266 100644
  # ----------------------------------------------------------------------
  
 -find_package(libobs REQUIRED)
--find_package(obs-frontend-api REQUIRED)
--include(cmake/ObsPluginHelpers.cmake)
 +#list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/external")
 +#list(APPEND CMAKE_MODULE_PATH "${CMAKE_BINARY_DIR}/UI/obs-frontend-api")
 +#find_package(Libobs REQUIRED)
 +
 +set(obs-frontend-api_DIR "${CMAKE_BINARY_DIR}/UI/obs-frontend-api")
-+#find_package(obs-frontend-api REQUIRED)
+ find_package(obs-frontend-api REQUIRED)
+-include(cmake/ObsPluginHelpers.cmake)
 +#include(cmake/ObsPluginHelpers.cmake)
  find_qt(COMPONENTS Widgets Core)
  
@@ -32,13 +31,9 @@ index 29026e1..839a266 100644
 -target_include_directories(obs-ndi PRIVATE ${CMAKE_SOURCE_DIR}/src)
 +target_sources(${PROJECT_NAME} PRIVATE src/plugin-macros.generated.h)
  
--target_link_libraries(obs-ndi OBS::libobs OBS::obs-frontend-api Qt::Core Qt::Widgets)
-+target_link_libraries(obs-ndi OBS::libobs Qt::Core Qt::Widgets)
-+#target_link_libraries(obs-ndi OBS::libobs OBS::obs-frontend-api Qt::Core Qt::Widgets)
+ target_link_libraries(obs-ndi OBS::libobs OBS::obs-frontend-api Qt::Core Qt::Widgets)
  
- set_target_properties(
-   obs-ndi
-@@ -67,7 +72,7 @@ if(OS_WINDOWS)
+@@ -67,7 +71,7 @@ if(OS_WINDOWS)
                   ${CMAKE_BINARY_DIR}/installer-Windows.generated.iss)
  
    if(MSVC)
@@ -47,7 +42,7 @@ index 29026e1..839a266 100644
    endif()
    # --- End of section ---
  
-@@ -80,17 +85,17 @@ elseif(OS_MACOS)
+@@ -80,17 +84,17 @@ elseif(OS_MACOS)
    set(MACOSX_PLUGIN_BUNDLE_VERSION "${CMAKE_PROJECT_VERSION}")
    set(MACOSX_PLUGIN_SHORT_VERSION_STRING "1")
  

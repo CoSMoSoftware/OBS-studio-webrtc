@@ -127,6 +127,15 @@ jobs:
     - script: git submodule update --init --recursive
       displayName: 'Checkout Submodules'
     - ${{ each arch in parameters.architectures }}:
+      - script: TERM="" ./CI/macos/02_build_obs.sh --codesign --build-dir build_${{ vendor }}_${{ arch }} --architecture ${{ arch }} --vendor ${{ vendor }}
+        displayName: '${{ vendor }} ${{ arch }} Build OBS'
+        env:
+          CURRENT_ARCH: ${{ arch }}
+          CODESIGN_TEAM_ID: $(apple_team_id)
+          CODESIGN_IDENT: $(ludo_apple_developer_identity)
+          WOWZA_CODESIGN_IDENT: $(wowza_apple_developer_identity)
+          CODESIGN_IDENT_USER: $(ludo_apple_account_id)
+          NOTARIZE_APP_SPECIFIC_PASSWORD: $(ludo_apple_app_specific_password)
       - script: TERM="" ./CI/macos/02_build_obs.sh --codesign --build-dir build_${{ vendor }}_${{ arch }} --architecture ${{ arch }} --vendor ${{ vendor }} --ndi
         displayName: '${{ vendor }} ${{ arch }} Build OBS + plugin obs-ndi'
         env:
@@ -187,6 +196,13 @@ jobs:
       displayName: rmdir plugins/obs-ndi
     - script: git submodule update --init --recursive
       displayName: 'Checkout Submodules'
+    - powershell: ./CI/windows/02_build_obs.ps1 -BuildArch x64 -Vendor ${{ vendor }}
+      displayName: '${{ vendor }} Build OBS'
+      env:
+        OBS_VERSION: ${OBS_VERSION}
+        CMAKE_GENERATOR: 'Visual Studio 17 2022'
+        CMAKE_SYSTEM_VERSION: '10.0.18363.657'
+        VIRTUALCAM-GUID: 'A3FCE0F5-3493-419F-958A-ABA1250EC20B'
     - powershell: ./CI/windows/02_build_obs.ps1 -BuildArch x64 -Vendor ${{ vendor }} -Ndi
       displayName: '${{ vendor }} Build OBS + plugin obs-ndi'
       env:
@@ -284,6 +300,7 @@ jobs:
         export CC=clang
         export CXX=clang++
         export OBS_VERSION=${OBS_VERSION}-2004
+        ./CI/linux/02_build_obs.sh --disable-pipewire --vendor ${{ vendor }}
         ./CI/linux/02_build_obs.sh --disable-pipewire --vendor ${{ vendor }} --ndi
         ./CI/linux/03_package_obs.sh --vendor ${{ vendor }}
       displayName: '${{ vendor }} cmake, build, package'
@@ -324,6 +341,7 @@ jobs:
         export CC=clang
         export CXX=clang++
         export OBS_VERSION=${OBS_VERSION}-2204
+        ./CI/linux/02_build_obs.sh --disable-pipewire --vendor ${{ vendor }}
         ./CI/linux/02_build_obs.sh --disable-pipewire --vendor ${{ vendor }} --ndi
         ./CI/linux/03_package_obs.sh --vendor ${{ vendor }}
       displayName: '${{ vendor }} cmake, build, package'
