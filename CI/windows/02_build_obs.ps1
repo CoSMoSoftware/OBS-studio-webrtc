@@ -9,7 +9,7 @@ Param(
     [String]$BuildConfiguration = $(if (Test-Path variable:BuildConfiguration) { "${BuildConfiguration}" } else { "RelWithDebInfo" }),
     [ValidateSet("Millicast", "Wowza", "RemoteFilming", "RemoteFilming-A", "RemoteFilming-B", "RemoteFilming-C", "RemoteFilming-D")]
     [String]$Vendor = $(if (Test-Path variable:Vendor) { "${Vendor}" } else { "Millicast" }),
-    [String]$Ndi = $(if (Test-Path variable:Ndi) { "ON" } else { "OFF"})
+    [String]$Ndi = $(if (Test-Path variable:Ndi) { "${Ndi}" } else { "OFF"})
 )
 
 ##############################################################################
@@ -133,7 +133,7 @@ function Print-Usage {
         "-BuildArch               : Build architecture to use (x86 or x64) - Default: local architecture",
         "-BuildConfiguration      : Build configuration to use - Default: RelWithDebInfo",
         "-Vendor                  : Vendor name - Default: Millicast",
-        "-Ndi                     : Enable plugin obs-ndi (default: off)"
+        "-Ndi                     : Enable plugin obs-ndi (default: OFF)"
     )
 
     $Lines | Write-Host

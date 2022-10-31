@@ -203,7 +203,7 @@ jobs:
         CMAKE_GENERATOR: 'Visual Studio 17 2022'
         CMAKE_SYSTEM_VERSION: '10.0.18363.657'
         VIRTUALCAM-GUID: 'A3FCE0F5-3493-419F-958A-ABA1250EC20B'
-    - powershell: ./CI/windows/02_build_obs.ps1 -BuildArch x64 -Vendor ${{ vendor }} -Ndi
+    - powershell: ./CI/windows/02_build_obs.ps1 -BuildArch x64 -Vendor ${{ vendor }} -Ndi ON
       displayName: '${{ vendor }} Build OBS + plugin obs-ndi'
       env:
         OBS_VERSION: ${OBS_VERSION}
