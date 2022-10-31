@@ -8,7 +8,8 @@ Param(
     [ValidateSet("Release", "RelWithDebInfo", "MinSizeRel", "Debug")]
     [String]$BuildConfiguration = $(if (Test-Path variable:BuildConfiguration) { "${BuildConfiguration}" } else { "RelWithDebInfo" }),
     [ValidateSet("Millicast", "Wowza", "RemoteFilming", "RemoteFilming-A", "RemoteFilming-B", "RemoteFilming-C", "RemoteFilming-D")]
-    [String]$Vendor = $(if (Test-Path variable:Vendor) { "${Vendor}" } else { "Millicast" })
+    [String]$Vendor = $(if (Test-Path variable:Vendor) { "${Vendor}" } else { "Millicast" }),
+    [String]$Ndi = $(if (Test-Path variable:Ndi) { "ON" } else { "OFF"})
 )
 
 ##############################################################################
@@ -27,7 +28,8 @@ function Build-OBS {
         [String]$BuildDirectory = $(if (Test-Path variable:BuildDirectory) { "${BuildDirectory}" }),
         [String]$BuildArch = $(if (Test-Path variable:BuildArch) { "${BuildArch}" }),
         [String]$BuildConfiguration = $(if (Test-Path variable:BuildConfiguration) { "${BuildConfiguration}" }),
-        [String]$Vendor = $(if (Test-Path variable:Vendor) { "${Vendor}" })
+        [String]$Vendor = $(if (Test-Path variable:Vendor) { "${Vendor}" }),
+        [String]$Ndi = $(if (Test-Path variable:Ndi) { "${Ndi}" })
     )
 
     $NumProcessors = (Get-CimInstance Win32_ComputerSystem).NumberOfLogicalProcessors
@@ -96,7 +98,9 @@ function Configure-OBS {
         "-DOPENSSL_ROOT_DIR=`"$OpensslDirectory`"",
         "$(if (${Vendor} -ne 'Millicast') { "-DOBS_WEBRTC_VENDOR_NAME=${Vendor}" })",
         "-DOBS_VERSION_OVERRIDE=`"${Env:OBS_VERSION}`"",
-        "-DBUILD_NDI=ON"
+        "-DBUILD_NDI=${Ndi}",
+        "-DLIBOBS_INCLUDE_DIRS=`"${CMAKE_SOURCE_DIR}/libobs`"",
+        "-DLIBOBS_LIB=`"${BuildDirectoryActual}/libobs/${CMAKE_BUILD_TYPE}/libobs.dll`""
     )
 
 echo "OBS version = ${Env:OBS_VERSION}"
@@ -128,7 +132,8 @@ function Print-Usage {
         "-BuildDirectory          : Directory to use for builds - Default: build64 on 64-bit systems, build32 on 32-bit systems",
         "-BuildArch               : Build architecture to use (x86 or x64) - Default: local architecture",
         "-BuildConfiguration      : Build configuration to use - Default: RelWithDebInfo",
-        "-Vendor                  : Vendor name - Default: Millicast"
+        "-Vendor                  : Vendor name - Default: Millicast",
+        "-Ndi                     : Enable plugin obs-ndi (default: off)"
     )
 
     $Lines | Write-Host
