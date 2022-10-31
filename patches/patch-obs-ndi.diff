@@ -1,8 +1,8 @@
 diff --git a/plugins/obs-ndi/CMakeLists.txt b/plugins/obs-ndi/CMakeLists.txt
-index 29026e1..cd72566 100644
+index 29026e1..7563e38 100644
 --- a/plugins/obs-ndi/CMakeLists.txt
 +++ b/plugins/obs-ndi/CMakeLists.txt
-@@ -34,18 +34,32 @@ target_sources(
+@@ -34,18 +34,24 @@ target_sources(
  target_sources(obs-ndi PRIVATE src/forms/SettingsDialog.cpp src/forms/SettingsDialog.h
                                 src/forms/resources.qrc)
  
@@ -13,22 +13,15 @@ index 29026e1..cd72566 100644
  # ----------------------------------------------------------------------
  
 -find_package(libobs REQUIRED)
-+list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/external")
-+list(APPEND CMAKE_MODULE_PATH "${CMAKE_BINARY_DIR}/UI/obs-frontend-api")
-+message(STATUS "******************* CMAKE_MODULE_PATH = ${CMAKE_MODULE_PATH}")
-+find_package(Libobs REQUIRED)
-+
-+file(GLOB TATA ${CMAKE_BINARY_DIR}/UI/obs-frontend-api/*)
-+message(STATUS "################################################")
-+message(STATUS "list of files in ${CMAKE_BINARY_DIR}/UI/obs-frontend-api")
-+foreach(T IN LISTS TATA)
-+  message(STATUS ${T})
-+endforeach()
-+message(STATUS "################################################")
++#list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/external")
++#list(APPEND CMAKE_MODULE_PATH "${CMAKE_BINARY_DIR}/UI/obs-frontend-api")
++#find_package(Libobs REQUIRED)
 +
 +set(obs-frontend-api_DIR "${CMAKE_BINARY_DIR}/UI/obs-frontend-api")
  find_package(obs-frontend-api REQUIRED)
- include(cmake/ObsPluginHelpers.cmake)
+-include(cmake/ObsPluginHelpers.cmake)
++
++#include(cmake/ObsPluginHelpers.cmake)
  find_qt(COMPONENTS Widgets Core)
  
  configure_file(src/plugin-macros.h.in ${CMAKE_SOURCE_DIR}/src/plugin-macros.generated.h)
@@ -38,7 +31,7 @@ index 29026e1..cd72566 100644
  
  target_include_directories(obs-ndi PRIVATE ${CMAKE_SOURCE_DIR}/src)
  
-@@ -67,7 +81,7 @@ if(OS_WINDOWS)
+@@ -67,7 +73,7 @@ if(OS_WINDOWS)
                   ${CMAKE_BINARY_DIR}/installer-Windows.generated.iss)
  
    if(MSVC)
@@ -47,7 +40,7 @@ index 29026e1..cd72566 100644
    endif()
    # --- End of section ---
  
-@@ -80,17 +94,17 @@ elseif(OS_MACOS)
+@@ -80,17 +86,17 @@ elseif(OS_MACOS)
    set(MACOSX_PLUGIN_BUNDLE_VERSION "${CMAKE_PROJECT_VERSION}")
    set(MACOSX_PLUGIN_SHORT_VERSION_STRING "1")
  
