@@ -101,13 +101,7 @@ add_subdirectory(aja)
 
 option(BUILD_NDI "Build obs-ndi plugin" OFF)
 if (BUILD_NDI)
-
-  find_path(TOTO obs-frontend-apiConfig.cmake
-                HINTS ${CMAKE_BINARY_DIR}/UI/obs-frontend-api)
-  message(STATUS "path to obs-frontend-apiConfig.cmake = ${TOTO}")
-
   if (NOT EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/obs-ndi/CMakeLists.txt")
-    message(STATUS "##################################### ${CMAKE_CURRENT_SOURCE_DIR}/obs-ndi/CMakeLists.txt not found")
     execute_process(
       COMMAND           git submodule update --init --recursive
       WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
