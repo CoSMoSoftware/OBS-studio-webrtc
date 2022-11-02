@@ -2267,7 +2267,7 @@ void OBSBasicSettings::LoadOutputSettings()
 {
 	loading = true;
 
-	// ResetEncoders();
+	ResetEncoders();
 
 	const char *mode = config_get_string(main->Config(), "Output", "Mode");
 

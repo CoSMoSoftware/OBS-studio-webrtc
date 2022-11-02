@@ -125,9 +125,18 @@ private:
 	int channelIndex = 0;
 	bool llBufferingEnabled = false;
 
+	// #289 service list of radio buttons
+	enum enumServiceIndex { Millicast = 0, RTMP = 1 };
+	int GetServiceIndex() {
+		if (ui->millicastWebrtcRadioButton->isChecked())
+			return Millicast;
+		else
+			return RTMP;
+	}
 	int lastSimpleRecQualityIdx = 0;
 	int lastServiceIdx = -1;
-	int lastIgnoreRecommended = -1;
+	// #289 service list of radio buttons
+	// int lastIgnoreRecommended = -1;
 	int lastChannelSetupIdx = 0;
 
 	static constexpr uint32_t ENCODER_HIDE_FLAGS =
@@ -228,7 +237,7 @@ private:
 
 	bool QueryChanges();
 
-	// void ResetEncoders(bool streamOnly = false);
+	void ResetEncoders(bool streamOnly = false);
 	void LoadColorRanges();
 	void LoadColorSpaces();
 	void LoadColorFormats();
@@ -274,8 +283,7 @@ private slots:
 	void UpdateVodTrackSetting();
 	void UpdateServiceRecommendations();
 	void RecreateOutputResolutionWidget();
-	// #289 service list of radio buttons
-	// void UpdateResFPSLimits();
+	void UpdateResFPSLimits();
 	void UpdateMoreInfoLink();
 	void DisplayEnforceWarning(bool checked);
 	void on_show_clicked();
