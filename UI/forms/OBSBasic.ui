@@ -501,8 +501,6 @@
     <addaction name="actionShowSettingsFolder"/>
     <addaction name="actionShowProfileFolder"/>
     <addaction name="separator"/>
-    <addaction name="actionAlwaysOnTop"/>
-    <addaction name="separator"/>
     <addaction name="actionE_xit"/>
    </widget>
    <widget class="QMenu" name="menuBasic_MainMenu_Help">
@@ -690,6 +688,16 @@
     <addaction name="toggleStatusBar"/>
     <addaction name="separator"/>
     <addaction name="stats"/>
+    <addaction name="separator"/>
+    <addaction name="multiviewProjectorMenu"/>
+    <addaction name="multiviewProjectorWindowed"/>
+    <addaction name="separator"/>
+    <addaction name="actionAlwaysOnTop"/>
+   </widget>
+   <widget class="QMenu" name="multiviewProjectorMenu">
+    <property name="title">
+     <string>MultiviewProjector</string>
+    </property>
    </widget>
    <widget class="QMenu" name="menuTools">
     <property name="title">
@@ -1478,6 +1486,9 @@
          <property name="text">
           <string>Basic.Main.StartStreaming</string>
          </property>
+         <property name="checkable">
+          <bool>true</bool>
+         </property>
         </widget>
        </item>
        <item>
@@ -1499,6 +1510,9 @@
          </property>
          <property name="text">
           <string>Basic.Main.StartBroadcast</string>
+         </property>
+         <property name="checkable">
+          <bool>true</bool>
          </property>
         </widget>
        </item>
@@ -1541,6 +1555,9 @@
          <property name="text">
           <string>Basic.Main.StartRecording</string>
          </property>
+         <property name="checkable">
+          <bool>true</bool>
+         </property>
         </widget>
        </item>
       </layout>
@@ -1561,6 +1578,9 @@
        </property>
        <property name="text">
         <string>Basic.TogglePreviewProgramMode</string>
+       </property>
+       <property name="checkable">
+        <bool>true</bool>
        </property>
       </widget>
      </item>
@@ -2069,7 +2089,7 @@
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>Basic.MainMenu.AlwaysOnTop</string>
+    <string>Basic.MainMenu.View.AlwaysOnTop</string>
    </property>
   </action>
   <action name="toggleListboxToolbars">
@@ -2144,6 +2164,11 @@
   <action name="stats">
    <property name="text">
     <string>Basic.Stats</string>
+   </property>
+  </action>
+  <action name="multiviewProjectorWindowed">
+   <property name="text">
+    <string>MultiviewWindowed</string>
    </property>
   </action>
   <action name="resetDocks">

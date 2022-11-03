@@ -676,6 +676,7 @@ static void reset_service_ui_fields(Ui::OBSBasicSettings *ui,
 	} else {
 		ui->connectAccount2->setVisible(false);
 		ui->useStreamKeyAdv->setVisible(false);
+		ui->streamStackWidget->setCurrentIndex((int)Section::StreamKey);
 	}
 
 	ui->connectedAccountLabel->setVisible(false);
@@ -1728,6 +1729,8 @@ static QString get_simple_fallback(const QString &enc)
 {
 	if (enc == SIMPLE_ENCODER_NVENC_HEVC)
 		return SIMPLE_ENCODER_NVENC;
+	if (enc == SIMPLE_ENCODER_NVENC_AV1)
+		return SIMPLE_ENCODER_NVENC;
 	if (enc == SIMPLE_ENCODER_AMD_HEVC)
 		return SIMPLE_ENCODER_AMD;
 	return SIMPLE_ENCODER_X264;
@@ -1869,6 +1872,10 @@ void OBSBasicSettings::ResetEncoders(bool streamOnly)
 		ui->simpleOutStrEncoder->addItem(
 			ENCODER_STR("Hardware.NVENC.H264"),
 			QString(SIMPLE_ENCODER_NVENC));
+	if (service_supports_encoder(codecs, "jim_av1_nvenc"))
+		ui->simpleOutStrEncoder->addItem(
+			ENCODER_STR("Hardware.NVENC.AV1"),
+			QString(SIMPLE_ENCODER_NVENC_AV1));
 #ifdef ENABLE_HEVC
 	if (service_supports_encoder(codecs, "h265_texture_amf"))
 		ui->simpleOutStrEncoder->addItem(

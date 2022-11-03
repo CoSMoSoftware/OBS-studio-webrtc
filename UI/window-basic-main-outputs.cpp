@@ -290,9 +290,7 @@ struct SimpleOutput : BasicOutputHandler {
 	void UpdateRecordingSettings_x264_crf(int crf);
 	void UpdateRecordingSettings_qsv11(int crf);
 	void UpdateRecordingSettings_nvenc(int cqp);
-#ifdef ENABLE_HEVC
-	void UpdateRecordingSettings_nvenc_hevc(int cqp);
-#endif
+	void UpdateRecordingSettings_nvenc_hevc_av1(int cqp);
 	void UpdateRecordingSettings_amd_cqp(int cqp);
 	void UpdateRecordingSettings_apple(int quality);
 	void UpdateRecordingSettings();
@@ -384,6 +382,8 @@ const char *get_simple_output_encoder(const char *encoder)
 		return EncoderAvailable("jim_hevc_nvenc") ? "jim_hevc_nvenc"
 							  : "ffmpeg_hevc_nvenc";
 #endif
+	} else if (strcmp(encoder, SIMPLE_ENCODER_NVENC_AV1) == 0) {
+		return "jim_av1_nvenc";
 	} else if (strcmp(encoder, SIMPLE_ENCODER_APPLE_H264) == 0) {
 		return "com.apple.videotoolbox.videoencoder.ave.avc";
 	}
@@ -535,19 +535,26 @@ void SimpleOutput::Update()
 #endif
 
 	} else if (strcmp(encoder, SIMPLE_ENCODER_NVENC) == 0) {
-		presetType = "NVENCPreset";
+		presetType = "NVENCPreset2";
 
 #ifdef ENABLE_HEVC
 	} else if (strcmp(encoder, SIMPLE_ENCODER_NVENC_HEVC) == 0) {
-		presetType = "NVENCPreset";
+		presetType = "NVENCPreset2";
 #endif
+
+	} else if (strcmp(encoder, SIMPLE_ENCODER_NVENC_AV1) == 0) {
+		presetType = "NVENCPreset2";
 
 	} else {
 		presetType = "Preset";
 	}
 
 	preset = config_get_string(main->Config(), "SimpleOutput", presetType);
-	obs_data_set_string(videoSettings, "preset", preset);
+	obs_data_set_string(videoSettings,
+			    (strcmp(presetType, "NVENCPreset2") == 0)
+				    ? "preset2"
+				    : "preset",
+			    preset);
 
 	obs_data_set_string(videoSettings, "rate_control", "CBR");
 	obs_data_set_int(videoSettings, "bitrate", videoBitrate);
@@ -671,24 +678,20 @@ void SimpleOutput::UpdateRecordingSettings_nvenc(int cqp)
 	OBSDataAutoRelease settings = obs_data_create();
 	obs_data_set_string(settings, "rate_control", "CQP");
 	obs_data_set_string(settings, "profile", "high");
-	obs_data_set_string(settings, "preset", "hq");
 	obs_data_set_int(settings, "cqp", cqp);
 
 	obs_encoder_update(videoRecording, settings);
 }
 
-#ifdef ENABLE_HEVC
-void SimpleOutput::UpdateRecordingSettings_nvenc_hevc(int cqp)
+void SimpleOutput::UpdateRecordingSettings_nvenc_hevc_av1(int cqp)
 {
 	OBSDataAutoRelease settings = obs_data_create();
 	obs_data_set_string(settings, "rate_control", "CQP");
 	obs_data_set_string(settings, "profile", "main");
-	obs_data_set_string(settings, "preset", "hq");
 	obs_data_set_int(settings, "cqp", cqp);
 
 	obs_encoder_update(videoRecording, settings);
 }
-#endif
 
 void SimpleOutput::UpdateRecordingSettings_apple(int quality)
 {
@@ -734,8 +737,11 @@ void SimpleOutput::UpdateRecordingSettings()
 
 #ifdef ENABLE_HEVC
 	} else if (videoEncoder == SIMPLE_ENCODER_NVENC_HEVC) {
-		UpdateRecordingSettings_nvenc_hevc(crf);
+		UpdateRecordingSettings_nvenc_hevc_av1(crf);
 #endif
+	} else if (videoEncoder == SIMPLE_ENCODER_NVENC_AV1) {
+		UpdateRecordingSettings_nvenc_hevc_av1(crf);
+
 	} else if (videoEncoder == SIMPLE_ENCODER_APPLE_H264) {
 		/* These are magic numbers. 0 - 100, more is better. */
 		UpdateRecordingSettings_apple(ultra_hq ? 70 : 50);
@@ -2044,8 +2050,7 @@ bool AdvancedOutput::StartReplayBuffer()
 			error_reason = QT_UTF8(error);
 		else
 			error_reason = QTStr("Output.StartFailedGeneric");
-		QMessageBox::critical(main,
-				      QTStr("Output.StartRecordingFailed"),
+		QMessageBox::critical(main, QTStr("Output.StartReplayFailed"),
 				      error_reason);
 		return false;
 	}

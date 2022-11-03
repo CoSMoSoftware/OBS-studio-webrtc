@@ -7701,6 +7701,7 @@
   <tabstop>hideProjectorCursor</tabstop>
   <tabstop>projectorAlwaysOnTop</tabstop>
   <tabstop>saveProjectors</tabstop>
+  <tabstop>closeProjectors</tabstop>
   <tabstop>systemTrayEnabled</tabstop>
   <tabstop>systemTrayWhenStarted</tabstop>
   <tabstop>systemTrayAlways</tabstop>
@@ -7708,6 +7709,7 @@
   <tabstop>overflowAlwaysVisible</tabstop>
   <tabstop>overflowSelectionHide</tabstop>
   <tabstop>previewSafeAreas</tabstop>
+  <tabstop>previewSpacingHelpers</tabstop>
   <tabstop>automaticSearch</tabstop>
   <tabstop>doubleClickSwitch</tabstop>
   <tabstop>studioPortraitLayout</tabstop>
@@ -7716,6 +7718,7 @@
   <tabstop>multiviewDrawNames</tabstop>
   <tabstop>multiviewDrawAreas</tabstop>
   <tabstop>multiviewLayout</tabstop>
+  <tabstop>moreInfoButton</tabstop>
   <tabstop>connectAccount</tabstop>
   <tabstop>useStreamKey</tabstop>
   <tabstop>server</tabstop>
@@ -7764,6 +7767,7 @@
   <tabstop>advOutRecType</tabstop>
   <tabstop>advOutRecPath</tabstop>
   <tabstop>advOutRecPathBrowse</tabstop>
+  <tabstop>advOutNoSpace</tabstop>
   <tabstop>advOutRecFormat</tabstop>
   <tabstop>advOutRecTrack1</tabstop>
   <tabstop>advOutRecTrack2</tabstop>
@@ -7771,7 +7775,10 @@
   <tabstop>advOutRecTrack4</tabstop>
   <tabstop>advOutRecTrack5</tabstop>
   <tabstop>advOutRecTrack6</tabstop>
+  <tabstop>advOutRecEncoder</tabstop>
+  <tabstop>advOutRecUseRescale</tabstop>
   <tabstop>advOutRecRescale</tabstop>
+  <tabstop>advOutMuxCustom</tabstop>
   <tabstop>advOutSplitFile</tabstop>
   <tabstop>advOutSplitFileType</tabstop>
   <tabstop>advOutSplitFileTime</tabstop>
@@ -7804,6 +7811,7 @@
   <tabstop>monitoringDevice</tabstop>
   <tabstop>disableAudioDucking</tabstop>
   <tabstop>lowLatencyBuffering</tabstop>
+  <tabstop>baseResolution</tabstop>
   <tabstop>outputResolution</tabstop>
   <tabstop>downscaleFilter</tabstop>
   <tabstop>fpsType</tabstop>
@@ -7819,6 +7827,9 @@
   <tabstop>colorFormat</tabstop>
   <tabstop>colorSpace</tabstop>
   <tabstop>colorRange</tabstop>
+  <tabstop>sdrWhiteLevel</tabstop>
+  <tabstop>horizontalLayout_sdrPaperWhite</tabstop>
+  <tabstop>hdrNominalPeakLevel</tabstop>
   <tabstop>disableOSXVSync</tabstop>
   <tabstop>resetOSXVSync</tabstop>
   <tabstop>filenameFormatting</tabstop>
@@ -7839,16 +7850,11 @@
   <tabstop>browserHWAccel</tabstop>
   <tabstop>hotkeyFocusType</tabstop>
   <tabstop>hideOBSFromCapture</tabstop>
-  <tabstop>closeProjectors</tabstop>
-  <tabstop>moreInfoButton</tabstop>
   <tabstop>useStreamKeyAdv</tabstop>
-  <tabstop>baseResolution</tabstop>
   <tabstop>hotkeyFilterSearch</tabstop>
   <tabstop>hotkeyFilterInput</tabstop>
   <tabstop>hotkeyFilterReset</tabstop>
   <tabstop>hotkeyScrollArea</tabstop>
-  <tabstop>sdrWhiteLevel</tabstop>
-  <tabstop>hdrNominalPeakLevel</tabstop>
  </tabstops>
  <resources>
   <include location="obs.qrc"/>
