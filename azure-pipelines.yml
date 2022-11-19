@@ -49,7 +49,7 @@ variables:
   - name: LIBWEBRTC_VERSION
     value: 104.0
   - name: OBS_VERSION
-    value: 1.4.1-28.1.1-m104
+    value: 1.4.2-28.1.2-m104
 # for Mac code signing
   - name: CODESIGN_TEAM_ID
     value: $(apple_team_id)
