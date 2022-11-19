@@ -21,12 +21,6 @@ else()
 endif()
 project(${_project_name} VERSION ${OBS_VERSION_CANONICAL})
 
-message(STATUS "######################################################")
-find_path(TOTO obs-frontend-apiConfig.cmake
-							HINTS ${CMAKE_BINARY_DIR}/UI/obs-frontend-api)
-message(STATUS "path to obs-frontend-api = ${TOTO}")
-message(STATUS "######################################################")
-
 
 option(DEBUG_FFMPEG_MUX "Debug FFmpeg muxer subprocess" FALSE)
 
@@ -155,7 +149,7 @@ add_subdirectory(plugins)
 add_subdirectory(UI)
 
 if(NOT CMAKE_BUILD_TYPE)
-        set(CMAKE_BUILD_TYPE Release)
+        set(CMAKE_BUILD_TYPE RelWithDebInfo)
 endif()
 
 set(CMAKE_CXX_STANDARD 17)

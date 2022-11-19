@@ -112,9 +112,11 @@ WebRTCStream::WebRTCStream(obs_output_t *output)
 	// Create video capture module
 	videoCapturer = new rtc::RefCountedObject<VideoCapturer>();
 
+// #ifdef WEBRTC_AUDIO_VIDEO_SYNC
 	// Initialize audio/video synchronisation
 	audio_started_ = false;
 	last_delivered_audio_ts_ = 0;
+// #endif
 }
 
 WebRTCStream::~WebRTCStream()
@@ -178,9 +180,11 @@ bool WebRTCStream::start(WebRTCStream::Type type)
 
 	resetStats();
 
+// #ifdef WEBRTC_AUDIO_VIDEO_SYNC
 	// Initialize audio/video synchronisation
 	audio_started_ = false;
 	last_delivered_audio_ts_ = 0;
+// #endif
 
 	// Access service if started, or fail
 
@@ -420,23 +424,23 @@ bool WebRTCStream::start(WebRTCStream::Type type)
 	options.noise_suppression.emplace(false); // default: true
 	options.highpass_filter.emplace(false);   // default: true
 	options.stereo_swapping.emplace(false);
-	options.typing_detection.emplace(false); // default: true
+	// m104 options.typing_detection.emplace(false); // default: true
 	// m100 options.experimental_agc.emplace(false);
 	// m79 options.extended_filter_aec.emplace(false);
 	// m79 options.delay_agnostic_aec.emplace(false);
 	// m100 options.experimental_ns.emplace(false);
-	options.residual_echo_detector.emplace(false); // default: true
+	// m104 options.residual_echo_detector.emplace(false); // default: true
 	// options.tx_agc_limiter.emplace(false);
 
 	stream = factory->CreateLocalMediaStream("obs");
 
 	audio_source = obsWebrtcAudioSource::Create(&options);
-	audio_track = factory->CreateAudioTrack("audio", audio_source);
+	audio_track = factory->CreateAudioTrack("audio", audio_source.get());
 	// pc->AddTrack(audio_track, {"obs"});
 	stream->AddTrack(audio_track);
 
 	if (getVideoSourceCount() > 0) {
-		video_track = factory->CreateVideoTrack("video", videoCapturer);
+		video_track = factory->CreateVideoTrack("video", videoCapturer.get());
 		// pc->AddTrack(video_track, {"obs"});
 		stream->AddTrack(video_track);
 	}
@@ -785,6 +789,7 @@ bool WebRTCStream::stop()
 	// Disconnect, this will call stop on main thread
 	obs_output_end_data_capture(output);
 
+// #ifdef WEBRTC_AUDIO_VIDEO_SYNC
 	// Empty video queue
 	std::unique_lock<std::mutex> lock(mutex_video_queue_);
 	while (!video_queue_.empty()) {
@@ -795,6 +800,7 @@ bool WebRTCStream::stop()
 		free(frame);
 	}
 	lock.unlock();
+// #endif
 
 	return true;
 }
@@ -852,11 +858,14 @@ void WebRTCStream::onAudioFrame(audio_data *frame)
 	if (!frame)
 		return;
 
+// #ifdef WEBRTC_AUDIO_VIDEO_SYNC
 	if (getVideoSourceCount() == 0) {
 		// No video, no synchronisation needed with video
 		// Push frame to the device
+// #endif
 		audio_source->OnAudioData(frame);
 		return;
+// #ifdef WEBRTC_AUDIO_VIDEO_SYNC
 	}
 
 	if (!audio_started_) {
@@ -866,6 +875,7 @@ void WebRTCStream::onAudioFrame(audio_data *frame)
 	audio_source->OnAudioData(frame);
 	last_delivered_audio_ts_ = frame->timestamp;
 	process_video_queue();
+// #endif
 }
 
 void WebRTCStream::onVideoFrame(video_data *frame)
@@ -875,6 +885,7 @@ void WebRTCStream::onVideoFrame(video_data *frame)
 	if (!videoCapturer)
 		return;
 
+// #ifdef WEBRTC_AUDIO_VIDEO_SYNC
 	if (!audio_started_) {
 		enqueue_frame(frame);
 		return;
@@ -888,8 +899,12 @@ void WebRTCStream::onVideoFrame(video_data *frame)
 	} else {
 		enqueue_frame(frame);
 	}
+// #else
+	// deliver_video_frame(frame);
+// #endif
 }
 
+// #ifdef WEBRTC_AUDIO_VIDEO_SYNC
 void WebRTCStream::enqueue_frame(video_data *frame) {
 	video_data *framecopy = (video_data*)malloc(sizeof(video_data));
 	framecopy->timestamp = frame->timestamp;
@@ -943,6 +958,7 @@ void WebRTCStream::process_video_queue()
 	}
 	lock_queue.unlock();
 }
+// #endif
 
 void WebRTCStream::deliver_video_frame(video_data *frame) {
 	if (std::chrono::system_clock::time_point(

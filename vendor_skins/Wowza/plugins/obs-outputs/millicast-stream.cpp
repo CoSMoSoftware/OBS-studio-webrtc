@@ -7,7 +7,6 @@
 #include <util/dstr.h>
 #include <util/threading.h>
 #include <inttypes.h>
-#include <modules/audio_processing/include/audio_processing.h>
 
 #define warn(format, ...) blog(LOG_WARNING, format, ##__VA_ARGS__)
 #define info(format, ...) blog(LOG_INFO, format, ##__VA_ARGS__)
@@ -40,7 +39,8 @@ extern "C" void millicast_stream_destroy(void *data)
 	stream->Release();
 }
 
-extern "C" void *millicast_stream_create(obs_data_t *, obs_output_t *output)
+extern "C" void *millicast_stream_create(obs_data_t *settings,
+					 obs_output_t *output)
 {
 	info("wowza_stream_create");
 	// Create new stream
@@ -50,6 +50,7 @@ extern "C" void *millicast_stream_create(obs_data_t *, obs_output_t *output)
 	// info("millicast_setCodec: h264");
 	// stream->setCodec("h264");
 	// Return it
+	UNUSED_PARAMETER(settings);
 	return (void *)stream;
 }
 
@@ -61,8 +62,8 @@ extern "C" void millicast_stream_stop(void *data, uint64_t ts)
 	WebRTCStream *stream = (WebRTCStream *)data;
 	// Stop it
 	stream->stop();
-	// Remove ref and let it self destroy
-	stream->Release();
+	//Remove ref and let it self destroy
+	// stream->Release();
 }
 
 extern "C" bool millicast_stream_start(void *data)
