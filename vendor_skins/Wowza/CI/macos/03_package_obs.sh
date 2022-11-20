@@ -26,7 +26,7 @@ package_obs() {
     step "Package OBS..."
     cmake --build ${BUILD_DIR} -t package
 
-    DMG_NAME=$(/usr/bin/find "${BUILD_DIR}" -type f -name "OBS-*.dmg" -depth 1 | sort -rn | head -1)
+    DMG_NAME=$(/usr/bin/find "${BUILD_DIR}" -type f -name "Wowza-OBS-*.dmg" -depth 1 | sort -rn | head -1)
 
     if [ "${DMG_NAME}" ]; then
         mv "${DMG_NAME}" "${BUILD_DIR}/${FILE_NAME}"
