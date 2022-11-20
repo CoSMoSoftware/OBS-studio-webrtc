@@ -69,7 +69,7 @@ parameters:
     type: object
     default:
     - x86_64
-    - arm64
+#    - arm64
   - name: vendors
     type: object
     default:

@@ -4995,23 +4995,24 @@ void OBSBasicSettings::AdvancedStreamingSettingsChanged()
 {
 	bool visible = ui->simulcastEnable->isVisible();
 	ui->simulcastEnable->setVisible(!visible);
+	// Wowza: do not display field "Publish API URL"
 	// #289 service list of radio buttons
-	QList<QAbstractButton *> listButtons =
-		ui->serviceButtonGroup->buttons();
-	for (QList<QAbstractButton *>::iterator iter = listButtons.begin();
-	     iter != listButtons.end(); ++iter) {
-		QRadioButton *radiobutton =
-			reinterpret_cast<QRadioButton *>(*iter);
-		if (radiobutton->isChecked()) {
-			if (radiobutton->text() ==
-			    QString("Wowza WebRTC")) {
-				// Field publishApiUrl applicable only for Millicast WebRTC
-				ui->publishApiUrlLabel->setVisible(!visible);
-				ui->publishApiUrl->setVisible(!visible);
-			}
-			break;
-		}
-	}
+	// QList<QAbstractButton *> listButtons =
+	// 	ui->serviceButtonGroup->buttons();
+	// for (QList<QAbstractButton *>::iterator iter = listButtons.begin();
+	//      iter != listButtons.end(); ++iter) {
+	// 	QRadioButton *radiobutton =
+	// 		reinterpret_cast<QRadioButton *>(*iter);
+	// 	if (radiobutton->isChecked()) {
+	// 		if (radiobutton->text() ==
+	// 		    QString("Wowza WebRTC")) {
+	// 			// Field publishApiUrl applicable only for Millicast WebRTC
+	// 			ui->publishApiUrlLabel->setVisible(!visible);
+	// 			ui->publishApiUrl->setVisible(!visible);
+	// 		}
+	// 		break;
+	// 	}
+	// }
 }
 
 #define ESTIMATE_STR "Basic.Settings.Output.ReplayBuffer.Estimate"
