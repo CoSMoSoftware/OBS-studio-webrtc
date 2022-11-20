@@ -4,8 +4,6 @@
 <dict>
 	<key>CFBundleIconFile</key>
 	<string>AppIcon.icns</string>
-        <key>CFBundleDisplayName</key>
-        <string>Wowza-OBS-Real-Time</string>
 	<key>CFBundleName</key>
 	<string>Wowza-OBS-Real-Time</string>
 	<key>CFBundleGetInfoString</key>
