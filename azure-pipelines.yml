@@ -156,7 +156,7 @@ jobs:
           WOWZA_CODESIGN_IDENT: $(wowza_apple_developer_identity)
           CODESIGN_IDENT_USER: $(ludo_apple_account_id)
           NOTARIZE_APP_SPECIFIC_PASSWORD: $(ludo_apple_app_specific_password)
-      - ${{ if neq( vendor, 'Wowza') }}:
+      - ${{ if ne( vendor, 'Wowza') }}:
         - bash: |
             ARTIFACT_NAME=$(basename $(/usr/bin/find build_${{ vendor }}_${{ arch }} -type f -name "obs-webrtc-*-${{ arch }}.dmg" -depth 1 | head -1))
             mkdir -p ./nightly_${{ vendor }}_${{ arch }}
