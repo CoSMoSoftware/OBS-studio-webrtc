@@ -73,7 +73,7 @@ parameters:
   - name: vendors
     type: object
     default:
-    - Millicast
+#    - Millicast
 #    - PacPost
 #    - RemoteFilming
 #    - RemoteFilming-A
@@ -294,9 +294,6 @@ jobs:
         rm -rf plugins/obs-ndi
         git submodule update --init --recursive
       displayName: 'git stash'
-    - ${{ if eq( vendor, 'Wowza') }}:
-      - script: cp ./vendor_skins/${{ vendor }}/CMakeLists.txt ./CMakeLists.txt
-        displayName: '${{ vendor }} copy CMakeLists.txt'
     - bash: |
         set -e
         export CC=clang
@@ -336,9 +333,6 @@ jobs:
         rm -rf plugins/obs-ndi
         git submodule update --init --recursive
       displayName: 'git stash'
-    - ${{ if eq( vendor, 'Wowza') }}:
-      - script: cp ./vendor_skins/${{ vendor }}/CMakeLists.txt ./CMakeLists.txt
-        displayName: '${{ vendor }} copy CMakeLists.txt'
     - bash: |
         export CC=clang
         export CXX=clang++

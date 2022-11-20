@@ -25,8 +25,8 @@ ManifestDPIAware true
 !define APPNAME "OBS-WebRTC"
 
 !ifndef APPVERSION
-!define APPVERSION "28.0.0"
-!define SHORTVERSION "28.0.0"
+!define APPVERSION "28.1.2"
+!define SHORTVERSION "28.1.2"
 !endif
 
 !define APPNAMEANDVERSION "${APPNAME} ${SHORTVERSION}"

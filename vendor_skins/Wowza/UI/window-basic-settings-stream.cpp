@@ -113,22 +113,25 @@ void OBSBasicSettings::InitStreamPage()
 	//   SLOT(UpdateResFPSLimits()));
 	connect(ui->customServer, SIGNAL(textChanged(const QString &)), this,
 		SLOT(UpdateKeyLink()));
-	connect(ui->ignoreRecommended, SIGNAL(clicked(bool)), this,
-		SLOT(DisplayEnforceWarning(bool)));
 	// #289 service list of radio buttons
+	// connect(ui->ignoreRecommended, SIGNAL(clicked(bool)), this,
+	// 	SLOT(DisplayEnforceWarning(bool)));
 	// connect(ui->ignoreRecommended, SIGNAL(toggled(bool)), this,
 	// 	SLOT(UpdateResFPSLimits()));
 	connect(ui->customServer, SIGNAL(editingFinished(const QString &)),
 		this, SLOT(UpdateKeyLink()));
 	// #289 service list of radio buttons
-	connect(ui->serviceButtonGroup, SIGNAL(clicked(bool)), this,
+	// connect(ui->serviceButtonGroup, SIGNAL(clicked(bool)), this,
+	// 	SLOT(UpdateMoreInfoLink()));
+	connect(ui->serviceGroupBox, SIGNAL(clicked(bool)), this,
 		SLOT(UpdateMoreInfoLink()));
 }
 
 void OBSBasicSettings::LoadStream1Settings()
 {
-	bool ignoreRecommended =
-		config_get_bool(main->Config(), "Stream1", "IgnoreRecommended");
+	// #289 service list of radio buttons
+	// bool ignoreRecommended =
+	// 	config_get_bool(main->Config(), "Stream1", "IgnoreRecommended");
 
 	obs_service_t *service_obj = main->GetService();
 	const char *type = obs_service_get_type(service_obj);
@@ -341,7 +344,8 @@ void OBSBasicSettings::LoadStream1Settings()
 	bool streamActive = obs_frontend_streaming_active();
 	ui->streamPage->setEnabled(!streamActive);
 
-	ui->ignoreRecommended->setChecked(ignoreRecommended);
+	// #289 service list of radio buttons
+	// ui->ignoreRecommended->setChecked(ignoreRecommended);
 
 	loading = false;
 
@@ -462,7 +466,7 @@ void OBSBasicSettings::SaveStream1Settings()
 		main->SetBroadcastFlowEnabled(false);
 	}
 
-	SaveCheckBox(ui->ignoreRecommended, "Stream1", "IgnoreRecommended");
+	// SaveCheckBox(ui->ignoreRecommended, "Stream1", "IgnoreRecommended");
 }
 
 void OBSBasicSettings::CheckSimulcastApplicableToCodec()
@@ -589,8 +593,7 @@ void OBSBasicSettings::UpdateKeyLink()
 // {
 // 	obs_properties_t *props = obs_get_service_properties("rtmp_common");
 
-// 	OBSData settings = obs_data_create();
-// 	obs_data_release(settings);
+// 	OBSDataAutoRelease settings = obs_data_create();
 
 // 	obs_data_set_bool(settings, "show_all", showAll);
 
@@ -678,6 +681,7 @@ static void reset_service_ui_fields(Ui::OBSBasicSettings *ui,
 	} else {
 		ui->connectAccount2->setVisible(false);
 		ui->useStreamKeyAdv->setVisible(false);
+		ui->streamStackWidget->setCurrentIndex((int)Section::StreamKey);
 	}
 
 	ui->connectedAccountLabel->setVisible(false);
@@ -1273,8 +1277,8 @@ OBSService OBSBasicSettings::GetStream1Service()
 void OBSBasicSettings::UpdateServiceRecommendations()
 {
 	bool customServer = IsCustomService();
-	ui->ignoreRecommended->setVisible(!customServer);
-	ui->enforceSettingsLabel->setVisible(!customServer);
+	// ui->ignoreRecommended->setVisible(!customServer);
+	// ui->enforceSettingsLabel->setVisible(!customServer);
 
 	OBSService service = GetStream1Service();
 
@@ -1341,7 +1345,7 @@ void OBSBasicSettings::UpdateServiceRecommendations()
 			"Google Third-Party Permissions</a>";
 	}
 #endif
-	ui->enforceSettingsLabel->setText(text);
+	// ui->enforceSettingsLabel->setText(text);
 }
 
 void OBSBasicSettings::DisplayEnforceWarning(bool checked)
@@ -1364,9 +1368,9 @@ void OBSBasicSettings::DisplayEnforceWarning(bool checked)
 #undef ENFORCE_WARNING
 
 	if (button == QMessageBox::No) {
-		QMetaObject::invokeMethod(ui->ignoreRecommended, "setChecked",
-					  Qt::QueuedConnection,
-					  Q_ARG(bool, false));
+		// QMetaObject::invokeMethod(ui->ignoreRecommended, "setChecked",
+		// 			  Qt::QueuedConnection,
+		// 			  Q_ARG(bool, false));
 		return;
 	}
 
@@ -1434,202 +1438,506 @@ extern void set_closest_res(int &cx, int &cy,
  * which as of this writing, and hopefully for the foreseeable future, there is
  * only one.
  */
-// #289 service list of radio buttons
-// void OBSBasicSettings::UpdateResFPSLimits()
-// {
-// 	if (loading)
-// 		return;
+void OBSBasicSettings::UpdateResFPSLimits()
+{
+	if (loading)
+		return;
 
-// 	int idx = ui->service->currentIndex();
-// 	if (idx == -1)
-// 		return;
+	// #289 service list of radio buttons
+	// int idx = ui->service->currentIndex();
+	int idx = GetServiceIndex();
+	if (idx == -1)
+		return;
 
-// 	bool ignoreRecommended = ui->ignoreRecommended->isChecked();
-// 	BPtr<obs_service_resolution> res_list;
-// 	size_t res_count = 0;
-// 	int max_fps = 0;
+	// #289 service list of radio buttons
+	// bool ignoreRecommended = ui->ignoreRecommended->isChecked();
+	BPtr<obs_service_resolution> res_list;
+	size_t res_count = 0;
+	int max_fps = 0;
 
-// 	if (!IsCustomService() && !ignoreRecommended) {
-// 		OBSService service = GetStream1Service();
-// 		obs_service_get_supported_resolutions(service, &res_list,
-// 						      &res_count);
-// 		obs_service_get_max_fps(service, &max_fps);
-// 	}
+	// #289 service list of radio buttons
+	// if (!IsCustomService() && !ignoreRecommended) {
+	if (!IsCustomService()) {
+		OBSService service = GetStream1Service();
+		obs_service_get_supported_resolutions(service, &res_list,
+						      &res_count);
+		obs_service_get_max_fps(service, &max_fps);
+	}
 
-// 	/* ------------------------------------ */
-// 	/* Check for enforced res/FPS           */
+	/* ------------------------------------ */
+	/* Check for enforced res/FPS           */
 
-// 	QString res = ui->outputResolution->currentText();
-// 	QString fps_str;
-// 	int cx = 0, cy = 0;
-// 	double max_fpsd = (double)max_fps;
-// 	int closest_fps_index = -1;
-// 	double fpsd;
+	QString res = ui->outputResolution->currentText();
+	QString fps_str;
+	int cx = 0, cy = 0;
+	double max_fpsd = (double)max_fps;
+	int closest_fps_index = -1;
+	double fpsd;
 
-// 	sscanf(QT_TO_UTF8(res), "%dx%d", &cx, &cy);
+	sscanf(QT_TO_UTF8(res), "%dx%d", &cx, &cy);
 
-// 	if (res_count)
-// 		set_closest_res(cx, cy, res_list, res_count);
+	if (res_count)
+		set_closest_res(cx, cy, res_list, res_count);
 
-// 	if (max_fps) {
-// 		int fpsType = ui->fpsType->currentIndex();
+	if (max_fps) {
+		int fpsType = ui->fpsType->currentIndex();
 
-// 		if (fpsType == 1) { //Integer
-// 			fpsd = (double)ui->fpsInteger->value();
-// 		} else if (fpsType == 2) { //Fractional
-// 			fpsd = (double)ui->fpsNumerator->value() /
-// 			       (double)ui->fpsDenominator->value();
-// 		} else { //Common
-// 			sscanf(QT_TO_UTF8(ui->fpsCommon->currentText()), "%lf",
-// 			       &fpsd);
-// 		}
+		if (fpsType == 1) { //Integer
+			fpsd = (double)ui->fpsInteger->value();
+		} else if (fpsType == 2) { //Fractional
+			fpsd = (double)ui->fpsNumerator->value() /
+			       (double)ui->fpsDenominator->value();
+		} else { //Common
+			sscanf(QT_TO_UTF8(ui->fpsCommon->currentText()), "%lf",
+			       &fpsd);
+		}
 
-// 		double closest_diff = 1000000000000.0;
+		double closest_diff = 1000000000000.0;
 
-// 		for (int i = 0; i < ui->fpsCommon->count(); i++) {
-// 			double com_fpsd;
-// 			sscanf(QT_TO_UTF8(ui->fpsCommon->itemText(i)), "%lf",
-// 			       &com_fpsd);
+		for (int i = 0; i < ui->fpsCommon->count(); i++) {
+			double com_fpsd;
+			sscanf(QT_TO_UTF8(ui->fpsCommon->itemText(i)), "%lf",
+			       &com_fpsd);
 
-// 			if (com_fpsd > max_fpsd) {
-// 				continue;
-// 			}
+			if (com_fpsd > max_fpsd) {
+				continue;
+			}
 
-// 			double diff = fabs(com_fpsd - fpsd);
-// 			if (diff < closest_diff) {
-// 				closest_diff = diff;
-// 				closest_fps_index = i;
-// 				fps_str = ui->fpsCommon->itemText(i);
-// 			}
-// 		}
-// 	}
+			double diff = fabs(com_fpsd - fpsd);
+			if (diff < closest_diff) {
+				closest_diff = diff;
+				closest_fps_index = i;
+				fps_str = ui->fpsCommon->itemText(i);
+			}
+		}
+	}
 
-// 	QString res_str =
-// 		QString("%1x%2").arg(QString::number(cx), QString::number(cy));
+	QString res_str =
+		QString("%1x%2").arg(QString::number(cx), QString::number(cy));
 
-// 	/* ------------------------------------ */
-// 	/* Display message box if res/FPS bad   */
+	/* ------------------------------------ */
+	/* Display message box if res/FPS bad   */
 
-// 	bool valid = ResFPSValid(res_list, res_count, max_fps);
+	bool valid = ResFPSValid(res_list, res_count, max_fps);
 
-// 	if (!valid) {
-// 		/* if the user was already on facebook with an incompatible
-// 		 * resolution, assume it's an upgrade */
-// 		if (lastServiceIdx == -1 && lastIgnoreRecommended == -1) {
-// 			ui->ignoreRecommended->setChecked(true);
-// 			ui->ignoreRecommended->setProperty("changed", true);
-// 			stream1Changed = true;
-// 			EnableApplyButton(true);
-// 			UpdateResFPSLimits();
-// 			return;
-// 		}
+	if (!valid) {
+		/* if the user was already on facebook with an incompatible
+		 * resolution, assume it's an upgrade */
+		// #289 service list of radio buttons
+		// if (lastServiceIdx == -1 && lastIgnoreRecommended == -1) {
+		if (lastServiceIdx == -1) {
+			// ui->ignoreRecommended->setChecked(true);
+			// ui->ignoreRecommended->setProperty("changed", true);
+			stream1Changed = true;
+			EnableApplyButton(true);
+			UpdateResFPSLimits();
+			return;
+		}
 
-// 		QMessageBox::StandardButton button;
+		QMessageBox::StandardButton button;
 
-// #define WARNING_VAL(x) \
-// 	QTStr("Basic.Settings.Output.Warn.EnforceResolutionFPS." x)
+#define WARNING_VAL(x) \
+	QTStr("Basic.Settings.Output.Warn.EnforceResolutionFPS." x)
 
-// 		QString str;
-// 		if (res_count)
-// 			str += WARNING_VAL("Resolution").arg(res_str);
-// 		if (max_fps) {
-// 			if (!str.isEmpty())
-// 				str += "\n";
-// 			str += WARNING_VAL("FPS").arg(fps_str);
-// 		}
+		QString str;
+		if (res_count)
+			str += WARNING_VAL("Resolution").arg(res_str);
+		if (max_fps) {
+			if (!str.isEmpty())
+				str += "\n";
+			str += WARNING_VAL("FPS").arg(fps_str);
+		}
 
-// 		button = OBSMessageBox::question(this, WARNING_VAL("Title"),
-// 						 WARNING_VAL("Msg").arg(str));
-// #undef WARNING_VAL
+		button = OBSMessageBox::question(this, WARNING_VAL("Title"),
+						 WARNING_VAL("Msg").arg(str));
+#undef WARNING_VAL
 
-// 		if (button == QMessageBox::No) {
-// 			if (idx != lastServiceIdx)
-// 				QMetaObject::invokeMethod(
-// 					ui->service, "setCurrentIndex",
-// 					Qt::QueuedConnection,
-// 					Q_ARG(int, lastServiceIdx));
-// 			else
-// 				QMetaObject::invokeMethod(ui->ignoreRecommended,
-// 							  "setChecked",
-// 							  Qt::QueuedConnection,
-// 							  Q_ARG(bool, true));
-// 			return;
-// 		}
-// 	}
+		if (button == QMessageBox::No) {
+			// #289 service list of radio buttons
+			// if (idx != lastServiceIdx)
+			// 	QMetaObject::invokeMethod(
+			// 		ui->service, "setCurrentIndex",
+			// 		Qt::QueuedConnection,
+			// 		Q_ARG(int, lastServiceIdx));
+			// else
+			// 	QMetaObject::invokeMethod(ui->ignoreRecommended,
+			// 				  "setChecked",
+			// 				  Qt::QueuedConnection,
+			// 				  Q_ARG(bool, true));
+			return;
+		}
+	}
 
-// 	/* ------------------------------------ */
-// 	/* Update widgets/values if switching   */
-// 	/* to/from enforced resolution/FPS      */
+	/* ------------------------------------ */
+	/* Update widgets/values if switching   */
+	/* to/from enforced resolution/FPS      */
 
-// 	ui->outputResolution->blockSignals(true);
-// 	if (res_count) {
-// 		ui->outputResolution->clear();
-// 		ui->outputResolution->setEditable(false);
+	ui->outputResolution->blockSignals(true);
+	if (res_count) {
+		ui->outputResolution->clear();
+		ui->outputResolution->setEditable(false);
+		HookWidget(ui->outputResolution,
+			   SIGNAL(currentIndexChanged(int)),
+			   SLOT(VideoChangedResolution()));
 
-// 		int new_res_index = -1;
+		int new_res_index = -1;
 
-// 		for (size_t i = 0; i < res_count; i++) {
-// 			obs_service_resolution val = res_list[i];
-// 			QString str =
-// 				QString("%1x%2").arg(QString::number(val.cx),
-// 						     QString::number(val.cy));
-// 			ui->outputResolution->addItem(str);
+		for (size_t i = 0; i < res_count; i++) {
+			obs_service_resolution val = res_list[i];
+			QString str =
+				QString("%1x%2").arg(QString::number(val.cx),
+						     QString::number(val.cy));
+			ui->outputResolution->addItem(str);
 
-// 			if (val.cx == cx && val.cy == cy)
-// 				new_res_index = (int)i;
-// 		}
+			if (val.cx == cx && val.cy == cy)
+				new_res_index = (int)i;
+		}
 
-// 		ui->outputResolution->setCurrentIndex(new_res_index);
-// 		if (!valid) {
-// 			ui->outputResolution->setProperty("changed", true);
-// 			videoChanged = true;
-// 			EnableApplyButton(true);
-// 		}
-// 	} else {
-// 		QString baseRes = ui->baseResolution->currentText();
-// 		int baseCX, baseCY;
-// 		sscanf(QT_TO_UTF8(baseRes), "%dx%d", &baseCX, &baseCY);
+		ui->outputResolution->setCurrentIndex(new_res_index);
+		if (!valid) {
+			ui->outputResolution->setProperty("changed", true);
+			videoChanged = true;
+			EnableApplyButton(true);
+		}
+	} else {
+		QString baseRes = ui->baseResolution->currentText();
+		int baseCX, baseCY;
+		sscanf(QT_TO_UTF8(baseRes), "%dx%d", &baseCX, &baseCY);
 
-// 		if (!ui->outputResolution->isEditable()) {
-// 			RecreateOutputResolutionWidget();
-// 			ui->outputResolution->blockSignals(true);
-// 			ResetDownscales((uint32_t)baseCX, (uint32_t)baseCY,
-// 					true);
-// 			ui->outputResolution->setCurrentText(res);
-// 		}
-// 	}
-// 	ui->outputResolution->blockSignals(false);
+		if (!ui->outputResolution->isEditable()) {
+			RecreateOutputResolutionWidget();
+			ui->outputResolution->blockSignals(true);
+			ResetDownscales((uint32_t)baseCX, (uint32_t)baseCY,
+					true);
+			ui->outputResolution->setCurrentText(res);
+		}
+	}
+	ui->outputResolution->blockSignals(false);
 
-// 	if (max_fps) {
-// 		for (int i = 0; i < ui->fpsCommon->count(); i++) {
-// 			double com_fpsd;
-// 			sscanf(QT_TO_UTF8(ui->fpsCommon->itemText(i)), "%lf",
-// 			       &com_fpsd);
+	if (max_fps) {
+		for (int i = 0; i < ui->fpsCommon->count(); i++) {
+			double com_fpsd;
+			sscanf(QT_TO_UTF8(ui->fpsCommon->itemText(i)), "%lf",
+			       &com_fpsd);
 
-// 			if (com_fpsd > max_fpsd) {
-// 				SetComboItemEnabled(ui->fpsCommon, i, false);
-// 				continue;
-// 			}
-// 		}
+			if (com_fpsd > max_fpsd) {
+				SetComboItemEnabled(ui->fpsCommon, i, false);
+				continue;
+			}
+		}
 
-// 		ui->fpsType->setCurrentIndex(0);
-// 		ui->fpsCommon->setCurrentIndex(closest_fps_index);
-// 		if (!valid) {
-// 			ui->fpsType->setProperty("changed", true);
-// 			ui->fpsCommon->setProperty("changed", true);
-// 			videoChanged = true;
-// 			EnableApplyButton(true);
-// 		}
-// 	} else {
-// 		for (int i = 0; i < ui->fpsCommon->count(); i++)
-// 			SetComboItemEnabled(ui->fpsCommon, i, true);
-// 	}
+		ui->fpsType->setCurrentIndex(0);
+		ui->fpsCommon->setCurrentIndex(closest_fps_index);
+		if (!valid) {
+			ui->fpsType->setProperty("changed", true);
+			ui->fpsCommon->setProperty("changed", true);
+			videoChanged = true;
+			EnableApplyButton(true);
+		}
+	} else {
+		for (int i = 0; i < ui->fpsCommon->count(); i++)
+			SetComboItemEnabled(ui->fpsCommon, i, true);
+	}
 
-// 	SetComboItemEnabled(ui->fpsType, 1, !max_fps);
-// 	SetComboItemEnabled(ui->fpsType, 2, !max_fps);
+	SetComboItemEnabled(ui->fpsType, 1, !max_fps);
+	SetComboItemEnabled(ui->fpsType, 2, !max_fps);
 
-// 	/* ------------------------------------ */
+	/* ------------------------------------ */
 
-// 	lastIgnoreRecommended = (int)ignoreRecommended;
-// 	lastServiceIdx = idx;
-// }
+	// #289 service list of radio buttons
+	// lastIgnoreRecommended = (int)ignoreRecommended;
+	lastServiceIdx = idx;
+}
+
+bool OBSBasicSettings::IsServiceOutputHasNetworkFeatures()
+{
+	if (IsCustomService())
+		return ui->customServer->text().startsWith("rtmp");
+
+	OBSServiceAutoRelease service = SpawnTempService();
+	const char *output = obs_service_get_output_type(service);
+
+	if (!output)
+		return true;
+
+	if (strcmp(output, "rtmp_output") == 0)
+		return true;
+
+	return false;
+}
+
+static bool service_supports_codec(const char **codecs, const char *codec)
+{
+	if (!codecs)
+		return true;
+
+	while (*codecs) {
+		if (strcmp(*codecs, codec) == 0)
+			return true;
+		codecs++;
+	}
+
+	return false;
+}
+
+extern bool EncoderAvailable(const char *encoder);
+extern const char *get_simple_output_encoder(const char *name);
+
+static inline bool service_supports_encoder(const char **codecs,
+					    const char *encoder)
+{
+	if (!EncoderAvailable(encoder))
+		return false;
+
+	const char *codec = obs_get_encoder_codec(encoder);
+	return service_supports_codec(codecs, codec);
+}
+
+bool OBSBasicSettings::ServiceAndCodecCompatible()
+{
+	if (IsCustomService())
+		return true;
+	// #289 service list of radio buttons
+	// if (ui->service->currentData().toInt() == (int)ListOpt::ShowAll)
+	// 	return true;
+
+	bool simple = (ui->outputMode->currentIndex() == 0);
+
+	OBSService service = SpawnTempService();
+	const char **codecs = obs_service_get_supported_video_codecs(service);
+	const char *codec;
+
+	if (simple) {
+		QString encoder =
+			ui->simpleOutStrEncoder->currentData().toString();
+		const char *id = get_simple_output_encoder(QT_TO_UTF8(encoder));
+		codec = obs_get_encoder_codec(id);
+	} else {
+		QString encoder = ui->advOutEncoder->currentData().toString();
+		codec = obs_get_encoder_codec(QT_TO_UTF8(encoder));
+	}
+
+	return service_supports_codec(codecs, codec);
+}
+
+/* we really need a way to find fallbacks in a less hardcoded way. maybe. */
+static QString get_adv_fallback(const QString &enc)
+{
+	if (enc == "jim_hevc_nvenc")
+		return "jim_nvenc";
+	if (enc == "h265_texture_amf")
+		return "h264_texture_amf";
+	return "obs_x264";
+}
+
+static QString get_simple_fallback(const QString &enc)
+{
+	if (enc == SIMPLE_ENCODER_NVENC_HEVC)
+		return SIMPLE_ENCODER_NVENC;
+	if (enc == SIMPLE_ENCODER_NVENC_AV1)
+		return SIMPLE_ENCODER_NVENC;
+	if (enc == SIMPLE_ENCODER_AMD_HEVC)
+		return SIMPLE_ENCODER_AMD;
+	return SIMPLE_ENCODER_X264;
+}
+
+bool OBSBasicSettings::ServiceSupportsCodecCheck()
+{
+	if (ServiceAndCodecCompatible()) {
+		// #289 service list of radio buttons
+		if (lastServiceIdx != GetServiceIndex())
+			ResetEncoders(true);
+		return true;
+	}
+
+	// #289 service list of radio buttons
+	// QString service = ui->service->currentText();
+	QString service = ui->millicastWebrtcRadioButton->isChecked()
+																? ui->millicastWebrtcRadioButton->text()
+																: ui->millicastRtmpRadioButton->text();
+	QString cur_name;
+	QString fb_name;
+	bool simple = (ui->outputMode->currentIndex() == 0);
+
+	/* ------------------------------------------------- */
+	/* get current codec                                 */
+
+	if (simple) {
+		QString cur_enc =
+			ui->simpleOutStrEncoder->currentData().toString();
+		QString fb_enc = get_simple_fallback(cur_enc);
+
+		int cur_idx = ui->simpleOutStrEncoder->findData(cur_enc);
+		int fb_idx = ui->simpleOutStrEncoder->findData(fb_enc);
+
+		cur_name = ui->simpleOutStrEncoder->itemText(cur_idx);
+		fb_name = ui->simpleOutStrEncoder->itemText(fb_idx);
+	} else {
+		QString cur_enc = ui->advOutEncoder->currentData().toString();
+		QString fb_enc = get_adv_fallback(cur_enc);
+
+		cur_name = obs_encoder_get_display_name(QT_TO_UTF8(cur_enc));
+		fb_name = obs_encoder_get_display_name(QT_TO_UTF8(fb_enc));
+	}
+
+#define WARNING_VAL(x) \
+	QTStr("Basic.Settings.Output.Warn.ServiceCodecCompatibility." x)
+
+	QString msg = WARNING_VAL("Msg").arg(service, cur_name, fb_name);
+	auto button = OBSMessageBox::question(this, WARNING_VAL("Title"), msg);
+#undef WARNING_VAL
+
+	// #289 service list of radio buttons
+	if (button == QMessageBox::No) {
+		// QMetaObject::invokeMethod(ui->service, "setCurrentIndex",
+		// 			  Qt::QueuedConnection,
+		// 			  Q_ARG(int, lastServiceIdx));
+		return false;
+	}
+
+	ResetEncoders(true);
+	return true;
+}
+
+#define TEXT_USE_STREAM_ENC \
+	QTStr("Basic.Settings.Output.Adv.Recording.UseStreamEncoder")
+
+void OBSBasicSettings::ResetEncoders(bool streamOnly)
+{
+	QString lastAdvEnc = ui->advOutRecEncoder->currentData().toString();
+	QString lastEnc = ui->simpleOutStrEncoder->currentData().toString();
+	OBSService service = SpawnTempService();
+	const char **codecs = obs_service_get_supported_video_codecs(service);
+	const char *type;
+	size_t idx = 0;
+
+	QSignalBlocker s1(ui->simpleOutStrEncoder);
+	QSignalBlocker s2(ui->advOutEncoder);
+
+	/* ------------------------------------------------- */
+	/* clear encoder lists                               */
+
+	ui->simpleOutStrEncoder->clear();
+	ui->advOutEncoder->clear();
+
+	if (!streamOnly) {
+		ui->advOutRecEncoder->clear();
+		ui->advOutRecEncoder->addItem(TEXT_USE_STREAM_ENC, "none");
+	}
+
+	/* ------------------------------------------------- */
+	/* load advanced stream/recording encoders           */
+
+	while (obs_enum_encoder_types(idx++, &type)) {
+		const char *name = obs_encoder_get_display_name(type);
+		const char *codec = obs_get_encoder_codec(type);
+		uint32_t caps = obs_get_encoder_caps(type);
+
+		if (obs_get_encoder_type(type) != OBS_ENCODER_VIDEO)
+			continue;
+
+		const char *streaming_codecs[] = {
+			"h264",
+#ifdef ENABLE_HEVC
+			"hevc",
+#endif
+		};
+
+		bool is_streaming_codec = false;
+		for (const char *test_codec : streaming_codecs) {
+			if (strcmp(codec, test_codec) == 0) {
+				is_streaming_codec = true;
+				break;
+			}
+		}
+		if ((caps & ENCODER_HIDE_FLAGS) != 0)
+			continue;
+
+		QString qName = QT_UTF8(name);
+		QString qType = QT_UTF8(type);
+
+		if (is_streaming_codec && service_supports_codec(codecs, codec))
+			ui->advOutEncoder->addItem(qName, qType);
+		if (!streamOnly)
+			ui->advOutRecEncoder->addItem(qName, qType);
+	}
+
+	/* ------------------------------------------------- */
+	/* load simple stream encoders                       */
+
+#define ENCODER_STR(str) QTStr("Basic.Settings.Output.Simple.Encoder." str)
+
+	ui->simpleOutStrEncoder->addItem(ENCODER_STR("Software"),
+					 QString(SIMPLE_ENCODER_X264));
+	if (service_supports_encoder(codecs, "obs_qsv11"))
+		ui->simpleOutStrEncoder->addItem(
+			ENCODER_STR("Hardware.QSV.H264"),
+			QString(SIMPLE_ENCODER_QSV));
+	if (service_supports_encoder(codecs, "ffmpeg_nvenc"))
+		ui->simpleOutStrEncoder->addItem(
+			ENCODER_STR("Hardware.NVENC.H264"),
+			QString(SIMPLE_ENCODER_NVENC));
+	if (service_supports_encoder(codecs, "jim_av1_nvenc"))
+		ui->simpleOutStrEncoder->addItem(
+			ENCODER_STR("Hardware.NVENC.AV1"),
+			QString(SIMPLE_ENCODER_NVENC_AV1));
+#ifdef ENABLE_HEVC
+	if (service_supports_encoder(codecs, "h265_texture_amf"))
+		ui->simpleOutStrEncoder->addItem(
+			ENCODER_STR("Hardware.AMD.HEVC"),
+			QString(SIMPLE_ENCODER_AMD_HEVC));
+	if (service_supports_encoder(codecs, "ffmpeg_hevc_nvenc"))
+		ui->simpleOutStrEncoder->addItem(
+			ENCODER_STR("Hardware.NVENC.HEVC"),
+			QString(SIMPLE_ENCODER_NVENC_HEVC));
+#endif
+	if (service_supports_encoder(codecs, "h264_texture_amf"))
+		ui->simpleOutStrEncoder->addItem(
+			ENCODER_STR("Hardware.AMD.H264"),
+			QString(SIMPLE_ENCODER_AMD));
+/* Preprocessor guard required for the macOS version check */
+#ifdef __APPLE__
+	if (service_supports_encoder(
+		    codecs, "com.apple.videotoolbox.videoencoder.ave.avc")
+#ifndef __aarch64__
+	    && os_get_emulation_status() == true
+#endif
+	) {
+		if (__builtin_available(macOS 13.0, *)) {
+			ui->simpleOutStrEncoder->addItem(
+				ENCODER_STR("Hardware.Apple.H264"),
+				QString(SIMPLE_ENCODER_APPLE_H264));
+		}
+	}
+#endif
+#undef ENCODER_STR
+
+	/* ------------------------------------------------- */
+	/* Find fallback encoders                            */
+
+	if (!lastAdvEnc.isEmpty()) {
+		int idx = ui->advOutEncoder->findData(lastAdvEnc);
+		if (idx == -1) {
+			lastAdvEnc = get_adv_fallback(lastAdvEnc);
+			ui->advOutEncoder->setProperty("changed",
+						       QVariant(true));
+			OutputsChanged();
+		}
+
+		idx = ui->advOutEncoder->findData(lastAdvEnc);
+		ui->advOutEncoder->setCurrentIndex(idx);
+	}
+
+	if (!lastEnc.isEmpty()) {
+		int idx = ui->simpleOutStrEncoder->findData(lastEnc);
+		if (idx == -1) {
+			lastEnc = get_simple_fallback(lastEnc);
+			ui->simpleOutStrEncoder->setProperty("changed",
+							     QVariant(true));
+			OutputsChanged();
+		}
+
+		idx = ui->simpleOutStrEncoder->findData(lastEnc);
+		ui->simpleOutStrEncoder->setCurrentIndex(idx);
+	}
+}
