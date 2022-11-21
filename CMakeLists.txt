@@ -26,6 +26,12 @@ option(DEBUG_FFMPEG_MUX "Debug FFmpeg muxer subprocess" FALSE)
 
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
+# --- manage vendor look and feel
+
+if( OBS_WEBRTC_VENDOR_NAME )
+	add_subdirectory( vendor_skins )
+endif()
+
 # Use target folders for MSVC/Xcode/etc.
 include(DeprecationHelpers)
 include(ObsHelpers)
@@ -116,12 +122,6 @@ mark_as_advanced(BUILD_TESTS USE_LIBCXX)
 if(INSTALLER_RUN)
   generate_multiarch_installer()
   return()
-endif()
-
-# --- manage vendor look and feel
-
-if( OBS_WEBRTC_VENDOR_NAME )
-	add_subdirectory( vendor_skins )
 endif()
 
 # --- extend cmake with our own scripts, macros and modules
