@@ -129,6 +129,10 @@ jobs:
     - script: git submodule update --init --recursive
       displayName: 'Checkout Submodules'
     - ${{ each arch in parameters.architectures }}:
+      - ${{ if eq( vendor, 'Wowza') }}:
+        - bash: |
+            cp vendor_skins/Wowza/cmake/Modules/VersionConfig.cmake cmake/Modules/
+          displayName: Wowza copy file cmake/Modules/VersionConfig.cmake
       - script: TERM="" ./CI/macos/02_build_obs.sh --codesign --build-dir build_${{ vendor }}_${{ arch }} --architecture ${{ arch }} --vendor ${{ vendor }}
         displayName: '${{ vendor }} ${{ arch }} Build OBS'
         env:
