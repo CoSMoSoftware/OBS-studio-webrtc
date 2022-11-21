@@ -1,7 +1,7 @@
-diff --git a/CMakeLists.txt b/CMakeLists.txt
+diff --git a/plugins/obs-browser/CMakeLists.txt b/plugins/obs-browser/CMakeLists.txt
 index ef7ca9a..5bcf02e 100644
---- a/CMakeLists.txt
-+++ b/CMakeLists.txt
+--- a/plugins/obs-browser/CMakeLists.txt
++++ b/plugins/obs-browser/CMakeLists.txt
 @@ -188,7 +188,7 @@ elseif(OS_MACOS)
    target_sources(obs-browser PRIVATE macutil.mm)
  
@@ -20,10 +20,10 @@ index ef7ca9a..5bcf02e 100644
          XCODE_ATTRIBUTE_CODE_SIGN_ENTITLEMENTS
          "${CMAKE_SOURCE_DIR}/cmake/bundle/macOS/entitlements-helper${_PLIST_SUFFIX}.plist"
      )
-diff --git a/helper-info.plist b/helper-info.plist
+diff --git a/plugins/obs-browser/helper-info.plist b/plugins/obs-browser/helper-info.plist
 index d021121..30ad7f6 100644
---- a/helper-info.plist
-+++ b/helper-info.plist
+--- a/plugins/obs-browser/helper-info.plist
++++ b/plugins/obs-browser/helper-info.plist
 @@ -7,7 +7,7 @@
      <key>CFBundleExecutable</key>
      <string>${EXECUTABLE_NAME}</string>
@@ -33,10 +33,10 @@ index d021121..30ad7f6 100644
      <key>CFBundleInfoDictionaryVersion</key>
      <string>6.0</string>
      <key>CFBundleName</key>
-diff --git a/obs-browser-plugin.cpp b/obs-browser-plugin.cpp
+diff --git a/plugins/obs-browser/obs-browser-plugin.cpp b/plugins/obs-browser/obs-browser-plugin.cpp
 index 3714707..0b5c12a 100644
---- a/obs-browser-plugin.cpp
-+++ b/obs-browser-plugin.cpp
+--- a/plugins/obs-browser/obs-browser-plugin.cpp
++++ b/plugins/obs-browser/obs-browser-plugin.cpp
 @@ -118,8 +118,7 @@ overflow: hidden; \
  
  static void browser_source_get_defaults(obs_data_t *settings)
