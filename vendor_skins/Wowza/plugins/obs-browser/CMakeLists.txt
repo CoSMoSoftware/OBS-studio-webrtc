@@ -249,7 +249,7 @@ elseif(OS_MACOS)
         OUTPUT_NAME ${_HELPER_OUTPUT_NAME}
         FOLDER "plugins/obs-browser/helpers/"
         XCODE_ATTRIBUTE_PRODUCT_BUNDLE_IDENTIFIER
-        "ci.cosmosoftware.obs-webrtc.helper${_PLIST_SUFFIX}"
+        "com.wowza.obs.helper${_PLIST_SUFFIX}"
         XCODE_ATTRIBUTE_CODE_SIGN_ENTITLEMENTS
         "${CMAKE_SOURCE_DIR}/cmake/bundle/macOS/entitlements-helper${_PLIST_SUFFIX}.plist"
     )
