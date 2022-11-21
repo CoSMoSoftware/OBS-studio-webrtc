@@ -1,6 +1,6 @@
-set(OBS_COMPANY_NAME "OBS Project")
+set(OBS_COMPANY_NAME "Wowza")
 set(OBS_PRODUCT_NAME "Wowza-OBS-Real-Time")
-set(OBS_WEBSITE "https://www.obsproject.com")
+set(OBS_WEBSITE "https://www.wowza.com/")
 set(OBS_COMMENTS
     "Free and open source software for video recording and live streaming")
 set(OBS_LEGAL_COPYRIGHT "(C) Hugh Bailey")
