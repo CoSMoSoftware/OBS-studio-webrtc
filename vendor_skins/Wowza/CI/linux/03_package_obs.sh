@@ -54,7 +54,7 @@ package-obs-standalone() {
         VERSION_STRING="${GIT_TAG}-${GIT_HASH}"
     fi
 
-    FILE_NAME="obs-webrtc-${VERSION_STRING}-ubuntu-${UBUNTU_VERSION}.deb"
+    FILE_NAME="wowza-obs-${VERSION_STRING}-ubuntu-${UBUNTU_VERSION}.deb"
     package_obs
 }
 
