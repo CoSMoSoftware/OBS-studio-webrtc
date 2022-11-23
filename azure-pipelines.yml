@@ -202,6 +202,10 @@ jobs:
   - powershell: ./CI/windows/01_install_dependencies.ps1 -BuildArch x64
     displayName: 'Install dependencies'
     timeoutInMinutes: 200
+  - ${{ if eq( vendor, 'Wowza') }}:
+    - bash: |
+        cp vendor_skins/Wowza/cmake/Modules/VersionConfig.cmake cmake/Modules/
+      displayName: Wowza copy file cmake/Modules/VersionConfig.cmake
   - ${{ each vendor in parameters.vendors }}:
     - script: git stash
       displayName: git stash
@@ -310,6 +314,7 @@ jobs:
         export CC=clang
         export CXX=clang++
         export OBS_VERSION=${OBS_VERSION}-2004
+        cp vendor_skins/Wowza/cmake/Modules/VersionConfig.cmake cmake/Modules/
         ./CI/linux/02_build_obs.sh --disable-pipewire --vendor ${{ vendor }}
         ./CI/linux/02_build_obs.sh --disable-pipewire --vendor ${{ vendor }} --ndi
         ./CI/linux/03_package_obs.sh --vendor ${{ vendor }}
@@ -348,6 +353,7 @@ jobs:
         export CC=clang
         export CXX=clang++
         export OBS_VERSION=${OBS_VERSION}-2204
+        cp vendor_skins/Wowza/cmake/Modules/VersionConfig.cmake cmake/Modules/
         ./CI/linux/02_build_obs.sh --disable-pipewire --vendor ${{ vendor }}
         ./CI/linux/02_build_obs.sh --disable-pipewire --vendor ${{ vendor }} --ndi
         ./CI/linux/03_package_obs.sh --vendor ${{ vendor }}
