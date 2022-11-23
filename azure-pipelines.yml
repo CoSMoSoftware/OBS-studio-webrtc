@@ -202,10 +202,6 @@ jobs:
   - powershell: ./CI/windows/01_install_dependencies.ps1 -BuildArch x64
     displayName: 'Install dependencies'
     timeoutInMinutes: 200
-  - ${{ if eq( vendor, 'Wowza') }}:
-    - bash: |
-        cp vendor_skins/Wowza/cmake/Modules/VersionConfig.cmake cmake/Modules/
-      displayName: Wowza copy file cmake/Modules/VersionConfig.cmake
   - ${{ each vendor in parameters.vendors }}:
     - script: git stash
       displayName: git stash
@@ -213,6 +209,10 @@ jobs:
       displayName: rmdir plugins/obs-ndi
     - script: git submodule update --init --recursive
       displayName: 'Checkout Submodules'
+    - ${{ if eq( vendor, 'Wowza') }}:
+      - bash: |
+          cp vendor_skins/Wowza/cmake/Modules/VersionConfig.cmake cmake/Modules/
+        displayName: Wowza copy file cmake/Modules/VersionConfig.cmake
     - powershell: ./CI/windows/02_build_obs.ps1 -BuildArch x64 -Vendor ${{ vendor }}
       displayName: '${{ vendor }} Build OBS'
       env:
