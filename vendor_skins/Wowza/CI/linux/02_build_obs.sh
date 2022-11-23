@@ -93,7 +93,7 @@ _configure_obs() {
         -Dlibwebrtc_DIR=${libwebrtc_dir} \
         -DOBS_VERSION_OVERRIDE=${OBS_VERSION} \
         -DCPACK_DEBIAN_PACKAGE_MAINTAINER="Wowza" \
-        -DCPACK_DEBIAN_PACKAGE_NAME="wowza" \
+        -DCPACK_DEBIAN_PACKAGE_NAME="obs" \
         -DCPACK_DEBIAN_PACKAGE_VERSION=${OBS_VERSION} \
         -DCPACK_DEBIAN_PACKAGE_ARCHITECTURE="amd64"
 }
