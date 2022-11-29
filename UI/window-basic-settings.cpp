@@ -868,8 +868,8 @@ OBSBasicSettings::OBSBasicSettings(QWidget *parent)
 	// #289 service list of radio buttons
 	ui->serviceButtonGroup->setId(ui->millicastWebrtcRadioButton, 0);
 	ui->serviceButtonGroup->setId(ui->millicastRtmpRadioButton, 1);
-	connect(ui->serviceButtonGroup, SIGNAL(buttonClicked(int)), this,
-		SLOT(on_service_currentIndexChanged(int)));
+	connect(ui->serviceButtonGroup, SIGNAL(buttonClicked(QAbstractButton*)), this,
+		SLOT(on_service_currentIndexChanged(QAbstractButton*)));
 
 	// NOTE LUDO: #172 codecs list of radio buttons
 	ui->codecButtonGroup->setId(ui->h264RadioButton, 0);

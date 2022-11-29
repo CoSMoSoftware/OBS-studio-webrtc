@@ -334,7 +334,7 @@ void OBSBasicSettings::LoadStream1Settings()
 	ui->key->setText(key);
 
 	lastService.clear();
-	on_service_currentIndexChanged(0);
+	on_service_currentIndexChanged(ui->serviceButtonGroup->button(0));
 
 	UpdateKeyLink();
 	UpdateMoreInfoLink();
@@ -711,7 +711,7 @@ void OBSBasicSettings::UseStreamKeyAdvClicked()
 	ui->streamKeyWidget->setVisible(true);
 }
 
-void OBSBasicSettings::on_service_currentIndexChanged(int)
+void OBSBasicSettings::on_service_currentIndexChanged(QAbstractButton*)
 {
 	// #289 service list of radio buttons
 	// bool showMore = ui->service->currentData().toInt() ==
