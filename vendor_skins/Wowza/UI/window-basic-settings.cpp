@@ -3991,13 +3991,13 @@ void OBSBasicSettings::on_theme_activated(int idx)
 // 	int row = ui->listWidget->currentRow();
 
 // NOTE LUDO #170: Settings: replace QListWidget by QPushButtons
-void OBSBasicSettings::on_basicSettingsButtonGroup_buttonClicked(int row)
-{
-	if (loading || row == pageIndex)
-		return;
+// void OBSBasicSettings::on_basicSettingsButtonGroup_buttonClicked(int row)
+// {
+// 	if (loading || row == pageIndex)
+// 		return;
 
-	pageIndex = row;
-}
+// 	pageIndex = row;
+// }
 
 void OBSBasicSettings::on_buttonBox_clicked(QAbstractButton *button)
 {

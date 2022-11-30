@@ -100,13 +100,13 @@ void OBSBasicSettings::InitStreamPage()
 		QTStr("Basic.Settings.Stream.TTVAddon.Both"));
 
 	// #289 service list of radio buttons
-	connect(ui->serviceButtonGroup, SIGNAL(clicked(bool)), this,
+	connect(ui->serviceButtonGroup, SIGNAL(idClicked(int)), this,
 		SLOT(UpdateServerList()));
-	connect(ui->serviceButtonGroup, SIGNAL(clicked(bool)), this,
+	connect(ui->serviceButtonGroup, SIGNAL(idClicked(int)), this,
 		SLOT(UpdateKeyLink()));
-	connect(ui->serviceButtonGroup, SIGNAL(clicked(bool)), this,
+	connect(ui->serviceButtonGroup, SIGNAL(idClicked(int)), this,
 		SLOT(UpdateVodTrackSetting()));
-	connect(ui->serviceButtonGroup, SIGNAL(clicked(bool)), this,
+	connect(ui->serviceButtonGroup, SIGNAL(idClicked(int)), this,
 		SLOT(UpdateServiceRecommendations()));
 	// #289 service list of radio buttons
 	// connect(ui->serviceButtonGroup, SIGNAL(clicked(bool)), this,
@@ -118,8 +118,8 @@ void OBSBasicSettings::InitStreamPage()
 	// 	SLOT(DisplayEnforceWarning(bool)));
 	// connect(ui->ignoreRecommended, SIGNAL(toggled(bool)), this,
 	// 	SLOT(UpdateResFPSLimits()));
-	connect(ui->customServer, SIGNAL(editingFinished(const QString &)),
-		this, SLOT(UpdateKeyLink()));
+	connect(ui->customServer, SIGNAL(editingFinished()), this,
+		SLOT(UpdateKeyLink()));
 	// #289 service list of radio buttons
 	// connect(ui->serviceButtonGroup, SIGNAL(clicked(bool)), this,
 	// 	SLOT(UpdateMoreInfoLink()));
