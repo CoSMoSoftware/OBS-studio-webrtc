@@ -324,6 +324,7 @@ jobs:
       displayName: '${{ vendor }} cmake, build, package'
       env:
         CI_BUILD_TYPE: $(BUILD_TYPE)
+        PACKAGE_DEPENDENCIES:
     - task: PublishBuildArtifacts@1
       inputs:
         pathtoPublish: './package_${{ vendor }}'
@@ -366,6 +367,7 @@ jobs:
       displayName: '${{ vendor }} cmake, build, package'
       env:
         CI_BUILD_TYPE: $(BUILD_TYPE)
+        PACKAGE_DEPENDENCIES: "qt6-wayland"
     - task: PublishBuildArtifacts@1
       inputs:
         pathtoPublish: './package_${{ vendor }}'

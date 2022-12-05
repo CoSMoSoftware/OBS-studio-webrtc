@@ -95,7 +95,8 @@ _configure_obs() {
         -DCPACK_DEBIAN_PACKAGE_MAINTAINER="CoSMo Software" \
         -DCPACK_DEBIAN_PACKAGE_NAME="obs" \
         -DCPACK_DEBIAN_PACKAGE_VERSION=${OBS_VERSION} \
-        -DCPACK_DEBIAN_PACKAGE_ARCHITECTURE="amd64"
+        -DCPACK_DEBIAN_PACKAGE_ARCHITECTURE="amd64" \
+        -DCPACK_DEBIAN_PACKAGE_DEPENDS=${PACKAGE_DEPENDENCIES}
 }
 
 # Function to backup previous build artifacts
