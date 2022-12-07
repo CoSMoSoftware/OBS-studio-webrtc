@@ -1977,9 +1977,6 @@
    </property>
   </action>
   <action name="actionCheckForUpdates">
-   <property name="enabled">
-    <bool>false</bool>
-   </property>
    <property name="text">
     <string>Basic.MainMenu.Help.CheckForUpdates</string>
    </property>

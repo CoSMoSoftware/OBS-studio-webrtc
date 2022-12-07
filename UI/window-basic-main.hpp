@@ -242,7 +242,7 @@ private:
 	QScopedPointer<QThread> devicePropertiesThread;
 	QScopedPointer<QThread> whatsNewInitThread;
 	// #270 Disable auto-update
-	// QScopedPointer<QThread> updateCheckThread;
+	QScopedPointer<QThread> updateCheckThread;
 	QScopedPointer<QThread> introCheckThread;
 	QScopedPointer<QThread> logUploadThread;
 

@@ -2072,13 +2072,13 @@ void OBSBasic::OBSInit()
 	delete ui->menuCrashLogs;
 	delete ui->actionRepair;
 	// #270 Disable auto-update
-	delete ui->actionCheckForUpdates;
+	// delete ui->actionCheckForUpdates;
 	ui->actionShowCrashLogs = nullptr;
 	ui->actionUploadLastCrashLog = nullptr;
 	ui->menuCrashLogs = nullptr;
 	ui->actionRepair = nullptr;
 	// #270 Disable auto-update
-	ui->actionCheckForUpdates = nullptr;
+	// ui->actionCheckForUpdates = nullptr;
 #if !defined(__APPLE__)
 	// #270 Disable auto-update
 	// if (App()->IsUpdaterDisabled())
@@ -2100,12 +2100,12 @@ void OBSBasic::OBSInit()
 
 #if defined(_WIN32) || defined(__APPLE__)
 	// #270 Disable auto-update
-	// if (App()->IsUpdaterDisabled()) {
-	//	ui->actionCheckForUpdates->setEnabled(false);
+	if (App()->IsUpdaterDisabled()) {
+		ui->actionCheckForUpdates->setEnabled(false);
 #if defined(_WIN32)
 	//	ui->actionRepair->setEnabled(false);
 #endif
-	// }
+	}
 #endif
 
 	UpdatePreviewProgramIndicators();
@@ -2245,14 +2245,14 @@ void OBSBasic::ReceivedIntroJson(const QString &text)
 	cef->init_browser();
 
 	// NOTE LUDO: Do not activate "What is new"
-	// WhatsNewBrowserInitThread *wnbit =
-	// 	new WhatsNewBrowserInitThread(QT_UTF8(info_url.c_str()));
+	WhatsNewBrowserInitThread *wnbit =
+		new WhatsNewBrowserInitThread(QT_UTF8(info_url.c_str()));
 
-	// connect(wnbit, &WhatsNewBrowserInitThread::Result, this,
-	// 	&OBSBasic::ShowWhatsNew, Qt::QueuedConnection);
+	connect(wnbit, &WhatsNewBrowserInitThread::Result, this,
+		&OBSBasic::ShowWhatsNew, Qt::QueuedConnection);
 
-	// whatsNewInitThread.reset(wnbit);
-	// whatsNewInitThread->start();
+	whatsNewInitThread.reset(wnbit);
+	whatsNewInitThread->start();
 
 #else
 	UNUSED_PARAMETER(text);
@@ -2629,8 +2629,8 @@ OBSBasic::~OBSBasic()
 	QApplication::sendPostedEvents(nullptr, QEvent::DeferredDelete);
 
 	// #270 Disable auto-update
-	// if (updateCheckThread && updateCheckThread->isRunning())
-	// 	updateCheckThread->wait();
+	if (updateCheckThread && updateCheckThread->isRunning())
+		updateCheckThread->wait();
 
 	delete screenshotData;
 	delete previewProjector;
@@ -3754,18 +3754,18 @@ void OBSBasic::TimedCheckForUpdates()
 void OBSBasic::CheckForUpdates(bool manualUpdate)
 {
 	// #270 Disable auto-update
-	// #if defined(ENABLE_SPARKLE_UPDATER)
-	// trigger_sparkle_update();
-	// #elif _WIN32
-	// ui->actionCheckForUpdates->setEnabled(false);
-	// ui->actionRepair->setEnabled(false);
+	#if defined(ENABLE_SPARKLE_UPDATER)
+	trigger_sparkle_update();
+	#elif _WIN32
+	ui->actionCheckForUpdates->setEnabled(false);
+	ui->actionRepair->setEnabled(false);
 
-	// if (updateCheckThread && updateCheckThread->isRunning())
-	// 	return;
+	if (updateCheckThread && updateCheckThread->isRunning())
+		return;
 
-	// updateCheckThread.reset(new AutoUpdateThread(manualUpdate));
-	// updateCheckThread->start();
-	// #endif
+	updateCheckThread.reset(new AutoUpdateThread(manualUpdate));
+	updateCheckThread->start();
+	#endif
 
 	UNUSED_PARAMETER(manualUpdate);
 }
@@ -4767,8 +4767,8 @@ void OBSBasic::closeEvent(QCloseEvent *event)
 	if (whatsNewInitThread)
 		whatsNewInitThread->wait();
 	// #270 Disable auto-update
-	// if (updateCheckThread)
-	// 	updateCheckThread->wait();
+	if (updateCheckThread)
+		updateCheckThread->wait();
 	if (logUploadThread)
 		logUploadThread->wait();
 	if (devicePropertiesThread && devicePropertiesThread->isRunning()) {
@@ -6258,11 +6258,11 @@ void OBSBasic::on_actionRepair_triggered()
 	ui->actionRepair->setEnabled(false);
 
 	// #270 Disable auto-update
-	// if (updateCheckThread && updateCheckThread->isRunning())
-	// 	return;
+	if (updateCheckThread && updateCheckThread->isRunning())
+		return;
 
-	// updateCheckThread.reset(new AutoUpdateThread(false, true));
-	// updateCheckThread->start();
+	updateCheckThread.reset(new AutoUpdateThread(false, true));
+	updateCheckThread->start();
 #endif
 }
 
@@ -6804,7 +6804,7 @@ inline void OBSBasic::OnActivate(bool force)
 	if (ui->profileMenu->isEnabled() || force) {
 		ui->profileMenu->setEnabled(false);
 		// #277 Disable auto-configuration
-		// ui->autoConfigure->setEnabled(false);
+		ui->autoConfigure->setEnabled(false);
 		App()->IncrementSleepInhibition();
 		UpdateProcessPriority();
 
@@ -6833,7 +6833,7 @@ inline void OBSBasic::OnDeactivate()
 	if (!outputHandler->Active() && !ui->profileMenu->isEnabled()) {
 		ui->profileMenu->setEnabled(true);
 		// #277 Disable auto-configuration
-		// ui->autoConfigure->setEnabled(true);
+		ui->autoConfigure->setEnabled(true);
 		App()->DecrementSleepInhibition();
 		ClearProcessPriority();
 
