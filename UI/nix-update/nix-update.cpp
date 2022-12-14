@@ -21,12 +21,12 @@ struct QCef;
 extern QCef *cef;
 
 #ifndef MAC_WHATSNEW_URL
-#define MAC_WHATSNEW_URL "https://192.168.10.106/update_studio/whatsnew.json"
+#define MAC_WHATSNEW_URL "https://192.168.10.103/update_studio/mac/whatsnew.json"
 // #define MAC_WHATSNEW_URL "https://obsproject.com/update_studio/whatsnew.json"
 #endif
 
 #ifndef LINUX_WHATSNEW_URL
-#define LINUX_WHATSNEW_URL "https://192.168.10.106/update_studio/whatsnew.json"
+#define LINUX_WHATSNEW_URL "https://192.168.10.103/update_studio/linux/whatsnew.json"
 // #define LINUX_WHATSNEW_URL "https://obsproject.com/update_studio/whatsnew.json"
 #endif
 
