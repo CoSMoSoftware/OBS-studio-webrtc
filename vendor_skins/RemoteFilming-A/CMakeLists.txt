@@ -1,33 +1,48 @@
-cmake_minimum_required(VERSION 3.10)
+cmake_minimum_required(VERSION 3.20...3.21)
 
-if (UNIX AND POLICY CMP0072)
-	# In case of both legacy and glvnd OpenGL libraries found. Prefer GLVND
-	cmake_policy(SET CMP0072 NEW)
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake/Modules")
+include(VersionConfig)
+
+# Prohibit in-source builds
+if("${CMAKE_BINARY_DIR}" STREQUAL "${CMAKE_SOURCE_DIR}")
+  message(
+    FATAL_ERROR
+      "OBS: You cannot build in a source directory (or any directory with "
+      "CMakeLists.txt file). Please make a build subdirectory. Feel free to "
+      "remove CMakeCache.txt and CMakeFiles.")
 endif()
 
 if(NOT OBS_WEBRTC_VENDOR_NAME)
-	set(_project_name obs-studio)
+	set(_project_name obs-webrtc)
+	set(_config_dir obs-webrtc)
 else()
 	set(_project_name ${OBS_WEBRTC_VENDOR_NAME})
+	set(_config_dir ${OBS_WEBRTC_VENDOR_NAME})
 endif()
-project(${_project_name} VERSION 27.2.4)
+project(${_project_name} VERSION ${OBS_VERSION_CANONICAL})
 
-if(NOT DEFINED CONFIG_DIR OR "${CONFIG_DIR}" STREQUAL "")
-	if(NOT OBS_WEBRTC_VENDOR_NAME)
-		set(CONFIG_DIR "obs-webrtc")
-	else()
-		set(CONFIG_DIR ${OBS_WEBRTC_VENDOR_NAME})
-	endif()
-endif()
-
-set(REMOTE_FILMING_VERSION "m100-v27.2.4-2")
+set(REMOTE_FILMING_VERSION "1.4.2-28.1.2-m104")
 
 option(DEBUG_FFMPEG_MUX "Debug FFmpeg muxer subprocess" FALSE)
 
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
+# --- manage vendor look and feel
+
+if( OBS_WEBRTC_VENDOR_NAME )
+	add_subdirectory( vendor_skins )
+endif()
+
+# Use target folders for MSVC/Xcode/etc.
+include(DeprecationHelpers)
+include(ObsHelpers)
+# Set default compiler flags
+include(CompilerConfig)
+
 if(WIN32)
 	cmake_minimum_required(VERSION 3.16)
+
+	include(ObsCpack)
 
 	# Check for Win SDK version 10.0.20348 or above
 	if(MSVC)
@@ -55,100 +70,84 @@ if(WIN32)
 			message(FATAL_ERROR "OBS requires Windows 10 SDK version 10.0.20348.0 and above to compile.\nPlease download the most recent Windows 10 SDK in order to compile.")
 		endif()
 	endif()
-
-	if (QTDIR OR DEFINED ENV{QTDIR} OR DEFINED ENV{QTDIR32} OR DEFINED ENV{QTDIR64})
-		# Qt path set by user or env var
-	else()
-		set(QTDIR "" CACHE PATH "Path to Qt (e.g. C:/Qt/5.7/msvc2015_64)")
-		message(WARNING "QTDIR variable is missing.  Please set this variable to specify path to Qt (e.g. C:/Qt/5.7/msvc2015_64)")
-	endif()
-	if (DepsPath OR DEFINED ENV{DepsPath} OR DEFINED ENV{DepsPath32} OR DEFINED ENV{DepsPath64})
-		# Dependencies path set by user or env var
-	else()
-		set(DepsPath "" CACHE PATH "Path to compiled dependencies (e.g. D:/dependencies/win64)")
-		message(WARNING "DepsPath variable is missing.  Please set this variable to specify path to compiled dependencies (e.g. D:/dependencies/win64)")
-	endif()
 endif()
 
-# --- manage vendor look and feel
+# Allow selection of common build types via UI
+if(NOT CMAKE_BUILD_TYPE)
+  set(CMAKE_BUILD_TYPE
+      "RelWithDebInfo"
+      CACHE STRING
+            "OBS build type [Release, RelWithDebInfo, Debug, MinSizeRel]" FORCE)
+  set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS Release RelWithDebInfo
+                                               Debug MinSizeRel)
+endif()
 
-if( OBS_WEBRTC_VENDOR_NAME )
-	add_subdirectory( vendor_skins )
+# Global project options
+option(ENABLE_HEVC "Enable HEVC encoders" ON)
+if(ENABLE_HEVC)
+  add_compile_definitions(ENABLE_HEVC)
+endif()
+option(BUILD_FOR_DISTRIBUTION "Build for distribution (enables optimisations)"
+       OFF)
+option(ENABLE_UI "Enable building with UI (requires Qt)" ON)
+option(ENABLE_SCRIPTING "Enable scripting support" ON)
+option(USE_LIBCXX "Use libc++ instead of libstdc++" ${APPLE})
+option(
+  BUILD_TESTS
+  "Build test directory (includes test sources and possibly a platform test executable)"
+  OFF)
+
+if(OS_WINDOWS)
+  option(
+    INSTALLER_RUN
+    "Build a multiarch installer (needs to run independently after both archs have compiled) (Windows)"
+    OFF)
+
+elseif(OS_MACOS)
+  option(ENABLE_SPARKLE_UPDATER "Enable Sparkle framework for updates (macOS)"
+         OFF)
+
+elseif(OS_POSIX)
+  option(LINUX_PORTABLE "Build portable version (Linux)" OFF)
+  option(USE_XDG "Utilize XDG Base Directory Specification (Linux)" ON)
+  option(ENABLE_PULSEAUDIO "Enable PulseAudio support" ON)
+  if(OS_LINUX)
+    option(ENABLE_WAYLAND "Enable building with support for Wayland (Linux)" ON)
+    option(BUILD_FOR_PPA "Build for PPA distribution" OFF)
+  endif()
+endif()
+
+setup_obs_project()
+mark_as_advanced(BUILD_TESTS USE_LIBCXX)
+
+if(INSTALLER_RUN)
+  generate_multiarch_installer()
+  return()
 endif()
 
 # --- extend cmake with our own scripts, macros and modules
 
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules/")
 set(ENABLE_SCRIPTING TRUE CACHE BOOL "Enables scripting")
 set(SCRIPTING_ENABLED OFF CACHE BOOL "Internal global cmake variable" FORCE)
 
-include(ObsHelpers)
-include(ObsCpack)
 include(GNUInstallDirs)
 include(CheckCCompilerFlag)
 include(CheckCXXCompilerFlag)
 
-set(OBS_RELEASE_CANDIDATE_MAJOR 0)
-set(OBS_RELEASE_CANDIDATE_MINOR 0)
-set(OBS_RELEASE_CANDIDATE_PATCH 0)
-set(OBS_RELEASE_CANDIDATE 0)
-set(OBS_BETA_MAJOR 0)
-set(OBS_BETA_MINOR 0)
-set(OBS_BETA_PATCH 0)
-set(OBS_BETA 0)
-
 apply_patches()
 
-# Must be a string in the format of "x.x.x-rcx" or "x.x.x-betax"
-if(DEFINED RELEASE_CANDIDATE)
-	set(OBS_VERSION "${RELEASE_CANDIDATE}")
-	string(REPLACE "-rc" "." RC_SPLIT ${RELEASE_CANDIDATE})
-	string(REPLACE "." ";" RC_SPLIT ${RC_SPLIT})
-	message(WARNING "******************************************************************************\nRelease candidate detected, OBS_VERSION is now: ${OBS_VERSION}\n******************************************************************************")
-	list(GET RC_SPLIT 0 OBS_RELEASE_CANDIDATE_MAJOR)
-	list(GET RC_SPLIT 1 OBS_RELEASE_CANDIDATE_MINOR)
-	list(GET RC_SPLIT 2 OBS_RELEASE_CANDIDATE_PATCH)
-	list(GET RC_SPLIT 3 OBS_RELEASE_CANDIDATE)
-elseif(DEFINED BETA)
-	set(OBS_VERSION "${BETA}")
-	string(REPLACE "-beta" "." BETA_SPLIT ${BETA})
-	string(REPLACE "." ";" BETA_SPLIT ${BETA_SPLIT})
-	message(WARNING "******************************************************************************\nBeta detected, OBS_VERSION is now: ${OBS_VERSION}\n******************************************************************************")
-	list(GET BETA_SPLIT 0 OBS_BETA_MAJOR)
-	list(GET BETA_SPLIT 1 OBS_BETA_MINOR)
-	list(GET BETA_SPLIT 2 OBS_BETA_PATCH)
-	list(GET BETA_SPLIT 3 OBS_BETA)
-else()
-	set(OBS_RELEASE_CANDIDATE_MAJOR 0)
-	set(OBS_RELEASE_CANDIDATE_MINOR 0)
-	set(OBS_RELEASE_CANDIDATE_PATCH 0)
-	set(OBS_RELEASE_CANDIDATE 0)
+# OBS sources and plugins
+add_subdirectory(deps)
+add_subdirectory(libobs-opengl)
+if(OS_WINDOWS)
+  add_subdirectory(libobs-d3d11)
+  add_subdirectory(libobs-winrt)
 endif()
+add_subdirectory(libobs)
+add_subdirectory(plugins)
 
-# Binary Versioning for Windows
-if(WIN32)
-	string(REPLACE "-" ";" UI_VERSION_SPLIT ${OBS_VERSION})
-	list(GET UI_VERSION_SPLIT 0 UI_VERSION)
-	string(REPLACE "." ";" UI_VERSION_SEMANTIC ${UI_VERSION})
-	list(GET UI_VERSION_SEMANTIC 0 UI_VERSION_MAJOR)
-	list(GET UI_VERSION_SEMANTIC 1 UI_VERSION_MINOR)
-	list(GET UI_VERSION_SEMANTIC 2 UI_VERSION_PATCH)
-	set(OBS_COMPANY_NAME "Remote Filming")
-	set(OBS_PRODUCT_NAME "A-CAM")
-	set(OBS_COMMENTS "Free and open source software for video recording and live streaming")
-	set(OBS_LEGAL_COPYRIGHT "(C) Hugh Bailey")
-	set(MODULE_DESCRIPTION "Remote Filming")
-	configure_file(UI/obs.rc.in ${PROJECT_BINARY_DIR}/obs.rc)
-	set( obs.rc_DIR ${PROJECT_BINARY_DIR} )
-endif()
-
-# --- Handle Compiler Settings
-
-if(MSVC AND NOT EXISTS "${CMAKE_BINARY_DIR}/ALL_BUILD.vcxproj.user")
-	file(GENERATE
-		OUTPUT "${CMAKE_BINARY_DIR}/ALL_BUILD.vcxproj.user"
-		INPUT "${CMAKE_SOURCE_DIR}/cmake/ALL_BUILD.vcxproj.user.in")
-endif()
+# OBS main app
+add_subdirectory(UI)
 
 if(NOT CMAKE_BUILD_TYPE)
         set(CMAKE_BUILD_TYPE RelWithDebInfo)
@@ -315,30 +314,7 @@ if(NOT INSTALLER_RUN)
 		elseif(DEFINED ENV{QTDIR})
 			list(APPEND CMAKE_PREFIX_PATH "$ENV{QTDIR}")
 		endif()
-
-		find_package(Qt5Widgets REQUIRED)
-		if( APPLE )
-			# Make sure we are using Qt installed by brew
-			list(GET Qt5Widgets_INCLUDE_DIRS 1 my_path)
-			string(FIND ${my_path} "/usr/local/Cellar/" cellar_index)
-			string(FIND ${my_path} "/usr/local/opt/" opt_index)
-			if( ${cellar_index} EQUAL -1 AND ${opt_index} EQUAL -1 )
-				message( "ERROR, you must give path to a Qt installed by brew." )
-			endif()
-		endif()
 	endif()
-
-	add_subdirectory(deps)
-
-	if(WIN32)
-		add_subdirectory(libobs-d3d11)
-		add_subdirectory(libobs-winrt)
-	endif()
-
-	add_subdirectory(libobs-opengl)
-	add_subdirectory(libobs)
-	add_subdirectory(plugins)
-	add_subdirectory(UI)
 
 	if (ENABLE_UNIT_TESTS)
 		enable_testing()
@@ -348,7 +324,7 @@ if(NOT INSTALLER_RUN)
 		add_subdirectory(test)
 	endif()
 
-	add_subdirectory(cmake/helper_subdir)
+#	add_subdirectory(cmake/helper_subdir)
 else()
 	# if INSTALLER_RUN
 	obs_generate_multiarch_installer()
@@ -389,4 +365,3 @@ endif()
 # enable submissions to a CDash server
 enable_testing()
 include(CTest)
-

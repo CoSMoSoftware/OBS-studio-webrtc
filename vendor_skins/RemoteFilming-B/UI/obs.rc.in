@@ -1,4 +1,4 @@
-IDI_ICON1 ICON DISCARDABLE "../cmake/winrc/obs-studio.ico"
+IDI_ICON1 ICON DISCARDABLE "../cmake/bundle/windows/obs-studio.ico"
 
 1 VERSIONINFO
 FILEVERSION ${UI_VERSION_MAJOR},${UI_VERSION_MINOR},${UI_VERSION_PATCH},0
@@ -10,8 +10,8 @@ BEGIN
       VALUE "CompanyName", "Remote Filming"
       VALUE "FileDescription", "Remote Filming"
       VALUE "FileVersion", "${UI_VERSION}"
-      VALUE "InternalName", "rfs"
-      VALUE "OriginalFilename", "rfs"
+      VALUE "InternalName", "obs"
+      VALUE "OriginalFilename", "obs"
       VALUE "ProductName", "Remote Filming"
       VALUE "ProductVersion", "${UI_VERSION}"
       VALUE "Comments", "Free and open source software for video recording and live streaming"
