@@ -35,11 +35,11 @@ MESSAGE(STATUS "OBS_VERSION: ${OBS_VERSION}")
 
 if(INSTALLER_RUN)
 	set(CPACK_PACKAGE_EXECUTABLES
-		"rfs32" "Remote Filming-A (32bit)"
-		"rfs64" "Remote Filming-A (64bit)")
+		"obs32" "Remote Filming-A (32bit)"
+		"obs64" "Remote Filming-A (64bit)")
 	set(CPACK_CREATE_DESKTOP_LINKS
-		"rfs32"
-		"rfs64")
+		"obs32"
+		"obs64")
 else()
 	if(WIN32)
 		if(CMAKE_SIZEOF_VOID_P EQUAL 8)
