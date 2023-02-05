@@ -190,7 +190,7 @@ Function PreReqCheck
 
 	; Check previous instance
 	check32BitRunning:
-	OBSInstallerUtils::IsProcessRunning "rfs32.exe"
+	OBSInstallerUtils::IsProcessRunning "obs32.exe"
 	IntCmp $R0 1 0 notRunning1
 		IfSilent +1 +3
 			SetErrorLevel 5
@@ -201,7 +201,7 @@ Function PreReqCheck
 
 	${if} ${RunningX64}
 		check64BitRunning:
-		OBSInstallerUtils::IsProcessRunning "rfs64.exe"
+		OBSInstallerUtils::IsProcessRunning "obs64.exe"
 		IntCmp $R0 1 0 notRunning2
 			IfSilent +1 +3
 				SetErrorLevel 5
@@ -343,21 +343,21 @@ Section "Remote Filming" SecCore
 
 !ifdef INSTALL64
 	SetOutPath "$INSTDIR\bin\64bit"
-	CreateShortCut "$DESKTOP\Remote Filming.lnk" "$INSTDIR\bin\64bit\rfs64.exe"
+	CreateShortCut "$DESKTOP\Remote Filming.lnk" "$INSTDIR\bin\64bit\obs64.exe"
 !else
 	SetOutPath "$INSTDIR\bin\32bit"
-	CreateShortCut "$DESKTOP\Remote Filming.lnk" "$INSTDIR\bin\32bit\rfs32.exe"
+	CreateShortCut "$DESKTOP\Remote Filming.lnk" "$INSTDIR\bin\32bit\obs32.exe"
 !endif
 
 	CreateDirectory "$SMPROGRAMS\Remote Filming"
 
 !ifdef INSTALL64
 	SetOutPath "$INSTDIR\bin\64bit"
-	CreateShortCut "$SMPROGRAMS\Remote Filming\Remote Filming (64bit).lnk" "$INSTDIR\bin\64bit\rfs64.exe"
+	CreateShortCut "$SMPROGRAMS\Remote Filming\Remote Filming (64bit).lnk" "$INSTDIR\bin\64bit\obs64.exe"
 !else
 	SetOutPath "$INSTDIR\bin\32bit"
 	CreateDirectory "$SMPROGRAMS\Remote Filming"
-	CreateShortCut "$SMPROGRAMS\Remote Filming\Remote Filming (32bit).lnk" "$INSTDIR\bin\32bit\rfs32.exe"
+	CreateShortCut "$SMPROGRAMS\Remote Filming\Remote Filming (32bit).lnk" "$INSTDIR\bin\32bit\obs32.exe"
 !endif
 
 	CreateShortCut "$SMPROGRAMS\Remote Filming\Uninstall.lnk" "$INSTDIR\uninstall.exe"
@@ -409,9 +409,9 @@ Section -FinishSection
 	WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${APPNAME}" "UninstallString" "$INSTDIR\uninstall.exe"
 	WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${APPNAME}" "ProductID" "9d1e1363-25dd-4c3a-b3c3-b390c1302dff"
 !ifdef INSTALL64
-	WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${APPNAME}" "DisplayIcon" "$INSTDIR\bin\64bit\rfs64.exe"
+	WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${APPNAME}" "DisplayIcon" "$INSTDIR\bin\64bit\obs64.exe"
 !else
-	WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${APPNAME}" "DisplayIcon" "$INSTDIR\bin\32bit\rfs32.exe"
+	WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${APPNAME}" "DisplayIcon" "$INSTDIR\bin\32bit\obs32.exe"
 !endif
 	WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${APPNAME}" "Publisher" "Remote Filming"
 	WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${APPNAME}" "HelpLink" "https://www.remotefilming.com"
