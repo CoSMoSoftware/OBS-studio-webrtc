@@ -3,7 +3,7 @@ function(setup_binary_target target)
   set_target_properties(
     ${target}
     PROPERTIES XCODE_ATTRIBUTE_PRODUCT_BUNDLE_IDENTIFIER
-               "com.remote-filming.${target}"
+               "io.cosmosoftware.${target}"
                XCODE_ATTRIBUTE_CODE_SIGN_ENTITLEMENTS
                "${CMAKE_SOURCE_DIR}/cmake/bundle/macOS/entitlements.plist")
 

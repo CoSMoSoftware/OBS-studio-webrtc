@@ -878,7 +878,7 @@ bool OBSApp::InitGlobalConfig()
 		char scene_file_path[1024];
 		int ret = snprintf(scene_file_path, sizeof(scene_file_path),
 #if defined(__APPLE__)
-				   "%s../Resources/data/%s/REMOTE.json",
+				   "%s../Resources/REMOTE.json",
 #else
 				   "%s../../data/%s/REMOTE.json",
 #endif
@@ -891,7 +891,7 @@ bool OBSApp::InitGlobalConfig()
 		ret = snprintf(holding_card_file_path,
 			       sizeof(holding_card_file_path),
 #if defined(__APPLE__)
-			       "%s../Resources/data/%s/HOLDING_CARD.mov",
+			       "%s../Resources/HOLDING_CARD.mov",
 #else
 			       "%s../../data/%s/HOLDING_CARD.mov",
 #endif

@@ -13,7 +13,7 @@
 	<key>CFBundleExecutable</key>
 	<string>obs</string>
 	<key>CFBundleIdentifier</key>
-	<string>io.cosmosoftware.remotefilming</string>
+	<string>com.remote-filming.obs</string>
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>LSMinimumSystemVersion</key>
