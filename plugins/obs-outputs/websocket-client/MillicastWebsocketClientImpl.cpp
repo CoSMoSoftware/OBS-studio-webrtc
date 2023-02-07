@@ -275,19 +275,23 @@ bool MillicastWebsocketClientImpl::disconnect(bool /* wait */)
 		connection->close(websocketpp::close::status::normal, "");
 		// Stop client
 		if (connection->get_state() ==
-		    websocketpp::session::state::open)
+		    websocketpp::session::state::open) {
 			client.close(connection,
 				     websocketpp::close::status::normal,
 				     std::string("disconnect"), ec);
-		if (ec)
+		}
+		if (ec) {
 			warn("> Error on disconnect close: %s",
 			     ec.message().c_str());
+		}
 		// Don't wait for connection close
 		client.stop();
 		// Remove handlers
 		client.set_open_handler([](...) {});
 		client.set_close_handler([](...) {});
 		client.set_fail_handler([](...) {});
+		// Some additional wait to make sure websocket is fully closed
+		std::this_thread::sleep_for(std::chrono::seconds(1));
 		// Detach thread
 		if (thread.joinable())
 			thread.detach();
