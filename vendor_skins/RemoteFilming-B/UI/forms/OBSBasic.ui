@@ -1453,29 +1453,38 @@
       <number>2</number>
      </property>
      <property name="leftMargin">
-      <number>4</number>
+      <number>1</number>
      </property>
      <property name="topMargin">
-      <number>4</number>
+      <number>1</number>
      </property>
      <property name="rightMargin">
-      <number>4</number>
+      <number>1</number>
      </property>
      <property name="bottomMargin">
-      <number>4</number>
+      <number>1</number>
      </property>
      <item>
       <layout class="QHBoxLayout" name="horizontalLayout_7">
+       <property name="spacing">
+        <number>9</number>
+       </property>
+       <property name="leftMargin">
+        <number>0</number>
+       </property>
+       <property name="topMargin">
+        <number>3</number>
+       </property>
+       <property name="rightMargin">
+        <number>0</number>
+       </property>
+       <property name="bottomMargin">
+        <number>3</number>
+       </property>
        <item>
         <widget class="QPushButton" name="streamButton">
          <property name="enabled">
           <bool>true</bool>
-         </property>
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Ignored" vsizetype="Fixed">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
          </property>
          <property name="minimumSize">
           <size>
@@ -1503,12 +1512,6 @@
          <property name="enabled">
           <bool>true</bool>
          </property>
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Ignored" vsizetype="Fixed">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
          <property name="minimumSize">
           <size>
            <width>150</width>
@@ -1527,35 +1530,14 @@
      </item>
      <item>
       <layout class="QHBoxLayout" name="recordingLayout">
-       <property name="spacing">
-        <number>2</number>
-       </property>
-       <property name="leftMargin">
-        <number>0</number>
-       </property>
-       <property name="topMargin">
-        <number>0</number>
-       </property>
-       <property name="rightMargin">
-        <number>0</number>
-       </property>
-       <property name="bottomMargin">
-        <number>0</number>
-       </property>
        <item>
         <widget class="RecordButton" name="recordButton">
          <property name="enabled">
           <bool>true</bool>
          </property>
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Ignored" vsizetype="Fixed">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
          <property name="minimumSize">
           <size>
-           <width>0</width>
+           <width>150</width>
            <height>0</height>
           </size>
          </property>
