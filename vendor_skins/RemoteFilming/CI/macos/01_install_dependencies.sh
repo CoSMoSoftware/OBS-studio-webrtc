@@ -179,7 +179,7 @@ install_dependencies() {
 
 install-dependencies-standalone() {
     CHECKOUT_DIR="$(/usr/bin/git rev-parse --show-toplevel)"
-    PRODUCT_NAME="RemoteFilming"
+    PRODUCT_NAME="Remote-Filming"
     DEPS_BUILD_DIR="${CHECKOUT_DIR}/../obs-build-dependencies_${ARCH}"
     if [ -d "${DEPS_BUILD_DIR}" ]; then
         rm -rf ${DEPS_BUILD_DIR}

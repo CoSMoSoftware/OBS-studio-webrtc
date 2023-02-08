@@ -26,7 +26,7 @@ package_obs() {
     step "Package OBS..."
     cmake --build ${BUILD_DIR} -t package
 
-    DMG_NAME=$(/usr/bin/find "${BUILD_DIR}" -type f -name "RemoteFilming-*.dmg" -depth 1 | sort -rn | head -1)
+    DMG_NAME=$(/usr/bin/find "${BUILD_DIR}" -type f -name "Remote-Filming-*.dmg" -depth 1 | sort -rn | head -1)
 
     if [ "${DMG_NAME}" ]; then
         mv "${DMG_NAME}" "${BUILD_DIR}/${FILE_NAME}"
@@ -98,7 +98,7 @@ _caught_error_hdiutil_verify() {
 }
 
 package-obs-standalone() {
-    PRODUCT_NAME="RemoteFilming"
+    PRODUCT_NAME="Remote-Filming"
 
     CHECKOUT_DIR="$(/usr/bin/git rev-parse --show-toplevel)"
     DEPS_BUILD_DIR="${CHECKOUT_DIR}/../obs-build-dependencies"
@@ -119,11 +119,11 @@ package-obs-standalone() {
 
     if [ -z "${NOTARIZE_IMAGE}" -a -z "${NOTARIZE_BUNDLE}" ]; then
         if [ "${ARCH}" = "arm64" ]; then
-            FILE_NAME="RemoteFilming-${OBS_VERSION}-macos-arm64.dmg"
+            FILE_NAME="Remote-Filming-${OBS_VERSION}-macos-arm64.dmg"
         elif [ "${ARCH}" = "universal" ]; then
-            FILE_NAME="RemoteFilming-${OBS_VERSION}-macos.dmg"
+            FILE_NAME="Remote-Filming-${OBS_VERSION}-macos.dmg"
         else
-            FILE_NAME="RemoteFilming-${OBS_VERSION}-macos-x86_64.dmg"
+            FILE_NAME="Remote-Filming-${OBS_VERSION}-macos-x86_64.dmg"
         fi
 
         package_obs
