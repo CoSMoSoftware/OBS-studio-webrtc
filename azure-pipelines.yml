@@ -78,8 +78,8 @@ parameters:
     - RemoteFilming
     - RemoteFilming-A
     - RemoteFilming-B
-    - RemoteFilming-C
-    - RemoteFilming-D
+#    - RemoteFilming-C
+#    - RemoteFilming-D
 #    - Wowza
 
 
