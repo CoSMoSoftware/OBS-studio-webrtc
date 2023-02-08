@@ -32,6 +32,8 @@ package_obs() {
         mv "${DMG_NAME}" "${BUILD_DIR}/${FILE_NAME}"
 
         step "Codesign OBS disk image..."
+        ls -l "${BUILD_DIR}/${FILE_NAME}"
+        ls -l ${BUILD_DIR}
         /usr/bin/codesign --force --sign "${CODESIGN_IDENT:--}" "${BUILD_DIR}/${FILE_NAME}"
     else
         error "ERROR No suitable OBS disk image generated"
