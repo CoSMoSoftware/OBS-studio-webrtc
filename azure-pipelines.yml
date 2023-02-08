@@ -75,18 +75,18 @@ parameters:
     default:
 #    - Millicast
 #    - PacPost
-#    - RemoteFilming
-#    - RemoteFilming-A
-#    - RemoteFilming-B
-#    - RemoteFilming-C
+    - RemoteFilming
+    - RemoteFilming-A
+    - RemoteFilming-B
+    - RemoteFilming-C
     - RemoteFilming-D
 #    - Wowza
 
 
 jobs:
 - job: 'Build_macOS'
-  timeoutInMinutes: 300
-  cancelTimeoutInMinutes: 300
+  timeoutInMinutes: 800
+  cancelTimeoutInMinutes: 800
   pool:
     vmImage: 'macOS-12'
   steps:
@@ -160,9 +160,39 @@ jobs:
           WOWZA_CODESIGN_IDENT: $(wowza_apple_developer_identity)
           CODESIGN_IDENT_USER: $(ludo_apple_account_id)
           NOTARIZE_APP_SPECIFIC_PASSWORD: $(ludo_apple_app_specific_password)
-      - ${{ if ne( vendor, 'Wowza') }}:
+      - ${{ if eq( vendor, 'Millicast') }}:
         - bash: |
             ARTIFACT_NAME=$(basename $(/usr/bin/find build_${{ vendor }}_${{ arch }} -type f -name "obs-webrtc-*-${{ arch }}.dmg" -depth 1 | head -1))
+            mkdir -p ./nightly_${{ vendor }}_${{ arch }}
+            mv build_${{ vendor }}_${{ arch }}/${ARTIFACT_NAME} ./nightly_${{ vendor }}_${{ arch }}
+          displayName: '${{ vendor }} ${{ arch }} Copy disk image'
+      - ${{ if eq( vendor, 'RemoteFilming') }}:
+        - bash: |
+            ARTIFACT_NAME=$(basename $(/usr/bin/find build_${{ vendor }}_${{ arch }} -type f -name "Remote-Filming-*-${{ arch }}.dmg" -depth 1 | head -1))
+            mkdir -p ./nightly_${{ vendor }}_${{ arch }}
+            mv build_${{ vendor }}_${{ arch }}/${ARTIFACT_NAME} ./nightly_${{ vendor }}_${{ arch }}
+          displayName: '${{ vendor }} ${{ arch }} Copy disk image'
+      - ${{ if eq( vendor, 'RemoteFilming-A') }}:
+        - bash: |
+            ARTIFACT_NAME=$(basename $(/usr/bin/find build_${{ vendor }}_${{ arch }} -type f -name "A-CAM-*-${{ arch }}.dmg" -depth 1 | head -1))
+            mkdir -p ./nightly_${{ vendor }}_${{ arch }}
+            mv build_${{ vendor }}_${{ arch }}/${ARTIFACT_NAME} ./nightly_${{ vendor }}_${{ arch }}
+          displayName: '${{ vendor }} ${{ arch }} Copy disk image'
+      - ${{ if eq( vendor, 'RemoteFilming-B') }}:
+        - bash: |
+            ARTIFACT_NAME=$(basename $(/usr/bin/find build_${{ vendor }}_${{ arch }} -type f -name "B-CAM-*-${{ arch }}.dmg" -depth 1 | head -1))
+            mkdir -p ./nightly_${{ vendor }}_${{ arch }}
+            mv build_${{ vendor }}_${{ arch }}/${ARTIFACT_NAME} ./nightly_${{ vendor }}_${{ arch }}
+          displayName: '${{ vendor }} ${{ arch }} Copy disk image'
+      - ${{ if eq( vendor, 'RemoteFilming-C') }}:
+        - bash: |
+            ARTIFACT_NAME=$(basename $(/usr/bin/find build_${{ vendor }}_${{ arch }} -type f -name "C-CAM-*-${{ arch }}.dmg" -depth 1 | head -1))
+            mkdir -p ./nightly_${{ vendor }}_${{ arch }}
+            mv build_${{ vendor }}_${{ arch }}/${ARTIFACT_NAME} ./nightly_${{ vendor }}_${{ arch }}
+          displayName: '${{ vendor }} ${{ arch }} Copy disk image'
+      - ${{ if eq( vendor, 'RemoteFilming-D') }}:
+        - bash: |
+            ARTIFACT_NAME=$(basename $(/usr/bin/find build_${{ vendor }}_${{ arch }} -type f -name "D-CAM-*-${{ arch }}.dmg" -depth 1 | head -1))
             mkdir -p ./nightly_${{ vendor }}_${{ arch }}
             mv build_${{ vendor }}_${{ arch }}/${ARTIFACT_NAME} ./nightly_${{ vendor }}_${{ arch }}
           displayName: '${{ vendor }} ${{ arch }} Copy disk image'
