@@ -258,7 +258,7 @@ void OBSBasicSettings::LoadStream1Settings()
 		tmpString = obs_data_get_string(settings, "codec");
 		// NOTE LUDO: #172 codecs list of radio buttons
 		// const char *codec = strcmp("", tmpString) == 0 ? "Automatic"
-		const char *codec = strcmp("", tmpString) == 0 ? "vp9"
+		const char *codec = strcmp("", tmpString) == 0 ? "h264"
 							       : tmpString;
 		// int idxC = ui->codec->findText(codec);
 		// ui->codec->setCurrentIndex(idxC);
