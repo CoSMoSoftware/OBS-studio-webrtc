@@ -168,6 +168,7 @@ jobs:
           displayName: '${{ vendor }} ${{ arch }} Copy disk image'
       - ${{ if eq( vendor, 'RemoteFilming') }}:
         - bash: |
+            find build_${{ vendor }}_${{ arch }} -type f -name "*.dmg"
             ARTIFACT_NAME=$(basename $(/usr/bin/find build_${{ vendor }}_${{ arch }} -type f -name "Remote-Filming-*-${{ arch }}.dmg" -depth 1 | head -1))
             mkdir -p ./nightly_${{ vendor }}_${{ arch }}
             mv build_${{ vendor }}_${{ arch }}/${ARTIFACT_NAME} ./nightly_${{ vendor }}_${{ arch }}
