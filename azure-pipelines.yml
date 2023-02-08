@@ -168,32 +168,31 @@ jobs:
           displayName: '${{ vendor }} ${{ arch }} Copy disk image'
       - ${{ if eq( vendor, 'RemoteFilming') }}:
         - bash: |
-            find build_${{ vendor }}_${{ arch }} -type f -name "*.dmg"
-            ARTIFACT_NAME=$(basename $(/usr/bin/find build_${{ vendor }}_${{ arch }} -type f -name "Remote-Filming-*-${{ arch }}.dmg" -depth 1 | head -1))
+            ARTIFACT_NAME=$(basename $(/usr/bin/find build_${{ vendor }}_${{ arch }} -type f -name "Remote-Filming-*.dmg" -depth 1 | head -1))
             mkdir -p ./nightly_${{ vendor }}_${{ arch }}
             mv build_${{ vendor }}_${{ arch }}/${ARTIFACT_NAME} ./nightly_${{ vendor }}_${{ arch }}
           displayName: '${{ vendor }} ${{ arch }} Copy disk image'
       - ${{ if eq( vendor, 'RemoteFilming-A') }}:
         - bash: |
-            ARTIFACT_NAME=$(basename $(/usr/bin/find build_${{ vendor }}_${{ arch }} -type f -name "A-CAM-*-${{ arch }}.dmg" -depth 1 | head -1))
+            ARTIFACT_NAME=$(basename $(/usr/bin/find build_${{ vendor }}_${{ arch }} -type f -name "A-CAM-*.dmg" -depth 1 | head -1))
             mkdir -p ./nightly_${{ vendor }}_${{ arch }}
             mv build_${{ vendor }}_${{ arch }}/${ARTIFACT_NAME} ./nightly_${{ vendor }}_${{ arch }}
           displayName: '${{ vendor }} ${{ arch }} Copy disk image'
       - ${{ if eq( vendor, 'RemoteFilming-B') }}:
         - bash: |
-            ARTIFACT_NAME=$(basename $(/usr/bin/find build_${{ vendor }}_${{ arch }} -type f -name "B-CAM-*-${{ arch }}.dmg" -depth 1 | head -1))
+            ARTIFACT_NAME=$(basename $(/usr/bin/find build_${{ vendor }}_${{ arch }} -type f -name "B-CAM-*.dmg" -depth 1 | head -1))
             mkdir -p ./nightly_${{ vendor }}_${{ arch }}
             mv build_${{ vendor }}_${{ arch }}/${ARTIFACT_NAME} ./nightly_${{ vendor }}_${{ arch }}
           displayName: '${{ vendor }} ${{ arch }} Copy disk image'
       - ${{ if eq( vendor, 'RemoteFilming-C') }}:
         - bash: |
-            ARTIFACT_NAME=$(basename $(/usr/bin/find build_${{ vendor }}_${{ arch }} -type f -name "C-CAM-*-${{ arch }}.dmg" -depth 1 | head -1))
+            ARTIFACT_NAME=$(basename $(/usr/bin/find build_${{ vendor }}_${{ arch }} -type f -name "C-CAM-*.dmg" -depth 1 | head -1))
             mkdir -p ./nightly_${{ vendor }}_${{ arch }}
             mv build_${{ vendor }}_${{ arch }}/${ARTIFACT_NAME} ./nightly_${{ vendor }}_${{ arch }}
           displayName: '${{ vendor }} ${{ arch }} Copy disk image'
       - ${{ if eq( vendor, 'RemoteFilming-D') }}:
         - bash: |
-            ARTIFACT_NAME=$(basename $(/usr/bin/find build_${{ vendor }}_${{ arch }} -type f -name "D-CAM-*-${{ arch }}.dmg" -depth 1 | head -1))
+            ARTIFACT_NAME=$(basename $(/usr/bin/find build_${{ vendor }}_${{ arch }} -type f -name "D-CAM-*.dmg" -depth 1 | head -1))
             mkdir -p ./nightly_${{ vendor }}_${{ arch }}
             mv build_${{ vendor }}_${{ arch }}/${ARTIFACT_NAME} ./nightly_${{ vendor }}_${{ arch }}
           displayName: '${{ vendor }} ${{ arch }} Copy disk image'
