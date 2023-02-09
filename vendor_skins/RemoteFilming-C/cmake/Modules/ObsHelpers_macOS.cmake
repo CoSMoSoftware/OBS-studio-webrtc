@@ -3,7 +3,7 @@ function(setup_binary_target target)
   set_target_properties(
     ${target}
     PROPERTIES XCODE_ATTRIBUTE_PRODUCT_BUNDLE_IDENTIFIER
-               "io.cosmosoftware.${target}"
+               "ci.cosmosoftware.${target}"
                XCODE_ATTRIBUTE_CODE_SIGN_ENTITLEMENTS
                "${CMAKE_SOURCE_DIR}/cmake/bundle/macOS/entitlements.plist")
 
@@ -39,11 +39,11 @@ function(setup_framework_target target)
     PROPERTIES FRAMEWORK ON
                FRAMEWORK_VERSION A
                OUTPUT_NAME "${target}"
-               MACOSX_FRAMEWORK_IDENTIFIER "com.remote-filming.${target}"
+               MACOSX_FRAMEWORK_IDENTIFIER "ci.cosmosoftware.${target}"
                MACOSX_FRAMEWORK_INFO_PLIST
                "${CMAKE_SOURCE_DIR}/cmake/bundle/macOS/Plugin-Info.plist.in"
                XCODE_ATTRIBUTE_PRODUCT_BUNDLE_IDENTIFIER
-               "com.remote-filming.${target}")
+               "ci.cosmosoftware.${target}")
 
   install(
     TARGETS ${target}
