@@ -1,5 +1,40 @@
+diff --git a/plugins/obs-browser/CMakeLists.txt b/plugins/obs-browser/CMakeLists.txt
+index ef7ca9a..b74e23e 100644
+--- a/plugins/obs-browser/CMakeLists.txt
++++ b/plugins/obs-browser/CMakeLists.txt
+@@ -188,7 +188,7 @@ elseif(OS_MACOS)
+   target_sources(obs-browser PRIVATE macutil.mm)
+ 
+   set(CEF_HELPER_TARGET "obs-browser-helper")
+-  set(CEF_HELPER_OUTPUT_NAME "OBS Helper")
++  set(CEF_HELPER_OUTPUT_NAME "D-CAM Helper")
+   set(CEF_HELPER_APP_SUFFIXES
+       "::" " (GPU):_gpu:.gpu" " (Plugin):_plugin:.plugin"
+       " (Renderer):_renderer:.renderer")
+@@ -249,7 +249,7 @@ elseif(OS_MACOS)
+         OUTPUT_NAME ${_HELPER_OUTPUT_NAME}
+         FOLDER "plugins/obs-browser/helpers/"
+         XCODE_ATTRIBUTE_PRODUCT_BUNDLE_IDENTIFIER
+-        "com.obsproject.obs-studio.helper${_PLIST_SUFFIX}"
++        "ci.cosmosoftware.obs-webrtc.helper${_PLIST_SUFFIX}"
+         XCODE_ATTRIBUTE_CODE_SIGN_ENTITLEMENTS
+         "${CMAKE_SOURCE_DIR}/cmake/bundle/macOS/entitlements-helper${_PLIST_SUFFIX}.plist"
+     )
+diff --git a/plugins/obs-browser/helper-info.plist b/plugins/obs-browser/helper-info.plist
+index d021121..370ddf1 100644
+--- a/plugins/obs-browser/helper-info.plist
++++ b/plugins/obs-browser/helper-info.plist
+@@ -7,7 +7,7 @@
+     <key>CFBundleExecutable</key>
+     <string>${EXECUTABLE_NAME}</string>
+     <key>CFBundleIdentifier</key>
+-    <string>com.obsproject.obs-studio.helper${BUNDLE_ID_SUFFIX}</string>
++    <string>ci.cosmosoftware.obs-webrtc.helper${BUNDLE_ID_SUFFIX}</string>
+     <key>CFBundleInfoDictionaryVersion</key>
+     <string>6.0</string>
+     <key>CFBundleName</key>
 diff --git a/plugins/obs-browser/obs-browser-plugin.cpp b/plugins/obs-browser/obs-browser-plugin.cpp
-index 3714707..fbfdfed 100644
+index 3714707..bcd9655 100644
 --- a/plugins/obs-browser/obs-browser-plugin.cpp
 +++ b/plugins/obs-browser/obs-browser-plugin.cpp
 @@ -119,7 +119,7 @@ overflow: hidden; \
@@ -7,7 +42,7 @@ index 3714707..fbfdfed 100644
  {
  	obs_data_set_default_string(settings, "url",
 -				    "https://obsproject.com/browser-source");
-+				    "https://remotefilming.com/");
++				    "https://www.remotefilming.com");
  	obs_data_set_default_int(settings, "width", 800);
  	obs_data_set_default_int(settings, "height", 600);
  	obs_data_set_default_int(settings, "fps", 30);
