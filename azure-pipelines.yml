@@ -126,6 +126,8 @@ jobs:
       displayName: git stash
     - script: rm -rf plugins/obs-ndi
       displayName: rm plugins/obs-ndi
+    - script: rm -rf plugins/obs-browser
+      displayName: rm plugins/obs-browser
     - script: git submodule update --init --recursive
       displayName: 'Checkout Submodules'
     - ${{ each arch in parameters.architectures }}:
@@ -237,6 +239,8 @@ jobs:
       displayName: git stash
     - script: rmdir /S /Q plugins\\obs-ndi
       displayName: rmdir plugins/obs-ndi
+    - script: rmdir /S /Q plugins\\obs-browser
+      displayName: rmdir plugins/obs-browser
     - script: git submodule update --init --recursive
       displayName: 'Checkout Submodules'
     - ${{ if eq( vendor, 'Wowza') }}:
