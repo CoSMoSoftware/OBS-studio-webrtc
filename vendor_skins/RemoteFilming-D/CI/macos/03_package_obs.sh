@@ -157,7 +157,7 @@ package-obs-main() {
                 -v | --verbose ) export VERBOSE=TRUE; shift ;;
                 -a | --architecture ) ARCH="${2}"; shift 2 ;;
                 -c | --codesign ) CODESIGN=TRUE; shift ;;
-                -n | --notarize ) CODESIGN=TRUE; shift ;;
+                -n | --notarize ) NOTARIZE=TRUE; CODESIGN=TRUE; shift ;;
                 --build-dir ) BUILD_DIR="${2}"; shift 2 ;;
                 --notarize-image ) NOTARIZE_IMAGE="${2}"; NOTARIZE=TRUE; CODESIGN=TRUE; shift 2 ;;
                 --notarize-bundle ) NOTARIZE_BUNDLE="${2}"; NOTARIZE=TRUE; CODESIGN=TRUE; shift 2 ;;

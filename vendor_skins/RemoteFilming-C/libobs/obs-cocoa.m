@@ -70,7 +70,7 @@ char *find_libobs_data_file(const char *file)
 
 	if (is_in_bundle()) {
 		NSBundle *frameworkBundle = [NSBundle
-			bundleWithIdentifier:@"com.remote-filming.libobs"];
+			bundleWithIdentifier:@"ci.cosmosoftware.libobs"];
 		NSURL *bundleURL = [frameworkBundle bundleURL];
 		NSURL *libobsDataURL =
 			[bundleURL URLByAppendingPathComponent:@"Resources/"];
