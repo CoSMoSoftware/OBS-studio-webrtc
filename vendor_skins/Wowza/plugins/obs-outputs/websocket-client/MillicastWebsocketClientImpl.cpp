@@ -289,6 +289,8 @@ bool MillicastWebsocketClientImpl::disconnect(bool /* wait */)
 		client.set_open_handler([](...) {});
 		client.set_close_handler([](...) {});
 		client.set_fail_handler([](...) {});
+		// Some additional wait to make sure websocket is fully closed
+		std::this_thread::sleep_for(std::chrono::seconds(1));
 		// Detach thread
 		if (thread.joinable())
 			thread.detach();
