@@ -47,9 +47,9 @@ variables:
   - name: BUILD_TYPE
     value: RelWithDebInfo
   - name: LIBWEBRTC_VERSION
-    value: 104.0
+    value: 108.0
   - name: OBS_VERSION
-    value: 1.4.2-28.1.2-m104
+    value: 1.4.3-28.1.2-m108
 # for Mac code signing
   - name: CODESIGN_TEAM_ID
     value: $(apple_team_id)
@@ -73,13 +73,13 @@ parameters:
   - name: vendors
     type: object
     default:
-#    - Millicast
+    - Millicast
 #    - PacPost
 #    - RemoteFilming
 #    - RemoteFilming-A
 #    - RemoteFilming-B
-    - RemoteFilming-C
-    - RemoteFilming-D
+#    - RemoteFilming-C
+#    - RemoteFilming-D
 #    - Wowza
 
 
@@ -97,7 +97,7 @@ jobs:
       connection: 'github.com_ludocosmo'
       userRepository: 'CoSMoSoftware/libwebrtc-cmake'
       defaultVersionType: 'specificTag'
-      version: 'm104rel'
+      version: 'm108'
       itemPattern: 'libWebRTC-${{ variables.LIBWEBRTC_VERSION }}-?(x|arm)64-Release-H264-OpenSSL_1_1_1?.dmg'
       downloadPath: '$(System.DefaultWorkingDirectory)'
   - ${{ each arch in parameters.architectures }}:
@@ -226,7 +226,7 @@ jobs:
       connection: 'github.com_ludocosmo'
       userRepository: 'CoSMoSoftware/libwebrtc-cmake'
       defaultVersionType: 'specificTag'
-      version: 'm104rel'
+      version: 'm108'
       itemPattern: 'libWebRTC-${{ variables.LIBWEBRTC_VERSION }}-x64-Mt-Release-*.exe'
       downloadPath: '$(System.DefaultWorkingDirectory)'
   - script: git submodule update --init --recursive
@@ -329,7 +329,7 @@ jobs:
       connection: 'github.com_ludocosmo'
       userRepository: 'CoSMoSoftware/libwebrtc-cmake'
       defaultVersionType: 'specificTag'
-      version: 'm104rel'
+      version: 'm108'
       itemPattern: 'libWebRTC-${{ variables.LIBWEBRTC_VERSION }}-*64-Release-*.sh'
       downloadPath: '$(System.DefaultWorkingDirectory)'
   - bash: |
@@ -373,7 +373,7 @@ jobs:
       connection: 'github.com_ludocosmo'
       userRepository: 'CoSMoSoftware/libwebrtc-cmake'
       defaultVersionType: 'specificTag'
-      version: 'm104rel'
+      version: 'm108'
       itemPattern: 'libWebRTC-${{ variables.LIBWEBRTC_VERSION }}-*64-Release-*.sh'
       downloadPath: '$(System.DefaultWorkingDirectory)'
   - bash: |

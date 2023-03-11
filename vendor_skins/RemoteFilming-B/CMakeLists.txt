@@ -21,7 +21,7 @@ else()
 endif()
 project(${_project_name} VERSION ${OBS_VERSION_CANONICAL})
 
-set(REMOTE_FILMING_VERSION "1.4.2-28.1.2-m104")
+set(REMOTE_FILMING_VERSION "1.4.3-28.1.2-m108")
 
 option(DEBUG_FFMPEG_MUX "Debug FFmpeg muxer subprocess" FALSE)
 
