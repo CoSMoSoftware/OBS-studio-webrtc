@@ -33,6 +33,7 @@
 #include "api/rtc_error.h"
 #include "api/scoped_refptr.h"
 #include "api/set_remote_description_observer_interface.h"
+#include "common_video/libyuv/include/webrtc_libyuv.h"
 #include "modules/audio_processing/include/audio_processing.h"
 #include "rtc_base/synchronization/mutex.h"
 #include "rtc_base/ref_counted_object.h"
@@ -220,11 +221,15 @@ private:
 	std::string sourceId_;
 	std::string publishApiUrl;
 	int channel_count;
-	std::string colorFormat;
+	std::string colorFormat_;
 	// Codec profile to support the selected color format:
 	// VP9 profile 0 for color format NV12 ot I420
+	// VP9 profile 2 for color format I010
 	// VP9 profile 3 for color format I444
-	int profile;
+	int profile_;
+	bool first_frame_received_;
+	webrtc::VideoType videoType_;
+	webrtc::ColorSpace color_space_;
 
 	void resetStats();
 
