@@ -47,7 +47,7 @@ variables:
   - name: BUILD_TYPE
     value: RelWithDebInfo
   - name: LIBWEBRTC_VERSION
-    value: 108.0
+    value: 112.0
   - name: OBS_VERSION
     value: 1.4.3-28.1.2-m112
 # for Mac code signing
