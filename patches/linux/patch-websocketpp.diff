@@ -7,7 +7,7 @@ index 5766546..215e07f 100644
  
  /// Default user agent string
 -static char const user_agent[] = "WebSocket++/0.8.2";
-+static char const user_agent[] = "OBS/1.4.3 (Linux/22.04; WebRTC/m108; OBS/28.1.2)";
++static char const user_agent[] = "OBS/1.4.3 (Linux/22.04; WebRTC/m112; OBS/28.1.2)";
  
  } // namespace websocketpp
  

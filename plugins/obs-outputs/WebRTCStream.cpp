@@ -1091,22 +1091,18 @@ void WebRTCStream::deliver_video_frame(video_data *frame) {
 			obs_timestamp_us, rtc::TimeMicros());
 
 	if ("NV12" == colorFormat_ || "I420" == colorFormat_) {
-		uint32_t size = outputWidth * outputHeight * 3 / 2;
-		int stride_y = outputWidth;
-		int stride_uv = (outputWidth + 1) / 2;
-		// Convert frame
 		rtc::scoped_refptr<webrtc::I420Buffer> buffer =
-			webrtc::I420Buffer::Create(target_width, target_height,
-						   stride_y, stride_uv,
-						   stride_uv);
+			webrtc::I420Buffer::Create(target_width, target_height);
 
+		// Convert frame
+		uint32_t size = outputWidth * outputHeight * 3 / 2;
 		libyuv::RotationMode rotation_mode = libyuv::kRotate0;
 		const int conversionResult = libyuv::ConvertToI420(
-			frame->data[0], size, buffer.get()->MutableDataY(),
-			buffer.get()->StrideY(), buffer.get()->MutableDataU(),
-			buffer.get()->StrideU(), buffer.get()->MutableDataV(),
-			buffer.get()->StrideV(), 0, 0, outputWidth,
-			outputHeight, target_width, target_height,
+			frame->data[0], size,
+			buffer.get()->MutableDataY(), buffer.get()->StrideY(),
+			buffer.get()->MutableDataU(), buffer.get()->StrideU(),
+			buffer.get()->MutableDataV(), buffer.get()->StrideV(),
+			0, 0, outputWidth, outputHeight, target_width, target_height,
 			rotation_mode, ConvertVideoType(videoType_));
 		// not using the result yet, silence compiler
 		(void)conversionResult;
@@ -1125,23 +1121,16 @@ void WebRTCStream::deliver_video_frame(video_data *frame) {
 		videoCapturer->OnFrameCaptured(video_frame);
 
 	} else if ("I444" == colorFormat_) {
-		uint32_t size = outputWidth * outputHeight * 3;
-		int stride_y = outputWidth;
-		int stride_uv = outputWidth;
-		// Convert frame
 		rtc::scoped_refptr<webrtc::I444Buffer> buffer444 =
-			webrtc::I444Buffer::Create(target_width, target_height,
-						   stride_y, stride_uv,
-						   stride_uv);
+			webrtc::I444Buffer::Create(target_width, target_height);
+
+		// Copy OBS frame to webrtc i444 buffer
 		uint8_t *datay = const_cast<uint8_t *>(buffer444->DataY());
-		memcpy(datay, frame->data[0],
-		       frame->linesize[0] * outputHeight);
+		memcpy(datay, frame->data[0], frame->linesize[0] * outputHeight);
 		uint8_t *datau = const_cast<uint8_t *>(buffer444->DataU());
-		memcpy(datau, frame->data[1],
-		       frame->linesize[1] * outputHeight);
+		memcpy(datau, frame->data[1], frame->linesize[1] * outputHeight);
 		uint8_t *datav = const_cast<uint8_t *>(buffer444->DataV());
-		memcpy(datav, frame->data[2],
-		       frame->linesize[2] * outputHeight);
+		memcpy(datav, frame->data[2], frame->linesize[2] * outputHeight);
 
 		// Create a webrtc::VideoFrame to pass to the capturer
 		webrtc::VideoFrame video_frame444 =
@@ -1157,41 +1146,21 @@ void WebRTCStream::deliver_video_frame(video_data *frame) {
 		videoCapturer->OnFrameCaptured(video_frame444);
 
 	} else if ("I010" == colorFormat_) {
-		uint32_t size = outputWidth * outputHeight * 3 / 2;
-		int stride_y = outputWidth;
-		int stride_uv = (outputWidth + 1) / 2;
-		// Convert frame
 		rtc::scoped_refptr<webrtc::I010Buffer> buffer010 =
-			webrtc::I010Buffer::Create(target_width, target_height);
-						  //  stride_y, stride_uv,
-						  //  stride_uv);
+			webrtc::I010Buffer::Create(outputWidth, outputHeight);
 
-		// Convert frame data from uint8_t buffer to uint16_t buffer
-		uint16_t *copy_buffer16 = (uint16_t *)malloc(size * sizeof(uint16_t));
-		int halfwidth = target_width / 2;
-		int halfheight = target_height / 2;
-
-		// Convert Y plane.
-		libyuv::Convert8To16Plane(frame->data[0], stride_y, copy_buffer16, stride_y, 1024, // 16384,
-											target_width, target_height);
-		// Convert UV planes.
-		uint16_t *copy_u = copy_buffer16 + frame->linesize[0] * sizeof(uint16_t);
-		libyuv::Convert8To16Plane(frame->data[1], stride_uv, copy_u, stride_uv, 1024, //16384,
-											halfwidth, halfheight);
-		uint16_t *copy_v = copy_u + frame->linesize[1] * sizeof(uint16_t);
-		libyuv::Convert8To16Plane(frame->data[2], stride_uv, copy_v, stride_uv, 1024, //16384,
-											halfwidth, halfheight);
-
-		uint16_t *datay = const_cast<uint16_t *>(buffer010->DataY());
-		memcpy(datay, copy_buffer16,
-		       frame->linesize[0] * outputHeight);
-		uint16_t *datau = const_cast<uint16_t *>(buffer010->DataU());
-		memcpy(datau, copy_u,
-		       frame->linesize[1] * halfheight);
-		uint16_t *datav = const_cast<uint16_t *>(buffer010->DataV());
-		memcpy(datav, copy_v,
-		       frame->linesize[2] * halfheight);
-
+		// Convert frame
+		uint32_t size = outputWidth * outputHeight * 3 / 2;
+		libyuv::RotationMode rotation_mode = libyuv::kRotate0;
+		const int conversionResult = libyuv::ConvertToI010(
+			reinterpret_cast<const uint16_t*>(frame->data[0]), size,
+			buffer010.get()->MutableDataY(), buffer010.get()->StrideY(),
+			buffer010.get()->MutableDataU(), buffer010.get()->StrideU(),
+			buffer010.get()->MutableDataV(), buffer010.get()->StrideV(),
+			0, 0, outputWidth,outputHeight, target_width, target_height,
+			rotation_mode, ConvertVideoType(videoType_));
+		// not using the result yet, silence compiler
+		(void)conversionResult;
 
 		// Create a webrtc::VideoFrame to pass to the capturer
 		webrtc::VideoFrame video_frame010 =
