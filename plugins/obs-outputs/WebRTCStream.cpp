@@ -255,7 +255,7 @@ bool WebRTCStream::start(WebRTCStream::Type type)
 			// NV12
 			// RGB
 			switch (tmp[0]) {
-			case 'I':
+			case 'I': // I420, I444, I010
 				if ('4' == tmp[1]) {
 					if ('2' == tmp[2]) {
 						colorFormat_ = "I420";
@@ -269,13 +269,16 @@ bool WebRTCStream::start(WebRTCStream::Type type)
 					profile_ = 2;
 				}
 				break;
-			case 'N':
+			case 'N': // NV12
 				colorFormat_ = "NV12";
 				profile_ = 0;
 				break;
-			case 'R':
+			case 'R': // RGB
 				colorFormat_ = "RGB";
 				profile_ = 0;
+				break;
+			case 'P': // P010: color format not supported
+				colorFormat_ = "P010";
 				break;
 			default:
 				colorFormat_ = "NV12";
@@ -290,6 +293,20 @@ bool WebRTCStream::start(WebRTCStream::Type type)
 		// No config file: Use NV12 color format by default
 		colorFormat_ = "NV12";
 		profile_ = 0;
+	}
+
+	if ("P010" == colorFormat_) {
+		error("Error color format P010 not supported");
+		// #298 Close must be carried out on a separate thread in order to avoid deadlock
+		auto thread = std::thread([=]() {
+			obs_output_set_last_error(
+				output,
+				"Error: color format P010 is not supported, please select a different color format.");
+			obs_output_signal_stop(output,
+					       OBS_OUTPUT_CONNECT_FAILED);
+		});
+		thread.detach();
+		return false;
 	}
 
 	if (("I444" == colorFormat_ || "I010" == colorFormat_)
@@ -1022,13 +1039,6 @@ void WebRTCStream::enqueue_frame(video_data *frame) {
 	framecopy->data[0] = (uint8_t *)malloc(size * sizeof(uint8_t));
 	memcpy(framecopy->data[0], frame->data[0], size * sizeof(uint8_t));
 	framecopy->linesize[0] = frame->linesize[0];
-
-	// framecopy->data[1] = framecopy->data[0] + outputWidth * outputHeight;
-	// if ("NV12" == colorFormat_ || "I420" == colorFormat_ || "I010" == colorFormat_) {
-	// 	framecopy->data[2] = framecopy->data[1] + outputWidth * outputHeight / 4;
-	// } else if ("I444" == colorFormat_ || "RGB" == colorFormat_) {
-	// 	framecopy->data[2] = framecopy->data[1] + outputWidth * outputHeight;
-	// }
 
 	for (size_t i=1; i < MAX_AV_PLANES; ++i) {
 		if (frame->linesize[i] != 0) {
