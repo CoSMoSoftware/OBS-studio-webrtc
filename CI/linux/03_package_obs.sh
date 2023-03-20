@@ -23,7 +23,9 @@ package_obs() {
     DEB_NAME=$(find ${BUILD_DIR} -maxdepth 1 -type f -name "obs*.deb" | sort -rn | head -1)
 
     if [ "${DEB_NAME}" ]; then
-        mkdir package_${VENDOR_NAME}
+        if [ ! -d package_${VENDOR_NAME} ]; then
+            mkdir package_${VENDOR_NAME}
+        fi
         mv ${DEB_NAME} package_${VENDOR_NAME}
     else
         error "ERROR No suitable OBS debian package generated"
