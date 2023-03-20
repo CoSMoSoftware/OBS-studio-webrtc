@@ -117,13 +117,19 @@ package-obs-standalone() {
     GIT_HASH=$(/usr/bin/git rev-parse --short=9 HEAD)
     GIT_TAG=$(/usr/bin/git describe --tags --abbrev=0)
 
+    if [ "${ENABLE_NDI}" ]; then
+        NDI_PLUGIN="-ndi"
+    else
+        NDI_PLUGIN=""
+    fi
+
     if [ -z "${NOTARIZE_IMAGE}" -a -z "${NOTARIZE_BUNDLE}" ]; then
         if [ "${ARCH}" = "arm64" ]; then
-            FILE_NAME="obs-webrtc-${OBS_VERSION}-macos-arm64.dmg"
+            FILE_NAME="obs-webrtc${NDI_PLUGIN}-${OBS_VERSION}-macos-arm64.dmg"
         elif [ "${ARCH}" = "universal" ]; then
-            FILE_NAME="obs-webrtc-${OBS_VERSION}-macos.dmg"
+            FILE_NAME="obs-webrtc${NDI_PLUGIN}-${OBS_VERSION}-macos.dmg"
         else
-            FILE_NAME="obs-webrtc-${OBS_VERSION}-macos-x86_64.dmg"
+            FILE_NAME="obs-webrtc${NDI_PLUGIN}-${OBS_VERSION}-macos-x86_64.dmg"
         fi
 
         package_obs
@@ -145,7 +151,8 @@ print_usage() {
             "--notarize-image [IMAGE]       : Specify existing OBS disk image for notarization\n" \
             "--notarize-bundle [BUNDLE]     : Specify existing OBS application bundle for notarization\n" \
             "--build-dir                    : Specify alternative build directory (default: build)\n"
-            "--vendor                       : Vendor name (default: Millicast)\n"
+            "--vendor                       : Vendor name (default: Millicast)\n" \
+            "--ndi                          : Enable plugin obs-ndi (default: off)\n"
 }
 
 package-obs-main() {
@@ -162,6 +169,7 @@ package-obs-main() {
                 --notarize-image ) NOTARIZE_IMAGE="${2}"; NOTARIZE=TRUE; CODESIGN=TRUE; shift 2 ;;
                 --notarize-bundle ) NOTARIZE_BUNDLE="${2}"; NOTARIZE=TRUE; CODESIGN=TRUE; shift 2 ;;
                 --vendor ) VENDOR_NAME="${2}"; shift 2 ;;
+                --ndi ) ENABLE_NDI=TRUE; shift ;;
                 -- ) shift; break ;;
                 * ) break ;;
             esac

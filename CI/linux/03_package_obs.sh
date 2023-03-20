@@ -54,7 +54,13 @@ package-obs-standalone() {
         VERSION_STRING="${GIT_TAG}-${GIT_HASH}"
     fi
 
-    FILE_NAME="obs-webrtc-${VERSION_STRING}-ubuntu-${UBUNTU_VERSION}.deb"
+    if [ "${ENABLE_NDI}" ]; then
+        NDI_PLUGIN="-ndi"
+    else
+        NDI_PLUGIN=""
+    fi
+
+    FILE_NAME="obs-webrtc${NDI_PLUGIN}-${VERSION_STRING}-ubuntu-${UBUNTU_VERSION}.deb"
     package_obs
 }
 
@@ -63,8 +69,9 @@ print_usage() {
             "-h, --help                     : Print this help\n" \
             "-q, --quiet                    : Suppress most build process output\n" \
             "-v, --verbose                  : Enable more verbose build process output\n" \
-            "--build-dir                    : Specify alternative build directory (default: build)\n"
-            "--vendor                       : Vendor name (default: Millicast)\n"
+            "--build-dir                    : Specify alternative build directory (default: build)\n" \
+            "--vendor                       : Vendor name (default: Millicast)\n" \
+            "--ndi                          : Enable plugin obs-ndi (default: off)\n"
 }
 
 package-obs-main() {
@@ -76,6 +83,7 @@ package-obs-main() {
                 -v | --verbose ) export VERBOSE=TRUE; shift ;;
                 --build-dir ) BUILD_DIR="${2}"; shift 2 ;;
                 --vendor ) VENDOR_NAME="${2}"; shift 2 ;;
+                --ndi ) ENABLE_NDI=TRUE; shift ;;
                 -- ) shift; break ;;
                 * ) break ;;
             esac

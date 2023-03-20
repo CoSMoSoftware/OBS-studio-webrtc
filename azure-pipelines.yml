@@ -135,17 +135,9 @@ jobs:
         - bash: |
             cp vendor_skins/Wowza/cmake/Modules/VersionConfig.cmake cmake/Modules/
           displayName: Wowza copy file cmake/Modules/VersionConfig.cmake
+      # Generate OBS without obs-ndi plugin
       - script: TERM="" ./CI/macos/02_build_obs.sh --codesign --build-dir build_${{ vendor }}_${{ arch }} --architecture ${{ arch }} --vendor ${{ vendor }}
         displayName: '${{ vendor }} ${{ arch }} Build OBS'
-        env:
-          CURRENT_ARCH: ${{ arch }}
-          CODESIGN_TEAM_ID: $(apple_team_id)
-          CODESIGN_IDENT: $(ludo_apple_developer_identity)
-          WOWZA_CODESIGN_IDENT: $(wowza_apple_developer_identity)
-          CODESIGN_IDENT_USER: $(ludo_apple_account_id)
-          NOTARIZE_APP_SPECIFIC_PASSWORD: $(ludo_apple_app_specific_password)
-      - script: TERM="" ./CI/macos/02_build_obs.sh --codesign --build-dir build_${{ vendor }}_${{ arch }} --architecture ${{ arch }} --vendor ${{ vendor }} --ndi
-        displayName: '${{ vendor }} ${{ arch }} Build OBS + plugin obs-ndi'
         env:
           CURRENT_ARCH: ${{ arch }}
           CODESIGN_TEAM_ID: $(apple_team_id)
@@ -162,9 +154,31 @@ jobs:
           WOWZA_CODESIGN_IDENT: $(wowza_apple_developer_identity)
           CODESIGN_IDENT_USER: $(ludo_apple_account_id)
           NOTARIZE_APP_SPECIFIC_PASSWORD: $(ludo_apple_app_specific_password)
+      # Generate OBS with obs-ndi plugin
+      - script: TERM="" ./CI/macos/02_build_obs.sh --codesign --build-dir build_${{ vendor }}_${{ arch }} --architecture ${{ arch }} --vendor ${{ vendor }} --ndi
+        displayName: '${{ vendor }} ${{ arch }} Build OBS + plugin obs-ndi'
+        env:
+          CURRENT_ARCH: ${{ arch }}
+          CODESIGN_TEAM_ID: $(apple_team_id)
+          CODESIGN_IDENT: $(ludo_apple_developer_identity)
+          WOWZA_CODESIGN_IDENT: $(wowza_apple_developer_identity)
+          CODESIGN_IDENT_USER: $(ludo_apple_account_id)
+          NOTARIZE_APP_SPECIFIC_PASSWORD: $(ludo_apple_app_specific_password)
+      - script: TERM="" ./CI/macos/03_package_obs.sh --codesign --notarize --build-dir build_${{ vendor }}_${{ arch }} --architecture ${{ arch }} --vendor ${{ vendor }} --ndi
+        displayName: '${{ vendor }} ${{ arch }} Package, sign, notarize'
+        env:
+          CURRENT_ARCH: ${{ arch }}
+          CODESIGN_TEAM_ID: $(apple_team_id)
+          CODESIGN_IDENT: $(ludo_apple_developer_identity)
+          WOWZA_CODESIGN_IDENT: $(wowza_apple_developer_identity)
+          CODESIGN_IDENT_USER: $(ludo_apple_account_id)
+          NOTARIZE_APP_SPECIFIC_PASSWORD: $(ludo_apple_app_specific_password)
       - ${{ if eq( vendor, 'Millicast') }}:
         - bash: |
-            ARTIFACT_NAME=$(basename $(/usr/bin/find build_${{ vendor }}_${{ arch }} -type f -name "obs-webrtc-*-${{ arch }}.dmg" -depth 1 | head -1))
+            ARTIFACT_NAME=$(basename $(/usr/bin/find build_${{ vendor }}_${{ arch }} -type f -name "obs-webrtc-${OBS_VERSION}-${{ arch }}.dmg" -depth 1 | head -1))
+            mkdir -p ./nightly_${{ vendor }}_${{ arch }}
+            mv build_${{ vendor }}_${{ arch }}/${ARTIFACT_NAME} ./nightly_${{ vendor }}_${{ arch }}
+            ARTIFACT_NAME=$(basename $(/usr/bin/find build_${{ vendor }}_${{ arch }} -type f -name "obs-webrtc-ndi-${OBS_VERSION}-${{ arch }}.dmg" -depth 1 | head -1))
             mkdir -p ./nightly_${{ vendor }}_${{ arch }}
             mv build_${{ vendor }}_${{ arch }}/${ARTIFACT_NAME} ./nightly_${{ vendor }}_${{ arch }}
           displayName: '${{ vendor }} ${{ arch }} Copy disk image'
@@ -247,6 +261,7 @@ jobs:
       - bash: |
           cp vendor_skins/Wowza/cmake/Modules/VersionConfig.cmake cmake/Modules/
         displayName: Wowza copy file cmake/Modules/VersionConfig.cmake
+    # Generate OBS without obs-ndi plugin
     - powershell: ./CI/windows/02_build_obs.ps1 -BuildArch x64 -Vendor ${{ vendor }}
       displayName: '${{ vendor }} Build OBS'
       env:
@@ -254,6 +269,7 @@ jobs:
         CMAKE_GENERATOR: 'Visual Studio 17 2022'
         CMAKE_SYSTEM_VERSION: '10.0.18363.657'
         VIRTUALCAM-GUID: 'A3FCE0F5-3493-419F-958A-ABA1250EC20B'
+    # Generate OBS with obs-ndi plugin
     - powershell: ./CI/windows/02_build_obs.ps1 -BuildArch x64 -Vendor ${{ vendor }} -Ndi ON
       displayName: '${{ vendor }} Build OBS + plugin obs-ndi'
       env:
@@ -285,6 +301,10 @@ jobs:
         inputs:
           script: AzureSignTool sign -kvt "$(WINDOWS_SIGNING_TENANT_ID)" -kvu "$(WINDOWS_SIGNING_VAULT_URL)" -kvi "$(WINDOWS_SIGNING_CLIENT_ID)" -kvs "$(WINDOWS_SIGNING_CLIENT_SECRET)" -kvc "$(WINDOWS_SIGNING_CERTIFICATE_NAME)" -tr "http://timestamp.comodoca.com" -td sha256 -v ./build_${{ vendor }}/obs-webrtc-x64-$(OBS_VERSION).msi
         displayName: 'Sign build_${{ vendor }} with global AzureSignTool'
+      - task: CmdLine@2
+        inputs:
+          script: AzureSignTool sign -kvt "$(WINDOWS_SIGNING_TENANT_ID)" -kvu "$(WINDOWS_SIGNING_VAULT_URL)" -kvi "$(WINDOWS_SIGNING_CLIENT_ID)" -kvs "$(WINDOWS_SIGNING_CLIENT_SECRET)" -kvc "$(WINDOWS_SIGNING_CERTIFICATE_NAME)" -tr "http://timestamp.comodoca.com" -td sha256 -v ./build_${{ vendor }}/obs-webrtc-ndi-x64-$(OBS_VERSION).msi
+        displayName: 'Sign build_${{ vendor }} ndi with global AzureSignTool'
     - ${{ if eq( vendor, 'RemoteFilming') }}:
       - task: CmdLine@2
         inputs:
@@ -353,8 +373,9 @@ jobs:
         export CXX=clang++
         export OBS_VERSION=${OBS_VERSION}-2004
         ./CI/linux/02_build_obs.sh --disable-pipewire --vendor ${{ vendor }}
-        ./CI/linux/02_build_obs.sh --disable-pipewire --vendor ${{ vendor }} --ndi
         ./CI/linux/03_package_obs.sh --vendor ${{ vendor }}
+        ./CI/linux/02_build_obs.sh --disable-pipewire --vendor ${{ vendor }} --ndi
+        ./CI/linux/03_package_obs.sh --vendor ${{ vendor }} --ndi
       displayName: '${{ vendor }} cmake, build, package'
       env:
         CI_BUILD_TYPE: $(BUILD_TYPE)
@@ -396,8 +417,9 @@ jobs:
         export CXX=clang++
         export OBS_VERSION=${OBS_VERSION}-2204
         ./CI/linux/02_build_obs.sh --disable-pipewire --vendor ${{ vendor }}
-        ./CI/linux/02_build_obs.sh --disable-pipewire --vendor ${{ vendor }} --ndi
         ./CI/linux/03_package_obs.sh --vendor ${{ vendor }}
+        ./CI/linux/02_build_obs.sh --disable-pipewire --vendor ${{ vendor }} --ndi
+        ./CI/linux/03_package_obs.sh --vendor ${{ vendor }} --ndi
       displayName: '${{ vendor }} cmake, build, package'
       env:
         CI_BUILD_TYPE: $(BUILD_TYPE)
