@@ -175,7 +175,7 @@ jobs:
           NOTARIZE_APP_SPECIFIC_PASSWORD: $(ludo_apple_app_specific_password)
       - ${{ if eq( vendor, 'Millicast') }}:
         - bash: |
-            ls -l
+            ls -l build_${{ vendor }}_${{ arch }}
           displayName: ls
         - bash: |
             ARTIFACT_NAME=$(basename $(/usr/bin/find build_${{ vendor }}_${{ arch }} -type f -name "obs-webrtc-${OBS_VERSION}-${{ arch }}.dmg" -depth 1 | head -1))
@@ -302,8 +302,8 @@ jobs:
     - ${{ if eq( vendor, 'Millicast') }}:
       - task: CmdLine@2
         inputs:
-          script: AzureSignTool sign -kvt "$(WINDOWS_SIGNING_TENANT_ID)" -kvu "$(WINDOWS_SIGNING_VAULT_URL)" -kvi "$(WINDOWS_SIGNING_CLIENT_ID)" -kvs "$(WINDOWS_SIGNING_CLIENT_SECRET)" -kvc "$(WINDOWS_SIGNING_CERTIFICATE_NAME)" -tr "http://timestamp.comodoca.com" -td sha256 -v ./build_${{ vendor }}/obs-webrtc-ndi-x64-$(OBS_VERSION).msi
-        displayName: 'Sign build_${{ vendor }} ndi with global AzureSignTool'
+          script: AzureSignTool sign -kvt "$(WINDOWS_SIGNING_TENANT_ID)" -kvu "$(WINDOWS_SIGNING_VAULT_URL)" -kvi "$(WINDOWS_SIGNING_CLIENT_ID)" -kvs "$(WINDOWS_SIGNING_CLIENT_SECRET)" -kvc "$(WINDOWS_SIGNING_CERTIFICATE_NAME)" -tr "http://timestamp.comodoca.com" -td sha256 -v ./build_${{ vendor }}/obs-webrtc-x64-$(OBS_VERSION).msi
+        displayName: 'Sign build_${{ vendor }} with global AzureSignTool'
     - ${{ if eq( vendor, 'RemoteFilming') }}:
       - task: CmdLine@2
         inputs:
