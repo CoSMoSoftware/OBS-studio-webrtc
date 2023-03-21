@@ -49,7 +49,7 @@ variables:
   - name: LIBWEBRTC_VERSION
     value: 108.0
   - name: OBS_VERSION
-    value: 1.4.3-28.1.2-m108
+    value: 1.5.0-28.1.2-m108
 # for Mac code signing
   - name: CODESIGN_TEAM_ID
     value: $(apple_team_id)
@@ -178,10 +178,10 @@ jobs:
             ls -l build_${{ vendor }}_${{ arch }}
           displayName: ls
         - bash: |
-            ARTIFACT_NAME=$(basename $(/usr/bin/find build_${{ vendor }}_${{ arch }} -type f -name "obs-webrtc-${OBS_VERSION}-${{ arch }}.dmg" -depth 1 | head -1))
+            ARTIFACT_NAME=$(basename $(/usr/bin/find build_${{ vendor }}_${{ arch }} -type f -name "obs-webrtc-${OBS_VERSION}-macos-${{ arch }}.dmg" -depth 1 | head -1))
             mkdir -p ./nightly_${{ vendor }}_${{ arch }}
             mv build_${{ vendor }}_${{ arch }}/${ARTIFACT_NAME} ./nightly_${{ vendor }}_${{ arch }}
-            ARTIFACT_NAME=$(basename $(/usr/bin/find build_${{ vendor }}_${{ arch }} -type f -name "obs-webrtc-ndi-${OBS_VERSION}-${{ arch }}.dmg" -depth 1 | head -1))
+            ARTIFACT_NAME=$(basename $(/usr/bin/find build_${{ vendor }}_${{ arch }} -type f -name "obs-webrtc-ndi-${OBS_VERSION}-macos-${{ arch }}.dmg" -depth 1 | head -1))
             mkdir -p ./nightly_${{ vendor }}_${{ arch }}
             mv build_${{ vendor }}_${{ arch }}/${ARTIFACT_NAME} ./nightly_${{ vendor }}_${{ arch }}
           displayName: '${{ vendor }} ${{ arch }} Copy disk image'
