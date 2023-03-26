@@ -295,4 +295,4 @@ endif()
 
 # install_obs_plugin_with_data(obs-outputs data)
 
-setup_plugin_target(obs-outputs)
+setup_plugin_target(obs-outputs data)

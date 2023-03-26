@@ -2,19 +2,21 @@
 function(setup_binary_target target)
   _setup_binary_target(${ARGV})
 
+  string(REPLACE "-" "_" target_without_dash "${target}")
+
   if(DEFINED ENV{OBS_InstallerTempDir})
     install(
       TARGETS ${target}
       RUNTIME
         DESTINATION $ENV{OBS_InstallerTempDir}/${OBS_EXECUTABLE_DESTINATION}
-        COMPONENT obs_${target}
+        COMPONENT obs_${target_without_dash}
         EXCLUDE_FROM_ALL
       LIBRARY DESTINATION $ENV{OBS_InstallerTempDir}/${OBS_LIBRARY_DESTINATION}
-              COMPONENT obs_${target}
+              COMPONENT obs_${target_without_dash}
               EXCLUDE_FROM_ALL
       PUBLIC_HEADER
         DESTINATION ${OBS_INCLUDE_DESTINATION}
-        COMPONENT obs_${target}
+        COMPONENT obs_${target_without_dash}
         EXCLUDE_FROM_ALL)
 
     if(MSVC)
@@ -23,7 +25,7 @@ function(setup_binary_target target)
         CONFIGURATIONS "RelWithDebInfo" "Debug"
         DESTINATION
           $ENV{OBS_InstallerTempDir}/$<IF:$<STREQUAL:$<TARGET_PROPERTY:${target},TYPE>,EXECUTABLE>,${OBS_EXECUTABLE_DESTINATION},${OBS_LIBRARY_DESTINATION}>
-        COMPONENT obs_${target}
+        COMPONENT obs_${target_without_dash}
         OPTIONAL EXCLUDE_FROM_ALL)
     endif()
   endif()
@@ -34,7 +36,7 @@ function(setup_binary_target target)
       CONFIGURATIONS "RelWithDebInfo" "Debug"
       DESTINATION
         $<IF:$<STREQUAL:$<TARGET_PROPERTY:${target},TYPE>,EXECUTABLE>,${OBS_EXECUTABLE_DESTINATION},${OBS_LIBRARY_DESTINATION}>
-      COMPONENT ${target}_Runtime
+      COMPONENT ${target_without_dash}_Runtime
       OPTIONAL)
 
     install(
@@ -42,7 +44,7 @@ function(setup_binary_target target)
       CONFIGURATIONS "RelWithDebInfo" "Debug"
       DESTINATION
         $<IF:$<STREQUAL:$<TARGET_PROPERTY:${target},TYPE>,EXECUTABLE>,${OBS_EXECUTABLE_DESTINATION},${OBS_LIBRARY_DESTINATION}>
-      COMPONENT obs_${target}
+      COMPONENT obs_${target_without_dash}
       OPTIONAL EXCLUDE_FROM_ALL)
   endif()
 
@@ -55,19 +57,21 @@ endfunction()
 function(setup_plugin_target target)
   _setup_plugin_target(${ARGV})
 
+  string(REPLACE "-" "_" target_without_dash "${target}")
+
   if(MSVC)
     install(
       FILES $<TARGET_PDB_FILE:${target}>
       CONFIGURATIONS "RelWithDebInfo" "Debug"
       DESTINATION ${OBS_PLUGIN_DESTINATION}
-      COMPONENT ${target}_Runtime
+      COMPONENT ${target_without_dash}_Runtime
       OPTIONAL)
 
     install(
       FILES $<TARGET_PDB_FILE:${target}>
       CONFIGURATIONS "RelWithDebInfo" "Debug"
       DESTINATION ${OBS_PLUGIN_DESTINATION}
-      COMPONENT obs_${target}
+      COMPONENT obs_${target_without_dash}
       OPTIONAL EXCLUDE_FROM_ALL)
   endif()
 
@@ -75,10 +79,10 @@ function(setup_plugin_target target)
     install(
       TARGETS ${target}
       RUNTIME DESTINATION $ENV{OBS_InstallerTempDir}/${OBS_PLUGIN_DESTINATION}
-              COMPONENT obs_${target}
+              COMPONENT obs_${target_without_dash}
               EXCLUDE_FROM_ALL
       LIBRARY DESTINATION $ENV{OBS_InstallerTempDir}/${OBS_PLUGIN_DESTINATION}
-              COMPONENT obs_${target}
+              COMPONENT obs_${target_without_dash}
               EXCLUDE_FROM_ALL)
 
     if(MSVC)
@@ -86,7 +90,7 @@ function(setup_plugin_target target)
         FILES $<TARGET_PDB_FILE:${target}>
         CONFIGURATIONS "RelWithDebInfo" "Debug"
         DESTINATION $ENV{OBS_InstallerTempDir}/${OBS_PLUGIN_DESTINATION}
-        COMPONENT obs_${target}
+        COMPONENT obs_${target_without_dash}
         OPTIONAL EXCLUDE_FROM_ALL)
     endif()
   endif()
@@ -96,12 +100,14 @@ endfunction()
 function(setup_script_plugin_target target)
   _setup_script_plugin_target(${ARGV})
 
+  string(REPLACE "-" "_" target_without_dash "${target}")
+
   if(MSVC)
     install(
       FILES $<TARGET_PDB_FILE:${target}>
       CONFIGURATIONS "RelWithDebInfo" "Debug"
       DESTINATION ${OBS_SCRIPT_PLUGIN_DESTINATION}
-      COMPONENT obs_${target}
+      COMPONENT obs_${target_without_dash}
       OPTIONAL EXCLUDE_FROM_ALL)
   endif()
 
@@ -110,19 +116,20 @@ function(setup_script_plugin_target target)
       TARGETS ${target}
       RUNTIME
         DESTINATION $ENV{OBS_InstallerTempDir}/${OBS_SCRIPT_PLUGIN_DESTINATION}
-        COMPONENT obs_${target}
+        COMPONENT obs_${target_without_dash}
         EXCLUDE_FROM_ALL
       LIBRARY
         DESTINATION $ENV{OBS_InstallerTempDir}/${OBS_SCRIPT_PLUGIN_DESTINATION}
-        COMPONENT obs_${target}
+        COMPONENT obs_${target_without_dash}
         EXCLUDE_FROM_ALL)
+    cpack_add_component(obs_${target_without_dash} HIDDEN)
 
     if(MSVC)
       install(
         FILES $<TARGET_PDB_FILE:${target}>
         CONFIGURATIONS "RelWithDebInfo" "Debug"
         DESTINATION $ENV{OBS_InstallerTempDir}/${OBS_SCRIPT_PLUGIN_DESTINATION}
-        COMPONENT obs_${target}
+        COMPONENT obs_${target_without_dash}
         OPTIONAL EXCLUDE_FROM_ALL)
     endif()
 
@@ -131,7 +138,7 @@ function(setup_script_plugin_target target)
         FILES
           "$<TARGET_FILE_DIR:${target}>/$<TARGET_FILE_BASE_NAME:${target}>.py"
         DESTINATION $ENV{OBS_InstallerTempDir}/${OBS_SCRIPT_PLUGIN_DESTINATION}
-        COMPONENT obs_${target}
+        COMPONENT obs_${target_without_dash}
         EXCLUDE_FROM_ALL)
     endif()
   endif()
@@ -141,6 +148,8 @@ endfunction()
 function(setup_target_resources target destination)
   _setup_target_resources(${ARGV})
 
+  string(REPLACE "-" "_" target_without_dash "${target}")
+
   if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/data")
     if(${_ARCH_SUFFIX} EQUAL 64 AND DEFINED ENV{OBS_InstallerTempDir})
 
@@ -149,7 +158,7 @@ function(setup_target_resources target destination)
         DESTINATION
           $ENV{OBS_InstallerTempDir}/${OBS_DATA_DESTINATION}/${destination}
         USE_SOURCE_PERMISSIONS
-        COMPONENT obs_${target}
+        COMPONENT obs_${target_without_dash}
         EXCLUDE_FROM_ALL)
     endif()
   endif()
@@ -166,24 +175,27 @@ function(add_target_resource)
     set(optional "")
   endif()
 
+  string(REPLACE "-" "_" target_without_dash "${target}")
+
   install(
     FILES ${resource}
     DESTINATION ${OBS_DATA_DESTINATION}/${destination}
-    COMPONENT ${target}_Runtime
+    COMPONENT ${target_without_dash}_Runtime
     ${optional})
 
   install(
     FILES ${resource}
     DESTINATION ${OBS_DATA_DESTINATION}/${destination}
-    COMPONENT obs_${target}
+    COMPONENT obs_${target_without_dash}
     ${optional} EXCLUDE_FROM_ALL)
+  cpack_add_component(obs_${target_without_dash} HIDDEN)
 
   if(DEFINED ENV{OBS_InstallerTempDir})
     install(
       FILES ${resource}
       DESTINATION
         $ENV{OBS_InstallerTempDir}/${OBS_DATA_DESTINATION}/${destination}
-      COMPONENT obs_${target}
+      COMPONENT obs_${target_without_dash}
       ${optional} EXCLUDE_FROM_ALL)
   endif()
 endfunction()
@@ -235,6 +247,7 @@ function(export_target target)
       DESTINATION "${OBS_INCLUDE_DESTINATION}"
       COMPONENT obs_libraries
       EXCLUDE_FROM_ALL)
+  cpack_add_component(obs_libraries HIDDEN)
 
   if(MSVC)
     install(
@@ -290,24 +303,25 @@ endfunction()
 
 # Helper function to do additional setup for browser source plugin
 function(setup_target_browser target)
+  string(REPLACE "-" "_" target_without_dash "${target}")
   install(
     DIRECTORY ${CEF_ROOT_DIR}/Resources/
     DESTINATION ${OBS_PLUGIN_DESTINATION}
-    COMPONENT ${target}_Runtime)
+    COMPONENT ${target_without_dash}_Runtime)
 
-  install(
-    DIRECTORY ${CEF_ROOT_DIR}/Resources/
-    DESTINATION ${OBS_OUTPUT_DIR}/$<CONFIG>/${OBS_PLUGIN_DESTINATION}
-    COMPONENT obs_rundir
-    EXCLUDE_FROM_ALL)
+  # install(
+  #   DIRECTORY ${CEF_ROOT_DIR}/Resources/
+  #   DESTINATION ${OBS_OUTPUT_DIR}/$<CONFIG>/${OBS_PLUGIN_DESTINATION}
+  #   COMPONENT obs_rundir
+  #   EXCLUDE_FROM_ALL)
 
-  if(DEFINED ENV{OBS_InstallerTempDir})
-    install(
-      DIRECTORY ${CEF_ROOT_DIR}/Resources/
-      DESTINATION $ENV{OBS_InstallerTempDir}/${OBS_PLUGIN_DESTINATION}
-      COMPONENT obs_rundir
-      EXCLUDE_FROM_ALL)
-  endif()
+  # if(DEFINED ENV{OBS_InstallerTempDir})
+  #   install(
+  #     DIRECTORY ${CEF_ROOT_DIR}/Resources/
+  #     DESTINATION $ENV{OBS_InstallerTempDir}/${OBS_PLUGIN_DESTINATION}
+  #     COMPONENT obs_rundir
+  #     EXCLUDE_FROM_ALL)
+  # endif()
 
   set(_ADDITIONAL_BROWSER_FILES
       "libcef.dll"
@@ -329,21 +343,21 @@ function(setup_target_browser target)
   install(
     FILES ${_ADDITIONAL_BROWSER_FILES}
     DESTINATION ${OBS_PLUGIN_DESTINATION}/
-    COMPONENT ${target}_Runtime)
+    COMPONENT ${target_without_dash}_Runtime)
 
-  install(
-    FILES ${_ADDITIONAL_BROWSER_FILES}
-    DESTINATION ${OBS_OUTPUT_DIR}/$<CONFIG>/${OBS_PLUGIN_DESTINATION}/
-    COMPONENT obs_rundir
-    EXCLUDE_FROM_ALL)
+  # install(
+  #   FILES ${_ADDITIONAL_BROWSER_FILES}
+  #   DESTINATION ${OBS_OUTPUT_DIR}/$<CONFIG>/${OBS_PLUGIN_DESTINATION}/
+  #   COMPONENT obs_rundir
+  #   EXCLUDE_FROM_ALL)
 
-  if(DEFINED ENV{OBS_InstallerTempDir})
-    install(
-      FILES ${_ADDITIONAL_BROWSER_FILES}
-      DESTINATION $ENV{OBS_InstallerTempDir}/${OBS_PLUGIN_DESTINATION}/
-      COMPONENT obs_rundir
-      EXCLUDE_FROM_ALL)
-  endif()
+  # if(DEFINED ENV{OBS_InstallerTempDir})
+  #   install(
+  #     FILES ${_ADDITIONAL_BROWSER_FILES}
+  #     DESTINATION $ENV{OBS_InstallerTempDir}/${OBS_PLUGIN_DESTINATION}/
+  #     COMPONENT obs_rundir
+  #     EXCLUDE_FROM_ALL)
+  # endif()
 endfunction()
 
 # Helper function to gather external libraries depended-on by libobs
@@ -375,11 +389,13 @@ function(setup_libobs_target target)
     list(GET _FIXUP 0 _SOURCE)
     list(GET _FIXUP 1 _DESTINATION)
 
+    string(REPLACE "-" "_" target_without_dash "${target}")
+
     install(
       DIRECTORY ${_ADDITIONAL_FILES}/${_SOURCE}/
       DESTINATION ${_DESTINATION}
       USE_SOURCE_PERMISSIONS
-      COMPONENT ${target}_Runtime
+      COMPONENT ${target_without_dash}_Runtime
       PATTERN ".gitignore" EXCLUDE)
 
     install(
@@ -389,13 +405,14 @@ function(setup_libobs_target target)
       COMPONENT obs_rundir
       EXCLUDE_FROM_ALL
       PATTERN ".gitignore" EXCLUDE)
+    cpack_add_component(obs_rundir HIDDEN)
 
     if(_SOURCE MATCHES "(libs|exec)(32|64)?")
       install(
         DIRECTORY ${_ADDITIONAL_FILES}/${_SOURCE}$<IF:$<CONFIG:Debug>,d,r>/
         DESTINATION ${_DESTINATION}
         USE_SOURCE_PERMISSIONS
-        COMPONENT ${target}_Runtime
+        COMPONENT ${target_without_dash}_Runtime
         PATTERN ".gitignore" EXCLUDE)
 
       install(
@@ -448,6 +465,7 @@ function(install_headers target)
     PATTERN "cmake" EXCLUDE
     PATTERN "pkgconfig" EXCLUDE
     PATTERN "data" EXCLUDE)
+  cpack_add_component(obs_libraries HIDDEN)
 
   if(ENABLE_HEVC)
     install(

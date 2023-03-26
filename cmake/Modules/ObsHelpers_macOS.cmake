@@ -269,6 +269,7 @@ function(setup_obs_modules target)
         DESTINATION $<TARGET_FILE_BASE_NAME:${target}>.app/Contents/PlugIns
         COMPONENT obs_plugins
         NAMELINK_COMPONENT ${target}_Development)
+    cpack_add_component(${target}_Development HIDDEN)
   endif()
 
   get_property(OBS_SCRIPTING_MODULE_LIST GLOBAL

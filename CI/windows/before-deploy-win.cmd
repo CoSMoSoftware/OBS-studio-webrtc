@@ -1,9 +1,9 @@
 REM install WiX Toolset
-choco -y install wixtoolset
+REM choco -y install wixtoolset
 
 REM Parameter %1 = vendor name
 cd build64_%1
-"C:\Program Files\CMake\bin\cpack.exe" -C %BUILD_TYPE% -G WIX
+"C:\Program Files\CMake\bin\cpack.exe" -C %BUILD_TYPE% -G NSIS
 
 mkdir ..\build_%1
 move *.msi ..\build_%1

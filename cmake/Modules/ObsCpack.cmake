@@ -2,7 +2,7 @@
 if(APPLE AND NOT CPACK_GENERATOR)
 	set(CPACK_GENERATOR "Bundle")
 elseif(WIN32 AND NOT CPACK_GENERATOR)
-	set(CPACK_GENERATOR "WIX" "ZIP")
+	set(CPACK_GENERATOR "NSIS" "ZIP")
 endif()
 
 set(CPACK_PACKAGE_NAME "OBS-WebRTC")
@@ -53,6 +53,12 @@ else()
 
 	set(CPACK_PACKAGE_EXECUTABLES "obs${_output_suffix}" "OBS-WebRTC")
 	set(CPACK_CREATE_DESKTOP_LINKS "obs${_output_suffix}")
+	# Set "start in" path for OBS-WebRTC shortcut
+	set(CPACK_NSIS_CREATE_ICONS "SetOutPath '$INSTDIR\\\\bin\\\\${_output_suffix}bit'")
+	set(CPACK_NSIS_CREATE_ICONS_EXTRA
+		"CreateShortCut '$SMPROGRAMS\\\\$STARTMENU_FOLDER\\\\OBS-WebRTC.lnk' '$INSTDIR\\\\bin\\\\${_output_suffix}bit\\\\obs${_output_suffix}.exe'")
+	set(CPACK_NSIS_DELETE_ICONS_EXTRA
+		"Delete '$SMPROGRAMS\\\\$START_MENU\\\\Uninstall.lnk'")
 endif()
 
 set(CPACK_BUNDLE_NAME "OBS-WebRTC")
@@ -61,6 +67,13 @@ set(CPACK_BUNDLE_ICON "${CMAKE_SOURCE_DIR}/cmake/osxbundle/obs.icns")
 set(CPACK_BUNDLE_STARTUP_COMMAND "${CMAKE_SOURCE_DIR}/cmake/osxbundle/obslaunch.sh")
 
 set(CPACK_WIX_TEMPLATE "${CMAKE_SOURCE_DIR}/cmake/Modules/WIX.template.in")
+
+set(CPACK_NSIS_MUI_ICON     "${CMAKE_CURRENT_SOURCE_DIR}/cmake/bundle/windows/obs-studio.ico")
+set(CPACK_NSIS_MUI_UNIICON  "${CMAKE_CURRENT_SOURCE_DIR}/cmake/bundle/windows/obs-studio.ico")
+set(CPACK_NSIS_PACKAGE_NAME "OBS-WebRTC ${OBS_VERSION}")
+set(CPACK_NSIS_DISPLAY_NAME "OBS-WebRTC ${OBS_VERSION}")
+set(CPACK_NSIS_MODIFY_PATH  ON)
+set(CPACK_NSIS_ENABLE_UNINSTALL_BEFORE_INSTALL ON)
 
 if(INSTALLER_RUN)
 	set(CPACK_PACKAGE_INSTALL_REGISTRY_KEY "OBSWebRTC")
