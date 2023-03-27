@@ -1,39 +1,65 @@
 diff --git a/plugins/obs-ndi/CMakeLists.txt b/plugins/obs-ndi/CMakeLists.txt
-index 29026e1..4e65370 100644
+index 29026e1..7dabf2f 100644
 --- a/plugins/obs-ndi/CMakeLists.txt
 +++ b/plugins/obs-ndi/CMakeLists.txt
-@@ -34,20 +34,24 @@ target_sources(
+@@ -12,6 +12,10 @@ set(LINUX_MAINTAINER_EMAIL "tt2468@irltoolkit.com")
+ 
+ set(OBS_NDI_VERSION "${CMAKE_PROJECT_VERSION}")
+ 
++if(UNIX AND NOT APPLE)
++    set(OS_LINUX TRUE)
++endif()
++
+ # ----------------------------------------------------------------------
+ 
+ target_sources(
+@@ -34,20 +38,40 @@ target_sources(
  target_sources(obs-ndi PRIVATE src/forms/SettingsDialog.cpp src/forms/SettingsDialog.h
                                 src/forms/resources.qrc)
  
 -target_include_directories(obs-ndi PRIVATE ${CMAKE_SOURCE_DIR}/src ${CMAKE_SOURCE_DIR}/lib/ndi)
-+target_include_directories(obs-ndi PRIVATE ${CMAKE_SOURCE_DIR}/src
-+                                           ${CMAKE_SOURCE_DIR}/plugins/obs-ndi/lib/ndi
-+                                           ${CMAKE_SOURCE_DIR}/UI/obs-frontend-api)
++if(OS_LINUX)
++  target_include_directories(obs-ndi PRIVATE ${CMAKE_SOURCE_DIR}/src ${CMAKE_SOURCE_DIR}/lib/ndi)
++else()
++  target_include_directories(obs-ndi PRIVATE ${CMAKE_SOURCE_DIR}/src
++                                            ${CMAKE_SOURCE_DIR}/plugins/obs-ndi/lib/ndi
++                                            ${CMAKE_SOURCE_DIR}/UI/obs-frontend-api)
++endif()
  
  # ----------------------------------------------------------------------
  
 -find_package(libobs REQUIRED)
 +#list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/external")
 +#list(APPEND CMAKE_MODULE_PATH "${CMAKE_BINARY_DIR}/UI/obs-frontend-api")
-+#find_package(Libobs REQUIRED)
++if(OS_LINUX)
++  find_package(libobs REQUIRED)
++endif()
 +
-+set(obs-frontend-api_DIR "${CMAKE_BINARY_DIR}/UI/obs-frontend-api")
++if(NOT OS_LINUX)
++  set(obs-frontend-api_DIR "${CMAKE_BINARY_DIR}/UI/obs-frontend-api")
++endif()
  find_package(obs-frontend-api REQUIRED)
 -include(cmake/ObsPluginHelpers.cmake)
-+#include(cmake/ObsPluginHelpers.cmake)
++
++if(OS_LINUX)
++  include(cmake/ObsPluginHelpers.cmake)
++endif()
++
  find_qt(COMPONENTS Widgets Core)
  
  configure_file(src/plugin-macros.h.in ${CMAKE_SOURCE_DIR}/src/plugin-macros.generated.h)
  
 -target_sources(${CMAKE_PROJECT_NAME} PRIVATE src/plugin-macros.generated.h)
--
--target_include_directories(obs-ndi PRIVATE ${CMAKE_SOURCE_DIR}/src)
 +target_sources(${PROJECT_NAME} PRIVATE src/plugin-macros.generated.h)
+ 
+-target_include_directories(obs-ndi PRIVATE ${CMAKE_SOURCE_DIR}/src)
++if(OS_LINUX)
++  target_include_directories(obs-ndi PRIVATE ${CMAKE_SOURCE_DIR}/src)
++endif()
  
  target_link_libraries(obs-ndi OBS::libobs OBS::obs-frontend-api Qt::Core Qt::Widgets)
  
-@@ -63,11 +67,11 @@ target_compile_features(obs-ndi PRIVATE cxx_std_17)
+@@ -63,11 +87,11 @@ target_compile_features(obs-ndi PRIVATE cxx_std_17)
  
  # --- Windows-specific build settings and tasks ---
  if(OS_WINDOWS)
@@ -48,7 +74,7 @@ index 29026e1..4e65370 100644
    endif()
    # --- End of section ---
  
-@@ -80,17 +84,22 @@ elseif(OS_MACOS)
+@@ -80,17 +104,24 @@ elseif(OS_MACOS)
    set(MACOSX_PLUGIN_BUNDLE_VERSION "${CMAKE_PROJECT_VERSION}")
    set(MACOSX_PLUGIN_SHORT_VERSION_STRING "1")
  
@@ -70,10 +96,12 @@ index 29026e1..4e65370 100644
  # --- End of section ---
  
 -setup_plugin_target(${CMAKE_PROJECT_NAME})
-+string(REPLACE "-" "_" project_name_without_dash "${PROJECT_NAME}")
-+cpack_add_component_group(${project_name_without_dash}_group
-+                          DISPLAY_NAME "obs-ndi plugin"
-+                          DESCRIPTION "Network A/V in OBS Studio with NewTek's NDI technology")
++if(NOT OS_LINUX)
++  string(REPLACE "-" "_" project_name_without_dash "${PROJECT_NAME}")
++  cpack_add_component_group(${project_name_without_dash}_group
++                            DISPLAY_NAME "obs-ndi plugin"
++                            DESCRIPTION "Network A/V in OBS Studio with NewTek's NDI technology")
++endif()
 +
 +setup_plugin_target(${PROJECT_NAME})
 diff --git a/plugins/obs-ndi/cmake/ObsPluginHelpers.cmake b/plugins/obs-ndi/cmake/ObsPluginHelpers.cmake
