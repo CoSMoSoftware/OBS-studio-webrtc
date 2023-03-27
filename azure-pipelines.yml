@@ -376,6 +376,12 @@ jobs:
         pushd plugins/obs-ndi
         mkdir BUILD
         cd BUILD
+        echo "********************************* ../../.."
+        ls ../../..
+        echo "********************************* ../../../build"
+        ls ../../../build
+        echo "********************************* ../../../build/UI/obs-frontend-api"
+        ls ../../../build/UI/obs-frontend-api
         cmake .. -DCMAKE_BUILD_TYPE=RelWithDebInfo -DLINUX_PORTABLE=OFF -Dobs-frontend-api_DIR=../../../build/UI/obs-frontend-api
         make -j4
         cpack
@@ -427,6 +433,12 @@ jobs:
         pushd plugins/obs-ndi
         mkdir BUILD
         cd BUILD
+        echo "********************************* ../../.."
+        ls ../../..
+        echo "********************************* ../../../build"
+        ls ../../../build
+        echo "********************************* ../../../build/UI/obs-frontend-api"
+        ls ../../../build/UI/obs-frontend-api
         cmake .. -DCMAKE_BUILD_TYPE=RelWithDebInfo -DLINUX_PORTABLE=OFF -Dobs-frontend-api_DIR=../../../build/UI/obs-frontend-api
         make -j4
         cpack
