@@ -76,8 +76,31 @@ index 29026e1..4e65370 100644
 +                          DESCRIPTION "Network A/V in OBS Studio with NewTek's NDI technology")
 +
 +setup_plugin_target(${PROJECT_NAME})
+diff --git a/plugins/obs-ndi/cmake/ObsPluginHelpers.cmake b/plugins/obs-ndi/cmake/ObsPluginHelpers.cmake
+index 450c46d..2aa8a55 100644
+--- a/plugins/obs-ndi/cmake/ObsPluginHelpers.cmake
++++ b/plugins/obs-ndi/cmake/ObsPluginHelpers.cmake
+@@ -491,7 +491,8 @@ else()
+       set(OBS_DATA_DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/obs)
+     else()
+       set(OBS_LIBRARY_DESTINATION bin/${_ARCH_SUFFIX}bit)
+-      set(OBS_PLUGIN_DESTINATION obs-plugins/${_ARCH_SUFFIX}bit)
++#      set(OBS_PLUGIN_DESTINATION obs-plugins/${_ARCH_SUFFIX}bit)
++      set(OBS_PLUGIN_DESTINATION obs-plugins)
+       set(CMAKE_INSTALL_RPATH "$ORIGIN/" "${CMAKE_INSTALL_PREFIX}/${OBS_LIBRARY_DESTINATION}")
+       set(OBS_DATA_DESTINATION "data")
+     endif()
+@@ -505,7 +506,7 @@ else()
+ 
+       set(CPACK_GENERATOR "DEB")
+       set(CPACK_DEBIAN_PACKAGE_DEPENDS
+-          "obs-studio (>= 27.0.0), libqt5core5a (>= 5.9.0~beta), libqt5gui5 (>= 5.3.0), libqt5widgets5 (>= 5.7.0)"
++          "obs (>= 1.5.0), libqt5core5a (>= 5.9.0~beta), libqt5gui5 (>= 5.3.0), libqt5widgets5 (>= 5.7.0)"
+       )
+ 
+       set(CPACK_OUTPUT_FILE_PREFIX ${CMAKE_SOURCE_DIR}/release)
 diff --git a/plugins/obs-ndi/cmake/bundle/macos/installer-macos.pkgproj.in b/plugins/obs-ndi/cmake/bundle/macos/installer-macos.pkgproj.in
-index 2a1f643..3673622 100644
+index 2a1f643..300f10a 100644
 --- a/plugins/obs-ndi/cmake/bundle/macos/installer-macos.pkgproj.in
 +++ b/plugins/obs-ndi/cmake/bundle/macos/installer-macos.pkgproj.in
 @@ -91,7 +91,7 @@
