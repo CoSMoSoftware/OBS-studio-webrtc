@@ -376,7 +376,7 @@ jobs:
         pushd plugins/obs-ndi
         mkdir BUILD
         cd BUILD
-        cmake .. -DCMAKE_BUILD_TYPE=RelWithDebInfo -DLINUX_PORTABLE=OFF
+        cmake .. -DCMAKE_BUILD_TYPE=RelWithDebInfo -DLINUX_PORTABLE=OFF -Dobs-frontend-api_DIR=../../../build/UI/obs-frontend-api
         make -j4
         cpack
         cd ../release
@@ -427,7 +427,7 @@ jobs:
         pushd plugins/obs-ndi
         mkdir BUILD
         cd BUILD
-        cmake .. -DCMAKE_BUILD_TYPE=RelWithDebInfo -DLINUX_PORTABLE=OFF
+        cmake .. -DCMAKE_BUILD_TYPE=RelWithDebInfo -DLINUX_PORTABLE=OFF -Dobs-frontend-api_DIR=../../../build/UI/obs-frontend-api
         make -j4
         cpack
         cd ../release
