@@ -1,0 +1,122 @@
+diff --git a/plugins/enc-amf/CMakeLists.txt b/plugins/enc-amf/CMakeLists.txt
+index 05a5b2a..06df954 100644
+--- a/plugins/enc-amf/CMakeLists.txt
++++ b/plugins/enc-amf/CMakeLists.txt
+@@ -420,47 +420,50 @@ EndIf()
+ # Installation
+ ################################################################################
+ 
+-If(${PropertyPrefix}OBS_NATIVE)
+-	install_obs_plugin_with_data(${PROJECT_NAME} resources)
+-Else()
+-	Install(
+-		TARGETS ${PROJECT_NAME}
+-		RUNTIME DESTINATION "./obs-plugins/${BITS}bit/" COMPONENT Runtime
+-		LIBRARY DESTINATION "./obs-plugins/${BITS}bit/" COMPONENT Runtime
+-	)
+-	IF(MSVC)
+-		Install(
+-			FILES $<TARGET_PDB_FILE:${PROJECT_NAME}>
+-			DESTINATION "./obs-plugins/${BITS}bit/"
+-			OPTIONAL
+-		)
+-	ENDIF()
+-
+-	Install(
+-		DIRECTORY "${PROJECT_SOURCE_DIR}/resources/"
+-		DESTINATION "./data/obs-plugins/${PROJECT_NAME}/"
+-	)
++setup_plugin_target(${PROJECT_NAME})
+ 
+-	If("${CMAKE_PACKAGE_SUFFIX_OVERRIDE}" STREQUAL "")
+-		Set(PackageFullName "${CMAKE_PACKAGE_PREFIX}/${CMAKE_PACKAGE_NAME}-${PROJECT_VERSION}")
+-	Else()
+-		Set(PackageFullName "${CMAKE_PACKAGE_PREFIX}/${CMAKE_PACKAGE_NAME}-${CMAKE_PACKAGE_SUFFIX_OVERRIDE}")
+-	EndIf()
+-
+-	Add_Custom_Target(
+-		PACKAGE_7Z
+-		${CMAKE_COMMAND} -E tar cfv "${PackageFullName}.7z" --format=7zip --
+-			"${CMAKE_INSTALL_PREFIX}/obs-plugins"
+-			"${CMAKE_INSTALL_PREFIX}/data"
+-		WORKING_DIRECTORY "${CMAKE_INSTALL_PREFIX}"
+-	)
+-	Add_Custom_Target(
+-		PACKAGE_ZIP
+-		${CMAKE_COMMAND} -E tar cfv "${PackageFullName}.zip" --format=zip --
+-			"${CMAKE_INSTALL_PREFIX}/obs-plugins"
+-			"${CMAKE_INSTALL_PREFIX}/data"
+-		WORKING_DIRECTORY "${CMAKE_INSTALL_PREFIX}"
+-	)
++If(${PropertyPrefix}OBS_NATIVE)
++	# install_obs_plugin_with_data(${PROJECT_NAME} resources)
++	setup_plugin_target(${PROJECT_NAME} resources)
++# Else()
++# 	Install(
++# 		TARGETS ${PROJECT_NAME}
++# 		RUNTIME DESTINATION "./obs-plugins/${BITS}bit/" COMPONENT Runtime
++# 		LIBRARY DESTINATION "./obs-plugins/${BITS}bit/" COMPONENT Runtime
++# 	)
++# 	IF(MSVC)
++# 		Install(
++# 			FILES $<TARGET_PDB_FILE:${PROJECT_NAME}>
++# 			DESTINATION "./obs-plugins/${BITS}bit/"
++# 			OPTIONAL
++# 		)
++# 	ENDIF()
++
++# 	Install(
++# 		DIRECTORY "${PROJECT_SOURCE_DIR}/resources/"
++# 		DESTINATION "./data/obs-plugins/${PROJECT_NAME}/"
++# 	)
++
++# 	If("${CMAKE_PACKAGE_SUFFIX_OVERRIDE}" STREQUAL "")
++# 		Set(PackageFullName "${CMAKE_PACKAGE_PREFIX}/${CMAKE_PACKAGE_NAME}-${PROJECT_VERSION}")
++# 	Else()
++# 		Set(PackageFullName "${CMAKE_PACKAGE_PREFIX}/${CMAKE_PACKAGE_NAME}-${CMAKE_PACKAGE_SUFFIX_OVERRIDE}")
++# 	EndIf()
++
++# 	Add_Custom_Target(
++# 		PACKAGE_7Z
++# 		${CMAKE_COMMAND} -E tar cfv "${PackageFullName}.7z" --format=7zip --
++# 			"${CMAKE_INSTALL_PREFIX}/obs-plugins"
++# 			"${CMAKE_INSTALL_PREFIX}/data"
++# 		WORKING_DIRECTORY "${CMAKE_INSTALL_PREFIX}"
++# 	)
++# 	Add_Custom_Target(
++# 		PACKAGE_ZIP
++# 		${CMAKE_COMMAND} -E tar cfv "${PackageFullName}.zip" --format=zip --
++# 			"${CMAKE_INSTALL_PREFIX}/obs-plugins"
++# 			"${CMAKE_INSTALL_PREFIX}/data"
++# 		WORKING_DIRECTORY "${CMAKE_INSTALL_PREFIX}"
++# 	)
+ EndIf()
+ 
+ ################################################################################
+diff --git a/plugins/enc-amf/amf-test/CMakeLists.txt b/plugins/enc-amf/amf-test/CMakeLists.txt
+index 4a3afea..b14e2df 100644
+--- a/plugins/enc-amf/amf-test/CMakeLists.txt
++++ b/plugins/enc-amf/amf-test/CMakeLists.txt
+@@ -158,13 +158,16 @@ set_target_properties(enc-amf-test
+ 	PROPERTIES
+ 		OUTPUT_NAME "enc-amf-test${BITS}")
+ 
++setup_plugin_target(${PROJECT_NAME})
++
+ if(${PropertyPrefix}OBS_NATIVE)
+-	install_obs_datatarget(enc-amf-test "obs-plugins/enc-amf")
++	setup_target_resources(enc-amf-test "obs-plugins/enc-amf")
++	# install_obs_datatarget(enc-amf-test "obs-plugins/enc-amf")
+ 	Set_Target_Properties(enc-amf-test PROPERTIES FOLDER "plugins/enc-amf")
+ else()
+-	INSTALL(TARGETS enc-amf-test
+-		RUNTIME DESTINATION "./data/obs-plugins/enc-amf/" COMPONENT Runtime
+-		LIBRARY DESTINATION "./data/obs-plugins/enc-amf/" COMPONENT Runtime
+-	)
+-	INSTALL(FILES $<TARGET_PDB_FILE:enc-amf-test> DESTINATION "./data/obs-plugins/enc-amf/" OPTIONAL)
++	# INSTALL(TARGETS enc-amf-test
++	# 	RUNTIME DESTINATION "./data/obs-plugins/enc-amf/" COMPONENT Runtime
++	# 	LIBRARY DESTINATION "./data/obs-plugins/enc-amf/" COMPONENT Runtime
++	# )
++	# INSTALL(FILES $<TARGET_PDB_FILE:enc-amf-test> DESTINATION "./data/obs-plugins/enc-amf/" OPTIONAL)
+ endif()

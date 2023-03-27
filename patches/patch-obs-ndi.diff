@@ -1,5 +1,5 @@
 diff --git a/plugins/obs-ndi/CMakeLists.txt b/plugins/obs-ndi/CMakeLists.txt
-index 29026e1..52614c3 100644
+index 29026e1..4e65370 100644
 --- a/plugins/obs-ndi/CMakeLists.txt
 +++ b/plugins/obs-ndi/CMakeLists.txt
 @@ -34,20 +34,24 @@ target_sources(
@@ -33,8 +33,14 @@ index 29026e1..52614c3 100644
  
  target_link_libraries(obs-ndi OBS::libobs OBS::obs-frontend-api Qt::Core Qt::Widgets)
  
-@@ -67,7 +71,7 @@ if(OS_WINDOWS)
-                  ${CMAKE_BINARY_DIR}/installer-Windows.generated.iss)
+@@ -63,11 +67,11 @@ target_compile_features(obs-ndi PRIVATE cxx_std_17)
+ 
+ # --- Windows-specific build settings and tasks ---
+ if(OS_WINDOWS)
+-  configure_file(cmake/bundle/windows/installer-Windows.iss.in
+-                 ${CMAKE_BINARY_DIR}/installer-Windows.generated.iss)
++  # configure_file(cmake/bundle/windows/installer-Windows.iss.in
++  #                ${CMAKE_BINARY_DIR}/installer-Windows.generated.iss)
  
    if(MSVC)
 -    target_compile_options(${CMAKE_PROJECT_NAME} PRIVATE /W4)
@@ -42,7 +48,7 @@ index 29026e1..52614c3 100644
    endif()
    # --- End of section ---
  
-@@ -80,17 +84,17 @@ elseif(OS_MACOS)
+@@ -80,17 +84,22 @@ elseif(OS_MACOS)
    set(MACOSX_PLUGIN_BUNDLE_VERSION "${CMAKE_PROJECT_VERSION}")
    set(MACOSX_PLUGIN_SHORT_VERSION_STRING "1")
  
@@ -64,76 +70,14 @@ index 29026e1..52614c3 100644
  # --- End of section ---
  
 -setup_plugin_target(${CMAKE_PROJECT_NAME})
++string(REPLACE "-" "_" project_name_without_dash "${PROJECT_NAME}")
++cpack_add_component_group(${project_name_without_dash}_group
++                          DISPLAY_NAME "obs-ndi plugin"
++                          DESCRIPTION "Network A/V in OBS Studio with NewTek's NDI technology")
++
 +setup_plugin_target(${PROJECT_NAME})
-diff --git a/plugins/obs-ndi/cmake/ObsPluginHelpers.cmake b/plugins/obs-ndi/cmake/ObsPluginHelpers.cmake
-index 450c46d..62e32d8 100644
---- a/plugins/obs-ndi/cmake/ObsPluginHelpers.cmake
-+++ b/plugins/obs-ndi/cmake/ObsPluginHelpers.cmake
-@@ -172,7 +172,7 @@ if(OS_POSIX)
-   # * C++, GCC ONLY - Warning about implicit conversion of NULL to another type
-   # * Enable color diagnostics on Clang (CMAKE_COLOR_DIAGNOSTICS available in CMake 3.24)
-   target_compile_options(
--    ${CMAKE_PROJECT_NAME}
-+    ${PROJECT_NAME}
-     PRIVATE
-       -Werror
-       -Wextra
-@@ -193,7 +193,7 @@ if(OS_POSIX)
-   # GCC 12.1.0 has a regression bug which trigger maybe-uninitialized warnings where there is not.
-   # (https://gcc.gnu.org/bugzilla/show_bug.cgi?id=105562)
-   if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU" AND CMAKE_CXX_COMPILER_VERSION VERSION_EQUAL "12.1.0")
--    target_compile_options(${CMAKE_PROJECT_NAME} PRIVATE -Wno-error=maybe-uninitialized)
-+    target_compile_options(${PROJECT_NAME} PRIVATE -Wno-error=maybe-uninitialized)
-   endif()
- 
-   if(NOT CCACHE_SET)
-@@ -252,7 +252,7 @@ elseif(_HOST_ARCH MATCHES "arm64|arm64e|aarch64")
-     check_c_compiler_flag("-fopenmp-simd" C_COMPILER_SUPPORTS_OPENMP_SIMD)
-     check_cxx_compiler_flag("-fopenmp-simd" CXX_COMPILER_SUPPORTS_OPENMP_SIMD)
-     target_compile_options(
--      ${CMAKE_PROJECT_NAME}
-+      ${PROJECT_NAME}
-       PRIVATE
-         -DSIMDE_ENABLE_OPENMP
-         "$<$<AND:$<COMPILE_LANGUAGE:C>,$<BOOL:C_COMPILER_SUPPORTS_OPENMP_SIMD>>:-fopenmp-simd>"
-@@ -264,7 +264,7 @@ endif()
- if(OS_MACOS)
-   # Set macOS-specific C++ standard library
-   target_compile_options(
--    ${CMAKE_PROJECT_NAME}
-+    ${PROJECT_NAME}
-     PRIVATE "$<$<COMPILE_LANG_AND_ID:OBJC,AppleClang,Clang>:-fcolor-diagnostics>" -stdlib=libc++)
- 
-   # Set build architecture to host architecture by default
-@@ -498,7 +498,7 @@ else()
- 
-     # Setup Linux-specific CPack values for "deb" package generation
-     if(OS_LINUX)
--      set(CPACK_PACKAGE_NAME "${CMAKE_PROJECT_NAME}")
-+      set(CPACK_PACKAGE_NAME "${PROJECT_NAME}")
-       set(CPACK_DEBIAN_PACKAGE_MAINTAINER "${LINUX_MAINTAINER_EMAIL}")
-       set(CPACK_PACKAGE_VERSION "${CMAKE_PROJECT_VERSION}")
-       set(CPACK_PACKAGE_FILE_NAME "${CPACK_PACKAGE_NAME}-${CPACK_PACKAGE_VERSION}-linux-x86_64")
-@@ -547,7 +547,7 @@ else()
-       # * DISABLE warnings about nonstandard nameless structs/unions,
-       #   https://docs.microsoft.com/en-us/cpp/error-messages/compiler-warnings/compiler-warning-level-4-c4201?view=msvc-170
-       target_compile_options(
--        ${CMAKE_PROJECT_NAME}
-+        ${PROJECT_NAME}
-         PRIVATE /MP
-                 /W3
-                 /WX
-@@ -572,7 +572,7 @@ else()
-       # * RelWithDebInfo ONLY - Disable incremental linking, but enable COMDAT folding,
-       #   https://docs.microsoft.com/en-us/cpp/build/reference/opt-optimizations?view=msvc-170
-       target_link_options(
--        ${CMAKE_PROJECT_NAME}
-+        ${PROJECT_NAME}
-         PRIVATE
-         "LINKER:/OPT:REF"
-         "LINKER:/WX"
 diff --git a/plugins/obs-ndi/cmake/bundle/macos/installer-macos.pkgproj.in b/plugins/obs-ndi/cmake/bundle/macos/installer-macos.pkgproj.in
-index 2a1f643..300f10a 100644
+index 2a1f643..3673622 100644
 --- a/plugins/obs-ndi/cmake/bundle/macos/installer-macos.pkgproj.in
 +++ b/plugins/obs-ndi/cmake/bundle/macos/installer-macos.pkgproj.in
 @@ -91,7 +91,7 @@
