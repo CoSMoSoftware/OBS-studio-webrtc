@@ -6,5 +6,5 @@ cd build64_%1
 "C:\Program Files\CMake\bin\cpack.exe" -C %BUILD_TYPE% -G NSIS
 
 mkdir ..\build_%1
-move *.msi ..\build_%1
+move *.exe ..\build_%1
 cd ..
