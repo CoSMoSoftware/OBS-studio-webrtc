@@ -1,5 +1,5 @@
 diff --git a/plugins/obs-ndi/CMakeLists.txt b/plugins/obs-ndi/CMakeLists.txt
-index 7123df8..82dbc58 100644
+index 7123df8..53f07ac 100644
 --- a/plugins/obs-ndi/CMakeLists.txt
 +++ b/plugins/obs-ndi/CMakeLists.txt
 @@ -1,16 +1,20 @@
@@ -26,7 +26,7 @@ index 7123df8..82dbc58 100644
    PRIVATE src/obs-ndi.cpp
            src/obs-ndi.cpp
            src/obs-ndi-source.cpp
-@@ -27,34 +31,48 @@ target_sources(
+@@ -27,34 +31,54 @@ target_sources(
            src/Config.h
            src/forms/output-settings.h)
  
@@ -50,12 +50,13 @@ index 7123df8..82dbc58 100644
 +  include(cmake/ObsPluginHelpers.cmake)
 +endif()
  
--find_package(obs-frontend-api REQUIRED)
--target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE OBS::obs-frontend-api)
 +if(OS_LINUX)
 +  list(APPEND CMAKE_PREFIX_PATH "${CMAKE_SOURCE_DIR}/../../install_dir/lib/cmake/obs-frontend-api")
-+  find_package(obs-frontend-api REQUIRED)
++else()
++  list(APPEND CMAKE_PREFIX_PATH "${CMAKE_BINARY_DIR}/UI/obs-frontend-api")
 +endif()
+ find_package(obs-frontend-api REQUIRED)
+-target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE OBS::obs-frontend-api)
 +target_link_libraries(${PROJECT_NAME} PRIVATE OBS::obs-frontend-api)
  
  find_qt(COMPONENTS Widgets Core)
@@ -68,7 +69,12 @@ index 7123df8..82dbc58 100644
               AUTOUIC ON
               AUTORCC ON)
  
- configure_file(src/plugin-macros.h.in ${CMAKE_SOURCE_DIR}/src/plugin-macros.generated.h)
+-configure_file(src/plugin-macros.h.in ${CMAKE_SOURCE_DIR}/src/plugin-macros.generated.h)
++if(OS_LINUX)
++  configure_file(src/plugin-macros.h.in ${CMAKE_SOURCE_DIR}/src/plugin-macros.generated.h)
++else()
++  configure_file(src/plugin-macros.h.in ${CMAKE_SOURCE_DIR}/plugins/obs-ndi/src/plugin-macros.generated.h)
++endif()
  
 -target_sources(${CMAKE_PROJECT_NAME} PRIVATE src/plugin-macros.generated.h)
 +target_sources(${PROJECT_NAME} PRIVATE src/plugin-macros.generated.h)
@@ -85,7 +91,7 @@ index 7123df8..82dbc58 100644
  
  # --- End of section ---
  
-@@ -63,11 +81,11 @@ if(OS_WINDOWS)
+@@ -63,11 +87,11 @@ if(OS_WINDOWS)
    configure_file(cmake/bundle/windows/installer-Windows.iss.in
                   ${CMAKE_BINARY_DIR}/installer-Windows.generated.iss)
  
@@ -100,7 +106,7 @@ index 7123df8..82dbc58 100644
    endif()
    # --- End of section ---
  
-@@ -80,13 +98,20 @@ elseif(OS_MACOS)
+@@ -80,13 +104,20 @@ elseif(OS_MACOS)
    set(MACOSX_PLUGIN_BUNDLE_VERSION "${CMAKE_PROJECT_VERSION}")
    set(MACOSX_PLUGIN_SHORT_VERSION_STRING "1")
  
@@ -125,7 +131,7 @@ index 7123df8..82dbc58 100644
 +
 +setup_plugin_target(${PROJECT_NAME})
 diff --git a/plugins/obs-ndi/cmake/ObsPluginHelpers.cmake b/plugins/obs-ndi/cmake/ObsPluginHelpers.cmake
-index 450c46d..0745c57 100644
+index 450c46d..702026d 100644
 --- a/plugins/obs-ndi/cmake/ObsPluginHelpers.cmake
 +++ b/plugins/obs-ndi/cmake/ObsPluginHelpers.cmake
 @@ -501,11 +501,11 @@ else()
@@ -143,7 +149,7 @@ index 450c46d..0745c57 100644
  
        set(CPACK_OUTPUT_FILE_PREFIX ${CMAKE_SOURCE_DIR}/release)
 diff --git a/plugins/obs-ndi/cmake/bundle/macos/installer-macos.pkgproj.in b/plugins/obs-ndi/cmake/bundle/macos/installer-macos.pkgproj.in
-index 2a1f643..300f10a 100644
+index 2a1f643..3673622 100644
 --- a/plugins/obs-ndi/cmake/bundle/macos/installer-macos.pkgproj.in
 +++ b/plugins/obs-ndi/cmake/bundle/macos/installer-macos.pkgproj.in
 @@ -91,7 +91,7 @@
