@@ -1,5 +1,5 @@
 diff --git a/plugins/obs-ndi/CMakeLists.txt b/plugins/obs-ndi/CMakeLists.txt
-index 29026e1..7dabf2f 100644
+index 29026e1..4b846d0 100644
 --- a/plugins/obs-ndi/CMakeLists.txt
 +++ b/plugins/obs-ndi/CMakeLists.txt
 @@ -12,6 +12,10 @@ set(LINUX_MAINTAINER_EMAIL "tt2468@irltoolkit.com")
@@ -13,7 +13,7 @@ index 29026e1..7dabf2f 100644
  # ----------------------------------------------------------------------
  
  target_sources(
-@@ -34,20 +38,40 @@ target_sources(
+@@ -34,20 +38,42 @@ target_sources(
  target_sources(obs-ndi PRIVATE src/forms/SettingsDialog.cpp src/forms/SettingsDialog.h
                                 src/forms/resources.qrc)
  
@@ -32,10 +32,12 @@ index 29026e1..7dabf2f 100644
 +#list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/external")
 +#list(APPEND CMAKE_MODULE_PATH "${CMAKE_BINARY_DIR}/UI/obs-frontend-api")
 +if(OS_LINUX)
++  list(APPEND CMAKE_PREFIX_PATH "${CMAKE_SOURCE_DIR}/../../build/libobs")
 +  find_package(libobs REQUIRED)
 +endif()
 +
 +if(NOT OS_LINUX)
++  list(APPEND CMAKE_PREFIX_PATH "${CMAKE_SOURCE_DIR}/../../build/UI/obs-frontend-api")
 +  set(obs-frontend-api_DIR "${CMAKE_BINARY_DIR}/UI/obs-frontend-api")
 +endif()
  find_package(obs-frontend-api REQUIRED)
@@ -59,7 +61,7 @@ index 29026e1..7dabf2f 100644
  
  target_link_libraries(obs-ndi OBS::libobs OBS::obs-frontend-api Qt::Core Qt::Widgets)
  
-@@ -63,11 +87,11 @@ target_compile_features(obs-ndi PRIVATE cxx_std_17)
+@@ -63,11 +89,11 @@ target_compile_features(obs-ndi PRIVATE cxx_std_17)
  
  # --- Windows-specific build settings and tasks ---
  if(OS_WINDOWS)
@@ -74,7 +76,7 @@ index 29026e1..7dabf2f 100644
    endif()
    # --- End of section ---
  
-@@ -80,17 +104,24 @@ elseif(OS_MACOS)
+@@ -80,17 +106,24 @@ elseif(OS_MACOS)
    set(MACOSX_PLUGIN_BUNDLE_VERSION "${CMAKE_PROJECT_VERSION}")
    set(MACOSX_PLUGIN_SHORT_VERSION_STRING "1")
  
