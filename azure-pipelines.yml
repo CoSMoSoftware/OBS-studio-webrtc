@@ -383,6 +383,7 @@ jobs:
         popd
       displayName: '${{ vendor }} cmake, build, package'
       env:
+        BUILD_DIR: "BUILD"
         OBS_VERSION: "$(OBS_VERSION)_2004"
         UBUNTU_VERSION: "2004"
         CI_BUILD_TYPE: $(BUILD_TYPE)
@@ -435,6 +436,7 @@ jobs:
         popd
       displayName: '${{ vendor }} cmake, build, package'
       env:
+        BUILD_DIR: "BUILD"
         OBS_VERSION: "$(OBS_VERSION)_2204"
         UBUNTU_VERSION: "2204"
         CI_BUILD_TYPE: $(BUILD_TYPE)
