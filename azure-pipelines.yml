@@ -373,15 +373,15 @@ jobs:
         export OBS_VERSION=${OBS_VERSION}-2004
         ./CI/linux/02_build_obs.sh --disable-pipewire --vendor ${{ vendor }}
         ./CI/linux/03_package_obs.sh --vendor ${{ vendor }}
-        pushd plugins/obs-ndi
-        mkdir BUILD
-        cd BUILD
-        cmake .. -DCMAKE_BUILD_TYPE=RelWithDebInfo -DLINUX_PORTABLE=OFF -Dobs-frontend-api_DIR=../../../build/UI/obs-frontend-api -Dlibobs_DIR=../../../build/libobs
-        make -j4
-        cpack
-        cd ../release
-        mv *.deb ../../../package_${{ vendor }}
-        popd
+        # pushd plugins/obs-ndi
+        # mkdir BUILD
+        # cd BUILD
+        # cmake .. -DCMAKE_BUILD_TYPE=RelWithDebInfo -DLINUX_PORTABLE=OFF -Dobs-frontend-api_DIR=../../../build/UI/obs-frontend-api -Dlibobs_DIR=../../../build/libobs
+        # make -j4
+        # cpack
+        # cd ../release
+        # mv *.deb ../../../package_${{ vendor }}
+        # popd
       displayName: '${{ vendor }} cmake, build, package'
       env:
         CI_BUILD_TYPE: $(BUILD_TYPE)
@@ -424,17 +424,15 @@ jobs:
         export OBS_VERSION=${OBS_VERSION}-2204
         ./CI/linux/02_build_obs.sh --disable-pipewire --vendor ${{ vendor }}
         ./CI/linux/03_package_obs.sh --vendor ${{ vendor }}
-        pushd plugins/obs-ndi
-        mkdir BUILD
-        cd BUILD
-        echo "*********************** ../../../build/libobs"
-        ls ../../../build/libobs
-        cmake .. -DCMAKE_BUILD_TYPE=RelWithDebInfo -DLINUX_PORTABLE=OFF -Dobs-frontend-api_DIR=../../../build/UI/obs-frontend-api -Dlibobs_DIR=../../../build/libobs
-        make -j4
-        cpack
-        cd ../release
-        mv *.deb ../../../package_${{ vendor }}
-        popd
+        # pushd plugins/obs-ndi
+        # mkdir BUILD
+        # cd BUILD
+        # cmake .. -DCMAKE_BUILD_TYPE=RelWithDebInfo -DLINUX_PORTABLE=OFF -Dobs-frontend-api_DIR=../../../build/UI/obs-frontend-api -Dlibobs_DIR=../../../build/libobs
+        # make -j4
+        # cpack
+        # cd ../release
+        # mv *.deb ../../../package_${{ vendor }}
+        # popd
       displayName: '${{ vendor }} cmake, build, package'
       env:
         CI_BUILD_TYPE: $(BUILD_TYPE)
