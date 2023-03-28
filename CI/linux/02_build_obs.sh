@@ -23,7 +23,7 @@ build_obs() {
 
     ensure_dir "${CHECKOUT_DIR}/"
     step "Build OBS targets..."
-    cmake --build ${BUILD_DIR} -t install
+    cmake --build ${BUILD_DIR}
 }
 
 # Function to configure OBS build

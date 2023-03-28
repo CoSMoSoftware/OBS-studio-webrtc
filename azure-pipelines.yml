@@ -372,6 +372,9 @@ jobs:
         export CXX=clang++
         ./CI/linux/02_build_obs.sh --disable-pipewire --vendor ${{ vendor }}
         ./CI/linux/03_package_obs.sh --vendor ${{ vendor }}
+        cd build
+        make install
+        cd ..
         pushd plugins/obs-ndi
         mkdir BUILD
         cd BUILD
@@ -424,6 +427,9 @@ jobs:
         export CXX=clang++
         ./CI/linux/02_build_obs.sh --disable-pipewire --vendor ${{ vendor }}
         ./CI/linux/03_package_obs.sh --vendor ${{ vendor }}
+        cd build
+        make install
+        cd ..
         pushd plugins/obs-ndi
         mkdir BUILD
         cd BUILD
