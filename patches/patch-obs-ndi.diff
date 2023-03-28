@@ -1,74 +1,98 @@
 diff --git a/plugins/obs-ndi/CMakeLists.txt b/plugins/obs-ndi/CMakeLists.txt
-index 29026e1..4b846d0 100644
+index 7123df8..82dbc58 100644
 --- a/plugins/obs-ndi/CMakeLists.txt
 +++ b/plugins/obs-ndi/CMakeLists.txt
-@@ -12,6 +12,10 @@ set(LINUX_MAINTAINER_EMAIL "tt2468@irltoolkit.com")
+@@ -1,16 +1,20 @@
+ cmake_minimum_required(VERSION 3.16...3.21)
  
- set(OBS_NDI_VERSION "${CMAKE_PROJECT_VERSION}")
+ project(obs-ndi VERSION 4.11.1)
+-add_library(${CMAKE_PROJECT_NAME} MODULE)
++add_library(${PROJECT_NAME} MODULE)
+ 
+ set(PLUGIN_AUTHOR "Stephane Lepin")
+-set(MACOS_BUNDLEID "fr.palakis.${CMAKE_PROJECT_NAME}")
++set(MACOS_BUNDLEID "fr.palakis.${PROJECT_NAME}")
+ set(LINUX_MAINTAINER_EMAIL "stephane.lepin@gmail.com")
  
 +if(UNIX AND NOT APPLE)
-+    set(OS_LINUX TRUE)
++  set(OS_LINUX TRUE)
 +endif()
 +
- # ----------------------------------------------------------------------
- 
+ # Add your custom source files here - header files are optional and only required for visibility
+ # e.g. in Xcode or Visual Studio
  target_sources(
-@@ -34,20 +38,42 @@ target_sources(
- target_sources(obs-ndi PRIVATE src/forms/SettingsDialog.cpp src/forms/SettingsDialog.h
-                                src/forms/resources.qrc)
+-  ${CMAKE_PROJECT_NAME}
++  ${PROJECT_NAME}
+   PRIVATE src/obs-ndi.cpp
+           src/obs-ndi.cpp
+           src/obs-ndi-source.cpp
+@@ -27,34 +31,48 @@ target_sources(
+           src/Config.h
+           src/forms/output-settings.h)
  
--target_include_directories(obs-ndi PRIVATE ${CMAKE_SOURCE_DIR}/src ${CMAKE_SOURCE_DIR}/lib/ndi)
+-target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE ${CMAKE_SOURCE_DIR}/lib/ndi)
++# target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_SOURCE_DIR}/lib/ndi)
 +if(OS_LINUX)
-+  target_include_directories(obs-ndi PRIVATE ${CMAKE_SOURCE_DIR}/src ${CMAKE_SOURCE_DIR}/lib/ndi)
++  target_include_directories(${PROJECT_NAME}
++                            PRIVATE ${CMAKE_SOURCE_DIR}/lib/ndi)
 +else()
-+  target_include_directories(obs-ndi PRIVATE ${CMAKE_SOURCE_DIR}/src
-+                                            ${CMAKE_SOURCE_DIR}/plugins/obs-ndi/lib/ndi
-+                                            ${CMAKE_SOURCE_DIR}/UI/obs-frontend-api)
++  target_include_directories(${PROJECT_NAME}
++                            PRIVATE ${CMAKE_SOURCE_DIR}/plugins/obs-ndi/lib/ndi
++                                    ${CMAKE_SOURCE_DIR}/UI/obs-frontend-api)
 +endif()
  
- # ----------------------------------------------------------------------
- 
+ # Import libobs as main plugin dependency
 -find_package(libobs REQUIRED)
-+#list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/external")
-+#list(APPEND CMAKE_MODULE_PATH "${CMAKE_BINARY_DIR}/UI/obs-frontend-api")
-+if(OS_LINUX)
-+  list(APPEND CMAKE_PREFIX_PATH "${CMAKE_SOURCE_DIR}/../../build/libobs")
-+  find_package(libobs REQUIRED)
-+endif()
-+
-+if(NOT OS_LINUX)
-+  list(APPEND CMAKE_PREFIX_PATH "${CMAKE_SOURCE_DIR}/../../build/UI/obs-frontend-api")
-+  set(obs-frontend-api_DIR "${CMAKE_BINARY_DIR}/UI/obs-frontend-api")
-+endif()
- find_package(obs-frontend-api REQUIRED)
 -include(cmake/ObsPluginHelpers.cmake)
-+
 +if(OS_LINUX)
++  list(APPEND CMAKE_PREFIX_PATH "${CMAKE_SOURCE_DIR}/../../build/install_dir/lib/cmake/libobs")
++  find_package(libobs REQUIRED)
 +  include(cmake/ObsPluginHelpers.cmake)
 +endif()
-+
+ 
+-find_package(obs-frontend-api REQUIRED)
+-target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE OBS::obs-frontend-api)
++if(OS_LINUX)
++  list(APPEND CMAKE_PREFIX_PATH "${CMAKE_SOURCE_DIR}/../../build/install_dir/lib/cmake/obs-frontend-api")
++  find_package(obs-frontend-api REQUIRED)
++endif()
++target_link_libraries(${PROJECT_NAME} PRIVATE OBS::obs-frontend-api)
+ 
  find_qt(COMPONENTS Widgets Core)
+-target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE Qt::Core Qt::Widgets)
++target_link_libraries(${PROJECT_NAME} PRIVATE Qt::Core Qt::Widgets)
+ set_target_properties(
+-  ${CMAKE_PROJECT_NAME}
++  ${PROJECT_NAME}
+   PROPERTIES AUTOMOC ON
+              AUTOUIC ON
+              AUTORCC ON)
  
  configure_file(src/plugin-macros.h.in ${CMAKE_SOURCE_DIR}/src/plugin-macros.generated.h)
  
 -target_sources(${CMAKE_PROJECT_NAME} PRIVATE src/plugin-macros.generated.h)
 +target_sources(${PROJECT_NAME} PRIVATE src/plugin-macros.generated.h)
  
--target_include_directories(obs-ndi PRIVATE ${CMAKE_SOURCE_DIR}/src)
-+if(OS_LINUX)
-+  target_include_directories(obs-ndi PRIVATE ${CMAKE_SOURCE_DIR}/src)
-+endif()
+ # /!\ TAKE NOTE: No need to edit things past this point /!\
  
- target_link_libraries(obs-ndi OBS::libobs OBS::obs-frontend-api Qt::Core Qt::Widgets)
+ # --- Platform-independent build settings ---
  
-@@ -63,11 +89,11 @@ target_compile_features(obs-ndi PRIVATE cxx_std_17)
+-target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE ${CMAKE_SOURCE_DIR}/src)
++target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_SOURCE_DIR}/src)
  
- # --- Windows-specific build settings and tasks ---
- if(OS_WINDOWS)
--  configure_file(cmake/bundle/windows/installer-Windows.iss.in
--                 ${CMAKE_BINARY_DIR}/installer-Windows.generated.iss)
-+  # configure_file(cmake/bundle/windows/installer-Windows.iss.in
-+  #                ${CMAKE_BINARY_DIR}/installer-Windows.generated.iss)
+-target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE OBS::libobs)
++target_link_libraries(${PROJECT_NAME} PRIVATE OBS::libobs)
+ 
+ # --- End of section ---
+ 
+@@ -63,11 +81,11 @@ if(OS_WINDOWS)
+   configure_file(cmake/bundle/windows/installer-Windows.iss.in
+                  ${CMAKE_BINARY_DIR}/installer-Windows.generated.iss)
+ 
+-  configure_file(cmake/bundle/windows/resource.rc.in ${CMAKE_BINARY_DIR}/${CMAKE_PROJECT_NAME}.rc)
+-  target_sources(${CMAKE_PROJECT_NAME} PRIVATE ${CMAKE_BINARY_DIR}/${CMAKE_PROJECT_NAME}.rc)
++  configure_file(cmake/bundle/windows/resource.rc.in ${CMAKE_BINARY_DIR}/${PROJECT_NAME}.rc)
++  target_sources(${PROJECT_NAME} PRIVATE ${CMAKE_BINARY_DIR}/${PROJECT_NAME}.rc)
  
    if(MSVC)
 -    target_compile_options(${CMAKE_PROJECT_NAME} PRIVATE /W4)
@@ -76,24 +100,18 @@ index 29026e1..4b846d0 100644
    endif()
    # --- End of section ---
  
-@@ -80,17 +106,24 @@ elseif(OS_MACOS)
+@@ -80,13 +98,20 @@ elseif(OS_MACOS)
    set(MACOSX_PLUGIN_BUNDLE_VERSION "${CMAKE_PROJECT_VERSION}")
    set(MACOSX_PLUGIN_SHORT_VERSION_STRING "1")
  
 -  target_compile_options(${CMAKE_PROJECT_NAME} PRIVATE -Wall)
 +  target_compile_options(${PROJECT_NAME} PRIVATE -Wall)
- 
--  set_target_properties(${CMAKE_PROJECT_NAME} PROPERTIES PREFIX "")
-+  set_target_properties(${PROJECT_NAME} PROPERTIES PREFIX "")
    # --- End of section ---
  
    # --- Linux-specific build settings and tasks ---
  else()
 -  target_compile_options(${CMAKE_PROJECT_NAME} PRIVATE -Wall)
 +  target_compile_options(${PROJECT_NAME} PRIVATE -Wall)
- 
--  set_target_properties(${CMAKE_PROJECT_NAME} PROPERTIES PREFIX "")
-+  set_target_properties(${PROJECT_NAME} PROPERTIES PREFIX "")
  endif()
  # --- End of section ---
  
@@ -107,20 +125,15 @@ index 29026e1..4b846d0 100644
 +
 +setup_plugin_target(${PROJECT_NAME})
 diff --git a/plugins/obs-ndi/cmake/ObsPluginHelpers.cmake b/plugins/obs-ndi/cmake/ObsPluginHelpers.cmake
-index 450c46d..2aa8a55 100644
+index 450c46d..0745c57 100644
 --- a/plugins/obs-ndi/cmake/ObsPluginHelpers.cmake
 +++ b/plugins/obs-ndi/cmake/ObsPluginHelpers.cmake
-@@ -491,7 +491,8 @@ else()
-       set(OBS_DATA_DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/obs)
-     else()
-       set(OBS_LIBRARY_DESTINATION bin/${_ARCH_SUFFIX}bit)
--      set(OBS_PLUGIN_DESTINATION obs-plugins/${_ARCH_SUFFIX}bit)
-+#      set(OBS_PLUGIN_DESTINATION obs-plugins/${_ARCH_SUFFIX}bit)
-+      set(OBS_PLUGIN_DESTINATION obs-plugins)
-       set(CMAKE_INSTALL_RPATH "$ORIGIN/" "${CMAKE_INSTALL_PREFIX}/${OBS_LIBRARY_DESTINATION}")
-       set(OBS_DATA_DESTINATION "data")
-     endif()
-@@ -505,7 +506,7 @@ else()
+@@ -501,11 +501,11 @@ else()
+       set(CPACK_PACKAGE_NAME "${CMAKE_PROJECT_NAME}")
+       set(CPACK_DEBIAN_PACKAGE_MAINTAINER "${LINUX_MAINTAINER_EMAIL}")
+       set(CPACK_PACKAGE_VERSION "${CMAKE_PROJECT_VERSION}")
+-      set(CPACK_PACKAGE_FILE_NAME "${CPACK_PACKAGE_NAME}-${CPACK_PACKAGE_VERSION}-linux-x86_64")
++      set(CPACK_PACKAGE_FILE_NAME "${CPACK_PACKAGE_NAME}-${CPACK_PACKAGE_VERSION}-linux-${UBUNTU_VERSION}")
  
        set(CPACK_GENERATOR "DEB")
        set(CPACK_DEBIAN_PACKAGE_DEPENDS

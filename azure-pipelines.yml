@@ -372,18 +372,19 @@ jobs:
         export CXX=clang++
         ./CI/linux/02_build_obs.sh --disable-pipewire --vendor ${{ vendor }}
         ./CI/linux/03_package_obs.sh --vendor ${{ vendor }}
-        # pushd plugins/obs-ndi
-        # mkdir BUILD
-        # cd BUILD
-        # cmake .. -DCMAKE_BUILD_TYPE=RelWithDebInfo -DLINUX_PORTABLE=OFF -Dobs-frontend-api_DIR=../../../build/UI/obs-frontend-api -Dlibobs_DIR=../../../build/libobs
-        # make -j4
-        # cpack
-        # cd ../release
-        # mv *.deb ../../../package_${{ vendor }}
-        # popd
+        pushd plugins/obs-ndi
+        mkdir BUILD
+        cd BUILD
+        cmake .. -DCMAKE_BUILD_TYPE=RelWithDebInfo -DLINUX_PORTABLE=OFF
+        make -j4
+        cpack
+        cd ../release
+        mv *.deb ../../../package_${{ vendor }}
+        popd
       displayName: '${{ vendor }} cmake, build, package'
       env:
-        OBS_VERSION: $(OBS_VERSION)_2004
+        OBS_VERSION: "$(OBS_VERSION)_2004"
+        UBUNTU_VERSION: "2004"
         CI_BUILD_TYPE: $(BUILD_TYPE)
         PACKAGE_DEPENDENCIES:
     - task: PublishBuildArtifacts@1
@@ -423,18 +424,19 @@ jobs:
         export CXX=clang++
         ./CI/linux/02_build_obs.sh --disable-pipewire --vendor ${{ vendor }}
         ./CI/linux/03_package_obs.sh --vendor ${{ vendor }}
-        # pushd plugins/obs-ndi
-        # mkdir BUILD
-        # cd BUILD
-        # cmake .. -DCMAKE_BUILD_TYPE=RelWithDebInfo -DLINUX_PORTABLE=OFF -Dobs-frontend-api_DIR=../../../build/UI/obs-frontend-api -Dlibobs_DIR=../../../build/libobs
-        # make -j4
-        # cpack
-        # cd ../release
-        # mv *.deb ../../../package_${{ vendor }}
-        # popd
+        pushd plugins/obs-ndi
+        mkdir BUILD
+        cd BUILD
+        cmake .. -DCMAKE_BUILD_TYPE=RelWithDebInfo -DLINUX_PORTABLE=OFF
+        make -j4
+        cpack
+        cd ../release
+        mv *.deb ../../../package_${{ vendor }}
+        popd
       displayName: '${{ vendor }} cmake, build, package'
       env:
-        OBS_VERSION: $(OBS_VERSION)_2204
+        OBS_VERSION: "$(OBS_VERSION)_2204"
+        UBUNTU_VERSION: "2204"
         CI_BUILD_TYPE: $(BUILD_TYPE)
         PACKAGE_DEPENDENCIES: "qt6-wayland"
     - task: PublishBuildArtifacts@1

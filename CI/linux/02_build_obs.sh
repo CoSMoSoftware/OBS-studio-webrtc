@@ -23,7 +23,7 @@ build_obs() {
 
     ensure_dir "${CHECKOUT_DIR}/"
     step "Build OBS targets..."
-    cmake --build ${BUILD_DIR}
+    cmake --build ${BUILD_DIR} -t install
 }
 
 # Function to configure OBS build
@@ -68,6 +68,7 @@ _configure_obs() {
     fi
 
     libwebrtc_dir=`pwd`/libwebrtc/cmake
+    current_dir=`pwd`
     export CC=clang
     export CXX=clang++
 
@@ -76,6 +77,7 @@ _configure_obs() {
         -DCEF_ROOT_DIR="${DEPS_BUILD_DIR}/cef_binary_${LINUX_CEF_BUILD_VERSION:-${CI_LINUX_CEF_VERSION}}_linux64" \
         -DCMAKE_BUILD_TYPE=${BUILD_CONFIG} \
         -DLINUX_PORTABLE=${PORTABLE_BUILD:-OFF} \
+        -DCMAKE_INSTALL_PREFIX=${current_dir}/install_dir \
         -DENABLE_AJA=OFF \
         -DENABLE_NEW_MPEGTS_OUTPUT=OFF \
         ${PIPEWIRE_OPTION} \
