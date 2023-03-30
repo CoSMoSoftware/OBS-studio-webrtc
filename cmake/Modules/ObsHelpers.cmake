@@ -76,7 +76,7 @@ function(setup_binary_target target)
     COMMAND
       "${CMAKE_COMMAND}" -E env DESTDIR= "${CMAKE_COMMAND}" --install ..
       --config $<CONFIG> --prefix ${OBS_OUTPUT_DIR}/$<CONFIG> --component
-      obs_${target} > "$<IF:$<PLATFORM_ID:Windows>,nul,/dev/null>"
+      obs_${target_without_dash} > "$<IF:$<PLATFORM_ID:Windows>,nul,/dev/null>"
     COMMENT "Installing OBS rundir"
     VERBATIM)
 
@@ -127,7 +127,7 @@ function(setup_plugin_target target)
     COMMAND
       "${CMAKE_COMMAND}" -E env DESTDIR= "${CMAKE_COMMAND}" --install ..
       --config $<CONFIG> --prefix ${OBS_OUTPUT_DIR}/$<CONFIG> --component
-      obs_${target} > "$<IF:$<PLATFORM_ID:Windows>,nul,/dev/null>"
+      obs_${target_without_dash} > "$<IF:$<PLATFORM_ID:Windows>,nul,/dev/null>"
     COMMENT "Installing ${target} to OBS rundir"
     VERBATIM)
 
@@ -184,7 +184,7 @@ function(setup_script_plugin_target target)
     COMMAND
       "${CMAKE_COMMAND}" -E env DESTDIR= "${CMAKE_COMMAND}" --install ..
       --config $<CONFIG> --prefix ${OBS_OUTPUT_DIR}/$<CONFIG> --component
-      obs_${target} > "$<IF:$<PLATFORM_ID:Windows>,nul,/dev/null>"
+      obs_${target_without_dash} > "$<IF:$<PLATFORM_ID:Windows>,nul,/dev/null>"
     COMMENT "Installing ${target} to OBS rundir"
     VERBATIM)
 
@@ -631,7 +631,7 @@ function(_install_obs_datatarget target destination)
     COMMAND
       "${CMAKE_COMMAND}" -E env DESTDIR= "${CMAKE_COMMAND}" --install ..
       --config $<CONFIG> --prefix ${OBS_OUTPUT_DIR}/$<CONFIG> --component
-      obs_${target} > "$<IF:$<PLATFORM_ID:Windows>,nul,/dev/null>"
+      obs_${target_without_dash} > "$<IF:$<PLATFORM_ID:Windows>,nul,/dev/null>"
     COMMENT "Installing ${target} to OBS rundir"
     VERBATIM)
 endfunction()
