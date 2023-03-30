@@ -373,7 +373,7 @@ jobs:
         ./CI/linux/02_build_obs.sh --disable-pipewire --vendor ${{ vendor }}
         ./CI/linux/03_package_obs.sh --vendor ${{ vendor }}
         cd build
-        make install
+        cmake --install .
         cd ..
         pushd plugins/obs-ndi
         mkdir BUILD
@@ -428,7 +428,7 @@ jobs:
         ./CI/linux/02_build_obs.sh --disable-pipewire --vendor ${{ vendor }}
         ./CI/linux/03_package_obs.sh --vendor ${{ vendor }}
         cd build
-        make install
+        cmake --install .
         cd ..
         pushd plugins/obs-ndi
         mkdir BUILD
