@@ -443,6 +443,7 @@ OBSBasicSettings::OBSBasicSettings(QWidget *parent)
 	HookWidget(ui->streamingAdvancedSettingsButton, CHECK_CHANGED, ADV_STREAMING_SETTINGS_CHANGED);
 	HookWidget(ui->simulcastEnable,      CHECK_CHANGED,  STREAM1_CHANGED);
 	HookWidget(ui->simulcastEnable,      CHECK_CHANGED,  SIMULCAST_CHANGED);
+	HookWidget(ui->bweEnable,            CHECK_CHANGED,  STREAM1_CHANGED);
 	HookWidget(ui->multisourceEnable,    CHECK_CHANGED,  STREAM1_CHANGED);
 	HookWidget(ui->sourceId,             EDIT_CHANGED,   STREAM1_CHANGED);
 	HookWidget(ui->publishApiUrl,        EDIT_CHANGED,   STREAM1_CHANGED);
@@ -4995,6 +4996,7 @@ void OBSBasicSettings::AdvancedStreamingSettingsChanged()
 {
 	bool visible = ui->simulcastEnable->isVisible();
 	ui->simulcastEnable->setVisible(!visible);
+	ui->bweEnable->setVisible(!visible);
 	// #289 service list of radio buttons
 	QList<QAbstractButton *> listButtons =
 		ui->serviceButtonGroup->buttons();

@@ -206,6 +206,9 @@ void OBSBasicSettings::LoadStream1Settings()
 		bool simulcast = obs_data_get_bool(settings, "simulcast");
 		ui->simulcastEnable->setChecked(simulcast);
 
+		bool bwe = obs_data_get_bool(settings, "bwe");
+		ui->bweEnable->setChecked(bwe);
+
 		bool multisource = obs_data_get_bool(settings, "multisource");
 		ui->multisourceEnable->setChecked(multisource);
 
@@ -282,6 +285,9 @@ void OBSBasicSettings::LoadStream1Settings()
 
 		bool simulcast = obs_data_get_bool(settings, "simulcast");
 		ui->simulcastEnable->setChecked(simulcast);
+
+		bool bwe = obs_data_get_bool(settings, "bwe");
+		ui->bweEnable->setChecked(bwe);
 
 		bool multisource = obs_data_get_bool(settings, "multisource");
 		ui->multisourceEnable->setChecked(multisource);
@@ -388,6 +394,8 @@ void OBSBasicSettings::SaveStream1Settings()
 			QT_TO_UTF8(ui->streamProtocol->currentText()));
 		obs_data_set_bool(settings, "simulcast",
 				  ui->simulcastEnable->isChecked());
+		obs_data_set_bool(settings, "bwe",
+				  ui->bweEnable->isChecked());
 		obs_data_set_bool(settings, "multisource",
 				  ui->multisourceEnable->isChecked());
 		obs_data_set_string(settings, "sourceId",
@@ -410,6 +418,8 @@ void OBSBasicSettings::SaveStream1Settings()
 			QT_TO_UTF8(ui->streamProtocol->currentText()));
 		obs_data_set_bool(settings, "simulcast",
 				  ui->simulcastEnable->isChecked());
+		obs_data_set_bool(settings, "bwe",
+				  ui->bweEnable->isChecked());
 		obs_data_set_bool(settings, "multisource",
 				  ui->multisourceEnable->isChecked());
 		obs_data_set_string(settings, "sourceId",
@@ -766,6 +776,7 @@ void OBSBasicSettings::on_service_currentIndexChanged(QAbstractButton*)
 		ui->streamProtocol->setVisible(false);
 		ui->streamingAdvancedSettingsButton->setVisible(false);
 		ui->simulcastEnable->setVisible(false);
+		ui->bweEnable->setVisible(false);
 		ui->multisourceLabel->setVisible(false);
 		ui->multisourceEnable->setVisible(false);
 		ui->sourceIdLabel->setVisible(false);
@@ -791,6 +802,8 @@ void OBSBasicSettings::on_service_currentIndexChanged(QAbstractButton*)
 			props, "streaming_advanced_settings");
 		obs_property_t *simulcast =
 			obs_properties_get(props, "simulcast");
+		obs_property_t *bwe =
+			obs_properties_get(props, "bwe");
 		obs_property_t *multisource =
 			obs_properties_get(props, "multisource");
 		obs_property_t *sourceId =
@@ -867,6 +880,7 @@ void OBSBasicSettings::on_service_currentIndexChanged(QAbstractButton*)
 		ui->streamProtocol->setVisible(obs_property_visible(protocol));
 		ui->streamingAdvancedSettingsButton->setVisible(true);
 		ui->simulcastEnable->setVisible(false);
+		ui->bweEnable->setVisible(false);
 		ui->multisourceLabel->setVisible(true);
 		ui->multisourceEnable->setVisible(true);
 		ui->sourceIdLabel->setVisible(true);
@@ -915,6 +929,7 @@ void OBSBasicSettings::on_service_currentIndexChanged(QAbstractButton*)
 		ui->codecGroupBox->setVisible(false);
 		ui->streamingAdvancedSettingsButton->setVisible(false);
 		ui->simulcastEnable->setVisible(false);
+		ui->bweEnable->setVisible(false);
 		ui->multisourceLabel->setVisible(false);
 		ui->multisourceEnable->setVisible(false);
 		ui->sourceIdLabel->setVisible(false);

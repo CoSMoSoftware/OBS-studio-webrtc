@@ -2,6 +2,8 @@
 
 #include "WebRTCStream.h"
 #include "SDPModif.h"
+#include "useless_network_factory.h"
+#include "webrtc_pc_factory_di_helpers.h"
 
 #include "media-io/video-io.h"
 // #include "ui-validation.hpp"
@@ -15,6 +17,7 @@
 #include "common_video/libyuv/include/webrtc_libyuv.h"
 #include "pc/rtc_stats_collector.h"
 #include "rtc_base/checks.h"
+#include "system_wrappers/include/field_trial.h"
 #include "modules/video_coding/codecs/vp9/include/vp9.h"
 #include <libyuv.h>
 #include <obs-frontend-api.h>
@@ -76,8 +79,8 @@ WebRTCStream::WebRTCStream(obs_output_t *output)
 
 	profile = 0;
 	colorFormat = "NV12";
-	audio_bitrate = 128;
-	video_bitrate = 2500;
+	audio_bitrate_ = 128;
+	video_bitrate_ = 2500;
 
 	// Store output
 	this->output = output;
@@ -102,21 +105,22 @@ WebRTCStream::WebRTCStream(obs_output_t *output)
 	signaling->SetName("signaling", nullptr);
 	signaling->Start();
 
-	factory = webrtc::CreatePeerConnectionFactory(
+	auto deps = webrtc::CreateDefaultPeerConnectionFactoryDependencies(
 		network.get(), worker.get(), signaling.get(), adm,
 		webrtc::CreateBuiltinAudioEncoderFactory(),
 		webrtc::CreateBuiltinAudioDecoderFactory(),
 		webrtc::CreateBuiltinVideoEncoderFactory(),
 		webrtc::CreateBuiltinVideoDecoderFactory(), nullptr, nullptr);
 
+	deps.network_controller_factory = std::make_unique<webrtc::UselessNetworkControllerFactory>();
+	factory = webrtc::CreateModularPeerConnectionFactory(std::move(deps));
+
 	// Create video capture module
 	videoCapturer = new rtc::RefCountedObject<VideoCapturer>();
 
-// #ifdef WEBRTC_AUDIO_VIDEO_SYNC
 	// Initialize audio/video synchronisation
 	audio_started_ = false;
 	last_delivered_audio_ts_ = 0;
-// #endif
 }
 
 WebRTCStream::~WebRTCStream()
@@ -180,11 +184,9 @@ bool WebRTCStream::start(WebRTCStream::Type type)
 
 	resetStats();
 
-// #ifdef WEBRTC_AUDIO_VIDEO_SYNC
 	// Initialize audio/video synchronisation
 	audio_started_ = false;
 	last_delivered_audio_ts_ = 0;
-// #endif
 
 	// Access service if started, or fail
 
@@ -229,6 +231,10 @@ bool WebRTCStream::start(WebRTCStream::Type type)
 	simulcast_ = obs_service_get_simulcast(service)
 			     ? obs_service_get_simulcast(service)
 			     : false;
+	// Activate Google congestion control BWE? true ==> yes / false ==> no
+	activate_bwe_ = obs_service_get_bwe(service)
+							? obs_service_get_bwe(service)
+							: false;
 	multisource_ = obs_service_get_multisource(service)
 			       ? obs_service_get_multisource(service)
 			       : false;
@@ -307,6 +313,10 @@ bool WebRTCStream::start(WebRTCStream::Type type)
 		info("No video source in current scene");
 	}
 	info("Simulcast: %s", simulcast_ ? "true" : "false");
+	info("Bandwidth estimation activated: %s", activate_bwe_ ? "true" : "false");
+	if (!activate_bwe_) {
+		info("Total bitrate (audio+video):  %d", audio_bitrate_ + video_bitrate_);
+	}
 	if (multisource_) {
 		info("Multisource: true, sourceID: %s", sourceId_.c_str());
 	} else {
@@ -358,12 +368,12 @@ bool WebRTCStream::start(WebRTCStream::Type type)
 
 	obs_encoder_t *aencoder = obs_output_get_audio_encoder(context, 0);
 	obs_data_t *asettings = obs_encoder_get_settings(aencoder);
-	audio_bitrate = (int)obs_data_get_int(asettings, "bitrate");
+	audio_bitrate_ = (int)obs_data_get_int(asettings, "bitrate");
 	obs_data_release(asettings);
 
 	obs_encoder_t *vencoder = obs_output_get_video_encoder(context);
 	obs_data_t *vsettings = obs_encoder_get_settings(vencoder);
-	video_bitrate = (int)obs_data_get_int(vsettings, "bitrate");
+	video_bitrate_ = (int)obs_data_get_int(vsettings, "bitrate");
 	obs_data_release(vsettings);
 
 	struct obs_audio_info audio_info;
@@ -399,6 +409,18 @@ bool WebRTCStream::start(WebRTCStream::Type type)
 
 	webrtc::PeerConnectionDependencies dependencies(this);
 
+	// Call InitFieldTrialsFromString before creating peer connection
+	if (activate_bwe_) {
+		// Activate Google BWE
+		constexpr const char *network_field_trials = "WebRTC-Video-Pacing/max_delay:2000/";
+		webrtc::field_trial::InitFieldTrialsFromString(network_field_trials);
+	} else {
+		// Deactivate Google BWE
+		constexpr const char *network_field_trials = "WebRTC-Bwe-InjectedCongestionController/Enabled/"
+																								"WebRTC-Video-Pacing/max_delay:0/";
+		webrtc::field_trial::InitFieldTrialsFromString(network_field_trials);
+	}
+
 	pc = factory->CreatePeerConnection(config, std::move(dependencies));
 
 	if (!pc.get()) {
@@ -415,6 +437,17 @@ bool WebRTCStream::start(WebRTCStream::Type type)
 		return false;
 	} else {
 		info("PEER CONNECTION CREATED\n");
+	}
+
+	if (!activate_bwe_) {
+		// No congestion control BWE ==> set bitrates as defined by the user
+		webrtc::BitrateSettings bitrates;
+		constexpr auto MULTIPLIER = 1000;
+		int total_bitrate = (audio_bitrate_ + video_bitrate_) * MULTIPLIER;
+		bitrates.min_bitrate_bps = total_bitrate;
+		bitrates.max_bitrate_bps = total_bitrate;
+		bitrates.start_bitrate_bps = total_bitrate;
+		pc->SetBitrate(bitrates);
 	}
 
 	cricket::AudioOptions options;
@@ -462,13 +495,13 @@ bool WebRTCStream::start(WebRTCStream::Type type)
 			webrtc::RtpEncodingParameters small;
 			large.rid = "L";
 			large.scale_resolution_down_by = 1;
-			large.max_bitrate_bps = video_bitrate * 1000;
+			large.max_bitrate_bps = video_bitrate_ * 1000;
 			medium.rid = "M";
 			medium.scale_resolution_down_by = 2;
-			medium.max_bitrate_bps = video_bitrate * 1000 / 3;
+			medium.max_bitrate_bps = video_bitrate_ * 1000 / 3;
 			small.rid = "S";
 			small.scale_resolution_down_by = 4;
-			small.max_bitrate_bps = video_bitrate * 1000 / 9;
+			small.max_bitrate_bps = video_bitrate_ * 1000 / 9;
 			//In reverse order so large is dropped first on low network condition
 			// Send small resolution only if output video resolution >= 480p
 			if (obs_output_get_height(output) >= 480) {
@@ -549,11 +582,11 @@ void WebRTCStream::OnSuccess(webrtc::SessionDescriptionInterface *desc)
 	desc->ToString(&sdp);
 
 	info("Audio codec:      %s", audio_codec.c_str());
-	info("Audio bitrate:    %d\n", audio_bitrate);
+	info("Audio bitrate:    %d\n", audio_bitrate_);
 	if (getVideoSourceCount() > 0) {
 		info("Video codec:      %s",
 		     video_codec.empty() ? "Automatic" : video_codec.c_str());
-		info("Video bitrate:    %d\n", video_bitrate);
+		info("Video bitrate:    %d\n", video_bitrate_);
 	} else {
 		info("No video");
 	}
@@ -576,10 +609,10 @@ void WebRTCStream::OnSuccess(webrtc::SessionDescriptionInterface *desc)
 			       // the packaging mode needs to be 1
 			       audio_codec, video_codec, 1, "42e01f", profile);
 	// Constrain video bitrate
-	SDPModif::bitrateMaxMinSDP(sdpCopy, video_bitrate, video_payloads);
+	SDPModif::bitrateMaxMinSDP(sdpCopy, video_bitrate_, video_payloads);
 	// Enable stereo & constrain audio bitrate
 	// NOTE ALEX: check that it does not incorrectly detect multiopus as opus
-	SDPModif::stereoSDP(sdpCopy, audio_bitrate);
+	SDPModif::stereoSDP(sdpCopy, audio_bitrate_);
 	// NOTE ALEX: nothing special to do about multiopus with CoSMo libwebrtc package.
 
 	info("SETTING LOCAL DESCRIPTION\n\n");
@@ -717,10 +750,10 @@ void WebRTCStream::onOpened(const std::string &sdp)
 
 	if (getVideoSourceCount() > 0) {
 		// Constrain video bitrate
-		SDPModif::bitrateSDP(sdpCopy, video_bitrate);
+		SDPModif::bitrateSDP(sdpCopy, video_bitrate_);
 	}
 	// Enable stereo & constrain audio bitrate
-	SDPModif::stereoSDP(sdpCopy, audio_bitrate);
+	SDPModif::stereoSDP(sdpCopy, audio_bitrate_);
 
 	// SetRemoteDescription observer
 	srd_observer = make_scoped_refptr(this);
@@ -787,7 +820,6 @@ bool WebRTCStream::stop()
 	// Disconnect, this will call stop on main thread
 	obs_output_end_data_capture(output);
 
-// #ifdef WEBRTC_AUDIO_VIDEO_SYNC
 	// Empty video queue
 	std::unique_lock<std::mutex> lock(mutex_video_queue_);
 	while (!video_queue_.empty()) {
@@ -798,7 +830,6 @@ bool WebRTCStream::stop()
 		free(frame);
 	}
 	lock.unlock();
-// #endif
 
 	return true;
 }
@@ -856,14 +887,11 @@ void WebRTCStream::onAudioFrame(audio_data *frame)
 	if (!frame)
 		return;
 
-// #ifdef WEBRTC_AUDIO_VIDEO_SYNC
 	if (getVideoSourceCount() == 0) {
 		// No video, no synchronisation needed with video
 		// Push frame to the device
-// #endif
 		audio_source->OnAudioData(frame);
 		return;
-// #ifdef WEBRTC_AUDIO_VIDEO_SYNC
 	}
 
 	if (!audio_started_) {
@@ -873,7 +901,6 @@ void WebRTCStream::onAudioFrame(audio_data *frame)
 	audio_source->OnAudioData(frame);
 	last_delivered_audio_ts_ = frame->timestamp;
 	process_video_queue();
-// #endif
 }
 
 void WebRTCStream::onVideoFrame(video_data *frame)
@@ -883,7 +910,6 @@ void WebRTCStream::onVideoFrame(video_data *frame)
 	if (!videoCapturer)
 		return;
 
-// #ifdef WEBRTC_AUDIO_VIDEO_SYNC
 	if (!audio_started_) {
 		enqueue_frame(frame);
 		return;
@@ -897,12 +923,8 @@ void WebRTCStream::onVideoFrame(video_data *frame)
 	} else {
 		enqueue_frame(frame);
 	}
-// #else
-	// deliver_video_frame(frame);
-// #endif
 }
 
-// #ifdef WEBRTC_AUDIO_VIDEO_SYNC
 void WebRTCStream::enqueue_frame(video_data *frame) {
 	video_data *framecopy = (video_data*)malloc(sizeof(video_data));
 	framecopy->timestamp = frame->timestamp;
@@ -956,7 +978,6 @@ void WebRTCStream::process_video_queue()
 	}
 	lock_queue.unlock();
 }
-// #endif
 
 void WebRTCStream::deliver_video_frame(video_data *frame) {
 	if (std::chrono::system_clock::time_point(

@@ -186,7 +186,7 @@ private:
 	int getVideoSourceCount() const;
 
 	void deliver_video_frame(video_data *frame);
-// #ifdef WEBRTC_AUDIO_VIDEO_SYNC
+
 	// Audio/video synchronisation management
 	bool audio_started_;
 	uint64_t last_delivered_audio_ts_;
@@ -202,12 +202,11 @@ private:
 	// Critical section: make sure only one thread at a time call method deliver_video_frame()
 	// by protecting it with a lock on mutex_deliver_video_frame_.
 	std::mutex mutex_deliver_video_frame_;
-// #endif
 
 	// Connection properties
 	Type type;
-	int audio_bitrate;
-	int video_bitrate;
+	int audio_bitrate_;
+	int video_bitrate_;
 	std::string url;
 	std::string room;
 	std::string username;
@@ -216,6 +215,7 @@ private:
 	std::string audio_codec;
 	std::string video_codec;
 	bool simulcast_;
+	bool activate_bwe_;
 	bool multisource_;
 	std::string sourceId_;
 	std::string publishApiUrl;
