@@ -39,14 +39,16 @@ function(setup_binary_target target)
       DESTINATION ${OBS_INCLUDE_DESTINATION}
       COMPONENT ${target_without_dash}_Development
       EXCLUDE_FROM_ALL)
-  if(${target} STREQUAL "obs-ndi")
-    cpack_add_component(${target_without_dash}_Runtime DISABLED
-                        GROUP obs_ndi_group)
-    cpack_add_component(${target_without_dash}_Development DISABLED
-                        GROUP obs_ndi_group)
-  else()
-    cpack_add_component(${target_without_dash}_Runtime HIDDEN)
-    cpack_add_component(${target_without_dash}_Development HIDDEN)
+  if(NOT OS_POSIX)
+    if(${target} STREQUAL "obs-ndi")
+      cpack_add_component(${target_without_dash}_Runtime DISABLED
+                          GROUP obs_ndi_group)
+      cpack_add_component(${target_without_dash}_Development DISABLED
+                          GROUP obs_ndi_group)
+    else()
+      cpack_add_component(${target_without_dash}_Runtime HIDDEN)
+      cpack_add_component(${target_without_dash}_Development HIDDEN)
+    endif()
   endif()
 
   # Set up installation paths for development rundir
@@ -62,12 +64,14 @@ function(setup_binary_target target)
       DESTINATION ${OBS_INCLUDE_DESTINATION}
       COMPONENT IGNORED
       EXCLUDE_FROM_ALL)
-  cpack_add_component(IGNORED HIDDEN)
-  if(${target} STREQUAL "obs-ndi")
-    cpack_add_component(obs_${target_without_dash} DISABLED
-                        GROUP obs_ndi_group)
-  else()
-    cpack_add_component(obs_${target_without_dash} HIDDEN)
+  if(NOT OS_POSIX)
+    cpack_add_component(IGNORED HIDDEN)
+    if(${target} STREQUAL "obs-ndi")
+      cpack_add_component(obs_${target_without_dash} DISABLED
+                          GROUP obs_ndi_group)
+    else()
+      cpack_add_component(obs_${target_without_dash} HIDDEN)
+    endif()
   endif()
 
   add_custom_command(
@@ -94,14 +98,16 @@ function(setup_plugin_target target)
     LIBRARY DESTINATION ${OBS_PLUGIN_DESTINATION}
             COMPONENT ${target_without_dash}_Runtime
             NAMELINK_COMPONENT ${target_without_dash}_Development)
-  if(${target} STREQUAL "obs-ndi")
-    cpack_add_component(${target_without_dash}_Runtime DISABLED
-                        GROUP obs_ndi_group)
-    cpack_add_component(${target_without_dash}_Development DISABLED
-                        GROUP obs_ndi_group)
-  else()
-    cpack_add_component(${target_without_dash}_Runtime HIDDEN)
-    cpack_add_component(${target_without_dash}_Development HIDDEN)
+  if(NOT OS_POSIX)
+    if(${target} STREQUAL "obs-ndi")
+      cpack_add_component(${target_without_dash}_Runtime DISABLED
+                          GROUP obs_ndi_group)
+      cpack_add_component(${target_without_dash}_Development DISABLED
+                          GROUP obs_ndi_group)
+    else()
+      cpack_add_component(${target_without_dash}_Runtime HIDDEN)
+      cpack_add_component(${target_without_dash}_Development HIDDEN)
+    endif()
   endif()
 
   install(
@@ -112,11 +118,13 @@ function(setup_plugin_target target)
     LIBRARY DESTINATION ${OBS_PLUGIN_DESTINATION}
             COMPONENT obs_${target_without_dash}
             EXCLUDE_FROM_ALL)
-  if(${target} STREQUAL "obs-ndi")
-    cpack_add_component(obs_${target_without_dash} DISABLED
-                        GROUP obs_ndi_group)
-  else()
-    cpack_add_component(obs_${target_without_dash} HIDDEN)
+  if(NOT OS_POSIX)
+    if(${target} STREQUAL "obs-ndi")
+      cpack_add_component(obs_${target_without_dash} DISABLED
+                          GROUP obs_ndi_group)
+    else()
+      cpack_add_component(obs_${target_without_dash} HIDDEN)
+    endif()
   endif()
 
   setup_target_resources("${target}" "obs-plugins/${target}")
@@ -142,14 +150,16 @@ function(setup_script_plugin_target target)
     LIBRARY DESTINATION ${OBS_SCRIPT_PLUGIN_DESTINATION}
             COMPONENT ${target_without_dash}_Runtime
             NAMELINK_COMPONENT ${target_without_dash}_Development)
-  if(${target} STREQUAL "obs-ndi")
-    cpack_add_component(${target_without_dash}_Runtime DISABLED
-                        GROUP obs_ndi_group)
-    cpack_add_component(${target_without_dash}_Development DISABLED
-                        GROUP obs_ndi_group)
-  else()
-    cpack_add_component(${target_without_dash}_Runtime HIDDEN)
-    cpack_add_component(${target_without_dash}_Development HIDDEN)
+  if(NOT OS_POSIX)
+    if(${target} STREQUAL "obs-ndi")
+      cpack_add_component(${target_without_dash}_Runtime DISABLED
+                          GROUP obs_ndi_group)
+      cpack_add_component(${target_without_dash}_Development DISABLED
+                          GROUP obs_ndi_group)
+    else()
+      cpack_add_component(${target_without_dash}_Runtime HIDDEN)
+      cpack_add_component(${target_without_dash}_Development HIDDEN)
+    endif()
   endif()
 
   install(
@@ -157,11 +167,13 @@ function(setup_script_plugin_target target)
     LIBRARY DESTINATION ${OBS_SCRIPT_PLUGIN_DESTINATION}
             COMPONENT obs_${target_without_dash}
             EXCLUDE_FROM_ALL)
-  if(${target} STREQUAL "obs-ndi")
-    cpack_add_component(obs_${target_without_dash} DISABLED
-                        GROUP obs_ndi_group)
-  else()
-    cpack_add_component(obs_${target_without_dash} HIDDEN)
+  if(NOT OS_POSIX)
+    if(${target} STREQUAL "obs-ndi")
+      cpack_add_component(obs_${target_without_dash} DISABLED
+                          GROUP obs_ndi_group)
+    else()
+      cpack_add_component(obs_${target_without_dash} HIDDEN)
+    endif()
   endif()
 
   if(${target} STREQUAL "obspython")
@@ -169,7 +181,9 @@ function(setup_script_plugin_target target)
       FILES "$<TARGET_FILE_DIR:${target}>/$<TARGET_FILE_BASE_NAME:${target}>.py"
       DESTINATION ${OBS_SCRIPT_PLUGIN_DESTINATION}
       COMPONENT ${target_without_dash}_Runtime)
-    cpack_add_component(${target_without_dash}_Runtime HIDDEN)
+    if(NOT OS_POSIX)
+      cpack_add_component(${target_without_dash}_Runtime HIDDEN)
+    endif()
 
     install(
       FILES "$<TARGET_FILE_DIR:${target}>/$<TARGET_FILE_BASE_NAME:${target}>.py"
@@ -200,11 +214,13 @@ function(setup_target_resources target destination)
       DESTINATION ${OBS_DATA_DESTINATION}/${destination}
       USE_SOURCE_PERMISSIONS
       COMPONENT ${target_without_dash}_Runtime)
-    if(${target} STREQUAL "obs-ndi")
-      cpack_add_component(${target_without_dash}_Runtime DISABLED
-                          GROUP obs_ndi_group)
-    else()
-      cpack_add_component(${target_without_dash}_Runtime HIDDEN)
+    if(NOT OS_POSIX)
+      if(${target} STREQUAL "obs-ndi")
+        cpack_add_component(${target_without_dash}_Runtime DISABLED
+                            GROUP obs_ndi_group)
+      else()
+        cpack_add_component(${target_without_dash}_Runtime HIDDEN)
+      endif()
     endif()
 
     install(
@@ -213,11 +229,13 @@ function(setup_target_resources target destination)
       USE_SOURCE_PERMISSIONS
       COMPONENT obs_${target_without_dash}
       EXCLUDE_FROM_ALL)
-    if(${target} STREQUAL "obs-ndi")
-      cpack_add_component(obs_${target_without_dash} DISABLED
-                          GROUP obs_ndi_group)
-    else()
-      cpack_add_component(obs_${target_without_dash} HIDDEN)
+    if(NOT OS_POSIX)
+      if(${target} STREQUAL "obs-ndi")
+        cpack_add_component(obs_${target_without_dash} DISABLED
+                            GROUP obs_ndi_group)
+      else()
+        cpack_add_component(obs_${target_without_dash} HIDDEN)
+      endif()
     endif()
   endif()
 endfunction()
@@ -229,11 +247,13 @@ function(add_target_resource target resource destination)
     FILES ${resource}
     DESTINATION ${OBS_DATA_DESTINATION}/${destination}
     COMPONENT ${target_without_dash}_Runtime)
-  if(${target} STREQUAL "obs-ndi")
-    cpack_add_component(${target_without_dash}_Runtime DISABLED
-    GROUP obs_ndi_group)
-  else()
-    cpack_add_component(${target_without_dash}_Runtime HIDDEN)
+  if(NOT OS_POSIX)
+    if(${target} STREQUAL "obs-ndi")
+      cpack_add_component(${target_without_dash}_Runtime DISABLED
+      GROUP obs_ndi_group)
+    else()
+      cpack_add_component(${target_without_dash}_Runtime HIDDEN)
+    endif()
   endif()
 
   install(
@@ -241,11 +261,13 @@ function(add_target_resource target resource destination)
     DESTINATION ${OBS_DATA_DESTINATION}/${destination}
     COMPONENT obs_${target_without_dash}
     EXCLUDE_FROM_ALL)
-  if(${target} STREQUAL "obs-ndi")
-    cpack_add_component(obs_${target_without_dash} DISABLED
-                        GROUP obs_ndi_group)
-  else()
-    cpack_add_component(obs_${target_without_dash} HIDDEN)
+  if(NOT OS_POSIX)
+    if(${target} STREQUAL "obs-ndi")
+      cpack_add_component(obs_${target_without_dash} DISABLED
+                          GROUP obs_ndi_group)
+    else()
+      cpack_add_component(obs_${target_without_dash} HIDDEN)
+    endif()
   endif()
 endfunction()
 
@@ -292,7 +314,9 @@ function(setup_target_browser target)
     DIRECTORY ${CEF_ROOT_DIR}/Resources/
     DESTINATION ${OBS_PLUGIN_DESTINATION}
     COMPONENT ${target_without_dash}_Runtime)
-  cpack_add_component(${target_without_dash}_Runtime HIDDEN)
+  if(NOT OS_POSIX)
+    cpack_add_component(${target_without_dash}_Runtime HIDDEN)
+  endif()
 
   install(
     DIRECTORY ${CEF_ROOT_DIR}/Release/
@@ -310,7 +334,9 @@ function(setup_target_browser target)
     DESTINATION ${OBS_OUTPUT_DIR}/$<CONFIG>/${OBS_PLUGIN_DESTINATION}
     COMPONENT obs_rundir
     EXCLUDE_FROM_ALL)
-  cpack_add_component(obs_rundir HIDDEN)
+  if(NOT OS_POSIX)
+    cpack_add_component(obs_rundir HIDDEN)
+  endif()
 endfunction()
 
 # Helper function to export target to build and install tree. Allows usage of
@@ -341,7 +367,9 @@ function(export_target target)
       DESTINATION ${OBS_INCLUDE_DESTINATION}
       COMPONENT obs_libraries
       ${_EXCLUDE})
-  cpack_add_component(obs_libraries HIDDEN)
+  if(NOT OS_POSIX)
+    cpack_add_component(obs_libraries HIDDEN)
+  endif()
 
   include(GenerateExportHeader)
   generate_export_header(${target} EXPORT_FILE_NAME
@@ -554,7 +582,9 @@ function(_install_obs_plugin_with_data target source)
       DESTINATION ${OBS_DATA_DESTINATION}/obs-plugins/${target}
       USE_SOURCE_PERMISSIONS
       COMPONENT ${target_without_dash}_Runtime)
-    cpack_add_component(${target_without_dash}_Runtime HIDDEN)
+    if(NOT OS_POSIX)
+      cpack_add_component(${target_without_dash}_Runtime HIDDEN)
+    endif()
 
     install(
       DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/${source}/
@@ -562,7 +592,9 @@ function(_install_obs_plugin_with_data target source)
         ${OBS_OUTPUT_DIR}/$<CONFIG>/${OBS_DATA_DESTINATION}/obs-plugins/${target}
       COMPONENT obs_${target_without_dash}
       EXCLUDE_FROM_ALL)
-    cpack_add_component(obs_${target_without_dash} HIDDEN)
+    if(NOT OS_POSIX)
+      cpack_add_component(obs_${target_without_dash} HIDDEN)
+    endif()
 
     if(OS_WINDOWS AND DEFINED ENV{obsInstallerTempDir})
       install(
@@ -590,8 +622,10 @@ function(_install_obs_datatarget target destination)
             NAMELINK_COMPONENT ${target_without_dash}_Development
     RUNTIME DESTINATION ${OBS_DATA_DESTINATION}/${destination}
             COMPONENT ${target_without_dash}_Runtime)
-  cpack_add_component(${target_without_dash}_Runtime HIDDEN)
-  cpack_add_component(${target_without_dash}_Development HIDDEN)
+  if(NOT OS_POSIX)
+    cpack_add_component(${target_without_dash}_Runtime HIDDEN)
+    cpack_add_component(${target_without_dash}_Development HIDDEN)
+  endif()
 
   install(
     TARGETS ${target}
@@ -601,7 +635,9 @@ function(_install_obs_datatarget target destination)
     RUNTIME DESTINATION ${OBS_DATA_DESTINATION}/${destination}
             COMPONENT obs_${target_without_dash}
             EXCLUDE_FROM_ALL)
-  cpack_add_component(obs_${target_without_dash} HIDDEN)
+  if(NOT OS_POSIX)
+    cpack_add_component(obs_${target_without_dash} HIDDEN)
+  endif()
 
   if(OS_WINDOWS)
     if(MSVC)

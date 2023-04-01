@@ -87,7 +87,6 @@ function(install_headers target)
     PATTERN "cmake" EXCLUDE
     PATTERN "pkgconfig" EXCLUDE
     PATTERN "data" EXCLUDE)
-  cpack_add_component(obs_libraries HIDDEN)
 
   if(ENABLE_PULSEAUDIO)
     install(

@@ -72,6 +72,8 @@ _configure_obs() {
     export CC=clang
     export CXX=clang++
 
+    RELEASE_VERSION=`echo $a | cut -d- -f1`
+
     cmake -S . -B ${BUILD_DIR} -G Ninja \
         ${VENDOR_OPTION} \
         -DCEF_ROOT_DIR="${DEPS_BUILD_DIR}/cef_binary_${LINUX_CEF_BUILD_VERSION:-${CI_LINUX_CEF_VERSION}}_linux64" \
@@ -94,9 +96,11 @@ _configure_obs() {
         -DUSE_LIBC++=ON \
         -Dlibwebrtc_DIR=${libwebrtc_dir} \
         -DOBS_VERSION_OVERRIDE=${OBS_VERSION} \
+        -DCPACK_DEBIAN_FILE_NAME="obs-webrtc-${OBS_VERSION}-linux-${UBUNTU_VERSION}" \
         -DCPACK_DEBIAN_PACKAGE_MAINTAINER="CoSMo Software" \
         -DCPACK_DEBIAN_PACKAGE_NAME="obs" \
         -DCPACK_DEBIAN_PACKAGE_VERSION=${OBS_VERSION} \
+        -DCPACK_DEBIAN_PACKAGE_RELEASE=$(RELEASE_VERSION) \
         -DCPACK_DEBIAN_PACKAGE_ARCHITECTURE="amd64" \
         -DCPACK_DEBIAN_PACKAGE_DEPENDS=${PACKAGE_DEPENDENCIES}
 }
