@@ -216,6 +216,7 @@ private:
 	std::string video_codec;
 	bool simulcast_;
 	bool activate_bwe_;
+	int total_bitrate_;
 	bool multisource_;
 	std::string sourceId_;
 	std::string publishApiUrl;

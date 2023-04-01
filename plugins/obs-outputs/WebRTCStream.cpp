@@ -235,6 +235,7 @@ bool WebRTCStream::start(WebRTCStream::Type type)
 	activate_bwe_ = obs_service_get_bwe(service)
 							? obs_service_get_bwe(service)
 							: false;
+	total_bitrate_ = 0;
 	multisource_ = obs_service_get_multisource(service)
 			       ? obs_service_get_multisource(service)
 			       : false;
@@ -250,6 +251,13 @@ bool WebRTCStream::start(WebRTCStream::Type type)
 
 	config_t *obs_config = obs_frontend_get_profile_config();
 	if (obs_config) {
+		if (!activate_bwe_) {
+			int videoBitrate = config_get_uint(obs_config, "SimpleOutput", "VBitrate"); // kbps
+			int audioBitrate = config_get_uint(obs_config, "SimpleOutput", "ABitrate"); // kbps
+			constexpr auto MULTIPLIER = 1000;
+			total_bitrate_ = (videoBitrate + audioBitrate) * MULTIPLIER; // bps
+		}
+
 		const char *tmp =
 			config_get_string(obs_config, "Video", "ColorFormat");
 		if (tmp) {
@@ -313,9 +321,9 @@ bool WebRTCStream::start(WebRTCStream::Type type)
 		info("No video source in current scene");
 	}
 	info("Simulcast: %s", simulcast_ ? "true" : "false");
-	info("Bandwidth estimation activated: %s", activate_bwe_ ? "true" : "false");
+	info("Congestion control bandwidth estimation activated: %s", activate_bwe_ ? "true" : "false");
 	if (!activate_bwe_) {
-		info("Total bitrate (audio+video):  %d", audio_bitrate_ + video_bitrate_);
+		info("Total bitrate (audio+video):  %d bps", total_bitrate_);
 	}
 	if (multisource_) {
 		info("Multisource: true, sourceID: %s", sourceId_.c_str());
@@ -442,11 +450,9 @@ bool WebRTCStream::start(WebRTCStream::Type type)
 	if (!activate_bwe_) {
 		// No congestion control BWE ==> set bitrates as defined by the user
 		webrtc::BitrateSettings bitrates;
-		constexpr auto MULTIPLIER = 1000;
-		int total_bitrate = (audio_bitrate_ + video_bitrate_) * MULTIPLIER;
-		bitrates.min_bitrate_bps = total_bitrate;
-		bitrates.max_bitrate_bps = total_bitrate;
-		bitrates.start_bitrate_bps = total_bitrate;
+		bitrates.min_bitrate_bps = total_bitrate_;
+		bitrates.max_bitrate_bps = total_bitrate_;
+		bitrates.start_bitrate_bps = total_bitrate_;
 		pc->SetBitrate(bitrates);
 	}
 
