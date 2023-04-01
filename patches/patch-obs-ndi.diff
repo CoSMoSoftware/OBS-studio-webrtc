@@ -131,7 +131,7 @@ index 7123df8..53f07ac 100644
 +
 +setup_plugin_target(${PROJECT_NAME})
 diff --git a/plugins/obs-ndi/cmake/ObsPluginHelpers.cmake b/plugins/obs-ndi/cmake/ObsPluginHelpers.cmake
-index 450c46d..702026d 100644
+index 450c46d..0745c57 100644
 --- a/plugins/obs-ndi/cmake/ObsPluginHelpers.cmake
 +++ b/plugins/obs-ndi/cmake/ObsPluginHelpers.cmake
 @@ -501,11 +501,11 @@ else()
@@ -149,7 +149,7 @@ index 450c46d..702026d 100644
  
        set(CPACK_OUTPUT_FILE_PREFIX ${CMAKE_SOURCE_DIR}/release)
 diff --git a/plugins/obs-ndi/cmake/bundle/macos/installer-macos.pkgproj.in b/plugins/obs-ndi/cmake/bundle/macos/installer-macos.pkgproj.in
-index 2a1f643..3673622 100644
+index 2a1f643..300f10a 100644
 --- a/plugins/obs-ndi/cmake/bundle/macos/installer-macos.pkgproj.in
 +++ b/plugins/obs-ndi/cmake/bundle/macos/installer-macos.pkgproj.in
 @@ -91,7 +91,7 @@
@@ -161,3 +161,16 @@ index 2a1f643..3673622 100644
  											<key>PATH_TYPE</key>
  											<integer>2</integer>
  											<key>PERMISSIONS</key>
+diff --git a/plugins/obs-ndi/data/locale/en-US.ini b/plugins/obs-ndi/data/locale/en-US.ini
+index f11a103..a853516 100644
+--- a/plugins/obs-ndi/data/locale/en-US.ini
++++ b/plugins/obs-ndi/data/locale/en-US.ini
+@@ -37,6 +37,6 @@ NDIPlugin.FilterName="Dedicated NDI™ output"
+ NDIPlugin.AudioFilterName="Dedicated NDI™ output (Audio Only)"
+ NDIPlugin.PremultipliedAlphaFilterName="obs-ndi - Fix alpha blending"
+ NDIPlugin.LibError.Title="NDI™ Runtime not found"
+-NDIPlugin.LibError.Message.Win="NDI™ Runtime not found.<br>Download the installer here: <a href='http://new.tk/NDIRedistV5'>http://new.tk/NDIRedistV5</a>"
+-NDIPlugin.LibError.Message.macOS="NDI™ Runtime not found.<br>Download the installer here: <a href='http://new.tk/NDIRedistV5Apple'>http://new.tk/NDIRedistV5Apple</a>"
++NDIPlugin.LibError.Message.Win="NDI™ Runtime not found.<br>Download the installer here: <a href='https://github.com/obs-ndi/obs-ndi/releases/tag/4.11.1'>https://github.com/obs-ndi/obs-ndi/releases/tag/4.11.1</a>"
++NDIPlugin.LibError.Message.macOS="NDI™ Runtime not found.<br>Download the installer here: <a href='https://github.com/obs-ndi/obs-ndi/releases/tag/4.11.1'>https://github.com/obs-ndi/obs-ndi/releases/tag/4.11.1</a>"
+ NDIPlugin.LibError.Message.Linux="NDI™ Runtime not found. Please install libndi on your system.<br>You can find a copy of libndi for Linux on obs-ndi's GitHub page."
