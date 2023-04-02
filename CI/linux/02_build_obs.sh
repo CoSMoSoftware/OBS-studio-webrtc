@@ -63,8 +63,10 @@ _configure_obs() {
     if [ "${ENABLE_NDI}" ]
     then
         NDI_OPTION="ON"
+        NDI_PLUGIN="-ndi"
     else
         NDI_OPTION="OFF"
+        NDI_PLUGIN=""
     fi
 
     libwebrtc_dir=`pwd`/libwebrtc/cmake
@@ -96,7 +98,7 @@ _configure_obs() {
         -DUSE_LIBC++=ON \
         -Dlibwebrtc_DIR=${libwebrtc_dir} \
         -DOBS_VERSION_OVERRIDE=${OBS_VERSION} \
-        -DCPACK_DEBIAN_FILE_NAME="obs-webrtc-${OBS_VERSION}-linux-${UBUNTU_VERSION}.deb" \
+        -DCPACK_DEBIAN_FILE_NAME="obs-webrtc${NDI_PLUGIN}-${OBS_VERSION}-linux-${UBUNTU_VERSION}.deb" \
         -DCPACK_DEBIAN_PACKAGE_MAINTAINER="CoSMo Software" \
         -DCPACK_DEBIAN_PACKAGE_NAME="obs" \
         -DCPACK_DEBIAN_PACKAGE_VERSION=${OBS_VERSION} \
