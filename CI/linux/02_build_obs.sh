@@ -85,7 +85,8 @@ _configure_obs() {
         ${YOUTUBE_OPTIONS} \
         ${TWITCH_OPTIONS} \
         ${RESTREAM_OPTIONS} \
-        ${CI:+-DENABLE_UNIT_TESTS=ON -DBUILD_FOR_DISTRIBUTION=${BUILD_FOR_DISTRIBUTION} -DOBS_BUILD_NUMBER=${GITHUB_RUN_ID}} \
+        ${CI:+-DENABLE_UNIT_TESTS=ON -DOBS_BUILD_NUMBER=${GITHUB_RUN_ID}} \
+        -DBUILD_FOR_DISTRIBUTION=ON \
         ${QUIET:+-Wno-deprecated -Wno-dev --log-level=ERROR} \
         -DBUILD_NDI=${NDI_OPTION} \
         -DLIBOBS_INCLUDE_DIRS=${CMAKE_SOURCE_DIR}/libobs \

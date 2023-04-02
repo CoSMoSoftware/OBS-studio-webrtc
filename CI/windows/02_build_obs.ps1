@@ -91,7 +91,7 @@ function Configure-OBS {
         "-DYOUTUBE_SECRET_HASH=`"${Env:YOUTUBE_SECRET_HASH}`"",
         "-DCOPIED_DEPENDENCIES=OFF",
         "-DCOPY_DEPENDENCIES=ON",
-        "-DBUILD_FOR_DISTRIBUTION=`"$(if (Test-Path Env:BUILD_FOR_DISTRIBUTION) { "ON" } else { "OFF" })`"",
+        "-DBUILD_FOR_DISTRIBUTION=ON",
         "$(if (Test-Path Env:CI) { "-DOBS_BUILD_NUMBER=${Env:GITHUB_RUN_ID}" })",
         "$(if (Test-Path Variable:$Quiet) { "-Wno-deprecated -Wno-dev --log-level=ERROR" })",
         "-Dlibwebrtc_DIR=`"C:/Program Files/libwebrtc/cmake`"",

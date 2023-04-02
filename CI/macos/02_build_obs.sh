@@ -100,7 +100,7 @@ _configure_obs() {
         ${TWITCH_OPTIONS} \
         ${RESTREAM_OPTIONS} \
         ${UNITTEST_OPTIONS} \
-        ${CI:+-DBUILD_FOR_DISTRIBUTION=${BUILD_FOR_DISTRIBUTION} -DOBS_BUILD_NUMBER=${GITHUB_RUN_ID}} \
+        -DBUILD_FOR_DISTRIBUTION=ON \
         ${QUIET:+-Wno-deprecated -Wno-dev --log-level=ERROR} \
         ${VENDOR_OPTION} \
         -Dlibwebrtc_DIR="${DEPS_BUILD_DIR}/libwebrtc_${ARCH}/cmake" \
