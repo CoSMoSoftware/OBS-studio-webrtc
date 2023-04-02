@@ -385,6 +385,8 @@ jobs:
         cd ../release
         mv *.deb ../../../package_${{ vendor }}
         popd
+        ./CI/linux/02_build_obs.sh --disable-pipewire --vendor ${{ vendor }} --ndi
+        ./CI/linux/03_package_obs.sh --vendor ${{ vendor }}
       displayName: '${{ vendor }} cmake, build, package'
       env:
         OBS_VERSION: "$(OBS_VERSION)_2004"
@@ -441,6 +443,8 @@ jobs:
         cd ../release
         mv *.deb ../../../package_${{ vendor }}
         popd
+        ./CI/linux/02_build_obs.sh --disable-pipewire --vendor ${{ vendor }} --ndi
+        ./CI/linux/03_package_obs.sh --vendor ${{ vendor }}
       displayName: '${{ vendor }} cmake, build, package'
       env:
         OBS_VERSION: "$(OBS_VERSION)_2204"
