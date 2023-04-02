@@ -79,7 +79,6 @@ _configure_obs() {
         -DCEF_ROOT_DIR="${DEPS_BUILD_DIR}/cef_binary_${LINUX_CEF_BUILD_VERSION:-${CI_LINUX_CEF_VERSION}}_linux64" \
         -DCMAKE_BUILD_TYPE=${BUILD_CONFIG} \
         -DLINUX_PORTABLE=${PORTABLE_BUILD:-OFF} \
-        -DCMAKE_INSTALL_PREFIX=${current_dir}/install_dir \
         -DENABLE_AJA=OFF \
         -DENABLE_NEW_MPEGTS_OUTPUT=OFF \
         ${PIPEWIRE_OPTION} \

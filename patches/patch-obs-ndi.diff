@@ -1,5 +1,5 @@
 diff --git a/plugins/obs-ndi/CMakeLists.txt b/plugins/obs-ndi/CMakeLists.txt
-index 7123df8..53f07ac 100644
+index 7123df8..d1d89b9 100644
 --- a/plugins/obs-ndi/CMakeLists.txt
 +++ b/plugins/obs-ndi/CMakeLists.txt
 @@ -1,16 +1,20 @@
@@ -45,13 +45,13 @@ index 7123df8..53f07ac 100644
 -find_package(libobs REQUIRED)
 -include(cmake/ObsPluginHelpers.cmake)
 +if(OS_LINUX)
-+  list(APPEND CMAKE_PREFIX_PATH "${CMAKE_SOURCE_DIR}/../../install_dir/lib/cmake/libobs")
++  list(APPEND CMAKE_PREFIX_PATH "${CMAKE_SOURCE_DIR}/../../install/lib/cmake/libobs")
 +  find_package(libobs REQUIRED)
 +  include(cmake/ObsPluginHelpers.cmake)
 +endif()
  
 +if(OS_LINUX)
-+  list(APPEND CMAKE_PREFIX_PATH "${CMAKE_SOURCE_DIR}/../../install_dir/lib/cmake/obs-frontend-api")
++  list(APPEND CMAKE_PREFIX_PATH "${CMAKE_SOURCE_DIR}/../../install/lib/cmake/obs-frontend-api")
 +else()
 +  list(APPEND CMAKE_PREFIX_PATH "${CMAKE_BINARY_DIR}/UI/obs-frontend-api")
 +endif()
