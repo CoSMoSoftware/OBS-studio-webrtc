@@ -385,6 +385,9 @@ jobs:
         cd ../release
         mv *.deb ../../../package_${{ vendor }}
         popd
+        cd build
+        rm CMakeCache.txt
+        cd ..
         ./CI/linux/02_build_obs.sh --disable-pipewire --vendor ${{ vendor }} --ndi
         ./CI/linux/03_package_obs.sh --vendor ${{ vendor }}
       displayName: '${{ vendor }} cmake, build, package'
@@ -443,6 +446,9 @@ jobs:
         cd ../release
         mv *.deb ../../../package_${{ vendor }}
         popd
+        cd build
+        rm CMakeCache.txt
+        cd ..
         ./CI/linux/02_build_obs.sh --disable-pipewire --vendor ${{ vendor }} --ndi
         ./CI/linux/03_package_obs.sh --vendor ${{ vendor }}
       displayName: '${{ vendor }} cmake, build, package'

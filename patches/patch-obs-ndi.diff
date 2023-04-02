@@ -1,5 +1,5 @@
 diff --git a/plugins/obs-ndi/CMakeLists.txt b/plugins/obs-ndi/CMakeLists.txt
-index 7123df8..d1d89b9 100644
+index 7123df8..dc3e22d 100644
 --- a/plugins/obs-ndi/CMakeLists.txt
 +++ b/plugins/obs-ndi/CMakeLists.txt
 @@ -1,16 +1,20 @@
@@ -26,13 +26,13 @@ index 7123df8..d1d89b9 100644
    PRIVATE src/obs-ndi.cpp
            src/obs-ndi.cpp
            src/obs-ndi-source.cpp
-@@ -27,34 +31,54 @@ target_sources(
+@@ -27,34 +31,57 @@ target_sources(
            src/Config.h
            src/forms/output-settings.h)
  
 -target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE ${CMAKE_SOURCE_DIR}/lib/ndi)
 +# target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_SOURCE_DIR}/lib/ndi)
-+if(OS_LINUX)
++if(OS_LINUX AND NOT BUILD_NDI)
 +  target_include_directories(${PROJECT_NAME}
 +                            PRIVATE ${CMAKE_SOURCE_DIR}/lib/ndi)
 +else()
@@ -47,10 +47,13 @@ index 7123df8..d1d89b9 100644
 +if(OS_LINUX)
 +  list(APPEND CMAKE_PREFIX_PATH "${CMAKE_SOURCE_DIR}/../../install/lib/cmake/libobs")
 +  find_package(libobs REQUIRED)
-+  include(cmake/ObsPluginHelpers.cmake)
++  if(NOT BUILD_NDI)
++    # Build obs-ndi plugin separately from OBS
++    include(cmake/ObsPluginHelpers.cmake)
++  endif()
 +endif()
  
-+if(OS_LINUX)
++if(OS_LINUX AND NOT BUILD_NDI)
 +  list(APPEND CMAKE_PREFIX_PATH "${CMAKE_SOURCE_DIR}/../../install/lib/cmake/obs-frontend-api")
 +else()
 +  list(APPEND CMAKE_PREFIX_PATH "${CMAKE_BINARY_DIR}/UI/obs-frontend-api")
@@ -70,7 +73,7 @@ index 7123df8..d1d89b9 100644
               AUTORCC ON)
  
 -configure_file(src/plugin-macros.h.in ${CMAKE_SOURCE_DIR}/src/plugin-macros.generated.h)
-+if(OS_LINUX)
++if(OS_LINUX AND NOT BUILD_NDI)
 +  configure_file(src/plugin-macros.h.in ${CMAKE_SOURCE_DIR}/src/plugin-macros.generated.h)
 +else()
 +  configure_file(src/plugin-macros.h.in ${CMAKE_SOURCE_DIR}/plugins/obs-ndi/src/plugin-macros.generated.h)
@@ -91,7 +94,7 @@ index 7123df8..d1d89b9 100644
  
  # --- End of section ---
  
-@@ -63,11 +87,11 @@ if(OS_WINDOWS)
+@@ -63,11 +90,11 @@ if(OS_WINDOWS)
    configure_file(cmake/bundle/windows/installer-Windows.iss.in
                   ${CMAKE_BINARY_DIR}/installer-Windows.generated.iss)
  
@@ -106,7 +109,7 @@ index 7123df8..d1d89b9 100644
    endif()
    # --- End of section ---
  
-@@ -80,13 +104,20 @@ elseif(OS_MACOS)
+@@ -80,13 +107,20 @@ elseif(OS_MACOS)
    set(MACOSX_PLUGIN_BUNDLE_VERSION "${CMAKE_PROJECT_VERSION}")
    set(MACOSX_PLUGIN_SHORT_VERSION_STRING "1")
  
@@ -161,19 +164,6 @@ index 2a1f643..300f10a 100644
  											<key>PATH_TYPE</key>
  											<integer>2</integer>
  											<key>PERMISSIONS</key>
-diff --git a/plugins/obs-ndi/data/locale/en-US.ini b/plugins/obs-ndi/data/locale/en-US.ini
-index f11a103..a853516 100644
---- a/plugins/obs-ndi/data/locale/en-US.ini
-+++ b/plugins/obs-ndi/data/locale/en-US.ini
-@@ -37,6 +37,6 @@ NDIPlugin.FilterName="Dedicated NDI™ output"
- NDIPlugin.AudioFilterName="Dedicated NDI™ output (Audio Only)"
- NDIPlugin.PremultipliedAlphaFilterName="obs-ndi - Fix alpha blending"
- NDIPlugin.LibError.Title="NDI™ Runtime not found"
--NDIPlugin.LibError.Message.Win="NDI™ Runtime not found.<br>Download the installer here: <a href='http://new.tk/NDIRedistV5'>http://new.tk/NDIRedistV5</a>"
--NDIPlugin.LibError.Message.macOS="NDI™ Runtime not found.<br>Download the installer here: <a href='http://new.tk/NDIRedistV5Apple'>http://new.tk/NDIRedistV5Apple</a>"
-+NDIPlugin.LibError.Message.Win="NDI™ Runtime not found.<br>Download the installer here: <a href='https://github.com/obs-ndi/obs-ndi/releases/tag/4.11.1'>https://github.com/obs-ndi/obs-ndi/releases/tag/4.11.1</a>"
-+NDIPlugin.LibError.Message.macOS="NDI™ Runtime not found.<br>Download the installer here: <a href='https://github.com/obs-ndi/obs-ndi/releases/tag/4.11.1'>https://github.com/obs-ndi/obs-ndi/releases/tag/4.11.1</a>"
- NDIPlugin.LibError.Message.Linux="NDI™ Runtime not found. Please install libndi on your system.<br>You can find a copy of libndi for Linux on obs-ndi's GitHub page."
 diff --git a/plugins/obs-ndi/lib/ndi/Processing.NDI.Lib.h b/plugins/obs-ndi/lib/ndi/Processing.NDI.Lib.h
 index f83ee2b..773a83a 100644
 --- a/plugins/obs-ndi/lib/ndi/Processing.NDI.Lib.h
