@@ -217,6 +217,7 @@ private:
 	bool simulcast_;
 	bool activate_bwe_;
 	int total_bitrate_;
+	const int MULTIPLIER = 1000;
 	bool multisource_;
 	std::string sourceId_;
 	std::string publishApiUrl;

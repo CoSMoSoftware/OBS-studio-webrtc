@@ -79,8 +79,11 @@ WebRTCStream::WebRTCStream(obs_output_t *output)
 
 	profile = 0;
 	colorFormat = "NV12";
-	audio_bitrate_ = 128;
-	video_bitrate_ = 2500;
+	audio_bitrate_ = 128; // kbps
+	video_bitrate_ = 2500; // kbps
+
+	activate_bwe_ = false;
+	total_bitrate_ = (audio_bitrate_ + video_bitrate_) * MULTIPLIER; // bps
 
 	// Store output
 	this->output = output;
@@ -251,13 +254,6 @@ bool WebRTCStream::start(WebRTCStream::Type type)
 
 	config_t *obs_config = obs_frontend_get_profile_config();
 	if (obs_config) {
-		if (!activate_bwe_) {
-			int videoBitrate = config_get_uint(obs_config, "SimpleOutput", "VBitrate"); // kbps
-			int audioBitrate = config_get_uint(obs_config, "SimpleOutput", "ABitrate"); // kbps
-			constexpr auto MULTIPLIER = 1000;
-			total_bitrate_ = (videoBitrate + audioBitrate) * MULTIPLIER; // bps
-		}
-
 		const char *tmp =
 			config_get_string(obs_config, "Video", "ColorFormat");
 		if (tmp) {
@@ -376,13 +372,15 @@ bool WebRTCStream::start(WebRTCStream::Type type)
 
 	obs_encoder_t *aencoder = obs_output_get_audio_encoder(context, 0);
 	obs_data_t *asettings = obs_encoder_get_settings(aencoder);
-	audio_bitrate_ = (int)obs_data_get_int(asettings, "bitrate");
+	audio_bitrate_ = (int)obs_data_get_int(asettings, "bitrate"); // kbps
 	obs_data_release(asettings);
 
 	obs_encoder_t *vencoder = obs_output_get_video_encoder(context);
 	obs_data_t *vsettings = obs_encoder_get_settings(vencoder);
-	video_bitrate_ = (int)obs_data_get_int(vsettings, "bitrate");
+	video_bitrate_ = (int)obs_data_get_int(vsettings, "bitrate"); // kbps
 	obs_data_release(vsettings);
+
+	total_bitrate_ = (audio_bitrate_ + video_bitrate_) * MULTIPLIER; // bps
 
 	struct obs_audio_info audio_info;
 	if (!obs_get_audio_info(&audio_info)) {
@@ -588,11 +586,11 @@ void WebRTCStream::OnSuccess(webrtc::SessionDescriptionInterface *desc)
 	desc->ToString(&sdp);
 
 	info("Audio codec:      %s", audio_codec.c_str());
-	info("Audio bitrate:    %d\n", audio_bitrate_);
+	info("Audio bitrate:    %d kbps\n", audio_bitrate_);
 	if (getVideoSourceCount() > 0) {
 		info("Video codec:      %s",
 		     video_codec.empty() ? "Automatic" : video_codec.c_str());
-		info("Video bitrate:    %d\n", video_bitrate_);
+		info("Video bitrate:    %d kbps\n", video_bitrate_);
 	} else {
 		info("No video");
 	}
