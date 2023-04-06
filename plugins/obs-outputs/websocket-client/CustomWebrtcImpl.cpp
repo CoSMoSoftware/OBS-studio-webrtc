@@ -14,6 +14,7 @@
 #define debug(format, ...) blog(LOG_DEBUG, format, ##__VA_ARGS__)
 #define error(format, ...) blog(LOG_ERROR, format, ##__VA_ARGS__)
 
+#if !defined(__linux__)
 static std::string curl_cainfo_blob("GlobalSign Root CA\n"
 "==================\n"
 "-----BEGIN CERTIFICATE-----\n"
@@ -3366,6 +3367,7 @@ static std::string curl_cainfo_blob("GlobalSign Root CA\n"
 "snNdo4gIxwwCMQDAqy0Obe0YottT6SXbVQjgUMzfRGEWgqtJsLKB7HOHeLRMsmIbEvoWTSVLY70e\n"
 "N9k=\n"
 "-----END CERTIFICATE-----\n");
+#endif
 
 CustomWebrtcImpl::CustomWebrtcImpl()
 {
@@ -3404,8 +3406,10 @@ bool CustomWebrtcImpl::open(
 
 	RestClient::Connection *conn = new RestClient::Connection("");
 
+#if !defined(__linux__)
 	// The externally linked CA certificate binary is used here.
 	conn->SetCAInfoBlob(curl_cainfo_blob);
+#endif
 
 	RestClient::HeaderFields headers;
 	headers["Authorization"] = "Bearer " + this->token;
