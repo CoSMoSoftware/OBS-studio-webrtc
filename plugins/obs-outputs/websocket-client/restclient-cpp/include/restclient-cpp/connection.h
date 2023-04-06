@@ -154,6 +154,9 @@ public:
 	// set CURLOPT_SSLCERT
 	void SetCertPath(const std::string &cert);
 
+	// Set the CA info data blob directly instead from a path.
+	void SetCAInfoBlob(const std::string& caInfoBlob);
+
 	// set CURLOPT_SSLCERTTYPE
 	void SetCertType(const std::string &type);
 
@@ -202,6 +205,7 @@ private:
 	} basicAuth;
 	std::string customUserAgent;
 	std::string caInfoFilePath;
+	std::string caInfoBlob;
 	RequestInfo lastRequest;
 	std::string certPath;
 	std::string certType;
