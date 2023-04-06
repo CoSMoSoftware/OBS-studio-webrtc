@@ -161,6 +161,13 @@ RestClient::Connection::SetCAInfoFilePath(const std::string& caInfoFilePath) {
   this->caInfoFilePath = caInfoFilePath;
 }
 
+#if !defined(__linux__)
+void
+RestClient::Connection::SetCAInfoBlob(const std::string& caInfoBlob) {
+  this->caInfoBlob = caInfoBlob;
+}
+#endif
+
 /**
  * @brief get the user agent to add to the request
  *
@@ -301,6 +308,18 @@ RestClient::Connection::performCurlRequest(const std::string& uri) {
 
   /** set query URL */
   curl_easy_setopt(this->curlHandle, CURLOPT_URL, url.c_str());
+
+#if !defined(__linux__)
+   /** set the CA certificate */
+  if (!caInfoBlob.empty()) {
+    curl_easy_setopt(this->curlHandle, CURLOPT_CAINFO_BLOB, caInfoBlob.c_str());
+  }
+
+#if defined WIN32
+  curl_easy_setopt(this->curlHandle, CURLOPT_SSL_OPTIONS, CURLSSLOPT_NATIVE_CA);
+#endif
+#endif
+
   /** set callback function */
   curl_easy_setopt(this->curlHandle, CURLOPT_WRITEFUNCTION,
                    Helpers::write_callback);
