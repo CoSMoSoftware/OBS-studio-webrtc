@@ -58,6 +58,9 @@ set(obs-outputs_webrtc_HEADERS
 	SDPModif.h
 	VideoCapturer.h
 	WebRTCStream.h
+  useless_cc_network_controller.h
+  useless_network_factory.h
+  webrtc_pc_factory_di_helpers.h
   )
 set(obs-outputs_webrtc_SOURCES
 	AudioDeviceModuleWrapper.cpp
@@ -66,6 +69,8 @@ set(obs-outputs_webrtc_SOURCES
   obsWebrtcAudioSource.cpp
 	VideoCapturer.cpp
 	WebRTCStream.cpp
+  useless_cc_network_controller.cpp
+  useless_network_factory.cpp
 	)
 
 if(NOT WIN32)

@@ -238,6 +238,16 @@ bool obs_service_get_simulcast(const obs_service_t *service)
 	return service->info.get_simulcast(service->context.data);
 }
 
+bool obs_service_get_bwe(const obs_service_t *service)
+{
+	if (!obs_service_valid(service, "obs_service_get_bwe"))
+		return false;
+
+	if (!service->info.get_bwe)
+		return false;
+	return service->info.get_bwe(service->context.data);
+}
+
 bool obs_service_get_multisource(const obs_service_t *service)
 {
 	if (!obs_service_valid(service, "obs_service_get_multisource"))

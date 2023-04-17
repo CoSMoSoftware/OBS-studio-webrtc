@@ -8,6 +8,7 @@ struct webrtc_millicast {
 	char *password;
 	char *codec;
 	bool simulcast;
+	bool bwe;
 	bool multisource;
 	char *sourceId;
 	char *publishApiUrl;
@@ -37,6 +38,7 @@ static void webrtc_millicast_update(void *data, obs_data_t *settings)
 	service->password = bstrdup(obs_data_get_string(settings, "password"));
 	service->codec = bstrdup(obs_data_get_string(settings, "codec"));
 	service->simulcast = obs_data_get_bool(settings, "simulcast");
+	service->bwe = obs_data_get_bool(settings, "bwe");
 	service->multisource = obs_data_get_bool(settings, "multisource");
 	service->sourceId = bstrdup(obs_data_get_string(settings, "sourceId"));
 	service->publishApiUrl =
@@ -94,6 +96,9 @@ static bool use_auth_modified(obs_properties_t *ppts, obs_property_t *p,
 	obs_property_set_visible(p, false);
 
 	p = obs_properties_get(ppts, "simulcast");
+	obs_property_set_visible(p, true);
+
+	p = obs_properties_get(ppts, "bwe");
 	obs_property_set_visible(p, true);
 
 	p = obs_properties_get(ppts, "multisource");
@@ -165,6 +170,9 @@ static obs_properties_t *webrtc_millicast_properties(void *unused)
 	p = obs_properties_get(ppts, "simulcast");
 	obs_property_set_visible(p, true);
 
+	p = obs_properties_get(ppts, "bwe");
+	obs_property_set_visible(p, true);
+
 	p = obs_properties_get(ppts, "multisource");
 	obs_property_set_visible(p, true);
 
@@ -223,6 +231,12 @@ static bool webrtc_millicast_simulcast(void *data)
 	return service->simulcast;
 }
 
+static bool webrtc_millicast_bwe(void *data)
+{
+	struct webrtc_millicast *service = data;
+	return service->bwe;
+}
+
 static bool webrtc_millicast_multisource(void *data)
 {
 	struct webrtc_millicast *service = data;
@@ -272,6 +286,7 @@ struct obs_service_info webrtc_millicast_service = {
 	.get_codec = webrtc_millicast_codec,
 	.get_protocol = webrtc_millicast_protocol,
 	.get_simulcast = webrtc_millicast_simulcast,
+	.get_bwe = webrtc_millicast_bwe,
 	.get_multisource = webrtc_millicast_multisource,
 	.get_sourceId = webrtc_millicast_sourceId,
 	.get_publishApiUrl = webrtc_millicast_publishApiUrl,

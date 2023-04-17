@@ -2427,6 +2427,9 @@ EXPORT void obs_free_encoder_packet(struct encoder_packet *packet);
 /** Returns the simulcast setting for this service context */
 EXPORT bool obs_service_get_simulcast(const obs_service_t *service);
 
+/** Returns the BWE setting for this service context */
+EXPORT bool obs_service_get_bwe(const obs_service_t *service);
+
 /** Returns the multisource setting for this service context */
 EXPORT bool obs_service_get_multisource(const obs_service_t *service);
 
