@@ -1737,6 +1737,9 @@ bool AdvancedOutput::SetupStreaming(obs_service_t *service)
 
 	/* --------------------- */
 
+	// Note LUDO: fix color space switch crash
+	obs_output_set_media(streamOutput, obs_get_video(), obs_get_audio());
+
 	const char *type = obs_service_get_output_type(service);
 	if (!type) {
 		type = "rtmp_output";
