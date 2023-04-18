@@ -6,7 +6,6 @@
 #include "webrtc_pc_factory_di_helpers.h"
 
 #include "media-io/video-io.h"
-// #include "ui-validation.hpp"
 
 #include "api/audio_codecs/builtin_audio_decoder_factory.h"
 #include "api/audio_codecs/builtin_audio_encoder_factory.h"
@@ -14,7 +13,7 @@
 #include "api/video_codecs/builtin_video_encoder_factory.h"
 #include "api/video/i420_buffer.h"
 #include "api/video/i444_buffer.h"
-#include "common_video/libyuv/include/webrtc_libyuv.h"
+#include "api/video/i010_buffer.h"
 #include "pc/rtc_stats_collector.h"
 #include "rtc_base/checks.h"
 #include "system_wrappers/include/field_trial.h"
@@ -77,8 +76,8 @@ WebRTCStream::WebRTCStream(obs_output_t *output)
 
 	resetStats();
 
-	profile = 0;
-	colorFormat = "NV12";
+	profile_ = 0;
+	colorFormat_ = "NV12";
 	audio_bitrate_ = 128; // kbps
 	video_bitrate_ = 2500; // kbps
 
@@ -120,6 +119,9 @@ WebRTCStream::WebRTCStream(obs_output_t *output)
 
 	// Create video capture module
 	videoCapturer = new rtc::RefCountedObject<VideoCapturer>();
+
+	// First video frame not yet received
+	first_frame_received_ = false;
 
 	// Initialize audio/video synchronisation
 	audio_started_ = false;
@@ -186,6 +188,9 @@ bool WebRTCStream::start(WebRTCStream::Type type)
 	this->type = type;
 
 	resetStats();
+
+	// First video frame not yet received
+	first_frame_received_ = false;
 
 	// Initialize audio/video synchronisation
 	audio_started_ = false;
@@ -260,44 +265,68 @@ bool WebRTCStream::start(WebRTCStream::Type type)
 			// Possible values for ColorFormat:
 			// I420
 			// I444
+			// I010
 			// NV12
 			// RGB
 			switch (tmp[0]) {
-			case 'I':
-				if ('2' == tmp[2]) {
-					colorFormat = "I420";
-					profile = 0;
+			case 'I': // I420, I444, I010
+				if ('4' == tmp[1]) {
+					if ('2' == tmp[2]) {
+						colorFormat_ = "I420";
+						profile_ = 0;
+					} else {
+						colorFormat_ = "I444";
+						profile_ = 1;
+					}
 				} else {
-					colorFormat = "I444";
-					profile = 1;
+					colorFormat_ = "I010";
+					profile_ = 2;
 				}
 				break;
-			case 'N':
-				colorFormat = "NV12";
-				profile = 0;
+			case 'N': // NV12
+				colorFormat_ = "NV12";
+				profile_ = 0;
 				break;
-			case 'R':
-				colorFormat = "RGB";
-				profile = 0;
+			case 'R': // RGB
+				colorFormat_ = "RGB";
+				profile_ = 0;
+				break;
+			case 'P': // P010: color format not supported
+				colorFormat_ = "P010";
 				break;
 			default:
-				colorFormat = "NV12";
-				profile = 0;
+				colorFormat_ = "NV12";
+				profile_ = 0;
 			}
 		} else {
 			// No color format read from config file: Use NV12 color format by default
-			colorFormat = "NV12";
-			profile = 0;
+			colorFormat_ = "NV12";
+			profile_ = 0;
 		}
 	} else {
 		// No config file: Use NV12 color format by default
-		colorFormat = "NV12";
-		profile = 0;
+		colorFormat_ = "NV12";
+		profile_ = 0;
 	}
 
-	if ("I444" == colorFormat && "VP9" != video_codec) {
+	if ("P010" == colorFormat_) {
+		error("Error color format P010 not supported");
+		// #298 Close must be carried out on a separate thread in order to avoid deadlock
+		auto thread = std::thread([=]() {
+			obs_output_set_last_error(
+				output,
+				"Error: color format P010 is not supported, please select a different color format.");
+			obs_output_signal_stop(output,
+					       OBS_OUTPUT_CONNECT_FAILED);
+		});
+		thread.detach();
+		return false;
+	}
+
+	if (("I444" == colorFormat_ || "I010" == colorFormat_)
+			&& "VP9" != video_codec) {
 		info("Color format %s is not supported for video codec %s: Switching to color format I420\n",
-		     colorFormat.c_str(), video_codec.c_str());
+		     colorFormat_.c_str(), video_codec.c_str());
 	}
 
 	// No Simulast for VP9 (not supported properly by libwebrtc) and AV1 codecs
@@ -310,7 +339,7 @@ bool WebRTCStream::start(WebRTCStream::Type type)
 
 	// Some extra log
 
-	info("Color format: %s", colorFormat.c_str());
+	info("Color format: %s", colorFormat_.c_str());
 	info("Video codec: %s",
 	     video_codec.empty() ? "Automatic" : video_codec.c_str());
 	if (0 == getVideoSourceCount()) {
@@ -611,7 +640,7 @@ void WebRTCStream::OnSuccess(webrtc::SessionDescriptionInterface *desc)
 	// Force specific video/audio payload
 	SDPModif::forcePayload(sdpCopy, audio_payloads, video_payloads,
 			       // the packaging mode needs to be 1
-			       audio_codec, video_codec, 1, "42e01f", profile);
+			       audio_codec, video_codec, 1, "42e01f", profile_);
 	// Constrain video bitrate
 	SDPModif::bitrateMaxMinSDP(sdpCopy, video_bitrate_, video_payloads);
 	// Enable stereo & constrain audio bitrate
@@ -914,6 +943,105 @@ void WebRTCStream::onVideoFrame(video_data *frame)
 	if (!videoCapturer)
 		return;
 
+	if (!first_frame_received_) {
+		// Initialize color information from first frame
+		first_frame_received_ = true;
+
+		if ("I420" == colorFormat_) {
+			videoType_ = webrtc::VideoType::kI420;
+		} else if ("I444" == colorFormat_) {
+			videoType_ = webrtc::VideoType::kI444;
+		} else if ("I010" == colorFormat_) {
+			videoType_ = webrtc::VideoType::kI010;
+		} else {
+			videoType_ = webrtc::VideoType::kNV12;
+		}
+
+		video_t *video = obs_output_video(output);
+		const struct video_output_info *voi = video_output_get_info(video);
+
+		// Video format
+		switch (voi->format) {
+		case VIDEO_FORMAT_I420:
+			if ("I420" == colorFormat_)
+				videoType_ = webrtc::VideoType::kI420;
+			else
+				info("ERROR: Color format selected is %s, but video frame received is of format %s",
+					colorFormat_.c_str(), get_video_format_name(voi->format));
+			break;
+		case VIDEO_FORMAT_NV12:
+			if ("NV12" == colorFormat_)
+				videoType_ = webrtc::VideoType::kNV12;
+			else
+				info("ERROR: Color format selected is %s, but video frame received is of format %s",
+					colorFormat_.c_str(), get_video_format_name(voi->format));
+			break;
+		case VIDEO_FORMAT_I444:
+			if ("I444" == colorFormat_)
+				videoType_ = webrtc::VideoType::kI444;
+			else
+				info("ERROR: Color format selected is %s, but video frame received is of format %s",
+					colorFormat_.c_str(), get_video_format_name(voi->format));
+			break;
+		case VIDEO_FORMAT_I010:
+			if ("I010" == colorFormat_) {
+				videoType_ = webrtc::VideoType::kI010;
+			}
+			else
+				info("ERROR: Color format selected is %s, but video frame received is of format %s",
+					colorFormat_.c_str(), get_video_format_name(voi->format));
+			break;
+		default:
+			info("ERROR: Color format selected is %s, this format is not supported for WebRTC streaming",
+				get_video_format_name(voi->format));
+		}
+
+		// Color space
+		switch (voi->colorspace) {
+		case VIDEO_CS_601:
+			color_space_.set_primaries_from_uint8(
+				static_cast<uint8_t>(webrtc::ColorSpace::PrimaryID::kSMPTE170M));
+			color_space_.set_transfer_from_uint8(
+				static_cast<uint8_t>(webrtc::ColorSpace::TransferID::kSMPTE170M));
+			color_space_.set_matrix_from_uint8(
+				static_cast<uint8_t>(webrtc::ColorSpace::MatrixID::kSMPTE170M));
+			break;
+		case VIDEO_CS_DEFAULT:
+		case VIDEO_CS_709:
+			color_space_.set_primaries_from_uint8(
+				static_cast<uint8_t>(webrtc::ColorSpace::PrimaryID::kBT709));
+			color_space_.set_transfer_from_uint8(
+				static_cast<uint8_t>(webrtc::ColorSpace::TransferID::kBT709));
+			color_space_.set_matrix_from_uint8(
+				static_cast<uint8_t>(webrtc::ColorSpace::MatrixID::kBT709));
+			break;
+		case VIDEO_CS_SRGB:
+			color_space_.set_primaries_from_uint8(
+				static_cast<uint8_t>(webrtc::ColorSpace::PrimaryID::kBT709));
+			color_space_.set_transfer_from_uint8(
+				static_cast<uint8_t>(webrtc::ColorSpace::TransferID::kIEC61966_2_1));
+			color_space_.set_matrix_from_uint8(
+				static_cast<uint8_t>(webrtc::ColorSpace::MatrixID::kRGB));
+			break;
+		case VIDEO_CS_2100_PQ:
+			// config.color_primaries = AVCOL_PRI_BT2020;
+			// config.color_trc = AVCOL_TRC_SMPTE2084;
+			// color_space = AVCOL_SPC_BT2020_NCL;
+			break;
+		case VIDEO_CS_2100_HLG:
+			// config.color_primaries = AVCOL_PRI_BT2020;
+			// config.color_trc = AVCOL_TRC_ARIB_STD_B67;
+			// color_space = AVCOL_SPC_BT2020_NCL;
+			break;
+		}
+
+		// Color range
+		color_space_.set_range_from_uint8(
+			voi->range == VIDEO_RANGE_FULL
+			? static_cast<uint8_t>(webrtc::ColorSpace::RangeID::kFull)
+			: static_cast<uint8_t>(webrtc::ColorSpace::RangeID::kLimited));
+	}
+
 	if (!audio_started_) {
 		enqueue_frame(frame);
 		return;
@@ -936,20 +1064,23 @@ void WebRTCStream::enqueue_frame(video_data *frame) {
 	int outputWidth = obs_output_get_width(output);
 	int outputHeight = obs_output_get_height(output);
 	uint32_t size = 0;
-	if ("NV12" == colorFormat || "I420" == colorFormat) {
+	if ("NV12" == colorFormat_ || "I420" == colorFormat_) {
 		size = outputWidth * outputHeight * 3 / 2;
-	} else if ("I444" == colorFormat || "RGB" == colorFormat) {
+	} else if ("I444" == colorFormat_ || "RGB" == colorFormat_) {
 		size = outputWidth * outputHeight * 3;
+	} else if ("I010" == colorFormat_) {
+		size = 2 * outputWidth * outputHeight * 3 / 2;
 	}
 	framecopy->data[0] = (uint8_t *)malloc(size * sizeof(uint8_t));
 	memcpy(framecopy->data[0], frame->data[0], size * sizeof(uint8_t));
 	framecopy->linesize[0] = frame->linesize[0];
+
 	for (size_t i=1; i < MAX_AV_PLANES; ++i) {
 		if (frame->linesize[i] != 0) {
 			framecopy->linesize[i] = frame->linesize[i];
-			if ("NV12" == colorFormat || "I420" == colorFormat) {
+			if ("NV12" == colorFormat_ || "I420" == colorFormat_ || "I010" == colorFormat_) {
 				framecopy->data[i] = framecopy->data[i-1] + framecopy->linesize[i-1];
-			} else if ("I444" == colorFormat || "RGB" == colorFormat) {
+			} else if ("I444" == colorFormat_ || "RGB" == colorFormat_) {
 				framecopy->data[i] = framecopy->data[i-1] + outputWidth * outputHeight;
 			}
 		} else {
@@ -993,51 +1124,38 @@ void WebRTCStream::deliver_video_frame(video_data *frame) {
 	// Calculate size
 	int outputWidth = obs_output_get_width(output);
 	int outputHeight = obs_output_get_height(output);
-	webrtc::VideoType videoType;
-	if ("I420" == colorFormat) {
-		videoType = webrtc::VideoType::kI420;
-	} else if ("I444" == colorFormat) {
-		videoType = webrtc::VideoType::kI444;
-	} else {
-		videoType = webrtc::VideoType::kNV12;
-	}
-
 	int target_width = abs(outputWidth);
 	int target_height = abs(outputHeight);
-	if ("NV12" == colorFormat || "I420" == colorFormat) {
-		uint32_t size = outputWidth * outputHeight * 3 / 2;
-		int stride_y = outputWidth;
-		int stride_uv = (outputWidth + 1) / 2;
-		// Convert frame
+
+	// Align timestamps from OBS capturer with rtc::TimeMicros timebase
+	const int64_t obs_timestamp_us = (int64_t)frame->timestamp /
+						rtc::kNumNanosecsPerMicrosec;
+	const int64_t aligned_timestamp_us =
+		timestamp_aligner_.TranslateTimestamp(
+			obs_timestamp_us, rtc::TimeMicros());
+
+	if ("NV12" == colorFormat_ || "I420" == colorFormat_) {
 		rtc::scoped_refptr<webrtc::I420Buffer> buffer =
-			webrtc::I420Buffer::Create(target_width, target_height,
-						   stride_y, stride_uv,
-						   stride_uv);
+			webrtc::I420Buffer::Create(target_width, target_height);
 
+		// Convert frame
+		uint32_t size = outputWidth * outputHeight * 3 / 2;
 		libyuv::RotationMode rotation_mode = libyuv::kRotate0;
-
 		const int conversionResult = libyuv::ConvertToI420(
-			frame->data[0], size, buffer.get()->MutableDataY(),
-			buffer.get()->StrideY(), buffer.get()->MutableDataU(),
-			buffer.get()->StrideU(), buffer.get()->MutableDataV(),
-			buffer.get()->StrideV(), 0, 0, outputWidth,
-			outputHeight, target_width, target_height,
-			rotation_mode, ConvertVideoType(videoType));
+			frame->data[0], size,
+			buffer.get()->MutableDataY(), buffer.get()->StrideY(),
+			buffer.get()->MutableDataU(), buffer.get()->StrideU(),
+			buffer.get()->MutableDataV(), buffer.get()->StrideV(),
+			0, 0, outputWidth, outputHeight, target_width, target_height,
+			rotation_mode, ConvertVideoType(videoType_));
 		// not using the result yet, silence compiler
 		(void)conversionResult;
-
-		const int64_t obs_timestamp_us = (int64_t)frame->timestamp /
-						 rtc::kNumNanosecsPerMicrosec;
-
-		// Align timestamps from OBS capturer with rtc::TimeMicros timebase
-		const int64_t aligned_timestamp_us =
-			timestamp_aligner_.TranslateTimestamp(
-				obs_timestamp_us, rtc::TimeMicros());
 
 		// Create a webrtc::VideoFrame to pass to the capturer
 		webrtc::VideoFrame video_frame =
 			webrtc::VideoFrame::Builder()
 				.set_video_frame_buffer(buffer)
+				.set_color_space(color_space_)
 				.set_rotation(webrtc::kVideoRotation_0)
 				.set_timestamp_us(aligned_timestamp_us)
 				.set_id(++frame_id_)
@@ -1046,37 +1164,23 @@ void WebRTCStream::deliver_video_frame(video_data *frame) {
 		// Send frame to video capturer
 		videoCapturer->OnFrameCaptured(video_frame);
 
-	} else if ("I444" == colorFormat) {
-		uint32_t size = outputWidth * outputHeight * 3;
-		int stride_y = outputWidth;
-		int stride_uv = outputWidth;
-		// Convert frame
+	} else if ("I444" == colorFormat_) {
 		rtc::scoped_refptr<webrtc::I444Buffer> buffer444 =
-			webrtc::I444Buffer::Create(target_width, target_height,
-						   stride_y, stride_uv,
-						   stride_uv);
+			webrtc::I444Buffer::Create(target_width, target_height);
+
+		// Copy OBS frame to webrtc i444 buffer
 		uint8_t *datay = const_cast<uint8_t *>(buffer444->DataY());
-		memcpy(datay, frame->data[0],
-		       frame->linesize[0] * outputHeight);
+		memcpy(datay, frame->data[0], frame->linesize[0] * outputHeight);
 		uint8_t *datau = const_cast<uint8_t *>(buffer444->DataU());
-		memcpy(datau, frame->data[1],
-		       frame->linesize[1] * outputHeight);
+		memcpy(datau, frame->data[1], frame->linesize[1] * outputHeight);
 		uint8_t *datav = const_cast<uint8_t *>(buffer444->DataV());
-		memcpy(datav, frame->data[2],
-		       frame->linesize[2] * outputHeight);
-
-		const int64_t obs_timestamp_us = (int64_t)frame->timestamp /
-						 rtc::kNumNanosecsPerMicrosec;
-
-		// Align timestamps from OBS capturer with rtc::TimeMicros timebase
-		const int64_t aligned_timestamp_us =
-			timestamp_aligner_.TranslateTimestamp(
-				obs_timestamp_us, rtc::TimeMicros());
+		memcpy(datav, frame->data[2], frame->linesize[2] * outputHeight);
 
 		// Create a webrtc::VideoFrame to pass to the capturer
 		webrtc::VideoFrame video_frame444 =
 			webrtc::VideoFrame::Builder()
 				.set_video_frame_buffer(buffer444)
+				.set_color_space(color_space_)
 				.set_rotation(webrtc::kVideoRotation_0)
 				.set_timestamp_us(aligned_timestamp_us)
 				.set_id(++frame_id_)
@@ -1084,6 +1188,36 @@ void WebRTCStream::deliver_video_frame(video_data *frame) {
 
 		// Send frame to video capturer
 		videoCapturer->OnFrameCaptured(video_frame444);
+
+	} else if ("I010" == colorFormat_) {
+		rtc::scoped_refptr<webrtc::I010Buffer> buffer010 =
+			webrtc::I010Buffer::Create(outputWidth, outputHeight);
+
+		// Convert frame
+		uint32_t size = outputWidth * outputHeight * 3 / 2;
+		libyuv::RotationMode rotation_mode = libyuv::kRotate0;
+		const int conversionResult = libyuv::ConvertToI010(
+			reinterpret_cast<const uint16_t*>(frame->data[0]), size,
+			buffer010.get()->MutableDataY(), buffer010.get()->StrideY(),
+			buffer010.get()->MutableDataU(), buffer010.get()->StrideU(),
+			buffer010.get()->MutableDataV(), buffer010.get()->StrideV(),
+			0, 0, outputWidth,outputHeight, target_width, target_height,
+			rotation_mode, ConvertVideoType(videoType_));
+		// not using the result yet, silence compiler
+		(void)conversionResult;
+
+		// Create a webrtc::VideoFrame to pass to the capturer
+		webrtc::VideoFrame video_frame010 =
+			webrtc::VideoFrame::Builder()
+				.set_video_frame_buffer(buffer010)
+				.set_color_space(color_space_)
+				.set_rotation(webrtc::kVideoRotation_0)
+				.set_timestamp_us(aligned_timestamp_us)
+				.set_id(++frame_id_)
+				.build();
+
+		// Send frame to video capturer
+		videoCapturer->OnFrameCaptured(video_frame010);
 	}
 }
 
