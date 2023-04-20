@@ -1,5 +1,5 @@
 diff --git a/plugins/obs-ndi/CMakeLists.txt b/plugins/obs-ndi/CMakeLists.txt
-index 7123df8..75d85e4 100644
+index 7123df8..36ee541 100644
 --- a/plugins/obs-ndi/CMakeLists.txt
 +++ b/plugins/obs-ndi/CMakeLists.txt
 @@ -1,16 +1,20 @@
@@ -44,13 +44,14 @@ index 7123df8..75d85e4 100644
  # Import libobs as main plugin dependency
 -find_package(libobs REQUIRED)
 -include(cmake/ObsPluginHelpers.cmake)
+-
 +if(OS_LINUX AND NOT BUILD_NDI)
 +  # Build obs-ndi plugin separately from OBS
 +  list(APPEND CMAKE_PREFIX_PATH "${CMAKE_SOURCE_DIR}/../../install/lib/cmake/libobs")
 +  find_package(libobs REQUIRED)
 +  include(cmake/ObsPluginHelpers.cmake)
 +endif()
- 
++
 +if(OS_LINUX AND NOT BUILD_NDI)
 +  list(APPEND CMAKE_PREFIX_PATH "${CMAKE_SOURCE_DIR}/../../install/lib/cmake/obs-frontend-api")
 +else()
@@ -132,7 +133,7 @@ index 7123df8..75d85e4 100644
 +
 +setup_plugin_target(${PROJECT_NAME})
 diff --git a/plugins/obs-ndi/cmake/ObsPluginHelpers.cmake b/plugins/obs-ndi/cmake/ObsPluginHelpers.cmake
-index 450c46d..0745c57 100644
+index 450c46d..702026d 100644
 --- a/plugins/obs-ndi/cmake/ObsPluginHelpers.cmake
 +++ b/plugins/obs-ndi/cmake/ObsPluginHelpers.cmake
 @@ -501,11 +501,11 @@ else()
@@ -150,7 +151,7 @@ index 450c46d..0745c57 100644
  
        set(CPACK_OUTPUT_FILE_PREFIX ${CMAKE_SOURCE_DIR}/release)
 diff --git a/plugins/obs-ndi/cmake/bundle/macos/installer-macos.pkgproj.in b/plugins/obs-ndi/cmake/bundle/macos/installer-macos.pkgproj.in
-index 2a1f643..300f10a 100644
+index 2a1f643..3673622 100644
 --- a/plugins/obs-ndi/cmake/bundle/macos/installer-macos.pkgproj.in
 +++ b/plugins/obs-ndi/cmake/bundle/macos/installer-macos.pkgproj.in
 @@ -91,7 +91,7 @@
@@ -162,8 +163,21 @@ index 2a1f643..300f10a 100644
  											<key>PATH_TYPE</key>
  											<integer>2</integer>
  											<key>PERMISSIONS</key>
+diff --git a/plugins/obs-ndi/data/locale/en-US.ini b/plugins/obs-ndi/data/locale/en-US.ini
+index f11a103..2b42713 100644
+--- a/plugins/obs-ndi/data/locale/en-US.ini
++++ b/plugins/obs-ndi/data/locale/en-US.ini
+@@ -37,6 +37,6 @@ NDIPlugin.FilterName="Dedicated NDI™ output"
+ NDIPlugin.AudioFilterName="Dedicated NDI™ output (Audio Only)"
+ NDIPlugin.PremultipliedAlphaFilterName="obs-ndi - Fix alpha blending"
+ NDIPlugin.LibError.Title="NDI™ Runtime not found"
+-NDIPlugin.LibError.Message.Win="NDI™ Runtime not found.<br>Download the installer here: <a href='http://new.tk/NDIRedistV5'>http://new.tk/NDIRedistV5</a>"
+-NDIPlugin.LibError.Message.macOS="NDI™ Runtime not found.<br>Download the installer here: <a href='http://new.tk/NDIRedistV5Apple'>http://new.tk/NDIRedistV5Apple</a>"
++NDIPlugin.LibError.Message.Win="NDI™ Runtime not found.<br>Download the installer here: <a href='https://github.com/obs-ndi/obs-ndi/raw/d462e9f83f0e06837a83331b1f71053b2132e751/runtime/NDI%205.5.3%20Runtime.exe'>https://github.com/obs-ndi/obs-ndi/releases/tag/4.11.1</a>"
++NDIPlugin.LibError.Message.macOS="NDI™ Runtime not found.<br>Download the installer here: <a href='https://github.com/obs-ndi/obs-ndi/raw/d462e9f83f0e06837a83331b1f71053b2132e751/runtime/libNDI_5.5.3_for_Mac.pkg'>https://github.com/obs-ndi/obs-ndi/releases/tag/4.11.1</a>"
+ NDIPlugin.LibError.Message.Linux="NDI™ Runtime not found. Please install libndi on your system.<br>You can find a copy of libndi for Linux on obs-ndi's GitHub page."
 diff --git a/plugins/obs-ndi/lib/ndi/Processing.NDI.Lib.h b/plugins/obs-ndi/lib/ndi/Processing.NDI.Lib.h
-index f83ee2b..773a83a 100644
+index f83ee2b..c73875f 100644
 --- a/plugins/obs-ndi/lib/ndi/Processing.NDI.Lib.h
 +++ b/plugins/obs-ndi/lib/ndi/Processing.NDI.Lib.h
 @@ -50,18 +50,18 @@
@@ -171,12 +185,12 @@ index f83ee2b..773a83a 100644
  #				define NDILIB_LIBRARY_NAME  "Processing.NDI.Lib.x64.dll"
  #				define NDILIB_REDIST_FOLDER "NDI_RUNTIME_DIR_V5"
 -#				define NDILIB_REDIST_URL    "http://new.tk/NDIRedistV5"
-+#				define NDILIB_REDIST_URL    "https://github.com/obs-ndi/obs-ndi/releases/tag/4.11.1"
++#				define NDILIB_REDIST_URL    "https://github.com/obs-ndi/obs-ndi/raw/d462e9f83f0e06837a83331b1f71053b2132e751/runtime/NDI%205.5.3%20Runtime.exe"
  #			else // _WIN64
  #				define NDILIB_LIBRARY_NAME  "Processing.NDI.Lib.x86.dll"
  #				define NDILIB_REDIST_FOLDER "NDI_RUNTIME_DIR_V5"
 -#				define NDILIB_REDIST_URL    "http://new.tk/NDIRedistV5"
-+#				define NDILIB_REDIST_URL    "https://github.com/obs-ndi/obs-ndi/releases/tag/4.11.1"
++#				define NDILIB_REDIST_URL    "https://github.com/obs-ndi/obs-ndi/raw/d462e9f83f0e06837a83331b1f71053b2132e751/runtime/NDI%205.5.3%20Runtime.exe"
  #			endif // _WIN64
  #		endif // PROCESSINGNDILIB_EXPORTS
  #	else // _WIN32
@@ -184,7 +198,7 @@ index f83ee2b..773a83a 100644
  #			define NDILIB_LIBRARY_NAME  "libndi.dylib"
  #			define NDILIB_REDIST_FOLDER "NDI_RUNTIME_DIR_V5"
 -#			define NDILIB_REDIST_URL    "http://new.tk/NDIRedistV5Apple"
-+#			define NDILIB_REDIST_URL    "https://github.com/obs-ndi/obs-ndi/releases/tag/4.11.1"
++#			define NDILIB_REDIST_URL    "https://github.com/obs-ndi/obs-ndi/raw/d462e9f83f0e06837a83331b1f71053b2132e751/runtime/libNDI_5.5.3_for_Mac.pkg"
  #		else // __APPLE__
  #			define NDILIB_LIBRARY_NAME  "libndi.so.5"
  #			define NDILIB_REDIST_FOLDER "NDI_RUNTIME_DIR_V5"
