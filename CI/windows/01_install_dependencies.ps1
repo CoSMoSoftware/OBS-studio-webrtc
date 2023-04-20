@@ -126,7 +126,7 @@ function Install-libwebrtc {
     Ensure-Directory $DepsBuildDir
 
     Write-Step "Unpack..."
-    msiexec /i "..\s\libWebRTC-${Version}-x64-Mt-Release-H264-OpenSSL_1_1_1n.msi" /quiet
+    & "..\s\libWebRTC-${Version}-x64-Mt-Release-H264-OpenSSL_1_1_1n.exe" /S /SD
 }
 
 function Install-openssl {
