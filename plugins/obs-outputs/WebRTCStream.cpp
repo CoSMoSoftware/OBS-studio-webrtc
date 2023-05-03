@@ -807,6 +807,17 @@ void WebRTCStream::onOpened(const std::string &sdp)
 	conversion.speakers = (speaker_layout)channel_count;
 	obs_output_set_audio_conversion(output, &conversion);
 
+	// Set video conversion info
+	struct video_scale_info scaler = {};
+	video_t *video = obs_output_video(output);
+	const struct video_output_info *voi = video_output_get_info(video);
+	scaler.format = voi->format;
+	scaler.width = voi->width;
+	scaler.height = voi->height;
+	scaler.colorspace = voi->colorspace;
+	scaler.range = voi->range;
+	obs_output_set_video_conversion(output, &scaler);
+
 	info("Begin data capture...");
 	obs_output_begin_data_capture(output, 0);
 }
