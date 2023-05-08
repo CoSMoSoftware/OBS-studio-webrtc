@@ -1,15 +1,15 @@
 find_qt(COMPONENTS Widgets Network Svg Xml COMPONENTS_LINUX Gui)
 
-target_link_libraries(obs-studio PRIVATE Qt::Widgets Qt::Svg Qt::Xml Qt::Network)
+target_link_libraries(obs PRIVATE Qt::Widgets Qt::Svg Qt::Xml Qt::Network)
 
 set_target_properties(
-  obs-studio
+  obs
   PROPERTIES AUTOMOC ON
              AUTOUIC ON
              AUTORCC ON)
 
 set_property(
-  TARGET obs-studio
+  TARGET obs
   APPEND
   PROPERTY AUTOUIC_SEARCH_PATHS forms forms/source-toolbar)
 
@@ -48,7 +48,7 @@ set(_qt_sources
     forms/source-toolbar/media-controls.ui
     forms/source-toolbar/text-source-toolbar.ui)
 
-target_sources(obs-studio PRIVATE ${_qt_sources})
+target_sources(obs PRIVATE ${_qt_sources})
 
 source_group(
   TREE "${CMAKE_CURRENT_SOURCE_DIR}/forms"

@@ -1,5 +1,5 @@
 target_sources(
-  obs-studio
+  obs
   PRIVATE # cmake-format: sortable
           adv-audio-control.cpp
           adv-audio-control.hpp

@@ -48,7 +48,7 @@ macro(setup_obs_project)
 			└ obs
 				└ libobs
 				└ obs-plugins
-				└ obs
+				└ obs-webrtc
 	]]
 
   if(CMAKE_SIZEOF_VOID_P EQUAL 8)
@@ -70,7 +70,7 @@ macro(setup_obs_project)
     set(OBS_PLUGIN_DESTINATION "${OBS_LIBRARY_DESTINATION}/obs-plugins")
     set(OBS_PLUGIN_PATH "${OBS_PLUGIN_DESTINATION}")
     set(OBS_SCRIPT_PLUGIN_DESTINATION "${OBS_LIBRARY_DESTINATION}/obs-scripting")
-    set(OBS_DATA_DESTINATION "${CMAKE_INSTALL_DATAROOTDIR}/obs")
+    set(OBS_DATA_DESTINATION "${CMAKE_INSTALL_DATAROOTDIR}/obs-webrtc")
     set(OBS_CMAKE_DESTINATION "${OBS_LIBRARY_DESTINATION}/cmake")
 
     set(OBS_INSTALL_PREFIX "${CMAKE_INSTALL_PREFIX}/")

@@ -494,5 +494,5 @@ unset(_UI)
 
 define_graphic_modules(obs)
 setup_obs_app(obs)
-setup_target_resources(obs obs-studio)
-add_target_resource(obs ${CMAKE_CURRENT_SOURCE_DIR}/../AUTHORS obs-studio/authors)
+setup_target_resources(obs obs)
+add_target_resource(obs ${CMAKE_CURRENT_SOURCE_DIR}/../AUTHORS obs/authors)
