@@ -6,7 +6,6 @@
 #include <file-updater/file-updater.h>
 
 #include "rtmp-format-ver.h"
-#include "lookup-config.h"
 
 #include "service-specific/showroom.h"
 #include "service-specific/dacast.h"
@@ -18,13 +17,13 @@ MODULE_EXPORT const char *obs_module_description(void)
 	return "OBS core RTMP services";
 }
 
-#define RTMP_SERVICES_LOG_STR "[rtmp-services plugin] "
-#define RTMP_SERVICES_VER_STR "rtmp-services plugin (libobs " OBS_VERSION ")"
+#if defined(ENABLE_SERVICE_UPDATES)
+static const char *RTMP_SERVICES_LOG_STR = "[rtmp-services plugin] ";
+static const char *RTMP_SERVICES_URL = (const char *)SERVICES_URL;
+#endif
 
 extern struct obs_service_info rtmp_common_service;
 extern struct obs_service_info rtmp_custom_service;
-extern struct obs_service_info webrtc_millicast_service;
-extern struct obs_service_info webrtc_custom_service;
 
 static update_info_t *update_info = NULL;
 static struct dstr module_name = {0};
@@ -86,7 +85,7 @@ bool obs_module_load(void)
 	proc_handler_add(ph, "void twitch_ingests_refresh(int seconds)",
 			 refresh_callback, NULL);
 
-#if !defined(_WIN32) || defined(ENABLE_SERVICE_UPDATES)
+#if defined(ENABLE_SERVICE_UPDATES)
 	char *local_dir = obs_module_file("");
 	char *cache_dir = obs_module_config_path("");
 	char update_url[128];
@@ -108,8 +107,6 @@ bool obs_module_load(void)
 
 	obs_register_service(&rtmp_common_service);
 	obs_register_service(&rtmp_custom_service);
-	obs_register_service(&webrtc_millicast_service);
-	obs_register_service(&webrtc_custom_service);
 	return true;
 }
 

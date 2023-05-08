@@ -37,7 +37,7 @@ Quick Links
 
 - Donating/backing/sponsoring: https://obsproject.com/contribute
 
-- Bug Tracker: https://github.com/CoSMoSoftware/OBS-studio-webrtc/issues
+- Bug Tracker: https://github.com/obsproject/obs-studio/issues
 
 Contributing
 ------------

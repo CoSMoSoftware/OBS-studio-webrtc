@@ -33,6 +33,17 @@ struct obs_service_resolution {
 	int cy;
 };
 
+/* NOTE: Odd numbers are reserved for custom info from third-party protocols */
+enum obs_service_connect_info {
+	OBS_SERVICE_CONNECT_INFO_SERVER_URL = 0,
+	OBS_SERVICE_CONNECT_INFO_STREAM_ID = 2,
+	OBS_SERVICE_CONNECT_INFO_STREAM_KEY =
+		2, // Alias of OBS_SERVICE_CONNECT_INFO_STREAM_ID
+	OBS_SERVICE_CONNECT_INFO_USERNAME = 4,
+	OBS_SERVICE_CONNECT_INFO_PASSWORD = 6,
+	OBS_SERVICE_CONNECT_INFO_ENCRYPT_PASSPHRASE = 8,
+};
+
 struct obs_service_info {
 	/* required */
 	const char *id;
@@ -80,7 +91,6 @@ struct obs_service_info {
 	void (*free_type_data)(void *type_data);
 
 	const char *(*get_codec)(void *data);
-	const char *(*get_protocol)(void *data);
 
 	bool (*get_simulcast)(void *data);
 	bool (*get_bwe)(void *data);
@@ -88,6 +98,7 @@ struct obs_service_info {
 	const char *(*get_sourceId)(void *data);
 	const char *(*get_publishApiUrl)(void *data);
 
+	/* TODO: Rename to 'get_preferred_output_type' once a API/ABI break happen */
 	const char *(*get_output_type)(void *data);
 
 	void (*get_supported_resolutions)(
@@ -99,6 +110,14 @@ struct obs_service_info {
 				int *audio_bitrate);
 
 	const char **(*get_supported_video_codecs)(void *data);
+
+	const char *(*get_protocol)(void *data);
+
+	const char **(*get_supported_audio_codecs)(void *data);
+
+	const char *(*get_connect_info)(void *data, uint32_t type);
+
+	bool (*can_try_to_connect)(void *data);
 };
 
 EXPORT void obs_register_service_s(const struct obs_service_info *info,

@@ -58,12 +58,20 @@ OBSThemeMeta {
     qproperty-icon: url(:/res/images/cogs.svg);
 }
 
+* [themeID="filtersIcon"] {
+    qproperty-icon: url(:/res/images/filter.svg);
+}
+
 MuteCheckBox {
     outline: none;
 }
 
 MuteCheckBox::indicator:checked {
     image: url(:/res/images/mute.svg);
+}
+
+MuteCheckBox::indicator:indeterminate {
+    image: url(./Dark/unassigned.svg);
 }
 
 MuteCheckBox::indicator:unchecked {
@@ -196,7 +204,7 @@ OBSBasicSettings {
     qproperty-advancedIcon: url(:settings/images/settings/advanced.svg);
 }
 
-OBSBasicSettings QListView::item {
+OBSBasicSettings QListWidget::item {
     padding-top: 5px;
     padding-bottom: 5px;
 }

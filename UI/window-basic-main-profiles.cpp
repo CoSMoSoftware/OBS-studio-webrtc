@@ -382,15 +382,14 @@ void OBSBasic::DeleteProfile(const char *profileName, const char *profileDir)
 	char profilePath[512];
 	char basePath[512];
 
-	int ret = GetConfigPath(
-		basePath, 512,
-		(std::string(CONFIG_DIR) + "/basic/profiles").c_str());
+	int ret = GetConfigPath(basePath, sizeof(basePath),
+				(std::string(CONFIG_DIR) + "/basic/profiles").c_str());
 	if (ret <= 0) {
 		blog(LOG_WARNING, "Failed to get profiles config path");
 		return;
 	}
 
-	ret = snprintf(profilePath, 512, "%s/%s/*", basePath, profileDir);
+	ret = snprintf(profilePath, sizeof(profilePath), "%s/%s/*", basePath, profileDir);
 	if (ret <= 0) {
 		blog(LOG_WARNING, "Failed to get path for profile dir '%s'",
 		     profileDir);
@@ -415,7 +414,7 @@ void OBSBasic::DeleteProfile(const char *profileName, const char *profileDir)
 
 	os_globfree(glob);
 
-	ret = snprintf(profilePath, 512, "%s/%s", basePath, profileDir);
+	ret = snprintf(profilePath, sizeof(profilePath), "%s/%s", basePath, profileDir);
 	if (ret <= 0) {
 		blog(LOG_WARNING, "Failed to get path for profile dir '%s'",
 		     profileDir);
@@ -654,8 +653,7 @@ void OBSBasic::on_actionImportProfile_triggered()
 
 	QString home = QDir::homePath();
 
-	int ret = GetConfigPath(
-		path, 512,
+	int ret = GetConfigPath(path, 512,
 		(std::string(CONFIG_DIR) + "/basic/profiles/").c_str());
 	if (ret <= 0) {
 		blog(LOG_WARNING, "Failed to get profile config path");
@@ -702,8 +700,7 @@ void OBSBasic::on_actionExportProfile_triggered()
 	QString currentProfile = QString::fromUtf8(config_get_string(
 		App()->GlobalConfig(), "Basic", "ProfileDir"));
 
-	int ret = GetConfigPath(
-		path, 512,
+	int ret = GetConfigPath(path, 512,
 		(std::string(CONFIG_DIR) + "/basic/profiles/").c_str());
 	if (ret <= 0) {
 		blog(LOG_WARNING, "Failed to get profile config path");
@@ -834,12 +831,15 @@ void OBSBasic::CheckForSimpleModeX264Fallback()
 	const char *curRecEncoder =
 		config_get_string(basicConfig, "SimpleOutput", "RecEncoder");
 	bool qsv_supported = false;
+	bool qsv_av1_supported = false;
 	bool amd_supported = false;
 	bool nve_supported = false;
 #ifdef ENABLE_HEVC
 	bool amd_hevc_supported = false;
 	bool nve_hevc_supported = false;
+	bool apple_hevc_supported = false;
 #endif
+	bool amd_av1_supported = false;
 	bool apple_supported = false;
 	bool changed = false;
 	size_t idx = 0;
@@ -850,6 +850,8 @@ void OBSBasic::CheckForSimpleModeX264Fallback()
 			amd_supported = true;
 		else if (strcmp(id, "obs_qsv11") == 0)
 			qsv_supported = true;
+		else if (strcmp(id, "obs_qsv11_av1") == 0)
+			qsv_av1_supported = true;
 		else if (strcmp(id, "ffmpeg_nvenc") == 0)
 			nve_supported = true;
 #ifdef ENABLE_HEVC
@@ -858,15 +860,29 @@ void OBSBasic::CheckForSimpleModeX264Fallback()
 		else if (strcmp(id, "ffmpeg_hevc_nvenc") == 0)
 			nve_hevc_supported = true;
 #endif
+		else if (strcmp(id, "av1_texture_amf") == 0)
+			amd_av1_supported = true;
 		else if (strcmp(id,
 				"com.apple.videotoolbox.videoencoder.ave.avc") ==
 			 0)
 			apple_supported = true;
+#ifdef ENABLE_HEVC
+		else if (strcmp(id,
+				"com.apple.videotoolbox.videoencoder.ave.hevc") ==
+			 0)
+			apple_hevc_supported = true;
+#endif
 	}
 
 	auto CheckEncoder = [&](const char *&name) {
 		if (strcmp(name, SIMPLE_ENCODER_QSV) == 0) {
 			if (!qsv_supported) {
+				changed = true;
+				name = SIMPLE_ENCODER_X264;
+				return false;
+			}
+		} else if (strcmp(name, SIMPLE_ENCODER_QSV_AV1) == 0) {
+			if (!qsv_av1_supported) {
 				changed = true;
 				name = SIMPLE_ENCODER_X264;
 				return false;
@@ -903,12 +919,26 @@ void OBSBasic::CheckForSimpleModeX264Fallback()
 				name = SIMPLE_ENCODER_X264;
 				return false;
 			}
+		} else if (strcmp(name, SIMPLE_ENCODER_AMD_AV1) == 0) {
+			if (!amd_av1_supported) {
+				changed = true;
+				name = SIMPLE_ENCODER_X264;
+				return false;
+			}
 		} else if (strcmp(name, SIMPLE_ENCODER_APPLE_H264) == 0) {
 			if (!apple_supported) {
 				changed = true;
 				name = SIMPLE_ENCODER_X264;
 				return false;
 			}
+#ifdef ENABLE_HEVC
+		} else if (strcmp(name, SIMPLE_ENCODER_APPLE_HEVC) == 0) {
+			if (!apple_hevc_supported) {
+				changed = true;
+				name = SIMPLE_ENCODER_X264;
+				return false;
+			}
+#endif
 		}
 
 		return true;

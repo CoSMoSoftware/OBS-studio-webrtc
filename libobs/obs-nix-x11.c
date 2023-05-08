@@ -22,7 +22,7 @@
 #include "obs-nix-x11.h"
 
 #include <xcb/xcb.h>
-#if defined(XINPUT_FOUND)
+#if defined(XCB_XINPUT_FOUND)
 #include <xcb/xinput.h>
 #endif
 #include <X11/Xlib.h>
@@ -94,7 +94,7 @@ struct obs_hotkeys_platform {
 	int num_keysyms;
 	int syms_per_code;
 
-#if defined(XINPUT_FOUND)
+#if defined(XCB_XINPUT_FOUND)
 	bool pressed[XINPUT_MOUSE_LEN];
 	bool update[XINPUT_MOUSE_LEN];
 	bool button_pressed[XINPUT_MOUSE_LEN];
@@ -673,6 +673,21 @@ static int get_keysym(obs_key_t key)
 	case OBS_KEY_MOUSE5:
 		return MOUSE_5;
 
+	case OBS_KEY_VK_MEDIA_PLAY_PAUSE:
+		return XF86XK_AudioPlay;
+	case OBS_KEY_VK_MEDIA_STOP:
+		return XF86XK_AudioStop;
+	case OBS_KEY_VK_MEDIA_PREV_TRACK:
+		return XF86XK_AudioPrev;
+	case OBS_KEY_VK_MEDIA_NEXT_TRACK:
+		return XF86XK_AudioNext;
+	case OBS_KEY_VK_VOLUME_MUTE:
+		return XF86XK_AudioMute;
+	case OBS_KEY_VK_VOLUME_DOWN:
+		return XF86XK_AudioRaiseVolume;
+	case OBS_KEY_VK_VOLUME_UP:
+		return XF86XK_AudioLowerVolume;
+
 	/* TODO: Implement keys for non-US keyboards */
 	default:;
 	}
@@ -814,7 +829,7 @@ static inline xcb_window_t root_window(obs_hotkeys_platform_t *context,
 	return 0;
 }
 
-#if defined(XINPUT_FOUND)
+#if defined(XCB_XINPUT_FOUND)
 static inline void registerMouseEvents(struct obs_core_hotkeys *hotkeys)
 {
 	obs_hotkeys_platform_t *context = hotkeys->platform_context;
@@ -845,7 +860,7 @@ static bool obs_nix_x11_hotkeys_platform_init(struct obs_core_hotkeys *hotkeys)
 	hotkeys->platform_context = bzalloc(sizeof(obs_hotkeys_platform_t));
 	hotkeys->platform_context->display = display;
 
-#if defined(XINPUT_FOUND)
+#if defined(XCB_XINPUT_FOUND)
 	registerMouseEvents(hotkeys);
 #endif
 	fill_base_keysyms(hotkeys);
@@ -863,6 +878,7 @@ static void obs_nix_x11_hotkeys_platform_free(struct obs_core_hotkeys *hotkeys)
 		da_free(context->keycodes[i].list);
 
 	bfree(context->keysyms);
+	XCloseDisplay(context->display);
 	bfree(context);
 
 	hotkeys->platform_context = NULL;
@@ -873,7 +889,7 @@ static bool mouse_button_pressed(xcb_connection_t *connection,
 {
 	bool ret = false;
 
-#if defined(XINPUT_FOUND)
+#if defined(XCB_XINPUT_FOUND)
 	memset(context->pressed, 0, XINPUT_MOUSE_LEN);
 	memset(context->update, 0, XINPUT_MOUSE_LEN);
 

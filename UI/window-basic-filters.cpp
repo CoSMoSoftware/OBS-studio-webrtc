@@ -88,18 +88,12 @@ OBSBasicFilters::OBSBasicFilters(QWidget *parent, OBSSource source_)
 	installEventFilter(CreateShortcutFilter());
 
 	connect(ui->asyncFilters->itemDelegate(),
-		SIGNAL(closeEditor(QWidget *,
-				   QAbstractItemDelegate::EndEditHint)),
-		this,
-		SLOT(AsyncFilterNameEdited(
-			QWidget *, QAbstractItemDelegate::EndEditHint)));
+		SIGNAL(closeEditor(QWidget *)), this,
+		SLOT(AsyncFilterNameEdited(QWidget *)));
 
 	connect(ui->effectFilters->itemDelegate(),
-		SIGNAL(closeEditor(QWidget *,
-				   QAbstractItemDelegate::EndEditHint)),
-		this,
-		SLOT(EffectFilterNameEdited(
-			QWidget *, QAbstractItemDelegate::EndEditHint)));
+		SIGNAL(closeEditor(QWidget *)), this,
+		SLOT(EffectFilterNameEdited(QWidget *)));
 
 	QPushButton *close = ui->buttonBox->button(QDialogButtonBox::Close);
 	connect(close, SIGNAL(clicked()), this, SLOT(close()));
@@ -505,8 +499,9 @@ static bool filter_compatible(bool async, uint32_t sourceFlags,
 	bool audioOnly = (sourceFlags & OBS_SOURCE_VIDEO) == 0;
 	bool asyncSource = (sourceFlags & OBS_SOURCE_ASYNC) != 0;
 
-	if (async && ((audioOnly && filterVideo) || (!audio && !asyncSource) ||
-		      (filterAudio && !audio)))
+	if (async &&
+	    ((audioOnly && filterVideo) || (!audio && !asyncSource) ||
+	     (filterAudio && !audio) || (!asyncSource && !filterAudio)))
 		return false;
 
 	return (async && (filterAudio || filterAsync)) ||
@@ -528,6 +523,11 @@ QMenu *OBSBasicFilters::CreateAddFilterPopupMenu(bool async)
 			: type(type_), name(name_)
 		{
 		}
+
+		bool operator<(const FilterInfo &r) const
+		{
+			return name < r.name;
+		}
 	};
 
 	vector<FilterInfo> types;
@@ -542,14 +542,10 @@ QMenu *OBSBasicFilters::CreateAddFilterPopupMenu(bool async)
 		if ((caps & OBS_SOURCE_CAP_OBSOLETE) != 0)
 			continue;
 
-		auto it = types.begin();
-		for (; it != types.end(); ++it) {
-			if (it->name >= name)
-				break;
-		}
-
-		types.emplace(it, type_str, name);
+		types.emplace_back(type_str, name);
 	}
+
+	sort(types.begin(), types.end());
 
 	QMenu *popup = new QMenu(QTStr("Add"), this);
 	for (FilterInfo &type : types) {
@@ -752,18 +748,14 @@ void OBSBasicFilters::OBSSourceFilterRemoved(void *param, calldata_t *data)
 				  Q_ARG(OBSSource, OBSSource(filter)));
 }
 
-void OBSBasicFilters::OBSSourceReordered(void *param, calldata_t *data)
+void OBSBasicFilters::OBSSourceReordered(void *param, calldata_t *)
 {
 	QMetaObject::invokeMethod(reinterpret_cast<OBSBasicFilters *>(param),
 				  "ReorderFilters");
-
-	UNUSED_PARAMETER(data);
 }
 
-void OBSBasicFilters::SourceRemoved(void *param, calldata_t *data)
+void OBSBasicFilters::SourceRemoved(void *param, calldata_t *)
 {
-	UNUSED_PARAMETER(data);
-
 	QMetaObject::invokeMethod(static_cast<OBSBasicFilters *>(param),
 				  "close");
 }
@@ -1169,18 +1161,25 @@ void OBSBasicFilters::FilterNameEdited(QWidget *editor, QListWidget *list)
 	editActive = false;
 }
 
-void OBSBasicFilters::AsyncFilterNameEdited(
-	QWidget *editor, QAbstractItemDelegate::EndEditHint endHint)
+void OBSBasicFilters::AsyncFilterNameEdited(QWidget *editor)
 {
 	FilterNameEdited(editor, ui->asyncFilters);
-	UNUSED_PARAMETER(endHint);
 }
 
-void OBSBasicFilters::EffectFilterNameEdited(
-	QWidget *editor, QAbstractItemDelegate::EndEditHint endHint)
+void OBSBasicFilters::EffectFilterNameEdited(QWidget *editor)
 {
 	FilterNameEdited(editor, ui->effectFilters);
-	UNUSED_PARAMETER(endHint);
+}
+
+static bool ConfirmReset(QWidget *parent)
+{
+	QMessageBox::StandardButton button;
+
+	button = OBSMessageBox::question(parent, QTStr("ConfirmReset.Title"),
+					 QTStr("ConfirmReset.Text"),
+					 QMessageBox::Yes | QMessageBox::No);
+
+	return button == QMessageBox::Yes;
 }
 
 void OBSBasicFilters::ResetFilters()
@@ -1193,6 +1192,9 @@ void OBSBasicFilters::ResetFilters()
 	if (!filter)
 		return;
 
+	if (!ConfirmReset(this))
+		return;
+
 	OBSDataAutoRelease settings = obs_source_get_settings(filter);
 
 	OBSDataAutoRelease empty_settings = obs_data_create();
@@ -1203,7 +1205,7 @@ void OBSBasicFilters::ResetFilters()
 	if (!view->DeferUpdate())
 		obs_source_update(filter, nullptr);
 
-	view->RefreshProperties();
+	view->ReloadProperties();
 }
 
 void OBSBasicFilters::CopyFilter()

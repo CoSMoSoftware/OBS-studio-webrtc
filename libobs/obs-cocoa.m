@@ -68,19 +68,15 @@ char *find_libobs_data_file(const char *file)
 {
 	struct dstr path;
 
-	if (is_in_bundle()) {
-		NSBundle *frameworkBundle = [NSBundle
-			bundleWithIdentifier:@"ci.cosmosoftware.libobs"];
-		NSURL *bundleURL = [frameworkBundle bundleURL];
-		NSURL *libobsDataURL =
-			[bundleURL URLByAppendingPathComponent:@"Resources/"];
-		const char *libobsDataPath = [[libobsDataURL path]
-			cStringUsingEncoding:NSUTF8StringEncoding];
-		dstr_init_copy(&path, libobsDataPath);
-		dstr_cat(&path, "/");
-	} else {
-		dstr_init_copy(&path, OBS_INSTALL_DATA_PATH "/libobs/");
-	}
+	NSBundle *frameworkBundle =
+		[NSBundle bundleWithIdentifier:@"com.obsproject.libobs"];
+	NSURL *bundleURL = [frameworkBundle bundleURL];
+	NSURL *libobsDataURL =
+		[bundleURL URLByAppendingPathComponent:@"Resources/"];
+	const char *libobsDataPath = [[libobsDataURL path]
+		cStringUsingEncoding:NSUTF8StringEncoding];
+	dstr_init_copy(&path, libobsDataPath);
+	dstr_cat(&path, "/");
 
 	dstr_cat(&path, file);
 	return path.array;
@@ -123,6 +119,12 @@ static void log_processor_cores(void)
 	     os_get_physical_cores(), os_get_logical_cores());
 }
 
+static void log_emulation_status(void)
+{
+	blog(LOG_INFO, "Rosetta translation used: %s",
+	     os_get_emulation_status() ? "true" : "false");
+}
+
 static void log_available_memory(void)
 {
 	size_t size;
@@ -162,6 +164,7 @@ void log_system_info(void)
 	log_processor_cores();
 	log_available_memory();
 	log_os();
+	log_emulation_status();
 	log_kernel_version();
 }
 
@@ -484,6 +487,9 @@ static bool code_to_str(int code, struct dstr *str)
 
 void obs_key_to_str(obs_key_t key, struct dstr *str)
 {
+	const UniCharCount max_length = 16;
+	UniChar buffer[max_length];
+
 	if (localized_key_to_str(key, str))
 		return;
 
@@ -516,9 +522,7 @@ void obs_key_to_str(obs_key_t key, struct dstr *str)
 		goto err;
 	}
 
-	const UniCharCount max_length = 16;
 	UInt32 dead_key_state = 0;
-	UniChar buffer[max_length];
 	UniCharCount len = 0;
 
 	OSStatus err =

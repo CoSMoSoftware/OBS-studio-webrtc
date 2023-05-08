@@ -919,6 +919,9 @@ EXPORT void gs_duplicator_destroy(gs_duplicator_t *duplicator);
 
 EXPORT bool gs_duplicator_update_frame(gs_duplicator_t *duplicator);
 EXPORT gs_texture_t *gs_duplicator_get_texture(gs_duplicator_t *duplicator);
+EXPORT enum gs_color_space
+gs_duplicator_get_color_space(gs_duplicator_t *duplicator);
+EXPORT float gs_duplicator_get_sdr_white_level(gs_duplicator_t *duplicator);
 
 EXPORT uint32_t gs_get_adapter_count(void);
 
@@ -967,7 +970,7 @@ EXPORT gs_stagesurf_t *gs_stagesurface_create_p010(uint32_t width,
 EXPORT void gs_register_loss_callbacks(const struct gs_device_loss *callbacks);
 EXPORT void gs_unregister_loss_callbacks(void *data);
 
-#elif defined(__linux__) || defined(__FreeBSD__)
+#elif defined(__linux__) || defined(__FreeBSD__) || defined(__DragonFly__)
 
 EXPORT gs_texture_t *gs_texture_create_from_dmabuf(
 	unsigned int width, unsigned int height, uint32_t drm_format,

@@ -73,7 +73,7 @@ void CheckIfAlreadyRunning(bool &already_running)
 
 	// NOTE LUDO: call std::bind
 	int bindErr = ::bind(uniq, (struct sockaddr *)&bindInfo,
-			     sizeof(struct sockaddr_un));
+			   sizeof(struct sockaddr_un));
 	already_running = bindErr == 0 ? 0 : 1;
 
 	if (already_running) {
@@ -179,7 +179,7 @@ static inline bool check_path(const char *data, const char *path,
 	str << path << data;
 	output = str.str();
 
-	printf("Attempted path: %s\n", output.c_str());
+	blog(LOG_DEBUG, "Attempted path: %s", output.c_str());
 
 	return (access(output.c_str(), R_OK) == 0);
 }

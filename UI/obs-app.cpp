@@ -47,7 +47,6 @@
 #include "window-permissions.hpp"
 #endif
 #include "window-basic-settings.hpp"
-#include "crash-report.hpp"
 #include "platform.hpp"
 
 #include <fstream>
@@ -60,6 +59,13 @@
 #else
 #include <signal.h>
 #include <pthread.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <unistd.h>
+#endif
+
+#if defined(_WIN32) || defined(ENABLE_SPARKLE_UPDATER)
+#include <json11.hpp>
 #endif
 
 #if !defined(_WIN32) && !defined(__APPLE__)
@@ -104,6 +110,10 @@ string opt_starting_scene;
 bool restart = false;
 
 QPointer<OBSLogViewer> obsLogViewer;
+
+#ifndef _WIN32
+int OBSApp::sigintFd[2];
+#endif
 
 // GPU hint exports for AMD/NVIDIA laptops
 #ifdef _MSC_VER
@@ -274,14 +284,17 @@ string CurrentDateTimeString()
 	return buf;
 }
 
-static inline void LogString(fstream &logFile, const char *timeString,
-			     char *str, int log_level)
+static void LogString(fstream &logFile, const char *timeString, char *str,
+		      int log_level)
 {
+	static mutex logfile_mutex;
 	string msg;
 	msg += timeString;
 	msg += str;
 
+	logfile_mutex.lock();
 	logFile << msg << endl;
+	logfile_mutex.unlock();
 
 	if (!!obsLogViewer)
 		QMetaObject::invokeMethod(obsLogViewer.data(), "AddLine",
@@ -376,7 +389,7 @@ static void do_log(int log_level, const char *msg, va_list args, void *param)
 	va_copy(args2, args);
 #endif
 
-	vsnprintf(str, 4095, msg, args);
+	vsnprintf(str, sizeof(str), msg, args);
 
 #ifdef _WIN32
 	if (IsDebuggerPresent()) {
@@ -397,8 +410,12 @@ static void do_log(int log_level, const char *msg, va_list args, void *param)
 	}
 #endif
 
+#if !defined(_WIN32) && defined(_DEBUG)
+	def_log_handler(log_level, msg, args2, nullptr);
+#endif
+
 	if (log_level <= LOG_INFO || log_verbose) {
-#ifndef _WIN32
+#if !defined(_WIN32) && !defined(_DEBUG)
 		def_log_handler(log_level, msg, args2, nullptr);
 #endif
 		if (!too_many_repeated_entries(logFile, msg, str))
@@ -419,8 +436,6 @@ static void do_log(int log_level, const char *msg, va_list args, void *param)
 
 bool OBSApp::InitGlobalConfigDefaults()
 {
-	config_set_default_string(globalConfig, "General", "Language",
-				  DEFAULT_LANG);
 	config_set_default_uint(globalConfig, "General", "MaxLogs", 10);
 	config_set_default_int(globalConfig, "General", "InfoIncrement", -1);
 	config_set_default_string(globalConfig, "General", "ProcessPriority",
@@ -496,12 +511,10 @@ bool OBSApp::InitGlobalConfigDefaults()
 				"MultiviewDrawAreas", true);
 
 #ifdef _WIN32
-	uint32_t winver = GetWindowsVersion();
-
 	config_set_default_bool(globalConfig, "Audio", "DisableAudioDucking",
 				true);
 	config_set_default_bool(globalConfig, "General", "BrowserHWAccel",
-				winver > 0x601);
+				true);
 #endif
 
 #ifdef __APPLE__
@@ -844,8 +857,13 @@ bool OBSApp::InitGlobalConfig()
 bool OBSApp::InitLocale()
 {
 	ProfileScope("OBSApp::InitLocale");
+
 	const char *lang =
 		config_get_string(globalConfig, "General", "Language");
+	bool userLocale =
+		config_has_user_value(globalConfig, "General", "Language");
+	if (!userLocale || !lang || lang[0] == '\0')
+		lang = DEFAULT_LANG;
 
 	locale = lang;
 
@@ -867,8 +885,6 @@ bool OBSApp::InitLocale()
 		return false;
 	}
 
-	bool userLocale =
-		config_has_user_value(globalConfig, "General", "Language");
 	bool defaultLang = astrcmpi(lang, DEFAULT_LANG) == 0;
 
 	if (userLocale && defaultLang)
@@ -1214,13 +1230,12 @@ std::string OBSApp::GetTheme(std::string name, std::string path)
 
 std::string OBSApp::SetParentTheme(std::string name)
 {
-	string path = GetTheme(name.c_str(), "");
+	string path = GetTheme(name, "");
 	if (path.empty())
 		return path;
 
 	setPalette(defaultPalette);
 
-	QString mpath = QString("file:///") + path.c_str();
 	ParseExtraThemeData(path.c_str());
 	return path;
 }
@@ -1259,6 +1274,10 @@ bool OBSApp::SetTheme(std::string name, std::string path)
 		themeDarkMode = !(color.redF() < 0.5);
 	}
 
+#ifdef __APPLE__
+	SetMacOSDarkMode(themeDarkMode);
+#endif
+
 	emit StyleChanged();
 	return true;
 }
@@ -1266,7 +1285,7 @@ bool OBSApp::SetTheme(std::string name, std::string path)
 bool OBSApp::InitTheme()
 {
 	defaultPalette = palette();
-	setStyle(new OBSIgnoreWheelProxyStyle());
+	setStyle(new OBSProxyStyle());
 
 	const char *themeName =
 		config_get_string(globalConfig, "General", "CurrentTheme3");
@@ -1282,6 +1301,115 @@ bool OBSApp::InitTheme()
 	return SetTheme("System");
 }
 
+#if defined(_WIN32) || defined(ENABLE_SPARKLE_UPDATER)
+void ParseBranchesJson(const std::string &jsonString, vector<UpdateBranch> &out,
+		       std::string &error)
+{
+	json11::Json root;
+	root = json11::Json::parse(jsonString, error);
+	if (!error.empty() || !root.is_array())
+		return;
+
+	for (const json11::Json &item : root.array_items()) {
+#ifdef _WIN32
+		if (!item["windows"].bool_value())
+			continue;
+#elif defined(__APPLE__)
+		if (!item["macos"].bool_value())
+			continue;
+#endif
+
+		UpdateBranch branch = {
+			QString::fromStdString(item["name"].string_value()),
+			QString::fromStdString(
+				item["display_name"].string_value()),
+			QString::fromStdString(
+				item["description"].string_value()),
+			item["enabled"].bool_value(),
+			item["visible"].bool_value(),
+		};
+		out.push_back(branch);
+	}
+}
+
+bool LoadBranchesFile(vector<UpdateBranch> &out)
+{
+	string error;
+	string branchesText;
+
+	BPtr<char> branchesFilePath =
+		GetConfigPathPtr("obs-studio/updates/branches.json");
+
+	QFile branchesFile(branchesFilePath.Get());
+	if (!branchesFile.open(QIODevice::ReadOnly)) {
+		error = "Opening file failed.";
+		goto fail;
+	}
+
+	branchesText = branchesFile.readAll();
+	if (branchesText.empty()) {
+		error = "File empty.";
+		goto fail;
+	}
+
+	ParseBranchesJson(branchesText, out, error);
+	if (error.empty())
+		return !out.empty();
+
+fail:
+	blog(LOG_WARNING, "Loading branches from file failed: %s",
+	     error.c_str());
+	return false;
+}
+#endif
+
+void OBSApp::SetBranchData(const string &data)
+{
+#if defined(_WIN32) || defined(ENABLE_SPARKLE_UPDATER)
+	string error;
+	vector<UpdateBranch> result;
+
+	ParseBranchesJson(data, result, error);
+
+	if (!error.empty()) {
+		blog(LOG_WARNING, "Reading branches JSON response failed: %s",
+		     error.c_str());
+		return;
+	}
+
+	if (!result.empty())
+		updateBranches = result;
+
+	branches_loaded = true;
+#else
+	UNUSED_PARAMETER(data);
+#endif
+}
+
+std::vector<UpdateBranch> OBSApp::GetBranches()
+{
+	vector<UpdateBranch> out;
+	/* Always ensure the default branch exists */
+	out.push_back(UpdateBranch{"stable", "", "", true, true});
+
+#if defined(_WIN32) || defined(ENABLE_SPARKLE_UPDATER)
+	if (!branches_loaded) {
+		vector<UpdateBranch> result;
+		if (LoadBranchesFile(result))
+			updateBranches = result;
+
+		branches_loaded = true;
+	}
+#endif
+
+	/* Copy additional branches to result (if any) */
+	if (!updateBranches.empty())
+		out.insert(out.end(), updateBranches.begin(),
+			   updateBranches.end());
+
+	return out;
+}
+
 OBSApp::OBSApp(int &argc, char **argv, profiler_name_store_t *store)
 	: QApplication(argc, argv), profilerNameStore(store)
 {
@@ -1289,6 +1417,14 @@ OBSApp::OBSApp(int &argc, char **argv, profiler_name_store_t *store)
 #if defined(Q_OS_UNIX)
 	if (!setlocale(LC_NUMERIC, "C"))
 		blog(LOG_WARNING, "Failed to set LC_NUMERIC to C locale");
+#endif
+
+#ifndef _WIN32
+	/* Handle SIGINT properly */
+	socketpair(AF_UNIX, SOCK_STREAM, 0, sigintFd);
+	snInt = new QSocketNotifier(sigintFd[1], QSocketNotifier::Read, this);
+	connect(snInt, SIGNAL(activated(QSocketDescriptor)), this,
+		SLOT(ProcessSigInt()));
 #endif
 
 	sleepInhibitor = os_inhibit_sleep_create("OBS Video/audio");
@@ -1307,6 +1443,10 @@ OBSApp::~OBSApp()
 		config_get_bool(globalConfig, "Audio", "DisableAudioDucking");
 	if (disableAudioDucking)
 		DisableAudioDucking(false);
+#else
+	delete snInt;
+	close(sigintFd[0]);
+	close(sigintFd[1]);
 #endif
 
 #ifdef __APPLE__
@@ -1624,7 +1764,7 @@ bool OBSApp::OBSInit()
 	return true;
 }
 
-string OBSApp::GetVersionString() const
+string OBSApp::GetVersionString(bool platform) const
 {
 	stringstream ver;
 
@@ -1635,24 +1775,26 @@ string OBSApp::GetVersionString() const
 	    << LIBOBS_API_PATCH_VER;
 
 #endif
-	ver << " (";
 
+	if (platform) {
+		ver << " (";
 #ifdef _WIN32
-	if (sizeof(void *) == 8)
-		ver << "64-bit, ";
-	else
-		ver << "32-bit, ";
+		if (sizeof(void *) == 8)
+			ver << "64-bit, ";
+		else
+			ver << "32-bit, ";
 
-	ver << "windows)";
+		ver << "windows)";
 #elif __APPLE__
-	ver << "mac)";
+		ver << "mac)";
 #elif __OpenBSD__
-	ver << "openbsd)";
+		ver << "openbsd)";
 #elif __FreeBSD__
-	ver << "freebsd)";
+		ver << "freebsd)";
 #else /* assume linux for the time being */
-	ver << "linux)";
+		ver << "linux)";
 #endif
+	}
 
 	return ver.str();
 }
@@ -1756,8 +1898,8 @@ skip:
 	return QApplication::notify(receiver, e);
 }
 
-QString OBSTranslator::translate(const char *context, const char *sourceText,
-				 const char *disambiguation, int n) const
+QString OBSTranslator::translate(const char *, const char *sourceText,
+				 const char *, int) const
 {
 	const char *out = nullptr;
 	QString str(sourceText);
@@ -1765,9 +1907,6 @@ QString OBSTranslator::translate(const char *context, const char *sourceText,
 	if (!App()->TranslateString(QT_TO_UTF8(str), &out))
 		return QString(sourceText);
 
-	UNUSED_PARAMETER(context);
-	UNUSED_PARAMETER(disambiguation);
-	UNUSED_PARAMETER(n);
 	return QT_UTF8(out);
 }
 
@@ -2016,7 +2155,22 @@ string GetFormatString(const char *format, const char *prefix,
 	return f;
 }
 
-string GetOutputFilename(const char *path, const char *ext, bool noSpace,
+string GetFormatExt(const char *container)
+{
+	string ext = container;
+	if (ext == "fragmented_mp4")
+		ext = "mp4";
+	else if (ext == "fragmented_mov")
+		ext = "mov";
+	else if (ext == "hls")
+		ext = "m3u8";
+	else if (ext == "mpegts")
+		ext = "ts";
+
+	return ext;
+}
+
+string GetOutputFilename(const char *path, const char *container, bool noSpace,
 			 bool overwrite, const char *format)
 {
 	OBSBasic *main = reinterpret_cast<OBSBasic *>(App()->GetMainWindow());
@@ -2043,7 +2197,8 @@ string GetOutputFilename(const char *path, const char *ext, bool noSpace,
 	if (lastChar != '/' && lastChar != '\\')
 		strPath += "/";
 
-	strPath += GenerateSpecifiedFilename(ext, noSpace, format);
+	string ext = GetFormatExt(container);
+	strPath += GenerateSpecifiedFilename(ext.c_str(), noSpace, format);
 	ensure_directory_exists(strPath);
 	if (!overwrite)
 		FindBestFilename(strPath, noSpace);
@@ -2226,17 +2381,35 @@ static int run_program(fstream &logFile, int argc, char *argv[])
 
 	setenv("QT_STYLE_OVERRIDE", "Fusion", false);
 
+#if OBS_QT_VERSION == 6
+	/* NOTE: Users blindly set this, but this theme is incompatble with Qt6 and
+	 * crashes loading saved geometry. Just turn off this theme and let users complain OBS
+	 * looks ugly instead of crashing. */
+	const char *platform_theme = getenv("QT_QPA_PLATFORMTHEME");
+	if (platform_theme && strcmp(platform_theme, "qt5ct") == 0)
+		unsetenv("QT_QPA_PLATFORMTHEME");
+#endif
+
 #if defined(ENABLE_WAYLAND) && defined(USE_XDG)
 	/* NOTE: Qt doesn't use the Wayland platform on GNOME, so we have to
 	 * force it using the QT_QPA_PLATFORM env var. It's still possible to
 	 * use other QPA platforms using this env var, or the -platform command
-	 * line option. */
+	 * line option. Remove after Qt 6.3 is everywhere. */
 
+	const char *desktop = getenv("XDG_CURRENT_DESKTOP");
 	const char *session_type = getenv("XDG_SESSION_TYPE");
-	if (session_type && strcmp(session_type, "wayland") == 0)
+	if (session_type && desktop && strstr(desktop, "GNOME") != nullptr &&
+	    strcmp(session_type, "wayland") == 0)
 		setenv("QT_QPA_PLATFORM", "wayland", false);
 #endif
 #endif
+
+	/* NOTE: This disables an optimisation in Qt that attempts to determine if
+	 * any "siblings" intersect with a widget when determining the approximate
+	 * visible/unobscured area. However, by Qt's own admission this is slow
+	 * and in the case of OBS it significantly slows down lists with many
+	 * elements (e.g. Hotkeys) and it is actually faster to disable it. */
+	qputenv("QT_NO_SUBTRACTOPAQUESIBLINGS", "1");
 
 	OBSApp program(argc, argv, profilerNameStore.get());
 	try {
@@ -2324,8 +2497,6 @@ static int run_program(fstream &logFile, int argc, char *argv[])
 		}
 
 		if (!multi) {
-			QMessageBox::StandardButtons buttons(
-				QMessageBox::Yes | QMessageBox::Cancel);
 			QMessageBox mb(QMessageBox::Question,
 				       QTStr("AlreadyRunning.Title"),
 				       QTStr("AlreadyRunning.Text"));
@@ -2395,15 +2566,11 @@ static int run_program(fstream &logFile, int argc, char *argv[])
 				       "MacOSPermissionsDialogLastShown");
 		if (permissionsDialogLastShown <
 		    MACOS_PERMISSIONS_DIALOG_VERSION) {
-			OBSPermissions *check = new OBSPermissions(
-				nullptr, screen_permission, video_permission,
-				audio_permission, accessibility_permission);
-			check->exec();
+			OBSPermissions check(nullptr, screen_permission,
+					     video_permission, audio_permission,
+					     accessibility_permission);
+			check.exec();
 		}
-
-		bool rosettaTranslated = os_get_emulation_status();
-		blog(LOG_INFO, "Rosetta translation used: %s",
-		     rosettaTranslated ? "true" : "false");
 #endif
 
 #ifdef _WIN32
@@ -2460,7 +2627,8 @@ static int run_program(fstream &logFile, int argc, char *argv[])
 	"Woops, OBS has crashed!\n\nWould you like to copy the crash log " \
 	"to the clipboard? The crash log will still be saved to:\n\n%s"
 
-static void main_crash_handler(const char *format, va_list args, void *param)
+static void main_crash_handler(const char *format, va_list args,
+			       void * /* param */)
 {
 	char *text = new char[MAX_CRASH_REPORT_SIZE];
 
@@ -2526,8 +2694,6 @@ static void main_crash_handler(const char *format, va_list args, void *param)
 	}
 
 	exit(-1);
-
-	UNUSED_PARAMETER(param);
 }
 
 static void load_debug_privilege(void)
@@ -2748,16 +2914,16 @@ static void move_to_xdg(void)
 	if (!home)
 		return;
 
-	if (snprintf(old_path, 512, "%s/.%s", home, CONFIG_DIR) <= 0)
+	if (snprintf(old_path, sizeof(old_path), "%s/.%s", home, CONFIG_DIR) <= 0)
 		return;
 
 	/* make base xdg path if it doesn't already exist */
-	if (GetConfigPath(new_path, 512, "") <= 0)
+	if (GetConfigPath(new_path, sizeof(new_path), "") <= 0)
 		return;
 	if (os_mkdirs(new_path) == MKDIR_ERROR)
 		return;
 
-	if (GetConfigPath(new_path, 512, CONFIG_DIR) <= 0)
+	if (GetConfigPath(new_path, sizeof(new_path), CONFIG_DIR) <= 0)
 		return;
 
 	if (os_file_exists(old_path) && !os_file_exists(new_path)) {
@@ -3137,12 +3303,31 @@ static void upgrade_settings(void)
 	os_closedir(dir);
 }
 
-void ctrlc_handler(int s)
+#ifndef _WIN32
+void OBSApp::SigIntSignalHandler(int s)
 {
+	/* Handles SIGINT and writes to a socket. Qt will read
+	 * from the socket in the main thread event loop and trigger
+	 * a call to the ProcessSigInt slot, where we can safely run
+	 * shutdown code without signal safety issues. */
 	UNUSED_PARAMETER(s);
 
-	OBSBasic *main = reinterpret_cast<OBSBasic *>(App()->GetMainWindow());
+	char a = 1;
+	send(sigintFd[0], &a, sizeof(a), 0);
+}
+#endif
+
+void OBSApp::ProcessSigInt(void)
+{
+	/* This looks weird, but we can't ifdef a Qt slot function so
+	 * the SIGINT handler simply does nothing on Windows. */
+#ifndef _WIN32
+	char tmp;
+	recv(sigintFd[1], &tmp, sizeof(tmp), 0);
+
+	OBSBasic *main = reinterpret_cast<OBSBasic *>(GetMainWindow());
 	main->close();
+#endif
 }
 
 int main(int argc, char *argv[])
@@ -3152,7 +3337,7 @@ int main(int argc, char *argv[])
 
 	struct sigaction sig_handler;
 
-	sig_handler.sa_handler = ctrlc_handler;
+	sig_handler.sa_handler = OBSApp::SigIntSignalHandler;
 	sigemptyset(&sig_handler.sa_mask);
 	sig_handler.sa_flags = 0;
 
@@ -3171,6 +3356,9 @@ int main(int argc, char *argv[])
 #endif
 
 #ifdef _WIN32
+	// Try to keep this as early as possible
+	install_dll_blocklist_hook();
+
 	obs_init_win32_crash_handler();
 	SetErrorMode(SEM_FAILCRITICALERRORS);
 	load_debug_privilege();
@@ -3194,12 +3382,14 @@ int main(int argc, char *argv[])
 	obs_set_cmdline_args(argc, argv);
 
 	for (int i = 1; i < argc; i++) {
-		if (arg_is(argv[i], "--portable", "-p")) {
-			portable_mode = true;
-
-		} else if (arg_is(argv[i], "--multi", "-m")) {
+		if (arg_is(argv[i], "--multi", "-m")) {
 			multi = true;
 
+#if ALLOW_PORTABLE_MODE
+		} else if (arg_is(argv[i], "--portable", "-p")) {
+			portable_mode = true;
+
+#endif
 		} else if (arg_is(argv[i], "--verbose", nullptr)) {
 			log_verbose = true;
 
@@ -3295,7 +3485,7 @@ int main(int argc, char *argv[])
 
 		} else if (arg_is(argv[i], "--version", "-V")) {
 			std::cout << "OBS-WebRTC - "
-				  << App()->GetVersionString() << "\n";
+				  << App()->GetVersionString(false) << "\n";
 			exit(0);
 		}
 	}
@@ -3339,6 +3529,8 @@ int main(int argc, char *argv[])
 		func();
 		FreeLibrary(hRtwq);
 	}
+
+	log_blocked_dlls();
 #endif
 
 	blog(LOG_INFO, "Number of memory leaks: %ld", bnum_allocs());

@@ -34,9 +34,8 @@ void EnumSceneCollections(std::function<bool(const char *, const char *)> &&cb)
 	char path[512];
 	os_glob_t *glob;
 
-	int ret = GetConfigPath(
-		path, sizeof(path),
-		(std::string(CONFIG_DIR) + "/basic/scenes/*.json").c_str());
+	int ret = GetConfigPath(path, sizeof(path),
+				(std::string(CONFIG_DIR) + "/basic/scenes/*.json").c_str());
 	if (ret <= 0) {
 		blog(LOG_WARNING, "Failed to get config path for scene "
 				  "collections");
@@ -158,9 +157,13 @@ bool OBSBasic::AddSceneCollection(bool create_new, const QString &qname)
 				  "SceneCollection", name.c_str());
 		config_set_string(App()->GlobalConfig(), "Basic",
 				  "SceneCollectionFile", file.c_str());
+
 		if (create_new) {
 			CreateDefaultScene(false);
+		} else {
+			obs_reset_source_uuids();
 		}
+
 		SaveProjectNow();
 		RefreshSceneCollections();
 	};
@@ -271,8 +274,7 @@ void OBSBasic::on_actionRenameSceneCollection_triggered()
 	SaveProjectNow();
 
 	char path[512];
-	int ret = GetConfigPath(
-		path, 512,
+	int ret = GetConfigPath(path, 512,
 		(std::string(CONFIG_DIR) + "/basic/scenes/").c_str());
 	if (ret <= 0) {
 		blog(LOG_WARNING, "Failed to get scene collection config path");
@@ -332,8 +334,7 @@ void OBSBasic::on_actionRemoveSceneCollection_triggered()
 		return;
 
 	char path[512];
-	int ret = GetConfigPath(
-		path, 512,
+	int ret = GetConfigPath(path, 512,
 		(std::string(CONFIG_DIR) + "/basic/scenes/").c_str());
 	if (ret <= 0) {
 		blog(LOG_WARNING, "Failed to get scene collection config path");
@@ -389,8 +390,7 @@ void OBSBasic::on_actionExportSceneCollection_triggered()
 	QString currentFile = QT_UTF8(config_get_string(
 		App()->GlobalConfig(), "Basic", "SceneCollectionFile"));
 
-	int ret = GetConfigPath(
-		path, 512,
+	int ret = GetConfigPath(path, 512,
 		(std::string(CONFIG_DIR) + "/basic/scenes/").c_str());
 	if (ret <= 0) {
 		blog(LOG_WARNING, "Failed to get scene collection config path");
@@ -404,10 +404,46 @@ void OBSBasic::on_actionExportSceneCollection_triggered()
 	string file = QT_TO_UTF8(exportFile);
 
 	if (!exportFile.isEmpty() && !exportFile.isNull()) {
-		if (QFile::exists(exportFile))
-			QFile::remove(exportFile);
+		QString inputFile = path + currentFile + ".json";
 
-		QFile::copy(path + currentFile + ".json", exportFile);
+		OBSDataAutoRelease collection =
+			obs_data_create_from_json_file(QT_TO_UTF8(inputFile));
+
+		OBSDataArrayAutoRelease sources =
+			obs_data_get_array(collection, "sources");
+		if (!sources) {
+			blog(LOG_WARNING,
+			     "No sources in exported scene collection");
+			return;
+		}
+		obs_data_erase(collection, "sources");
+
+		// We're just using std::sort on a vector to make life easier.
+		vector<OBSData> sourceItems;
+		obs_data_array_enum(
+			sources,
+			[](obs_data_t *data, void *pVec) -> void {
+				auto &sourceItems =
+					*static_cast<vector<OBSData> *>(pVec);
+				sourceItems.push_back(data);
+			},
+			&sourceItems);
+
+		std::sort(sourceItems.begin(), sourceItems.end(),
+			  [](const OBSData &a, const OBSData &b) {
+				  return astrcmpi(obs_data_get_string(a,
+								      "name"),
+						  obs_data_get_string(
+							  b, "name")) < 0;
+			  });
+
+		OBSDataArrayAutoRelease newSources = obs_data_array_create();
+		for (auto &item : sourceItems)
+			obs_data_array_push_back(newSources, item);
+
+		obs_data_set_array(collection, "sources", newSources);
+		obs_data_save_json_pretty_safe(
+			collection, QT_TO_UTF8(exportFile), "tmp", "bak");
 	}
 }
 

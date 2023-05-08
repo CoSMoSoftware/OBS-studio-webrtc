@@ -59,31 +59,29 @@ bool UIValidation::NoSourcesConfirmation(QWidget *parent)
 StreamSettingsAction
 UIValidation::StreamSettingsConfirmation(QWidget *parent, OBSService service)
 {
-	// Custom services can user API key in URL or user/pass combo.
-	// So only check there is a URL
+	if (obs_service_can_try_to_connect(service))
+		return StreamSettingsAction::ContinueStream;
+
 	char const *serviceType = obs_service_get_type(service);
-	bool isCustomUrlService = (strcmp(serviceType, "rtmp_custom") == 0);
+	bool isCustomService = (strcmp(serviceType, "rtmp_custom") == 0);
 	bool isWebrtcService = (strncmp(serviceType, "webrtc", 6) == 0);
 
 	if (isWebrtcService) {
 		return StreamSettingsAction::ContinueStream;
 	}
 
-	char const *streamUrl = obs_service_get_url(service);
-	char const *streamKey = obs_service_get_key(service);
+	char const *streamUrl = obs_service_get_connect_info(
+		service, OBS_SERVICE_CONNECT_INFO_SERVER_URL);
+	char const *streamKey = obs_service_get_connect_info(
+		service, OBS_SERVICE_CONNECT_INFO_STREAM_KEY);
 
-	bool hasStreamUrl = (streamUrl != NULL && streamUrl[0] != '\0');
-	bool hasStreamKey = ((streamKey != NULL && streamKey[0] != '\0') ||
-			     isCustomUrlService);
-
-	if (hasStreamUrl && hasStreamKey)
-		return StreamSettingsAction::ContinueStream;
+	bool streamUrlMissing = !(streamUrl != NULL && streamUrl[0] != '\0');
+	bool streamKeyMissing = !(streamKey != NULL && streamKey[0] != '\0');
 
 	QString msg;
-
-	if (!hasStreamUrl && !hasStreamKey) {
+	if (!isCustomService && streamUrlMissing && streamKeyMissing) {
 		msg = QTStr("Basic.Settings.Stream.MissingUrlAndApiKey");
-	} else if (!hasStreamKey) {
+	} else if (!isCustomService && streamKeyMissing) {
 		msg = QTStr("Basic.Settings.Stream.MissingStreamKey");
 	} else {
 		msg = QTStr("Basic.Settings.Stream.MissingUrl");

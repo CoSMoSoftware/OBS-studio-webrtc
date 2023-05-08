@@ -201,6 +201,10 @@ SceneTree::item {
     padding: 6px;
 }
 
+QMenu::item {
+    padding-right: 20px;
+}
+
 QListWidget::item,
 SourceTreeItem,
 QMenu::item,
@@ -522,6 +526,10 @@ QToolButton:pressed {
     qproperty-icon: url(./Light/media-pause.svg);
 }
 
+* [themeID="filtersIcon"] {
+    qproperty-icon: url(./Light/filter.svg);
+}
+
 QToolBarExtension {
     background: palette(button);
     min-width: 12px;
@@ -808,7 +816,7 @@ QPushButton:pressed {
     background-color: rgb(193,193,193);
 }
 
-QPushButton:disabled {
+QPushButton:disabled, QToolButton:disabled {
     background-color: rgb(193,193,193);
 }
 
@@ -964,6 +972,10 @@ QHeaderView::section {
 
 MuteCheckBox::indicator:checked {
     image: url(./Light/mute.svg);
+}
+
+MuteCheckBox::indicator:indeterminate {
+    image: url(./Dark/unassigned.svg);
 }
 
 MuteCheckBox::indicator:unchecked {
@@ -1511,5 +1523,10 @@ QDialogButtonBox {
 
 /* Stats dialog */
 OBSBasicStats {
+    background: palette(dark);
+}
+
+/* Advanced audio dialog */
+OBSBasicAdvAudio #scrollAreaWidgetContents {
     background: palette(dark);
 }

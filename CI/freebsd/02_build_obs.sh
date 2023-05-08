@@ -48,10 +48,15 @@ _configure_obs() {
         PORTABLE_BUILD="ON"
     fi
 
+    if [ "${DISABLE_PIPEWIRE}" ]; then
+        PIPEWIRE_OPTION="-DENABLE_PIPEWIRE=OFF"
+    fi
+
     cmake -S . -B ${BUILD_DIR} -G Ninja \
         -DCMAKE_BUILD_TYPE=${BUILD_CONFIG} \
         -DLINUX_PORTABLE=${PORTABLE_BUILD:-OFF} \
-        -DENABLE_PIPEWIRE=OFF \
+        ${PIPEWIRE_OPTION} \
+        ${CCACHE_OPTIONS} \
         ${TWITCH_OPTIONS} \
         ${YOUTUBE_OPTIONS} \
         ${RESTREAM_OPTIONS} \
@@ -82,7 +87,7 @@ _backup_artifacts() {
 build-obs-standalone() {
     CHECKOUT_DIR="$(git rev-parse --show-toplevel)"
     PRODUCT_NAME="OBS-Studio"
-    DEPS_BUILD_DIR="${CHECKOUT_DIR}/../obs-build-dependencies_${ARCH}"
+    DEPS_BUILD_DIR="${CHECKOUT_DIR}/../obs-build-dependencies"
     source "${CHECKOUT_DIR}/CI/include/build_support.sh"
     source "${CHECKOUT_DIR}/CI/include/build_support_freebsd.sh"
 
@@ -95,6 +100,7 @@ print_usage() {
             "-q, --quiet                    : Suppress most build process output\n" \
             "-v, --verbose                  : Enable more verbose build process output\n" \
             "-p, --portable                 : Create portable build (default: off)\n" \
+            "--disable-pipewire             : Disable building with PipeWire support (default: off)\n" \
             "--build-dir                    : Specify alternative build directory (default: build)\n"
 }
 
@@ -106,6 +112,7 @@ build-obs-main() {
                 -q | --quiet ) export QUIET=TRUE; shift ;;
                 -v | --verbose ) export VERBOSE=TRUE; shift ;;
                 -p | --portable ) export PORTABLE=TRUE; shift ;;
+                --disable-pipewire ) DISABLE_PIPEWIRE=TRUE; shift ;;
                 --build-dir ) BUILD_DIR="${2}"; shift 2 ;;
                 -- ) shift; break ;;
                 * ) break ;;
