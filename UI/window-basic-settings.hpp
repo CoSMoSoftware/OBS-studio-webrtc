@@ -403,7 +403,8 @@ private slots:
 	// void on_listWidget_itemSelectionChanged();
 	void on_buttonBox_clicked(QAbstractButton *button);
 
-	void on_service_currentIndexChanged(int idx);
+	// #289 service list of radio buttons (int index replaced by QAbstractButton)
+	void on_service_currentIndexChanged(QAbstractButton *checked_button);
 	void on_customServer_textChanged(const QString &text);
 	void on_simpleOutputBrowse_clicked();
 	void on_advOutRecPathBrowse_clicked();

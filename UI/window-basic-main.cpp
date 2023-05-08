@@ -3931,7 +3931,7 @@ void OBSBasic::TimedCheckForUpdates()
 #endif
 }
 
-void OBSBasic::CheckForUpdates(bool manualUpdate)
+void OBSBasic::CheckForUpdates(bool /* manualUpdate */)
 {
 	// #270 Disable auto-update
 /*

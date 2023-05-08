@@ -478,6 +478,9 @@ elseif(OS_POSIX)
   endif()
 endif()
 
+# #define CONFIG_DIR "obs-webrtc"
+target_compile_definitions(obs PRIVATE CONFIG_DIR=\"${_config_dir}\")
+
 get_target_property(_SOURCES obs SOURCES)
 set(_UI ${_SOURCES})
 list(FILTER _UI INCLUDE REGEX ".*\\.ui?")

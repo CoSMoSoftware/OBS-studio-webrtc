@@ -567,20 +567,6 @@ obs_service_get_supported_audio_codecs(const obs_service_t *service)
 	return NULL;
 }
 
-const char *obs_service_get_protocol(const obs_service_t *service)
-{
-	if (!obs_service_valid(service, "obs_service_get_protocol"))
-		return NULL;
-
-	return service->info.get_protocol(service->context.data);
-}
-
-/* OBS_DEPRECATED */
-const char *obs_service_get_output_type(const obs_service_t *service)
-{
-	return obs_service_get_preferred_output_type(service);
-}
-
 const char *obs_service_get_preferred_output_type(const obs_service_t *service)
 {
 	if (!obs_service_valid(service,

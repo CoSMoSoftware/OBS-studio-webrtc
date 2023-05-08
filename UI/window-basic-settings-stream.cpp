@@ -719,7 +719,8 @@ void OBSBasicSettings::UseStreamKeyAdvClicked()
 	ui->streamKeyWidget->setVisible(true);
 }
 
-void OBSBasicSettings::on_service_currentIndexChanged(int idx)
+// #289 service list of radio buttons (int index replaced by QAbstractButton)
+void OBSBasicSettings::on_service_currentIndexChanged(QAbstractButton*)
 {
 	// #289 service list of radio buttons
 /*
@@ -1026,8 +1027,14 @@ QString OBSBasicSettings::FindProtocol()
 
 		OBSDataAutoRelease settings = obs_data_create();
 
-		obs_data_set_string(settings, "service",
-				    QT_TO_UTF8(ui->service->currentText()));
+		// #289 service list of radio buttons
+		QString serviceName;
+		if (nullptr != ui->serviceButtonGroup->checkedButton()) {
+			serviceName = ui->serviceButtonGroup->checkedButton()->text();
+		} else {
+			serviceName = "";
+		}
+		obs_data_set_string(settings, "service", QT_TO_UTF8(serviceName));
 		obs_property_modified(services, settings);
 
 		obs_properties_destroy(props);
@@ -1801,9 +1808,6 @@ bool OBSBasicSettings::ServiceAndVCodecCompatible()
 		codec = obs_get_encoder_codec(QT_TO_UTF8(encoder));
 	}
 
-	OBSService service = SpawnTempService();
-	const char **codecs = obs_service_get_supported_video_codecs(service);
-
 	if (!codecs || IsCustomService()) {
 		const char *output;
 		char **output_codecs;
@@ -1916,7 +1920,9 @@ bool OBSBasicSettings::ServiceSupportsCodecCheck()
 	bool acodec_compat = ServiceAndACodecCompatible();
 
 	if (vcodec_compat && acodec_compat) {
-		if (lastServiceIdx != ui->service->currentIndex() ||
+		// #289 service list of radio buttons
+		// if (lastServiceIdx != ui->service->currentIndex() ||
+		if (lastServiceIdx != GetServiceIndex() ||
 		    IsCustomService())
 			ResetEncoders(true);
 		return true;

@@ -1,7 +1,7 @@
 # OBS CMake common CPack module
 
 # Set default global CPack variables
-set(CPACK_PACKAGE_NAME obs-studio)
+set(CPACK_PACKAGE_NAME obs-webrtc)
 set(CPACK_PACKAGE_VENDOR "${OBS_WEBSITE}")
 set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "${OBS_COMMENTS}")
 

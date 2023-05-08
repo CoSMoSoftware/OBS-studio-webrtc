@@ -1,9 +1,18 @@
 cmake_minimum_required(VERSION 3.16...3.25)
 
+if(NOT OBS_WEBRTC_VENDOR_NAME)
+	set(_project_name obs-webrtc)
+	set(_config_dir obs-webrtc)
+else()
+	set(_project_name ${OBS_WEBRTC_VENDOR_NAME})
+	set(_config_dir ${OBS_WEBRTC_VENDOR_NAME})
+endif()
+project(${_project_name} VERSION ${OBS_VERSION_CANONICAL})
+
 if(OBS_CMAKE_VERSION VERSION_GREATER_EQUAL 3.0.0)
   include("${CMAKE_CURRENT_SOURCE_DIR}/cmake/common/bootstrap.cmake")
 
-  project(obs-studio VERSION ${OBS_VERSION_CANONICAL})
+#  project(obs-studio VERSION ${OBS_VERSION_CANONICAL})
 
   if(CMAKE_SIZEOF_VOID_P EQUAL 4)
     include("${CMAKE_CURRENT_SOURCE_DIR}/cmake/32bit/projects.cmake")
@@ -40,15 +49,6 @@ if("${CMAKE_BINARY_DIR}" STREQUAL "${CMAKE_SOURCE_DIR}")
   message(FATAL_ERROR "OBS: You cannot build in a source directory (or any directory with CMakeLists.txt file)."
                       "Please make a build subdirectory. Feel free to remove CMakeCache.txt and CMakeFiles.")
 endif()
-
-if(NOT OBS_WEBRTC_VENDOR_NAME)
-	set(_project_name obs-webrtc)
-	set(_config_dir obs-webrtc)
-else()
-	set(_project_name ${OBS_WEBRTC_VENDOR_NAME})
-	set(_config_dir ${OBS_WEBRTC_VENDOR_NAME})
-endif()
-project(${_project_name} VERSION ${OBS_VERSION_CANONICAL})
 
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 

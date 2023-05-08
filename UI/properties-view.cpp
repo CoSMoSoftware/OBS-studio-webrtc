@@ -627,7 +627,7 @@ static void AddButtonGroupItem(QButtonGroup *buttongroup, QVBoxLayout *vbox,
 	buttongroup->addButton(radiobutton, idx);
 }
 
-QWidget *OBSPropertiesView::AddButtonGroup(obs_property_t *prop, bool &warning)
+QWidget *OBSPropertiesView::AddButtonGroup(obs_property_t *prop, bool & /* warning */)
 {
 	const char *name = obs_property_name(prop);
 	QButtonGroup *buttongroup = new QButtonGroup();
@@ -638,7 +638,7 @@ QWidget *OBSPropertiesView::AddButtonGroup(obs_property_t *prop, bool &warning)
 	size_t count = obs_property_button_group_item_count(prop);
 	int idx = -1;
 
-	for (int i = 0; i < count; i++)
+	for (size_t i = 0; i < count; i++)
 		AddButtonGroupItem(buttongroup, vbox, prop, format, i);
 
 	groupbox->setLayout(vbox);

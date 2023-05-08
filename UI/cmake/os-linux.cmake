@@ -1,11 +1,11 @@
-target_sources(obs-studio PRIVATE platform-x11.cpp)
-target_compile_definitions(obs-studio PRIVATE OBS_INSTALL_PREFIX="${OBS_INSTALL_PREFIX}")
-target_link_libraries(obs-studio PRIVATE Qt::GuiPrivate)
+target_sources(obs PRIVATE platform-x11.cpp)
+target_compile_definitions(obs PRIVATE OBS_INSTALL_PREFIX="${OBS_INSTALL_PREFIX}")
+target_link_libraries(obs PRIVATE Qt::GuiPrivate)
 
 if(TARGET OBS::python)
   find_package(Python REQUIRED COMPONENTS Interpreter Development)
-  target_link_libraries(obs-studio PRIVATE Python::Python)
-  target_link_options(obs-studio PRIVATE LINKER:-no-as-needed)
+  target_link_libraries(obs PRIVATE Python::Python)
+  target_link_options(obs PRIVATE LINKER:-no-as-needed)
 endif()
 
 if(NOT DEFINED APPDATA_RELEASE_DATE)

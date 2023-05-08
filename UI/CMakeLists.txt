@@ -27,11 +27,8 @@ endif()
 add_executable(obs)
 add_executable(OBS::studio ALIAS obs)
 
-# #define CONFIG_DIR "obs-webrtc"
-target_compile_definitions(obs PRIVATE CONFIG_DIR=\"${_config_dir}\")
-
 target_link_libraries(
-  obs-studio
+  obs
   PRIVATE CURL::libcurl
           FFmpeg::avcodec
           FFmpeg::avutil
@@ -105,11 +102,14 @@ endif()
 foreach(graphics_library IN ITEMS opengl metal d3d11)
   string(TOUPPER ${graphics_library} graphics_library_U)
   if(TARGET OBS::libobs-${graphics_library})
-    target_compile_definitions(obs-studio
+    target_compile_definitions(obs
                                PRIVATE DL_${graphics_library_U}="$<TARGET_FILE_NAME:OBS::libobs-${graphics_library}>")
   else()
-    target_compile_definitions(obs-studio PRIVATE DL_${graphics_library_U}="")
+    target_compile_definitions(obs PRIVATE DL_${graphics_library_U}="")
   endif()
 endforeach()
 
-set_target_properties_obs(obs-studio PROPERTIES FOLDER frontend OUTPUT_NAME obs)
+# #define CONFIG_DIR "obs-webrtc"
+target_compile_definitions(obs PRIVATE CONFIG_DIR=\"${_config_dir}\")
+
+set_target_properties_obs(obs PROPERTIES FOLDER frontend OUTPUT_NAME obs)
