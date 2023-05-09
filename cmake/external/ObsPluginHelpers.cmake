@@ -488,7 +488,7 @@ else()
 
       set(CPACK_GENERATOR "DEB")
       set(CPACK_DEBIAN_PACKAGE_DEPENDS
-          "obs-studio (>= 27.0.0), libqt5core5a (>= 5.9.0~beta), libqt5gui5 (>= 5.3.0), libqt5widgets5 (>= 5.7.0)")
+          "obs (>= 29.0.0), libqt5core5a (>= 5.9.0~beta), libqt5gui5 (>= 5.3.0), libqt5widgets5 (>= 5.7.0) libopencv-objdetect4.5d (>= 4.5.0)")
 
       set(CPACK_OUTPUT_FILE_PREFIX ${CMAKE_SOURCE_DIR}/release)
 
