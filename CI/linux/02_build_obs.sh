@@ -91,7 +91,6 @@ _configure_obs() {
         -DBUILD_FOR_DISTRIBUTION=ON \
         ${QUIET:+-Wno-deprecated -Wno-dev --log-level=ERROR} \
         -DBUILD_NDI=${NDI_OPTION} \
-        -DENABLE_DECKLINK=OFF \
         -DLIBOBS_INCLUDE_DIRS=${CMAKE_SOURCE_DIR}/libobs \
         -DLIBOBS_LIB=${BUILD_DIR}/libobs/libobs.so \
         -DUNIX_STRUCTURE=1 \
