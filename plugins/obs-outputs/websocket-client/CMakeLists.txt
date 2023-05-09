@@ -78,6 +78,8 @@ target_include_directories(websocketclient
 					${CMAKE_SOURCE_DIR}/libobs
 					${CMAKE_CURRENT_SOURCE_DIR}/third_party/asio/include)
 
+target_compile_options(websocketclient PRIVATE -Wno-error=null-pointer-subtraction)
+
 if(WIN32)
 	setup_plugin_target(websocketclient)
 endif()
