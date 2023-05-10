@@ -106,6 +106,8 @@ mark_as_advanced(ENABLE_STATIC_MBEDTLS)
 add_library(obs-outputs MODULE)
 add_library(OBS::outputs ALIAS obs-outputs)
 
+target_sources(obs-outputs PRIVATE ${obs-outputs_webrtc_HEADERS} ${outputs_webrtc_SOURCES})
+
 target_sources(
   obs-outputs
   PRIVATE obs-outputs.c
