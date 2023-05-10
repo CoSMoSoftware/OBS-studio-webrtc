@@ -76,8 +76,8 @@ set(obs-outputs_webrtc_SOURCES
 	)
 
 if(NOT WIN32)
-#	set_source_files_properties(${obs-outputs_webrtc_SOURCES} PROPERTIES
-#		COMPILE_FLAGS "-fvisibility=hidden")
+	set_source_files_properties(${obs-outputs_webrtc_SOURCES} PROPERTIES
+		COMPILE_FLAGS "-fvisibility=hidden")
 endif()
 
 #-------------------------------------------------------------------------------
