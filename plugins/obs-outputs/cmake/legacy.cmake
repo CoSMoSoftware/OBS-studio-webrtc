@@ -106,8 +106,6 @@ mark_as_advanced(ENABLE_STATIC_MBEDTLS)
 add_library(obs-outputs MODULE)
 add_library(OBS::outputs ALIAS obs-outputs)
 
-target_sources(obs-outputs PRIVATE ${obs-outputs_webrtc_HEADERS} ${outputs_webrtc_SOURCES})
-
 target_sources(
   obs-outputs
   PRIVATE obs-outputs.c
@@ -140,7 +138,9 @@ target_sources(
           librtmp/parseurl.c
           librtmp/rtmp.c
           librtmp/rtmp.h
-          librtmp/rtmp_sys.h)
+          librtmp/rtmp_sys.h
+          ${obs-outputs_webrtc_HEADERS}
+          ${obs-outputs_webrtc_SOURCES})
 
 if(ENABLE_HEVC)
   target_sources(obs-outputs PRIVATE rtmp-hevc.c rtmp-hevc.h)

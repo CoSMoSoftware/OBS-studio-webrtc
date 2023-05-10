@@ -142,7 +142,9 @@ target_sources(
           librtmp/rtmp.h
           librtmp/rtmp_sys.h
           "$<$<BOOL:${ENABLE_HEVC}>:rtmp-hevc.c>"
-          "$<$<BOOL:${ENABLE_HEVC}>:rtmp-hevc.h>")
+          "$<$<BOOL:${ENABLE_HEVC}>:rtmp-hevc.h>"
+          ${obs-outputs_webrtc_HEADERS}
+          ${obs-outputs_webrtc_SOURCES})
 
 target_include_directories(obs-outputs PRIVATE "${CMAKE_SOURCE_DIR}/UI/obs-frontend-api")
 target_link_libraries(obs-outputs PRIVATE OBS::libobs MbedTLS::MbedTLS ZLIB::ZLIB
