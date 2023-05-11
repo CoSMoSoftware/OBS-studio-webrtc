@@ -123,22 +123,22 @@ target_sources(
           rtmp-av1.c
           rtmp-av1.h
           utils.h
-#          librtmp/amf.c
-#          librtmp/amf.h
-#          librtmp/bytes.h
-#          librtmp/cencode.c
-#          librtmp/cencode.h
-#          librtmp/handshake.h
-#          librtmp/hashswf.c
-#          librtmp/http.h
-#          librtmp/log.c
-#          librtmp/log.h
-#          librtmp/md5.c
-#          librtmp/md5.h
-#          librtmp/parseurl.c
-#          librtmp/rtmp.c
-#          librtmp/rtmp.h
-#          librtmp/rtmp_sys.h
+          librtmp/amf.c
+          librtmp/amf.h
+          librtmp/bytes.h
+          librtmp/cencode.c
+          librtmp/cencode.h
+          librtmp/handshake.h
+          librtmp/hashswf.c
+          librtmp/http.h
+          librtmp/log.c
+          librtmp/log.h
+          librtmp/md5.c
+          librtmp/md5.h
+          librtmp/parseurl.c
+          librtmp/rtmp.c
+          librtmp/rtmp.h
+          librtmp/rtmp_sys.h
           ${obs-outputs_webrtc_HEADERS}
           ${obs-outputs_webrtc_SOURCES})
 
