@@ -284,59 +284,57 @@ extern "C" float webrtc_custom_stream_congestion(void *data)
 }
 
 extern "C" {
-// #ifdef _WIN32
-// struct obs_output_info webrtc_custom_output_info = {
-// 	"webrtc_custom_output",             //id
-// 	OBS_OUTPUT_AV | OBS_OUTPUT_SERVICE, //flags
-// 	webrtc_custom_stream_getname,       //get_name
-// 	webrtc_custom_stream_create,        //create
-// 	webrtc_custom_stream_destroy,       //destroy
-// 	webrtc_custom_stream_start,         //start
-// 	webrtc_custom_stream_stop,          //stop
-// 	webrtc_custom_receive_video,        //raw_video
-// 	webrtc_custom_receive_audio,        //raw_audio
-// 	nullptr,                            //encoded_packet
-// 	nullptr,                            //update
-// 	webrtc_custom_stream_defaults,      //get_defaults
-// 	webrtc_custom_stream_properties,    //get_properties
-// 	nullptr,                            //unused1 (formerly pause)
-// 	// NOTE LUDO: #80 add getStats
-// 	webrtc_custom_stream_get_stats, webrtc_custom_stream_get_stats_list,
-// 	webrtc_custom_stream_total_bytes_sent, //get_total_bytes
-// 	webrtc_custom_stream_dropped_frames,   //get_dropped_frames
-// 	// #310 webrtc getstats()
-// 	webrtc_custom_stream_get_transport_bytes_sent, //get_transport_bytes_sent
-// 	webrtc_custom_stream_get_transport_bytes_received, //get_transport_bytes_received
-// 	webrtc_custom_stream_get_video_packets_sent, //get_video_packets_sent
-// 	webrtc_custom_stream_get_video_bytes_sent,   //get_video_bytes_sent
-// 	webrtc_custom_stream_get_video_fir_count,    //get_video_fir_count
-// 	webrtc_custom_stream_get_video_pli_count,    //get_video_pli_count
-// 	webrtc_custom_stream_get_video_nack_count,   //get_video_nack_count
-// 	webrtc_custom_stream_get_video_qp_sum,       //get_video_qp_sum
-// 	webrtc_custom_stream_get_audio_packets_sent, //get_audio_packets_sent
-// 	webrtc_custom_stream_get_audio_bytes_sent,   //get_audio_bytes_sent
-// 	webrtc_custom_stream_get_track_audio_level,  //get_track_audio_level
-// 	webrtc_custom_stream_get_track_total_audio_energy, //get_track_total_audio_energy
-// 	webrtc_custom_stream_get_track_total_samples_duration, //get_track_total_samples_duration
-// 	webrtc_custom_stream_get_track_frame_width,  //get_track_frame_width
-// 	webrtc_custom_stream_get_track_frame_height, //get_track_frame_height
-// 	webrtc_custom_stream_get_track_frames_sent,  //get_track_frames_sent
-// 	webrtc_custom_stream_get_track_huge_frames_sent, //get_track_huge_frames_sent
-// 	nullptr,                                         //type_data
-// 	nullptr,                                         //free_type_data
-// 	webrtc_custom_stream_congestion,                 //get_congestion
-// 	nullptr,                                         //get_connect_time_ms
-// 	"vp8",                                           //encoded_video_codecs
-// 	"opus",                                          //encoded_audio_codecs
-// 	nullptr                                          //raw_audio2
-// };
-// #else
+#ifdef _WIN32
+struct obs_output_info webrtc_custom_output_info = {
+	"webrtc_custom_output",             //id
+	OBS_OUTPUT_AV | OBS_OUTPUT_SERVICE, //flags
+	webrtc_custom_stream_getname,       //get_name
+	webrtc_custom_stream_create,        //create
+	webrtc_custom_stream_destroy,       //destroy
+	webrtc_custom_stream_start,         //start
+	webrtc_custom_stream_stop,          //stop
+	webrtc_custom_receive_video,        //raw_video
+	webrtc_custom_receive_audio,        //raw_audio
+	nullptr,                            //encoded_packet
+	nullptr,                            //update
+	webrtc_custom_stream_defaults,      //get_defaults
+	webrtc_custom_stream_properties,    //get_properties
+	nullptr,                            //unused1 (formerly pause)
+	// NOTE LUDO: #80 add getStats
+	webrtc_custom_stream_get_stats, webrtc_custom_stream_get_stats_list,
+	webrtc_custom_stream_total_bytes_sent, //get_total_bytes
+	webrtc_custom_stream_dropped_frames,   //get_dropped_frames
+	// #310 webrtc getstats()
+	webrtc_custom_stream_get_transport_bytes_sent, //get_transport_bytes_sent
+	webrtc_custom_stream_get_transport_bytes_received, //get_transport_bytes_received
+	webrtc_custom_stream_get_video_packets_sent, //get_video_packets_sent
+	webrtc_custom_stream_get_video_bytes_sent,   //get_video_bytes_sent
+	webrtc_custom_stream_get_video_fir_count,    //get_video_fir_count
+	webrtc_custom_stream_get_video_pli_count,    //get_video_pli_count
+	webrtc_custom_stream_get_video_nack_count,   //get_video_nack_count
+	webrtc_custom_stream_get_video_qp_sum,       //get_video_qp_sum
+	webrtc_custom_stream_get_audio_packets_sent, //get_audio_packets_sent
+	webrtc_custom_stream_get_audio_bytes_sent,   //get_audio_bytes_sent
+	webrtc_custom_stream_get_track_audio_level,  //get_track_audio_level
+	webrtc_custom_stream_get_track_total_audio_energy, //get_track_total_audio_energy
+	webrtc_custom_stream_get_track_total_samples_duration, //get_track_total_samples_duration
+	webrtc_custom_stream_get_track_frame_width,  //get_track_frame_width
+	webrtc_custom_stream_get_track_frame_height, //get_track_frame_height
+	webrtc_custom_stream_get_track_frames_sent,  //get_track_frames_sent
+	webrtc_custom_stream_get_track_huge_frames_sent, //get_track_huge_frames_sent
+	nullptr,                                         //type_data
+	nullptr,                                         //free_type_data
+	webrtc_custom_stream_congestion,                 //get_congestion
+	nullptr,                                         //get_connect_time_ms
+	"h264;vp8;vp9;av1",                              //encoded_video_codecs
+	"opus",                                          //encoded_audio_codecs
+	nullptr,                                         //raw_audio2
+	"WebRTC"                                         //protocols
+};
+#else
 struct obs_output_info webrtc_custom_output_info = {
 	.id = "webrtc_custom_output",
 	.flags = OBS_OUTPUT_AV | OBS_OUTPUT_SERVICE,
-	.protocols = "WebRTC",
-	.encoded_video_codecs = "h264;vp8;vp9;av1",
-	.encoded_audio_codecs = "opus",
 	.get_name = webrtc_custom_stream_getname,
 	.create = webrtc_custom_stream_create,
 	.destroy = webrtc_custom_stream_destroy,
@@ -381,10 +379,11 @@ struct obs_output_info webrtc_custom_output_info = {
 	.free_type_data = nullptr,
 	.get_congestion = webrtc_custom_stream_congestion,
 	.get_connect_time_ms = nullptr,
-	.encoded_video_codecs = "vp8",
+	.encoded_video_codecs = "h264;vp8;vp9;av1",
 	.encoded_audio_codecs = "opus",
-	.raw_audio2 = nullptr
+	.raw_audio2 = nullptr,
 	// .raw_audio2           = webrtc_custom_receive_multitrack_audio, //for multi-track
+	.protocols = "WebRTC"
 };
-// #endif
+#endif
 }
