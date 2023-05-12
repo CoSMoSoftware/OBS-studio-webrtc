@@ -281,56 +281,57 @@ extern "C" float millicast_stream_congestion(void *data)
 }
 
 extern "C" {
-#ifdef _WIN32
-struct obs_output_info millicast_output_info = {
-	"millicast_output",                 //id
-	OBS_OUTPUT_AV | OBS_OUTPUT_SERVICE, //flags
-	millicast_stream_getname,           //get_name
-	millicast_stream_create,            //create
-	millicast_stream_destroy,           //destroy
-	millicast_stream_start,             //start
-	millicast_stream_stop,              //stop
-	millicast_receive_video,            //raw_video
-	millicast_receive_audio,            //raw_audio
-	nullptr,                            //encoded_packet
-	nullptr,                            //update
-	millicast_stream_defaults,          //get_defaults
-	millicast_stream_properties,        //get_properties
-	nullptr,                            //unused1 (formerly pause)
-	// NOTE LUDO: #80 add getStats
-	millicast_stream_get_stats, millicast_stream_get_stats_list,
-	millicast_stream_total_bytes_sent, //get_total_bytes
-	millicast_stream_dropped_frames,   //get_dropped_frames
-	// #310 webrtc getstats()
-	millicast_stream_get_transport_bytes_sent, //get_transport_bytes_sent
-	millicast_stream_get_transport_bytes_received, //get_transport_bytes_received
-	millicast_stream_get_video_packets_sent,       //get_video_packets_sent
-	millicast_stream_get_video_bytes_sent,         //get_video_bytes_sent
-	millicast_stream_get_video_fir_count,          //get_video_fir_count
-	millicast_stream_get_video_pli_count,          //get_video_pli_count
-	millicast_stream_get_video_nack_count,         //get_video_nack_count
-	millicast_stream_get_video_qp_sum,             //get_video_qp_sum
-	millicast_stream_get_audio_packets_sent,       //get_audio_packets_sent
-	millicast_stream_get_audio_bytes_sent,         //get_audio_bytes_sent
-	millicast_stream_get_track_audio_level,        //get_track_audio_level
-	millicast_stream_get_track_total_audio_energy, //get_track_total_audio_energy
-	millicast_stream_get_track_total_samples_duration, //get_track_total_samples_duration
-	millicast_stream_get_track_frame_width,      //get_track_frame_width
-	millicast_stream_get_track_frame_height,     //get_track_frame_height
-	millicast_stream_get_track_frames_sent,      //get_track_frames_sent
-	millicast_stream_get_track_huge_frames_sent, //get_track_huge_frames_sent
-	nullptr,                                     //type_data
-	nullptr,                                     //free_type_data
-	millicast_stream_congestion,                 //get_congestion
-	nullptr,                                     //get_connect_time_ms
-	"vp8",                                       //encoded_video_codecs
-	"opus",                                      //encoded_audio_codecs
-	nullptr                                      //raw_audio2
-};
-#else
+// #ifdef _WIN32
+// struct obs_output_info millicast_output_info = {
+// 	"millicast_output",                 //id
+// 	OBS_OUTPUT_AV | OBS_OUTPUT_SERVICE, //flags
+// 	millicast_stream_getname,           //get_name
+// 	millicast_stream_create,            //create
+// 	millicast_stream_destroy,           //destroy
+// 	millicast_stream_start,             //start
+// 	millicast_stream_stop,              //stop
+// 	millicast_receive_video,            //raw_video
+// 	millicast_receive_audio,            //raw_audio
+// 	nullptr,                            //encoded_packet
+// 	nullptr,                            //update
+// 	millicast_stream_defaults,          //get_defaults
+// 	millicast_stream_properties,        //get_properties
+// 	nullptr,                            //unused1 (formerly pause)
+// 	// NOTE LUDO: #80 add getStats
+// 	millicast_stream_get_stats, millicast_stream_get_stats_list,
+// 	millicast_stream_total_bytes_sent, //get_total_bytes
+// 	millicast_stream_dropped_frames,   //get_dropped_frames
+// 	// #310 webrtc getstats()
+// 	millicast_stream_get_transport_bytes_sent, //get_transport_bytes_sent
+// 	millicast_stream_get_transport_bytes_received, //get_transport_bytes_received
+// 	millicast_stream_get_video_packets_sent,       //get_video_packets_sent
+// 	millicast_stream_get_video_bytes_sent,         //get_video_bytes_sent
+// 	millicast_stream_get_video_fir_count,          //get_video_fir_count
+// 	millicast_stream_get_video_pli_count,          //get_video_pli_count
+// 	millicast_stream_get_video_nack_count,         //get_video_nack_count
+// 	millicast_stream_get_video_qp_sum,             //get_video_qp_sum
+// 	millicast_stream_get_audio_packets_sent,       //get_audio_packets_sent
+// 	millicast_stream_get_audio_bytes_sent,         //get_audio_bytes_sent
+// 	millicast_stream_get_track_audio_level,        //get_track_audio_level
+// 	millicast_stream_get_track_total_audio_energy, //get_track_total_audio_energy
+// 	millicast_stream_get_track_total_samples_duration, //get_track_total_samples_duration
+// 	millicast_stream_get_track_frame_width,      //get_track_frame_width
+// 	millicast_stream_get_track_frame_height,     //get_track_frame_height
+// 	millicast_stream_get_track_frames_sent,      //get_track_frames_sent
+// 	millicast_stream_get_track_huge_frames_sent, //get_track_huge_frames_sent
+// 	nullptr,                                     //type_data
+// 	nullptr,                                     //free_type_data
+// 	millicast_stream_congestion,                 //get_congestion
+// 	nullptr,                                     //get_connect_time_ms
+// 	"vp8",                                       //encoded_video_codecs
+// 	"opus",                                      //encoded_audio_codecs
+// 	nullptr                                      //raw_audio2
+// };
+// #else
 struct obs_output_info millicast_output_info = {
 	.id = "millicast_output",
 	.flags = OBS_OUTPUT_AV | OBS_OUTPUT_SERVICE,
+	.protocols = "WebRTC",
 	.get_name = millicast_stream_getname,
 	.create = millicast_stream_create,
 	.destroy = millicast_stream_destroy,
@@ -379,5 +380,5 @@ struct obs_output_info millicast_output_info = {
 	.raw_audio2 = nullptr
 	// .raw_audio2           = millicast_receive_multitrack_audio, //for multi-track
 };
-#endif
+// #endif
 }
