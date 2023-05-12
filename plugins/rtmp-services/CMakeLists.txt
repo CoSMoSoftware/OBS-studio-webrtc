@@ -33,7 +33,9 @@ target_sources(
           rtmp-common.c
           rtmp-custom.c
           rtmp-services-main.c
-          rtmp-format-ver.h)
+          rtmp-format-ver.h
+          webrtc-custom.c
+          webrtc-millicast.c)
 
 target_compile_definitions(rtmp-services PRIVATE SERVICES_URL="${RTMP_SERVICES_URL}"
                                                  $<$<BOOL:${ENABLE_SERVICE_UPDATES}>:ENABLE_SERVICE_UPDATES>)
