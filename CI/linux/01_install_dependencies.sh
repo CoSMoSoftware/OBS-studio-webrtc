@@ -95,8 +95,7 @@ install_plugin-deps() {
 install_libwebrtc() {
     shift
     status "Install libwebrtc ${1}"
-    # mv ./libWebRTC-${LIBWEBRTC_VERSION}-x64-Release-H264-OpenSSL_1_1_1n.sh libWebRTC.sh
-    mv ./libWebRTC-${LIBWEBRTC_VERSION}-x64-Release-H264.sh libWebRTC.sh
+    mv ./libWebRTC-${LIBWEBRTC_VERSION}-x64-Release-H264-OpenSSL_1_1_1n.sh libWebRTC.sh
     chmod +x libWebRTC.sh
     mkdir libwebrtc
     ./libWebRTC.sh --prefix="./libwebrtc" --skip-license

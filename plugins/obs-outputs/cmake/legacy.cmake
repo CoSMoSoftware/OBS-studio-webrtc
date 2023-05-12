@@ -133,7 +133,7 @@ target_sources(
           librtmp/http.h
           librtmp/log.c
           librtmp/log.h
-          librtmp/md5.c
+#          librtmp/md5.c
           librtmp/md5.h
           librtmp/parseurl.c
           librtmp/rtmp.c
