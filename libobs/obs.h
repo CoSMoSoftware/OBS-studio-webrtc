@@ -2565,7 +2565,7 @@ OBS_DEPRECATED EXPORT const char *
 obs_service_get_key(const obs_service_t *service);
 
 /** NOTE LUDO: Returns the room name (if any) for this service context */
-OBS_DEPRECATED EXPORT const char *
+EXPORT const char *
 obs_service_get_room(const obs_service_t *service);
 
 /** Returns the username (if any) for this service context */
@@ -2576,7 +2576,7 @@ obs_service_get_username(const obs_service_t *service);
 OBS_DEPRECATED EXPORT const char *
 obs_service_get_password(const obs_service_t *service);
 /** NOTE LUDO: Returns the video codec name for this service context */
-OBS_DEPRECATED EXPORT const char *
+EXPORT const char *
 obs_service_get_codec(const obs_service_t *service);
 
 /**
