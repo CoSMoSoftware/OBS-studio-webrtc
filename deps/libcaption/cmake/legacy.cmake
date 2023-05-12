@@ -29,7 +29,7 @@ if(CMAKE_CXX_COMPILER_ID STREQUAL "clang" AND CMAKE_CXX_COMPILER_VERSION VERSION
   target_compile_options(
     caption
     PRIVATE
-      $<$<OR:$<AND:$<CXX_COMPILER_ID:Clang>,$<CXX_COMPILER_VERSION>>,$<CXX_COMPILER_ID:AppleClang>,$<CXX_COMPILER_ID:GNU>>:-Wno-unused-but-set-parameter>
+      $<$<OR:$<CXX_COMPILER_ID:Clang>,$<CXX_COMPILER_ID:AppleClang>,$<CXX_COMPILER_ID:GNU>>:-Wno-unused-but-set-parameter>
   )
 endif()
 
