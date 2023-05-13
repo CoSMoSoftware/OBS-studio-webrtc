@@ -39,7 +39,7 @@ target_link_libraries(rtmp-services PRIVATE OBS::libobs OBS::file-updater Jansso
 
 if(OS_WINDOWS)
   set(MODULE_DESCRIPTION "OBS RTMP Services")
-  configure_file(${CMAKE_SOURCE_DIR}/cmake/windows/obs-module.rc.in rtmp-services.rc)
+  configure_file(${CMAKE_SOURCE_DIR}/cmake/bundle/windows/obs-module.rc.in rtmp-services.rc)
 
   target_sources(rtmp-services PRIVATE rtmp-services.rc)
   target_link_options(rtmp-services PRIVATE /IGNORE:4098)
