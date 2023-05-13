@@ -79,8 +79,10 @@ target_include_directories(websocketclient
 					${CMAKE_CURRENT_SOURCE_DIR}/third_party/asio/include)
 
 if(NOT WIN32)
-	target_compile_options(websocketclient PRIVATE -Wno-error=null-pointer-subtraction
-																								 -Wno-error=deprecated-declarations)
+	target_compile_options(websocketclient PRIVATE -Wno-error=deprecated-declarations)
+	if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang" AND CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL "14.0.0")
+		target_compile_options(websocketclient PRIVATE -Wno-error=null-pointer-subtraction)
+	endif()
 endif()
 
 if(WIN32)
