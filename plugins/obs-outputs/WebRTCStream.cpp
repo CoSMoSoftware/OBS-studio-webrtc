@@ -214,15 +214,17 @@ bool WebRTCStream::start(WebRTCStream::Type type)
 
 	// Extract setting from service
 
-	url = obs_service_get_url(service) ? obs_service_get_url(service) : "";
+	url = obs_service_get_connect_info(service, OBS_SERVICE_CONNECT_INFO_SERVER_URL)
+		? obs_service_get_connect_info(service, OBS_SERVICE_CONNECT_INFO_SERVER_URL)
+		: "";
 	room = obs_service_get_room(service) ? obs_service_get_room(service)
 					     : "";
-	username = obs_service_get_username(service)
-			   ? obs_service_get_username(service)
-			   : "";
-	password = obs_service_get_password(service)
-			   ? obs_service_get_password(service)
-			   : "";
+	username = obs_service_get_connect_info(service, OBS_SERVICE_CONNECT_INFO_USERNAME)
+		? obs_service_get_connect_info(service, OBS_SERVICE_CONNECT_INFO_USERNAME)
+		: "";
+	password = obs_service_get_connect_info(service, OBS_SERVICE_CONNECT_INFO_PASSWORD)
+		? obs_service_get_connect_info(service, OBS_SERVICE_CONNECT_INFO_PASSWORD)
+		: "";
 	video_codec = obs_service_get_codec(service)
 			      ? obs_service_get_codec(service)
 			      : "";

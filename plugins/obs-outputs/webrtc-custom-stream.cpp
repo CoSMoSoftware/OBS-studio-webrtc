@@ -326,9 +326,10 @@ struct obs_output_info webrtc_custom_output_info = {
 	nullptr,                                         //free_type_data
 	webrtc_custom_stream_congestion,                 //get_congestion
 	nullptr,                                         //get_connect_time_ms
-	"vp8",                                           //encoded_video_codecs
+	"h264;vp8;vp9;av1",                              //encoded_video_codecs
 	"opus",                                          //encoded_audio_codecs
-	nullptr                                          //raw_audio2
+	nullptr,                                         //raw_audio2
+	"WebRTC"                                         //protocols
 };
 #else
 struct obs_output_info webrtc_custom_output_info = {
@@ -378,10 +379,11 @@ struct obs_output_info webrtc_custom_output_info = {
 	.free_type_data = nullptr,
 	.get_congestion = webrtc_custom_stream_congestion,
 	.get_connect_time_ms = nullptr,
-	.encoded_video_codecs = "vp8",
+	.encoded_video_codecs = "h264;vp8;vp9;av1",
 	.encoded_audio_codecs = "opus",
-	.raw_audio2 = nullptr
+	.raw_audio2 = nullptr,
 	// .raw_audio2           = webrtc_custom_receive_multitrack_audio, //for multi-track
+	.protocols = "WebRTC"
 };
 #endif
 }
