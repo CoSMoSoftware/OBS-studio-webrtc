@@ -108,9 +108,14 @@ function Configure-OBS {
 
 Write-Status "********************* location"
 Get-Location
-if ((Test-Path $BuildDirectoryActual)) {
+if ((Test-Path $BuildDirectoryActual/libobs)) {
     Write-Status "********************* dir"
     Get-ChildItem ./${BuildDirectoryActual}
+}
+if ((Test-Path $BuildDirectoryActual/libobs/libobsConfig.cmake)) {
+    Write-Status "********************* $BuildDirectoryActual/libobs/libobsConfig.cmake EXISTS"
+} else {
+    Write-Status "********************* $BuildDirectoryActual/libobs/libobsConfig.cmake does not exist"
 }
 Write-Status "********************* obs version"
 echo "OBS version = ${Env:OBS_VERSION}"
