@@ -104,12 +104,12 @@ function Configure-OBS {
         "-DLIBOBS_LIB=`"${BuildDirectoryActual}/libobs/${CMAKE_BUILD_TYPE}/obs.dll`""
     )
 
-Set-PSDebug -Trace 1
+# Set-PSDebug -Trace 1
 
 Write-Status "********************* location"
 Get-Location
 Write-Status "********************* dir"
-Get-ChildItem
+Get-ChildItem ./${BuildDirectoryActual}
 Write-Status "********************* obs version"
 echo "OBS version = ${Env:OBS_VERSION}"
 Write-Status "********************* cmake command"
