@@ -109,7 +109,7 @@ Set-PSDebug -Trace 1
 Write-Status "********************* location"
 Get-Location
 Write-Status "********************* dir"
-dir
+Get-ChildItem
 Write-Status "********************* obs version"
 echo "OBS version = ${Env:OBS_VERSION}"
 Write-Status "********************* cmake command"
