@@ -105,7 +105,7 @@ function Configure-OBS {
     )
 
 Get-Location
-dir ${BuildDirectoryActual}/libobs
+dir
 echo "OBS version = ${Env:OBS_VERSION}"
 echo "commande = ${CmakeCommand}"
 
