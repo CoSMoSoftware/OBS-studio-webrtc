@@ -104,9 +104,13 @@ function Configure-OBS {
         "-DLIBOBS_LIB=`"${BuildDirectoryActual}/libobs/${CMAKE_BUILD_TYPE}/obs.dll`""
     )
 
+Write-Status "********************* location"
 Get-Location
+Write-Status "********************* dir"
 dir
+Write-Status "********************* obs version"
 echo "OBS version = ${Env:OBS_VERSION}"
+Write-Status "********************* cmake command"
 echo "commande = ${CmakeCommand}"
 
     Invoke-External cmake -S . -B  "${BuildDirectoryActual}" @CmakeCommand
