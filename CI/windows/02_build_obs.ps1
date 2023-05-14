@@ -104,6 +104,8 @@ function Configure-OBS {
         "-DLIBOBS_LIB=`"${BuildDirectoryActual}/libobs/${CMAKE_BUILD_TYPE}/obs.dll`""
     )
 
+Set-PSDebug -Trace 1
+
 Write-Status "********************* location"
 Get-Location
 Write-Status "********************* dir"
