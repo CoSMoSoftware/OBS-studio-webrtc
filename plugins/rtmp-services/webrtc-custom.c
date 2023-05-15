@@ -194,7 +194,7 @@ static const char *webrtc_custom_codec(void *data)
 static const char *webrtc_custom_protocol(void *data)
 {
 	UNUSED_PARAMETER(data);
-	return "";
+	return "WebRTC";
 }
 
 static bool webrtc_custom_simulcast(void *data)
@@ -227,6 +227,24 @@ static const char *webrtc_custom_get_output_type(void *data)
 	return service->output;
 }
 
+static const char *webrtc_custom_get_connect_info(void *data, uint32_t type)
+{
+	switch ((enum obs_service_connect_info)type) {
+	case OBS_SERVICE_CONNECT_INFO_SERVER_URL:
+		return webrtc_custom_url(data);
+	case OBS_SERVICE_CONNECT_INFO_STREAM_ID:
+		return webrtc_custom_key(data);
+	case OBS_SERVICE_CONNECT_INFO_USERNAME:
+		return webrtc_custom_username(data);
+	case OBS_SERVICE_CONNECT_INFO_PASSWORD:
+		return webrtc_custom_password(data);
+	case OBS_SERVICE_CONNECT_INFO_ENCRYPT_PASSPHRASE:
+		break;
+	}
+
+	return NULL;
+}
+
 struct obs_service_info webrtc_custom_service = {
 	.id = "webrtc_custom",
 	.get_name = webrtc_custom_name,
@@ -237,6 +255,7 @@ struct obs_service_info webrtc_custom_service = {
 	.get_url = webrtc_custom_url,
 	.get_key = webrtc_custom_key,
 	.get_room = webrtc_custom_room,
+	.get_connect_info = webrtc_custom_get_connect_info,
 	.get_username = webrtc_custom_username,
 	.get_password = webrtc_custom_password,
 	.get_codec = webrtc_custom_codec,

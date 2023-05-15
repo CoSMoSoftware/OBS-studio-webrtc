@@ -208,12 +208,6 @@ void OBSBasicSettings::LoadStream1Settings()
 		ui->room->setToolTip(
 			QTStr("Basic.AutoConfig.StreamPage.StreamKey.ToolTip"));
 
-		tmpString = obs_data_get_string(settings, "protocol");
-		const char *protocol = strcmp("", tmpString) == 0 ? "Automatic"
-								  : tmpString;
-		int idxP = ui->streamProtocol->findText(protocol);
-		ui->streamProtocol->setCurrentIndex(idxP);
-
 		bool simulcast = obs_data_get_bool(settings, "simulcast");
 		ui->simulcastEnable->setChecked(simulcast);
 
@@ -286,12 +280,6 @@ void OBSBasicSettings::LoadStream1Settings()
 				break;
 			}
 		}
-
-		tmpString = obs_data_get_string(settings, "protocol");
-		const char *protocol = strcmp("", tmpString) == 0 ? "Automatic"
-								  : tmpString;
-		int idxP = ui->streamProtocol->findText(protocol);
-		ui->streamProtocol->setCurrentIndex(idxP);
 
 		bool simulcast = obs_data_get_bool(settings, "simulcast");
 		ui->simulcastEnable->setChecked(simulcast);
@@ -723,12 +711,11 @@ void OBSBasicSettings::UseStreamKeyAdvClicked()
 void OBSBasicSettings::on_service_currentIndexChanged(QAbstractButton*)
 {
 	// #289 service list of radio buttons
-/*
-	if (ui->service->currentData().toInt() == (int)ListOpt::ShowAll) {
-		LoadServices(true);
-		ui->service->showPopup();
-		return;
-	}
+	// if (ui->service->currentData().toInt() == (int)ListOpt::ShowAll) {
+	// 	LoadServices(true);
+	// 	ui->service->showPopup();
+	// 	return;
+	// }
 
 	ServiceChanged();
 
@@ -743,11 +730,12 @@ void OBSBasicSettings::on_service_currentIndexChanged(QAbstractButton*)
 	UpdateAdvNetworkGroup();
 
 	if (ServiceSupportsCodecCheck() && UpdateResFPSLimits()) {
+		// #289 service list of radio buttons
+		int idx = GetServiceIndex();
 		lastServiceIdx = idx;
-		if (idx == 0)
+		if (idx == -1)
 			lastCustomServer = ui->customServer->text();
 	}
-*/
 }
 
 void OBSBasicSettings::on_customServer_textChanged(const QString &)
@@ -851,8 +839,6 @@ void OBSBasicSettings::ServiceChanged()
 			obs_properties_get(props, "sourceId");
 		obs_property_t *publishApiUrl =
 			obs_properties_get(props, "publish_api_url");
-		obs_property_t *protocol =
-			obs_properties_get(props, "protocol");
 		ui->serverLabel->setText(obs_property_description(server));
 		ui->roomLabel->setText(obs_property_description(room));
 		ui->authUsernameLabel->setText(
@@ -887,12 +873,6 @@ void OBSBasicSettings::ServiceChanged()
 		// 		min_idx, ui->codecLabel, ui->codec);
 		// 	min_idx++;
 		// }
-		if (obs_property_visible(protocol)) {
-			ui->streamkeyPageLayout->insertRow(
-				min_idx, ui->streamProtocolLabel,
-				ui->streamProtocol);
-			min_idx++;
-		}
 		ui->serverLabel->setVisible(obs_property_visible(server));
 		ui->serverStackedWidget->setVisible(
 			obs_property_visible(server));
@@ -916,9 +896,6 @@ void OBSBasicSettings::ServiceChanged()
 			radiobutton->setVisible(obs_property_visible(codec));
 		}
 		ui->codecGroupBox->setVisible(true);
-		ui->streamProtocolLabel->setVisible(
-			obs_property_visible(protocol));
-		ui->streamProtocol->setVisible(obs_property_visible(protocol));
 		ui->streamingAdvancedSettingsButton->setVisible(true);
 		ui->simulcastEnable->setVisible(false);
 		ui->bweEnable->setVisible(false);

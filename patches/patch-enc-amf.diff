@@ -1,0 +1,14 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 05a5b2a..7c0b44f 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -421,7 +421,8 @@ EndIf()
+ ################################################################################
+ 
+ If(${PropertyPrefix}OBS_NATIVE)
+-	install_obs_plugin_with_data(${PROJECT_NAME} resources)
++  # install_obs_plugin_with_data(${PROJECT_NAME} resources)
++  setup_plugin_target(${PROJECT_NAME} resources)
+ Else()
+ 	Install(
+ 		TARGETS ${PROJECT_NAME}
