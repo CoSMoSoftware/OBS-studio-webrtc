@@ -74,7 +74,7 @@ function Configure-OBS {
         "-G", ${CmakeGenerator}
         "-DCMAKE_GENERATOR_PLATFORM=`"${GeneratorPlatform}`"",
         "-DCMAKE_SYSTEM_VERSION=`"${CmakeSystemVersion}`"",
-        "-DCMAKE_PREFIX_PATH:PATH=`"${CmakePrefixPath}`"",
+        "-DCMAKE_PREFIX_PATH:PATH=`"${CmakePrefixPath}:${BuildDirectoryActual}/libobs`"",
         "-DCEF_ROOT_DIR:PATH=`"${CefDirectory}`"",
         "-DENABLE_BROWSER=ON",
         "-DVLC_PATH:PATH=`"${CheckoutDir}/../obs-build-dependencies/vlc-${WindowsVlcVersion}`"",
