@@ -74,7 +74,7 @@ function Configure-OBS {
         "-G", ${CmakeGenerator}
         "-DCMAKE_GENERATOR_PLATFORM=`"${GeneratorPlatform}`"",
         "-DCMAKE_SYSTEM_VERSION=`"${CmakeSystemVersion}`"",
-        "-DCMAKE_PREFIX_PATH:PATH=`"${CmakePrefixPath}:${BuildDirectoryActual}/libobs`"",
+        "-DCMAKE_PREFIX_PATH:PATH=`"${CmakePrefixPath};${CheckoutDir}/${BuildDirectoryActual}/libobs`"",
         "-DCEF_ROOT_DIR:PATH=`"${CefDirectory}`"",
         "-DENABLE_BROWSER=ON",
         "-DVLC_PATH:PATH=`"${CheckoutDir}/../obs-build-dependencies/vlc-${WindowsVlcVersion}`"",
@@ -99,9 +99,9 @@ function Configure-OBS {
         "$(if (${Vendor} -ne 'Millicast') { "-DOBS_WEBRTC_VENDOR_NAME=${Vendor}" })",
         "-DOBS_VERSION_OVERRIDE=`"${Env:OBS_VERSION}`"",
         "-DBUILD_NDI=${Ndi}",
-        "-Dlibobs_DIR=`"${BuildDirectoryActual}/libobs`"",
-        "-DLIBOBS_INCLUDE_DIRS=`"${BuildDirectoryActual}/libobs`"",
-        "-DLIBOBS_LIB=`"${BuildDirectoryActual}/libobs/${CMAKE_BUILD_TYPE}/obs.dll`""
+        "-Dlibobs_DIR=`"${CheckoutDir}/${BuildDirectoryActual}/libobs`"",
+        "-DLIBOBS_INCLUDE_DIRS=`"${CheckoutDir}/${BuildDirectoryActual}/libobs`"",
+        "-DLIBOBS_LIB=`"${CheckoutDir}/${BuildDirectoryActual}/libobs/${CMAKE_BUILD_TYPE}/obs.dll`""
     )
 
 # Set-PSDebug -Trace 1
