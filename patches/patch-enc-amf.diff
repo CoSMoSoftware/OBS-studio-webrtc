@@ -1,7 +1,7 @@
-diff --git a/CMakeLists.txt b/CMakeLists.txt
+diff --git a/plugins/enc-amf/CMakeLists.txt b/plugins/enc-amf/CMakeLists.txt
 index 05a5b2a..7c0b44f 100644
---- a/CMakeLists.txt
-+++ b/CMakeLists.txt
+--- a/plugins/enc-amf/CMakeLists.txt
++++ b/plugins/enc-amf/CMakeLists.txt
 @@ -421,7 +421,8 @@ EndIf()
  ################################################################################
  
