@@ -101,7 +101,8 @@ function Configure-OBS {
         "-DBUILD_NDI=${Ndi}",
         "-Dlibobs_DIR=`"${CheckoutDir}/${BuildDirectoryActual}/libobs`"",
         "-DLIBOBS_INCLUDE_DIRS=`"${CheckoutDir}/${BuildDirectoryActual}/libobs`"",
-        "-DLIBOBS_LIB=`"${CheckoutDir}/${BuildDirectoryActual}/libobs/${CMAKE_BUILD_TYPE}/obs.dll`""
+        "-DLIBOBS_LIB=`"${CheckoutDir}/${BuildDirectoryActual}/libobs/${CMAKE_BUILD_TYPE}/obs.dll`"",
+        "-Dw32-pthreads_DIR=`"${CheckoutDir}/${BuildDirectoryActual}/deps/w32-pthreads`""
     )
 
 # Set-PSDebug -Trace 1
