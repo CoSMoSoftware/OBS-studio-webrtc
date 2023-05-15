@@ -105,24 +105,6 @@ function Configure-OBS {
         "-Dw32-pthreads_DIR=`"${CheckoutDir}/${BuildDirectoryActual}/deps/w32-pthreads`""
     )
 
-# Set-PSDebug -Trace 1
-
-Write-Status "********************* location"
-Get-Location
-if ((Test-Path $BuildDirectoryActual/libobs)) {
-    Write-Status "********************* dir"
-    Get-ChildItem ./${BuildDirectoryActual}
-}
-if ((Test-Path $BuildDirectoryActual/libobs/libobsConfig.cmake)) {
-    Write-Status "********************* $BuildDirectoryActual/libobs/libobsConfig.cmake EXISTS"
-} else {
-    Write-Status "********************* $BuildDirectoryActual/libobs/libobsConfig.cmake does not exist"
-}
-Write-Status "********************* obs version"
-echo "OBS version = ${Env:OBS_VERSION}"
-Write-Status "********************* cmake command"
-echo "commande = ${CmakeCommand}"
-
     Invoke-External cmake -S . -B  "${BuildDirectoryActual}" @CmakeCommand
 
     Ensure-Directory ${CheckoutDir}

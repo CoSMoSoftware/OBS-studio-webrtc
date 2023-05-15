@@ -779,11 +779,12 @@ void OBSBasicSettings::ServiceChanged()
 						   ui->serverStackedWidget);
 
 		ui->serverLabel->setVisible(true);
-		ui->serverLabel->setText("Server");
+		ui->serverLabel->setText("RTMP Publish Path");
 		ui->serverStackedWidget->setCurrentIndex(1);
 		ui->serverStackedWidget->setVisible(true);
 		on_useAuth_toggled();
 		ui->streamKeyLabel->setVisible(true);
+		ui->streamKeyLabel->setText("RTMP Publish Stream Name");
 		ui->streamKeyWidget->setVisible(true);
 		ui->roomLabel->setVisible(false);
 		ui->room->setVisible(false);
@@ -907,8 +908,8 @@ void OBSBasicSettings::ServiceChanged()
 		ui->publishApiUrl->setVisible(false);
 		obs_properties_destroy(props);
 	} else if (!custom && !isWebrtc) {
-		ui->authUsernameLabel->setText("Username");
-		ui->authPwLabel->setText("Password");
+		ui->authUsernameLabel->setText("Stream Name");
+		ui->authPwLabel->setText("Publishing Token");
 		ui->streamkeyPageLayout->insertRow(1, ui->serverLabel,
 						   ui->serverStackedWidget);
 		ui->streamkeyPageLayout->insertRow(2, ui->streamKeyLabel,
