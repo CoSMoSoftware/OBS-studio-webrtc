@@ -1,14 +1,14 @@
-diff --git a/plugins/enc-amf/CMakeLists.txt b/plugins/enc-amf/CMakeLists.txt
-index 05a5b2a..7c0b44f 100644
---- a/plugins/enc-amf/CMakeLists.txt
-+++ b/plugins/enc-amf/CMakeLists.txt
-@@ -421,7 +421,8 @@ EndIf()
- ################################################################################
+diff --git a/plugins/enc-amf/cmake/legacy.cmake b/plugins/enc-amf/cmake/legacy.cmake
+index f241671..d9fa63b 100644
+--- a/plugins/enc-amf/cmake/legacy.cmake
++++ b/plugins/enc-amf/cmake/legacy.cmake
+@@ -385,7 +385,8 @@ endif()
+ # ######################################################################################################################
  
- If(${PropertyPrefix}OBS_NATIVE)
--	install_obs_plugin_with_data(${PROJECT_NAME} resources)
+ if(${PropertyPrefix}OBS_NATIVE)
+-  install_obs_plugin_with_data(${PROJECT_NAME} resources)
 +  # install_obs_plugin_with_data(${PROJECT_NAME} resources)
 +  setup_plugin_target(${PROJECT_NAME} resources)
- Else()
- 	Install(
- 		TARGETS ${PROJECT_NAME}
+ else()
+   install(
+     TARGETS ${PROJECT_NAME}
