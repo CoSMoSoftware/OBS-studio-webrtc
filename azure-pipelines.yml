@@ -3,24 +3,18 @@
 variables:
   - group: obs-pipeline
 # new variables OBS 28
-  - name: CEF_BUILD_VERSION_MAC
+  - name: MACOS_CEF_BUILD_VERSION
     value: '5060'
-  - name: CEF_HASH_MAC_X86_64
+  - name: MACOS_CEF_HASH
     value: '88b950aa0bfc001061c35e7f1f3fefba856a6afb35e38b2b7b42ddd8dd239182'
-  - name: CEF_HASH_MAC_ARM64
-    value: '98679b92eea6ea9959ac5aa54f46ca60681d8a86c768c35f496dbdd409bf0642'
   - name: CEF_BUILD_VERSION_LINUX
     value: '5060'
   - name: CEF_BUILD_VERSION_WIN
     value: '5060'
-  - name: QT_VERSION_MAC
+  - name: MACOS_QT_VERSION
     value: '6.4.3'
-  - name: QT_HASH_MAC_X86_64
+  - name: MAOS_QT_HASH
     value: 'a83f72a11023b03b6cb2dc365f0a66ad9df31163bbb4fe2df32d601856a9fad3'
-  - name: QT_HASH_MAC_ARM64
-    value: '2f30af90c049670a5660656adbb440668aa1b0567f75a5f29e1def9108928403'
-  - name: QT_HASH_MAC_UNIVERSAL
-    value: '252e6684f43ab9c6f262c73af739e2296ce391b998da2c4ee04c254aaa07db18'
   - name: QT_VERSION_WIN
     value: '6.4.3'
   - name: MACOS_DEPS_VERSION
@@ -29,10 +23,14 @@ variables:
     value: '81120ffa33bb050c6c5fcd236e5cedfd7b80f7053fdba271fead5af20be0b5f5'
   - name: DEPS_VERSION_WIN
     value: '2023-04-12'
-  - name: VLC_VERSION_MAC
+  - name: VLC_VERSION
     value: '3.0.8'
-  - name: VLC_HASH_MAC
+  - name: VLC_HASH
     value: '57094439c365d8aa8b9b41fa3080cc0eef2befe6025bb5cef722accc625aedec'
+  -name: SPARKLE_VERSION
+    value: '1.26.0'
+  -name: SPARKLE_HASH
+    value: '8312cbf7528297a49f1b97692c33cb8d33254c396dc51be394e9484e4b6833a0'
   - name: VLC_VERSION_WIN
     value: '3.0.0-git'
   - name: OBS_CMAKE_VERSION_MAC
@@ -111,8 +109,6 @@ jobs:
         CURRENT_ARCH: ${{ arch }}
         MACOSX_DEPLOYMENT_TARGET_X86_64: '10.15'
         MACOSX_DEPLOYMENT_TARGET_ARM64: '11.0'
-        SPARKLE_VERSION: '1.26.0'
-        SPARKLE_HASH: '8312cbf7528297a49f1b97692c33cb8d33254c396dc51be394e9484e4b6833a0'
   - ${{ each vendor in parameters.vendors }}:
     - ${{ if ne( vendor, 'Wowza') }}:
       - task: InstallAppleCertificate@2
