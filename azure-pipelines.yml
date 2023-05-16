@@ -14,7 +14,7 @@ variables:
   - name: MACOS_QT_VERSION
     value: '6.4.3'
   - name: MAOS_QT_HASH
-    value: 'a83f72a11023b03b6cb2dc365f0a66ad9df31163bbb4fe2df32d601856a9fad3'
+    value: '2622d6ecd484a596da12b6a45b709fe563821eda558d0bbb27335c8c2f63945c'
   - name: QT_VERSION_WIN
     value: '6.4.3'
   - name: MACOS_DEPS_VERSION
