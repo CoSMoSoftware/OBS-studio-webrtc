@@ -115,7 +115,7 @@ jobs:
         MACOSX_DEPLOYMENT_TARGET_ARM64: '11.0'
         SPARKLE_VERSION: '1.26.0'
         SPARKLE_HASH: '8312cbf7528297a49f1b97692c33cb8d33254c396dc51be394e9484e4b6833a0'
-        MACOS_DEPS_HASH: $(DEPS_HASH_MAC_X86_64)
+        CI_DEPS_HASH: $(DEPS_HASH_MAC_X86_64)
   - ${{ each vendor in parameters.vendors }}:
     - ${{ if ne( vendor, 'Wowza') }}:
       - task: InstallAppleCertificate@2
