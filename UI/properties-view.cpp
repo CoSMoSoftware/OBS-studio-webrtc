@@ -1635,6 +1635,10 @@ void OBSPropertiesView::AddProperty(obs_property_t *property,
 		break;
 	case OBS_PROPERTY_COLOR_ALPHA:
 		AddColorAlpha(property, layout, label);
+		break;
+	// NOTE LUDO: Clickable items replacement
+	case OBS_PROPERTY_BUTTON_GROUP:
+		break;
 	}
 
 	if (!widget && !label)
@@ -1879,7 +1883,7 @@ bool WidgetInfo::PathChanged(const char *setting)
 
 #ifdef __APPLE__
 	// TODO: Revisit when QTBUG-42661 is fixed
-	widget->window()->raise();
+	static_cast<QLineEdit *>(widget)->window()->raise();
 #endif
 
 	if (path.isEmpty())
@@ -1956,7 +1960,7 @@ bool WidgetInfo::ColorChangedInternal(const char *setting, bool supportAlpha)
 
 #ifdef __APPLE__
 	// TODO: Revisit when QTBUG-42661 is fixed
-	widget->window()->raise();
+	static_cast<QLineEdit *>(widget)->window()->raise();
 #endif
 
 	if (!color.isValid())
@@ -2357,7 +2361,7 @@ void WidgetInfo::EditListAddFiles()
 				      QT_UTF8(default_path), QT_UTF8(filter));
 #ifdef __APPLE__
 	// TODO: Revisit when QTBUG-42661 is fixed
-	widget->window()->raise();
+	static_cast<QLineEdit *>(widget)->window()->raise();
 #endif
 
 	if (files.count() == 0)
@@ -2381,7 +2385,7 @@ void WidgetInfo::EditListAddDir()
 				      QT_UTF8(default_path));
 #ifdef __APPLE__
 	// TODO: Revisit when QTBUG-42661 is fixed
-	widget->window()->raise();
+	static_cast<QLineEdit *>(widget)->window()->raise();
 #endif
 
 	if (dir.isEmpty())

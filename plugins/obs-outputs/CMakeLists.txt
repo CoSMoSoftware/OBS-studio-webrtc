@@ -177,6 +177,12 @@ elseif(OS_MACOS)
   mark_as_advanced(FOUNDATION_FRAMEWORK SECURITY_FRAMEWORK)
 
   target_link_libraries(obs-outputs PRIVATE ${FOUNDATION_FRAMEWORK} ${SECURITY_FRAMEWORK})
+
+  target_compile_options(
+    obs-outputs
+    PRIVATE
+      $<$<OR:$<CXX_COMPILER_ID:Clang>,$<CXX_COMPILER_ID:AppleClang>,$<CXX_COMPILER_ID:GNU>>:-Wno-error=unused-parameter;-Wno-error=deprecated-declarations>
+  )
 endif()
 
 include(cmake/ftl.cmake)

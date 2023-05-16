@@ -27,9 +27,9 @@ variables:
     value: '3.0.8'
   - name: VLC_HASH
     value: '57094439c365d8aa8b9b41fa3080cc0eef2befe6025bb5cef722accc625aedec'
-  -name: SPARKLE_VERSION
+  - name: SPARKLE_VERSION
     value: '1.26.0'
-  -name: SPARKLE_HASH
+  - name: SPARKLE_HASH
     value: '8312cbf7528297a49f1b97692c33cb8d33254c396dc51be394e9484e4b6833a0'
   - name: VLC_VERSION_WIN
     value: '3.0.0-git'

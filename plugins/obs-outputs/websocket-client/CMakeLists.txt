@@ -85,6 +85,14 @@ if(NOT WIN32)
 	endif()
 endif()
 
+if(OS_MACOS)
+	target_compile_options(
+		websocketclient
+		PRIVATE
+		$<$<OR:$<CXX_COMPILER_ID:Clang>,$<CXX_COMPILER_ID:AppleClang>,$<CXX_COMPILER_ID:GNU>>:-Wno-error=null-pointer-subtraction>
+	)
+endif()
+
 if(WIN32)
 	setup_plugin_target(websocketclient)
 endif()

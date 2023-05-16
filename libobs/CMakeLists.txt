@@ -5,6 +5,9 @@ legacy_check()
 add_library(libobs SHARED)
 add_library(OBS::libobs ALIAS libobs)
 
+# #define CONFIG_DIR "obs-webrtc"
+target_compile_definitions(libobs PRIVATE CONFIG_DIR=\"${_config_dir}\")
+
 find_package(Threads REQUIRED)
 find_package(FFmpeg REQUIRED avformat avutil swscale swresample OPTIONAL_COMPONENTS avcodec)
 find_package(ZLIB REQUIRED)

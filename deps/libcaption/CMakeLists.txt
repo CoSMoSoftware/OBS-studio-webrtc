@@ -25,8 +25,9 @@ target_sources(
 
 target_compile_definitions(caption PRIVATE __STDC_CONSTANT_MACROS $<$<CXX_COMPILER_ID:MSVC>:_CRT_SECURE_NO_WARNINGS>)
 
-if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang" AND CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL "14.0.0")
-  target_compile_options(caption PRIVATE $<$<CXX_COMPILER_ID:Clang,AppleClang,GNU>:-Wno-unused-but-set-parameter>)
+if((CMAKE_CXX_COMPILER_ID STREQUAL "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang")
+  AND CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL "14.0.0")
+  target_compile_options(caption PRIVATE $<$<CXX_COMPILER_ID:Clang,AppleClang,GNU>:-Wno-unused-but-set-parameter;-Wno-error=unused-but-set-parameter>)
 endif()
 
 target_include_directories(
