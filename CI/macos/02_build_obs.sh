@@ -103,12 +103,13 @@ _configure_obs() {
         -DBUILD_FOR_DISTRIBUTION=ON \
         ${QUIET:+-Wno-deprecated -Wno-dev --log-level=ERROR} \
         ${VENDOR_OPTION} \
-        -Dlibwebrtc_DIR="${DEPS_BUILD_DIR}/libwebrtc_${ARCH}/cmake" \
+        -DLibWebRTC_DIR="${DEPS_BUILD_DIR}/libwebrtc_${ARCH}/cmake" \
         -DOPENSSL_ROOT_DIR="/usr/local/opt/openssl@1.1" \
         -DOBS_VERSION_OVERRIDE=${OBS_VERSION} \
         -DBUILD_NDI=${NDI_OPTION} \
         -DLIBOBS_INCLUDE_DIRS=${CMAKE_SOURCE_DIR}/libobs \
-        -DLIBOBS_LIB=${BUILD_DIR}/libobs/libobs.framework
+        -DLIBOBS_LIB=${BUILD_DIR}/libobs/libobs.framework \
+        -DOBS_CMAKE_VERSION=${OBS_CMAKE_VERSION}
 }
 
 # Function to backup previous build artifacts
