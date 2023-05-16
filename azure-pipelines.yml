@@ -26,15 +26,15 @@ variables:
   - name: DEPS_VERSION_MAC
     value: '2023-04-12'
   - name: DEPS_HASH_MAC_X86_64
-    value: '7637e52305e6fc53014b5aabd583f1a4490b1d97450420e977cae9a336a29525'
+    value: '81120ffa33bb050c6c5fcd236e5cedfd7b80f7053fdba271fead5af20be0b5f5'
   - name: DEPS_HASH_MAC_ARM64
-    value: '755e0fa69b17a3ae444e1befa9d91d77e3cafe628fbd1c6333686091826595cd'
+    value: 'b9bab79611774c4651d084e14259abe889d2b8d1653787a843d08cf3f0db881c'
   - name: DEPS_VERSION_WIN
     value: '2023-04-12'
   - name: VLC_VERSION_MAC
     value: '3.0.8'
   - name: VLC_HASH_MAC
-    value: 'e0149ef4a20a19b9ecd87309c2d27787ee3f47dfd47c6639644bc1f6fd95bdf6'
+    value: '57094439c365d8aa8b9b41fa3080cc0eef2befe6025bb5cef722accc625aedec'
   - name: VLC_VERSION_WIN
     value: '3.0.0-git'
   - name: OBS_CMAKE_VERSION_MAC
@@ -115,6 +115,7 @@ jobs:
         MACOSX_DEPLOYMENT_TARGET_ARM64: '11.0'
         SPARKLE_VERSION: '1.26.0'
         SPARKLE_HASH: '8312cbf7528297a49f1b97692c33cb8d33254c396dc51be394e9484e4b6833a0'
+        MACOS_DEPS_HASH: $(DEPS_HASH_MAC_X86_64)
   - ${{ each vendor in parameters.vendors }}:
     - ${{ if ne( vendor, 'Wowza') }}:
       - task: InstallAppleCertificate@2
