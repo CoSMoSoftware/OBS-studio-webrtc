@@ -65,10 +65,6 @@ _configure_obs() {
         GENERATOR="Ninja"
     fi
 
-    if [ "${CI}" -a "${ARCH}" = "x86_64" ]; then
-        UNITTEST_OPTIONS="-DENABLE_UNIT_TESTS=ON"
-    fi
-
     if [ "${VENDOR}" == "Millicast" ]
     then
         VENDOR_OPTION=""
@@ -89,7 +85,6 @@ _configure_obs() {
         -DVLC_PATH="${DEPS_BUILD_DIR}/vlc-${VLC_VERSION:-${CI_VLC_VERSION}}" \
         -DENABLE_VLC=ON \
         -DCMAKE_PREFIX_PATH="${DEPS_BUILD_DIR}/obs-deps" \
-        -DBROWSER_LEGACY=$(test "${MACOS_CEF_BUILD_VERSION:-${CI_MACOS_CEF_VERSION}}" -le 3770 && echo "ON" || echo "OFF") \
         -DCMAKE_OSX_DEPLOYMENT_TARGET=${MACOSX_DEPLOYMENT_TARGET:-${CI_MACOSX_DEPLOYMENT_TARGET}} \
         -DCMAKE_OSX_ARCHITECTURES=${CMAKE_ARCHS} \
         -DOBS_CODESIGN_LINKER=${CODESIGN_LINKER:-OFF} \
@@ -99,16 +94,12 @@ _configure_obs() {
         ${YOUTUBE_OPTIONS} \
         ${TWITCH_OPTIONS} \
         ${RESTREAM_OPTIONS} \
-        ${UNITTEST_OPTIONS} \
-        -DBUILD_FOR_DISTRIBUTION=ON \
         ${QUIET:+-Wno-deprecated -Wno-dev --log-level=ERROR} \
         ${VENDOR_OPTION} \
         -DLibWebRTC_DIR="${DEPS_BUILD_DIR}/libwebrtc_${ARCH}/cmake" \
         -DOPENSSL_ROOT_DIR="/usr/local/opt/openssl@1.1" \
         -DOBS_VERSION_OVERRIDE=${OBS_VERSION} \
         -DBUILD_NDI=${NDI_OPTION} \
-        -DLIBOBS_INCLUDE_DIRS=${CMAKE_SOURCE_DIR}/libobs \
-        -DLIBOBS_LIB=${BUILD_DIR}/libobs/libobs.framework \
         -DOBS_CMAKE_VERSION=${OBS_CMAKE_VERSION}
 }
 
