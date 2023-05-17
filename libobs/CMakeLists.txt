@@ -225,6 +225,14 @@ target_compile_definitions(
   PUBLIC ${ARCH_SIMD_DEFINES} $<BUILD_INTERFACE:$<$<BOOL:${ENABLE_HEVC}>:ENABLE_HEVC>>
          $<BUILD_INTERFACE:$<$<BOOL:${ENABLE_FFMPEG_MUX_DEBUG}>:SHOW_SUBPROCESSES>>)
 
+if(OS_MACOS)
+  target_compile_options(
+    websocketclient
+    PRIVATE
+    $<$<OR:$<CXX_COMPILER_ID:Clang>,$<CXX_COMPILER_ID:AppleClang>,$<CXX_COMPILER_ID:GNU>>:-Wno-error=eprecated-declarations>
+  )
+endif()
+
 target_link_libraries(
   libobs
   PRIVATE OBS::caption
