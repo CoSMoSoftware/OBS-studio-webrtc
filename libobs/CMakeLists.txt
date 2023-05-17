@@ -227,9 +227,9 @@ target_compile_definitions(
 
 if(OS_MACOS)
   target_compile_options(
-    websocketclient
+    libobs
     PRIVATE
-    $<$<OR:$<CXX_COMPILER_ID:Clang>,$<CXX_COMPILER_ID:AppleClang>,$<CXX_COMPILER_ID:GNU>>:-Wno-error=eprecated-declarations>
+    $<$<OR:$<CXX_COMPILER_ID:Clang>,$<CXX_COMPILER_ID:AppleClang>,$<CXX_COMPILER_ID:GNU>>:-Wno-error=deprecated-declarations>
   )
 endif()
 
