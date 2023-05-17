@@ -107,7 +107,7 @@ jobs:
       displayName: '${{ arch }} Install dependencies'
       env:
         CURRENT_ARCH: ${{ arch }}
-        MACOSX_DEPLOYMENT_TARGET_X86_64: '10.15'
+        MACOSX_DEPLOYMENT_TARGET: '10.15'
         MACOSX_DEPLOYMENT_TARGET_ARM64: '11.0'
   - ${{ each vendor in parameters.vendors }}:
     - ${{ if ne( vendor, 'Wowza') }}:
