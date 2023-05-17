@@ -24,7 +24,7 @@ variables:
   - name: DEPS_VERSION_WIN
     value: '2023-04-12'
   - name: VLC_VERSION
-    value: '3.0.8'
+    value: '3.0.18'
   - name: VLC_HASH
     value: '57094439c365d8aa8b9b41fa3080cc0eef2befe6025bb5cef722accc625aedec'
   - name: SPARKLE_VERSION
