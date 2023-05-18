@@ -19,6 +19,12 @@ if(NOT XCODE)
   set_source_files_properties(av-capture.mm PROPERTIES COMPILE_FLAGS -fobjc-arc)
 endif()
 
+target_compile_options(
+  mac-avcapture
+  PRIVATE
+  $<$<OR:$<CXX_COMPILER_ID:Clang>,$<CXX_COMPILER_ID:AppleClang>,$<CXX_COMPILER_ID:GNU>>:-Wno-error=deprecated-declarations>
+)
+
 target_link_libraries(
   mac-avcapture
   PRIVATE OBS::libobs
