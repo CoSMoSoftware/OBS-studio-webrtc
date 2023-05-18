@@ -36,6 +36,12 @@ if(NOT XCODE)
   target_compile_options(obs-dal-plugin PRIVATE -fobjc-arc -fobjc-weak)
 endif()
 
+target_compile_options(
+  obs-dal-plugin
+  PRIVATE
+  $<$<OR:$<CXX_COMPILER_ID:Clang>,$<CXX_COMPILER_ID:AppleClang>,$<CXX_COMPILER_ID:GNU>>:-Wno-error=deprecated-declarations>
+)
+
 set(_placeholder_location "${CMAKE_CURRENT_SOURCE_DIR}/../common/data/placeholder.png")
 
 set_property(SOURCE "${_placeholder_location}" PROPERTY MACOSX_PACKAGE_LOCATION "Resources")
