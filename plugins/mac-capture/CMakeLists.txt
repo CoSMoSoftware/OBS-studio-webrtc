@@ -35,6 +35,12 @@ if(SCREENCAPTUREKIT)
                                             "$<LINK_LIBRARY:WEAK_FRAMEWORK,${SCREENCAPTUREKIT}>")
 endif()
 
+target_compile_options(
+  mac-capture
+  PRIVATE
+  $<$<OR:$<CXX_COMPILER_ID:Clang>,$<CXX_COMPILER_ID:AppleClang>,$<CXX_COMPILER_ID:GNU>>:-Wno-error=deprecated-declarations>
+)
+
 set_target_properties_obs(
   mac-capture
   PROPERTIES FOLDER plugins
