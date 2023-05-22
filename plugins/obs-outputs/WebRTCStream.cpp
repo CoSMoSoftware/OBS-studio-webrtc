@@ -1035,16 +1035,22 @@ void WebRTCStream::onVideoFrame(video_data *frame)
 				static_cast<uint8_t>(webrtc::ColorSpace::MatrixID::kRGB));
 			break;
 		case VIDEO_CS_2100_PQ:
-			// config.color_primaries = AVCOL_PRI_BT2020;
-			// config.color_trc = AVCOL_TRC_SMPTE2084;
-			// color_space = AVCOL_SPC_BT2020_NCL;
+			color_space_.set_primaries_from_uint8(
+				static_cast<uint8_t>(webrtc::ColorSpace::PrimaryID::kBT2020));
+			color_space_.set_transfer_from_uint8(
+				static_cast<uint8_t>(webrtc::ColorSpace::TransferID::kSMPTEST2084));
+			color_space_.set_matrix_from_uint8(
+				static_cast<uint8_t>(webrtc::ColorSpace::MatrixID::kBT2020_NCL)); // non-constant luminance system
 			break;
 		case VIDEO_CS_2100_HLG:
-			// config.color_primaries = AVCOL_PRI_BT2020;
-			// config.color_trc = AVCOL_TRC_ARIB_STD_B67;
-			// color_space = AVCOL_SPC_BT2020_NCL;
+			color_space_.set_primaries_from_uint8(
+				static_cast<uint8_t>(webrtc::ColorSpace::PrimaryID::kBT2020));
+			color_space_.set_transfer_from_uint8(
+				static_cast<uint8_t>(webrtc::ColorSpace::TransferID::kARIB_STD_B67));
+			color_space_.set_matrix_from_uint8(
+				static_cast<uint8_t>(webrtc::ColorSpace::MatrixID::kBT2020_NCL)); // non-constant luminance system
 			break;
-		}
+			}
 
 		// Color range
 		color_space_.set_range_from_uint8(
