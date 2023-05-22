@@ -1426,7 +1426,8 @@ bool OBSBasic::InitBasicConfigDefaults()
 	config_set_default_string(basicConfig, "AdvOut", "RecFormat", "mkv");
 	config_set_default_bool(basicConfig, "AdvOut", "RecUseRescale", false);
 	config_set_default_uint(basicConfig, "AdvOut", "RecTracks", (1 << 0));
-	config_set_default_string(basicConfig, "AdvOut", "RecEncoder", "none");
+	// Note LUDO: set a default recording encoder for the case of WebRTC streaming
+	config_set_default_string(basicConfig, "AdvOut", "RecEncoder", "obs_x264");
 	config_set_default_uint(basicConfig, "AdvOut", "FLVTrack", 1);
 
 	config_set_default_bool(basicConfig, "AdvOut", "FFOutputToFile", true);
