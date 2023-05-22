@@ -1519,6 +1519,13 @@ AdvancedOutput::AdvancedOutput(OBSBasic *main_) : BasicOutputHandler(main_)
 		config_get_string(main->Config(), "AdvOut", "Encoder");
 	const char *streamAudioEncoder =
 		config_get_string(main->Config(), "AdvOut", "AudioEncoder");
+	// Note LUDO: set a default recording encoder for the case of WebRTC streaming
+	const char *check_type =
+		config_get_string(main->Config(), "AdvOut", "RecEncoder");
+	if (astrcmpi(check_type, "none") == 0) {
+		// No recording encoder: Set it to obs_x264
+		config_set_string(main->Config(), "AdvOut", "RecEncoder", "obs_x264");
+	}
 	const char *recordEncoder =
 		config_get_string(main->Config(), "AdvOut", "RecEncoder");
 	const char *recAudioEncoder =
