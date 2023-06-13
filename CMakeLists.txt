@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.16...3.25)
 
 if(NOT OBS_WEBRTC_VENDOR_NAME)
-	set(_project_name obs-webrtc)
+	set(_project_name "obs-webrtc")
 	set(_config_dir obs-webrtc)
 else()
 	set(_project_name ${OBS_WEBRTC_VENDOR_NAME})
@@ -174,7 +174,7 @@ if(BUILD_TESTS OR ENABLE_UNIT_TESTS)
 endif()
 
 if(NOT CMAKE_BUILD_TYPE)
-        set(CMAKE_BUILD_TYPE RelWithDebInfo)
+	set(CMAKE_BUILD_TYPE RelWithDebInfo)
 endif()
 
 set(CMAKE_CXX_STANDARD 17)

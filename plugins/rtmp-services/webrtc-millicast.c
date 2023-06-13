@@ -75,6 +75,7 @@ static bool use_auth_modified(obs_properties_t *ppts, obs_property_t *p,
 			      obs_data_t *settings)
 {
 	bool use_auth = obs_data_get_bool(settings, "use_auth");
+	if(use_auth) {}
 
 	p = obs_properties_get(ppts, "server");
 	obs_property_set_visible(p, false);

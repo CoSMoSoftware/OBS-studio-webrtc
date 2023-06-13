@@ -17,10 +17,10 @@ else()
   set(CPACK_PACKAGE_VERSION ${OBS_VERSION})
 endif()
 
-set(CPACK_PACKAGE_NAME "OBS")
-set(CPACK_PACKAGE_FILE_NAME "obs-studio-${CPACK_PACKAGE_VERSION}-macOS-${_cpack_arch_suffix}")
+set(CPACK_PACKAGE_NAME "obs-webrtc")
+set(CPACK_PACKAGE_FILE_NAME "obs-webrtc-${CPACK_PACKAGE_VERSION}-macOS-${_cpack_arch_suffix}")
 set(CPACK_COMPONENTS_ALL Application)
-set(CPACK_COMPONENT_Application_DISPLAY_NAME "OBS Studio")
+set(CPACK_COMPONENT_Application_DISPLAY_NAME "OBS WebRTC")
 
 # Set background image and icon for generated Drag&Drop disk image
 set(CPACK_DMG_BACKGROUND_IMAGE "${CMAKE_SOURCE_DIR}/cmake/macos/resources/background.tiff")

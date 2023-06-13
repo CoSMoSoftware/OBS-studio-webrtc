@@ -9,7 +9,7 @@
 
 include(helpers_common)
 
-# set_target_properties_obs: Set target properties for use in obs-studio
+# set_target_properties_obs: Set target properties for use in obs-webrtc
 function(set_target_properties_obs target)
   set(options "")
   set(oneValueArgs "")
@@ -26,15 +26,15 @@ function(set_target_properties_obs target)
 
   # Target is a GUI or CLI application
   if(target_type STREQUAL EXECUTABLE)
-    if(target STREQUAL obs-studio)
+    if(target STREQUAL obs-webrtc)
       _check_info_plist()
       set_target_properties(
         ${target}
-        PROPERTIES OUTPUT_NAME OBS
+        PROPERTIES OUTPUT_NAME "obs-webrtc"
                    MACOSX_BUNDLE TRUE
                    MACOSX_BUNDLE_INFO_PLIST "${CMAKE_CURRENT_SOURCE_DIR}/cmake/macos/Info.plist.in"
-                   XCODE_ATTRIBUTE_PRODUCT_BUNDLE_IDENTIFIER com.obsproject.obs-studio
-                   XCODE_ATTRIBUTE_PRODUCT_NAME OBS
+                   XCODE_ATTRIBUTE_PRODUCT_BUNDLE_IDENTIFIER com.obsproject.obs-webrtc
+                   XCODE_ATTRIBUTE_PRODUCT_NAME "obs-webrtc"
                    XCODE_ATTRIBUTE_ASSETCATALOG_COMPILER_APPICON_NAME AppIcon
                    XCODE_EMBED_FRAMEWORKS_REMOVE_HEADERS_ON_COPY YES
                    XCODE_EMBED_FRAMEWORKS_CODE_SIGN_ON_COPY YES

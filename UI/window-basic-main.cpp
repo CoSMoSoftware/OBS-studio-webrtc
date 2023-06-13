@@ -2166,8 +2166,8 @@ void OBSBasic::OBSInit()
 	disableColorSpaceConversion(this);
 #endif
 
-	bool has_last_version = config_has_user_value(App()->GlobalConfig(),
-						      "General", "LastVersion");
+//	bool has_last_version = config_has_user_value(App()->GlobalConfig(),
+//						      "General", "LastVersion");
 	bool first_run =
 		config_get_bool(App()->GlobalConfig(), "General", "FirstRun");
 
@@ -9518,7 +9518,7 @@ void OBSBasic::SystemTrayInit()
 #endif
 	trayIcon.reset(new QSystemTrayIcon(
 		QIcon::fromTheme("obs-tray", trayIconFile), this));
-	trayIcon->setToolTip("OBS-WebRTC");
+	trayIcon->setToolTip("OBS WebRTC");
 
 	showHide = new QAction(QTStr("Basic.SystemTray.Show"), trayIcon.data());
 	sysTrayStream = new QAction(
@@ -9610,7 +9610,7 @@ void OBSBasic::SysTrayNotify(const QString &text,
 	    QSystemTrayIcon::supportsMessages()) {
 		QSystemTrayIcon::MessageIcon icon =
 			QSystemTrayIcon::MessageIcon(n);
-		trayIcon->showMessage("OBS-WebRTC", text, icon, 10000);
+		trayIcon->showMessage("OBS WebRTC", text, icon, 10000);
 	}
 }
 

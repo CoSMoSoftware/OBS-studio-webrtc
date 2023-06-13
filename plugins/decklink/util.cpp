@@ -41,3 +41,4 @@ const char *bmd_audio_connection_to_name(BMDAudioConnection connection)
 		return "Unknown";
 	}
 }
+

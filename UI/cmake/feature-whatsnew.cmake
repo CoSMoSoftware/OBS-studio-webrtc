@@ -5,12 +5,12 @@ if(ENABLE_WHATSNEW AND TARGET OBS::browser-panels)
     include(cmake/feature-macos-update.cmake)
   elseif(OS_LINUX)
     find_package(MbedTLS REQUIRED)
-    target_link_libraries(obs PRIVATE MbedTLS::MbedTLS OBS::blake2)
+    target_link_libraries(obs-webrtc PRIVATE MbedTLS::MbedTLS OBS::blake2)
 
     target_sources(
-      obs PRIVATE update/crypto-helpers.hpp update/crypto-helpers-mbedtls.cpp update/shared-update.cpp
+      obs-webrtc PRIVATE update/crypto-helpers.hpp update/crypto-helpers-mbedtls.cpp update/shared-update.cpp
                          update/shared-update.hpp update/update-helpers.cpp update/update-helpers.hpp)
   endif()
 
-  target_enable_feature(obs "What's New panel" WHATSNEW_ENABLED)
+  target_enable_feature(obs-webrtc "What's New panel" WHATSNEW_ENABLED)
 endif()

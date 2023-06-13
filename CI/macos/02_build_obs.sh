@@ -23,7 +23,8 @@ build_obs() {
 
     ensure_dir "${CHECKOUT_DIR}/"
     step "Build OBS targets..."
-    cmake --build ${BUILD_DIR}
+
+    cmake --build --preset macos-${ARCH}
 }
 
 bundle_obs() {
@@ -33,7 +34,8 @@ bundle_obs() {
     ensure_dir "${CHECKOUT_DIR}"
 
     step "Install OBS application bundle..."
-    cmake --install ${BUILD_DIR}
+
+    find "build_${ARCH}/UI/${BUILD_CONFIG}" -type d -name "obs-webrtc.app" | xargs -I{} cp -r {} "build_${ARCH}"/
 }
 
 # Function to configure OBS build
@@ -59,6 +61,12 @@ _configure_obs() {
         YOUTUBE_OPTIONS="-DYOUTUBE_CLIENTID='${YOUTUBE_CLIENTID}' -DYOUTUBE_CLIENTID_HASH='${YOUTUBE_CLIENTID_HASH}' -DYOUTUBE_SECRET='${YOUTUBE_SECRET}' -DYOUTUBE_SECRET_HASH='${YOUTUBE_SECRET_HASH}'"
     fi
 
+    if [ "${SPARKLE_APPCAST_URL}" -a "${SPARKLE_PUBLIC_KEY}" ]; then
+        SPARKLE_OPTIONS="-DSPARKLE_APPCAST_URL=\"${SPARKLE_APPCAST_URL}\" -DSPARKLE_PUBLIC_KEY=\"${SPARKLE_PUBLIC_KEY}\""
+    fi
+
+    PRESET="macos-${ARCH}"
+
     if [ "${XCODE}" ]; then
         GENERATOR="Xcode"
     else
@@ -79,28 +87,22 @@ _configure_obs() {
         NDI_OPTION="OFF"
     fi
 
-    cmake -S . -B ${BUILD_DIR} -G ${GENERATOR} \
-        -DCEF_ROOT_DIR="${DEPS_BUILD_DIR}/cef_binary_${MACOS_CEF_BUILD_VERSION:-${CI_MACOS_CEF_VERSION}}_macos_${ARCH:-x86_64}" \
-        -DENABLE_BROWSER=ON \
-        -DVLC_PATH="${DEPS_BUILD_DIR}/vlc-${VLC_VERSION:-${CI_VLC_VERSION}}" \
-        -DENABLE_VLC=ON \
-        -DCMAKE_PREFIX_PATH="${DEPS_BUILD_DIR}/obs-deps" \
-        -DCMAKE_OSX_DEPLOYMENT_TARGET=${MACOSX_DEPLOYMENT_TARGET:-${CI_MACOSX_DEPLOYMENT_TARGET}} \
-        -DCMAKE_OSX_ARCHITECTURES=${CMAKE_ARCHS} \
-        -DOBS_CODESIGN_LINKER=${CODESIGN_LINKER:-OFF} \
+    cmake -S . --preset ${PRESET} \
         -DCMAKE_INSTALL_PREFIX=${BUILD_DIR}/install \
         -DCMAKE_BUILD_TYPE=${BUILD_CONFIG} \
-        -DOBS_BUNDLE_CODESIGN_IDENTITY="${CODESIGN_IDENT:--}" \
+        -DOBS_BUNDLE_CODESIGN_IDENTITY="535F81CC29F077449F9A3CEC2F2A1CC9AB47876C" \
         ${YOUTUBE_OPTIONS} \
         ${TWITCH_OPTIONS} \
         ${RESTREAM_OPTIONS} \
+        ${SPARKLE_OPTIONS} \
         ${QUIET:+-Wno-deprecated -Wno-dev --log-level=ERROR} \
         ${VENDOR_OPTION} \
         -DLibWebRTC_DIR="${DEPS_BUILD_DIR}/libwebrtc_${ARCH}/cmake" \
         -DOPENSSL_ROOT_DIR="/usr/local/opt/openssl@1.1" \
         -DOBS_VERSION_OVERRIDE=${OBS_VERSION} \
         -DBUILD_NDI=${NDI_OPTION} \
-        -DOBS_CMAKE_VERSION=${OBS_CMAKE_VERSION}
+        -DENABLE_SPARKLE_UPDATER=OFF \
+        -DENABLE_WHATSNEW=OFF
 }
 
 # Function to backup previous build artifacts
@@ -113,11 +115,11 @@ _backup_artifacts() {
         NIGHTLY_DIR="${CHECKOUT_DIR}/nightly-${CUR_DATE}"
         PACKAGE_NAME=$(/usr/bin/find "${BUILD_DIR}" -name "*.dmg" -depth 1 | sort -rn | head -1)
 
-        if [ -d "${BUILD_DIR}/install/OBS-WebRTC.app" ]; then
-            step "Back up OBS-WebRTC.app..."
+        if [ -d "${BUILD_DIR}/install/OBS WebRTC.app" ]; then
+            step "Back up OBS WebRTC.app..."
             ensure_dir "${NIGHTLY_DIR}"
-            /bin/mv "${CHECKOUT_DIR}/${BUILD_DIR}/install/OBS-WebRTC.app" "${NIGHTLY_DIR}/"
-            info "You can find OBS-WebRTC.app in ${NIGHTLY_DIR}"
+            /bin/mv "${CHECKOUT_DIR}/${BUILD_DIR}/install/OBS WebRTC.app" "${NIGHTLY_DIR}/"
+            info "You can find OBS WebRTC.app in ${NIGHTLY_DIR}"
         fi
 
         if [ "${PACKAGE_NAME}" ]; then
@@ -131,8 +133,8 @@ _backup_artifacts() {
 
 build-obs-standalone() {
     CHECKOUT_DIR="$(/usr/bin/git rev-parse --show-toplevel)"
-    PRODUCT_NAME="OBS-WebRTC"
-    DEPS_BUILD_DIR="${CHECKOUT_DIR}/../obs-build-dependencies_${ARCH}"
+    PRODUCT_NAME="obs-webrtc"
+    DEPS_BUILD_DIR="${CHECKOUT_DIR}/../obs-build-dependencies"
     source "${CHECKOUT_DIR}/CI/include/build_support.sh"
     source "${CHECKOUT_DIR}/CI/include/build_support_macos.sh"
 
@@ -152,9 +154,7 @@ print_usage() {
             "-v, --verbose                  : Enable more verbose build process output\n" \
             "-a, --architecture             : Specify build architecture (default: x86_64, alternative: arm64)\n" \
             "-c, --codesign                 : Codesign OBS and all libraries (default: ad-hoc only)\n" \
-            "-b, --bundle                   : Create relocatable OBS application bundle in build directory (default: build/install/OBS-WebRTC.app)\n" \
-            "--xcode                        : Create Xcode build environment instead of Ninja\n" \
-            "--build-dir                    : Specify alternative build directory (default: build)\n" \
+            "-b, --bundle                   : Create relocatable OBS application bundle in build directory (default: build/install/OBS WebRTC.app)\n" \
             "--vendor                       : Specify vendor name (default: Millicast)\n" \
             "--ndi                          : Enable plugin obs-ndi (default: off)\n"
 }
@@ -169,8 +169,6 @@ build-obs-main() {
                 -a | --architecture ) ARCH="${2}"; shift 2 ;;
                 -c | --codesign ) CODESIGN=TRUE; shift ;;
                 -b | --bundle ) BUNDLE=TRUE; shift ;;
-                --xcode ) XCODE=TRUE; shift ;;
-                --build-dir ) BUILD_DIR="${2}"; shift 2 ;;
                 --vendor ) VENDOR="${2}"; shift 2 ;;
                 --ndi ) ENABLE_NDI=TRUE; shift ;;
                 -- ) shift; break ;;

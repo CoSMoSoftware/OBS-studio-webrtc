@@ -5,11 +5,11 @@
 	<key>CFBundleIconFile</key>
 	<string>AppIcon.icns</string>
 	<key>CFBundleName</key>
-	<string>OBS-WebRTC</string>
+	<string>obs-webrtc</string>
 	<key>CFBundleGetInfoString</key>
-	<string>OBS-WebRTC - Free and Open Source Streaming/Recording Software</string>
+	<string>OBS WebRTC - Free and Open Source Streaming/Recording Software</string>
 	<key>CFBundleExecutable</key>
-	<string>obs</string>
+	<string>obs-webrtc</string>
 	<key>CFBundleIdentifier</key>
 	<string>ci.cosmosoftware.obs-webrtc</string>
 	<key>NSHumanReadableCopyright</key>
@@ -23,8 +23,8 @@
 	<key>LSAppNapIsDisabled</key>
 	<true/>
 	<key>NSCameraUsageDescription</key>
- 	<string>OBS-WebRTC needs to access the camera to enable camera sources to work.</string>
+ 	<string>OBS WebRTC needs to access the camera to enable camera sources to work.</string>
  	<key>NSMicrophoneUsageDescription</key>
- 	<string>OBS-WebRTC needs to access the microphone to enable audio input.</string>
+ 	<string>OBS WebRTC needs to access the microphone to enable audio input.</string>
 </dict>
 </plist>

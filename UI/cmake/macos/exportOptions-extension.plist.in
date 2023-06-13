@@ -6,7 +6,7 @@
 	<string>developer-id</string>
 	<key>provisioningProfiles</key>
 	<dict>
-		<key>com.obsproject.obs-studio</key>
+		<key>com.obsproject.obs-webrtc</key>
 		<string>${OBS_PROVISIONING_PROFILE}</string>
 	</dict>
 	<key>signingCertificate</key>

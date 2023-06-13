@@ -8,7 +8,7 @@
 
 find_package(PkgConfig QUIET)
 if (PKG_CONFIG_FOUND)
-	pkg_check_modules(_OBS QUIET obs libobs)
+	pkg_check_modules(_OBS QUIET obs-webrtc libobs)
 endif()
 
 if(CMAKE_SIZEOF_VOID_P EQUAL 8)
@@ -76,7 +76,7 @@ function(find_obs_lib base_name repo_build_path lib_name)
 		)
 endfunction()
 
-find_obs_lib(LIBOBS libobs obs)
+find_obs_lib(LIBOBS libobs obs-webrtc)
 
 if(MSVC)
 	find_obs_lib(W32_PTHREADS deps/w32-pthreads w32-pthreads)

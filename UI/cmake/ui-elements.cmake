@@ -1,5 +1,5 @@
 target_sources(
-  obs
+  obs-webrtc
   PRIVATE # cmake-format: sortable
           adv-audio-control.cpp
           adv-audio-control.hpp

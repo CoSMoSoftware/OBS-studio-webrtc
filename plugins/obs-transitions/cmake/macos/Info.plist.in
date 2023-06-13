@@ -13,7 +13,7 @@
 	<key>CFBundleName</key>
 	<string>OBS</string>
 	<key>CFBundleDisplayName</key>
-	<string>OBS Studio</string>
+	<string>OBS WebRTC</string>
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>

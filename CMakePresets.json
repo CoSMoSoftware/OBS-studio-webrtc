@@ -20,6 +20,7 @@
         "QT_VERSION": "6",
         "ENABLE_BROWSER": true,
         "ENABLE_VLC": true,
+        "BUILD_NDI": false,
         "CMAKE_OSX_DEPLOYMENT_TARGET": "11.0",
         "OBS_CODESIGN_IDENTITY": "-",
         "OBS_CMAKE_VERSION": "3.0.0"

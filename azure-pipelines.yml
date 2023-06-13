@@ -136,7 +136,7 @@ jobs:
             cp vendor_skins/Wowza/cmake/Modules/VersionConfig.cmake cmake/Modules/
           displayName: Wowza copy file cmake/Modules/VersionConfig.cmake
       # Generate OBS without obs-ndi plugin
-      - script: TERM="" ./CI/macos/02_build_obs.sh --codesign --build-dir build_${{ vendor }}_${{ arch }} --architecture ${{ arch }} --vendor ${{ vendor }}
+      - script: TERM="" ./CI/macos/02_build_obs.sh --codesign --architecture ${{ arch }} --vendor ${{ vendor }}
         displayName: '${{ vendor }} ${{ arch }} Build OBS'
         env:
           CURRENT_ARCH: ${{ arch }}
@@ -146,7 +146,7 @@ jobs:
           WOWZA_CODESIGN_IDENT: $(wowza_apple_developer_identity)
           CODESIGN_IDENT_USER: $(ludo_apple_account_id)
           NOTARIZE_APP_SPECIFIC_PASSWORD: $(ludo_apple_app_specific_password)
-      - script: TERM="" ./CI/macos/03_package_obs.sh --codesign --notarize --build-dir build_${{ vendor }}_${{ arch }} --architecture ${{ arch }} --vendor ${{ vendor }}
+      - script: TERM="" ./CI/macos/03_package_obs.sh --codesign --notarize --build-dir build_x86_64 --architecture ${{ arch }} --vendor ${{ vendor }}
         displayName: '${{ vendor }} ${{ arch }} Package, sign, notarize'
         env:
           CURRENT_ARCH: ${{ arch }}

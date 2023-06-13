@@ -49,7 +49,7 @@ void AudioDeviceModuleWrapper::onIncomingData(uint8_t *data,
 	_critSect.Unlock();
 
 	// Get audio
-	audio_t *audio = obs_get_audio();
+//	audio_t *audio = obs_get_audio();
 	// This info is set on the stream before starting capture
 	size_t channels = 2;
 	uint32_t sample_rate = 48000;

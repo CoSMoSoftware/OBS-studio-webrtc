@@ -828,18 +828,18 @@ void OBSBasicSettings::ServiceChanged()
 		obs_property_t *password =
 			obs_properties_get(props, "password");
 		obs_property_t *codec = obs_properties_get(props, "codec");
-		obs_property_t *streamingAdvancedSettings = obs_properties_get(
-			props, "streaming_advanced_settings");
-		obs_property_t *simulcast =
-			obs_properties_get(props, "simulcast");
-		obs_property_t *bwe =
-			obs_properties_get(props, "bwe");
-		obs_property_t *multisource =
-			obs_properties_get(props, "multisource");
-		obs_property_t *sourceId =
-			obs_properties_get(props, "sourceId");
-		obs_property_t *publishApiUrl =
-			obs_properties_get(props, "publish_api_url");
+//		obs_property_t *streamingAdvancedSettings = obs_properties_get(
+//			props, "streaming_advanced_settings");
+//		obs_property_t *simulcast =
+//			obs_properties_get(props, "simulcast");
+//		obs_property_t *bwe =
+//			obs_properties_get(props, "bwe");
+//		obs_property_t *multisource =
+//			obs_properties_get(props, "multisource");
+//		obs_property_t *sourceId =
+//			obs_properties_get(props, "sourceId");
+//		obs_property_t *publishApiUrl =
+//			obs_properties_get(props, "publish_api_url");
 		ui->serverLabel->setText(obs_property_description(server));
 		ui->roomLabel->setText(obs_property_description(room));
 		ui->authUsernameLabel->setText(
@@ -1352,7 +1352,7 @@ OBSService OBSBasicSettings::GetStream1Service()
 
 void OBSBasicSettings::UpdateServiceRecommendations()
 {
-	bool customServer = IsCustomService();
+//	bool customServer = IsCustomService();
 	// ui->ignoreRecommended->setVisible(!customServer);
 	// ui->enforceSettingsLabel->setVisible(!customServer);
 

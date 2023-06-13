@@ -1,5 +1,5 @@
 target_sources(
-  obs
+  obs-webrtc
   PRIVATE # cmake-format: sortable
           window-basic-about.cpp
           window-basic-about.hpp

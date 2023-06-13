@@ -7,10 +7,10 @@ add_subdirectory(obs-frontend-api)
 option(ENABLE_UI "Enable building with UI (requires Qt)" ON)
 
 if(NOT ENABLE_UI)
-  target_disable_feature(obs "User Interface")
+  target_disable_feature(obs-webrtc "User Interface")
   return()
 else()
-  target_enable_feature(obs "User Interface")
+  target_enable_feature(obs-webrtc "User Interface")
 endif()
 
 find_package(FFmpeg REQUIRED COMPONENTS avcodec avutil avformat)
@@ -24,11 +24,11 @@ if(NOT TARGET OBS::json11)
   add_subdirectory("${CMAKE_SOURCE_DIR}/deps/json11" "${CMAKE_BINARY_DIR}/deps/json11")
 endif()
 
-add_executable(obs)
-add_executable(OBS::studio ALIAS obs)
+add_executable(obs-webrtc)
+add_executable(OBS::studio ALIAS obs-webrtc)
 
 target_link_libraries(
-  obs
+  obs-webrtc
   PRIVATE CURL::libcurl
           FFmpeg::avcodec
           FFmpeg::avutil
@@ -37,6 +37,10 @@ target_link_libraries(
           OBS::frontend-api
           OBS::libff-util
           OBS::json11)
+
+if(OS_MACOS)
+  target_compile_options(obs-webrtc PRIVATE -Wno-error=unqualified-std-cast-call)
+endif()
 
 include(cmake/ui-qt.cmake)
 include(cmake/ui-elements.cmake)
@@ -62,7 +66,7 @@ add_subdirectory(frontend-plugins)
 configure_file(ui-config.h.in ui-config.h)
 
 target_sources(
-  obs
+  obs-webrtc
   PRIVATE # cmake-format: sortable
           api-interface.cpp
           auth-base.cpp
@@ -102,14 +106,14 @@ endif()
 foreach(graphics_library IN ITEMS opengl metal d3d11)
   string(TOUPPER ${graphics_library} graphics_library_U)
   if(TARGET OBS::libobs-${graphics_library})
-    target_compile_definitions(obs
+    target_compile_definitions(obs-webrtc
                                PRIVATE DL_${graphics_library_U}="$<TARGET_FILE_NAME:OBS::libobs-${graphics_library}>")
   else()
-    target_compile_definitions(obs PRIVATE DL_${graphics_library_U}="")
+    target_compile_definitions(obs-webrtc PRIVATE DL_${graphics_library_U}="")
   endif()
 endforeach()
 
 # #define CONFIG_DIR "obs-webrtc"
-target_compile_definitions(obs PRIVATE CONFIG_DIR=\"${_config_dir}\")
+target_compile_definitions(obs-webrtc PRIVATE CONFIG_DIR=\"${_config_dir}\")
 
-set_target_properties_obs(obs PROPERTIES FOLDER frontend OUTPUT_NAME obs)
+set_target_properties_obs(obs-webrtc PROPERTIES FOLDER frontend OUTPUT_NAME "obs-webrtc")

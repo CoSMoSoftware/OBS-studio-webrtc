@@ -633,7 +633,7 @@ QWidget *OBSPropertiesView::AddButtonGroup(obs_property_t *prop, bool & /* warni
 	QButtonGroup *buttongroup = new QButtonGroup();
 	QVBoxLayout *vbox = new QVBoxLayout();
 	QGroupBox *groupbox = new QGroupBox();
-	obs_button_group_type type = obs_property_button_group_type(prop);
+//	obs_button_group_type type = obs_property_button_group_type(prop);
 	obs_button_group_format format = obs_property_button_group_format(prop);
 	size_t count = obs_property_button_group_item_count(prop);
 	int idx = -1;

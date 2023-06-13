@@ -26,7 +26,7 @@ endif()
 message( STATUS "Looking for libwebrtc" )
 
 # CoSMo libwebrtc package has versioning and COMPONENTS
-find_package(LibWebRTC 104 QUIET COMPONENTS H264 )
+find_package(LibWebRTC 112 QUIET COMPONENTS H264 )
   if( NOT libwebrtc_FOUND )
     message( STATUS "No CoSMo package was found, searching for any webrtc package.")
     # A FindLibWebRTC package is also provided in the repository for self-compiled libwebrtc
@@ -135,7 +135,7 @@ target_sources(
           librtmp/http.h
           librtmp/log.c
           librtmp/log.h
-          librtmp/md5.c
+          # librtmp/md5.c
           librtmp/md5.h
           librtmp/parseurl.c
           librtmp/rtmp.c
