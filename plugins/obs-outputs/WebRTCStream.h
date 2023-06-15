@@ -232,6 +232,7 @@ private:
 	bool first_frame_received_;
 	webrtc::VideoType videoType_;
 	webrtc::ColorSpace color_space_;
+	webrtc::HdrMetadata hdrmetadata_;
 
 	void resetStats();
 
