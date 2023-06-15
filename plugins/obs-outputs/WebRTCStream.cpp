@@ -1041,6 +1041,9 @@ void WebRTCStream::onVideoFrame(video_data *frame)
 				static_cast<uint8_t>(webrtc::ColorSpace::TransferID::kSMPTEST2084));
 			color_space_.set_matrix_from_uint8(
 				static_cast<uint8_t>(webrtc::ColorSpace::MatrixID::kBT2020_NCL)); // non-constant luminance system
+			hdrmetadata_.mastering_metadata.luminance_max = obs_get_video_hdr_nominal_peak_level();
+			hdrmetadata_.mastering_metadata.luminance_min = obs_get_video_sdr_white_level();
+			color_space_.set_hdr_metadata(&hdrmetadata_);
 			break;
 		case VIDEO_CS_2100_HLG:
 			color_space_.set_primaries_from_uint8(
@@ -1049,6 +1052,9 @@ void WebRTCStream::onVideoFrame(video_data *frame)
 				static_cast<uint8_t>(webrtc::ColorSpace::TransferID::kARIB_STD_B67));
 			color_space_.set_matrix_from_uint8(
 				static_cast<uint8_t>(webrtc::ColorSpace::MatrixID::kBT2020_NCL)); // non-constant luminance system
+			hdrmetadata_.mastering_metadata.luminance_max = obs_get_video_hdr_nominal_peak_level();
+			hdrmetadata_.mastering_metadata.luminance_min = obs_get_video_sdr_white_level();
+			color_space_.set_hdr_metadata(&hdrmetadata_);
 			break;
 			}
 
