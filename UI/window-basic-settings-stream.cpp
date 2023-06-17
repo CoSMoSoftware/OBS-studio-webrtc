@@ -31,7 +31,10 @@ extern QCefCookieManager *panel_cookies;
 // #289 service list of radio buttons
 // 0 = Millicast-WebRTC (Millicast)
 // 1 = Millicast-RTMP   (Custom)
-enum class ListOpt : int { Millicast = 0, Custom }; // CustomWebrtc
+enum class ListOpt : int {
+	Millicast = 0,
+	Custom,  // CustomWebrtc
+};
 
 enum class Section : int {
 	Connect,

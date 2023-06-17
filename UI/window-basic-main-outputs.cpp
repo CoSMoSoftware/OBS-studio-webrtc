@@ -348,6 +348,7 @@ void BasicOutputHandler::UpdateVirtualCamOutputSource()
 
 	switch (main->vcamConfig.type) {
 	case VCamOutputType::InternalOutput:
+		DestroyVirtualCameraScene();
 		switch (main->vcamConfig.internal) {
 		case VCamInternalType::Default:
 			source = obs_get_output_source(0);
@@ -360,10 +361,11 @@ void BasicOutputHandler::UpdateVirtualCamOutputSource()
 		}
 		break;
 	case VCamOutputType::SceneOutput:
+		DestroyVirtualCameraScene();
 		source = obs_get_source_by_name(main->vcamConfig.scene.c_str());
 		break;
 	case VCamOutputType::SourceOutput:
-		OBSSource s =
+		OBSSourceAutoRelease s =
 			obs_get_source_by_name(main->vcamConfig.source.c_str());
 
 		if (!vCamSourceScene)
@@ -380,7 +382,6 @@ void BasicOutputHandler::UpdateVirtualCamOutputSource()
 
 		if (!vCamSourceSceneItem) {
 			vCamSourceSceneItem = obs_scene_add(vCamSourceScene, s);
-			obs_source_release(s);
 
 			obs_sceneitem_set_bounds_type(vCamSourceSceneItem,
 						      OBS_BOUNDS_SCALE_INNER);
@@ -410,6 +411,11 @@ void BasicOutputHandler::DestroyVirtualCamView()
 	obs_view_destroy(virtualCamView);
 	virtualCamView = nullptr;
 
+	DestroyVirtualCameraScene();
+}
+
+void BasicOutputHandler::DestroyVirtualCameraScene()
+{
 	if (!vCamSourceScene)
 		return;
 
@@ -1796,6 +1802,10 @@ inline void AdvancedOutput::SetupRecording()
 	unsigned int cy = 0;
 	int idx = 0;
 
+	/* Hack to allow recordings without any audio tracks selected. It is no
+	 * longer possible to select such a configuration in settings, but legacy
+	 * configurations might still have this configured and we don't want to
+	 * just break them. */
 	if (tracks == 0)
 		tracks = config_get_int(main->Config(), "AdvOut", "TrackIndex");
 

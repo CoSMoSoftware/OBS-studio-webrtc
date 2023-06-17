@@ -245,6 +245,8 @@ private:
 	OBSWeakSourceAutoRelease copySourceTransition;
 
 	bool closing = false;
+	bool clearingFailed = false;
+
 	QScopedPointer<QThread> devicePropertiesThread;
 	QScopedPointer<QThread> whatsNewInitThread;
 	// #270 Disable auto-update

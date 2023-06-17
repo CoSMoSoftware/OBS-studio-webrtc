@@ -26,6 +26,7 @@
 #include <d3d9.h>
 #include "d3d11-subsystem.hpp"
 #include <shellscalingapi.h>
+#include <d3dkmthk.h>
 
 struct UnsupportedHWError : HRError {
 	inline UnsupportedHWError(const char *str, HRESULT hr)
@@ -472,39 +473,18 @@ static bool increase_maximum_frame_latency(ID3D11Device *device)
 }
 
 #if USE_GPU_PRIORITY
-static bool set_priority(ID3D11Device *device)
+static bool set_priority(ID3D11Device *device, bool hags_enabled)
 {
-	typedef enum _D3DKMT_SCHEDULINGPRIORITYCLASS {
-		D3DKMT_SCHEDULINGPRIORITYCLASS_IDLE,
-		D3DKMT_SCHEDULINGPRIORITYCLASS_BELOW_NORMAL,
-		D3DKMT_SCHEDULINGPRIORITYCLASS_NORMAL,
-		D3DKMT_SCHEDULINGPRIORITYCLASS_ABOVE_NORMAL,
-		D3DKMT_SCHEDULINGPRIORITYCLASS_HIGH,
-		D3DKMT_SCHEDULINGPRIORITYCLASS_REALTIME
-	} D3DKMT_SCHEDULINGPRIORITYCLASS;
-
 	ComQIPtr<IDXGIDevice> dxgiDevice(device);
 	if (!dxgiDevice) {
 		blog(LOG_DEBUG, "%s: Failed to get IDXGIDevice", __FUNCTION__);
 		return false;
 	}
 
-	HMODULE gdi32 = GetModuleHandleW(L"GDI32");
-	if (!gdi32) {
-		blog(LOG_DEBUG, "%s: Failed to get GDI32", __FUNCTION__);
-		return false;
-	}
-
-	NTSTATUS(WINAPI * d3dkmt_spspc)(HANDLE, D3DKMT_SCHEDULINGPRIORITYCLASS);
-	d3dkmt_spspc = (decltype(d3dkmt_spspc))GetProcAddress(
-		gdi32, "D3DKMTSetProcessSchedulingPriorityClass");
-	if (!d3dkmt_spspc) {
-		blog(LOG_DEBUG, "%s: Failed to get d3dkmt_spspc", __FUNCTION__);
-		return false;
-	}
-
-	NTSTATUS status = d3dkmt_spspc(GetCurrentProcess(),
-				       D3DKMT_SCHEDULINGPRIORITYCLASS_REALTIME);
+	NTSTATUS status = D3DKMTSetProcessSchedulingPriorityClass(
+		GetCurrentProcess(),
+		hags_enabled ? D3DKMT_SCHEDULINGPRIORITYCLASS_HIGH
+			     : D3DKMT_SCHEDULINGPRIORITYCLASS_REALTIME);
 	if (status != 0) {
 		blog(LOG_DEBUG, "%s: Failed to set process priority class: %d",
 		     __FUNCTION__, (int)status);
@@ -521,8 +501,44 @@ static bool set_priority(ID3D11Device *device)
 	blog(LOG_INFO, "D3D11 GPU priority setup success");
 	return true;
 }
-
 #endif
+
+static bool adapter_hags_enabled(DXGI_ADAPTER_DESC *desc)
+{
+	D3DKMT_OPENADAPTERFROMLUID d3dkmt_openluid{};
+	bool hags_enabled = false;
+	NTSTATUS res;
+
+	d3dkmt_openluid.AdapterLuid = desc->AdapterLuid;
+
+	res = D3DKMTOpenAdapterFromLuid(&d3dkmt_openluid);
+	if (FAILED(res)) {
+		blog(LOG_DEBUG, "Failed opening D3DKMT adapter: %x", res);
+		return hags_enabled;
+	}
+
+	D3DKMT_WDDM_2_7_CAPS caps = {};
+	D3DKMT_QUERYADAPTERINFO args = {};
+	args.hAdapter = d3dkmt_openluid.hAdapter;
+	args.Type = KMTQAITYPE_WDDM_2_7_CAPS;
+	args.pPrivateDriverData = &caps;
+	args.PrivateDriverDataSize = sizeof(caps);
+	res = D3DKMTQueryAdapterInfo(&args);
+
+	/* On Windows 10 pre-2004 this will fail, but HAGS isn't supported
+	 * there anyway. */
+	if (SUCCEEDED(res))
+		hags_enabled = caps.HwSchEnabled;
+
+	D3DKMT_CLOSEADAPTER d3dkmt_close = {d3dkmt_openluid.hAdapter};
+	res = D3DKMTCloseAdapter(&d3dkmt_close);
+	if (FAILED(res)) {
+		blog(LOG_DEBUG, "Failed closing D3DKMT adapter %x: %x",
+		     d3dkmt_openluid.hAdapter, res);
+	}
+
+	return hags_enabled;
+}
 
 static bool CheckFormat(ID3D11Device *device, DXGI_FORMAT format)
 {
@@ -573,9 +589,16 @@ void gs_device::InitDevice(uint32_t adapterIdx)
 		blog(LOG_INFO, "DXGI increase maximum frame latency failed");
 	}
 
+	/* Log HAGS status */
+	bool hags_enabled = adapter_hags_enabled(&desc);
+	if (hags_enabled) {
+		blog(LOG_WARNING,
+		     "Hardware-Accelerated GPU Scheduling enabled on adapter!");
+	}
+
 	/* adjust gpu thread priority on non-intel GPUs */
 #if USE_GPU_PRIORITY
-	if (desc.VendorId != 0x8086 && !set_priority(device)) {
+	if (desc.VendorId != 0x8086 && !set_priority(device, hags_enabled)) {
 		blog(LOG_INFO, "D3D11 GPU priority setup "
 			       "failed (not admin?)");
 	}

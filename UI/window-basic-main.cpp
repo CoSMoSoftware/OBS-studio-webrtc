@@ -1068,8 +1068,17 @@ static inline void AddMissingFiles(void *data, obs_source_t *source)
 void OBSBasic::LoadData(obs_data_t *data, const char *file)
 {
 	ClearSceneData();
-	InitDefaultTransitions();
 	ClearContextBar();
+
+	/* Exit OBS if clearing scene data failed for some reason. */
+	if (clearingFailed) {
+		OBSMessageBox::critical(this, QTStr("SourceLeak.Title"),
+					QTStr("SourceLeak.Text"));
+		close();
+		return;
+	}
+
+	InitDefaultTransitions();
 
 	if (devicePropertiesThread && devicePropertiesThread->isRunning()) {
 		devicePropertiesThread->wait();
@@ -1274,7 +1283,7 @@ retryScene:
 
 	disableSaving--;
 
-	if (vcamEnabled && vcamConfig.internal == VCamInternalType::Preview)
+	if (vcamEnabled)
 		outputHandler->UpdateVirtualCamOutputSource();
 
 	if (api) {
@@ -2807,6 +2816,9 @@ OBSBasic::~OBSBasic()
 	// if (updateCheckThread && updateCheckThread->isRunning())
 	// 	updateCheckThread->wait();
 
+	if (patronJsonThread && patronJsonThread->isRunning())
+		patronJsonThread->wait();
+
 	delete screenshotData;
 	delete previewProjector;
 	delete studioProgramProjector;
@@ -3932,7 +3944,7 @@ void OBSBasic::TimedCheckForUpdates()
 #endif
 }
 
-void OBSBasic::CheckForUpdates(bool /* manualUpdate */)
+void OBSBasic::CheckForUpdates(bool manualUpdate)
 {
 	// #270 Disable auto-update
 /*
@@ -4875,6 +4887,14 @@ void OBSBasic::ClearSceneData()
 	for (int i = 0; i < MAX_CHANNELS; i++)
 		obs_set_output_source(i, nullptr);
 
+	/* Reset VCam to default to clear its private scene and any references
+	 * it holds. It will be reconfigured during loading. */
+	if (vcamEnabled) {
+		vcamConfig.type = VCamOutputType::InternalOutput;
+		vcamConfig.internal = VCamInternalType::Default;
+		outputHandler->UpdateVirtualCamOutputSource();
+	}
+
 	lastScene = nullptr;
 	swapScene = nullptr;
 	programScene = nullptr;
@@ -4905,12 +4925,52 @@ void OBSBasic::ClearSceneData()
 		QApplication::sendPostedEvents(nullptr);
 	} while (obs_wait_for_destroy_queue());
 
+	/* Pump Qt events one final time to give remaining signals time to be
+	 * processed (since this happens after the destroy thread finishes and
+	 * the audio/video threads have processed their tasks). */
+	QApplication::sendPostedEvents(nullptr);
+
 	unsetCursor();
 
-	disableSaving--;
+	/* If scene data wasn't actually cleared, e.g. faulty plugin holding a
+	 * reference, they will still be in the hash table, enumerate them and
+	 * store the names for logging purposes. */
+	auto cb2 = [](void *param, obs_source_t *source) {
+		auto orphans = static_cast<vector<string> *>(param);
+		orphans->push_back(obs_source_get_name(source));
+		return true;
+	};
 
-	blog(LOG_INFO, "All scene data cleared");
-	blog(LOG_INFO, "------------------------------------------------");
+	vector<string> orphan_sources;
+	obs_enum_sources(cb2, &orphan_sources);
+
+	if (!orphan_sources.empty()) {
+		/* Avoid logging list twice in case it gets called after
+		 * setting the flag the first time. */
+		if (!clearingFailed) {
+			/* This ugly mess exists to join a vector of strings
+			 * with a user-defined delimiter. */
+			string orphan_names = std::accumulate(
+				orphan_sources.begin(), orphan_sources.end(),
+				string(""), [](string a, string b) {
+					return std::move(a) + "\n- " + b;
+				});
+
+			blog(LOG_ERROR,
+			     "Not all sources were cleared when clearing scene data:\n%s\n",
+			     orphan_names.c_str());
+		}
+
+		/* We do not decrement disableSaving here to avoid OBS
+		 * overwriting user data with garbage. */
+		clearingFailed = true;
+	} else {
+		disableSaving--;
+
+		blog(LOG_INFO, "All scene data cleared");
+		blog(LOG_INFO,
+		     "------------------------------------------------");
+	}
 }
 
 void OBSBasic::closeEvent(QCloseEvent *event)
@@ -4941,7 +5001,8 @@ void OBSBasic::closeEvent(QCloseEvent *event)
 	bool confirmOnExit =
 		config_get_bool(GetGlobalConfig(), "General", "ConfirmOnExit");
 
-	if (confirmOnExit && outputHandler && outputHandler->Active()) {
+	if (confirmOnExit && outputHandler && outputHandler->Active() &&
+	    !clearingFailed) {
 		SetShowing(true);
 
 		QMessageBox::StandardButton button = OBSMessageBox::question(
@@ -5257,7 +5318,8 @@ void OBSBasic::on_scenes_currentItemChanged(QListWidgetItem *current,
 
 	SetCurrentScene(source);
 
-	if (vcamEnabled && vcamConfig.internal == VCamInternalType::Preview)
+	if (vcamEnabled && vcamConfig.type == VCamOutputType::InternalOutput &&
+	    vcamConfig.internal == VCamInternalType::Preview)
 		outputHandler->UpdateVirtualCamOutputSource();
 
 	if (api)
@@ -9163,7 +9225,7 @@ void OBSBasic::UpdateTitleBar()
 
 	name << App()->GetVersionString(false);
 	if (App()->IsPortableMode())
-		name << " - Portable Mode";
+		name << " - " << Str("TitleBar.PortableMode");
 
 	name << " - " << Str("TitleBar.Profile") << ": " << profile;
 	name << " - " << Str("TitleBar.Scenes") << ": " << sceneCollection;
