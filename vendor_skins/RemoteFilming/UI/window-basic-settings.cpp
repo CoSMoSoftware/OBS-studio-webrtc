@@ -855,21 +855,22 @@ OBSBasicSettings::OBSBasicSettings(QWidget *parent)
 
 	// The ID of each QPushButton of the QButtonGroup is used to display the corresponding QWidget
 	// of the QStackedWidget named "settingPages"
-//	ui->basicSettingsButtonGroup->setId(ui->SettingsGeneralButton, 0);
-//	ui->basicSettingsButtonGroup->setId(ui->SettingsStreamButton, 1);
-//	ui->basicSettingsButtonGroup->setId(ui->SettingsOutputButton, 2);
-//	ui->basicSettingsButtonGroup->setId(ui->SettingsAudioButton, 3);
-//	ui->basicSettingsButtonGroup->setId(ui->SettingsVideoButton, 4);
-//	ui->basicSettingsButtonGroup->setId(ui->SettingsHotkeysButton, 5);
-//	ui->basicSettingsButtonGroup->setId(ui->SettingsAdvancedButton, 6);
-//	connect(ui->basicSettingsButtonGroup, SIGNAL(buttonClicked(int)), this,
-//		SLOT(SimpleRecordingEncoderChanged()));
+	//	ui->basicSettingsButtonGroup->setId(ui->SettingsGeneralButton, 0);
+	//	ui->basicSettingsButtonGroup->setId(ui->SettingsStreamButton, 1);
+	//	ui->basicSettingsButtonGroup->setId(ui->SettingsOutputButton, 2);
+	//	ui->basicSettingsButtonGroup->setId(ui->SettingsAudioButton, 3);
+	//	ui->basicSettingsButtonGroup->setId(ui->SettingsVideoButton, 4);
+	//	ui->basicSettingsButtonGroup->setId(ui->SettingsHotkeysButton, 5);
+	//	ui->basicSettingsButtonGroup->setId(ui->SettingsAdvancedButton, 6);
+	//	connect(ui->basicSettingsButtonGroup, SIGNAL(buttonClicked(int)), this,
+	//		SLOT(SimpleRecordingEncoderChanged()));
 
 	// #289 service list of radio buttons
 	ui->serviceButtonGroup->setId(ui->millicastWebrtcRadioButton, 0);
 	ui->serviceButtonGroup->setId(ui->millicastRtmpRadioButton, 1);
-	connect(ui->serviceButtonGroup, SIGNAL(buttonClicked(QAbstractButton*)), this,
-		SLOT(on_service_currentIndexChanged(QAbstractButton*)));
+	connect(ui->serviceButtonGroup,
+		SIGNAL(buttonClicked(QAbstractButton *)), this,
+		SLOT(on_service_currentIndexChanged(QAbstractButton *)));
 
 	// NOTE LUDO: #172 codecs list of radio buttons
 	ui->codecButtonGroup->setId(ui->h264RadioButton, 0);
@@ -1844,8 +1845,8 @@ void OBSBasicSettings::LoadSimpleOutputSettings()
 	ui->simpleNoSpace->setChecked(noSpace);
 	ui->simpleOutputVBitrate->setValue(videoBitrate);
 	// NOTE LUDO: #194 replace Settings/Output video bitrate QSpinBox by QLineEdit
-//	ui->simpleOutputVBitrate->setText(
-//		QString::fromStdString(std::to_string(videoBitrate)));
+	//	ui->simpleOutputVBitrate->setText(
+	//		QString::fromStdString(std::to_string(videoBitrate)));
 
 	int idx = ui->simpleOutRecFormat->findText(format);
 	ui->simpleOutRecFormat->setCurrentIndex(idx);
@@ -3600,7 +3601,7 @@ void OBSBasicSettings::SaveOutputSettings()
 
 	// NOTE LUDO: #194 replace Settings/Output video bitrate QSpinBox by QLineEdit
 	SaveSpinBox(ui->simpleOutputVBitrate, "SimpleOutput", "VBitrate");
-//	SaveEdit(ui->simpleOutputVBitrate, "SimpleOutput", "VBitrate");
+	//	SaveEdit(ui->simpleOutputVBitrate, "SimpleOutput", "VBitrate");
 	SaveComboData(ui->simpleOutStrEncoder, "SimpleOutput", "StreamEncoder");
 	SaveCombo(ui->simpleOutputABitrate, "SimpleOutput", "ABitrate");
 	SaveEdit(ui->simpleOutputPath, "SimpleOutput", "FilePath");

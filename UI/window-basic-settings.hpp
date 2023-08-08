@@ -127,7 +127,8 @@ private:
 
 	// #289 service list of radio buttons
 	enum enumServiceIndex { Millicast = 0, RTMP = 1 };
-	int GetServiceIndex() {
+	int GetServiceIndex()
+	{
 		if (ui->millicastWebrtcRadioButton->isChecked())
 			return Millicast;
 		else

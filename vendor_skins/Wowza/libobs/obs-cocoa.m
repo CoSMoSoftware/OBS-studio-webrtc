@@ -69,8 +69,8 @@ char *find_libobs_data_file(const char *file)
 	struct dstr path;
 
 	if (is_in_bundle()) {
-		NSBundle *frameworkBundle = [NSBundle
-			bundleWithIdentifier:@"com.wowza.libobs"];
+		NSBundle *frameworkBundle =
+			[NSBundle bundleWithIdentifier:@"com.wowza.libobs"];
 		NSURL *bundleURL = [frameworkBundle bundleURL];
 		NSURL *libobsDataURL =
 			[bundleURL URLByAppendingPathComponent:@"Resources/"];

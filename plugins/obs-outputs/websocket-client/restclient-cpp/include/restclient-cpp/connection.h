@@ -156,7 +156,7 @@ public:
 
 #if !defined(__linux__)
 	// Set the CA info data blob directly instead from a path.
-	void SetCAInfoBlob(const std::string& caInfoBlob);
+	void SetCAInfoBlob(const std::string &caInfoBlob);
 #endif
 
 	// set CURLOPT_SSLCERTTYPE

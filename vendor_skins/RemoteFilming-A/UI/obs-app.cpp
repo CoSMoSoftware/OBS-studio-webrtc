@@ -559,7 +559,7 @@ bool OBSApp::InitGlobalConfigDefaults(const bool force /* = false */)
 		config_set_default_double(globalConfig, "BasicWindow",
 					  "SnapDistance", 10.0);
 		config_set_bool(globalConfig, "BasicWindow",
-					"SpacingHelpersEnabled", true);
+				"SpacingHelpersEnabled", true);
 		config_set_default_bool(globalConfig, "BasicWindow",
 					"RecordWhenStreaming", false);
 		config_set_default_bool(globalConfig, "BasicWindow",
@@ -2463,7 +2463,7 @@ static int run_program(fstream &logFile, int argc, char *argv[])
 
 		OBSTranslator translator;
 		program.installTranslator(&translator);
-/*
+		/*
 #if defined(__gnu_linux__)
 		// #303 Make sure LD_LIBRARY_PATH is set and contains a path to "obs-plugins"
 		// to be able to find library websocketclient.so

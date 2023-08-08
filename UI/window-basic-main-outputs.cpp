@@ -1239,7 +1239,8 @@ AdvancedOutput::AdvancedOutput(OBSBasic *main_) : BasicOutputHandler(main_)
 		config_get_string(main->Config(), "AdvOut", "RecEncoder");
 	if (astrcmpi(check_type, "none") == 0) {
 		// No recording encoder: Set it to obs_x264
-		config_set_string(main->Config(), "AdvOut", "RecEncoder", "obs_x264");
+		config_set_string(main->Config(), "AdvOut", "RecEncoder",
+				  "obs_x264");
 	}
 	const char *recordEncoder =
 		config_get_string(main->Config(), "AdvOut", "RecEncoder");

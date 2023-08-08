@@ -63,7 +63,8 @@ bool GetDataFilePath(const char *data, string &output)
 	if (check_path(data, temp.c_str(), output))
 		return true;
 
-	string temp2 = std::string(OBS_DATA_PATH) + "/" + std::string(CONFIG_DIR) + "/";
+	string temp2 = std::string(OBS_DATA_PATH) + "/" +
+		       std::string(CONFIG_DIR) + "/";
 	return check_path(data, temp2.c_str(), output);
 }
 

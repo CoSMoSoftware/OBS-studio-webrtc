@@ -78,7 +78,7 @@ WebRTCStream::WebRTCStream(obs_output_t *output)
 
 	profile_ = 0;
 	colorFormat_ = "NV12";
-	audio_bitrate_ = 128; // kbps
+	audio_bitrate_ = 128;  // kbps
 	video_bitrate_ = 2500; // kbps
 
 	activate_bwe_ = false;
@@ -114,7 +114,8 @@ WebRTCStream::WebRTCStream(obs_output_t *output)
 		webrtc::CreateBuiltinVideoEncoderFactory(),
 		webrtc::CreateBuiltinVideoDecoderFactory(), nullptr, nullptr);
 
-	deps.network_controller_factory = std::make_unique<webrtc::UselessNetworkControllerFactory>();
+	deps.network_controller_factory =
+		std::make_unique<webrtc::UselessNetworkControllerFactory>();
 	factory = webrtc::CreateModularPeerConnectionFactory(std::move(deps));
 
 	// Create video capture module
@@ -241,8 +242,8 @@ bool WebRTCStream::start(WebRTCStream::Type type)
 			     : false;
 	// Activate Google congestion control BWE? true ==> yes / false ==> no
 	activate_bwe_ = obs_service_get_bwe(service)
-							? obs_service_get_bwe(service)
-							: false;
+				? obs_service_get_bwe(service)
+				: false;
 	total_bitrate_ = 0;
 	multisource_ = obs_service_get_multisource(service)
 			       ? obs_service_get_multisource(service)
@@ -323,8 +324,8 @@ bool WebRTCStream::start(WebRTCStream::Type type)
 		return false;
 	}
 
-	if (("I444" == colorFormat_ || "I010" == colorFormat_)
-			&& "VP9" != video_codec) {
+	if (("I444" == colorFormat_ || "I010" == colorFormat_) &&
+	    "VP9" != video_codec) {
 		info("Color format %s is not supported for video codec %s: Switching to color format I420\n",
 		     colorFormat_.c_str(), video_codec.c_str());
 	}
@@ -346,7 +347,8 @@ bool WebRTCStream::start(WebRTCStream::Type type)
 		info("No video source in current scene");
 	}
 	info("Simulcast: %s", simulcast_ ? "true" : "false");
-	info("Congestion control bandwidth estimation activated: %s", activate_bwe_ ? "true" : "false");
+	info("Congestion control bandwidth estimation activated: %s",
+	     activate_bwe_ ? "true" : "false");
 	if (!activate_bwe_) {
 		info("Total bitrate (audio+video):  %d bps", total_bitrate_);
 	}
@@ -447,13 +449,17 @@ bool WebRTCStream::start(WebRTCStream::Type type)
 	// Call InitFieldTrialsFromString before creating peer connection
 	if (activate_bwe_) {
 		// Activate Google BWE
-		constexpr const char *network_field_trials = "WebRTC-Video-Pacing/max_delay:2000/";
-		webrtc::field_trial::InitFieldTrialsFromString(network_field_trials);
+		constexpr const char *network_field_trials =
+			"WebRTC-Video-Pacing/max_delay:2000/";
+		webrtc::field_trial::InitFieldTrialsFromString(
+			network_field_trials);
 	} else {
 		// Deactivate Google BWE
-		constexpr const char *network_field_trials = "WebRTC-Bwe-InjectedCongestionController/Enabled/"
-																								"WebRTC-Video-Pacing/max_delay:0/";
-		webrtc::field_trial::InitFieldTrialsFromString(network_field_trials);
+		constexpr const char *network_field_trials =
+			"WebRTC-Bwe-InjectedCongestionController/Enabled/"
+			"WebRTC-Video-Pacing/max_delay:0/";
+		webrtc::field_trial::InitFieldTrialsFromString(
+			network_field_trials);
 	}
 
 	pc = factory->CreatePeerConnection(config, std::move(dependencies));
@@ -505,7 +511,8 @@ bool WebRTCStream::start(WebRTCStream::Type type)
 	stream->AddTrack(audio_track);
 
 	if (getVideoSourceCount() > 0) {
-		video_track = factory->CreateVideoTrack("video", videoCapturer.get());
+		video_track =
+			factory->CreateVideoTrack("video", videoCapturer.get());
 		// pc->AddTrack(video_track, {"obs"});
 		stream->AddTrack(video_track);
 	}
@@ -969,7 +976,8 @@ void WebRTCStream::onVideoFrame(video_data *frame)
 		}
 
 		video_t *video = obs_output_video(output);
-		const struct video_output_info *voi = video_output_get_info(video);
+		const struct video_output_info *voi =
+			video_output_get_info(video);
 
 		// Video format
 		switch (voi->format) {
@@ -978,91 +986,108 @@ void WebRTCStream::onVideoFrame(video_data *frame)
 				videoType_ = webrtc::VideoType::kI420;
 			else
 				info("ERROR: Color format selected is %s, but video frame received is of format %s",
-					colorFormat_.c_str(), get_video_format_name(voi->format));
+				     colorFormat_.c_str(),
+				     get_video_format_name(voi->format));
 			break;
 		case VIDEO_FORMAT_NV12:
 			if ("NV12" == colorFormat_)
 				videoType_ = webrtc::VideoType::kNV12;
 			else
 				info("ERROR: Color format selected is %s, but video frame received is of format %s",
-					colorFormat_.c_str(), get_video_format_name(voi->format));
+				     colorFormat_.c_str(),
+				     get_video_format_name(voi->format));
 			break;
 		case VIDEO_FORMAT_I444:
 			if ("I444" == colorFormat_)
 				videoType_ = webrtc::VideoType::kI444;
 			else
 				info("ERROR: Color format selected is %s, but video frame received is of format %s",
-					colorFormat_.c_str(), get_video_format_name(voi->format));
+				     colorFormat_.c_str(),
+				     get_video_format_name(voi->format));
 			break;
 		case VIDEO_FORMAT_I010:
 			if ("I010" == colorFormat_) {
 				videoType_ = webrtc::VideoType::kI010;
-			}
-			else
+			} else
 				info("ERROR: Color format selected is %s, but video frame received is of format %s",
-					colorFormat_.c_str(), get_video_format_name(voi->format));
+				     colorFormat_.c_str(),
+				     get_video_format_name(voi->format));
 			break;
 		default:
 			info("ERROR: Color format selected is %s, this format is not supported for WebRTC streaming",
-				get_video_format_name(voi->format));
+			     get_video_format_name(voi->format));
 		}
 
 		// Color space
 		switch (voi->colorspace) {
 		case VIDEO_CS_601:
-			color_space_.set_primaries_from_uint8(
-				static_cast<uint8_t>(webrtc::ColorSpace::PrimaryID::kSMPTE170M));
-			color_space_.set_transfer_from_uint8(
-				static_cast<uint8_t>(webrtc::ColorSpace::TransferID::kSMPTE170M));
-			color_space_.set_matrix_from_uint8(
-				static_cast<uint8_t>(webrtc::ColorSpace::MatrixID::kSMPTE170M));
+			color_space_.set_primaries_from_uint8(static_cast<
+							      uint8_t>(
+				webrtc::ColorSpace::PrimaryID::kSMPTE170M));
+			color_space_.set_transfer_from_uint8(static_cast<uint8_t>(
+				webrtc::ColorSpace::TransferID::kSMPTE170M));
+			color_space_.set_matrix_from_uint8(static_cast<uint8_t>(
+				webrtc::ColorSpace::MatrixID::kSMPTE170M));
 			break;
 		case VIDEO_CS_DEFAULT:
 		case VIDEO_CS_709:
 			color_space_.set_primaries_from_uint8(
-				static_cast<uint8_t>(webrtc::ColorSpace::PrimaryID::kBT709));
+				static_cast<uint8_t>(
+					webrtc::ColorSpace::PrimaryID::kBT709));
 			color_space_.set_transfer_from_uint8(
-				static_cast<uint8_t>(webrtc::ColorSpace::TransferID::kBT709));
-			color_space_.set_matrix_from_uint8(
-				static_cast<uint8_t>(webrtc::ColorSpace::MatrixID::kBT709));
+				static_cast<uint8_t>(
+					webrtc::ColorSpace::TransferID::kBT709));
+			color_space_.set_matrix_from_uint8(static_cast<uint8_t>(
+				webrtc::ColorSpace::MatrixID::kBT709));
 			break;
 		case VIDEO_CS_SRGB:
 			color_space_.set_primaries_from_uint8(
-				static_cast<uint8_t>(webrtc::ColorSpace::PrimaryID::kBT709));
-			color_space_.set_transfer_from_uint8(
-				static_cast<uint8_t>(webrtc::ColorSpace::TransferID::kIEC61966_2_1));
-			color_space_.set_matrix_from_uint8(
-				static_cast<uint8_t>(webrtc::ColorSpace::MatrixID::kRGB));
+				static_cast<uint8_t>(
+					webrtc::ColorSpace::PrimaryID::kBT709));
+			color_space_.set_transfer_from_uint8(static_cast<uint8_t>(
+				webrtc::ColorSpace::TransferID::kIEC61966_2_1));
+			color_space_.set_matrix_from_uint8(static_cast<uint8_t>(
+				webrtc::ColorSpace::MatrixID::kRGB));
 			break;
 		case VIDEO_CS_2100_PQ:
 			color_space_.set_primaries_from_uint8(
-				static_cast<uint8_t>(webrtc::ColorSpace::PrimaryID::kBT2020));
-			color_space_.set_transfer_from_uint8(
-				static_cast<uint8_t>(webrtc::ColorSpace::TransferID::kSMPTEST2084));
-			color_space_.set_matrix_from_uint8(
-				static_cast<uint8_t>(webrtc::ColorSpace::MatrixID::kBT2020_NCL)); // non-constant luminance system
-			hdrmetadata_.mastering_metadata.luminance_max = obs_get_video_hdr_nominal_peak_level();
-			hdrmetadata_.mastering_metadata.luminance_min = obs_get_video_sdr_white_level();
+				static_cast<uint8_t>(
+					webrtc::ColorSpace::PrimaryID::kBT2020));
+			color_space_.set_transfer_from_uint8(static_cast<uint8_t>(
+				webrtc::ColorSpace::TransferID::kSMPTEST2084));
+			color_space_.set_matrix_from_uint8(static_cast<uint8_t>(
+				webrtc::ColorSpace::MatrixID::
+					kBT2020_NCL)); // non-constant luminance system
+			hdrmetadata_.mastering_metadata.luminance_max =
+				obs_get_video_hdr_nominal_peak_level();
+			hdrmetadata_.mastering_metadata.luminance_min =
+				obs_get_video_sdr_white_level();
 			color_space_.set_hdr_metadata(&hdrmetadata_);
 			break;
 		case VIDEO_CS_2100_HLG:
 			color_space_.set_primaries_from_uint8(
-				static_cast<uint8_t>(webrtc::ColorSpace::PrimaryID::kBT2020));
-			color_space_.set_transfer_from_uint8(
-				static_cast<uint8_t>(webrtc::ColorSpace::TransferID::kARIB_STD_B67));
-			color_space_.set_matrix_from_uint8(
-				static_cast<uint8_t>(webrtc::ColorSpace::MatrixID::kBT2020_NCL)); // non-constant luminance system
-			hdrmetadata_.mastering_metadata.luminance_max = obs_get_video_hdr_nominal_peak_level();
-			hdrmetadata_.mastering_metadata.luminance_min = obs_get_video_sdr_white_level();
+				static_cast<uint8_t>(
+					webrtc::ColorSpace::PrimaryID::kBT2020));
+			color_space_.set_transfer_from_uint8(static_cast<uint8_t>(
+				webrtc::ColorSpace::TransferID::kARIB_STD_B67));
+			color_space_.set_matrix_from_uint8(static_cast<uint8_t>(
+				webrtc::ColorSpace::MatrixID::
+					kBT2020_NCL)); // non-constant luminance system
+			hdrmetadata_.mastering_metadata.luminance_max =
+				obs_get_video_hdr_nominal_peak_level();
+			hdrmetadata_.mastering_metadata.luminance_min =
+				obs_get_video_sdr_white_level();
 			color_space_.set_hdr_metadata(&hdrmetadata_);
 			break;
-			}
+		}
 
 		// Color range
 		color_space_.set_range_from_uint8(
 			voi->range == VIDEO_RANGE_FULL
-			? static_cast<uint8_t>(webrtc::ColorSpace::RangeID::kFull)
-			: static_cast<uint8_t>(webrtc::ColorSpace::RangeID::kLimited));
+				? static_cast<uint8_t>(
+					  webrtc::ColorSpace::RangeID::kFull)
+				: static_cast<uint8_t>(
+					  webrtc::ColorSpace::RangeID::kLimited));
 	}
 
 	if (!audio_started_) {
@@ -1080,8 +1105,9 @@ void WebRTCStream::onVideoFrame(video_data *frame)
 	}
 }
 
-void WebRTCStream::enqueue_frame(video_data *frame) {
-	video_data *framecopy = (video_data*)malloc(sizeof(video_data));
+void WebRTCStream::enqueue_frame(video_data *frame)
+{
+	video_data *framecopy = (video_data *)malloc(sizeof(video_data));
 	framecopy->timestamp = frame->timestamp;
 
 	int outputWidth = obs_output_get_width(output);
@@ -1098,13 +1124,17 @@ void WebRTCStream::enqueue_frame(video_data *frame) {
 	memcpy(framecopy->data[0], frame->data[0], size * sizeof(uint8_t));
 	framecopy->linesize[0] = frame->linesize[0];
 
-	for (size_t i=1; i < MAX_AV_PLANES; ++i) {
+	for (size_t i = 1; i < MAX_AV_PLANES; ++i) {
 		if (frame->linesize[i] != 0) {
 			framecopy->linesize[i] = frame->linesize[i];
-			if ("NV12" == colorFormat_ || "I420" == colorFormat_ || "I010" == colorFormat_) {
-				framecopy->data[i] = framecopy->data[i-1] + framecopy->linesize[i-1];
-			} else if ("I444" == colorFormat_ || "RGB" == colorFormat_) {
-				framecopy->data[i] = framecopy->data[i-1] + outputWidth * outputHeight;
+			if ("NV12" == colorFormat_ || "I420" == colorFormat_ ||
+			    "I010" == colorFormat_) {
+				framecopy->data[i] = framecopy->data[i - 1] +
+						     framecopy->linesize[i - 1];
+			} else if ("I444" == colorFormat_ ||
+				   "RGB" == colorFormat_) {
+				framecopy->data[i] = framecopy->data[i - 1] +
+						     outputWidth * outputHeight;
 			}
 		} else {
 			framecopy->linesize[i] = 0;
@@ -1123,7 +1153,8 @@ void WebRTCStream::process_video_queue()
 	while (!video_queue_.empty()) {
 		video_data *frame = video_queue_.front();
 		if (frame->timestamp <= last_delivered_audio_ts_) {
-			std::unique_lock<std::mutex> lock_frame(mutex_deliver_video_frame_);
+			std::unique_lock<std::mutex> lock_frame(
+				mutex_deliver_video_frame_);
 			deliver_video_frame(frame);
 			// Free up memory
 			free(frame->data[0]);
@@ -1137,7 +1168,8 @@ void WebRTCStream::process_video_queue()
 	lock_queue.unlock();
 }
 
-void WebRTCStream::deliver_video_frame(video_data *frame) {
+void WebRTCStream::deliver_video_frame(video_data *frame)
+{
 	if (std::chrono::system_clock::time_point(
 		    std::chrono::duration<int>(0)) == previous_time_) {
 		// First frame sent: Initialize previous_time
@@ -1151,11 +1183,11 @@ void WebRTCStream::deliver_video_frame(video_data *frame) {
 	int target_height = abs(outputHeight);
 
 	// Align timestamps from OBS capturer with rtc::TimeMicros timebase
-	const int64_t obs_timestamp_us = (int64_t)frame->timestamp /
-						rtc::kNumNanosecsPerMicrosec;
+	const int64_t obs_timestamp_us =
+		(int64_t)frame->timestamp / rtc::kNumNanosecsPerMicrosec;
 	const int64_t aligned_timestamp_us =
-		timestamp_aligner_.TranslateTimestamp(
-			obs_timestamp_us, rtc::TimeMicros());
+		timestamp_aligner_.TranslateTimestamp(obs_timestamp_us,
+						      rtc::TimeMicros());
 
 	if ("NV12" == colorFormat_ || "I420" == colorFormat_) {
 		rtc::scoped_refptr<webrtc::I420Buffer> buffer =
@@ -1165,11 +1197,11 @@ void WebRTCStream::deliver_video_frame(video_data *frame) {
 		uint32_t size = outputWidth * outputHeight * 3 / 2;
 		libyuv::RotationMode rotation_mode = libyuv::kRotate0;
 		const int conversionResult = libyuv::ConvertToI420(
-			frame->data[0], size,
-			buffer.get()->MutableDataY(), buffer.get()->StrideY(),
-			buffer.get()->MutableDataU(), buffer.get()->StrideU(),
-			buffer.get()->MutableDataV(), buffer.get()->StrideV(),
-			0, 0, outputWidth, outputHeight, target_width, target_height,
+			frame->data[0], size, buffer.get()->MutableDataY(),
+			buffer.get()->StrideY(), buffer.get()->MutableDataU(),
+			buffer.get()->StrideU(), buffer.get()->MutableDataV(),
+			buffer.get()->StrideV(), 0, 0, outputWidth,
+			outputHeight, target_width, target_height,
 			rotation_mode, ConvertVideoType(videoType_));
 		// not using the result yet, silence compiler
 		(void)conversionResult;
@@ -1193,11 +1225,14 @@ void WebRTCStream::deliver_video_frame(video_data *frame) {
 
 		// Copy OBS frame to webrtc i444 buffer
 		uint8_t *datay = const_cast<uint8_t *>(buffer444->DataY());
-		memcpy(datay, frame->data[0], frame->linesize[0] * outputHeight);
+		memcpy(datay, frame->data[0],
+		       frame->linesize[0] * outputHeight);
 		uint8_t *datau = const_cast<uint8_t *>(buffer444->DataU());
-		memcpy(datau, frame->data[1], frame->linesize[1] * outputHeight);
+		memcpy(datau, frame->data[1],
+		       frame->linesize[1] * outputHeight);
 		uint8_t *datav = const_cast<uint8_t *>(buffer444->DataV());
-		memcpy(datav, frame->data[2], frame->linesize[2] * outputHeight);
+		memcpy(datav, frame->data[2],
+		       frame->linesize[2] * outputHeight);
 
 		// Create a webrtc::VideoFrame to pass to the capturer
 		webrtc::VideoFrame video_frame444 =
@@ -1220,11 +1255,14 @@ void WebRTCStream::deliver_video_frame(video_data *frame) {
 		uint32_t size = outputWidth * outputHeight * 3 / 2;
 		libyuv::RotationMode rotation_mode = libyuv::kRotate0;
 		const int conversionResult = libyuv::ConvertToI010(
-			reinterpret_cast<const uint16_t*>(frame->data[0]), size,
-			buffer010.get()->MutableDataY(), buffer010.get()->StrideY(),
-			buffer010.get()->MutableDataU(), buffer010.get()->StrideU(),
-			buffer010.get()->MutableDataV(), buffer010.get()->StrideV(),
-			0, 0, outputWidth,outputHeight, target_width, target_height,
+			reinterpret_cast<const uint16_t *>(frame->data[0]),
+			size, buffer010.get()->MutableDataY(),
+			buffer010.get()->StrideY(),
+			buffer010.get()->MutableDataU(),
+			buffer010.get()->StrideU(),
+			buffer010.get()->MutableDataV(),
+			buffer010.get()->StrideV(), 0, 0, outputWidth,
+			outputHeight, target_width, target_height,
 			rotation_mode, ConvertVideoType(videoType_));
 		// not using the result yet, silence compiler
 		(void)conversionResult;

@@ -1,0 +1,20 @@
+name: Test
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+    - name: Setup xmllint
+      run: sudo apt-get install --no-install-recommends -y libxml2-utils
+    - uses: ./
+    - name: lint XML file with syntax error
+      run: xmllint test/error.xml --schema test/info.xsd --noout || true
+    - name: lint XML file with schema error
+      run: xmllint test/info.xml --schema test/info.xsd --noout || true
