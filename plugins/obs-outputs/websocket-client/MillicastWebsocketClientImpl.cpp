@@ -2,6 +2,7 @@
 
 #include "MillicastWebsocketClientImpl.h"
 #include "nlohmann/json.hpp"
+#include "obs-config.h"
 #include "restclient-cpp/connection.h"
 #include "restclient-cpp/restclient.h"
 
@@ -9,6 +10,19 @@
 
 #include <iostream>
 #include <string>
+#include <sstream>
+
+#if defined(_WIN32) || defined(_WIN64)
+#define OS_WINDOWS
+#include <Windows.h>
+#elif defined(__APPLE__)
+#define OS_MACOS
+#include "MacOSVersion.h"
+#elif defined(__linux__)
+#define OS_LINUX
+#include <sys/utsname.h>
+#endif
+
 
 #define warn(format, ...) blog(LOG_WARNING, format, ##__VA_ARGS__)
 #define info(format, ...) blog(LOG_INFO, format, ##__VA_ARGS__)
@@ -3457,7 +3471,7 @@ bool MillicastWebsocketClientImpl::connect(const std::string &publish_api_url,
 		std::string wss = url + "?token=" + jwt;
 		// #323: Do not log publishing token
 		info("Connection URL: %s?token=***", url.c_str());
-
+		client.set_user_agent(generateUserAgent());
 		connection = client.get_connection(wss, ec);
 		if (!connection)
 			warn("No Connection");
@@ -3672,4 +3686,57 @@ std::string MillicastWebsocketClientImpl::sanitizeString(const std::string &s)
 	if (p != std::string::npos)
 		_my_s.erase(p + 1);
 	return _my_s;
+}
+
+std::vector<std::string> splitString(const std::string &input, char delimiter)
+{
+	std::vector<std::string> result;
+	size_t start = 0;
+	size_t end = input.find(delimiter);
+
+	while (end != std::string::npos) {
+		result.push_back(input.substr(start, end - start));
+		start = end + 1;
+		end = input.find(delimiter, start);
+	}
+
+	result.push_back(input.substr(start));
+
+	return result;
+}
+
+//Return user agent string in the format below:
+//"OBS/<app version> (<user's OS name>/<user's OS version>; WebRTC/<webRTC version>; OBS/<orig OBS version>)";
+// Important: please make sure OBS_VERSION is a valid version string: <app version> - <orig OBS version> - <webRTC version>
+std::string MillicastWebsocketClientImpl::generateUserAgent()
+{
+	std::stringstream ua;
+	auto versions = splitString(OBS_VERSION, '-');
+	if (versions.size() != 3)
+		return "";
+	ua << "OBS/" << versions[0] << " (";
+#if defined(OS_WINDOWS)
+	OSVERSIONINFOEX osvi;
+	ZeroMemory(&osvi, sizeof(OSVERSIONINFOEX));
+	osvi.dwOSVersionInfoSize = sizeof(OSVERSIONINFOEX);
+	if (GetVersionEx((LPOSVERSIONINFO)&osvi)) {
+		ua << "Windows" << osvi.dwMajorVersion << "."
+		   << osvi.dwMinorVersion << "#" << osvi.dwBuildNumber << "; ";
+	}
+#elif defined(OS_MACOS)
+	ua << "macOS/" << getMacOSVersion() << "; ";
+#elif defined(OS_LINUX)
+	struct utsname os_info;
+	if (uname(&os_info) == 0) {
+		auto linuxVersion = splitString(os_info.version, ' ');
+		if (linuxVersion.size()) {
+			ua << "Linux/" << linuxVersion[0] << "; ";
+		} else {
+			ua << "Linux/" << os_info.release << "; ";
+		}
+	}
+#endif
+	ua << "WebRTC/" << versions[2] << "; OBS/" << versions[1] << ")";
+	info("User agent: %s", ua.str().c_str());
+	return ua.str();
 }

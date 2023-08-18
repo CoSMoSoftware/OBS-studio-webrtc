@@ -51,6 +51,12 @@ set(websocketclient_HEADERS
 	MillicastWebsocketClientImpl.h
 	CustomWebrtcImpl.h)
 
+if(APPLE)
+  list(APPEND websocketclient_SOURCES MacOSVersion.mm)
+  list(APPEND websocketclient_HEADERS MacOSVersion.h)
+  find_library(FOUNDATION_FRAMEWORK Foundation)
+endif()
+
 if(WIN32)
 	set(websocketclient_SOURCES ${websocketclient_SOURCES} dllmain.cpp)
   add_definitions(-DWEBSOCKETCLIENT_EXPORTS)
@@ -63,6 +69,10 @@ target_sources(
 	websocketclient
 	PRIVATE ${websocketclient_SOURCES}
 					${websocketclient_HEADERS})
+
+if(APPLE)
+  target_link_libraries(websocketclient PRIVATE ${FOUNDATION_FRAMEWORK})
+endif()
 
 target_link_libraries(websocketclient
   PUBLIC libobs
