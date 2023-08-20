@@ -46,5 +46,4 @@ private:
 
 	std::string sanitizeString(const std::string &s);
 	std::string generateUserAgent();
-
 };

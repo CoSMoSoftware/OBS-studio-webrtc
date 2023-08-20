@@ -394,8 +394,7 @@ void OBSBasicSettings::SaveStream1Settings()
 			QT_TO_UTF8(ui->streamProtocol->currentText()));
 		obs_data_set_bool(settings, "simulcast",
 				  ui->simulcastEnable->isChecked());
-		obs_data_set_bool(settings, "bwe",
-				  ui->bweEnable->isChecked());
+		obs_data_set_bool(settings, "bwe", ui->bweEnable->isChecked());
 		obs_data_set_bool(settings, "multisource",
 				  ui->multisourceEnable->isChecked());
 		obs_data_set_string(settings, "sourceId",
@@ -418,8 +417,7 @@ void OBSBasicSettings::SaveStream1Settings()
 			QT_TO_UTF8(ui->streamProtocol->currentText()));
 		obs_data_set_bool(settings, "simulcast",
 				  ui->simulcastEnable->isChecked());
-		obs_data_set_bool(settings, "bwe",
-				  ui->bweEnable->isChecked());
+		obs_data_set_bool(settings, "bwe", ui->bweEnable->isChecked());
 		obs_data_set_bool(settings, "multisource",
 				  ui->multisourceEnable->isChecked());
 		obs_data_set_string(settings, "sourceId",
@@ -716,7 +714,7 @@ void OBSBasicSettings::UseStreamKeyAdvClicked()
 	ui->streamKeyWidget->setVisible(true);
 }
 
-void OBSBasicSettings::on_service_currentIndexChanged(QAbstractButton*)
+void OBSBasicSettings::on_service_currentIndexChanged(QAbstractButton *)
 {
 	// #289 service list of radio buttons
 	// bool showMore = ui->service->currentData().toInt() ==
@@ -802,8 +800,7 @@ void OBSBasicSettings::on_service_currentIndexChanged(QAbstractButton*)
 			props, "streaming_advanced_settings");
 		obs_property_t *simulcast =
 			obs_properties_get(props, "simulcast");
-		obs_property_t *bwe =
-			obs_properties_get(props, "bwe");
+		obs_property_t *bwe = obs_properties_get(props, "bwe");
 		obs_property_t *multisource =
 			obs_properties_get(props, "multisource");
 		obs_property_t *sourceId =
@@ -1763,8 +1760,8 @@ bool OBSBasicSettings::ServiceSupportsCodecCheck()
 	// #289 service list of radio buttons
 	// QString service = ui->service->currentText();
 	QString service = ui->millicastWebrtcRadioButton->isChecked()
-																? ui->millicastWebrtcRadioButton->text()
-																: ui->millicastRtmpRadioButton->text();
+				  ? ui->millicastWebrtcRadioButton->text()
+				  : ui->millicastRtmpRadioButton->text();
 	QString cur_name;
 	QString fb_name;
 	bool simple = (ui->outputMode->currentIndex() == 0);

@@ -79,7 +79,7 @@ WebRTCStream::WebRTCStream(obs_output_t *output)
 
 	profile = 0;
 	colorFormat = "NV12";
-	audio_bitrate_ = 128; // kbps
+	audio_bitrate_ = 128;  // kbps
 	video_bitrate_ = 2500; // kbps
 
 	activate_bwe_ = false;
@@ -115,7 +115,8 @@ WebRTCStream::WebRTCStream(obs_output_t *output)
 		webrtc::CreateBuiltinVideoEncoderFactory(),
 		webrtc::CreateBuiltinVideoDecoderFactory(), nullptr, nullptr);
 
-	deps.network_controller_factory = std::make_unique<webrtc::UselessNetworkControllerFactory>();
+	deps.network_controller_factory =
+		std::make_unique<webrtc::UselessNetworkControllerFactory>();
 	factory = webrtc::CreateModularPeerConnectionFactory(std::move(deps));
 
 	// Create video capture module
@@ -236,8 +237,8 @@ bool WebRTCStream::start(WebRTCStream::Type type)
 			     : false;
 	// Activate Google congestion control BWE? true ==> yes / false ==> no
 	activate_bwe_ = obs_service_get_bwe(service)
-							? obs_service_get_bwe(service)
-							: false;
+				? obs_service_get_bwe(service)
+				: false;
 	total_bitrate_ = 0;
 	multisource_ = obs_service_get_multisource(service)
 			       ? obs_service_get_multisource(service)
@@ -317,7 +318,8 @@ bool WebRTCStream::start(WebRTCStream::Type type)
 		info("No video source in current scene");
 	}
 	info("Simulcast: %s", simulcast_ ? "true" : "false");
-	info("Congestion control bandwidth estimation activated: %s", activate_bwe_ ? "true" : "false");
+	info("Congestion control bandwidth estimation activated: %s",
+	     activate_bwe_ ? "true" : "false");
 	if (!activate_bwe_) {
 		info("Total bitrate (audio+video):  %d bps", total_bitrate_);
 	}
@@ -418,13 +420,17 @@ bool WebRTCStream::start(WebRTCStream::Type type)
 	// Call InitFieldTrialsFromString before creating peer connection
 	if (activate_bwe_) {
 		// Activate Google BWE
-		constexpr const char *network_field_trials = "WebRTC-Video-Pacing/max_delay:2000/";
-		webrtc::field_trial::InitFieldTrialsFromString(network_field_trials);
+		constexpr const char *network_field_trials =
+			"WebRTC-Video-Pacing/max_delay:2000/";
+		webrtc::field_trial::InitFieldTrialsFromString(
+			network_field_trials);
 	} else {
 		// Deactivate Google BWE
-		constexpr const char *network_field_trials = "WebRTC-Bwe-InjectedCongestionController/Enabled/"
-																								"WebRTC-Video-Pacing/max_delay:0/";
-		webrtc::field_trial::InitFieldTrialsFromString(network_field_trials);
+		constexpr const char *network_field_trials =
+			"WebRTC-Bwe-InjectedCongestionController/Enabled/"
+			"WebRTC-Video-Pacing/max_delay:0/";
+		webrtc::field_trial::InitFieldTrialsFromString(
+			network_field_trials);
 	}
 
 	pc = factory->CreatePeerConnection(config, std::move(dependencies));
@@ -476,7 +482,8 @@ bool WebRTCStream::start(WebRTCStream::Type type)
 	stream->AddTrack(audio_track);
 
 	if (getVideoSourceCount() > 0) {
-		video_track = factory->CreateVideoTrack("video", videoCapturer.get());
+		video_track =
+			factory->CreateVideoTrack("video", videoCapturer.get());
 		// pc->AddTrack(video_track, {"obs"});
 		stream->AddTrack(video_track);
 	}
@@ -929,8 +936,9 @@ void WebRTCStream::onVideoFrame(video_data *frame)
 	}
 }
 
-void WebRTCStream::enqueue_frame(video_data *frame) {
-	video_data *framecopy = (video_data*)malloc(sizeof(video_data));
+void WebRTCStream::enqueue_frame(video_data *frame)
+{
+	video_data *framecopy = (video_data *)malloc(sizeof(video_data));
 	framecopy->timestamp = frame->timestamp;
 
 	int outputWidth = obs_output_get_width(output);
@@ -944,13 +952,16 @@ void WebRTCStream::enqueue_frame(video_data *frame) {
 	framecopy->data[0] = (uint8_t *)malloc(size * sizeof(uint8_t));
 	memcpy(framecopy->data[0], frame->data[0], size * sizeof(uint8_t));
 	framecopy->linesize[0] = frame->linesize[0];
-	for (size_t i=1; i < MAX_AV_PLANES; ++i) {
+	for (size_t i = 1; i < MAX_AV_PLANES; ++i) {
 		if (frame->linesize[i] != 0) {
 			framecopy->linesize[i] = frame->linesize[i];
 			if ("NV12" == colorFormat || "I420" == colorFormat) {
-				framecopy->data[i] = framecopy->data[i-1] + framecopy->linesize[i-1];
-			} else if ("I444" == colorFormat || "RGB" == colorFormat) {
-				framecopy->data[i] = framecopy->data[i-1] + outputWidth * outputHeight;
+				framecopy->data[i] = framecopy->data[i - 1] +
+						     framecopy->linesize[i - 1];
+			} else if ("I444" == colorFormat ||
+				   "RGB" == colorFormat) {
+				framecopy->data[i] = framecopy->data[i - 1] +
+						     outputWidth * outputHeight;
 			}
 		} else {
 			framecopy->linesize[i] = 0;
@@ -969,7 +980,8 @@ void WebRTCStream::process_video_queue()
 	while (!video_queue_.empty()) {
 		video_data *frame = video_queue_.front();
 		if (frame->timestamp <= last_delivered_audio_ts_) {
-			std::unique_lock<std::mutex> lock_frame(mutex_deliver_video_frame_);
+			std::unique_lock<std::mutex> lock_frame(
+				mutex_deliver_video_frame_);
 			deliver_video_frame(frame);
 			// Free up memory
 			free(frame->data[0]);
@@ -983,7 +995,8 @@ void WebRTCStream::process_video_queue()
 	lock_queue.unlock();
 }
 
-void WebRTCStream::deliver_video_frame(video_data *frame) {
+void WebRTCStream::deliver_video_frame(video_data *frame)
+{
 	if (std::chrono::system_clock::time_point(
 		    std::chrono::duration<int>(0)) == previous_time_) {
 		// First frame sent: Initialize previous_time

@@ -711,7 +711,7 @@ void OBSBasicSettings::UseStreamKeyAdvClicked()
 	ui->streamKeyWidget->setVisible(true);
 }
 
-void OBSBasicSettings::on_service_currentIndexChanged(QAbstractButton*)
+void OBSBasicSettings::on_service_currentIndexChanged(QAbstractButton *)
 {
 	// #289 service list of radio buttons
 	// bool showMore = ui->service->currentData().toInt() ==
@@ -1753,8 +1753,8 @@ bool OBSBasicSettings::ServiceSupportsCodecCheck()
 	// #289 service list of radio buttons
 	// QString service = ui->service->currentText();
 	QString service = ui->millicastWebrtcRadioButton->isChecked()
-																? ui->millicastWebrtcRadioButton->text()
-																: ui->millicastRtmpRadioButton->text();
+				  ? ui->millicastWebrtcRadioButton->text()
+				  : ui->millicastRtmpRadioButton->text();
 	QString cur_name;
 	QString fb_name;
 	bool simple = (ui->outputMode->currentIndex() == 0);

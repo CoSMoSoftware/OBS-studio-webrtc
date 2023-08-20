@@ -41,7 +41,10 @@ struct ScopeProfiler {
 #define ScopeProfiler_Name(x) ScopeProfiler_NameConcat(x, __LINE__)
 #endif
 
-#define ProfileScope(x) \
-	ScopeProfiler ScopeProfiler_Name(SCOPE_PROFILE) { x }
+#define ProfileScope(x)                                 \
+	ScopeProfiler ScopeProfiler_Name(SCOPE_PROFILE) \
+	{                                               \
+		x                                       \
+	}
 
 #endif

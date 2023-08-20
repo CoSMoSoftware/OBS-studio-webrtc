@@ -2256,7 +2256,7 @@ static int run_program(fstream &logFile, int argc, char *argv[])
 
 		OBSTranslator translator;
 		program.installTranslator(&translator);
-/*
+		/*
 #if defined(__gnu_linux__)
 		// #303 Make sure LD_LIBRARY_PATH is set and contains a path to "obs-plugins"
 		// to be able to find library websocketclient.so

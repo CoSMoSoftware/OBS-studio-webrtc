@@ -196,9 +196,9 @@ static void AddExtraModulePaths()
 #ifndef __aarch64__
 	/* Legacy System Library Search Path */
 	char system_legacy_module_dir[PATH_MAX];
-	GetProgramDataPath(system_legacy_module_dir,
-			   sizeof(system_legacy_module_dir),
-			   (std::string(CONFIG_DIR) + "/plugins/%module%").c_str());
+	GetProgramDataPath(
+		system_legacy_module_dir, sizeof(system_legacy_module_dir),
+		(std::string(CONFIG_DIR) + "/plugins/%module%").c_str());
 	std::string path_system_legacy = system_legacy_module_dir;
 	obs_add_module_path((path_system_legacy + "/bin").c_str(),
 			    (path_system_legacy + "/data").c_str());

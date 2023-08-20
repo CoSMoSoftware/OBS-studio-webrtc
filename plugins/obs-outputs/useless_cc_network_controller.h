@@ -25,44 +25,50 @@
 namespace webrtc {
 
 class UselessCcNetworkController : public NetworkControllerInterface {
- public:
+public:
+	UselessCcNetworkController(webrtc::NetworkControllerConfig config)
+	{
+		if (config.constraints.max_data_rate.has_value()) {
+			max_data_rate_ =
+				config.constraints.max_data_rate.value();
+		}
+	}
 
-  UselessCcNetworkController(webrtc::NetworkControllerConfig config)
-  {
-    if (config.constraints.max_data_rate.has_value()) {
-      max_data_rate_ = config.constraints.max_data_rate.value();
-    }
-  }
+	// NetworkControllerInterface
+	NetworkControlUpdate
+	OnNetworkAvailability(NetworkAvailability msg) override;
+	NetworkControlUpdate
+	OnNetworkRouteChange(NetworkRouteChange msg) override;
+	NetworkControlUpdate OnProcessInterval(ProcessInterval msg) override;
+	NetworkControlUpdate
+	OnRemoteBitrateReport(RemoteBitrateReport msg) override;
+	NetworkControlUpdate
+	OnRoundTripTimeUpdate(RoundTripTimeUpdate msg) override;
+	NetworkControlUpdate OnSentPacket(SentPacket msg) override;
+	NetworkControlUpdate OnReceivedPacket(ReceivedPacket msg) override;
+	NetworkControlUpdate OnStreamsConfig(StreamsConfig msg) override;
+	NetworkControlUpdate
+	OnTargetRateConstraints(TargetRateConstraints msg) override;
+	NetworkControlUpdate
+	OnTransportLossReport(TransportLossReport msg) override;
+	NetworkControlUpdate
+	OnTransportPacketsFeedback(TransportPacketsFeedback msg) override;
+	NetworkControlUpdate
+	OnNetworkStateEstimate(NetworkStateEstimate msg) override;
 
-  // NetworkControllerInterface
-  NetworkControlUpdate OnNetworkAvailability(NetworkAvailability msg) override;
-  NetworkControlUpdate OnNetworkRouteChange(NetworkRouteChange msg) override;
-  NetworkControlUpdate OnProcessInterval(ProcessInterval msg) override;
-  NetworkControlUpdate OnRemoteBitrateReport(RemoteBitrateReport msg) override;
-  NetworkControlUpdate OnRoundTripTimeUpdate(RoundTripTimeUpdate msg) override;
-  NetworkControlUpdate OnSentPacket(SentPacket msg) override;
-  NetworkControlUpdate OnReceivedPacket(ReceivedPacket msg) override;
-  NetworkControlUpdate OnStreamsConfig(StreamsConfig msg) override;
-  NetworkControlUpdate OnTargetRateConstraints(
-      TargetRateConstraints msg) override;
-  NetworkControlUpdate OnTransportLossReport(TransportLossReport msg) override;
-  NetworkControlUpdate OnTransportPacketsFeedback(
-      TransportPacketsFeedback msg) override;
-  NetworkControlUpdate OnNetworkStateEstimate(
-      NetworkStateEstimate msg) override;
+	NetworkControlUpdate GetNetworkState(Timestamp at_time) const;
 
-  NetworkControlUpdate GetNetworkState(Timestamp at_time) const;
- private:
-  PacerConfig GetPacingRates(Timestamp at_time) const;
-  DataRate max_data_rate_ = DataRate::PlusInfinity();
-  DataRate max_total_allocated_bitrate_ = DataRate::PlusInfinity();
-  DataRate min_total_allocated_bitrate_ = DataRate::PlusInfinity();
-  DataRate max_padding_rate_ = DataRate::PlusInfinity();
-  TimeDelta round_trip_time_ = TimeDelta::Zero();
+private:
+	PacerConfig GetPacingRates(Timestamp at_time) const;
+	DataRate max_data_rate_ = DataRate::PlusInfinity();
+	DataRate max_total_allocated_bitrate_ = DataRate::PlusInfinity();
+	DataRate min_total_allocated_bitrate_ = DataRate::PlusInfinity();
+	DataRate max_padding_rate_ = DataRate::PlusInfinity();
+	TimeDelta round_trip_time_ = TimeDelta::Zero();
 
-  double pacing_factor_{0.0f};
+	double pacing_factor_{0.0f};
 };
 
-};  // namespace webrtc
+}; // namespace webrtc
 
 #endif // _USELESS_CC_NETWORK_CONTROLLER_H_
