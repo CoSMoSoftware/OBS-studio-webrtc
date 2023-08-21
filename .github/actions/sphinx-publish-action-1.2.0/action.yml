@@ -1,0 +1,43 @@
+name: 'Sphinx Publish Action'
+description: 'A GitHub Action to build and publish Jekyll sites to GitHub Pages'
+inputs:
+  token:
+    description: 'The GITHUB_TOKEN secret'
+    required: false
+  sphinx_env:
+    description: 'The Sphinx environment to build'
+    required: false
+  sphinx_src:
+    description: 'The Sphinx website source directory'
+    required: false
+  sphinx_build_options:
+    description: 'Additional Sphinx build arguments (see https://www.sphinx-doc.org/en/master/man/sphinx-build.html)'
+    required: false
+  target_branch:
+    description: 'The target branch name the site gets pushed to'
+    required: false
+  target_path:
+    description: 'The relative path where the site gets pushed to'
+    required: false
+  build_only:
+    description: 'Will build the Sphinx site without publishing it'
+    required: false
+  keep_history:
+    description: 'Do not overwrite whatever was already published on the target branch'
+    required: false
+  pre_build_commands:
+    description: >
+      Commands to run prior to build and deploy. Useful for
+      ensuring build dependencies are up to date or installing
+      new dependencies. For example, use `apk --update add
+      imagemagick` to install ImageMagick.
+    required: false
+  cname:
+    description: 'contents of the CNAME file'
+    required: false
+runs:
+  using: 'docker'
+  image: 'Dockerfile'
+branding:
+  icon: 'book'
+  color: 'orange'

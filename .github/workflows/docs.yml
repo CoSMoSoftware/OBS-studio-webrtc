@@ -36,7 +36,7 @@ jobs:
           SCOPY="copyright = '([A-Za-z0-9, ]+)'"
           RCOPY="copyright = '2017-$(date +"%Y"), Hugh Bailey'"
           sed -i -E -e "s/${SVER}/${RVER}/g" -e "s/${SREL}/${RREL}/g" -e "s/${SCOPY}/${RCOPY}/g" docs/sphinx/conf.py
-      - uses: totaldebug/sphinx-publish-action@1.2.0
+      - uses: ./.github/actions/sphinx-publish-action-1.2.0
         with:
           sphinx_src: 'docs/sphinx'
           build_only: True

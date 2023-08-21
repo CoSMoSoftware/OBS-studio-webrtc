@@ -23,7 +23,7 @@ jobs:
           sudo apt-get install --no-install-recommends -y libxml2-utils
 
       - name: Register Annotations
-        uses: korelstar/xmllint-problem-matcher@v1
+        uses: ./.github/actions/xmllint-problem-matcher-1.1.0
 
       - name: Validate
         run: |

@@ -1,0 +1,9 @@
+name: 'xmllint problem matcher'
+author: 'Kristof Hamann'
+description: 'Shows xmllint errors as annotation (with file and code line) in GitHub Actions'
+runs:
+  using: 'node16'
+  main: 'index.js'
+branding:
+  icon: 'check-square'
+  color: 'green'
