@@ -136,7 +136,8 @@ class OBSRef : public OBSRefAutoRelease<T, release> {
 		return *this;
 	}
 
-	struct TakeOwnership {};
+	struct TakeOwnership {
+	};
 	inline OBSRef(T val_, TakeOwnership)
 		: OBSRefAutoRelease<T, release>::OBSRefAutoRelease(val_)
 	{
@@ -179,7 +180,8 @@ class OBSSafeRef : public OBSRefAutoRelease<T, release> {
 		return *this;
 	}
 
-	struct TakeOwnership {};
+	struct TakeOwnership {
+	};
 	inline OBSSafeRef(T val_, TakeOwnership)
 		: OBSRefAutoRelease<T, release>::OBSRefAutoRelease(val_)
 	{

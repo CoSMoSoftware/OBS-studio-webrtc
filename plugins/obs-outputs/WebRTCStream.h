@@ -52,7 +52,8 @@ class WebRTCStreamInterface
 	  public webrtc::PeerConnectionObserver,
 	  public webrtc::CreateSessionDescriptionObserver,
 	  public webrtc::SetSessionDescriptionObserver,
-	  public webrtc::SetRemoteDescriptionObserverInterface {};
+	  public webrtc::SetRemoteDescriptionObserverInterface {
+};
 
 class WebRTCStream : public rtc::RefCountedObject<WebRTCStreamInterface> {
 public:
