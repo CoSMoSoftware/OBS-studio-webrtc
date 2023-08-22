@@ -139,7 +139,6 @@ jobs:
       LIBWEBRTC_RELEASE_TAG: ${{ variables.LIBWEBRTC_RELEASE_TAG }}
     name: libWebRTCassets
     displayName: 'Download libwebrtc release assets'
-
   - ${{ each arch in parameters.architectures }}:
     - script: TERM="" ./CI/macos/01_install_dependencies.sh --architecture ${{ arch }}
       displayName: '${{ arch }} Install dependencies'
@@ -154,8 +153,8 @@ jobs:
       - task: InstallAppleCertificate@2
         displayName: '🔐 Install CoSMo Signing Certificate'
         inputs:
-          certSecureFile: Certificates.p12
-          certPwd: $(certificatesLudoPassword)
+          certSecureFile: CertificatesCosmo.p12
+          certPwd: $(certificatesCosmoPassword)
     - ${{ if eq( vendor, 'Wowza') }}:
       - task: InstallAppleCertificate@2
         displayName: '🔐 Install Wowza Signing Certificate'
@@ -181,42 +180,42 @@ jobs:
         env:
           CURRENT_ARCH: ${{ arch }}
           CODESIGN_TEAM_ID: $(apple_team_id)
-          CODESIGN_IDENT: $(ludo_apple_developer_identity)
+          CODESIGN_IDENT: $(apple_team_id)
           WOWZA_CODESIGN_IDENT: $(wowza_apple_developer_identity)
-          CODESIGN_IDENT_USER: $(ludo_apple_account_id)
-          NOTARIZE_APP_SPECIFIC_PASSWORD: $(ludo_apple_app_specific_password)
+          CODESIGN_IDENT_USER: $(sapi_apple_account_id)
+          NOTARIZE_APP_SPECIFIC_PASSWORD: $(sapi_apple_app_specific_password)
       - script: TERM="" ./CI/macos/03_package_obs.sh --codesign --notarize --build-dir build_${{ vendor }}_${{ arch }} --architecture ${{ arch }} --vendor ${{ vendor }}
         displayName: '${{ vendor }} ${{ arch }} Package, sign, notarize'
         env:
           CURRENT_ARCH: ${{ arch }}
           CODESIGN_TEAM_ID: $(apple_team_id)
-          CODESIGN_IDENT: $(ludo_apple_developer_identity)
+          CODESIGN_IDENT: $(apple_team_id)
           WOWZA_CODESIGN_IDENT: $(wowza_apple_developer_identity)
-          CODESIGN_IDENT_USER: $(ludo_apple_account_id)
-          NOTARIZE_APP_SPECIFIC_PASSWORD: $(ludo_apple_app_specific_password)
+          CODESIGN_IDENT_USER: $(sapi_apple_account_id)
+          NOTARIZE_APP_SPECIFIC_PASSWORD: $(sapi_apple_app_specific_password)
       # Generate OBS with obs-ndi plugin
       - script: TERM="" ./CI/macos/02_build_obs.sh --codesign --build-dir build_${{ vendor }}_${{ arch }} --architecture ${{ arch }} --vendor ${{ vendor }} --ndi
         displayName: '${{ vendor }} ${{ arch }} Build OBS + plugin obs-ndi'
         env:
           CURRENT_ARCH: ${{ arch }}
           CODESIGN_TEAM_ID: $(apple_team_id)
-          CODESIGN_IDENT: $(ludo_apple_developer_identity)
+          CODESIGN_IDENT: $(apple_team_id)
           WOWZA_CODESIGN_IDENT: $(wowza_apple_developer_identity)
-          CODESIGN_IDENT_USER: $(ludo_apple_account_id)
-          NOTARIZE_APP_SPECIFIC_PASSWORD: $(ludo_apple_app_specific_password)
+          CODESIGN_IDENT_USER: $(sapi_apple_account_id)
+          NOTARIZE_APP_SPECIFIC_PASSWORD: $(sapi_apple_app_specific_password)
       - script: TERM="" ./CI/macos/03_package_obs.sh --codesign --notarize --build-dir build_${{ vendor }}_${{ arch }} --architecture ${{ arch }} --vendor ${{ vendor }} --ndi
         displayName: '${{ vendor }} ${{ arch }} Package, sign, notarize'
         env:
           CURRENT_ARCH: ${{ arch }}
           CODESIGN_TEAM_ID: $(apple_team_id)
-          CODESIGN_IDENT: $(ludo_apple_developer_identity)
+          CODESIGN_IDENT: $(apple_team_id)
           WOWZA_CODESIGN_IDENT: $(wowza_apple_developer_identity)
-          CODESIGN_IDENT_USER: $(ludo_apple_account_id)
-          NOTARIZE_APP_SPECIFIC_PASSWORD: $(ludo_apple_app_specific_password)
+          CODESIGN_IDENT_USER: $(sapi_apple_account_id)
+          NOTARIZE_APP_SPECIFIC_PASSWORD: $(sapi_apple_app_specific_password)
       - ${{ if eq( vendor, 'Millicast') }}:
         - bash: |
             ls -l build_${{ vendor }}_${{ arch }}
-          displayName: ls
+          displayName: "List build_${{ vendor }}_${{ arch }} dir"
         - bash: |
             ARTIFACT_NAME=$(basename $(/usr/bin/find build_${{ vendor }}_${{ arch }} -type f -name "obs-webrtc-${OBS_VERSION}-macos-${{ arch }}.dmg" -depth 1 | head -1))
             mkdir -p ./nightly_${{ vendor }}_${{ arch }}
