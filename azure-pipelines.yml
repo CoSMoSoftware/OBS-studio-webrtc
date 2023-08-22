@@ -478,14 +478,6 @@ jobs:
   pool:
     vmImage: 'ubuntu-22.04'
   steps:
-  - task: DownloadGitHubRelease@0
-    inputs:
-      connection: 'github.com_ludocosmo'
-      userRepository: 'CoSMoSoftware/libwebrtc-cmake'
-      defaultVersionType: 'specificTag'
-      version: 'm108'
-      itemPattern: 'libWebRTC-${{ variables.LIBWEBRTC_VERSION }}-*64-Release-*.sh'
-      downloadPath: '$(System.DefaultWorkingDirectory)'
   - bash: |
       git submodule update --init --recursive
       ./CI/linux/01_install_dependencies.sh --disable-pipewire
