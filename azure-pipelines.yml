@@ -49,7 +49,7 @@ variables:
   - name: LIBWEBRTC_VERSION
     value: 108.0
   - name: LIBWEBRTC_RELEASE_TAG
-    value: 'm108-release'
+    value: 'm108'
   - name: OBS_VERSION
     value: 1.5.0-28.1.2-m108
 # for Mac code signing
@@ -117,6 +117,7 @@ jobs:
   variables:
     GH_ACCESS_TOKEN_1H_EXPIRATION: $[ dependencies.PreprocessingBuild.outputs['accessToken.GH_ACCESS_TOKEN_1H_EXPIRATION'] ]
     LIBWEBRTC_ASSETS_PATTERN: "^libWebRTC-${{ variables.LIBWEBRTC_VERSION }}-.*64-Release-H264-OpenSSL_1_1_1.*.dmg.*"
+
   steps:
   - script: git submodule update --init --recursive
     displayName: 'Checkout Submodules'
@@ -139,7 +140,7 @@ jobs:
       LIBWEBRTC_RELEASE_TAG: ${{ variables.LIBWEBRTC_RELEASE_TAG }}
     name: libWebRTCassets
     displayName: 'Download libwebrtc release assets'
-    
+
   - ${{ each arch in parameters.architectures }}:
     - script: TERM="" ./CI/macos/01_install_dependencies.sh --architecture ${{ arch }}
       displayName: '${{ arch }} Install dependencies'
@@ -477,7 +478,29 @@ jobs:
 - job: 'Build_Ubuntu_22_04'
   pool:
     vmImage: 'ubuntu-22.04'
+  dependsOn: PreprocessingBuild
+  variables:
+    GH_ACCESS_TOKEN_1H_EXPIRATION: $[ dependencies.PreprocessingBuild.outputs['accessToken.GH_ACCESS_TOKEN_1H_EXPIRATION'] ]
+    LIBWEBRTC_ASSETS_PATTERN: "^libWebRTC-${{ variables.LIBWEBRTC_VERSION }}-.*64-Release-.*.sh.*"
   steps:
+  - bash: |
+      export LIBWEBRTC_RELEASE_URL=$(curl -L -H "Accept: application/vnd.github+json" -H "Authorization: Bearer $(GH_ACCESS_TOKEN_1H_EXPIRATION)" -H "X-GitHub-Api-Version: 2022-11-28" https://api.github.com/repos/CoSMoSoftware/libwebrtc-cmake/releases/tags/${LIBWEBRTC_RELEASE_TAG} | jq .url | tr -d '"')
+      echo "LIBWEBRTC_RELEASE_URL: ${LIBWEBRTC_RELEASE_URL}"
+      curl -L -H "Accept: application/vnd.github+json" -H "Authorization: Bearer $(GH_ACCESS_TOKEN_1H_EXPIRATION)" -H "X-GitHub-Api-Version: 2022-11-28" ${LIBWEBRTC_RELEASE_URL}/assets > assets.json
+      for asset_pair in $(cat assets.json | jq '.[] | (.id|tostring) + "|" + .name' | tr -d '"')
+      do
+        asset_pair=( ${asset_pair//|/ } )
+        if [[ $(echo ${asset_pair[1]} | grep -e $(LIBWEBRTC_ASSETS_PATTERN)) ]]; then
+          echo "Downloading ${asset_pair[1]} from GitHub - GH_ASSET_ID: ${asset_pair[0]}..."
+          curl -L -H "Accept: application/octet-stream" -H "Authorization: Bearer $(GH_ACCESS_TOKEN_1H_EXPIRATION)" -H "X-GitHub-Api-Version: 2022-11-28" https://api.github.com/repos/CoSMoSoftware/libwebrtc-cmake/releases/assets/${asset_pair[0]} > $(System.DefaultWorkingDirectory)/${asset_pair[1]}
+        fi
+      done
+      rm assets.json
+      ls -la $(System.DefaultWorkingDirectory)
+    env:
+      LIBWEBRTC_RELEASE_TAG: ${{ variables.LIBWEBRTC_RELEASE_TAG }}
+    name: libWebRTCassets
+    displayName: 'Download libwebrtc release assets'
   - bash: |
       git submodule update --init --recursive
       ./CI/linux/01_install_dependencies.sh --disable-pipewire
