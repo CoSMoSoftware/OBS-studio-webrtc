@@ -22,6 +22,7 @@
 .ninja*
 .dirstamp
 /cmake/.CMakeBuildNumber
+.cache/
 
 #curl
 /curl

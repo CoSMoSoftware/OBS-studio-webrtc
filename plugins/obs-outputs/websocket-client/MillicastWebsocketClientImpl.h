@@ -1,6 +1,7 @@
 /* Copyright Dr. Alex. Gouaillard (2015, 2020) */
 
 #include "WebsocketClient.h"
+#include <string>
 
 //Use http://think-async.com/ insted of boost
 #define ASIO_STANDALONE
@@ -44,4 +45,5 @@ private:
 	std::thread thread;
 
 	std::string sanitizeString(const std::string &s);
+	std::string generateUserAgent();
 };

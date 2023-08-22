@@ -174,11 +174,13 @@
 		NSFileManager *fileManager = [NSFileManager defaultManager];
 		NSURL *homeUrl = [fileManager homeDirectoryForCurrentUser];
 		char tmpChar[1024];
-		int ret = snprintf(tmpChar, sizeof(tmpChar),
-											"Library/Application Support/%s/plugin_config/mac-virtualcam/placeholder.png",
-											std::string(CONFIG_DIR).c_str());
+		int ret = snprintf(
+			tmpChar, sizeof(tmpChar),
+			"Library/Application Support/%s/plugin_config/mac-virtualcam/placeholder.png",
+			std::string(CONFIG_DIR).c_str());
 		NSURL *customUrl = [homeUrl
-			URLByAppendingPathComponent: [NSString stringWithUTF8String: tmpChar]];
+			URLByAppendingPathComponent:
+				[NSString stringWithUTF8String:tmpChar]];
 		NSString *customPlaceHolder = customUrl.path;
 		if ([fileManager isReadableFileAtPath:customPlaceHolder])
 			placeHolderPath = customPlaceHolder;

@@ -110,9 +110,9 @@ public:
 	void OnIceConnectionChange(
 		webrtc::PeerConnectionInterface::
 			IceConnectionState /* new_state */) override;
-	void OnIceGatheringChange(
-		webrtc::PeerConnectionInterface::
-			IceGatheringState /* new_state */) override
+	void
+	OnIceGatheringChange(webrtc::PeerConnectionInterface::
+				     IceGatheringState /* new_state */) override
 	{
 	}
 	void
@@ -190,7 +190,7 @@ private:
 	// Audio/video synchronisation management
 	bool audio_started_;
 	uint64_t last_delivered_audio_ts_;
-	std::queue<video_data*> video_queue_;
+	std::queue<video_data *> video_queue_;
 	void enqueue_frame(video_data *frame);
 	void process_video_queue();
 	// video_queue_ is shared by audio thread and video thread
