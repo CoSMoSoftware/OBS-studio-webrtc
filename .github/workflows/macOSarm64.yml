@@ -1,0 +1,235 @@
+name: 'BUILD-MACOS-ARM64'
+
+on:
+  push:
+    paths-ignore: ['**.md']
+    branches:
+      - master
+      - 'release/**'
+      - "m**"
+    tags: ['*']
+  pull_request:
+    paths-ignore: ['**.md']
+    branches: [master]
+
+env:
+  CACHE_REVISION: '006'
+  CEF_BUILD_VERSION_MAC: '5060'
+  CEF_HASH_MAC_X86_64: '88b950aa0bfc001061c35e7f1f3fefba856a6afb35e38b2b7b42ddd8dd239182'
+  CEF_HASH_MAC_ARM64: '98679b92eea6ea9959ac5aa54f46ca60681d8a86c768c35f496dbdd409bf0642'
+  CEF_BUILD_VERSION_LINUX: '5060'
+  CEF_BUILD_VERSION_WIN: '5060'
+  QT_VERSION_MAC: '6.3.1'
+  QT_HASH_MAC_X86_64: 'a83f72a11023b03b6cb2dc365f0a66ad9df31163bbb4fe2df32d601856a9fad3'
+  QT_HASH_MAC_ARM64: '2f30af90c049670a5660656adbb440668aa1b0567f75a5f29e1def9108928403'
+  QT_HASH_MAC_UNIVERSAL: '252e6684f43ab9c6f262c73af739e2296ce391b998da2c4ee04c254aaa07db18'
+  QT_VERSION_WIN: '6.3.1'
+  DEPS_VERSION_MAC: '2022-08-02'
+  DEPS_HASH_MAC_X86_64: '7637e52305e6fc53014b5aabd583f1a4490b1d97450420e977cae9a336a29525'
+  DEPS_HASH_MAC_ARM64: '755e0fa69b17a3ae444e1befa9d91d77e3cafe628fbd1c6333686091826595cd'
+  DEPS_VERSION_WIN: '2022-08-02'
+  VLC_VERSION_MAC: '3.0.8'
+  VLC_HASH_MAC: 'e0149ef4a20a19b9ecd87309c2d27787ee3f47dfd47c6639644bc1f6fd95bdf6'
+  VLC_VERSION_WIN: '3.0.0-git'
+  TWITCH_CLIENTID: ${{ secrets.TWITCH_CLIENT_ID }}
+  TWITCH_HASH: ${{ secrets.TWITCH_HASH }}
+  RESTREAM_CLIENTID: ${{ secrets.RESTREAM_CLIENTID }}
+  RESTREAM_HASH: ${{ secrets.RESTREAM_HASH }}
+  YOUTUBE_CLIENTID: ${{ secrets.YOUTUBE_CLIENTID }}
+  YOUTUBE_CLIENTID_HASH: ${{ secrets.YOUTUBE_CLIENTID_HASH }}
+  YOUTUBE_SECRET: ${{ secrets.YOUTUBE_SECRET }}
+  YOUTUBE_SECRET_HASH: ${{ secrets.YOUTUBE_SECRET_HASH }}
+  OBS_VERSION: "1.5.1-28.1.2-m112"
+  LIBWEBRTC_RELEASE_TAG: "m112-release"
+  LIBWEBRTC_VERSION: "112.0"
+  WORKSPACE_ROOT: "obs-studio"
+
+jobs:
+  macos_build:
+    name: 'MACOS-ARM64'
+    runs-on: ['self-hosted', 'macOS', 'ARM64']
+    strategy:
+      matrix:
+        arch: ['arm64']
+    env:
+      MACOSX_DEPLOYMENT_TARGET_X86_64: '10.15'
+      MACOSX_DEPLOYMENT_TARGET_ARM64: '11.0'
+      SPARKLE_VERSION: '1.26.0'
+      SPARKLE_HASH: '8312cbf7528297a49f1b97692c33cb8d33254c396dc51be394e9484e4b6833a0'
+      BLOCKED_FORMULAS: 'speexdsp curl php composer'
+      CODESIGN_IDENT: '-'
+      HAVE_CODESIGN_IDENTITY: ${{ secrets.MACOS_SIGNING_IDENTITY != '' && secrets.MACOS_SIGNING_CERT != '' }}
+    defaults:
+      run:
+        shell: bash
+        working-directory: ${{ env.WORKSPACE_ROOT }}
+    steps:
+      - name: 'Checkout'
+        uses: actions/checkout@v3
+        with:
+          submodules: 'recursive'
+          path: ${{ env.WORKSPACE_ROOT }}
+          fetch-depth: 0
+
+      - name: 'Check for Github Labels'
+        run: |
+          if test -n "$(curl -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" -s "${{ github.event.pull_request.url }}" | jq -e '.labels[] | select(.name == "Seeking Testers")')"; then
+            echo "SEEKING_TESTERS=1" >> $GITHUB_ENV
+          else
+            echo "SEEKING_TESTERS=0" >> $GITHUB_ENV
+          fi
+
+          echo "CACHE_DATE=$(date +"%Y-%m-%d")" >> $GITHUB_ENV
+
+      - name: 'Restore ccache from cache'
+        id: ccache-cache
+        uses: actions/cache@v3
+        env:
+          CACHE_NAME: 'ccache-cache'
+        with:
+          path: ${{ github.workspace }}/.ccache
+          key: ${{ runner.os }}-pr-${{ env.CACHE_NAME }}-${{ matrix.arch }}-${{ env.CACHE_DATE }}
+
+      - name: 'Restore Chromium Embedded Framework from cache'
+        id: cef-cache
+        uses: actions/cache@v3
+        env:
+          CACHE_NAME: 'cef-cache'
+        with:
+          path: ${{ github.workspace }}/obs-build-dependencies/cef_binary_${{ env.CEF_BUILD_VERSION_MAC }}_macos_${{ matrix.arch }}
+          key: ${{ runner.os }}-pr-${{ env.CACHE_NAME }}-${{ env.CEF_BUILD_VERSION_MAC }}-${{ matrix.arch }}-${{ env.CACHE_REVISION }}
+
+      - name: 'Restore VLC dependency from cache'
+        id: vlc-cache
+        uses: actions/cache@v3
+        env:
+          CACHE_NAME: 'vlc-cache'
+        with:
+          path: ${{ github.workspace }}/obs-build-dependencies/vlc-${{ env.VLC_VERSION_MAC }}
+          key: ${{ runner.os }}-pr-${{ env.CACHE_NAME }}-${{ env.VLC_VERSION_MAC }}-${{ env.CACHE_REVISION }}
+
+      - name: 'Restore Sparkle dependency from cache'
+        id: sparkle-cache
+        uses: actions/cache@v3
+        env:
+          CACHE_NAME: 'sparkle-cache'
+        with:
+          path: ${{ github.workspace }}/obs-build-dependencies/obs-deps/lib/Sparkle.framework
+          key: ${{ runner.os }}-pr-${{ env.CACHE_NAME }}-${{ env.SPARKLE_VERSION }}-${{ env.CACHE_REVISION }}
+
+      - name: 'Setup build environment'
+        id: setup
+        run: |
+          REMOVE_FORMULAS=""
+          for FORMULA in ${{ env.BLOCKED_FORMULAS }}; do
+            if [ -d "/usr/local/opt/${FORMULA}" ]; then
+              REMOVE_FORMULAS="${REMOVE_FORMULAS}${FORMULA} "
+            fi
+          done
+
+          if [ -n "${REMOVE_FORMULAS}" ]; then
+            brew uninstall ${REMOVE_FORMULAS}
+          fi
+
+          echo "commitHash=$(git rev-parse --short=9 HEAD)" >> $GITHUB_OUTPUT
+
+      - name: Download libwebrtc
+        env:
+          LIBWEBRTC_RELEASE_TAG: ${{ env.LIBWEBRTC_RELEASE_TAG }}
+          LIBWEBRTC_ASSETS_PATTERN: "^libWebRTC-${{ env.LIBWEBRTC_VERSION }}-.*64-Release-H264-OpenSSL_1_1_1.*.dmg.*"
+          GH_APP_RELEASECREATOR_TOKEN_PYTHON_SCRIPT: ${{ secrets.GH_APP_RELEASECREATOR_TOKEN_PYTHON_SCRIPT }}
+          GH_APP_RELEASECREATOR_PRIV_KEY: ${{ secrets.GH_APP_RELEASECREATOR_PRIV_KEY }}
+          GH_APP_ID: ${{ secrets.GH_APP_ID }}
+          GH_APP_INSTALLATION_ID: ${{ secrets.GH_APP_INSTALLATION_ID }}
+        run: |
+          python3 -m pip install jwt requests
+          echo ${GH_APP_RELEASECREATOR_TOKEN_PYTHON_SCRIPT} | base64 -d > ./generate_gh_app_installation_token.py
+          echo ${GH_APP_RELEASECREATOR_PRIV_KEY} | base64 -d > ./gh_app_priv_key.pem
+          export PEM_FILE=./gh_app_priv_key.pem
+          export GH_ACCESS_TOKEN_1H_EXPIRATION=$( python3 ./generate_gh_app_installation_token.py )
+          rm ./gh_app_priv_key.pem ./generate_gh_app_installation_token.py
+          echo "GH_ACCESS_TOKEN_1H_EXPIRATION=${GH_ACCESS_TOKEN_1H_EXPIRATION}" >> $GITHUB_OUTPUT
+          echo "GH_ACCESS_TOKEN_1H_EXPIRATION is ready!"
+
+          echo "Looking for libwebrtc using the pattern: ${LIBWEBRTC_ASSETS_PATTERN}"
+          echo "LibWebRTC release tag: ${LIBWEBRTC_RELEASE_TAG}"
+          export LIBWEBRTC_RELEASE_URL=$(curl -L -H "Accept: application/vnd.github+json" -H "Authorization: Bearer ${GH_ACCESS_TOKEN_1H_EXPIRATION}" -H "X-GitHub-Api-Version: 2022-11-28" https://api.github.com/repos/CoSMoSoftware/libwebrtc-cmake/releases/tags/${LIBWEBRTC_RELEASE_TAG} | jq .url | tr -d '"')
+          echo "LIBWEBRTC_RELEASE_URL: ${LIBWEBRTC_RELEASE_URL}"
+          curl -L -H "Accept: application/vnd.github+json" -H "Authorization: Bearer ${GH_ACCESS_TOKEN_1H_EXPIRATION}" -H "X-GitHub-Api-Version: 2022-11-28" ${LIBWEBRTC_RELEASE_URL}/assets > assets.json
+          for asset_pair in $(cat assets.json | jq '.[] | (.id|tostring) + "|" + .name' | tr -d '"')
+          do
+            asset_pair=( ${asset_pair//|/ } )
+            if [[ $(echo ${asset_pair[1]} | grep -e ${LIBWEBRTC_ASSETS_PATTERN}) ]]; then
+              echo "Downloading ${asset_pair[1]} from GitHub - GH_ASSET_ID: ${asset_pair[0]}..."
+              curl -L -H "Accept: application/octet-stream" -H "Authorization: Bearer ${GH_ACCESS_TOKEN_1H_EXPIRATION}" -H "X-GitHub-Api-Version: 2022-11-28" https://api.github.com/repos/CoSMoSoftware/libwebrtc-cmake/releases/assets/${asset_pair[0]} > ${asset_pair[1]}
+            fi
+          done
+          rm assets.json
+
+      - name: 'Install dependencies'
+        env:
+          RESTORED_VLC: ${{ steps.vlc-cache.outputs.cache-hit }}
+          RESTORED_SPARKLE: ${{ steps.sparkle-cache.outputs.cache-hit }}
+          RESTORED_CEF: ${{ steps.cef-cache.outputs.cache-hit }}
+        run: CI/macos/01_install_dependencies.sh --architecture "${{ matrix.arch }}"
+
+      - name: 'Unlock keychain'
+        run: |
+          security -v unlock-keychain -p ${MACOS_KEYCHAIN_PASSWORD} ${MACOS_KEYCHAIN_PATH}
+        env:
+          MACOS_KEYCHAIN_PASSWORD: ${{ secrets.MACOS_KEYCHAIN_PASSWORD }}
+          MACOS_KEYCHAIN_PATH: /Users/dolbyvoice/Library/Keychains/cosmosoftware.keychain-db
+
+      # Geneate OBS without obs-ndi plugin
+      - name: 'Build OBS - no NDI'
+        run: CI/macos/02_build_obs.sh --codesign --architecture "${{ matrix.arch }}"
+        env:
+          CODESIGN_IDENT: ${{ secrets.CODESIGN_IDENT }}
+          CODESIGN_TEAM_ID: ${{ secrets.CODESIGN_TEAM_ID }}
+          CODESIGN_IDENT_USER: ${{ secrets.CODESIGN_IDENT_USER }}
+          NOTARIZE_APP_SPECIFIC_PASSWORD: ${{ secrets.NOTARIZE_APP_SPECIFIC_PASSWORD }}
+
+      - name: 'Create build artifact'
+        run: |
+          CI/macos/03_package_obs.sh --codesign --architecture "${{ matrix.arch }}"
+          ARTIFACT_NAME=$(basename $(find build/. -name "obs-webrtc*.dmg"))
+          echo "FILE_NAME=${ARTIFACT_NAME}" >> $GITHUB_ENV
+          echo "ARTIFACT READY: ${ARTIFACT_NAME}"
+        env:
+          CODESIGN_IDENT: ${{ secrets.CODESIGN_IDENT }}
+          CODESIGN_TEAM_ID: ${{ secrets.CODESIGN_TEAM_ID }}
+          CODESIGN_IDENT_USER: ${{ secrets.CODESIGN_IDENT_USER }}
+          NOTARIZE_APP_SPECIFIC_PASSWORD: ${{ secrets.NOTARIZE_APP_SPECIFIC_PASSWORD }}
+
+      - name: 'Upload build Artifact'
+        uses: actions/upload-artifact@v3
+        with:
+          name: 'obs-studio-macos-${{ matrix.arch }}-${{ steps.setup.outputs.commitHash }}'
+          path: '${{ github.workspace }}/obs-studio/build/${{ env.FILE_NAME }}'
+
+      # Geneate OBS with obs-ndi plugin
+      - name: 'Build OBS - with NDI'
+        run: CI/macos/02_build_obs.sh --codesign --architecture "${{ matrix.arch }}" --ndi
+        env:
+          CODESIGN_IDENT: ${{ secrets.CODESIGN_IDENT }}
+          CODESIGN_TEAM_ID: ${{ secrets.CODESIGN_TEAM_ID }}
+          CODESIGN_IDENT_USER: ${{ secrets.CODESIGN_IDENT_USER }}
+          NOTARIZE_APP_SPECIFIC_PASSWORD: ${{ secrets.NOTARIZE_APP_SPECIFIC_PASSWORD }}
+
+      - name: 'Create build artifact'
+        run: |
+          CI/macos/03_package_obs.sh --codesign --architecture "${{ matrix.arch }}" --ndi
+          ARTIFACT_NAME=$(basename $(find build/. -name "obs-webrtc*.dmg"))
+          echo "FILE_NAME=${ARTIFACT_NAME}" >> $GITHUB_ENV
+          echo "ARTIFACT READY: ${ARTIFACT_NAME}"
+        env:
+          CODESIGN_IDENT: ${{ secrets.CODESIGN_IDENT }}
+          CODESIGN_TEAM_ID: ${{ secrets.CODESIGN_TEAM_ID }}
+          CODESIGN_IDENT_USER: ${{ secrets.CODESIGN_IDENT_USER }}
+          NOTARIZE_APP_SPECIFIC_PASSWORD: ${{ secrets.NOTARIZE_APP_SPECIFIC_PASSWORD }}
+
+      - name: 'Upload build Artifact'
+        uses: actions/upload-artifact@v3
+        with:
+          name: 'obs-studio-macos-${{ matrix.arch }}-${{ steps.setup.outputs.commitHash }}-ndi'
+          path: '${{ github.workspace }}/obs-studio/build/${{ env.FILE_NAME }}'
