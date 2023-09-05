@@ -1,6 +1,8 @@
 project(obs-cmocka)
 
-find_package(CMocka CONFIG REQUIRED)
+find_package(CMocka CONFIG REQUIRED
+             PATHS /usr/local/opt/cmocka
+)
 
 # Serializer test
 add_executable(test_serializer test_serializer.c)

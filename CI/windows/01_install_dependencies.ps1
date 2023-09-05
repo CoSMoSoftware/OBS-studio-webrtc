@@ -123,10 +123,12 @@ function Install-libwebrtc {
     )
     Write-Status "Setup for dependency libwebrtc v${Version}"
 
+    Write-Status "DepsBuildDir: ${DepsBuildDir}"
+
     Ensure-Directory $DepsBuildDir
 
     Write-Step "Unpack..."
-    & "..\s\libWebRTC-${Version}-x64-Mt-Release-H264-OpenSSL_1_1_1n.exe" /S /SD
+    & "${CheckoutDir}\libWebRTC-${Version}-x64-Mt-Release-H264-OpenSSL_1_1_1n.exe" /S /SD
 }
 
 function Install-openssl {

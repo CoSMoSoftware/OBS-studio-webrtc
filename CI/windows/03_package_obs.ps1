@@ -70,10 +70,10 @@ function Package-OBS {
 
     } elseif ($BuildArch -eq "x64") {
         Write-Step "Install 64-bit OBS..."
-        Invoke-Expression "cmake --build `"${BuildDirectory}64`" --config ${BuildConfiguration} -t install"
+        Invoke-Expression "cmake --build `"${BuildDirectory}64_${Vendor}`" --config ${BuildConfiguration} -t install"
 
         $CompressVars = @{
-            Path = "${CheckoutDir}/build64/install/bin", "${CheckoutDir}/build64/install/data", "${CheckoutDir}/build64/install/obs-plugins"
+            Path = "${BuildDirectory}64_${Vendor}/install/bin", "${BuildDirectory}64_${Vendor}/install/data", "${BuildDirectory}64_${Vendor}/install/obs-plugins"
             CompressionLevel = "Optimal"
             DestinationPath = "${FileName}-x64.zip"
         }

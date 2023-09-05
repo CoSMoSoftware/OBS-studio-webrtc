@@ -7,7 +7,7 @@ on:
       - master
       - 'release/**'
       - "m**"
-    tags: ['*']
+    tags: ['m*']
   pull_request:
     paths-ignore: ['**.md']
     branches: [master]
@@ -219,7 +219,7 @@ jobs:
       - name: 'Create build artifact'
         run: |
           CI/macos/03_package_obs.sh --codesign --architecture "${{ matrix.arch }}" --ndi
-          ARTIFACT_NAME=$(basename $(find build/. -name "obs-webrtc*.dmg"))
+          ARTIFACT_NAME=$(basename $(find build/. -name "obs-webrtc-ndi*.dmg"))
           echo "FILE_NAME=${ARTIFACT_NAME}" >> $GITHUB_ENV
           echo "ARTIFACT READY: ${ARTIFACT_NAME}"
         env:

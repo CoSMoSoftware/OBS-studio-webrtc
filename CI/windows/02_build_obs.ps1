@@ -116,7 +116,7 @@ function Build-OBS-Standalone {
 
     $CheckoutDir = Resolve-Path -Path "$PSScriptRoot\..\.."
     $DepsBuildDir = "${CheckoutDir}/../obs-build-dependencies"
-    $ObsBuildDir = "${CheckoutDir}/../obs-studio"
+    $ObsBuildDir = "${CheckoutDir}"
 
     . ${CheckoutDir}/CI/include/build_support_windows.ps1
 

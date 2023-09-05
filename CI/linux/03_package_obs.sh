@@ -20,16 +20,17 @@ package_obs() {
     step "Package OBS..."
     cmake --build ${BUILD_DIR} -t package
 
-    DEB_NAME=$(find ${BUILD_DIR} -maxdepth 1 -type f -name "obs*.deb" | sort -rn | head -1)
+    # DEB_NAME=$(find ${BUILD_DIR} -maxdepth 1 -name "obs-webrtc*.deb" | sort -rn | head -1)
 
-    if [ "${DEB_NAME}" ]; then
-        if [ ! -d package_${VENDOR_NAME} ]; then
-            mkdir package_${VENDOR_NAME}
-        fi
-        mv ${DEB_NAME} package_${VENDOR_NAME}
-    else
-        error "ERROR No suitable OBS debian package generated"
-    fi
+    # Deactivated - we have one vendor atm
+    # if [ "${DEB_NAME}" ]; then
+    #     if [ ! -d package_${VENDOR_NAME} ]; then
+    #         mkdir package_${VENDOR_NAME}
+    #     fi
+    #     mv ${DEB_NAME} package_${VENDOR_NAME}
+    # else
+    #     error "ERROR No suitable OBS debian package generated"
+    # fi
 }
 
 package-obs-standalone() {
@@ -48,7 +49,6 @@ package-obs-standalone() {
     GIT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
     GIT_HASH=$(git rev-parse --short=9 HEAD)
     GIT_TAG=$(git describe --tags --abbrev=0)
-    UBUNTU_VERSION=$(lsb_release -sr)
 
     if [ "${BUILD_FOR_DISTRIBUTION}" = "true" ]; then
         VERSION_STRING="${GIT_TAG}"
@@ -62,7 +62,7 @@ package-obs-standalone() {
         NDI_PLUGIN=""
     fi
 
-    FILE_NAME="obs-webrtc${NDI_PLUGIN}-${VERSION_STRING}-ubuntu-${UBUNTU_VERSION}.deb"
+    FILE_NAME="obs-webrtc${NDI_PLUGIN}-${VERSION_STRING}-${UBUNTU_VERSION}.deb"
     package_obs
 }
 

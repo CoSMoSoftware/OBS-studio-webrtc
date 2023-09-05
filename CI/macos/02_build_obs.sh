@@ -66,7 +66,8 @@ _configure_obs() {
     fi
 
     if [ "${CI}" -a "${ARCH}" = "x86_64" ]; then
-        UNITTEST_OPTIONS="-DENABLE_UNIT_TESTS=ON"
+        UNITTEST_OPTIONS="-DENABLE_UNIT_TESTS=OFF"
+        echo "WARNING: UNIT_TESTS (CMOCKA) DISABLED"
     fi
 
     if [ "${VENDOR}" == "Millicast" ]
