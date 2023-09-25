@@ -18,6 +18,7 @@
 #endif
 
 #include <string>
+#include <vector>
 
 enum Type { Millicast = 0, CustomWebrtc = 1 };
 
@@ -32,8 +33,10 @@ public:
 		virtual void onLoggedError(int code) = 0;
 		virtual void onOpened(const std::string &sdp) = 0;
 		virtual void onOpenedError(int code) = 0;
-		virtual void
-		onRemoteIceCandidate(const std::string &sdpData) = 0;
+		virtual void onRemoteIceCandidate(const std::string &sdpData) = 0;
+		virtual void onIceServer(const std::vector<std::string> &urls,
+								 const std::string &username,
+								 const std::string &password) = 0;
 	};
 
 public:
