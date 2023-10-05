@@ -1,0 +1,44 @@
+name: 'Download libWebRTC'
+description: 'Download libWebRTC'
+inputs:
+  access_token:
+    description: 'GH App Installation access token - base64'
+    required: true
+  release_tag:
+    description: 'LibWebRTC release tag.'
+    required: true
+  asset_pattern:
+    description: 'Find release asset by defined pattern.'
+    required: true
+    default: "^.*"
+runs:
+  using: "composite"
+  steps:
+    - run: |
+        Write-Host "Looking for libwebrtc using the pattern: $env:LIBWEBRTC_ASSETS_PATTERN"
+        Write-Host "LibWebRTC release tag: $env:LIBWEBRTC_RELEASE_TAG"
+        $env:GH_ACCESS_TOKEN_1H_EXPIRATION = [System.Text.Encoding]::UTF8.GetString([System.Convert]::FromBase64String($env:GH_ACCESS_TOKEN_1H_EXPIRATION)).Trim()
+        $env:LIBWEBRTC_RELEASE_URL = cmd.exe /c curl -L -H "Accept: application/vnd.github+json" -H "Authorization: Bearer $env:GH_ACCESS_TOKEN_1H_EXPIRATION" -H "X-GitHub-Api-Version: 2022-11-28" "https://api.github.com/repos/CoSMoSoftware/libwebrtc-cmake/releases/tags/$env:LIBWEBRTC_RELEASE_TAG" | jq -r .url
+        Write-Host $env:LIBWEBRTC_RELEASE_URL
+
+        cmd.exe /c curl -L -H "Accept: application/vnd.github+json" -H "Authorization: Bearer $env:GH_ACCESS_TOKEN_1H_EXPIRATION" -H "X-GitHub-Api-Version: 2022-11-28" $env:LIBWEBRTC_RELEASE_URL/assets > assets.json
+        cmd.exe /c type .\assets.json | jq -r '.[] | (.id|tostring) + \"|\" + .name' > assets.txt
+
+        Get-Content -Path .\assets.txt | ForEach-Object -Process {
+          $asset_pair = $_.Split("|")
+
+          if ( $asset_pair[1] -match "$env:LIBWEBRTC_ASSETS_PATTERN" ) {
+            Write-Host "Downloading " $asset_pair[1] " from GitHub - GH_ASSET_ID: " $asset_pair[0] "..."
+            $asset_url = "https://api.github.com/repos/CoSMoSoftware/libwebrtc-cmake/releases/assets/" + $asset_pair[0]
+            Write-Host "Asset url:" $asset_url
+            cmd.exe /c curl -L -H "Accept: application/octet-stream" -H "Authorization: Bearer $env:GH_ACCESS_TOKEN_1H_EXPIRATION" -H "X-GitHub-Api-Version: 2022-11-28" $asset_url --output $asset_pair[1]
+          }
+        }
+        Remove-Item -Path .\assets.json
+        Remove-Item -Path .\assets.txt
+        ls
+      env:
+        GH_ACCESS_TOKEN_1H_EXPIRATION: ${{ inputs.access_token }}
+        LIBWEBRTC_RELEASE_TAG: ${{ inputs.release_tag }}
+        LIBWEBRTC_ASSETS_PATTERN: ${{ inputs.asset_pattern }}
+      shell: powershell

@@ -1,0 +1,38 @@
+name: 'Generate access token'
+description: 'Generate access token'
+inputs:
+  script:
+    description: 'Python script for generate access token stored in repo/org secrets.'
+    required: false
+    default: "IyEvdXNyL2Jpbi9lbnYgcHl0aG9uMwoKaW1wb3J0IGp3dAppbXBvcnQgdGltZQppbXBvcnQgc3lzCmltcG9ydCByZXF1ZXN0cwppbXBvcnQganNvbgppbXBvcnQgb3MKCgpQRU1fRklMRSA9IG9zLmVudmlyb25bJ1BFTV9GSUxFJ10KR0hfQVBQX0lEID0gb3MuZW52aXJvblsnR0hfQVBQX0lEJ10KR0hfQVBQX0lOU1RBTExBVElPTl9JRCA9IG9zLmVudmlyb25bJ0dIX0FQUF9JTlNUQUxMQVRJT05fSUQnXQoKIyBPcGVuIFBFTQp3aXRoIG9wZW4oUEVNX0ZJTEUsICdyYicpIGFzIHBlbV9maWxlOgogICAgc2lnbmluZ19rZXkgPSBqd3QuandrX2Zyb21fcGVtKHBlbV9maWxlLnJlYWQoKSkKCnBheWxvYWQgPSB7CiAgICAjIElzc3VlZCBhdCB0aW1lCiAgICAnaWF0JzogaW50KHRpbWUudGltZSgpKSwKICAgICMgSldUIGV4cGlyYXRpb24gdGltZSAoMTAgbWludXRlcyBtYXhpbXVtKQogICAgJ2V4cCc6IGludCh0aW1lLnRpbWUoKSkgKyA2MDAsCiAgICAjIEdpdEh1YiBBcHAncyBpZGVudGlmaWVyCiAgICAnaXNzJzogR0hfQVBQX0lECn0KCiMgQ3JlYXRlIEpXVApqd3RfaW5zdGFuY2UgPSBqd3QuSldUKCkKZW5jb2RlZF9qd3QgPSBqd3RfaW5zdGFuY2UuZW5jb2RlKHBheWxvYWQsIHNpZ25pbmdfa2V5LCBhbGc9J1JTMjU2JykKCiMgR2V0IGdoIGFjY2VzcyB0b2tuZQpoZWFkZXJzID0geyJBdXRob3JpemF0aW9uIjogZiJCZWFyZXIge2VuY29kZWRfand0fSIsCiAgICAgICAgICAgIkFjY2VwdCI6ICJhcHBsaWNhdGlvbi92bmQuZ2l0aHViK2pzb24iLAogICAgICAgICAgICJYLUdpdEh1Yi1BcGktVmVyc2lvbiI6ICIyMDIyLTExLTI4IgogICAgICAgICAgIH0KdXJsID0gZiJodHRwczovL2FwaS5naXRodWIuY29tL2FwcC9pbnN0YWxsYXRpb25zL3tHSF9BUFBfSU5TVEFMTEFUSU9OX0lEfS9hY2Nlc3NfdG9rZW5zIgoKciA9IHJlcXVlc3RzLnBvc3QodXJsLCBoZWFkZXJzPWhlYWRlcnMpCmlmIHIuc3RhdHVzX2NvZGUgIT0gMjAxOgogICAgcmFpc2UgSU9FcnJvcihmIkVycm9yOiB7ci5zdGF0dXNfY29kZX0uIEZpbmQgbW9yZSBoZXJlOiBodHRwczovL2RvY3MuZ2l0aHViLmNvbS9lbi9yZXN0L2FwcHMvYXBwcz9hcGlWZXJzaW9uPTIwMjItMTEtMjgjY3JlYXRlLWFuLWluc3RhbGxhdGlvbi1hY2Nlc3MtdG9rZW4tZm9yLWFuLWFwcCIpCmVsc2U6CiAgICByZXNwb25zZV9qc29uID0gci5qc29uKCkKICAgIHByaW50KHJlc3BvbnNlX2pzb25bJ3Rva2VuJ10pCg=="
+  gh_app_priv_key:
+    description: 'GitHub Application private key'
+    required: true
+  gh_app_id:
+    description: 'GitHub Application ID'
+    required: true
+  gh_app_installation_id:
+    description: 'GitHub Application intallation ID'
+    required: true
+outputs:
+  token:
+    value: ${{ steps.accessToken.outputs.GH_ACCESS_TOKEN_1H_EXPIRATION}}
+runs:
+  using: "composite"
+  steps:
+    - id: accessToken
+      run: |
+        python3 -m pip install jwt requests
+        echo ${GH_APP_RELEASECREATOR_TOKEN_PYTHON_SCRIPT} | base64 -d > ./generate_gh_app_installation_token.py
+        echo ${GH_APP_RELEASECREATOR_PRIV_KEY} | base64 -d > ./gh_app_priv_key.pem
+        export PEM_FILE=./gh_app_priv_key.pem
+        export GH_ACCESS_TOKEN_1H_EXPIRATION=$( python3 ./generate_gh_app_installation_token.py )
+        echo "GH_ACCESS_TOKEN_1H_EXPIRATION=$( echo ${GH_ACCESS_TOKEN_1H_EXPIRATION} | base64 )" >> "$GITHUB_OUTPUT"
+        rm ./gh_app_priv_key.pem ./generate_gh_app_installation_token.py
+        echo "Access token is ready."
+      env:
+        GH_APP_RELEASECREATOR_TOKEN_PYTHON_SCRIPT: ${{ inputs.script }}
+        GH_APP_RELEASECREATOR_PRIV_KEY: ${{ inputs.gh_app_priv_key }}
+        GH_APP_ID: ${{ inputs.gh_app_id }}
+        GH_APP_INSTALLATION_ID: ${{ inputs.gh_app_installation_id }}
+      shell: bash

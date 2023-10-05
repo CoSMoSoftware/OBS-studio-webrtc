@@ -138,20 +138,23 @@ install_libwebrtc() {
 
     status "libWebRTC-${1}-${LIBWEBRTC_ARCH}-Release-H264-OpenSSL_1_1_1n.dmg"
 
-    if [ -d ${DEPS_BUILD_DIR}/libwebrtc_${ARCH} ]; then
-        ## libwebrtc has already been retrieved and installed
-        return
+    ensure_dir ${DEPS_BUILD_DIR} && pwd && ls -la
+
+    if [[ -d libwebrtc_${ARCH} ]]; then
+      echo "libwebrtc_${ARCH} already exists."
+      return
     fi
-    ensure_dir ${DEPS_BUILD_DIR}
-    pwd
-    mv ../s/libWebRTC-${1}-${LIBWEBRTC_ARCH}-Release-H264-OpenSSL_1_1_1n.dmg libWebRTC_${ARCH}.dmg
+
+    rm -rf libWebRTC_${ARCH}.dmg libWebRTC_${ARCH}.cdr  || echo "No libWebRTC img in deps dir." && echo "Old libWebRTC img was removed from deps dir."
+
+    mv ${GITHUB_WORKSPACE}/libWebRTC-${1}-${LIBWEBRTC_ARCH}-Release-H264-OpenSSL_1_1_1n.dmg libWebRTC_${ARCH}.dmg
     step "Bypass the EULA by converting the DMG download to a CDR image"
-    hdiutil convert -quiet libWebRTC_${ARCH}.dmg -format UDTO -o libWebRTC_${ARCH}
+    hdiutil convert libWebRTC_${ARCH}.dmg -format UDTO -o libWebRTC_${ARCH}
     step "Mount the CDR image"
     hdiutil attach -quiet -nobrowse -noverify libWebRTC_${ARCH}.cdr
     step "Copy to destination..."
     mkdir ./libwebrtc_${ARCH}
-    cp -r /Volumes/libWebRTC-${1}-${LIBWEBRTC_ARCH}-Release-H264-OpenSSL_1_1_1n/libwebrtc/* ./libwebrtc_${ARCH}
+    cp -r /Volumes/libWebRTC-${1}-${LIBWEBRTC_ARCH}-Release-H264-OpenSSL_1_1_1n/libwebrtc/* ./libwebrtc_${ARCH} && umount /Volumes/libWebRTC-${1}-${LIBWEBRTC_ARCH}-Release-H264-OpenSSL_1_1_1n
 }
 
 install_dependencies() {
@@ -180,8 +183,7 @@ install_dependencies() {
 install-dependencies-standalone() {
     CHECKOUT_DIR="$(/usr/bin/git rev-parse --show-toplevel)"
     PRODUCT_NAME="OBS-WebRTC"
-    DEPS_BUILD_DIR="${CHECKOUT_DIR}/../obs-build-dependencies_${ARCH}"
-    if [ -d "${DEPS_BUILD_DIR}" ]; then
+    if [[ -d "${DEPS_BUILD_DIR}" && $RESTORED_CEF != 'true' && $RESTORED_VLC != 'true' && $RESTORED_SPARKLE != 'true' ]]; then
         rm -rf ${DEPS_BUILD_DIR}
     fi
     source "${CHECKOUT_DIR}/CI/include/build_support.sh"
