@@ -83,6 +83,9 @@ public:
 	void onOpened(const std::string &sdp) override;
 	void onOpenedError(int code) override;
 	void onRemoteIceCandidate(const std::string &sdpData) override;
+	void onIceServer(const std::vector<std::string> &urls,
+								  const std::string &username,
+								  const std::string &password) override;
 
 	//
 	// PeerConnectionObserver implementation.
@@ -300,6 +303,9 @@ private:
 
 	// Websocket client
 	WebsocketClient *client;
+
+	// RTC configuration
+	webrtc::PeerConnectionInterface::RTCConfiguration rtc_config;
 };
 
 #endif

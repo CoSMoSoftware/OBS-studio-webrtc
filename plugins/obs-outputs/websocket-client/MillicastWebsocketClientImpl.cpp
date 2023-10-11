@@ -3384,8 +3384,23 @@ static std::string curl_cainfo_blob(
 	"-----END CERTIFICATE-----\n");
 #endif
 
+namespace {
+
 using json = nlohmann::json;
 typedef websocketpp::config::asio_client::message_type::ptr message_ptr;
+
+template<typename T>
+bool find_json_value(const nlohmann::json& data, const std::string& key, T& result)
+{
+	auto it = data.find(key);
+	if(it != data.end() && !it->is_null()) {
+		result = it->get<T>();
+		return true;
+	}
+	return false;
+}
+
+}
 
 MillicastWebsocketClientImpl::MillicastWebsocketClientImpl()
 {
@@ -3433,8 +3448,31 @@ bool MillicastWebsocketClientImpl::connect(const std::string &publish_api_url,
 	std::string jwt;
 	if (r.code == 200) {
 		auto wssData = json::parse(r.body);
-		url = wssData["data"]["urls"][0].get<std::string>();
-		jwt = wssData["data"]["jwt"].get<std::string>();
+		auto data = wssData["data"];
+		url = data["urls"][0].get<std::string>();
+		jwt = data["jwt"].get<std::string>();
+
+		std::vector<json> ice_servers;
+		if (find_json_value(data, "iceServers", ice_servers)) {
+			for (auto &value : ice_servers) {
+				std::vector<json> urls_json;
+				std::vector<std::string> urls;
+				if (find_json_value(value, "urls", urls_json)) {
+					std::transform(
+					   urls_json.begin(), urls_json.end(), std::back_inserter(urls),
+					   [](const json &v) -> std::string { return v.get<std::string>(); });
+				}
+
+				std::string username;
+				find_json_value(value, "username", username);
+
+				std::string password;
+				find_json_value(value, "credential", password);
+
+				listener->onIceServer(urls, username, password);
+			}
+		}
+
 		// #323: Do not log publishing token
 		// info("WSS url:          %s", url.c_str());
 		// info("JWT (token):      %s", jwt.c_str());

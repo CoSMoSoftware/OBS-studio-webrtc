@@ -36,6 +36,17 @@
 #define warn(format, ...) blog(LOG_WARNING, format, ##__VA_ARGS__)
 #define error(format, ...) blog(LOG_ERROR, format, ##__VA_ARGS__)
 
+namespace
+{
+
+void RestoreDefaultIceServers(webrtc::PeerConnectionInterface::RTCConfiguration& config) {
+	webrtc::PeerConnectionInterface::IceServer ice_server;
+	ice_server.urls = {"stun:stun.l.google.com:19302"};
+	config.servers.push_back(ice_server);
+}
+
+}
+
 class StatsCallback : public webrtc::RTCStatsCollectorCallback {
 public:
 	rtc::scoped_refptr<const webrtc::RTCStatsReport> report()
@@ -127,6 +138,9 @@ WebRTCStream::WebRTCStream(obs_output_t *output)
 	// Initialize audio/video synchronisation
 	audio_started_ = false;
 	last_delivered_audio_ts_ = 0;
+
+	// Save default STUN server
+	RestoreDefaultIceServers(rtc_config);
 }
 
 WebRTCStream::~WebRTCStream()
@@ -433,16 +447,65 @@ bool WebRTCStream::start(WebRTCStream::Type type)
 		thread.detach();
 	}
 
-	webrtc::PeerConnectionInterface::RTCConfiguration config;
-	webrtc::PeerConnectionInterface::IceServer server;
-	server.urls = {"stun:stun.l.google.com:19302"};
-	config.servers.push_back(server);
-	// config.bundle_policy = webrtc::PeerConnectionInterface::kBundlePolicyMaxBundle;
-	// config.disable_ipv6 = true;
-	// config.rtcp_mux_policy = webrtc::PeerConnectionInterface::kRtcpMuxPolicyRequire;
-	config.sdp_semantics = webrtc::SdpSemantics::kUnifiedPlan;
-	// config.set_cpu_adaptation(false);
-	// config.set_suspend_below_min_bitrate(false);
+	client = createWebsocketClient(type);
+	if (!client) {
+		warn("Error creating Websocket client");
+		// Close Peer Connection
+		close(false);
+		// Disconnect, this will call stop on main thread
+		// #298 Close must be carried out on a separate thread in order to avoid deadlock
+		auto thread = std::thread([=]() {
+			obs_output_set_last_error(
+				output,
+				"There was a problem creating the websocket connection.  Are you behind a firewall?");
+			obs_output_signal_stop(output,
+						   OBS_OUTPUT_CONNECT_FAILED);
+		});
+		thread.detach();
+		return false;
+	}
+
+	// Extra logging
+
+	if (type == WebRTCStream::Type::Millicast) {
+		// #323: Do not log publishing token
+		// info("Stream Name:      %s\nPublishing Token: %s\n",
+		//      username.c_str(), password.c_str());
+		info("Stream Name: %s\n", username.c_str());
+		url = publishApiUrl;
+	}
+
+	rtc_config = {};
+
+	info("CONNECTING TO %s", url.c_str());
+	// Connect to the signalling server
+	if (!client->connect(url, room, username, password, this)) {
+		warn("Error connecting to server");
+		// Shutdown websocket connection and close Peer Connection
+		close(false);
+		// Disconnect, this will call stop on main thread
+		// #298 Close must be carried out on a separate thread in order to avoid deadlock
+		auto thread = std::thread([=]() {
+			obs_output_set_last_error(
+				output,
+				"There was a problem connecting to your room.");
+			obs_output_signal_stop(output,
+						   OBS_OUTPUT_CONNECT_FAILED);
+		});
+		thread.detach();
+		return false;
+	}
+
+	if (rtc_config.servers.empty()) {
+		RestoreDefaultIceServers(rtc_config);
+	}
+
+	// rtc_config.bundle_policy = webrtc::PeerConnectionInterface::kBundlePolicyMaxBundle;
+	// rtc_config.disable_ipv6 = true;
+	// rtc_config.rtcp_mux_policy = webrtc::PeerConnectionInterface::kRtcpMuxPolicyRequire;
+	rtc_config.sdp_semantics = webrtc::SdpSemantics::kUnifiedPlan;
+	// rtc_config.set_cpu_adaptation(false);
+	// rtc_config.set_suspend_below_min_bitrate(false);
 
 	webrtc::PeerConnectionDependencies dependencies(this);
 
@@ -462,7 +525,7 @@ bool WebRTCStream::start(WebRTCStream::Type type)
 			network_field_trials);
 	}
 
-	pc = factory->CreatePeerConnection(config, std::move(dependencies));
+	pc = factory->CreatePeerConnection(rtc_config, std::move(dependencies));
 
 	if (!pc.get()) {
 		error("Error creating Peer Connection");
@@ -553,52 +616,6 @@ bool WebRTCStream::start(WebRTCStream::Type type)
 		pc->AddTransceiver(video_track, video_init);
 	}
 
-	client = createWebsocketClient(type);
-	if (!client) {
-		warn("Error creating Websocket client");
-		// Close Peer Connection
-		close(false);
-		// Disconnect, this will call stop on main thread
-		// #298 Close must be carried out on a separate thread in order to avoid deadlock
-		auto thread = std::thread([=]() {
-			obs_output_set_last_error(
-				output,
-				"There was a problem creating the websocket connection.  Are you behind a firewall?");
-			obs_output_signal_stop(output,
-					       OBS_OUTPUT_CONNECT_FAILED);
-		});
-		thread.detach();
-		return false;
-	}
-
-	// Extra logging
-
-	if (type == WebRTCStream::Type::Millicast) {
-		// #323: Do not log publishing token
-		// info("Stream Name:      %s\nPublishing Token: %s\n",
-		//      username.c_str(), password.c_str());
-		info("Stream Name: %s\n", username.c_str());
-		url = publishApiUrl;
-	}
-	info("CONNECTING TO %s", url.c_str());
-
-	// Connect to the signalling server
-	if (!client->connect(url, room, username, password, this)) {
-		warn("Error connecting to server");
-		// Shutdown websocket connection and close Peer Connection
-		close(false);
-		// Disconnect, this will call stop on main thread
-		// #298 Close must be carried out on a separate thread in order to avoid deadlock
-		auto thread = std::thread([=]() {
-			obs_output_set_last_error(
-				output,
-				"There was a problem connecting to your room.");
-			obs_output_signal_stop(output,
-					       OBS_OUTPUT_CONNECT_FAILED);
-		});
-		thread.detach();
-		return false;
-	}
 	return true;
 }
 
@@ -780,6 +797,18 @@ void WebRTCStream::onRemoteIceCandidate(const std::string &sdpData)
 			info("Ignoring remote %s\n", s.c_str());
 		}
 	}
+}
+
+void WebRTCStream::onIceServer(
+	const std::vector<std::string> &urls,
+	const std::string &username,
+	const std::string &password)
+{
+	webrtc::PeerConnectionInterface::IceServer ice_server;
+	ice_server.urls = urls;
+	ice_server.username = username;
+	ice_server.password = password;
+	rtc_config.servers.push_back(ice_server);
 }
 
 void WebRTCStream::onOpened(const std::string &sdp)
