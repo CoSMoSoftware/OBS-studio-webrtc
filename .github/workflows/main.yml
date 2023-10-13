@@ -601,7 +601,7 @@ jobs:
         env:
           REF_NAME: ${{ github.ref_name }}
       - name: 'Create release - production'
-        uses: dolby-io-internal/dolbyio-create-release@
+        uses: dolby-io-internal/dolbyio-create-release@main
         with:
           deployment: ${{ vars.ENV_DEPLOYMENT }}
           release_tag: ${{ github.ref_name }}
