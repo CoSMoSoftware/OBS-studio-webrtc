@@ -559,11 +559,12 @@ jobs:
 
   deployment_production:
     # needs: [windows_build, linux_build, macos_build_arm64, macos_build_x86_64]
-    if: |
-      success() &&
-      github.event_name != 'pull_request' &&
-      (startsWith(github.ref, 'refs/tags/m') ||
-      startsWith(github.ref, 'refs/heads/CI'))
+      # success() &&
+      # github.event_name != 'pull_request' &&
+      # (startsWith(github.ref, 'refs/tags/m') ||
+      # startsWith(github.ref, 'refs/heads/CI'))
+    if: ${{ startsWith(github.ref, 'refs/heads/CI') }}
+
     environment:
       name: production
       url: ${{ vars.ENV_RELEASE_URL }}
