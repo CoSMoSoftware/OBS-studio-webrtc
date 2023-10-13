@@ -3,16 +3,14 @@ name: 'Build OBS-studio-webrtc'
 on:
   push:
     branches:
-      - "master"
-      - "release/**"
-      - "CI/**"]
+      - "**"
     tags:
       - "m**"
+    pull_request:
     paths-ignore:
       - 'LICENSE'
       - 'README.md'
       - 'RELEASE_NOTES.md'
-  pull_request:
   workflow_dispatch:
 
 env:
