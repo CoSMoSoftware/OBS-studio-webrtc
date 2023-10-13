@@ -393,6 +393,7 @@ jobs:
   linux_build:
     name: 'Linux'
     strategy:
+      fail-fast: false
       matrix:
         ubuntu: ['ubuntu-20.04', 'ubuntu-22.04']
         ndi: ['no_ndi', 'ndi']
@@ -455,7 +456,8 @@ jobs:
 
       - name: 'Build OBS with ${{ matrix.ndi }}'
         run: |
-          if [[ $IS_NDI == 'no_ndi']]; then
+          echo ${IS_NDI}
+          if [[ ${IS_NDI} == 'no_ndi' ]]; then
             ./CI/linux/02_build_obs.sh --disable-pipewire --vendor ${{ env.VENDOR }}
           else
             ./CI/linux/02_build_obs.sh --disable-pipewire --vendor ${{ env.VENDOR }} --ndi
