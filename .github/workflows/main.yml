@@ -559,8 +559,7 @@ jobs:
     if: |
       success() &&
       github.event_name != 'pull_request' &&
-      (startsWith(github.ref, 'refs/tags/m') ||
-      startsWith(github.ref, 'refs/heads/CI'))
+      startsWith(github.ref, 'refs/tags/m')
     environment:
       name: production
       url: ${{ vars.ENV_RELEASE_URL }}
