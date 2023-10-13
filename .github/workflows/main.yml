@@ -463,32 +463,10 @@ jobs:
           UBUNTU_VERSION: $${ matrix.ubuntu }}
 
       - name: 'Upload build Artifact'
-        if: ${{ success() && (github.event_name != 'pull_request' }}
+        if: ${{ success() && github.event_name != 'pull_request' }}
         uses: actions/upload-artifact@v3
         with:
           name: 'obs-studio-${{ matrix.ubuntu }}-${{ steps.setup.outputs.commitHash }}-${{ matrix.ndi }}'
-          path: '${{ github.workspace }}/build/${{ env.FILE_NAME }}'
-
-      # Geneate OBS with obs-ndi plugin
-      - name: 'Build OBS - NDI'
-        run: ./CI/linux/02_build_obs.sh --disable-pipewire --vendor ${{ env.VENDOR }} --ndi
-        env:
-          UBUNTU_VERSION: ${{ matrix.ubuntu }}
-
-      - name: 'Create build artifact'
-        if: ${{ success() && (github.event_name != 'pull_request' }}
-        run: |
-          ./CI/linux/03_package_obs.sh --vendor ${{ env.VENDOR }}
-          ARTIFACT_NAME=$(basename $(find build/. -name "obs-webrtc-*.deb" | sort -rn | head -1))
-          echo "FILE_NAME=${ARTIFACT_NAME}" >> $GITHUB_ENV
-        env:
-          UBUNTU_VERSION: $${ matrix.ubuntu }}
-
-      - name: 'Upload build Artifact'
-        if: ${{ success() && (github.event_name != 'pull_request' }}
-        uses: actions/upload-artifact@v3
-        with:
-          name: 'obs-studio-${{ matrix.ubuntu }}-${{ steps.setup.outputs.commitHash }}'
           path: '${{ github.workspace }}/build/${{ env.FILE_NAME }}'
 
   # windows_build:
