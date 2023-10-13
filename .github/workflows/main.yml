@@ -454,7 +454,7 @@ jobs:
           IS_NDI: ${{ matrix.ndi }}
 
       - name: 'Create build artifact'
-        if: ${{ success() && (github.event_name != 'pull_request' }}
+        if: ${{ success() && github.event_name != 'pull_request' }}
         run: |
           ./CI/linux/03_package_obs.sh --vendor ${{ env.VENDOR }}
           ARTIFACT_NAME=$(basename $(find build/. -name "obs-webrtc-*.deb" | sort -rn | head -1))
