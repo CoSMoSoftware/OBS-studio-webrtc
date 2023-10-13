@@ -432,7 +432,8 @@ jobs:
           else
             ./CI/linux/02_build_obs.sh --disable-pipewire --vendor ${{ env.VENDOR }} --ndi
           fi
-        IS_NDI: ${{ matrix.ndi }}
+        env:
+          IS_NDI: ${{ matrix.ndi }}
 
       - name: 'Create build artifact'
         if: ${{ success() && (github.event_name != 'pull_request' }}
