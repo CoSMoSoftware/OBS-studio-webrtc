@@ -379,7 +379,17 @@ jobs:
   #       with:
   #         name: 'obs-studio-macos-${{ env.TARGET_ARCH }}-${{ steps.setup.outputs.commitHash }}-ndi'
   #         path: '${{ github.workspace }}/build/${{ env.FILE_NAME }}'
-
+  # build:
+  #   runs-on: ${{ matrix.os }}
+  #   strategy:
+  #     fail-fast: false
+  #     matrix:
+  #       mode: [ubuntu20-no-ndi, ubuntu20-ndi]
+  #       include:
+  #         - mode: ubuntu20-no-ndi
+  #           os: ubuntu-20.04
+  #           shell: bash
+  #           webrtc_asset_pattern: "^libWebRTC-${{ env.LIBWEBRTC_VERSION }}-.*64-Release-.*.sh.*"
   linux_build:
     name: 'Linux'
     strategy:
@@ -445,7 +455,7 @@ jobs:
 
       - name: 'Build OBS with ${{ matrix.ndi }}'
         run: |
-          if [[ $IS_NDI == 'no-ndi']]; then
+          if [[ $IS_NDI == 'no_ndi']]; then
             ./CI/linux/02_build_obs.sh --disable-pipewire --vendor ${{ env.VENDOR }}
           else
             ./CI/linux/02_build_obs.sh --disable-pipewire --vendor ${{ env.VENDOR }} --ndi
