@@ -61,6 +61,7 @@ jobs:
 
           - mode: linux20-ndi
             os: ubuntu20-04
+            shell: bash
             libwebrtc_asset_pattern: "^libWebRTC-${{ env.LIBWEBRTC_VERSION }}-.*64-Release-.*.sh.*"
 
           - mode: linux22-no-ndi
@@ -104,13 +105,14 @@ jobs:
             libwebrtc_asset_pattern: "^libWebRTC-${{ env.LIBWEBRTC_VERSION }}-x64-Mt-Release-.*.exe.*"
 
     steps:
-      - name: 'Checkout'
+      - name: 'Checkout the code'
         uses: actions/checkout@v4
         with:
           submodules: 'recursive'
           fetch-depth: 0
 
-      - name: 'Generate access token'
+      - name: 'Generate access token for MacOS/Linux'
+        if: ${{ matrix.mode != *'windows'* }}
         id: accessToken
         uses: dolby-io-internal/gh-access@v0.0.3-macos-linux
         with:
@@ -118,21 +120,30 @@ jobs:
           gh_app_id: ${{ secrets.GH_APP_ID }}
           gh_app_installation_id: ${{ secrets.GH_APP_INSTALLATION_ID }}
 
-        - name: 'Download libWebRTC for MacOS/Linux'
-          if: ${{ matrix.mode != *'windows'* }}
-          uses: ./.github/actions/download_libwebrtc
-          with:
-            access_token: ${{ steps.accessToken.outputs.token }}
-            release_tag: ${{ env.LIBWEBRTC_RELEASE_TAG }}
-            asset_pattern: ${{ matrix.libwebrtc_asset_pattern }}
+      - name: 'Generate access token for Windows'
+        if: ${{ matrix.mode != *'windows'* }}
+        id: accessToken
+        uses: dolby-io-internal/gh-access@v0.0.3-windows
+        with:
+          gh_app_priv_key: ${{ secrets.GH_APP_RELEASECREATOR_PRIV_KEY }}
+          gh_app_id: ${{ secrets.GH_APP_ID }}
+          gh_app_installation_id: ${{ secrets.GH_APP_INSTALLATION_ID }}
 
-        - name: 'Download libWebRTC for Windows'
-          if: ${{ matrix.mode == *'windows'* }}
-          uses: ./.github/actions/download_libwebrtc/win
-          with:
-            access_token: ${{ steps.accessToken.outputs.token }}
-            release_tag: ${{ env.LIBWEBRTC_RELEASE_TAG }}
-            asset_pattern: ${{ matrix.libwebrtc_asset_pattern }}
+      - name: 'Download libWebRTC for MacOS/Linux'
+        if: ${{ matrix.mode != *'windows'* }}
+        uses: ./.github/actions/download_libwebrtc
+        with:
+          access_token: ${{ steps.accessToken.outputs.token }}
+          release_tag: ${{ env.LIBWEBRTC_RELEASE_TAG }}
+          asset_pattern: ${{ matrix.libwebrtc_asset_pattern }}
+
+      - name: 'Download libWebRTC for Windows'
+        if: ${{ matrix.mode == *'windows'* }}
+        uses: ./.github/actions/download_libwebrtc/win
+        with:
+          access_token: ${{ steps.accessToken.outputs.token }}
+          release_tag: ${{ env.LIBWEBRTC_RELEASE_TAG }}
+          asset_pattern: ${{ matrix.libwebrtc_asset_pattern }}
 
   # macos_build_x86_64:
   #   name: 'MacOS-x86_64'
