@@ -117,7 +117,7 @@ jobs:
           fetch-depth: 0
 
       - name: 'Generate access token for MacOS/Linux'
-        if: ${{ matrix.mode != *'windows'* }}
+        if: ${{ contains(! matrix.mode, "windows") }}
         id: accessToken
         uses: dolby-io-internal/gh-access@v0.0.3-macos-linux
         with:
@@ -126,7 +126,7 @@ jobs:
           gh_app_installation_id: ${{ secrets.GH_APP_INSTALLATION_ID }}
 
       - name: 'Generate access token for Windows'
-        if: ${{ matrix.mode != *'windows'* }}
+        if: ${{ contains(matrix.mode, "windows" }}
         id: accessToken
         uses: dolby-io-internal/gh-access@v0.0.3-windows
         with:
@@ -135,7 +135,7 @@ jobs:
           gh_app_installation_id: ${{ secrets.GH_APP_INSTALLATION_ID }}
 
       - name: 'Download libWebRTC for MacOS/Linux'
-        if: ${{ matrix.mode != *'windows'* }}
+        if: ${{ contains(! matrix.mode, "windows") }}
         uses: ./.github/actions/download_libwebrtc
         with:
           access_token: ${{ steps.accessToken.outputs.token }}
@@ -143,7 +143,7 @@ jobs:
           asset_pattern: ${{ matrix.libwebrtc_asset_pattern }}
 
       - name: 'Download libWebRTC for Windows'
-        if: ${{ matrix.mode == *'windows'* }}
+        if: ${{ contains(matrix.mode, "windows" }}
         uses: ./.github/actions/download_libwebrtc/win
         with:
           access_token: ${{ steps.accessToken.outputs.token }}
