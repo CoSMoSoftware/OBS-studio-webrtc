@@ -57,22 +57,22 @@ jobs:
         mode: [linux20-ndi, linux20-no-ndi, linux22-ndi, linux22-no-ndi, macos-ndi, macos-no-ndi, macos-arm64-ndi, macos-arm64-no-ndi, windows-ndi, windows-no-ndi]
         include:
           - mode: linux20-no-ndi
-            os: ubuntu20-04
+            os: ubuntu20.04
             shell: bash
             libwebrtc_asset_pattern: "^libWebRTC-${LIBWEBRTC_VERSION}-.*64-Release-.*.sh.*"
 
           - mode: linux20-ndi
-            os: ubuntu20-04
+            os: ubuntu20.04
             shell: bash
             libwebrtc_asset_pattern: "^libWebRTC-${LIBWEBRTC_VERSION}-.*64-Release-.*.sh.*"
 
           - mode: linux22-no-ndi
-            os: ubuntu22-04
+            os: ubuntu22.04
             shell: bash
             libwebrtc_asset_pattern: "^libWebRTC-${LIBWEBRTC_VERSION}-.*64-Release-.*.sh.*"
 
           - mode: linux22-ndi
-            os: ubuntu22-04
+            os: ubuntu22.04
             shell: bash
             libwebrtc_asset_pattern: "^libWebRTC-${LIBWEBRTC_VERSION}-.*64-Release-.*.sh.*"
 
