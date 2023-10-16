@@ -34,6 +34,8 @@ env:
   VLC_VERSION_WIN: '3.0.0-git'
   SPARKLE_VERSION: '1.26.0'
   SPARKLE_HASH: '8312cbf7528297a49f1b97692c33cb8d33254c396dc51be394e9484e4b6833a0'
+  MACOSX_DEPLOYMENT_TARGET_X86_64: '10.15'
+  MACOSX_DEPLOYMENT_TARGET_ARM64: '11.0'
   CODESIGN_IDENT: ${{ secrets.CODESIGN_IDENT }}
   OBS_VERSION: "1.5.1-28.1.2-m112"
   LIBWEBRTC_RELEASE_TAG: "m112-release"
@@ -92,7 +94,7 @@ jobs:
             os: macos-12
             shell: bash
             libwebrtc_asset_pattern: "^libWebRTC-${{ needs.preprocessing.outputs.LIBWEBRTC_VERSION }}-x64-Release-H264-OpenSSL_1_1_1.*.dmg.*"
-            install_dependencies: export MACOSX_DEPLOYMENT_TARGET_X86_64='10.15' && ./CI/macos/01_install_dependencies.sh --architecture x86_64
+            install_dependencies: ./CI/macos/01_install_dependencies.sh --architecture x86_64
             target_arch: 'x86_64'
             keychain_path: ${{ github.workspace }}/cosmosoftware.keychain-db
 
@@ -201,7 +203,7 @@ jobs:
         run: |
           echo "CACHE_DATE=$(date +"%Y-%m-%d")" >> $GITHUB_ENV
           echo "commitHash=$(git rev-parse --short=9 HEAD)" >> $GITHUB_OUTPUT
-          echo "DEPS_BUILD_DIR_=$(dirname ${{ github.workspace }})/obs-build-dependencies_${{ matrix.target_arch }}" >> $GITHUB_ENV
+          echo "DEPS_BUILD_DIR_=$(dirname ${{ github.workspace }})/obs-build-dependencies" >> $GITHUB_ENV
 
       - name: 'Setup additional build environment variables'
         if: ${{ startsWith(matrix.mode, 'windows') }}
@@ -209,7 +211,7 @@ jobs:
         run: |
           $CommitHash = git rev-parse --short=9 HEAD
           "commitHash=${CommitHash}" >> $env:GITHUB_OUTPUT
-          "DEPS_BUILD_DIR_=(get-item $scriptPath ).parent.parent\\obs-build-dependencies_${{ matrix.target_arch }}" >> $env:GITHUB_ENV"
+          "DEPS_BUILD_DIR_=${{ github.workspace }}\\..\\obs-build-dependencies" >> $env:GITHUB_ENV
 
       - name: 'Install dependencies'
         run: ${{ matrix.install_dependencies }}
