@@ -151,7 +151,6 @@ install_libwebrtc() {
     step "Bypass the EULA by converting the DMG download to a CDR image"
     hdiutil convert libWebRTC_${ARCH}.dmg -format UDTO -o libWebRTC_${ARCH}
     step "Mount the CDR image"
-    mkdir $MOUNT_DIR_
     hdiutil attach -quiet -nobrowse -noverify libWebRTC_${ARCH}.cdr -mountroot ${GITHUB_WORKSPACE}/..
     step "Copy to destination..."
     mkdir ./libwebrtc_${ARCH}
