@@ -96,7 +96,7 @@ jobs:
             libwebrtc_asset_pattern: "^libWebRTC-${{ needs.preprocessing.outputs.LIBWEBRTC_VERSION }}-x64-Release-H264-OpenSSL_1_1_1.*.dmg.*"
             install_dependencies: ./CI/macos/01_install_dependencies.sh --architecture x86_64
             target_arch: 'x86_64'
-            keychain_path: ${{ github.workspace }}/cosmosoftware.keychain-db
+            keychain_path: ${GITHUB_WORKSPACE}/cosmosoftware.keychain-db
 
           - mode: macos-ndi
             os: macos-12
@@ -104,7 +104,7 @@ jobs:
             libwebrtc_asset_pattern: "^libWebRTC-${{ needs.preprocessing.outputs.LIBWEBRTC_VERSION }}-x64-Release-H264-OpenSSL_1_1_1.*.dmg.*"
             install_dependencies: export MACOSX_DEPLOYMENT_TARGET_X86_64='10.15' && ./CI/macos/01_install_dependencies.sh --architecture x86_64
             target_arch: 'x86_64'
-            keychain_path: ${{ github.workspace }}/cosmosoftware.keychain-db
+            keychain_path: ${GITHUB_WORKSPACE}/cosmosoftware.keychain-db
 
           - mode: macos-arm64-no-ndi
             os: ['self-hosted', 'macOS', 'ARM64', 'native']
