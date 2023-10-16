@@ -13,66 +13,63 @@ on:
       - 'RELEASE_NOTES.md'
   workflow_dispatch:
 
-env:
-  CACHE_REVISION: '006'
-  CEF_BUILD_VERSION_MAC: '5060'
-  CEF_HASH_MAC_X86_64: '88b950aa0bfc001061c35e7f1f3fefba856a6afb35e38b2b7b42ddd8dd239182'
-  CEF_HASH_MAC_ARM64: '98679b92eea6ea9959ac5aa54f46ca60681d8a86c768c35f496dbdd409bf0642'
-  CEF_BUILD_VERSION_LINUX: '5060'
-  CEF_BUILD_VERSION_WIN: '5060'
-  QT_VERSION_MAC: '6.3.1'
-  QT_HASH_MAC_X86_64: 'a83f72a11023b03b6cb2dc365f0a66ad9df31163bbb4fe2df32d601856a9fad3'
-  QT_HASH_MAC_ARM64: '2f30af90c049670a5660656adbb440668aa1b0567f75a5f29e1def9108928403'
-  QT_HASH_MAC_UNIVERSAL: '252e6684f43ab9c6f262c73af739e2296ce391b998da2c4ee04c254aaa07db18'
-  QT_VERSION_WIN: '6.3.1'
-  DEPS_VERSION_MAC: '2022-08-02'
-  DEPS_HASH_MAC_X86_64: '7637e52305e6fc53014b5aabd583f1a4490b1d97450420e977cae9a336a29525'
-  DEPS_HASH_MAC_ARM64: '755e0fa69b17a3ae444e1befa9d91d77e3cafe628fbd1c6333686091826595cd'
-  DEPS_VERSION_WIN: '2022-08-02'
-  VLC_VERSION_MAC: '3.0.8'
-  VLC_HASH_MAC: 'e0149ef4a20a19b9ecd87309c2d27787ee3f47dfd47c6639644bc1f6fd95bdf6'
-  VLC_VERSION_WIN: '3.0.0-git'
-  TWITCH_CLIENTID: ${{ secrets.TWITCH_CLIENT_ID }}
-  TWITCH_HASH: ${{ secrets.TWITCH_HASH }}
-  RESTREAM_CLIENTID: ${{ secrets.RESTREAM_CLIENTID }}
-  RESTREAM_HASH: ${{ secrets.RESTREAM_HASH }}
-  YOUTUBE_CLIENTID: ${{ secrets.YOUTUBE_CLIENTID }}
-  YOUTUBE_CLIENTID_HASH: ${{ secrets.YOUTUBE_CLIENTID_HASH }}
-  YOUTUBE_SECRET: ${{ secrets.YOUTUBE_SECRET }}
-  YOUTUBE_SECRET_HASH: ${{ secrets.YOUTUBE_SECRET_HASH }}
-  OBS_VERSION: "1.5.1-28.1.2-m112"
-  LIBWEBRTC_RELEASE_TAG: "m112-release"
-  LIBWEBRTC_VERSION: "112.0"
-  VENDOR: "Millicast"
-  USE_RELEASE_NOTES_FROM_FILE: 'false'
-
 jobs:
   build:
     env:
+      CACHE_REVISION: '006'
+      CEF_BUILD_VERSION_MAC: '5060'
+      CEF_HASH_MAC_X86_64: '88b950aa0bfc001061c35e7f1f3fefba856a6afb35e38b2b7b42ddd8dd239182'
+      CEF_HASH_MAC_ARM64: '98679b92eea6ea9959ac5aa54f46ca60681d8a86c768c35f496dbdd409bf0642'
+      CEF_BUILD_VERSION_LINUX: '5060'
+      CEF_BUILD_VERSION_WIN: '5060'
+      QT_VERSION_MAC: '6.3.1'
+      QT_HASH_MAC_X86_64: 'a83f72a11023b03b6cb2dc365f0a66ad9df31163bbb4fe2df32d601856a9fad3'
+      QT_HASH_MAC_ARM64: '2f30af90c049670a5660656adbb440668aa1b0567f75a5f29e1def9108928403'
+      QT_HASH_MAC_UNIVERSAL: '252e6684f43ab9c6f262c73af739e2296ce391b998da2c4ee04c254aaa07db18'
+      QT_VERSION_WIN: '6.3.1'
+      DEPS_VERSION_MAC: '2022-08-02'
+      DEPS_HASH_MAC_X86_64: '7637e52305e6fc53014b5aabd583f1a4490b1d97450420e977cae9a336a29525'
+      DEPS_HASH_MAC_ARM64: '755e0fa69b17a3ae444e1befa9d91d77e3cafe628fbd1c6333686091826595cd'
+      DEPS_VERSION_WIN: '2022-08-02'
+      VLC_VERSION_MAC: '3.0.8'
+      VLC_HASH_MAC: 'e0149ef4a20a19b9ecd87309c2d27787ee3f47dfd47c6639644bc1f6fd95bdf6'
+      VLC_VERSION_WIN: '3.0.0-git'
+      TWITCH_CLIENTID: ${{ secrets.TWITCH_CLIENT_ID }}
+      TWITCH_HASH: ${{ secrets.TWITCH_HASH }}
+      RESTREAM_CLIENTID: ${{ secrets.RESTREAM_CLIENTID }}
+      RESTREAM_HASH: ${{ secrets.RESTREAM_HASH }}
+      YOUTUBE_CLIENTID: ${{ secrets.YOUTUBE_CLIENTID }}
+      YOUTUBE_CLIENTID_HASH: ${{ secrets.YOUTUBE_CLIENTID_HASH }}
+      YOUTUBE_SECRET: ${{ secrets.YOUTUBE_SECRET }}
+      YOUTUBE_SECRET_HASH: ${{ secrets.YOUTUBE_SECRET_HASH }}
+      OBS_VERSION: "1.5.1-28.1.2-m112"
+      LIBWEBRTC_RELEASE_TAG: "m112-release"
       LIBWEBRTC_VERSION: "112.0"
+      VENDOR: "Millicast"
+      USE_RELEASE_NOTES_FROM_FILE: 'false'
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
-        mode: [linux20-ndi, linux20-no-ndi, linux22-ndi, linux22-no-ndi, macos-ndi, macos-no-ndi, macos-arm64-ndi, macos-arm64-no-ndi, windows-ndi, windows-no-ndi]
+        mode: [ubuntu20-ndi, ubuntu20-no-ndi, ubuntu22-ndi, ubuntu22-no-ndi, macos-ndi, macos-no-ndi, macos-arm64-ndi, macos-arm64-no-ndi, windows-ndi, windows-no-ndi]
         include:
-          - mode: linux20-no-ndi
-            os: ubuntu20.04
+          - mode: ubuntu20-no-ndi
+            os: ubuntu-20.04
             shell: bash
             libwebrtc_asset_pattern: "^libWebRTC-${LIBWEBRTC_VERSION}-.*64-Release-.*.sh.*"
 
-          - mode: linux20-ndi
-            os: ubuntu20.04
+          - mode: ubuntu20-ndi
+            os: ubuntu-20.04
             shell: bash
             libwebrtc_asset_pattern: "^libWebRTC-${LIBWEBRTC_VERSION}-.*64-Release-.*.sh.*"
 
-          - mode: linux22-no-ndi
-            os: ubuntu22.04
+          - mode: ubuntu22-no-ndi
+            os: ubuntu-22.04
             shell: bash
             libwebrtc_asset_pattern: "^libWebRTC-${LIBWEBRTC_VERSION}-.*64-Release-.*.sh.*"
 
-          - mode: linux22-ndi
-            os: ubuntu22.04
+          - mode: ubuntu22-ndi
+            os: ubuntu-22.04
             shell: bash
             libwebrtc_asset_pattern: "^libWebRTC-${LIBWEBRTC_VERSION}-.*64-Release-.*.sh.*"
 
@@ -117,7 +114,7 @@ jobs:
           fetch-depth: 0
 
       - name: 'Generate access token for MacOS/Linux'
-        if: ${{ contains(! matrix.mode, 'windows') }}
+        if: ${{ !startsWith(matrix.mode, 'windows') }}
         id: accessTokenUnix
         uses: dolby-io-internal/gh-access@v0.0.3-macos-linux
         with:
@@ -126,7 +123,7 @@ jobs:
           gh_app_installation_id: ${{ secrets.GH_APP_INSTALLATION_ID }}
 
       - name: 'Generate access token for Windows'
-        if: ${{ contains(matrix.mode, 'windows') }}
+        if: ${{ startsWith(matrix.mode, 'windows') }}
         id: accessTokenWindows
         uses: dolby-io-internal/gh-access@v0.0.3-windows
         with:
@@ -135,7 +132,7 @@ jobs:
           gh_app_installation_id: ${{ secrets.GH_APP_INSTALLATION_ID }}
 
       - name: 'Download libWebRTC for MacOS/Linux'
-        if: ${{ contains(! matrix.mode, 'windows') }}
+        if: ${{ !startsWith(matrix.mode, 'windows') }}
         uses: ./.github/actions/download_libwebrtc
         with:
           access_token: ${{ steps.accessTokenUnix.outputs.token }}
@@ -143,7 +140,7 @@ jobs:
           asset_pattern: ${{ matrix.libwebrtc_asset_pattern }}
 
       - name: 'Download libWebRTC for Windows'
-        if: ${{ contains(matrix.mode, 'windows') }}
+        if: ${{ startsWith(matrix.mode, 'windows') }}
         uses: ./.github/actions/download_libwebrtc/win
         with:
           access_token: ${{ steps.accessTokenWindows.outputs.token }}
