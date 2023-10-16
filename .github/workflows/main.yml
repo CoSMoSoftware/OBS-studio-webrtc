@@ -196,23 +196,22 @@ jobs:
         uses: microsoft/setup-msbuild@v1.1
 
       - name: 'Setup additional build environment variables'
-        if: ${{ !startsWith(matrix.mode, 'windows' }}
+        if: ${{ !startsWith(matrix.mode, 'windows') }}
         id: setupUnix
         run: |
           echo "CACHE_DATE=$(date +"%Y-%m-%d")" >> $GITHUB_ENV
           echo "commitHash=$(git rev-parse --short=9 HEAD)" >> $GITHUB_OUTPUT
-          echo "DEPS_BUILD_DIR_=$(dirname ${{ github.workspace }})/obs-build-dependencies_${{ env.TARGET_ARCH }}" >> $GITHUB_ENV
+          echo "DEPS_BUILD_DIR_=$(dirname ${{ github.workspace }})/obs-build-dependencies_${{ matrix.target_arch }}" >> $GITHUB_ENV
 
       - name: 'Setup additional build environment variables'
-        if: ${{ startsWith(matrix.mode, 'windows' }}
+        if: ${{ startsWith(matrix.mode, 'windows') }}
         id: setupWindows
         run: |
           $CommitHash = git rev-parse --short=9 HEAD
           "commitHash=${CommitHash}" >> $env:GITHUB_OUTPUT
-          "DEPS_BUILD_DIR_=(get-item $scriptPath ).parent.parent\\obs-build-dependencies_${{ env.TARGET_ARCH }}" >> $env:GITHUB_ENV"
+          "DEPS_BUILD_DIR_=(get-item $scriptPath ).parent.parent\\obs-build-dependencies_${{ matrix.target_arch }}" >> $env:GITHUB_ENV"
 
       - name: 'Install dependencies'
-        if: ${{ !startsWith(matrix.mode, 'windows') }}
         run: ${{ matrix.install_dependencies }}
         env:
           DEPS_BUILD_DIR: ${{ env.DEPS_BUILD_DIR_ }}
@@ -227,6 +226,7 @@ jobs:
           git submodule update --init --recursive
 
       - name: 'Setup plugings for Windows'
+        if: ${{ startsWith(matrix.mode, 'windows') }}
         run: |
           git stash
           Remove-Item ${{ github.workspace }}\\plugins\\obs-ndi -Recurse -Force
