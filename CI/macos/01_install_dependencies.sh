@@ -130,6 +130,7 @@ install_cef() {
 
 install_libwebrtc() {
     status "Install libwebrtc ${1}"
+    MOUNT_DIR_="/Volumes/mount_$RANDOM"
     if [ "${ARCH}" = "x86_64" ]; then
         LIBWEBRTC_ARCH="x64"
     else
@@ -151,10 +152,12 @@ install_libwebrtc() {
     step "Bypass the EULA by converting the DMG download to a CDR image"
     hdiutil convert libWebRTC_${ARCH}.dmg -format UDTO -o libWebRTC_${ARCH}
     step "Mount the CDR image"
-    hdiutil attach -quiet -nobrowse -noverify libWebRTC_${ARCH}.cdr
+    hdiutil attach -quiet -nobrowse -noverify libWebRTC_${ARCH}.cdr -mountroot $MOUNT_DIR_
     step "Copy to destination..."
     mkdir ./libwebrtc_${ARCH}
-    cp -r /Volumes/libWebRTC-${1}-${LIBWEBRTC_ARCH}-Release-H264-OpenSSL_1_1_1n/libwebrtc/* ./libwebrtc_${ARCH} && umount /Volumes/libWebRTC-${1}-${LIBWEBRTC_ARCH}-Release-H264-OpenSSL_1_1_1n
+    ls /Volumes
+    cp -r $MOUNT_DIR_/libWebRTC-${1}-${LIBWEBRTC_ARCH}-Release-H264-OpenSSL_1_1_1n/libwebrtc/* ./libwebrtc_${ARCH} && umount $MOUNT_DIR_/libWebRTC-${1}-${LIBWEBRTC_ARCH}-Release-H264-OpenSSL_1_1_1n
+    ls /Volumes
 }
 
 install_dependencies() {
