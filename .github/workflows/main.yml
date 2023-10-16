@@ -37,6 +37,9 @@ env:
   MACOSX_DEPLOYMENT_TARGET_X86_64: '10.15'
   MACOSX_DEPLOYMENT_TARGET_ARM64: '11.0'
   CODESIGN_IDENT: ${{ secrets.CODESIGN_IDENT }}
+  CODESIGN_TEAM_ID: ${{ secrets.CODESIGN_TEAM_ID }}
+  CODESIGN_IDENT_USER: ${{ secrets.CODESIGN_IDENT_USER }}
+  NOTARIZE_APP_SPECIFIC_PASSWORD: ${{ secrets.NOTARIZE_APP_SPECIFIC_PASSWORD }}
   OBS_VERSION: "1.5.1-28.1.2-m112"
   LIBWEBRTC_RELEASE_TAG: "m112-release"
   LIBWEBRTC_VERSION: "112.0"
@@ -49,10 +52,13 @@ jobs:
     outputs:
       # actually cheating so that the matrix uses the expected webrtc version
       LIBWEBRTC_VERSION: ${{ env.LIBWEBRTC_VERSION }}
+      VENDOR: ${{ env.VENDOR }}
     steps:
       - name: 'Info'
         run: |
-          echo pipelines will use ${{ env.LIBWEBRTC_VERSION }}
+          echo pipelines will use
+          echo LIBWEBRTC_VERSION = ${{ env.LIBWEBRTC_VERSION }}
+          echo VENDOR = ${{ env.VENDOR }}
   build:
     needs: [preprocessing]
     if: success()
@@ -63,66 +69,91 @@ jobs:
         mode: [ubuntu20-ndi, ubuntu20-no-ndi, ubuntu22-ndi, ubuntu22-no-ndi, macos-ndi, macos-no-ndi, macos-arm64-ndi, macos-arm64-no-ndi, windows-ndi, windows-no-ndi]
         include:
           - mode: ubuntu20-no-ndi
+            build_flavour: no-ndi
             os: ubuntu-20.04
             shell: bash
             libwebrtc_asset_pattern: "^libWebRTC-${{ needs.preprocessing.outputs.LIBWEBRTC_VERSION }}-.*64-Release-.*.sh.*"
             install_dependencies: git submodule update --init --recursive && ./CI/linux/01_install_dependencies.sh --disable-pipewire
+            build_obs: ./CI/linux/02_build_obs.sh --disable-pipewire --vendor ${{ needs.preprocessing.outputs.VENDOR }}
+            create_artifact: ./CI/linux/03_package_obs.sh --vendor ${{ needs.preprocessing.outputs.VENDOR }}
             target_arch: ''
 
           - mode: ubuntu20-ndi
+            build_flavour: ndi
             os: ubuntu-20.04
             shell: bash
             libwebrtc_asset_pattern: "^libWebRTC-${{ needs.preprocessing.outputs.LIBWEBRTC_VERSION }}-.*64-Release-.*.sh.*"
             install_dependencies: git submodule update --init --recursive && ./CI/linux/01_install_dependencies.sh --disable-pipewire
+            build_obs: ./CI/linux/02_build_obs.sh --disable-pipewire --vendor ${{ needs.preprocessing.outputs.VENDOR }} --ndi
+            create_artifact: ./CI/linux/03_package_obs.sh --vendor ${{ needs.preprocessing.outputs.VENDOR }} --ndi
             target_arch: ''
 
           - mode: ubuntu22-no-ndi
+            build_flavour: no-ndi
             os: ubuntu-22.04
             shell: bash
             libwebrtc_asset_pattern: "^libWebRTC-${{ needs.preprocessing.outputs.LIBWEBRTC_VERSION }}-.*64-Release-.*.sh.*"
             install_dependencies: git submodule update --init --recursive && ./CI/linux/01_install_dependencies.sh --disable-pipewire
+            build_obs: ./CI/linux/02_build_obs.sh --disable-pipewire --vendor ${{ needs.preprocessing.outputs.VENDOR }}
+            create_artifact: ./CI/linux/03_package_obs.sh --vendor ${{ needs.preprocessing.outputs.VENDOR }}
             target_arch: ''
 
           - mode: ubuntu22-ndi
+            build_flavour: ndi
             os: ubuntu-22.04
             shell: bash
             libwebrtc_asset_pattern: "^libWebRTC-${{ needs.preprocessing.outputs.LIBWEBRTC_VERSION }}-.*64-Release-.*.sh.*"
             install_dependencies: git submodule update --init --recursive && ./CI/linux/01_install_dependencies.sh --disable-pipewire
+            build_obs: ./CI/linux/02_build_obs.sh --disable-pipewire --vendor ${{ needs.preprocessing.outputs.VENDOR }} --ndi
+            create_artifact: ./CI/linux/03_package_obs.sh --vendor ${{ needs.preprocessing.outputs.VENDOR }} --ndi
             target_arch: ''
 
           - mode: macos-no-ndi
+            build_flavour: no-ndi
             os: macos-12
             shell: bash
             libwebrtc_asset_pattern: "^libWebRTC-${{ needs.preprocessing.outputs.LIBWEBRTC_VERSION }}-x64-Release-H264-OpenSSL_1_1_1.*.dmg.*"
             install_dependencies: ./CI/macos/01_install_dependencies.sh --architecture x86_64
+            build_obs: ./CI/macos/02_build_obs.sh --codesign --architecture x86_64 --vendor ${{ needs.preprocessing.outputs.VENDOR }}
+            create_artifact: ./CI/macos/03_package_obs.sh --codesign --notarize --architecture x86_64 --vendor ${{ needs.preprocessing.outputs.VENDOR }}
             target_arch: 'x86_64'
             keychain_path: ./tmp_action_runner/cosmosoftware.keychain-db
 
           - mode: macos-ndi
+            target_arch: 'x86_64'
+            build_flavour: ndi
             os: macos-12
             shell: bash
             libwebrtc_asset_pattern: "^libWebRTC-${{ needs.preprocessing.outputs.LIBWEBRTC_VERSION }}-x64-Release-H264-OpenSSL_1_1_1.*.dmg.*"
             install_dependencies: export MACOSX_DEPLOYMENT_TARGET_X86_64='10.15' && ./CI/macos/01_install_dependencies.sh --architecture x86_64
-            target_arch: 'x86_64'
+            build_obs: ./CI/macos/02_build_obs.sh --codesign --architecture x86_64 --vendor ${{ needs.preprocessing.outputs.VENDOR }} --ndi
+            create_artifact: CI/macos/03_package_obs.sh --codesign --notarize --architecture x86_64 --vendor ${{ needs.preprocessing.outputs.VENDOR }} --ndi
             keychain_path: ./tmp_action_runner/cosmosoftware.keychain-db
 
           - mode: macos-arm64-no-ndi
+            target_arch: 'arm64'
+            build_flavour: no-ndi
             os: ['self-hosted', 'macOS', 'ARM64', 'native']
             shell: bash
             libwebrtc_asset_pattern: "^libWebRTC-${{ needs.preprocessing.outputs.LIBWEBRTC_VERSION }}-arm64-Release-H264-OpenSSL_1_1_1.*.dmg.*"
             install_dependencies: ./CI/macos/01_install_dependencies.sh --architecture arm64
-            target_arch: 'arm64'
+            build_obs: ./CI/macos/02_build_obs.sh --codesign --architecture arm64 --vendor ${{ needs.preprocessing.outputs.VENDOR }}
+            create_artifact: ./CI/macos/03_package_obs.sh --codesign --notarize --architecture arm64 --vendor ${{ needs.preprocessing.outputs.VENDOR }}
             keychain_path: /Users/dolbyvoice/Library/Keychains/cosmosoftware.keychain-db
 
           - mode: macos-arm64-ndi
+            build_flavour: ndi
+            target_arch: 'arm64'
             os: ['self-hosted', 'macOS', 'ARM64', 'native']
             shell: bash
             libwebrtc_asset_pattern: "^libWebRTC-${{ needs.preprocessing.outputs.LIBWEBRTC_VERSION }}-arm64-Release-H264-OpenSSL_1_1_1.*.dmg.*"
-            install_dependencies: export MACOSX_DEPLOYMENT_TARGET_ARM64='11.0' && ./CI/macos/01_install_dependencies.sh --architecture arm64
-            target_arch: 'arm64'
+            install_dependencies: ./CI/macos/01_install_dependencies.sh --architecture arm64
+            build_obs: ./CI/macos/02_build_obs.sh --codesign --architecture arm64 --vendor ${{ needs.preprocessing.outputs.VENDOR }} --ndi
+            create_artifact: ./CI/macos/03_package_obs.sh --codesign --notarize --architecture arm64 --vendor ${{ needs.preprocessing.outputs.VENDOR }} --ndi
             keychain_path: /Users/dolbyvoice/Library/Keychains/cosmosoftware.keychain-db
 
           - mode: windows-no-ndi
+            build_flavour: no-ndi
             os: windows-2022
             shell: powershell
             libwebrtc_asset_pattern: "^libWebRTC-${{ needs.preprocessing.outputs.LIBWEBRTC_VERSION }}-x64-Mt-Release-.*.exe.*"
@@ -130,6 +161,7 @@ jobs:
             target_arch: 'x64'
 
           - mode: windows-ndi
+            build_flavour: ndi
             os: windows-2022
             shell: powershell
             libwebrtc_asset_pattern: "^libWebRTC-${{ needs.preprocessing.outputs.LIBWEBRTC_VERSION }}-x64-Mt-Release-.*.exe.*"
@@ -257,6 +289,13 @@ jobs:
           KEYCHAIN_PATH: ${{ matrix.keychain_path }}
           CERTIFACTE_PATH: ${{ github.workspace }}/app-signing-cert.p12
 
+      - name: 'Build OBS - ${{ matrix.build_flavour }}'
+        run: ${{ matrix.build_obs }}
+
+      - name: 'Create artifact - ${{ matrix.build_flavour }}'
+        run: ${{ matrix.create_artifact }}
+
+
   # macos_build_x86_64:
   #   name: 'MacOS-x86_64'
   #   runs-on: [macos-12]
@@ -264,18 +303,11 @@ jobs:
 
 
   #
-  #     # Geneate OBS without obs-ndi plugin
-  #     - name: 'Build OBS - no NDI'
-  #       run: CI/macos/02_build_obs.sh --codesign --architecture ${{ env.TARGET_ARCH }} --vendor ${{ env.VENDOR }}
-  #       env:
-  #         CODESIGN_IDENT: ${{ secrets.CODESIGN_IDENT }}
-  #         CODESIGN_TEAM_ID: ${{ secrets.CODESIGN_TEAM_ID }}
-  #         CODESIGN_IDENT_USER: ${{ secrets.CODESIGN_IDENT_USER }}
-  #         NOTARIZE_APP_SPECIFIC_PASSWORD: ${{ secrets.NOTARIZE_APP_SPECIFIC_PASSWORD }}
+
   #
   #     - name: 'Create build artifact'
   #       run: |
-  #         CI/macos/03_package_obs.sh --codesign --notarize --architecture ${{ env.TARGET_ARCH }} --vendor ${{ env.VENDOR }}
+  #
   #         ARTIFACT_NAME=$(basename $(find build/. -name "obs-webrtc*.dmg"))
   #         echo "FILE_NAME=${ARTIFACT_NAME}" >> $GITHUB_ENV
   #         echo "ARTIFACT READY: ${ARTIFACT_NAME}"
@@ -291,14 +323,6 @@ jobs:
   #         name: 'obs-studio-macos-${{ env.TARGET_ARCH }}-${{ steps.setup.outputs.commitHash }}'
   #         path: '${{ github.workspace }}/build/${{ env.FILE_NAME }}'
   #
-  #     # Geneate OBS with obs-ndi plugin
-  #     - name: 'Build OBS - with NDI'
-  #       run: CI/macos/02_build_obs.sh --codesign --architecture ${{ env.TARGET_ARCH }} --ndi
-  #       env:
-  #         CODESIGN_IDENT: ${{ secrets.CODESIGN_IDENT }}
-  #         CODESIGN_TEAM_ID: ${{ secrets.CODESIGN_TEAM_ID }}
-  #         CODESIGN_IDENT_USER: ${{ secrets.CODESIGN_IDENT_USER }}
-  #         NOTARIZE_APP_SPECIFIC_PASSWORD: ${{ secrets.NOTARIZE_APP_SPECIFIC_PASSWORD }}
   #
   #     - name: 'Create build artifact'
   #       run: |
