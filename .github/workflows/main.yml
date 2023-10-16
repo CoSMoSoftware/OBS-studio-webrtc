@@ -56,52 +56,52 @@ jobs:
           - mode: ubuntu20-no-ndi
             os: ubuntu-20.04
             shell: bash
-            libwebrtc_asset_pattern: "^libWebRTC-${LIBWEBRTC_VERSION}-.*64-Release-.*.sh.*"
+            libwebrtc_asset_pattern: "^libWebRTC-${{ env.LIBWEBRTC_VERSION }}-.*64-Release-.*.sh.*"
 
           - mode: ubuntu20-ndi
             os: ubuntu-20.04
             shell: bash
-            libwebrtc_asset_pattern: "^libWebRTC-${LIBWEBRTC_VERSION}-.*64-Release-.*.sh.*"
+            libwebrtc_asset_pattern: "^libWebRTC-${{ env.LIBWEBRTC_VERSION }}-.*64-Release-.*.sh.*"
 
           - mode: ubuntu22-no-ndi
             os: ubuntu-22.04
             shell: bash
-            libwebrtc_asset_pattern: "^libWebRTC-${LIBWEBRTC_VERSION}-.*64-Release-.*.sh.*"
+            libwebrtc_asset_pattern: "^libWebRTC-${{ env.LIBWEBRTC_VERSION }}-.*64-Release-.*.sh.*"
 
           - mode: ubuntu22-ndi
             os: ubuntu-22.04
             shell: bash
-            libwebrtc_asset_pattern: "^libWebRTC-${LIBWEBRTC_VERSION}-.*64-Release-.*.sh.*"
+            libwebrtc_asset_pattern: "^libWebRTC-${{ env.LIBWEBRTC_VERSION }}-.*64-Release-.*.sh.*"
 
           - mode: macos-no-ndi
             os: macos-12
             shell: bash
-            libwebrtc_asset_pattern: "^libWebRTC-${LIBWEBRTC_VERSION}-x64-Release-H264-OpenSSL_1_1_1.*.dmg.*"
+            libwebrtc_asset_pattern: "^libWebRTC-${{ env.LIBWEBRTC_VERSION }}-x64-Release-H264-OpenSSL_1_1_1.*.dmg.*"
 
           - mode: macos-ndi
             os: macos-12
             shell: bash
-            libwebrtc_asset_pattern: "^libWebRTC-${LIBWEBRTC_VERSION}-x64-Release-H264-OpenSSL_1_1_1.*.dmg.*"
+            libwebrtc_asset_pattern: "^libWebRTC-${{ env.LIBWEBRTC_VERSION }}-x64-Release-H264-OpenSSL_1_1_1.*.dmg.*"
 
           - mode: macos-arm64-no-ndi
             os: ['self-hosted', 'macOS', 'ARM64', 'native']
             shell: bash
-            libwebrtc_asset_pattern: "^libWebRTC-${LIBWEBRTC_VERSION}-arm64-Release-H264-OpenSSL_1_1_1.*.dmg.*"
+            libwebrtc_asset_pattern: "^libWebRTC-${{ env.LIBWEBRTC_VERSION }}-arm64-Release-H264-OpenSSL_1_1_1.*.dmg.*"
 
           - mode: macos-arm64-ndi
             os: ['self-hosted', 'macOS', 'ARM64', 'native']
             shell: bash
-            libwebrtc_asset_pattern: "^libWebRTC-${LIBWEBRTC_VERSION}-arm64-Release-H264-OpenSSL_1_1_1.*.dmg.*"
+            libwebrtc_asset_pattern: "^libWebRTC-${{ env.LIBWEBRTC_VERSION }}-arm64-Release-H264-OpenSSL_1_1_1.*.dmg.*"
 
           - mode: windows-no-ndi
             os: windows-2022
             shell: powershell
-            libwebrtc_asset_pattern: "^libWebRTC-${LIBWEBRTC_VERSION}-x64-Mt-Release-.*.exe.*"
+            libwebrtc_asset_pattern: "^libWebRTC-${{ env.LIBWEBRTC_VERSION }}-x64-Mt-Release-.*.exe.*"
 
           - mode: windows-ndi
             os: windows-2022
             shell: powershell
-            libwebrtc_asset_pattern: "^libWebRTC-${LIBWEBRTC_VERSION}-x64-Mt-Release-.*.exe.*"
+            libwebrtc_asset_pattern: "^libWebRTC-${{ env.LIBWEBRTC_VERSION }}-x64-Mt-Release-.*.exe.*"
 
     steps:
       - name: 'Print env'
