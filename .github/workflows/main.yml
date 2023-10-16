@@ -59,7 +59,7 @@ jobs:
           - mode: linux20-no-ndi
             os: ubuntu20-04
             shell: bash
-            libwebrtc_asset_pattern: "^libWebRTC-${{ env.LIBWEBRTC_VERSION }}-.*64-Release-.*.sh.*"
+            libwebrtc_asset_pattern: "^libWebRTC-${LIBWEBRTC_VERSION}-.*64-Release-.*.sh.*"
 
           - mode: linux20-ndi
             os: ubuntu20-04
