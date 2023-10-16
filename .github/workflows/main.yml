@@ -48,6 +48,8 @@ env:
 
 jobs:
   build:
+    env:
+      LIBWEBRTC_VERSION: "112.0"
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
