@@ -158,6 +158,8 @@ jobs:
             shell: powershell
             libwebrtc_asset_pattern: "^libWebRTC-${{ needs.preprocessing.outputs.LIBWEBRTC_VERSION }}-x64-Mt-Release-.*.exe.*"
             install_dependencies: ./CI/windows/01_install_dependencies.ps1 -BuildArch x64
+            build_obs: ./CI/windows/02_build_obs.ps1 -BuildArch x64 -Vendor ${{ needs.preprocessing.outputs.VENDOR }}
+            create_artifact: ./CI/windows/03_package_obs.ps1 -BuildArch x64 -Package
             target_arch: 'x64'
 
           - mode: windows-ndi
@@ -166,6 +168,8 @@ jobs:
             shell: powershell
             libwebrtc_asset_pattern: "^libWebRTC-${{ needs.preprocessing.outputs.LIBWEBRTC_VERSION }}-x64-Mt-Release-.*.exe.*"
             install_dependencies: ./CI/windows/01_install_dependencies.ps1 -BuildArch x64
+            build_obs: ./CI/windows/02_build_obs.ps1 -BuildArch x64 -Vendor ${{ needs.preprocessing.outputs.VENDOR }} -Ndi ON
+            create_artifact: ./CI/windows/03_package_obs.ps1 -BuildArch x64 -Package -Ndi ON
             target_arch: 'x64'
 
     steps:
@@ -293,6 +297,7 @@ jobs:
         run: ${{ matrix.build_obs }}
 
       - name: 'Create artifact - ${{ matrix.build_flavour }}'
+        if: ${{ github.event_name != 'pull_request' }}
         run: ${{ matrix.create_artifact }}
 
 
