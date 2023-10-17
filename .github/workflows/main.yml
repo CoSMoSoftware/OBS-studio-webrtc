@@ -245,7 +245,7 @@ jobs:
         run: |
           echo "CACHE_DATE=$(date +"%Y-%m-%d")" >> $GITHUB_ENV
           echo "commitHash=$(git rev-parse --short=9 HEAD)" >> $GITHUB_OUTPUT
-          echo "DEPS_BUILD_DIR_=$(dirname ${{ github.workspace }})/obs-build-dependencies" >> $GITHUB_ENV
+          echo "DEPS_BUILD_DIR_=$(dirname ${{ github.workspace }})/obs-build-dependencies_${{ matrix.target_arch }}" >> $GITHUB_ENV
 
       - name: 'Setup additional build environment variables'
         if: ${{ startsWith(matrix.mode, 'windows') }}
@@ -253,7 +253,7 @@ jobs:
         run: |
           $CommitHash = git rev-parse --short=9 HEAD
           "commitHash=${CommitHash}" >> $env:GITHUB_OUTPUT
-          "DEPS_BUILD_DIR_=${{ github.workspace }}\\..\\obs-build-dependencies" >> $env:GITHUB_ENV
+          "DEPS_BUILD_DIR_=${{ github.workspace }}\\..\\obs-build-dependencies_${{ matrix.target_arch }}" >> $env:GITHUB_ENV
 
       - name: 'Install dependencies'
         run: ${{ matrix.install_dependencies }}
