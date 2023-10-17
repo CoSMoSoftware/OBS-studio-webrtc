@@ -45,6 +45,7 @@ env:
   LIBWEBRTC_VERSION: "112.0"
   VENDOR: "Millicast"
   USE_RELEASE_NOTES_FROM_FILE: 'false'
+  BUILD_TYPE: "RelWithDebInfo"
 
 jobs:
   preprocessing:
@@ -85,7 +86,7 @@ jobs:
             libwebrtc_asset_pattern: "^libWebRTC-${{ needs.preprocessing.outputs.LIBWEBRTC_VERSION }}-.*64-Release-.*.sh.*"
             install_dependencies: git submodule update --init --recursive && ./CI/linux/01_install_dependencies.sh --disable-pipewire
             build_obs: ./CI/linux/02_build_obs.sh --disable-pipewire --vendor ${{ needs.preprocessing.outputs.VENDOR }} --ndi
-            create_artifact: ./CI/linux/03_package_obs.sh --vendor ${{ needs.preprocessing.outputs.VENDOR }} --ndi
+            create_artifact: ./CI/linux/04_do_magic_for_ndi.sh && ./CI/linux/03_package_obs.sh --vendor ${{ needs.preprocessing.outputs.VENDOR }} --ndi
             target_arch: ''
 
           - mode: ubuntu22-no-ndi
@@ -105,7 +106,7 @@ jobs:
             libwebrtc_asset_pattern: "^libWebRTC-${{ needs.preprocessing.outputs.LIBWEBRTC_VERSION }}-.*64-Release-.*.sh.*"
             install_dependencies: git submodule update --init --recursive && ./CI/linux/01_install_dependencies.sh --disable-pipewire
             build_obs: ./CI/linux/02_build_obs.sh --disable-pipewire --vendor ${{ needs.preprocessing.outputs.VENDOR }} --ndi
-            create_artifact: ./CI/linux/03_package_obs.sh --vendor ${{ needs.preprocessing.outputs.VENDOR }} --ndi
+            create_artifact: ./CI/linux/04_do_magic_for_ndi.sh && ./CI/linux/03_package_obs.sh --vendor ${{ needs.preprocessing.outputs.VENDOR }} --ndi
             target_arch: ''
 
           - mode: macos-no-ndi
