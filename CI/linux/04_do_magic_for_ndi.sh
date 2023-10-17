@@ -9,10 +9,6 @@ fi
 
 export OBS_VERSION=${OBS_VERSION}_${UBUNTU_VERSION}
 
-cd build
-cmake .. -DCMAKE_INSTALL_PREFIX=../install
-cmake --install .
-cd ..
 pushd plugins/obs-ndi
 mkdir BUILD
 cd BUILD
@@ -20,8 +16,7 @@ cmake .. -DCMAKE_BUILD_TYPE=${BUILD_TYPE} -DLINUX_PORTABLE=OFF -DUBUNTU_VERSION=
 make -j4
 cpack
 cd ../release
-mv *.deb ../../../package_${{ vendor }}
+ls -la
+ls -la ../../../
+mv *.deb ../../../package_${VENDOR}
 popd
-cd build
-rm CMakeCache.txt
-cd ..
