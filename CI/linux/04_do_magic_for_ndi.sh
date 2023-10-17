@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # This script was created only for needs of test CICD. Process needs to be evaluated and improved by developers.
-if [[ lsb_release -a == *"20.04"* ]];then
+if [[ $(lsb_release -a) == *"20.04"* ]];then
   UBUNTU_VERSION=2004
 else
   UBUNTU_VERSION=2204
