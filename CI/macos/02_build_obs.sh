@@ -84,6 +84,8 @@ _configure_obs() {
         NDI_OPTION="OFF"
     fi
 
+    echo "DCMAKE_PREFIX_PATH = ${DEPS_BUILD_DIR}/obs-deps"
+    
     cmake -S . -B ${BUILD_DIR} -G ${GENERATOR} \
         -DCEF_ROOT_DIR="${DEPS_BUILD_DIR}/cef_binary_${MACOS_CEF_BUILD_VERSION:-${CI_MACOS_CEF_VERSION}}_macos_${ARCH:-x86_64}" \
         -DENABLE_BROWSER=ON \

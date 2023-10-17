@@ -143,8 +143,8 @@ jobs:
             shell: bash
             libwebrtc_asset_pattern: "^libWebRTC-${{ needs.preprocessing.outputs.LIBWEBRTC_VERSION }}-arm64-Release-H264-OpenSSL_1_1_1.*.dmg.*"
             install_dependencies: ./CI/macos/01_install_dependencies.sh --architecture arm64
-            build_obs: ./CI/macos/02_build_obs.sh --codesign --architecture arm64 --vendor ${{ needs.preprocessing.outputs.VENDOR }}
-            create_artifact: ./CI/macos/03_package_obs.sh --codesign --notarize --architecture arm64 --vendor ${{ needs.preprocessing.outputs.VENDOR }}
+            build_obs: ./CI/macos/02_build_obs.sh --codesign --architecture arm64
+            create_artifact: ./CI/macos/03_package_obs.sh --codesign --notarize --architecture arm64
             keychain_path: /Users/dolbyvoice/Library/Keychains/cosmosoftware.keychain-db
 
           - mode: macos-arm64-ndi
