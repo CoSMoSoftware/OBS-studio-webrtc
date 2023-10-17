@@ -14,8 +14,6 @@ else()
   set(_lib_suffix 32)
 endif()
 
-message(STATUS "HERE IS THIS ${CMAKE_SOURCE_DIR}/${VLC_PATH}")
-
 find_path(
   VLC_INCLUDE_DIR
   NAMES libvlc.h

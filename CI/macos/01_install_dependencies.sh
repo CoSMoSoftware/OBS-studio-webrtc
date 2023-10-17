@@ -59,6 +59,7 @@ install_vlc() {
         check_and_fetch "https://downloads.videolan.org/vlc/${1}/vlc-${1}.tar.xz" "${2}"
         step "Unpack..."
         /usr/bin/tar -xf vlc-${1}.tar.xz
+        ls -la vlc*
     else
         step "Found existing VLC..."
     fi
