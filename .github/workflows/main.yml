@@ -163,29 +163,38 @@ jobs:
           release_tag: ${{ env.LIBWEBRTC_RELEASE_TAG }}
           asset_pattern: ${{ matrix.libwebrtc_asset_pattern }}
 
-      # - name: 'Remove formulas for MacOS'
-      #   if: ${{ startsWith(matrix.mode, 'macos') }}
-      #   run: |
-      #     REMOVE_FORMULAS=""
-      #     for FORMULA in ${{ env.BLOCKED_FORMULAS }}; do
-      #       if [ -d "/usr/local/opt/${FORMULA}" ]; then
-      #         REMOVE_FORMULAS="${REMOVE_FORMULAS}${FORMULA} "
-      #       fi
-      #     done
-      #
-      #     if [ -n "${REMOVE_FORMULAS}" ]; then
-      #       brew uninstall ${REMOVE_FORMULAS}
-      #     fi
-      #   env:
-      #     BLOCKED_FORMULAS: 'speexdsp curl php composer'
+      - name: 'Remove formulas for MacOS'
+        if: ${{ startsWith(matrix.mode, 'macos') }}
+        run: |
+          REMOVE_FORMULAS=""
+          for FORMULA in ${{ env.BLOCKED_FORMULAS }}; do
+            if [ -d "/usr/local/opt/${FORMULA}" ]; then
+              REMOVE_FORMULAS="${REMOVE_FORMULAS}${FORMULA} "
+            fi
+          done
 
-      # - name: 'Add msbuild to PATH'
-      #   if: ${{ startsWith(matrix.mode, 'windows') }}
-      #   uses: microsoft/setup-msbuild@v1.1
+          if [ -n "${REMOVE_FORMULAS}" ]; then
+            brew uninstall ${REMOVE_FORMULAS}
+          fi
+        env:
+          BLOCKED_FORMULAS: 'speexdsp curl php composer'
+
+      - name: 'Add msbuild to PATH'
+        if: ${{ startsWith(matrix.mode, 'windows') }}
+        uses: microsoft/setup-msbuild@v1.1
 
       - name: 'Setup path for deps folder'
         run: |
           echo "DEPS_BUILD_DIR=${{ github.workspace }}/../obs-build-dependencies_${{ matrix.target_arch }}" >> $GITHUB_ENV
+
+      - name: 'Restore deps from cache'
+        id: sparkle-cache
+        uses: actions/cache@v3
+        env:
+          CACHE_NAME: 'obs-build_dependencies'
+        with:
+          path: ${{ env.DEPS_BUILD_DIR }}
+          key: ${{ runner.os }}-pr-${{ env.CACHE_NAME }}
 
       - name: 'Install dependencies'
         run: ${{ matrix.install_dependencies }}
