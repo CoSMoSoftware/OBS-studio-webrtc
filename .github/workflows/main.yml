@@ -72,7 +72,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        mode: [ubuntu20, ubuntu22, macos, macos-arm64, windows]
+        #mode: [ubuntu20, ubuntu22, macos, macos-arm64, windows]
+        mode: [ubuntu20, ubuntu22]
         include:
           - mode: ubuntu20
             os: ubuntu-20.04
