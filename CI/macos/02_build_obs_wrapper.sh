@@ -21,18 +21,18 @@ find_artifact () {
 du -sh ${GITHUB_WORKSPACE}/../*
 
 log "Build MacOS no-ndi"
-${GITHUB_WORKSPACE}/CI/macos/02_build_obs.sh --codesign --build-dir build_${VENDOR}_${TARGET_ARCH} --architecture ${TARGET_ARCH} --vendor ${VENDOR}
+${GITHUB_WORKSPACE}/CI/macos/02_build_obs.sh --codesign --architecture ${TARGET_ARCH} --vendor ${VENDOR}
 
 log "Create artifact MacOS no-ndi"
-${GITHUB_WORKSPACE}/CI/macos/03_package_obs.sh --codesign --notarize --build-dir build_${VENDOR}_${TARGET_ARCH} --architecture ${TARGET_ARCH} --vendor ${VENDOR}
+${GITHUB_WORKSPACE}/CI/macos/03_package_obs.sh --codesign --notarize --architecture ${TARGET_ARCH} --vendor ${VENDOR}
 
 find_artifact "obs-webrtc-*.dmg" "NO-NDI"
 
 log "Build MacOS ndi"
-${GITHUB_WORKSPACE}/CI/macos/02_build_obs.sh --codesign --build-dir build_${VENDOR}_${TARGET_ARCH} --architecture ${TARGET_ARCH} --vendor ${VENDOR} --ndi
+${GITHUB_WORKSPACE}/CI/macos/02_build_obs.sh --codesign --architecture ${TARGET_ARCH} --vendor ${VENDOR} --ndi
 
 log "Create artifact MacOS ndi"
-${GITHUB_WORKSPACE}/CI/macos/03_package_obs.sh --codesign --notarize --build-dir build_${VENDOR}_${TARGET_ARCH} --architecture ${TARGET_ARCH} --vendor ${VENDOR} --ndi
+${GITHUB_WORKSPACE}/CI/macos/03_package_obs.sh --codesign --notarize --architecture ${TARGET_ARCH} --vendor ${VENDOR} --ndi
 
 find_artifact "obs-webrtc-*.dmg" "NO-NDI"
 
