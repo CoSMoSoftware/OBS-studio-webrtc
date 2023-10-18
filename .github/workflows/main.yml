@@ -132,7 +132,7 @@ jobs:
       - name: 'Generate access token for MacOS/Linux'
         if: ${{ !startsWith(matrix.mode, 'windows') }}
         id: accessTokenUnix
-        uses: dolby-io-internal/gh-access@v0.0.4-macos-linux
+        uses: dolby-io-internal/gh-access@macos-linux
         with:
           gh_app_priv_key: ${{ secrets.GH_APP_RELEASECREATOR_PRIV_KEY }}
           gh_app_id: ${{ secrets.GH_APP_ID }}
