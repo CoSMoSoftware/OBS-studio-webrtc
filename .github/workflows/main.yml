@@ -235,6 +235,7 @@ jobs:
           UBUNTU_VERSION: ${{ matrix.ubuntu }}
           # macos part
           TARGET_ARCH: ${{ matrix.target_arch }}
+          CURRENT_ARCH: ${{ matrix.target_arch }}
           # windows part
 
       - name: 'Upload build Artifact'
