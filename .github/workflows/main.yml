@@ -489,40 +489,20 @@ jobs:
           git submodule update --init --recursive
 
       - name: 'Build OBS with no NDI'
-        run: ./CI/windows/02_build_obs.ps1 -BuildArch ${{ env.TARGET_ARCH }}
-
-      - name: 'Create build artifact'
-        if: ${{ success() && (github.event_name != 'pull_request' || env.SEEKING_TESTERS == '1') }}
-        run: |
-          CI/windows/03_package_obs.ps1 -BuildArch ${{ env.TARGET_ARCH }} -Package
-          $ArtifactName = Get-ChildItem -filter "obs-webrtc-*-windows-${{ env.TARGET_ARCH }}.zip" -File -Recurse
-          Write-Output "FILE_NAME=${ArtifactName}" | Out-File -FilePath $Env:GITHUB_ENV -Encoding utf8 -Append
-          Write-Host $env:FILE_NAME
-
-      - name: 'Upload build artifact'
-        if: ${{ success() && (github.event_name != 'pull_request' || env.SEEKING_TESTERS == '1') }}
-        uses: actions/upload-artifact@v3
-        with:
-          name: 'obs-studio-windows-${{ env.TARGET_ARCH }}-${{ steps.setup.outputs.commitHash }}'
-          path: '${{ env.FILE_NAME }}'
+        run: ./CI/windows/02_build_obs.ps1 -BuildArch ${{ env.TARGET_ARCH }} -Vendor $env:VENDOR
 
       - name: 'Build OBS with NDI'
         run: ./CI/windows/02_build_obs.ps1 -BuildArch ${{ env.TARGET_ARCH }} -Vendor $env:VENDOR -Ndi ON
 
-      - name: 'Create build artifact'
-        if: ${{ success() && (github.event_name != 'pull_request' || env.SEEKING_TESTERS == '1') }}
-        run: |
-          CI/windows/03_package_obs.ps1 -BuildArch ${{ env.TARGET_ARCH }} -Package -Ndi ON
-          $ArtifactName = Get-ChildItem -filter "obs-webrtc-*-windows-${{ env.TARGET_ARCH }}.zip" -File -Recurse
-          Write-Output "FILE_NAME=${ArtifactName}" | Out-File -FilePath $Env:GITHUB_ENV -Encoding utf8 -Append
-          Write-Host $env:FILE_NAME
+      - name: 'Prepare package'
+        run: ./CI/windows/before-deploy-win.cmd ${{ vendor }}
 
       - name: 'Upload build artifact'
         if: ${{ success() && (github.event_name != 'pull_request' || env.SEEKING_TESTERS == '1') }}
         uses: actions/upload-artifact@v3
         with:
           name: 'obs-studio-windows-${{ env.TARGET_ARCH }}-${{ steps.setup.outputs.commitHash }}'
-          path: '${{ env.FILE_NAME }}'
+          path: ./**/obs-*.exe
 
 # deployment_production:
   #   needs: [windows_build, linux_build, macos_build_arm64, macos_build_x86_64]
