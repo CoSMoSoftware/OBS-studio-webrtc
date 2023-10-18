@@ -73,27 +73,27 @@ jobs:
       fail-fast: false
       matrix:
         #mode: [ubuntu20, ubuntu22, macos, macos-arm64, windows]
-        mode: [ubuntu20, ubuntu22, macos]
+        mode: [macos]
         include:
-          - mode: ubuntu20
-            os: ubuntu-20.04
-            shell: bash
-            ubuntu: '2004'
-            libwebrtc_asset_pattern: "^libWebRTC-${{ needs.preprocessing.outputs.LIBWEBRTC_VERSION }}-.*64-Release-.*.sh.*"
-            install_dependencies: git submodule update --init --recursive && ./CI/linux/01_install_dependencies.sh --disable-pipewire
-            build_obs: ./CI/linux/02_build_obs_wrapper.sh
-            target_arch: 'x64'
-            artifact_path: ./build/obs-webrtc-*.deb
-
-          - mode: ubuntu22
-            os: ubuntu-22.04
-            shell: bash
-            ubuntu: '2204'
-            libwebrtc_asset_pattern: "^libWebRTC-${{ needs.preprocessing.outputs.LIBWEBRTC_VERSION }}-.*64-Release-.*.sh.*"
-            install_dependencies: git submodule update --init --recursive && ./CI/linux/01_install_dependencies.sh --disable-pipewire
-            build_obs: ./CI/linux/02_build_obs_wrapper.sh
-            target_arch: 'x64'
-            artifact_path: ./build/obs-webrtc-*.deb
+          # - mode: ubuntu20
+          #   os: ubuntu-20.04
+          #   shell: bash
+          #   ubuntu: '2004'
+          #   libwebrtc_asset_pattern: "^libWebRTC-${{ needs.preprocessing.outputs.LIBWEBRTC_VERSION }}-.*64-Release-.*.sh.*"
+          #   install_dependencies: git submodule update --init --recursive && ./CI/linux/01_install_dependencies.sh --disable-pipewire
+          #   build_obs: ./CI/linux/02_build_obs_wrapper.sh
+          #   target_arch: 'x64'
+          #   artifact_path: ./build/obs-webrtc-*.deb
+          #
+          # - mode: ubuntu22
+          #   os: ubuntu-22.04
+          #   shell: bash
+          #   ubuntu: '2204'
+          #   libwebrtc_asset_pattern: "^libWebRTC-${{ needs.preprocessing.outputs.LIBWEBRTC_VERSION }}-.*64-Release-.*.sh.*"
+          #   install_dependencies: git submodule update --init --recursive && ./CI/linux/01_install_dependencies.sh --disable-pipewire
+          #   build_obs: ./CI/linux/02_build_obs_wrapper.sh
+          #   target_arch: 'x64'
+          #   artifact_path: ./build/obs-webrtc-*.deb
 
           - mode: macos
             os: macos-12
