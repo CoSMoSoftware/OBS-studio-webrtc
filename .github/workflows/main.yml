@@ -170,7 +170,7 @@ jobs:
 
       - name: 'Create build artifact'
         run: |
-          .CI/macos/03_package_obs.sh --codesign --notarize --architecture ${{ env.TARGET_ARCH }} --ndi
+          ./CI/macos/03_package_obs.sh --codesign --notarize --architecture ${{ env.TARGET_ARCH }} --ndi
           ARTIFACT_NAME=$(basename $(find build/. -name "obs-webrtc-ndi*.dmg"))
           echo "FILE_NAME=${ARTIFACT_NAME}" >> $GITHUB_ENV
           echo "ARTIFACT READY: ${ARTIFACT_NAME}"
@@ -496,13 +496,20 @@ jobs:
 
       - name: 'Prepare package'
         run: ./CI/windows/before-deploy-win.cmd ${{ env.VENDOR }}
+        shell: cmd
+        env:
+          FLAVOUR: NDI
+
+      - name: "Sign obs"
+        run: |
+          Write-Host "Use cert to sign package."
 
       - name: 'Upload build artifact'
         if: ${{ success() && (github.event_name != 'pull_request' || env.SEEKING_TESTERS == '1') }}
         uses: actions/upload-artifact@v3
         with:
           name: 'obs-studio-windows-${{ env.TARGET_ARCH }}-${{ steps.setup.outputs.commitHash }}'
-          path: ./**/obs-*.exe
+          path: ./build_${{ env.VENDOR }}/obs-*.exe
 
 # deployment_production:
   #   needs: [windows_build, linux_build, macos_build_arm64, macos_build_x86_64]
