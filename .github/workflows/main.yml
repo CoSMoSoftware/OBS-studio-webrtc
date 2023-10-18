@@ -387,7 +387,7 @@ jobs:
           ARTIFACT_NAME=$(basename $(find build/. -name "obs-webrtc-*.deb" | sort -rn | head -1))
           echo "FILE_NAME=${ARTIFACT_NAME}" >> $GITHUB_ENV
         env:
-          UBUNTU_VERSION: $${ matrix.ubuntu }}
+          UBUNTU_VERSION: ${{ matrix.ubuntu }}
 
       - name: 'Upload build Artifact'
         if: ${{ success() && (github.event_name != 'pull_request' || env.SEEKING_TESTERS == '1') }}
@@ -417,7 +417,7 @@ jobs:
           ./CI/linux/02_build_obs.sh --disable-pipewire --ndi
         env:
           UBUNTU_VERSION: ${{ matrix.ubuntu }}
-          VENDOR: $${ env.VENDOR }}
+          VENDOR: ${{ env.VENDOR }}
 
       - name: 'Create build artifact'
         if: ${{ success() && (github.event_name != 'pull_request' || env.SEEKING_TESTERS == '1') }}
@@ -426,7 +426,7 @@ jobs:
           ARTIFACT_NAME=$(basename $(find build/. -name "obs-webrtc-*.deb" | sort -rn | head -1))
           echo "FILE_NAME=${ARTIFACT_NAME}" >> $GITHUB_ENV
         env:
-          UBUNTU_VERSION: $${ matrix.ubuntu }}
+          UBUNTU_VERSION: ${{ matrix.ubuntu }}
 
       - name: 'Upload build Artifact'
         if: ${{ success() && (github.event_name != 'pull_request' || env.SEEKING_TESTERS == '1') }}
