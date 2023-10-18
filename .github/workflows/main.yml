@@ -188,7 +188,7 @@ jobs:
           echo "DEPS_BUILD_DIR=${{ github.workspace }}/../obs-build-dependencies_${{ matrix.target_arch }}" >> $GITHUB_ENV
 
       - name: 'Restore deps from cache'
-        id: sparkle-cache
+        id: deps-cache
         uses: actions/cache@v3
         env:
           CACHE_NAME: 'obs-build_dependencies'
@@ -197,6 +197,7 @@ jobs:
           key: ${{ runner.os }}-pr-${{ env.CACHE_NAME }}
 
       - name: 'Install dependencies'
+        if: steps.deps-cache.outputs.cache-hit != 'true'
         run: ${{ matrix.install_dependencies }}
 
       - name: 'Setup plugins for MacOS/Linux'
