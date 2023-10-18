@@ -83,7 +83,7 @@ jobs:
             install_dependencies: git submodule update --init --recursive && ./CI/linux/01_install_dependencies.sh --disable-pipewire
             build_obs: ./CI/linux/02_build_obs_wrapper.sh
             target_arch: 'x64'
-            artifact_path: ${{ github.workspace }}/build/obs-webrtc-*.deb
+            artifact_path: ./build/obs-webrtc-*.deb
 
           - mode: ubuntu22
             os: ubuntu-22.04
@@ -93,7 +93,7 @@ jobs:
             install_dependencies: git submodule update --init --recursive && ./CI/linux/01_install_dependencies.sh --disable-pipewire
             build_obs: ./CI/linux/02_build_obs_wrapper.sh
             target_arch: 'x64'
-            artifact_path: ${{ github.workspace }}/build/obs-webrtc-*.deb
+            artifact_path: ./build/obs-webrtc-*.deb
 
           - mode: macos
             os: macos-12
@@ -103,7 +103,7 @@ jobs:
             build_obs: ./CI/macos/02_build_obs_wrapper.sh
             target_arch: 'x86_64'
             keychain_path: ./tmp_action_runner/cosmosoftware.keychain-db
-            artifact_path: ${{ github.workspace }}/build*/obs-webrtc-*.dmg
+            artifact_path: ./build*/obs-webrtc-*.dmg
           #
           # - mode: macos-arm64
           #   target_arch: 'arm64'
