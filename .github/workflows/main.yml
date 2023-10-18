@@ -100,7 +100,7 @@ jobs:
             shell: bash
             libwebrtc_asset_pattern: "^libWebRTC-${{ needs.preprocessing.outputs.LIBWEBRTC_VERSION }}-x64-Release-H264-OpenSSL_1_1_1.*.dmg.*"
             install_dependencies: ./CI/macos/01_install_dependencies.sh --architecture x86_64
-            build_obs: ./CI/macos/02_build_obs_wrapper.sh
+            build_obs: ./CI/macos/02_build_obs.sh --codesign --architecture x86_64 --vendor "Millicast"
             target_arch: 'x86_64'
             keychain_path: ./tmp_action_runner/cosmosoftware.keychain-db
             artifact_path: ./build*/obs-webrtc-*.dmg
