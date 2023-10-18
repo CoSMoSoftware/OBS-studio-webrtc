@@ -104,10 +104,10 @@ jobs:
             echo "SEEKING_TESTERS=0" >> $GITHUB_ENV
           fi
 
-          echo "DEPS_BUILD_DIR=$(dirname ${{ github.workspace }})/obs-build-dependencies_${{ env.TARGET_ARCH }}" >> $GITHUB_ENV
+          echo "DEPS_BUILD_DIR=${{ github.workspace }}/../obs-build-dependencies_${{ env.TARGET_ARCH }}" >> $GITHUB_ENV
 
       - name: 'Install dependencies'
-        run: CI/macos/01_install_dependencies.sh --architecture ${{ env.TARGET_ARCH }}
+        run: ./CI/macos/01_install_dependencies.sh --architecture ${{ env.TARGET_ARCH }}
 
       - name: 'Setup plugins'
         run: |
@@ -134,7 +134,7 @@ jobs:
 
       # Geneate OBS without obs-ndi plugin
       - name: 'Build OBS - no NDI'
-        run: CI/macos/02_build_obs.sh --codesign --architecture ${{ env.TARGET_ARCH }} --vendor ${{ env.VENDOR }}
+        run: ./CI/macos/02_build_obs.sh --codesign --architecture ${{ env.TARGET_ARCH }} --vendor ${{ env.VENDOR }}
         env:
           CODESIGN_IDENT: ${{ secrets.CODESIGN_IDENT }}
           CODESIGN_TEAM_ID: ${{ secrets.CODESIGN_TEAM_ID }}
@@ -143,7 +143,7 @@ jobs:
 
       - name: 'Create build artifact'
         run: |
-          CI/macos/03_package_obs.sh --codesign --notarize --architecture ${{ env.TARGET_ARCH }} --vendor ${{ env.VENDOR }}
+          ./CI/macos/03_package_obs.sh --codesign --notarize --architecture ${{ env.TARGET_ARCH }} --vendor ${{ env.VENDOR }}
           ARTIFACT_NAME=$(basename $(find build/. -name "obs-webrtc*.dmg"))
           echo "FILE_NAME=${ARTIFACT_NAME}" >> $GITHUB_ENV
           echo "ARTIFACT READY: ${ARTIFACT_NAME}"
@@ -161,7 +161,7 @@ jobs:
 
       # Geneate OBS with obs-ndi plugin
       - name: 'Build OBS - with NDI'
-        run: CI/macos/02_build_obs.sh --codesign --architecture ${{ env.TARGET_ARCH }} --ndi
+        run: .CI/macos/02_build_obs.sh --codesign --architecture ${{ env.TARGET_ARCH }} --ndi
         env:
           CODESIGN_IDENT: ${{ secrets.CODESIGN_IDENT }}
           CODESIGN_TEAM_ID: ${{ secrets.CODESIGN_TEAM_ID }}
@@ -170,7 +170,7 @@ jobs:
 
       - name: 'Create build artifact'
         run: |
-          CI/macos/03_package_obs.sh --codesign --notarize --architecture ${{ env.TARGET_ARCH }} --ndi
+          .CI/macos/03_package_obs.sh --codesign --notarize --architecture ${{ env.TARGET_ARCH }} --ndi
           ARTIFACT_NAME=$(basename $(find build/. -name "obs-webrtc-ndi*.dmg"))
           echo "FILE_NAME=${ARTIFACT_NAME}" >> $GITHUB_ENV
           echo "ARTIFACT READY: ${ARTIFACT_NAME}"
@@ -243,7 +243,7 @@ jobs:
             echo "SEEKING_TESTERS=0" >> $GITHUB_ENV
           fi
 
-          echo "DEPS_BUILD_DIR=$(dirname ${{ github.workspace }})/obs-build-dependencies_${{ env.TARGET_ARCH }}" >> $GITHUB_ENV
+          echo "DEPS_BUILD_DIR=${{ github.workspace }}/../obs-build-dependencies_${{ env.TARGET_ARCH }}" >> $GITHUB_ENV
 
       - name: 'Install dependencies'
         run: CI/macos/01_install_dependencies.sh --architecture ${{ env.TARGET_ARCH }}
@@ -264,7 +264,7 @@ jobs:
 
       # Geneate OBS without obs-ndi plugin
       - name: 'Build OBS - no NDI'
-        run: CI/macos/02_build_obs.sh --codesign --architecture ${{ env.TARGET_ARCH }}
+        run: ./CI/macos/02_build_obs.sh --codesign --architecture ${{ env.TARGET_ARCH }}
         env:
           CODESIGN_IDENT: ${{ secrets.CODESIGN_IDENT }}
           CODESIGN_TEAM_ID: ${{ secrets.CODESIGN_TEAM_ID }}
@@ -273,7 +273,7 @@ jobs:
 
       - name: 'Create build artifact'
         run: |
-          CI/macos/03_package_obs.sh --codesign --notarize --architecture ${{ env.TARGET_ARCH }}
+          ./CI/macos/03_package_obs.sh --codesign --notarize --architecture ${{ env.TARGET_ARCH }}
           ARTIFACT_NAME=$(basename $(find build/. -name "obs-webrtc*.dmg"))
           echo "FILE_NAME=${ARTIFACT_NAME}" >> $GITHUB_ENV
           echo "ARTIFACT READY: ${ARTIFACT_NAME}"
@@ -291,7 +291,7 @@ jobs:
 
       # Geneate OBS with obs-ndi plugin
       - name: 'Build OBS - with NDI'
-        run: CI/macos/02_build_obs.sh --codesign --architecture ${{ env.TARGET_ARCH }} --ndi
+        run: ./CI/macos/02_build_obs.sh --codesign --architecture ${{ env.TARGET_ARCH }} --ndi
         env:
           CODESIGN_IDENT: ${{ secrets.CODESIGN_IDENT }}
           CODESIGN_TEAM_ID: ${{ secrets.CODESIGN_TEAM_ID }}
@@ -300,7 +300,7 @@ jobs:
 
       - name: 'Create build artifact'
         run: |
-          CI/macos/03_package_obs.sh --codesign --notarize --architecture ${{ env.TARGET_ARCH }} --ndi
+          ./CI/macos/03_package_obs.sh --codesign --notarize --architecture ${{ env.TARGET_ARCH }} --ndi
           ARTIFACT_NAME=$(basename $(find build/. -name "obs-webrtc-ndi*.dmg"))
           echo "FILE_NAME=${ARTIFACT_NAME}" >> $GITHUB_ENV
           echo "ARTIFACT READY: ${ARTIFACT_NAME}"
@@ -360,12 +360,12 @@ jobs:
             echo "SEEKING_TESTERS=0" >> $GITHUB_ENV
           fi
 
-          echo "DEPS_BUILD_DIR=$(dirname ${{ github.workspace }})/obs-build-dependencies_${{ env.TARGET_ARCH }}" >> $GITHUB_ENV
+          echo "DEPS_BUILD_DIR=${{ github.workspace }}/../obs-build-dependencies_${{ env.TARGET_ARCH }}" >> $GITHUB_ENV
 
       - name: 'Install dependencies'
         run: |
           git submodule update --init --recursive
-          CI/linux/01_install_dependencies.sh --disable-pipewire
+          ./CI/linux/01_install_dependencies.sh --disable-pipewire
 
       - name: 'Setup plugins'
         run: |
@@ -376,14 +376,14 @@ jobs:
           git submodule update --init --recursive
 
       - name: 'Build OBS with no NDI'
-        run: CI/linux/02_build_obs.sh --disable-pipewire --vendor ${{ env.VENDOR }}
+        run: ./CI/linux/02_build_obs.sh --disable-pipewire --vendor ${{ env.VENDOR }}
         env:
           UBUNTU_VERSION: ${{ matrix.ubuntu }}
 
       - name: 'Create build artifact'
         if: ${{ success() && (github.event_name != 'pull_request' || env.SEEKING_TESTERS == '1') }}
         run: |
-          CI/linux/03_package_obs.sh
+          ./CI/linux/03_package_obs.sh
           ARTIFACT_NAME=$(basename $(find build/. -name "obs-webrtc-*.deb" | sort -rn | head -1))
           echo "FILE_NAME=${ARTIFACT_NAME}" >> $GITHUB_ENV
         env:
@@ -422,7 +422,7 @@ jobs:
       - name: 'Create build artifact'
         if: ${{ success() && (github.event_name != 'pull_request' || env.SEEKING_TESTERS == '1') }}
         run: |
-          CI/linux/03_package_obs.sh
+          ./CI/linux/03_package_obs.sh
           ARTIFACT_NAME=$(basename $(find build/. -name "obs-webrtc-*.deb" | sort -rn | head -1))
           echo "FILE_NAME=${ARTIFACT_NAME}" >> $GITHUB_ENV
         env:
@@ -434,85 +434,94 @@ jobs:
         with:
           name: 'obs-studio-${{ matrix.ubuntu }}-${{ steps.setup.outputs.commitHash }}'
           path: '${{ github.workspace }}/build/${{ env.FILE_NAME }}'
-  #
-  # windows_build:
-  #   name: 'Windows_x64'
-  #   runs-on: [windows-2022]
-  #   env:
-  #     CMAKE_GENERATOR: 'Visual Studio 17 2022'
-  #     CMAKE_SYSTEM_VERSION: '10.0.18363.657'
-  #     VIRTUALCAM-GUID: 'A3FCE0F5-3493-419F-958A-ABA1250EC20B'
-  #     TARGET_ARCH: 'x64'
-  #   steps:
-  #     - name: 'Checkout'
-  #       uses: actions/checkout@v4
-  #       with:
-  #         submodules: 'recursive'
-  #         fetch-depth: 0
-  #     - name: 'Generate access token'
-  #       id: accessToken
-  #       uses: dolby-io-internal/gh-access@v0.0.3-windows
-  #       with:
-  #         gh_app_priv_key: ${{ secrets.GH_APP_RELEASECREATOR_PRIV_KEY }}
-  #         gh_app_id: ${{ secrets.GH_APP_ID }}
-  #         gh_app_installation_id: ${{ secrets.GH_APP_INSTALLATION_ID }}
-  #     - name: 'Download libWebRTC'
-  #       uses: ./.github/actions/download_libwebrtc/win
-  #       with:
-  #         access_token: ${{ steps.accessToken.outputs.token }}
-  #         release_tag: ${{ env.LIBWEBRTC_RELEASE_TAG }}
-  #         asset_pattern: "^libWebRTC-${{ env.LIBWEBRTC_VERSION }}-x64-Mt-Release-.*.exe.*"
-  #
-  #     - name: 'Add msbuild to PATH'
-  #       uses: microsoft/setup-msbuild@v1.1
-  #
-  #     - name: 'Setup additional build environment variables'
-  #       id: setup
-  #       run: |
-  #         $LabelFound = try { (Invoke-RestMethod -Authentication 'Bearer' -Token (ConvertTo-SecureString '${{ secrets.GITHUB_TOKEN }}' -AsPlainText) -Uri "${{ github.event.pull_request.url }}" -UseBasicParsing).labels.name.contains("Seeking Testers") } catch { $false }
-  #         Write-Output "SEEKING_TESTERS=$(if( $LabelFound -eq $true ) { 1 } else { 0 })" | Out-File -FilePath $Env:GITHUB_ENV -Encoding utf8 -Append
-  #         $CommitHash = git rev-parse --short=9 HEAD
-  #         "commitHash=${CommitHash}" >> $env:GITHUB_OUTPUT
-  #
-  #     - name: 'Restore VLC dependency from cache'
-  #       id: vlc-cache
-  #       uses: actions/cache@v3
-  #       env:
-  #         CACHE_NAME: 'vlc-cache'
-  #       with:
-  #         path: ${{ github.workspace }}/obs-build-dependencies/vlc-${{ env.VLC_VERSION_WIN }}
-  #         key: ${{ runner.os }}-pr-${{ env.CACHE_NAME }}-${{ env.VLC_VERSION_WIN }}-${{ env.CACHE_REVISION }}
-  #
-  #     - name: 'Install dependencies'
-  #       env:
-  #         RESTORED_VLC: ${{ steps.vlc-cache.outputs.cache-hit }}
-  #         RESTORED_CEF: ${{ steps.cef-cache.outputs.cache-hit }}
-  #       run: CI/windows/01_install_dependencies.ps1 -BuildArch ${{ env.TARGET_ARCH }}
-  #
-  #     - name: 'Setup plugings'
-  #       run: |
-  #         git stash
-  #         Remove-Item ${{ github.workspace }}\\plugins\\obs-ndi -Recurse -Force
-  #         Remove-Item ${{ github.workspace }}\\plugins\\obs-browser -Recurse -Force
-  #         git submodule update --init --recursive
-  #
-  #     - name: 'Build OBS'
-  #       run: CI/windows/02_build_obs.ps1 -BuildArch ${{ env.TARGET_ARCH }}
-  #
-  #     - name: 'Create build artifact'
-  #       if: ${{ success() && (github.event_name != 'pull_request' || env.SEEKING_TESTERS == '1') }}
-  #       run: |
-  #         CI/windows/03_package_obs.ps1 -BuildArch ${{ env.TARGET_ARCH }} -Package
-  #         $ArtifactName = Get-ChildItem -filter "obs-webrtc-*-windows-${{ env.TARGET_ARCH }}.zip" -File -Recurse
-  #         Write-Output "FILE_NAME=${ArtifactName}" | Out-File -FilePath $Env:GITHUB_ENV -Encoding utf8 -Append
-  #         Write-Host $env:FILE_NAME
-  #
-  #     - name: 'Upload build artifact'
-  #       if: ${{ success() && (github.event_name != 'pull_request' || env.SEEKING_TESTERS == '1') }}
-  #       uses: actions/upload-artifact@v3
-  #       with:
-  #         name: 'obs-studio-windows-${{ env.TARGET_ARCH }}-${{ steps.setup.outputs.commitHash }}'
-  #         path: '${{ env.FILE_NAME }}'
+
+  windows_build:
+    name: 'Windows_x64'
+    runs-on: [windows-2022]
+    env:
+      CMAKE_GENERATOR: 'Visual Studio 17 2022'
+      CMAKE_SYSTEM_VERSION: '10.0.18363.657'
+      VIRTUALCAM-GUID: 'A3FCE0F5-3493-419F-958A-ABA1250EC20B'
+      TARGET_ARCH: 'x64'
+    steps:
+      - name: 'Checkout'
+        uses: actions/checkout@v4
+        with:
+          submodules: 'recursive'
+          fetch-depth: 0
+
+      - name: 'Generate access token'
+        id: accessToken
+        uses: dolby-io-internal/gh-access@v0.0.3-windows
+        with:
+          gh_app_priv_key: ${{ secrets.GH_APP_RELEASECREATOR_PRIV_KEY }}
+          gh_app_id: ${{ secrets.GH_APP_ID }}
+          gh_app_installation_id: ${{ secrets.GH_APP_INSTALLATION_ID }}
+
+      - name: 'Download libWebRTC'
+        uses: ./.github/actions/download_libwebrtc/win
+        with:
+          access_token: ${{ steps.accessToken.outputs.token }}
+          release_tag: ${{ env.LIBWEBRTC_RELEASE_TAG }}
+          asset_pattern: "^libWebRTC-${{ env.LIBWEBRTC_VERSION }}-x64-Mt-Release-.*.exe.*"
+
+      - name: 'Add msbuild to PATH'
+        uses: microsoft/setup-msbuild@v1.1
+
+      - name: 'Setup additional build environment variables'
+        id: setup
+        run: |
+          $LabelFound = try { (Invoke-RestMethod -Authentication 'Bearer' -Token (ConvertTo-SecureString '${{ secrets.GITHUB_TOKEN }}' -AsPlainText) -Uri "${{ github.event.pull_request.url }}" -UseBasicParsing).labels.name.contains("Seeking Testers") } catch { $false }
+          Write-Output "SEEKING_TESTERS=$(if( $LabelFound -eq $true ) { 1 } else { 0 })" | Out-File -FilePath $Env:GITHUB_ENV -Encoding utf8 -Append
+          $CommitHash = git rev-parse --short=9 HEAD
+          "commitHash=${CommitHash}" >> $env:GITHUB_OUTPUT
+          "DEPS_BUILD_DIR=${{ github.workspace }}/../obs-build-dependencies_${{ env.TARGET_ARCH }}" >> $GITHUB_ENV
+
+      - name: 'Install dependencies'
+        run: ./CI/windows/01_install_dependencies.ps1 -BuildArch ${{ env.TARGET_ARCH }}
+
+      - name: 'Setup plugings'
+        run: |
+          git stash
+          Remove-Item ${{ github.workspace }}\\plugins\\obs-ndi -Recurse -Force
+          Remove-Item ${{ github.workspace }}\\plugins\\obs-browser -Recurse -Force
+          git submodule update --init --recursive
+
+      - name: 'Build OBS with no NDI'
+        run: ./CI/windows/02_build_obs.ps1 -BuildArch ${{ env.TARGET_ARCH }}
+
+      - name: 'Create build artifact'
+        if: ${{ success() && (github.event_name != 'pull_request' || env.SEEKING_TESTERS == '1') }}
+        run: |
+          CI/windows/03_package_obs.ps1 -BuildArch ${{ env.TARGET_ARCH }} -Package
+          $ArtifactName = Get-ChildItem -filter "obs-webrtc-*-windows-${{ env.TARGET_ARCH }}.zip" -File -Recurse
+          Write-Output "FILE_NAME=${ArtifactName}" | Out-File -FilePath $Env:GITHUB_ENV -Encoding utf8 -Append
+          Write-Host $env:FILE_NAME
+
+      - name: 'Upload build artifact'
+        if: ${{ success() && (github.event_name != 'pull_request' || env.SEEKING_TESTERS == '1') }}
+        uses: actions/upload-artifact@v3
+        with:
+          name: 'obs-studio-windows-${{ env.TARGET_ARCH }}-${{ steps.setup.outputs.commitHash }}'
+          path: '${{ env.FILE_NAME }}'
+
+      - name: 'Build OBS with NDI'
+        run: ./CI/windows/02_build_obs.ps1 -BuildArch ${{ env.TARGET_ARCH }} -Vendor $env:VENDOR -Ndi ON
+
+      - name: 'Create build artifact'
+        if: ${{ success() && (github.event_name != 'pull_request' || env.SEEKING_TESTERS == '1') }}
+        run: |
+          CI/windows/03_package_obs.ps1 -BuildArch ${{ env.TARGET_ARCH }} -Package -Ndi ON
+          $ArtifactName = Get-ChildItem -filter "obs-webrtc-*-windows-${{ env.TARGET_ARCH }}.zip" -File -Recurse
+          Write-Output "FILE_NAME=${ArtifactName}" | Out-File -FilePath $Env:GITHUB_ENV -Encoding utf8 -Append
+          Write-Host $env:FILE_NAME
+
+      - name: 'Upload build artifact'
+        if: ${{ success() && (github.event_name != 'pull_request' || env.SEEKING_TESTERS == '1') }}
+        uses: actions/upload-artifact@v3
+        with:
+          name: 'obs-studio-windows-${{ env.TARGET_ARCH }}-${{ steps.setup.outputs.commitHash }}'
+          path: '${{ env.FILE_NAME }}'
 
 # deployment_production:
   #   needs: [windows_build, linux_build, macos_build_arm64, macos_build_x86_64]
