@@ -118,7 +118,7 @@ tags
 /repo/
 /CI/flatpak/flatpak-github-action-modified-*
 
-*BUILD*
+*BUILD*/
 UI/webrtcVersion.h
 /.vs
 /.idea
