@@ -38,4 +38,4 @@ find_artifact "obs-webrtc-*.dmg" "NO-NDI"
 
 ls -la ${GITHUB_WORKSPACE}/build_${VENDOR}_${TARGET_ARCH}/
 
-log "Done"
+log "Done!"

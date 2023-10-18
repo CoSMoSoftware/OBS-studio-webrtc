@@ -57,4 +57,4 @@ find_artifact "obs-webrtc-ndi*.deb" "NDI"
 
 ls -la ${GITHUB_WORKSPACE}/build/
 
-log "Done"
+log "Done!"
