@@ -180,21 +180,9 @@ jobs:
       #   if: ${{ startsWith(matrix.mode, 'windows') }}
       #   uses: microsoft/setup-msbuild@v1.1
 
-      - name: 'Setup additional build environment variables'
-        if: ${{ !startsWith(matrix.mode, 'windows') }}
-        id: setupUnix
+      - name: 'Setup path for deps folder'
         run: |
-          echo "CACHE_DATE=$(date +"%Y-%m-%d")" >> $GITHUB_ENV
-          echo "commitHash=$(git rev-parse --short=9 HEAD)" >> $GITHUB_OUTPUT
-          echo "DEPS_BUILD_DIR=$(dirname ${{ github.workspace }})/obs-build-dependencies_${{ matrix.target_arch }}" >> $GITHUB_ENV
-
-      - name: 'Setup additional build environment variables'
-        if: ${{ startsWith(matrix.mode, 'windows') }}
-        id: setupWindows
-        run: |
-          $CommitHash = git rev-parse --short=9 HEAD
-          "commitHash=${CommitHash}" >> $env:GITHUB_OUTPUT
-          "DEPS_BUILD_DIR=${{ github.workspace }}\\..\\obs-build-dependencies_${{ matrix.target_arch }}" >> $env:GITHUB_ENV
+          echo "DEPS_BUILD_DIR=${{ github.workspace }}/../obs-build-dependencies_${{ matrix.target_arch }}" >> $GITHUB_ENV
 
       - name: 'Install dependencies'
         run: ${{ matrix.install_dependencies }}
@@ -246,7 +234,7 @@ jobs:
       - name: 'Upload build Artifact'
         uses: actions/upload-artifact@v3
         with:
-          name: 'obs-studio-${{ matrix.mode }}-${{ matrix.target_arch }}-${{ steps.setup.outputs.commitHash }}'
+          name: 'obs-studio-${{ matrix.mode }}-${{ matrix.target_arch }}-${{ github.run_number}}'
           path: ${{ github.workspace }}/build/**/obs-webrtc-*.deb
 
   # macos_build_x86_64:
