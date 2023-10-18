@@ -20,6 +20,9 @@ find_artifact () {
 
 du -sh ${GITHUB_WORKSPACE}/../*
 
+export CC=clang
+export CXX=clang++
+
 log "Build Ubuntu ${UBUNTU_VERSION} no-ndi"
 ${GITHUB_WORKSPACE}/CI/linux/02_build_obs.sh --disable-pipewire --vendor ${VENDOR}
 
