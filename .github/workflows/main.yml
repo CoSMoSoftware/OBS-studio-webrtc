@@ -161,7 +161,7 @@ jobs:
 
       # Geneate OBS with obs-ndi plugin
       - name: 'Build OBS - with NDI'
-        run: .CI/macos/02_build_obs.sh --codesign --architecture ${{ env.TARGET_ARCH }} --ndi
+        run: ./CI/macos/02_build_obs.sh --codesign --architecture ${{ env.TARGET_ARCH }} --ndi
         env:
           CODESIGN_IDENT: ${{ secrets.CODESIGN_IDENT }}
           CODESIGN_TEAM_ID: ${{ secrets.CODESIGN_TEAM_ID }}
@@ -495,7 +495,7 @@ jobs:
         run: ./CI/windows/02_build_obs.ps1 -BuildArch ${{ env.TARGET_ARCH }} -Vendor $env:VENDOR -Ndi ON
 
       - name: 'Prepare package'
-        run: ./CI/windows/before-deploy-win.cmd ${{ vendor }}
+        run: ./CI/windows/before-deploy-win.cmd ${{ env.VENDOR }}
 
       - name: 'Upload build artifact'
         if: ${{ success() && (github.event_name != 'pull_request' || env.SEEKING_TESTERS == '1') }}
