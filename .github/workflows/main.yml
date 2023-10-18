@@ -73,7 +73,7 @@ jobs:
       fail-fast: false
       matrix:
         #mode: [ubuntu20, ubuntu22, macos, macos-arm64, windows]
-        mode: [ubuntu20, ubuntu22]
+        mode: [ubuntu20, ubuntu22, macos]
         include:
           - mode: ubuntu20
             os: ubuntu-20.04
@@ -83,6 +83,7 @@ jobs:
             install_dependencies: git submodule update --init --recursive && ./CI/linux/01_install_dependencies.sh --disable-pipewire
             build_obs: ./CI/linux/02_build_obs_wrapper.sh
             target_arch: 'x64'
+            artifact_path: ${{ github.workspace }}/build/**/obs-webrtc-*.deb
 
           - mode: ubuntu22
             os: ubuntu-22.04
@@ -92,15 +93,17 @@ jobs:
             install_dependencies: git submodule update --init --recursive && ./CI/linux/01_install_dependencies.sh --disable-pipewire
             build_obs: ./CI/linux/02_build_obs_wrapper.sh
             target_arch: 'x64'
+            artifact_path: ${{ github.workspace }}/build/**/obs-webrtc-*.deb
 
-          # - mode: macos
-          #   os: macos-12
-          #   shell: bash
-          #   libwebrtc_asset_pattern: "^libWebRTC-${{ needs.preprocessing.outputs.LIBWEBRTC_VERSION }}-x64-Release-H264-OpenSSL_1_1_1.*.dmg.*"
-          #   install_dependencies: ./CI/macos/01_install_dependencies.sh --architecture x86_64
-          #   build_obs: ./CI/macos/02_build_obs_wrapper.sh
-          #   target_arch: 'x86_64'
-          #   keychain_path: ./tmp_action_runner/cosmosoftware.keychain-db
+          - mode: macos
+            os: macos-12
+            shell: bash
+            libwebrtc_asset_pattern: "^libWebRTC-${{ needs.preprocessing.outputs.LIBWEBRTC_VERSION }}-x64-Release-H264-OpenSSL_1_1_1.*.dmg.*"
+            install_dependencies: ./CI/macos/01_install_dependencies.sh --architecture x86_64
+            build_obs: ./CI/macos/02_build_obs_wrapper.sh
+            target_arch: 'x86_64'
+            keychain_path: ./tmp_action_runner/cosmosoftware.keychain-db
+            artifact_path: ${{ github.workspace }}/build*/**/obs-webrtc-*.dmg
           #
           # - mode: macos-arm64
           #   target_arch: 'arm64'
@@ -204,38 +207,41 @@ jobs:
       #     Remove-Item ${{ github.workspace }}\\plugins\\obs-browser -Recurse -Force
       #     git submodule update --init --recursive
 
-      # - name: 'Install MacOS cert, create keychain / unlock keychain'
-      #   if: ${{ startsWith(matrix.mode, 'macos') }}
-      #   run: |
-      #     if [[ ${MATRIX_MODE_} != *"arm64"* ]];then
-      #       echo "Install cert and create keychain..."
-      #       echo -n ${MACOS_SIGNING_CERT} | base64 --decode -o ${CERTIFACTE_PATH}
-      #       security create-keychain -p "${KEYCHAIN_PASSWORD}" ${KEYCHAIN_PATH}
-      #       security set-keychain-settings -lut 3600 $KEYCHAIN_PATH
-      #       security unlock-keychain -p "${KEYCHAIN_PASSWORD}" ${KEYCHAIN_PATH}
-      #       security import ${CERTIFACTE_PATH} -P ${MACOS_SIGNING_CERT_PASSWORD} -A -t cert -f pkcs12 -k ${KEYCHAIN_PATH}
-      #       security list-keychain -d user -s ${KEYCHAIN_PATH}
-      #     fi
-      #
-      #     security -v unlock-keychain -p ${KEYCHAIN_PASSWORD} ${KEYCHAIN_PATH} && echo "Keychain is unlocked" || exit 1
-      #   env:
-      #     MATRIX_MODE_: ${{ matrix.mode }}
-      #     MACOS_SIGNING_CERT: ${{ secrets.MACOS_SIGNING_CERT }}
-      #     MACOS_SIGNING_CERT_PASSWORD: ${{ secrets.MACOS_SIGNING_CERT_PASSWORD }}
-      #     KEYCHAIN_PASSWORD: ${{ secrets.MACOS_KEYCHAIN_PASSWORD }}
-      #     KEYCHAIN_PATH: ${{ matrix.keychain_path }}
-      #     CERTIFACTE_PATH: ${{ github.workspace }}/app-signing-cert.p12
+      - name: 'Install MacOS cert, create keychain / unlock keychain'
+        if: ${{ startsWith(matrix.mode, 'macos') }}
+        run: |
+          if [[ ${MATRIX_MODE_} != *"arm64"* ]];then
+            echo "Install cert and create keychain..."
+            echo -n ${MACOS_SIGNING_CERT} | base64 --decode -o ${CERTIFACTE_PATH}
+            security create-keychain -p "${KEYCHAIN_PASSWORD}" ${KEYCHAIN_PATH}
+            security set-keychain-settings -lut 3600 $KEYCHAIN_PATH
+            security unlock-keychain -p "${KEYCHAIN_PASSWORD}" ${KEYCHAIN_PATH}
+            security import ${CERTIFACTE_PATH} -P ${MACOS_SIGNING_CERT_PASSWORD} -A -t cert -f pkcs12 -k ${KEYCHAIN_PATH}
+            security list-keychain -d user -s ${KEYCHAIN_PATH}
+          fi
+          security -v unlock-keychain -p ${KEYCHAIN_PASSWORD} ${KEYCHAIN_PATH} && echo "Keychain is unlocked" || exit 1
+        env:
+          MATRIX_MODE_: ${{ matrix.mode }}
+          MACOS_SIGNING_CERT: ${{ secrets.MACOS_SIGNING_CERT }}
+          MACOS_SIGNING_CERT_PASSWORD: ${{ secrets.MACOS_SIGNING_CERT_PASSWORD }}
+          KEYCHAIN_PASSWORD: ${{ secrets.MACOS_KEYCHAIN_PASSWORD }}
+          KEYCHAIN_PATH: ${{ matrix.keychain_path }}
+          CERTIFACTE_PATH: ${{ github.workspace }}/app-signing-cert.p12
 
       - name: 'Build OBS ${{ matrix.mode }}'
         run: ${{ matrix.build_obs }}
         env:
+          # ubuntu part
           UBUNTU_VERSION: ${{ matrix.ubuntu }}
+          # macos part
+          TARGET_ARCH: ${{ matrix.target_arch }}
+          # windows part
 
       - name: 'Upload build Artifact'
         uses: actions/upload-artifact@v3
         with:
           name: 'obs-studio-${{ matrix.mode }}-${{ matrix.target_arch }}-${{ github.run_number}}'
-          path: ${{ github.workspace }}/build/**/obs-webrtc-*.deb
+          path: ${{ matrix.artifact_path }}
 
   # macos_build_x86_64:
   #   name: 'MacOS-x86_64'

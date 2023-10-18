@@ -1,3 +1,5 @@
+#!/usr/bin/env bash
+
 log () {
   echo "#########################"
   echo "$1"
@@ -51,11 +53,8 @@ ${GITHUB_WORKSPACE}/CI/linux/02_build_obs.sh --disable-pipewire --vendor ${VENDO
 log "Create artifact Ubuntu${UBUNTU_VERSION} no-ndi"
 ${GITHUB_WORKSPACE}/CI/linux/03_package_obs.sh --vendor ${VENDOR}
 
-find_artifact "obs-webrtc-ndi*.deb"
+find_artifact "obs-webrtc-ndi*.deb" "NDI"
 
 ls -la ${GITHUB_WORKSPACE}/build/
-
-# Find build artifacts
-
 
 log "Done"
