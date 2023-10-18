@@ -81,8 +81,8 @@ jobs:
             ubuntu: '2004'
             libwebrtc_asset_pattern: "^libWebRTC-${{ needs.preprocessing.outputs.LIBWEBRTC_VERSION }}-.*64-Release-.*.sh.*"
             install_dependencies: git submodule update --init --recursive && ./CI/linux/01_install_dependencies.sh --disable-pipewire
-            build_obs: pwd && ls -la && ./CI/linux/02_build_obs_wrapper.sh
-            target_arch: ''
+            build_obs: ./CI/linux/02_build_obs_wrapper.sh
+            target_arch: 'x64'
 
           - mode: ubuntu22
             os: ubuntu-22.04
@@ -90,8 +90,8 @@ jobs:
             ubuntu: '2204'
             libwebrtc_asset_pattern: "^libWebRTC-${{ needs.preprocessing.outputs.LIBWEBRTC_VERSION }}-.*64-Release-.*.sh.*"
             install_dependencies: git submodule update --init --recursive && ./CI/linux/01_install_dependencies.sh --disable-pipewire
-            build_obs: pwd && ls -la && ./CI/linux/02_build_obs_wrapper.sh
-            target_arch: ''
+            build_obs: ./CI/linux/02_build_obs_wrapper.sh
+            target_arch: 'x64'
 
           # - mode: macos
           #   os: macos-12
@@ -243,6 +243,11 @@ jobs:
         env:
           UBUNTU_VERSION: ${{ matrix.ubuntu }}
 
+      - name: 'Upload build Artifact'
+        uses: actions/upload-artifact@v3
+        with:
+          name: 'obs-studio-${{ matrix.mode }}-${{ matrix.target_arch }}-${{ steps.setup.outputs.commitHash }}'
+          path: ${{ github.workspace }}/build/**/obs-webrtc-*.deb
 
   # macos_build_x86_64:
   #   name: 'MacOS-x86_64'
