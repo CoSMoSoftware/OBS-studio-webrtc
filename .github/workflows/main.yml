@@ -69,7 +69,7 @@ jobs:
           fetch-depth: 0
       - name: 'Generate access token'
         id: accessToken
-        uses: dolby-io-internal/gh-access@macos-linux
+        uses: dolby-io-internal/gh-access@v0.0.4-macos-linux
         with:
           gh_app_priv_key: ${{ secrets.GH_APP_RELEASECREATOR_PRIV_KEY }}
           gh_app_id: ${{ secrets.GH_APP_ID }}
@@ -208,7 +208,7 @@ jobs:
           fetch-depth: 0
       - name: 'Generate access token'
         id: accessToken
-        uses: dolby-io-internal/gh-access@macos-linux
+        uses: dolby-io-internal/gh-access@v0.0.4-macos-linux
         with:
           gh_app_priv_key: ${{ secrets.GH_APP_RELEASECREATOR_PRIV_KEY }}
           gh_app_id: ${{ secrets.GH_APP_ID }}
@@ -337,7 +337,7 @@ jobs:
         run: python3 -m pip install pyopenssl --upgrade
       - name: 'Generate access token'
         id: accessToken
-        uses: dolby-io-internal/gh-access@macos-linux
+        uses: dolby-io-internal/gh-access@v0.0.4-macos-linux
         with:
           gh_app_priv_key: ${{ secrets.GH_APP_RELEASECREATOR_PRIV_KEY }}
           gh_app_id: ${{ secrets.GH_APP_ID }}
@@ -544,7 +544,7 @@ jobs:
 
         - name: 'Generate access token'
           id: accessToken
-          uses: dolby-io-internal/gh-access@macos-linux
+          uses: dolby-io-internal/gh-access@v0.0.4-macos-linux
           with:
             gh_app_priv_key: ${{ secrets.GH_APP_RELEASECREATOR_PRIV_KEY }}
             gh_app_id: ${{ secrets.GH_APP_ID }}
