@@ -2,11 +2,15 @@ name: 'Build OBS-studio-webrtc'
 
 on:
   push:
-    paths-ignore: ['**.md']
-    branches: ["master", "release/**", "CI/**"]
-  pull_request:
-    paths-ignore: ['**.md']
-    branches: ['m**']
+    branches:
+      - "**"
+    tags:
+      - "v**"
+    pull_request:
+    paths-ignore:
+      - 'LICENSE'
+      - 'README.md'
+      - 'RELEASE_NOTES.md'
   workflow_dispatch:
 
 env:
@@ -40,6 +44,8 @@ env:
   LIBWEBRTC_RELEASE_TAG: "m112-release"
   LIBWEBRTC_VERSION: "112.0"
   VENDOR: "Millicast"
+  BUILD_TYPE: "RelWithDebInfo"
+  USE_RELEASE_NOTES_FROM_FILE: 'false'
 
 jobs:
   macos_build_x86_64:
@@ -63,7 +69,7 @@ jobs:
           fetch-depth: 0
       - name: 'Generate access token'
         id: accessToken
-        uses: dolby-io-internal/gh-access@v0.0.3-macos-linux
+        uses: dolby-io-internal/gh-access@macos-linux
         with:
           gh_app_priv_key: ${{ secrets.GH_APP_RELEASECREATOR_PRIV_KEY }}
           gh_app_id: ${{ secrets.GH_APP_ID }}
@@ -99,42 +105,10 @@ jobs:
             echo "SEEKING_TESTERS=0" >> $GITHUB_ENV
           fi
 
-          echo "DEPS_BUILD_DIR_=$(dirname ${{ github.workspace }})/obs-build-dependencies_${{ env.TARGET_ARCH }}" >> $GITHUB_ENV
-
-      - name: 'Restore Chromium Embedded Framework from cache'
-        id: cef-cache
-        uses: actions/cache@v3
-        env:
-          CACHE_NAME: 'cef-cache'
-        with:
-          path: ${{ env.DEPS_BUILD_DIR_ }}/cef_binary_${{ env.CEF_BUILD_VERSION_MAC }}_macos_${{ env.TARGET_ARCH}}
-          key: ${{ runner.os }}-pr-${{ env.CACHE_NAME }}-${{ env.CEF_BUILD_VERSION_MAC }}-${{ env.TARGET_ARCH }}-${{ env.CACHE_REVISION }}
-
-      - name: 'Restore VLC dependency from cache'
-        id: vlc-cache
-        uses: actions/cache@v3
-        env:
-          CACHE_NAME: 'vlc-cache'
-        with:
-          path: ${{ env.DEPS_BUILD_DIR_ }}/vlc-${{ env.VLC_VERSION_MAC }}
-          key: ${{ runner.os }}-pr-${{ env.CACHE_NAME }}-${{ env.VLC_VERSION_MAC }}-${{ env.CACHE_REVISION }}
-
-      - name: 'Restore Sparkle dependency from cache'
-        id: sparkle-cache
-        uses: actions/cache@v3
-        env:
-          CACHE_NAME: 'sparkle-cache'
-        with:
-          path: ${{ env.DEPS_BUILD_DIR_ }}/obs-deps/lib/Sparkle.framework
-          key: ${{ runner.os }}-pr-${{ env.CACHE_NAME }}-${{ env.SPARKLE_VERSION }}-${{ env.CACHE_REVISION }}
+          echo "DEPS_BUILD_DIR=${{ github.workspace }}/../obs-build-dependencies_${{ env.TARGET_ARCH }}" >> $GITHUB_ENV
 
       - name: 'Install dependencies'
-        env:
-          RESTORED_VLC: ${{ steps.vlc-cache.outputs.cache-hit }}
-          RESTORED_SPARKLE: ${{ steps.sparkle-cache.outputs.cache-hit }}
-          RESTORED_CEF: ${{ steps.cef-cache.outputs.cache-hit }}
-          DEPS_BUILD_DIR: ${{ env.DEPS_BUILD_DIR_ }}
-        run: CI/macos/01_install_dependencies.sh --architecture ${{ env.TARGET_ARCH }}
+        run: ./CI/macos/01_install_dependencies.sh --architecture ${{ env.TARGET_ARCH }}
 
       - name: 'Setup plugins'
         run: |
@@ -161,7 +135,7 @@ jobs:
 
       # Geneate OBS without obs-ndi plugin
       - name: 'Build OBS - no NDI'
-        run: CI/macos/02_build_obs.sh --codesign --architecture ${{ env.TARGET_ARCH }} --vendor ${{ env.VENDOR }}
+        run: ./CI/macos/02_build_obs.sh --codesign --architecture ${{ env.TARGET_ARCH }} --vendor ${{ env.VENDOR }}
         env:
           CODESIGN_IDENT: ${{ secrets.CODESIGN_IDENT }}
           CODESIGN_TEAM_ID: ${{ secrets.CODESIGN_TEAM_ID }}
@@ -170,7 +144,7 @@ jobs:
 
       - name: 'Create build artifact'
         run: |
-          CI/macos/03_package_obs.sh --codesign --notarize --architecture ${{ env.TARGET_ARCH }} --vendor ${{ env.VENDOR }}
+          ./CI/macos/03_package_obs.sh --codesign --notarize --architecture ${{ env.TARGET_ARCH }} --vendor ${{ env.VENDOR }}
           ARTIFACT_NAME=$(basename $(find build/. -name "obs-webrtc*.dmg"))
           echo "FILE_NAME=${ARTIFACT_NAME}" >> $GITHUB_ENV
           echo "ARTIFACT READY: ${ARTIFACT_NAME}"
@@ -188,7 +162,7 @@ jobs:
 
       # Geneate OBS with obs-ndi plugin
       - name: 'Build OBS - with NDI'
-        run: CI/macos/02_build_obs.sh --codesign --architecture ${{ env.TARGET_ARCH }} --ndi
+        run: ./CI/macos/02_build_obs.sh --codesign --architecture ${{ env.TARGET_ARCH }} --ndi
         env:
           CODESIGN_IDENT: ${{ secrets.CODESIGN_IDENT }}
           CODESIGN_TEAM_ID: ${{ secrets.CODESIGN_TEAM_ID }}
@@ -197,7 +171,7 @@ jobs:
 
       - name: 'Create build artifact'
         run: |
-          CI/macos/03_package_obs.sh --codesign --notarize --architecture ${{ env.TARGET_ARCH }} --ndi
+          ./CI/macos/03_package_obs.sh --codesign --notarize --architecture ${{ env.TARGET_ARCH }} --ndi
           ARTIFACT_NAME=$(basename $(find build/. -name "obs-webrtc-ndi*.dmg"))
           echo "FILE_NAME=${ARTIFACT_NAME}" >> $GITHUB_ENV
           echo "ARTIFACT READY: ${ARTIFACT_NAME}"
@@ -210,7 +184,7 @@ jobs:
       - name: 'Upload build Artifact'
         uses: actions/upload-artifact@v3
         with:
-          name: 'obs-studio-macos-${{ env.TARGET_ARCH }}-${{ steps.setup.outputs.commitHash }}-ndi'
+          name: 'obs-studio-macos-${{ env.TARGET_ARCH }}-${{ steps.setup.outputs.commitHash }}'
           path: '${{ github.workspace }}/build/${{ env.FILE_NAME }}'
 
   macos_build_arm64:
@@ -234,7 +208,7 @@ jobs:
           fetch-depth: 0
       - name: 'Generate access token'
         id: accessToken
-        uses: dolby-io-internal/gh-access@v0.0.3-macos-linux
+        uses: dolby-io-internal/gh-access@macos-linux
         with:
           gh_app_priv_key: ${{ secrets.GH_APP_RELEASECREATOR_PRIV_KEY }}
           gh_app_id: ${{ secrets.GH_APP_ID }}
@@ -270,41 +244,9 @@ jobs:
             echo "SEEKING_TESTERS=0" >> $GITHUB_ENV
           fi
 
-          echo "DEPS_BUILD_DIR_=$(dirname ${{ github.workspace }})/obs-build-dependencies_${{ env.TARGET_ARCH }}" >> $GITHUB_ENV
-
-      - name: 'Restore Chromium Embedded Framework from cache'
-        id: cef-cache
-        uses: actions/cache@v3
-        env:
-          CACHE_NAME: 'cef-cache'
-        with:
-          path: ${{ env.DEPS_BUILD_DIR_ }}/cef_binary_${{ env.CEF_BUILD_VERSION_MAC }}_macos_${{ env.TARGET_ARCH}}
-          key: ${{ runner.os }}-pr-${{ env.CACHE_NAME }}-${{ env.CEF_BUILD_VERSION_MAC }}-${{ env.TARGET_ARCH }}-${{ env.CACHE_REVISION }}
-
-      - name: 'Restore VLC dependency from cache'
-        id: vlc-cache
-        uses: actions/cache@v3
-        env:
-          CACHE_NAME: 'vlc-cache'
-        with:
-          path: ${{ env.DEPS_BUILD_DIR_ }}/vlc-${{ env.VLC_VERSION_MAC }}
-          key: ${{ runner.os }}-pr-${{ env.CACHE_NAME }}-${{ env.VLC_VERSION_MAC }}-${{ env.CACHE_REVISION }}
-
-      - name: 'Restore Sparkle dependency from cache'
-        id: sparkle-cache
-        uses: actions/cache@v3
-        env:
-          CACHE_NAME: 'sparkle-cache'
-        with:
-          path: ${{ env.DEPS_BUILD_DIR_ }}/obs-deps/lib/Sparkle.framework
-          key: ${{ runner.os }}-pr-${{ env.CACHE_NAME }}-${{ env.SPARKLE_VERSION }}-${{ env.CACHE_REVISION }}
+          echo "DEPS_BUILD_DIR=${{ github.workspace }}/../obs-build-dependencies_${{ env.TARGET_ARCH }}" >> $GITHUB_ENV
 
       - name: 'Install dependencies'
-        env:
-          RESTORED_VLC: ${{ steps.vlc-cache.outputs.cache-hit }}
-          RESTORED_SPARKLE: ${{ steps.sparkle-cache.outputs.cache-hit }}
-          RESTORED_CEF: ${{ steps.cef-cache.outputs.cache-hit }}
-          DEPS_BUILD_DIR: ${{ env.DEPS_BUILD_DIR_ }}
         run: CI/macos/01_install_dependencies.sh --architecture ${{ env.TARGET_ARCH }}
 
       - name: 'Setup plugins'
@@ -323,7 +265,7 @@ jobs:
 
       # Geneate OBS without obs-ndi plugin
       - name: 'Build OBS - no NDI'
-        run: CI/macos/02_build_obs.sh --codesign --architecture ${{ env.TARGET_ARCH }}
+        run: ./CI/macos/02_build_obs.sh --codesign --architecture ${{ env.TARGET_ARCH }}
         env:
           CODESIGN_IDENT: ${{ secrets.CODESIGN_IDENT }}
           CODESIGN_TEAM_ID: ${{ secrets.CODESIGN_TEAM_ID }}
@@ -332,7 +274,7 @@ jobs:
 
       - name: 'Create build artifact'
         run: |
-          CI/macos/03_package_obs.sh --codesign --notarize --architecture ${{ env.TARGET_ARCH }}
+          ./CI/macos/03_package_obs.sh --codesign --notarize --architecture ${{ env.TARGET_ARCH }}
           ARTIFACT_NAME=$(basename $(find build/. -name "obs-webrtc*.dmg"))
           echo "FILE_NAME=${ARTIFACT_NAME}" >> $GITHUB_ENV
           echo "ARTIFACT READY: ${ARTIFACT_NAME}"
@@ -350,7 +292,7 @@ jobs:
 
       # Geneate OBS with obs-ndi plugin
       - name: 'Build OBS - with NDI'
-        run: CI/macos/02_build_obs.sh --codesign --architecture ${{ env.TARGET_ARCH }} --ndi
+        run: ./CI/macos/02_build_obs.sh --codesign --architecture ${{ env.TARGET_ARCH }} --ndi
         env:
           CODESIGN_IDENT: ${{ secrets.CODESIGN_IDENT }}
           CODESIGN_TEAM_ID: ${{ secrets.CODESIGN_TEAM_ID }}
@@ -359,7 +301,7 @@ jobs:
 
       - name: 'Create build artifact'
         run: |
-          CI/macos/03_package_obs.sh --codesign --notarize --architecture ${{ env.TARGET_ARCH }} --ndi
+          ./CI/macos/03_package_obs.sh --codesign --notarize --architecture ${{ env.TARGET_ARCH }} --ndi
           ARTIFACT_NAME=$(basename $(find build/. -name "obs-webrtc-ndi*.dmg"))
           echo "FILE_NAME=${ARTIFACT_NAME}" >> $GITHUB_ENV
           echo "ARTIFACT READY: ${ARTIFACT_NAME}"
@@ -372,12 +314,13 @@ jobs:
       - name: 'Upload build Artifact'
         uses: actions/upload-artifact@v3
         with:
-          name: 'obs-studio-macos-${{ env.TARGET_ARCH }}-${{ steps.setup.outputs.commitHash }}-ndi'
+          name: 'obs-studio-macos-${{ env.TARGET_ARCH }}-${{ steps.setup.outputs.commitHash }}'
           path: '${{ github.workspace }}/build/${{ env.FILE_NAME }}'
 
   linux_build:
     name: 'Linux'
     strategy:
+      fail-fast: false
       matrix:
         ubuntu: ['ubuntu-20.04', 'ubuntu-22.04']
     runs-on: ${{ matrix.ubuntu }}
@@ -394,7 +337,7 @@ jobs:
         run: python3 -m pip install pyopenssl --upgrade
       - name: 'Generate access token'
         id: accessToken
-        uses: dolby-io-internal/gh-access@v0.0.3-macos-linux
+        uses: dolby-io-internal/gh-access@macos-linux
         with:
           gh_app_priv_key: ${{ secrets.GH_APP_RELEASECREATOR_PRIV_KEY }}
           gh_app_id: ${{ secrets.GH_APP_ID }}
@@ -419,23 +362,12 @@ jobs:
             echo "SEEKING_TESTERS=0" >> $GITHUB_ENV
           fi
 
-          echo "DEPS_BUILD_DIR_=$(dirname ${{ github.workspace }})/obs-build-dependencies_${{ env.TARGET_ARCH }}" >> $GITHUB_ENV
-
-      - name: 'Restore Chromium Embedded Framework from cache'
-        id: cef-cache
-        uses: actions/cache@v3
-        env:
-          CACHE_NAME: 'cef-cache'
-        with:
-          path: ${{ github.workspace }}/obs-build-dependencies/cef_binary_${{ env.CEF_BUILD_VERSION_LINUX }}_linux64
-          key: ${{ runner.os }}-pr-${{ env.CACHE_NAME }}-${{ env.CEF_BUILD_VERSION_LINUX }}-${{ env.CACHE_REVISION }}
+          echo "DEPS_BUILD_DIR=${{ github.workspace }}/../obs-build-dependencies_${{ env.TARGET_ARCH }}" >> $GITHUB_ENV
 
       - name: 'Install dependencies'
-        env:
-          RESTORED_CEF: ${{ steps.cef-cache.outputs.cache-hit }}
         run: |
           git submodule update --init --recursive
-          CI/linux/01_install_dependencies.sh --disable-pipewire
+          ./CI/linux/01_install_dependencies.sh --disable-pipewire
 
       - name: 'Setup plugins'
         run: |
@@ -445,23 +377,19 @@ jobs:
           rm -rf ${{ github.workspace }}/plugins/obs-browser
           git submodule update --init --recursive
 
-      - name: 'Build OBS'
-        run: CI/linux/02_build_obs.sh --disable-pipewire
+      - name: 'Build OBS with no NDI'
+        run: ./CI/linux/02_build_obs.sh --disable-pipewire --vendor ${{ env.VENDOR }}
         env:
           UBUNTU_VERSION: ${{ matrix.ubuntu }}
-
-      - name: 'Run tests'
-        if: success()
-        run: cmake --build build -t test
 
       - name: 'Create build artifact'
         if: ${{ success() && (github.event_name != 'pull_request' || env.SEEKING_TESTERS == '1') }}
         run: |
-          CI/linux/03_package_obs.sh
+          ./CI/linux/03_package_obs.sh
           ARTIFACT_NAME=$(basename $(find build/. -name "obs-webrtc-*.deb" | sort -rn | head -1))
           echo "FILE_NAME=${ARTIFACT_NAME}" >> $GITHUB_ENV
         env:
-          UBUNTU_VERSION: $${ matrix.ubuntu }}
+          UBUNTU_VERSION: ${{ matrix.ubuntu }}
 
       - name: 'Upload build Artifact'
         if: ${{ success() && (github.event_name != 'pull_request' || env.SEEKING_TESTERS == '1') }}
@@ -469,6 +397,47 @@ jobs:
         with:
           name: 'obs-studio-${{ matrix.ubuntu }}-${{ steps.setup.outputs.commitHash }}'
           path: '${{ github.workspace }}/build/${{ env.FILE_NAME }}'
+
+      - name: 'Build OBS with NDI'
+        run: |
+          cd build
+          cmake .. -DCMAKE_INSTALL_PREFIX=../install
+          cmake --install .
+          cd ..
+          pushd plugins/obs-ndi
+          mkdir BUILD
+          cd BUILD
+          cmake .. -DCMAKE_BUILD_TYPE=${BUILD_TYPE} -DLINUX_PORTABLE=OFF -DUBUNTU_VERSION=${UBUNTU_VERSION}
+          make -j4
+          cpack
+          cd ../release
+          mv *.deb ../../../package_${VENDOR}
+          popd
+          cd build
+          rm CMakeCache.txt
+          cd ..
+          ./CI/linux/02_build_obs.sh --disable-pipewire --ndi
+        env:
+          UBUNTU_VERSION: ${{ matrix.ubuntu }}
+          VENDOR: ${{ env.VENDOR }}
+
+      - name: 'Create build artifact'
+        if: ${{ success() && (github.event_name != 'pull_request' || env.SEEKING_TESTERS == '1') }}
+        run: |
+          ./CI/linux/03_package_obs.sh
+          ARTIFACT_NAME=$(basename $(find build/. -name "obs-webrtc-*.deb" | sort -rn | head -1))
+          echo "FILE_NAME=${ARTIFACT_NAME}" >> $GITHUB_ENV
+        env:
+          UBUNTU_VERSION: ${{ matrix.ubuntu }}
+
+      - name: 'Upload build Artifact'
+        if: ${{ success() && (github.event_name != 'pull_request' || env.SEEKING_TESTERS == '1') }}
+        uses: actions/upload-artifact@v3
+        with:
+          name: 'obs-studio-${{ matrix.ubuntu }}-${{ steps.setup.outputs.commitHash }}'
+          path: |
+            ${{ github.workspace }}/build/${{ env.FILE_NAME }}
+            ${{ github.workspace }}/build/obs-ndi*.deb
 
   windows_build:
     name: 'Windows_x64'
@@ -484,6 +453,7 @@ jobs:
         with:
           submodules: 'recursive'
           fetch-depth: 0
+
       - name: 'Generate access token'
         id: accessToken
         uses: dolby-io-internal/gh-access@v0.0.3-windows
@@ -491,6 +461,7 @@ jobs:
           gh_app_priv_key: ${{ secrets.GH_APP_RELEASECREATOR_PRIV_KEY }}
           gh_app_id: ${{ secrets.GH_APP_ID }}
           gh_app_installation_id: ${{ secrets.GH_APP_INSTALLATION_ID }}
+
       - name: 'Download libWebRTC'
         uses: ./.github/actions/download_libwebrtc/win
         with:
@@ -508,21 +479,10 @@ jobs:
           Write-Output "SEEKING_TESTERS=$(if( $LabelFound -eq $true ) { 1 } else { 0 })" | Out-File -FilePath $Env:GITHUB_ENV -Encoding utf8 -Append
           $CommitHash = git rev-parse --short=9 HEAD
           "commitHash=${CommitHash}" >> $env:GITHUB_OUTPUT
-
-      - name: 'Restore VLC dependency from cache'
-        id: vlc-cache
-        uses: actions/cache@v3
-        env:
-          CACHE_NAME: 'vlc-cache'
-        with:
-          path: ${{ github.workspace }}/obs-build-dependencies/vlc-${{ env.VLC_VERSION_WIN }}
-          key: ${{ runner.os }}-pr-${{ env.CACHE_NAME }}-${{ env.VLC_VERSION_WIN }}-${{ env.CACHE_REVISION }}
+          "DEPS_BUILD_DIR=${{ github.workspace }}/../obs-build-dependencies_${{ env.TARGET_ARCH }}" >> $GITHUB_ENV
 
       - name: 'Install dependencies'
-        env:
-          RESTORED_VLC: ${{ steps.vlc-cache.outputs.cache-hit }}
-          RESTORED_CEF: ${{ steps.cef-cache.outputs.cache-hit }}
-        run: CI/windows/01_install_dependencies.ps1 -BuildArch ${{ env.TARGET_ARCH }}
+        run: ./CI/windows/01_install_dependencies.ps1 -BuildArch ${{ env.TARGET_ARCH }}
 
       - name: 'Setup plugings'
         run: |
@@ -531,20 +491,99 @@ jobs:
           Remove-Item ${{ github.workspace }}\\plugins\\obs-browser -Recurse -Force
           git submodule update --init --recursive
 
-      - name: 'Build OBS'
-        run: CI/windows/02_build_obs.ps1 -BuildArch ${{ env.TARGET_ARCH }}
+      - name: 'Build OBS with no NDI'
+        run: ./CI/windows/02_build_obs.ps1 -BuildArch ${{ env.TARGET_ARCH }} -Vendor $env:VENDOR
 
-      - name: 'Create build artifact'
-        if: ${{ success() && (github.event_name != 'pull_request' || env.SEEKING_TESTERS == '1') }}
+      - name: 'Build OBS with NDI'
+        run: ./CI/windows/02_build_obs.ps1 -BuildArch ${{ env.TARGET_ARCH }} -Vendor $env:VENDOR -Ndi ON
+
+      - name: 'Prepare package'
+        run: ./CI/windows/before-deploy-win.cmd ${{ env.VENDOR }}
+        shell: cmd
+        env:
+          FLAVOUR: NDI
+
+      - name: 'Sign obs exe'
+        working-directory: ${{github.workspace}}/build_${{ env.VENDOR }}
         run: |
-          CI/windows/03_package_obs.ps1 -BuildArch ${{ env.TARGET_ARCH }} -Package
-          $ArtifactName = Get-ChildItem -filter "obs-webrtc-*-windows-${{ env.TARGET_ARCH }}.zip" -File -Recurse
-          Write-Output "FILE_NAME=${ArtifactName}" | Out-File -FilePath $Env:GITHUB_ENV -Encoding utf8 -Append
-          Write-Host $env:FILE_NAME
+          echo "${{ secrets.WINDOWS_SIGN_CERT }}" > certificate.b64
+          certutil -decode certificate.b64 certificate.pfx
+
+          Get-ChildItem -Filter "obs-webrtc-*.exe" | Foreach-Object {
+            Write-Host "Signing $_"
+            $env:SIGN_STATUS = & "C:\Program Files (x86)\Windows Kits\10\App Certification Kit\signtool.exe" sign /f ./certificate.pfx /p ${{ secrets.WINDOWS_SIGN_CERT_PASSWD}} /tr "http://timestamp.comodoca.com" /td SHA256 /fd SHA256 $_
+            if($?) {
+              Write-Host "$env:SIGN_STATUS"
+            } else {
+              Write-Host "Sign error: $env:SIGN_STATUS"
+            }
+          }
+
+          Remove-Item -Recurse -Force certificate.pfx
 
       - name: 'Upload build artifact'
         if: ${{ success() && (github.event_name != 'pull_request' || env.SEEKING_TESTERS == '1') }}
         uses: actions/upload-artifact@v3
         with:
           name: 'obs-studio-windows-${{ env.TARGET_ARCH }}-${{ steps.setup.outputs.commitHash }}'
-          path: '${{ env.FILE_NAME }}'
+          path: ./build_${{ env.VENDOR }}/obs-webrtc-*.exe
+
+  deployment_production:
+      needs: [windows_build, linux_build, macos_build_arm64, macos_build_x86_64]
+      if: |
+        success() &&
+        github.event_name != 'pull_request' &&
+        startsWith(github.ref, 'refs/tags/v')
+      environment:
+        name: production
+        url: ${{ vars.ENV_RELEASE_URL }}
+      runs-on: ubuntu-latest
+      steps:
+        - name: 'Checkout the code'
+          uses: actions/checkout@v4
+
+        - name: 'Generate access token'
+          id: accessToken
+          uses: dolby-io-internal/gh-access@macos-linux
+          with:
+            gh_app_priv_key: ${{ secrets.GH_APP_RELEASECREATOR_PRIV_KEY }}
+            gh_app_id: ${{ secrets.GH_APP_ID }}
+            gh_app_installation_id: ${{ secrets.GH_APP_INSTALLATION_ID }}
+
+        - name: 'Prepare release notes'
+          id: releaseNotes
+          run: |
+            if [[ -f ${{ github.workspace }}/RELEASE_NOTES.md && ${{ env.USE_RELEASE_NOTES_FROM_FILE }} == 'true' ]];then
+              export RELEASE_NOTES=$( cat ${{ github.workspace }}/RELEASE_NOTES.md )
+            else
+              export OBS_STUDIO_VERSION_=$(echo ${VERSIONS_//-/ } | awk '{printf $2}')
+              export WEBRTC_VERSION_=$(echo ${VERSIONS_//-/ } | awk '{printf $3}')
+              export RELEASE_NOTES="Release ${{ github.ref_name }} (OBS-Studio ${OBS_STUDIO_VERSION_} WebRTC ${WEBRTC_VERSION_})"
+            fi
+            echo "RELEASE_NOTES=${RELEASE_NOTES}" >> "${GITHUB_OUTPUT}"
+          env:
+            VERSIONS_: ${{ env.OBS_VERSION }}
+
+        - name: 'Define release type'
+          id: 'releaseType'
+          run: |
+            IS_DRAFT=true
+            IS_PRERELEASE=false
+            if [[ ${REF_NAME} == *"alpha"* || ${REF_NAME} == *"beta"* ]];then
+              export IS_PRERELEASE=true
+            fi
+            echo "IS_DRAFT=${IS_DRAFT}" >> "${GITHUB_OUTPUT}"
+            echo "IS_PRERELEASE=${IS_PRERELEASE}" >> "${GITHUB_OUTPUT}"
+          env:
+            REF_NAME: ${{ github.ref_name }}
+        - name: 'Create release - production'
+          uses: dolby-io-internal/dolbyio-create-release@main
+          with:
+            deployment: ${{ vars.ENV_DEPLOYMENT }}
+            release_tag: ${{ github.ref_name }}
+            release_repository: ${{ github.repository }}
+            access_token: ${{ steps.accessToken.outputs.token }}
+            release_notes: ${{ steps.releaseNotes.outputs.RELEASE_NOTES }}
+            is_prerelease: ${{ steps.releaseType.outputs.IS_PRERELEASE }}
+            is_draft: ${{ steps.releaseType.outputs.IS_DRAFT }}
+            attach_assets: 'true'
