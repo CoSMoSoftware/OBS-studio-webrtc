@@ -512,59 +512,59 @@ jobs:
           name: 'obs-studio-windows-${{ env.TARGET_ARCH }}-${{ steps.setup.outputs.commitHash }}'
           path: ./build_${{ env.VENDOR }}/obs-*.exe
 
-deployment_production:
-    needs: [windows_build, linux_build, macos_build_arm64, macos_build_x86_64]
-    if: |
-      success() &&
-      github.event_name != 'pull_request' &&
-      startsWith(github.ref, 'refs/tags/m')
-    environment:
-      name: production
-      url: ${{ vars.ENV_RELEASE_URL }}
-    runs-on: ubuntu-latest
-    steps:
-      - name: 'Checkout the code'
-        uses: actions/checkout@v4
-      - name: 'Generate access token'
-        id: accessToken
-        uses: dolby-io-internal/gh-access@macos-linux
-        with:
-          gh_app_priv_key: ${{ secrets.GH_APP_RELEASECREATOR_PRIV_KEY }}
-          gh_app_id: ${{ secrets.GH_APP_ID }}
-          gh_app_installation_id: ${{ secrets.GH_APP_INSTALLATION_ID }}
-      - name: 'Prepare release notes'
-        id: releaseNotes
-        run: |
-          if [[ -f ${{ github.workspace }}/RELEASE_NOTES.md && ${{ env.USE_RELEASE_NOTES_FROM_FILE }} == 'true' ]];then
-            export RELEASE_NOTES=$( cat ${{ github.workspace }}/RELEASE_NOTES.md )
-          else
-            export OBS_STUDIO_VERSION_=$(echo ${VERSIONS_//-/ } | awk '{printf $2}')
-            export WEBRTC_VERSION_=$(echo ${VERSIONS_//-/ } | awk '{printf $3}')
-            export RELEASE_NOTES="Release ${{ github.ref_name }} (OBS-Studio ${OBS_STUDIO_VERSION_} WebRTC ${WEBRTC_VERSION_})"
-          fi
-          echo "RELEASE_NOTES=${RELEASE_NOTES}" >> "${GITHUB_OUTPUT}"
-        env:
-          VERSIONS_: ${{ env.OBS_VERSION }}
-      - name: 'Define release type'
-        id: 'releaseType'
-        run: |
-          IS_DRAFT=true
-          IS_PRERELEASE=false
-          if [[ ${REF_NAME} == *"alpha"* || ${REF_NAME} == *"beta"* ]];then
-            export IS_PRERELEASE=true
-          fi
-          echo "IS_DRAFT=${IS_DRAFT}" >> "${GITHUB_OUTPUT}"
-          echo "IS_PRERELEASE=${IS_PRERELEASE}" >> "${GITHUB_OUTPUT}"
-        env:
-          REF_NAME: ${{ github.ref_name }}
-      - name: 'Create release - production'
-        uses: dolby-io-internal/dolbyio-create-release@main
-        with:
-          deployment: ${{ vars.ENV_DEPLOYMENT }}
-          release_tag: ${{ github.ref_name }}
-          release_repository: ${{ github.repository }}
-          access_token: ${{ steps.accessToken.outputs.token }}
-          release_notes: ${{ steps.releaseNotes.outputs.RELEASE_NOTES }}
-          is_prerelease: ${{ steps.releaseType.outputs.IS_PRERELEASE }}
-          is_draft: ${{ steps.releaseType.outputs.IS_DRAFT }}
-          attach_assets: 'true'
+  deployment_production:
+      needs: [windows_build, linux_build, macos_build_arm64, macos_build_x86_64]
+      if: |
+        success() &&
+        github.event_name != 'pull_request' &&
+        startsWith(github.ref, 'refs/tags/m')
+      environment:
+        name: production
+        url: ${{ vars.ENV_RELEASE_URL }}
+      runs-on: ubuntu-latest
+      steps:
+        - name: 'Checkout the code'
+          uses: actions/checkout@v4
+        - name: 'Generate access token'
+          id: accessToken
+          uses: dolby-io-internal/gh-access@macos-linux
+          with:
+            gh_app_priv_key: ${{ secrets.GH_APP_RELEASECREATOR_PRIV_KEY }}
+            gh_app_id: ${{ secrets.GH_APP_ID }}
+            gh_app_installation_id: ${{ secrets.GH_APP_INSTALLATION_ID }}
+        - name: 'Prepare release notes'
+          id: releaseNotes
+          run: |
+            if [[ -f ${{ github.workspace }}/RELEASE_NOTES.md && ${{ env.USE_RELEASE_NOTES_FROM_FILE }} == 'true' ]];then
+              export RELEASE_NOTES=$( cat ${{ github.workspace }}/RELEASE_NOTES.md )
+            else
+              export OBS_STUDIO_VERSION_=$(echo ${VERSIONS_//-/ } | awk '{printf $2}')
+              export WEBRTC_VERSION_=$(echo ${VERSIONS_//-/ } | awk '{printf $3}')
+              export RELEASE_NOTES="Release ${{ github.ref_name }} (OBS-Studio ${OBS_STUDIO_VERSION_} WebRTC ${WEBRTC_VERSION_})"
+            fi
+            echo "RELEASE_NOTES=${RELEASE_NOTES}" >> "${GITHUB_OUTPUT}"
+          env:
+            VERSIONS_: ${{ env.OBS_VERSION }}
+        - name: 'Define release type'
+          id: 'releaseType'
+          run: |
+            IS_DRAFT=true
+            IS_PRERELEASE=false
+            if [[ ${REF_NAME} == *"alpha"* || ${REF_NAME} == *"beta"* ]];then
+              export IS_PRERELEASE=true
+            fi
+            echo "IS_DRAFT=${IS_DRAFT}" >> "${GITHUB_OUTPUT}"
+            echo "IS_PRERELEASE=${IS_PRERELEASE}" >> "${GITHUB_OUTPUT}"
+          env:
+            REF_NAME: ${{ github.ref_name }}
+        - name: 'Create release - production'
+          uses: dolby-io-internal/dolbyio-create-release@main
+          with:
+            deployment: ${{ vars.ENV_DEPLOYMENT }}
+            release_tag: ${{ github.ref_name }}
+            release_repository: ${{ github.repository }}
+            access_token: ${{ steps.accessToken.outputs.token }}
+            release_notes: ${{ steps.releaseNotes.outputs.RELEASE_NOTES }}
+            is_prerelease: ${{ steps.releaseType.outputs.IS_PRERELEASE }}
+            is_draft: ${{ steps.releaseType.outputs.IS_DRAFT }}
+            attach_assets: 'true'
