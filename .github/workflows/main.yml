@@ -67,13 +67,15 @@ jobs:
         with:
           submodules: 'recursive'
           fetch-depth: 0
+
       - name: 'Generate access token'
         id: accessToken
-        uses: dolby-io-internal/gh-access@v0.0.4-macos-linux
+        uses: dolby-io-internal/gh-access@v1.0.0
         with:
           gh_app_priv_key: ${{ secrets.GH_APP_RELEASECREATOR_PRIV_KEY }}
           gh_app_id: ${{ secrets.GH_APP_ID }}
           gh_app_installation_id: ${{ secrets.GH_APP_INSTALLATION_ID }}
+
       - name: 'Download libWebRTC'
         uses: ./.github/actions/download_libwebrtc
         with:
@@ -206,13 +208,15 @@ jobs:
         with:
           submodules: 'recursive'
           fetch-depth: 0
+
       - name: 'Generate access token'
         id: accessToken
-        uses: dolby-io-internal/gh-access@v0.0.4-macos-linux
+        uses: dolby-io-internal/gh-access@v1.0.0
         with:
           gh_app_priv_key: ${{ secrets.GH_APP_RELEASECREATOR_PRIV_KEY }}
           gh_app_id: ${{ secrets.GH_APP_ID }}
           gh_app_installation_id: ${{ secrets.GH_APP_INSTALLATION_ID }}
+
       - name: 'Download libWebRTC'
         uses: ./.github/actions/download_libwebrtc
         with:
@@ -333,15 +337,15 @@ jobs:
         with:
           submodules: 'recursive'
           fetch-depth: 0
-      - name: 'Install python dependencies'
-        run: python3 -m pip install pyopenssl --upgrade
+
       - name: 'Generate access token'
         id: accessToken
-        uses: dolby-io-internal/gh-access@v0.0.4-macos-linux
+        uses: dolby-io-internal/gh-access@v1.0.0
         with:
           gh_app_priv_key: ${{ secrets.GH_APP_RELEASECREATOR_PRIV_KEY }}
           gh_app_id: ${{ secrets.GH_APP_ID }}
           gh_app_installation_id: ${{ secrets.GH_APP_INSTALLATION_ID }}
+
       - name: 'Download libWebRTC'
         uses: ./.github/actions/download_libwebrtc
         with:
@@ -447,6 +451,7 @@ jobs:
       CMAKE_SYSTEM_VERSION: '10.0.18363.657'
       VIRTUALCAM-GUID: 'A3FCE0F5-3493-419F-958A-ABA1250EC20B'
       TARGET_ARCH: 'x64'
+
     steps:
       - name: 'Checkout'
         uses: actions/checkout@v4
@@ -456,11 +461,12 @@ jobs:
 
       - name: 'Generate access token'
         id: accessToken
-        uses: dolby-io-internal/gh-access@v0.0.3-windows
+        uses: dolby-io-internal/gh-access@v1.0.0
         with:
           gh_app_priv_key: ${{ secrets.GH_APP_RELEASECREATOR_PRIV_KEY }}
           gh_app_id: ${{ secrets.GH_APP_ID }}
           gh_app_installation_id: ${{ secrets.GH_APP_INSTALLATION_ID }}
+          action_shell: 'powershell'
 
       - name: 'Download libWebRTC'
         uses: ./.github/actions/download_libwebrtc/win
@@ -503,7 +509,7 @@ jobs:
         env:
           FLAVOUR: NDI
 
-      - name: 'Sign obs exe'
+      - name: 'Sign obs executable'
         working-directory: ${{github.workspace}}/build_${{ env.VENDOR }}
         run: |
           echo "${{ secrets.WINDOWS_SIGN_CERT }}" > certificate.b64
@@ -544,7 +550,7 @@ jobs:
 
         - name: 'Generate access token'
           id: accessToken
-          uses: dolby-io-internal/gh-access@v0.0.4-macos-linux
+          uses: dolby-io-internal/gh-access@v1.0.0
           with:
             gh_app_priv_key: ${{ secrets.GH_APP_RELEASECREATOR_PRIV_KEY }}
             gh_app_id: ${{ secrets.GH_APP_ID }}
