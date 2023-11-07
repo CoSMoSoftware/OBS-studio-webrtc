@@ -5,7 +5,7 @@ on:
     branches:
       - "**"
     tags:
-      - "v**"
+      - "**"
     pull_request:
     paths-ignore:
       - 'LICENSE'
@@ -539,7 +539,7 @@ jobs:
       if: |
         success() &&
         github.event_name != 'pull_request' &&
-        startsWith(github.ref, 'refs/tags/v')
+        startsWith(github.ref, 'refs/tags/')
       environment:
         name: production
         url: ${{ vars.ENV_RELEASE_URL }}
