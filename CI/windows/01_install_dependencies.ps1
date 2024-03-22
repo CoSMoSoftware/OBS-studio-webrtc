@@ -106,7 +106,7 @@ function Install-cef {
     if (!((Test-Path "${DepsBuildDir}/cef_binary_${Version}_windows_${ArchSuffix}") -and (Test-Path "${DepsBuildDir}/cef_binary_${Version}_windows_${ArchSuffix}/build/libcef_dll_wrapper/Release/libcef_dll_wrapper.lib"))) {
         Write-Step "Download..."
         $ProgressPreference = $(if ($Quiet.isPresent) { 'SilentlyContinue' } else { 'Continue' })
-        Invoke-WebRequest -Uri "https://cdn-fastly.obsproject.com/downloads/cef_binary_${Version}_windows_${ArchSuffix}.zip" -UseBasicParsing -OutFile "cef_binary_${Version}_windows_${ArchSuffix}.zip"
+        cmd.exe /c curl -L -H "Accept: application/octet-stream" "https://cdn-fastly.obsproject.com/downloads/cef_binary_${Version}_windows_${ArchSuffix}.zip" --output "cef_binary_${Version}_windows_${ArchSuffix}.zip"
         $ProgressPreference = "Continue"
 
         Write-Step "Unpack..."
