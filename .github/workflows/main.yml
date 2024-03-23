@@ -497,6 +497,17 @@ jobs:
       - name: 'Fix ffmpeg installation'
         run: choco install ffmpeg
 
+      - name: Install cmake 3.21 and set path 
+        run: |
+          Invoke-WebRequest -Uri "https://github.com/Kitware/CMake/releases/download/v3.21.3/cmake-3.21.3-windows-x86_64.zip" -OutFile "cmake.zip"
+          Expand-Archive "cmake.zip" -DestinationPath "C:\Program Files\cmake-3.21"
+          $newPath = "C:\Program Files\cmake-3.21\cmake-3.21.3-windows-x86_64\bin;" + $env:PATH
+          echo "PATH=$newPath" >> $GITHUB_ENV
+          echo "$env:PATH =$newPath"
+          Remove-Item cmake.zip
+          cmake --version
+        shell: powershell
+
       - name: 'Setup plugings'
         run: |
           git stash
@@ -505,10 +516,20 @@ jobs:
           git submodule update --init --recursive
 
       - name: 'Build OBS with no NDI'
-        run: ./CI/windows/02_build_obs.ps1 -BuildArch ${{ env.TARGET_ARCH }} -Vendor $env:VENDOR
+        run: |
+          $newPath = "C:\Program Files\cmake-3.21\cmake-3.21.3-windows-x86_64\bin;" + $env:PATH
+          echo "PATH=$newPath" >> $GITHUB_ENV
+          echo "$env:PATH =$newPath"
+          ./CI/windows/02_build_obs.ps1 -BuildArch ${{ env.TARGET_ARCH }} -Vendor $env:VENDOR
+        shell: powershell
 
       - name: 'Build OBS with NDI'
-        run: ./CI/windows/02_build_obs.ps1 -BuildArch ${{ env.TARGET_ARCH }} -Vendor $env:VENDOR -Ndi ON
+        run: |
+          $newPath = "C:\Program Files\cmake-3.21\cmake-3.21.3-windows-x86_64\bin;" + $env:PATH
+          echo "PATH=$newPath" >> $GITHUB_ENV
+          echo "$env:PATH =$newPath"
+          ./CI/windows/02_build_obs.ps1 -BuildArch ${{ env.TARGET_ARCH }} -Vendor $env:VENDOR -Ndi ON
+        shell: powershell
 
       - name: 'Prepare package'
         run: ./CI/windows/before-deploy-win.cmd ${{ env.VENDOR }}
