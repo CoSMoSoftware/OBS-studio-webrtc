@@ -13,6 +13,10 @@ on:
       - 'RELEASE_NOTES.md'
   workflow_dispatch:
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref_name }}
+  cancel-in-progress: true
+
 env:
   CACHE_REVISION: '006'
   CEF_BUILD_VERSION_MAC: '5060'
