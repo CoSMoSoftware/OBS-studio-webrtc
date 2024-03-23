@@ -131,7 +131,6 @@ jobs:
           security unlock-keychain -p "${KEYCHAIN_PASSWORD}" ${KEYCHAIN_PATH}
           security import ${CERTIFACTE_PATH} -P ${MACOS_SIGNING_CERT_PASSWORD} -A -t cert -f pkcs12 -k ${KEYCHAIN_PATH}
           security list-keychain -d user -s ${KEYCHAIN_PATH}
-
         env:
           MACOS_SIGNING_CERT: ${{ secrets.MACOS_SIGNING_CERT }}
           MACOS_SIGNING_CERT_PASSWORD: ${{ secrets.MACOS_SIGNING_CERT_PASSWORD }}
@@ -195,7 +194,7 @@ jobs:
 
   macos_build_arm64:
     name: 'MacOS-arm64'
-    runs-on: ['self-hosted', 'macOS', 'ARM64']
+    runs-on: [macos-12]
     env:
       MACOSX_DEPLOYMENT_TARGET_ARM64: '11.0'
       SPARKLE_VERSION: '1.26.0'
@@ -264,12 +263,20 @@ jobs:
           rm -rf ${{ github.workspace }}/plugins/obs-browser
           git submodule update --init --recursive
 
-      - name: 'Unlock keychain'
+      - name: 'Install MacOS cert and create keychain'
         run: |
-          security -v unlock-keychain -p ${MACOS_KEYCHAIN_PASSWORD} ${MACOS_KEYCHAIN_PATH} && echo "Keychain is unlocked" || exit 1
+          echo -n ${MACOS_SIGNING_CERT} | base64 --decode -o ${CERTIFACTE_PATH}
+          security create-keychain -p "${KEYCHAIN_PASSWORD}" ${KEYCHAIN_PATH}
+          security set-keychain-settings -lut 3600 $KEYCHAIN_PATH
+          security unlock-keychain -p "${KEYCHAIN_PASSWORD}" ${KEYCHAIN_PATH}
+          security import ${CERTIFACTE_PATH} -P ${MACOS_SIGNING_CERT_PASSWORD} -A -t cert -f pkcs12 -k ${KEYCHAIN_PATH}
+          security list-keychain -d user -s ${KEYCHAIN_PATH}
         env:
-          MACOS_KEYCHAIN_PASSWORD: ${{ secrets.MACOS_KEYCHAIN_PASSWORD }}
-          MACOS_KEYCHAIN_PATH: /Users/dolbyvoice/Library/Keychains/cosmosoftware.keychain-db
+          MACOS_SIGNING_CERT: ${{ secrets.MACOS_SIGNING_CERT }}
+          MACOS_SIGNING_CERT_PASSWORD: ${{ secrets.MACOS_SIGNING_CERT_PASSWORD }}
+          KEYCHAIN_PASSWORD: ${{ secrets.MACOS_KEYCHAIN_PASSWORD }}
+          KEYCHAIN_PATH: ${{ github.workspace }}/app-signing.keychain-db
+          CERTIFACTE_PATH: ${{ github.workspace }}/app-signing-cert.p12
 
       # Geneate OBS without obs-ndi plugin
       - name: 'Build OBS - no NDI'
@@ -505,7 +512,6 @@ jobs:
           echo "PATH=$newPath" >> $GITHUB_ENV
           echo "$env:PATH =$newPath"
           Remove-Item cmake.zip
-          cmake --version
         shell: powershell
 
       - name: 'Setup plugings'
