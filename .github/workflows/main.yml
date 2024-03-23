@@ -490,6 +490,9 @@ jobs:
       - name: 'Install dependencies'
         run: ./CI/windows/01_install_dependencies.ps1 -BuildArch ${{ env.TARGET_ARCH }}
 
+      - name: 'Fix ffmpeg installation'
+        run: choco install ffmpeg
+
       - name: 'Setup plugings'
         run: |
           git stash
