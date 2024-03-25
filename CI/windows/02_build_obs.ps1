@@ -72,7 +72,7 @@ function Configure-OBS {
 
     $CmakeCommand = @(
         "-G", ${CmakeGenerator}
-        "-DCMAKE_GENERATOR_PLATFORM=x64",
+        "-DCMAKE_GENERATOR_PLATFORM=`"${GeneratorPlatform}`"",
         "-DCMAKE_SYSTEM_VERSION=`"${CmakeSystemVersion}`"",
         "-DCMAKE_PREFIX_PATH:PATH=`"${CmakePrefixPath}`"",
         "-DCEF_ROOT_DIR:PATH=`"${CefDirectory}`"",
